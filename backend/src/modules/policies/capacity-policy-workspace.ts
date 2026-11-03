@@ -25,6 +25,7 @@ export async function readCapacityPolicy(
   actor: AuthenticatedActor,
   branchId: string,
   context: RequestSecurityContext,
+  kind: "capacity" | "resources" = "capacity",
 ) {
   if (actor.role !== "SUPER_ADMIN" || actor.mfaVerifiedAt === null)
     throw paymentForbidden();
@@ -37,7 +38,7 @@ export async function readCapacityPolicy(
         select: { id: true, name: true, isActive: true, updatedAt: true },
       });
       if (!branch) throw organizationResourceNotFound();
-      const key = `booking-capacity:${branchId}`,
+      const key = `booking-${kind}:${branchId}`,
         evaluatedAt = new Date();
       const history = await tx.businessPolicyVersion.findMany({
         where: { key },
@@ -57,7 +58,13 @@ export async function readCapacityPolicy(
         action: "READ",
         entityType: "BRANCH",
         entityId: branchId,
-        newValues: { resource: "CAPACITY_POLICY_CURRENT", returnedCount: history.length },
+        newValues: {
+          resource:
+            kind === "capacity"
+              ? "CAPACITY_POLICY_CURRENT"
+              : "WORKSHOP_RESOURCES_CURRENT",
+          returnedCount: history.length,
+        },
         context,
       });
       return {
@@ -71,4 +78,12 @@ export async function readCapacityPolicy(
     },
     { isolationLevel: "RepeatableRead" },
   );
+}
+
+export function readWorkshopResourcePolicy(
+  actor: AuthenticatedActor,
+  branchId: string,
+  context: RequestSecurityContext,
+) {
+  return readCapacityPolicy(actor, branchId, context, "resources");
 }

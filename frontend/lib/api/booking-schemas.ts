@@ -46,7 +46,25 @@ export const quoteSchema = z.object({
     }),
   ),
 });
+export const rescheduleRequestSchema = z.object({
+  id: z.uuid(),
+  status: z.enum(["PENDING", "APPROVED", "DECLINED", "WITHDRAWN", "SUPERSEDED"]),
+  source: z.enum(["CUSTOMER", "WORKSHOP_ALTERNATIVE"]),
+  branchId: z.uuid(),
+  slotId: z.uuid().nullable(),
+  startsAt: z.iso.datetime({ offset: true }),
+  reason: z.string().max(1000),
+  createdAt: z.iso.datetime({ offset: true }),
+  decidedAt: z.iso.datetime({ offset: true }).nullable(),
+  decisionReason: z.string().nullable(),
+  proposedStaff: z
+    .object({ id: z.uuid(), firstName: z.string(), lastName: z.string() })
+    .nullable()
+    .optional(),
+});
+export type BookingRescheduleRequest = z.infer<typeof rescheduleRequestSchema>;
 export const bookingSchema = z.object({
+  rescheduleRequests: z.array(rescheduleRequestSchema).max(10).optional(),
   id: z.string().uuid(),
   status: z.string(),
   version: z.number().int(),
@@ -94,3 +112,12 @@ export const parseBookings = (value: unknown) =>
   z
     .object({ items: z.array(bookingSchema), nextCursor: z.string().optional() })
     .parse(value);
+
+export type RescheduleDecision = {
+  requestId: string;
+  expectedVersion: number;
+  decision: "APPROVE" | "DECLINE";
+  reason: string;
+  resourceReviewNote?: string;
+  assignedStaffId?: string;
+};

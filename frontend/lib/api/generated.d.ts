@@ -2618,10 +2618,70 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Request one permitted reschedule of a confirmed booking
-         * @description Request one permitted reschedule of a confirmed booking. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+         * Request a reasoned reschedule while preserving the confirmed appointment
+         * @description The request does not move the appointment, release its capacity or cancel its reminders. Staff approval rechecks the replacement and switches atomically. A request or available-time display does not reserve replacement capacity. Request a reasoned reschedule while preserving the confirmed appointment. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
          */
         patch: operations["patchCustomersBookingsByBookingIdSchedule"];
+        trace?: never;
+    };
+    "/customers/bookings/{bookingId}/reschedule-withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Withdraw a pending reschedule request without changing the appointment
+         * @description Withdraw a pending reschedule request without changing the appointment. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postCustomersBookingsByBookingIdRescheduleWithdraw"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/bookings/{bookingId}/timing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review a reasoned appointment timing override with capacity checks
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Review a reasoned appointment timing override with capacity checks. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffBookingsByBookingIdTiming"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/bookings/{bookingId}/reschedule-decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve a replacement atomically or decline while preserving the original appointment
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Approve a replacement atomically or decline while preserving the original appointment. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffBookingsByBookingIdRescheduleDecision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/customers/bookings/{bookingId}/cancel": {
@@ -7616,6 +7676,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/policies/booking-resources/{branchId}/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read approved workshop resources, upcoming version and immutable history
+         * @description Private/no-store, current actor/session checked, repeatable snapshot and atomic minimal branch READ audit. Resource policy publication validates actual active services and verified technicians with current scoped work permission. Managed technicians need current branch duties; legacy technicians retain the existing verified role/branch work boundary. Explicit service eligibility never grants work access. Resource configuration alone does not reserve an appointment; confirmation and reviewed changes record immutable allocations atomically. Read approved workshop resources, upcoming version and immutable history. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getAdminPoliciesBookingResourcesByBranchIdCurrent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/policies/booking-capacity/{branchId}/current": {
         parameters: {
             query?: never;
@@ -8674,6 +8754,66 @@ export interface paths {
          * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingAlternative. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffWorkforceBookingsByIdAlternative"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/bookings/{id}/timing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Responsibility-based workspace: bookingTiming
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingTiming. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffWorkforceBookingsByIdTiming"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/bookings/{id}/reschedule-decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Responsibility-based workspace: bookingReschedule
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingReschedule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffWorkforceBookingsByIdRescheduleDecision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/bookings/{id}/reschedule-assignees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Responsibility-based workspace: bookingRescheduleAssignees
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingRescheduleAssignees. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffWorkforceBookingsByIdRescheduleAssignees"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -48813,7 +48953,9 @@ export interface operations {
                      *             "isActive": true,
                      *             "version": 1,
                      *             "createdAt": "2030-01-15T10:00:00.000Z",
-                     *             "updatedAt": "2030-01-15T10:00:00.000Z"
+                     *             "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *             "preparationMinutes": "synthetic-preparationminutes",
+                     *             "cleanupMinutes": "synthetic-cleanupminutes"
                      *           }
                      *         ],
                      *         "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -48932,6 +49074,10 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 updatedAt: string;
+                                /** @description Preparation Minutes validated by this operation's strict request contract. */
+                                preparationMinutes: number | null;
+                                /** @description Cleanup Minutes validated by this operation's strict request contract. */
+                                cleanupMinutes: number | null;
                             }[];
                             /**
                              * Format: uuid
@@ -49152,8 +49298,12 @@ export interface operations {
                      * @enum {string}
                      */
                     currency?: "NGN";
+                    /** @description Preparation Minutes validated by this operation's strict request contract. */
+                    preparationMinutes?: number | null;
+                    /** @description Cleanup Minutes validated by this operation's strict request contract. */
+                    cleanupMinutes?: number | null;
                     /**
-                     * @description Confirmed job duration in minutes, or null when unknown. A null duration cannot provide appointment slots.
+                     * @description Estimated job duration in minutes, or null when unknown. A null duration cannot provide appointment slots.
                      * @example 60
                      */
                     durationMinutes: number | null;
@@ -49443,7 +49593,9 @@ export interface operations {
                      *         "isActive": true,
                      *         "version": 1,
                      *         "createdAt": "2030-01-15T10:00:00.000Z",
-                     *         "updatedAt": "2030-01-15T10:00:00.000Z"
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "preparationMinutes": "synthetic-preparationminutes",
+                     *         "cleanupMinutes": "synthetic-cleanupminutes"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -49557,6 +49709,10 @@ export interface operations {
                              * @description ISO 8601 timestamp interpreted and validated by the server.
                              */
                             updatedAt: string;
+                            /** @description Preparation Minutes validated by this operation's strict request contract. */
+                            preparationMinutes: number | null;
+                            /** @description Cleanup Minutes validated by this operation's strict request contract. */
+                            cleanupMinutes: number | null;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -49790,8 +49946,12 @@ export interface operations {
                      * @enum {string}
                      */
                     currency?: "NGN";
+                    /** @description Preparation Minutes validated by this operation's strict request contract. */
+                    preparationMinutes?: number | null;
+                    /** @description Cleanup Minutes validated by this operation's strict request contract. */
+                    cleanupMinutes?: number | null;
                     /**
-                     * @description Confirmed job duration in minutes, or null when unknown. A null duration cannot provide appointment slots.
+                     * @description Estimated job duration in minutes, or null when unknown. A null duration cannot provide appointment slots.
                      * @example 60
                      */
                     durationMinutes?: number | null;
@@ -51109,12 +51269,15 @@ export interface operations {
             content: {
                 /**
                  * @example {
+                 *       "reason": "synthetic-reason",
                  *       "slotId": "00000000-0000-4000-8000-000000000001",
                  *       "preferredAt": "2030-01-15T10:00:00.000Z",
                  *       "expectedVersion": 0
                  *     }
                  */
                 "application/json": {
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
                     /**
                      * Format: uuid
                      * @description Identifier of the slot resource; ownership is resolved server-side.
@@ -51131,7 +51294,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Success: Request one permitted reschedule of a confirmed booking. */
+            /** @description Success: Request a reasoned reschedule while preserving the confirmed appointment. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -51140,7 +51303,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "success": true,
-                     *       "message": "Request one permitted reschedule of a confirmed booking",
+                     *       "message": "Request a reasoned reschedule while preserving the confirmed appointment",
                      *       "data": {
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "status": "synthetic-status"
@@ -51155,7 +51318,859 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Request one permitted reschedule of a confirmed booking. */
+                        /** @description Authorized response projection for: Request a reasoned reschedule while preserving the confirmed appointment. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postCustomersBookingsByBookingIdRescheduleWithdraw: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the booking resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "requestId": "00000000-0000-4000-8000-000000000001",
+                 *       "expectedVersion": 0,
+                 *       "reason": "synthetic-reason"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the request resource; ownership is resolved server-side.
+                     */
+                    requestId: string;
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Withdraw a pending reschedule request without changing the appointment. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Withdraw a pending reschedule request without changing the appointment",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Withdraw a pending reschedule request without changing the appointment. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffBookingsByBookingIdTiming: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the booking resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "durationMinutes": 15,
+                 *       "preparationMinutes": 0,
+                 *       "cleanupMinutes": 0,
+                 *       "reason": "synthetic-reason",
+                 *       "resourceReviewNote": "synthetic-resourcereviewnote"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /** @description Duration Minutes validated by this operation's strict request contract. */
+                    durationMinutes: number;
+                    /** @description Preparation Minutes validated by this operation's strict request contract. */
+                    preparationMinutes: number;
+                    /** @description Cleanup Minutes validated by this operation's strict request contract. */
+                    cleanupMinutes: number;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    resourceReviewNote: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Review a reasoned appointment timing override with capacity checks. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Review a reasoned appointment timing override with capacity checks",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Review a reasoned appointment timing override with capacity checks. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffBookingsByBookingIdRescheduleDecision: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the booking resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "requestId": "00000000-0000-4000-8000-000000000001",
+                 *       "expectedVersion": 0,
+                 *       "decision": "APPROVE",
+                 *       "reason": "synthetic-reason",
+                 *       "resourceReviewNote": "synthetic-resourcereviewnote",
+                 *       "assignedStaffId": "00000000-0000-4000-8000-000000000001"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the request resource; ownership is resolved server-side.
+                     */
+                    requestId: string;
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * @description Decision validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    decision: "APPROVE" | "DECLINE";
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    resourceReviewNote?: string;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the assigned staff resource; ownership is resolved server-side.
+                     */
+                    assignedStaffId?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Approve a replacement atomically or decline while preserving the original appointment. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Approve a replacement atomically or decline while preserving the original appointment",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Approve a replacement atomically or decline while preserving the original appointment. */
                         data?: {
                             /**
                              * Format: uuid
@@ -52710,7 +53725,8 @@ export interface operations {
                  *       "branchId": "00000000-0000-4000-8000-000000000001",
                  *       "serviceId": "00000000-0000-4000-8000-000000000001",
                  *       "staffId": "00000000-0000-4000-8000-000000000001",
-                 *       "startsAt": "2030-01-15T10:00:00.000Z"
+                 *       "startsAt": "2030-01-15T10:00:00.000Z",
+                 *       "expectedServiceVersion": 0
                  *     }
                  */
                 "application/json": {
@@ -52734,6 +53750,8 @@ export interface operations {
                      * @description ISO 8601 timestamp interpreted and validated by the server.
                      */
                     startsAt: string;
+                    /** @description Expected Service Version validated by this operation's strict request contract. */
+                    expectedServiceVersion?: number;
                 };
             };
         };
@@ -52976,7 +53994,8 @@ export interface operations {
                 /**
                  * @example {
                  *       "expectedVersion": 0,
-                 *       "status": "OPEN"
+                 *       "status": "OPEN",
+                 *       "expectedServiceVersion": 0
                  *     }
                  */
                 "application/json": {
@@ -52987,6 +54006,8 @@ export interface operations {
                      * @enum {string}
                      */
                     status: "OPEN" | "CLOSED";
+                    /** @description Expected Service Version validated by this operation's strict request contract. */
+                    expectedServiceVersion?: number;
                 };
             };
         };
@@ -127518,6 +128539,468 @@ export interface operations {
             };
         };
     };
+    getAdminPoliciesBookingResourcesByBranchIdCurrent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the branch resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                branchId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read approved workshop resources, upcoming version and immutable history. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read approved workshop resources, upcoming version and immutable history",
+                     *       "data": {
+                     *         "evaluatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "current": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "key": "synthetic-key",
+                     *           "version": 1,
+                     *           "approvalStatus": "synthetic-approvalstatus",
+                     *           "source": "synthetic-source",
+                     *           "sourceQuestion": "synthetic-sourcequestion",
+                     *           "sourceSignatory": "synthetic-sourcesignatory",
+                     *           "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *           "effectiveAt": "2030-01-15T10:00:00.000Z",
+                     *           "recordedAt": "2030-01-15T10:00:00.000Z",
+                     *           "approvalEvidence": "synthetic-approvalevidence"
+                     *         },
+                     *         "latest": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "key": "synthetic-key",
+                     *           "version": 1,
+                     *           "approvalStatus": "synthetic-approvalstatus",
+                     *           "source": "synthetic-source",
+                     *           "sourceQuestion": "synthetic-sourcequestion",
+                     *           "sourceSignatory": "synthetic-sourcesignatory",
+                     *           "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *           "effectiveAt": "2030-01-15T10:00:00.000Z",
+                     *           "recordedAt": "2030-01-15T10:00:00.000Z",
+                     *           "approvalEvidence": "synthetic-approvalevidence"
+                     *         },
+                     *         "nextScheduled": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "key": "synthetic-key",
+                     *           "version": 1,
+                     *           "approvalStatus": "synthetic-approvalstatus",
+                     *           "source": "synthetic-source",
+                     *           "sourceQuestion": "synthetic-sourcequestion",
+                     *           "sourceSignatory": "synthetic-sourcesignatory",
+                     *           "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *           "effectiveAt": "2030-01-15T10:00:00.000Z",
+                     *           "recordedAt": "2030-01-15T10:00:00.000Z",
+                     *           "approvalEvidence": "synthetic-approvalevidence"
+                     *         },
+                     *         "history": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "key": "synthetic-key",
+                     *             "version": 1,
+                     *             "approvalStatus": "synthetic-approvalstatus",
+                     *             "source": "synthetic-source",
+                     *             "sourceQuestion": "synthetic-sourcequestion",
+                     *             "sourceSignatory": "synthetic-sourcesignatory",
+                     *             "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *             "effectiveAt": "2030-01-15T10:00:00.000Z",
+                     *             "recordedAt": "2030-01-15T10:00:00.000Z",
+                     *             "approvalEvidence": "synthetic-approvalevidence"
+                     *           }
+                     *         ],
+                     *         "branch": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "name": "synthetic-name",
+                     *           "isActive": true,
+                     *           "updatedAt": "2030-01-15T10:00:00.000Z"
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            evaluatedAt: string;
+                            /** @description Current validated by this operation's strict request contract. */
+                            current: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Key validated by this operation's strict request contract. */
+                                key: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Approval Status validated by this operation's strict request contract. */
+                                approvalStatus: string;
+                                /** @description Source validated by this operation's strict request contract. */
+                                source: string;
+                                /** @description Source Question validated by this operation's strict request contract. */
+                                sourceQuestion: string;
+                                /** @description Source Signatory validated by this operation's strict request contract. */
+                                sourceSignatory: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the approved by user resource; ownership is resolved server-side.
+                                 */
+                                approvedByUserId: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                effectiveAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                recordedAt: string;
+                                /** @description Settings validated by this operation's strict request contract. */
+                                settings?: unknown;
+                                /** @description Approval Evidence validated by this operation's strict request contract. */
+                                approvalEvidence: string | null;
+                            } | null;
+                            /** @description Latest validated by this operation's strict request contract. */
+                            latest: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Key validated by this operation's strict request contract. */
+                                key: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Approval Status validated by this operation's strict request contract. */
+                                approvalStatus: string;
+                                /** @description Source validated by this operation's strict request contract. */
+                                source: string;
+                                /** @description Source Question validated by this operation's strict request contract. */
+                                sourceQuestion: string;
+                                /** @description Source Signatory validated by this operation's strict request contract. */
+                                sourceSignatory: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the approved by user resource; ownership is resolved server-side.
+                                 */
+                                approvedByUserId: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                effectiveAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                recordedAt: string;
+                                /** @description Settings validated by this operation's strict request contract. */
+                                settings?: unknown;
+                                /** @description Approval Evidence validated by this operation's strict request contract. */
+                                approvalEvidence: string | null;
+                            } | null;
+                            /** @description Next Scheduled validated by this operation's strict request contract. */
+                            nextScheduled: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Key validated by this operation's strict request contract. */
+                                key: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Approval Status validated by this operation's strict request contract. */
+                                approvalStatus: string;
+                                /** @description Source validated by this operation's strict request contract. */
+                                source: string;
+                                /** @description Source Question validated by this operation's strict request contract. */
+                                sourceQuestion: string;
+                                /** @description Source Signatory validated by this operation's strict request contract. */
+                                sourceSignatory: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the approved by user resource; ownership is resolved server-side.
+                                 */
+                                approvedByUserId: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                effectiveAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                recordedAt: string;
+                                /** @description Settings validated by this operation's strict request contract. */
+                                settings?: unknown;
+                                /** @description Approval Evidence validated by this operation's strict request contract. */
+                                approvalEvidence: string | null;
+                            } | null;
+                            /** @description History validated by this operation's strict request contract. */
+                            history: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Key validated by this operation's strict request contract. */
+                                key: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Approval Status validated by this operation's strict request contract. */
+                                approvalStatus: string;
+                                /** @description Source validated by this operation's strict request contract. */
+                                source: string;
+                                /** @description Source Question validated by this operation's strict request contract. */
+                                sourceQuestion: string;
+                                /** @description Source Signatory validated by this operation's strict request contract. */
+                                sourceSignatory: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the approved by user resource; ownership is resolved server-side.
+                                 */
+                                approvedByUserId: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                effectiveAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                recordedAt: string;
+                                /** @description Settings validated by this operation's strict request contract. */
+                                settings?: unknown;
+                                /** @description Approval Evidence validated by this operation's strict request contract. */
+                                approvalEvidence: string | null;
+                            }[];
+                            /** @description Branch validated by this operation's strict request contract. */
+                            branch: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                isActive: boolean;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                            };
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getAdminPoliciesBookingCapacityByBranchIdCurrent: {
         parameters: {
             query?: never;
@@ -128487,6 +129970,131 @@ export interface operations {
                          * @enum {string}
                          */
                         timezone: "Africa/Lagos";
+                    };
+                } | {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    effectiveAt: string;
+                    /** @description Source validated by this operation's strict request contract. */
+                    source: string;
+                    /** @description Approval Evidence validated by this operation's strict request contract. */
+                    approvalEvidence: string;
+                    /**
+                     * @description Kind validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    kind: "BRANCH_RESOURCES";
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                     */
+                    branchId: string;
+                    /** @description Settings validated by this operation's strict request contract. */
+                    settings: {
+                        /**
+                         * @description ISO 8601 timestamp interpreted and validated by the server.
+                         * @enum {string}
+                         */
+                        timezone: "Africa/Lagos";
+                        /** @description Resources validated by this operation's strict request contract. */
+                        resources: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Name validated by this operation's strict request contract. */
+                            name: string;
+                            /**
+                             * @description Kind validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            kind: "EQUIPMENT" | "SPACE";
+                            /** @description Pools validated by this operation's strict request contract. */
+                            pools: string[];
+                            /**
+                             * @description Requested or filtered lifecycle state from the documented enum.
+                             * @enum {string}
+                             */
+                            status: "AVAILABLE" | "UNAVAILABLE";
+                            /** @description Working Periods validated by this operation's strict request contract. */
+                            workingPeriods: {
+                                /** @description Weekday validated by this operation's strict request contract. */
+                                weekday: number;
+                                /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                opensAt: string;
+                                /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                closesAt: string;
+                            }[];
+                            /** @description Unavailable Periods validated by this operation's strict request contract. */
+                            unavailablePeriods: {
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                startsAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                endsAt: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                reason: string;
+                            }[];
+                        }[];
+                        /** @description Technicians validated by this operation's strict request contract. */
+                        technicians: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the staff resource; ownership is resolved server-side.
+                             */
+                            staffId: string;
+                            /** @description Service Ids validated by this operation's strict request contract. */
+                            serviceIds: string[];
+                            /** @description Working Periods validated by this operation's strict request contract. */
+                            workingPeriods: {
+                                /** @description Weekday validated by this operation's strict request contract. */
+                                weekday: number;
+                                /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                opensAt: string;
+                                /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                closesAt: string;
+                            }[];
+                            /** @description Unavailable Periods validated by this operation's strict request contract. */
+                            unavailablePeriods: {
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                startsAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                endsAt: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                reason: string;
+                            }[];
+                        }[];
+                        /** @description Services validated by this operation's strict request contract. */
+                        services: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the service resource; ownership is resolved server-side.
+                             */
+                            serviceId: string;
+                            /** @description Requirements validated by this operation's strict request contract. */
+                            requirements: {
+                                /** @description Pool validated by this operation's strict request contract. */
+                                pool: string;
+                                /** @description Quantity validated by this operation's strict request contract. */
+                                quantity: number;
+                            }[];
+                        }[];
                     };
                 } | {
                     /** @description Last server version observed by the client; stale writes are rejected. */
@@ -147791,6 +149399,1015 @@ export interface operations {
             };
         };
     };
+    postStaffWorkforceBookingsByIdTiming: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "durationMinutes": 15,
+                 *       "preparationMinutes": 0,
+                 *       "cleanupMinutes": 0,
+                 *       "reason": "synthetic-reason",
+                 *       "resourceReviewNote": "synthetic-resourcereviewnote"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /** @description Duration Minutes validated by this operation's strict request contract. */
+                    durationMinutes: number;
+                    /** @description Preparation Minutes validated by this operation's strict request contract. */
+                    preparationMinutes: number;
+                    /** @description Cleanup Minutes validated by this operation's strict request contract. */
+                    cleanupMinutes: number;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    resourceReviewNote: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Responsibility-based workspace: bookingTiming. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: bookingTiming",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "version": 0,
+                     *         "scheduleVersion": 0,
+                     *         "scheduledAt": "2030-01-15T10:00:00.000Z",
+                     *         "status": "synthetic-status",
+                     *         "performedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "timing": {
+                     *           "scheduleVersion": 0,
+                     *           "scheduledAt": "2030-01-15T10:00:00.000Z",
+                     *           "durationMinutes": "synthetic-durationminutes",
+                     *           "preparationMinutes": "synthetic-preparationminutes",
+                     *           "cleanupMinutes": "synthetic-cleanupminutes",
+                     *           "source": "SERVICE_DEFAULT",
+                     *           "reason": "synthetic-reason",
+                     *           "createdAt": "2030-01-15T10:00:00.000Z"
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string | null;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /** @description Schedule Version validated by this operation's strict request contract. */
+                            scheduleVersion: number;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            scheduledAt: string;
+                            /** @description Requested or filtered lifecycle state from the documented enum. */
+                            status: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the performed by user resource; ownership is resolved server-side.
+                             */
+                            performedByUserId: string;
+                            /** @description Timing validated by this operation's strict request contract. */
+                            timing: {
+                                /** @description Schedule Version validated by this operation's strict request contract. */
+                                scheduleVersion: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                scheduledAt: string;
+                                /** @description Duration Minutes validated by this operation's strict request contract. */
+                                durationMinutes: number | null;
+                                /** @description Preparation Minutes validated by this operation's strict request contract. */
+                                preparationMinutes: number | null;
+                                /** @description Cleanup Minutes validated by this operation's strict request contract. */
+                                cleanupMinutes: number | null;
+                                /**
+                                 * @description Source validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                source: "SERVICE_DEFAULT" | "APPOINTMENT_OVERRIDE" | "LEGACY_CAPTURE" | "RESCHEDULE_CARRY_FORWARD";
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                reason: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                            };
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffWorkforceBookingsByIdRescheduleDecision: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "requestId": "00000000-0000-4000-8000-000000000001",
+                 *       "expectedVersion": 0,
+                 *       "decision": "APPROVE",
+                 *       "reason": "synthetic-reason",
+                 *       "resourceReviewNote": "synthetic-resourcereviewnote",
+                 *       "assignedStaffId": "00000000-0000-4000-8000-000000000001"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the request resource; ownership is resolved server-side.
+                     */
+                    requestId: string;
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * @description Decision validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    decision: "APPROVE" | "DECLINE";
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    resourceReviewNote?: string;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the assigned staff resource; ownership is resolved server-side.
+                     */
+                    assignedStaffId?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Responsibility-based workspace: bookingReschedule. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: bookingReschedule",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "assignedStaffId": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status",
+                     *         "scheduledAt": "2030-01-15T10:00:00.000Z",
+                     *         "version": 0,
+                     *         "requestId": "00000000-0000-4000-8000-000000000001",
+                     *         "requestStatus": "APPROVED",
+                     *         "decidedAt": "2030-01-15T10:00:00.000Z",
+                     *         "performedByUserId": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the assigned staff resource; ownership is resolved server-side.
+                             */
+                            assignedStaffId: string | null;
+                            /** @description Requested or filtered lifecycle state from the documented enum. */
+                            status: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            scheduledAt: string;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the request resource; ownership is resolved server-side.
+                             */
+                            requestId: string;
+                            /**
+                             * @description Request Status validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            requestStatus: "APPROVED" | "DECLINED";
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            decidedAt: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the performed by user resource; ownership is resolved server-side.
+                             */
+                            performedByUserId: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStaffWorkforceBookingsByIdRescheduleAssignees: {
+        parameters: {
+            query: {
+                /**
+                 * @description Maximum number of records to return, bounded by the API.
+                 * @example 1
+                 */
+                limit?: number;
+                /**
+                 * @description Opaque cursor returned by the preceding page.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                cursor?: string;
+                /**
+                 * @description Q used to constrain this request.
+                 * @example synthetic-q
+                 */
+                q?: string;
+                /**
+                 * @description Request Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                requestId: string;
+                /**
+                 * @description Staff Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                staffId?: string;
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Responsibility-based workspace: bookingRescheduleAssignees. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: bookingRescheduleAssignees",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "firstName": "synthetic-firstname",
+                     *             "lastName": "synthetic-lastname"
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001",
+                     *         "generatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "access": {
+                     *           "managed": true,
+                     *           "userId": "00000000-0000-4000-8000-000000000001",
+                     *           "staffId": "00000000-0000-4000-8000-000000000001",
+                     *           "position": "synthetic-position",
+                     *           "department": "synthetic-department",
+                     *           "version": 0,
+                     *           "assignments": [
+                     *             {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "userId": "00000000-0000-4000-8000-000000000001",
+                     *               "template": "OPERATIONS",
+                     *               "templateVersion": 1,
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH",
+                     *               "temporary": true,
+                     *               "startsAt": "2030-01-15T10:00:00.000Z",
+                     *               "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *               "reason": "synthetic-reason",
+                     *               "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *               "createdAt": "2030-01-15T10:00:00.000Z",
+                     *               "revokedAt": "2030-01-15T10:00:00.000Z",
+                     *               "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *               "revocationReason": "synthetic-revocationreason"
+                     *             }
+                     *           ],
+                     *           "permissions": [
+                     *             "synthetic-permissions-item"
+                     *           ],
+                     *           "independentCapabilities": [
+                     *             "REFUND_APPROVE"
+                     *           ],
+                     *           "canManageAssignments": true,
+                     *           "canInviteAdmins": true,
+                     *           "accessRevision": "synthetic-accessrevision",
+                     *           "nextChangeAt": "2030-01-15T10:00:00.000Z",
+                     *           "capabilityScopes": [
+                     *             {
+                     *               "capability": "synthetic-capability",
+                     *               "branchId": "00000000-0000-4000-8000-000000000001",
+                     *               "scope": "BRANCH"
+                     *             }
+                     *           ],
+                     *           "serverTime": "2030-01-15T10:00:00.000Z"
+                     *         },
+                     *         "jobId": "00000000-0000-4000-8000-000000000001",
+                     *         "jobVersion": 0,
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "requestId": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description First Name validated by this operation's strict request contract. */
+                                firstName: string;
+                                /** @description Last Name validated by this operation's strict request contract. */
+                                lastName: string;
+                            }[];
+                            /**
+                             * Format: uuid
+                             * @description Next Cursor validated by this operation's strict request contract.
+                             */
+                            nextCursor?: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            generatedAt: string;
+                            /** @description Access validated by this operation's strict request contract. */
+                            access: {
+                                /** @description Managed validated by this operation's strict request contract. */
+                                managed: boolean;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the user resource; ownership is resolved server-side.
+                                 */
+                                userId: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the staff resource; ownership is resolved server-side.
+                                 */
+                                staffId: string | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
+                                /** @description Department validated by this operation's strict request contract. */
+                                department: string | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Assignments validated by this operation's strict request contract. */
+                                assignments: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the user resource; ownership is resolved server-side.
+                                     */
+                                    userId: string;
+                                    /**
+                                     * @description Template validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    template: "OPERATIONS" | "CUSTOMER_SERVICE" | "SALES_SUPERVISOR" | "SALES_CASHIER" | "ACCOUNTANT" | "WORKSHOP_LEAD" | "ELECTRICAL_TECHNICIAN" | "MECHANICAL_TECHNICIAN" | "CARE_VIEWER" | "CARE_RESPONDER" | "CARE_ASSIGNER" | "CARE_LIVE_AGENT";
+                                    /** @description Template Version validated by this operation's strict request contract. */
+                                    templateVersion: number;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                    /** @description Temporary validated by this operation's strict request contract. */
+                                    temporary: boolean;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    startsAt: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    expiresAt: string | null;
+                                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                    reason: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the assigned by user resource; ownership is resolved server-side.
+                                     */
+                                    assignedByUserId: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    createdAt: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    revokedAt: string | null;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the revoked by user resource; ownership is resolved server-side.
+                                     */
+                                    revokedByUserId: string | null;
+                                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                    revocationReason: string | null;
+                                }[];
+                                /** @description Permissions validated by this operation's strict request contract. */
+                                permissions: string[];
+                                /** @description Independent Capabilities validated by this operation's strict request contract. */
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                /** @description Can Manage Assignments validated by this operation's strict request contract. */
+                                canManageAssignments: boolean;
+                                /** @description Can Invite Admins validated by this operation's strict request contract. */
+                                canInviteAdmins: boolean;
+                                /** @description Access Revision validated by this operation's strict request contract. */
+                                accessRevision: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextChangeAt: string | null;
+                                /** @description Capability Scopes validated by this operation's strict request contract. */
+                                capabilityScopes: {
+                                    /** @description Capability validated by this operation's strict request contract. */
+                                    capability: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                                     */
+                                    branchId: string;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "BRANCH" | "ASSIGNED";
+                                }[];
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                serverTime: string;
+                            };
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the job resource; ownership is resolved server-side.
+                             */
+                            jobId: string;
+                            /** @description Job Version validated by this operation's strict request contract. */
+                            jobVersion: number;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the request resource; ownership is resolved server-side.
+                             */
+                            requestId: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     postStaffWorkforceBookingsByIdConfirmation: {
         parameters: {
             query?: never;
@@ -148104,6 +150721,38 @@ export interface operations {
                      *           "lastName": "synthetic-lastname",
                      *           "phone": "+2348000000000"
                      *         },
+                     *         "rescheduleRequests": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "PENDING",
+                     *             "source": "CUSTOMER",
+                     *             "branchId": "00000000-0000-4000-8000-000000000001",
+                     *             "slotId": "00000000-0000-4000-8000-000000000001",
+                     *             "startsAt": "2030-01-15T10:00:00.000Z",
+                     *             "reason": "synthetic-reason",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "decidedAt": "2030-01-15T10:00:00.000Z",
+                     *             "decisionReason": "synthetic-decisionreason",
+                     *             "proposedStaff": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "firstName": "synthetic-firstname",
+                     *               "lastName": "synthetic-lastname"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "scheduleVersion": 0,
+                     *         "timingSnapshots": [
+                     *           {
+                     *             "scheduleVersion": 0,
+                     *             "scheduledAt": "2030-01-15T10:00:00.000Z",
+                     *             "durationMinutes": "synthetic-durationminutes",
+                     *             "preparationMinutes": "synthetic-preparationminutes",
+                     *             "cleanupMinutes": "synthetic-cleanupminutes",
+                     *             "source": "SERVICE_DEFAULT",
+                     *             "reason": "synthetic-reason",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z"
+                     *           }
+                     *         ],
                      *         "alternativeStartsAt": "2030-01-15T10:00:00.000Z",
                      *         "alternativeReason": "synthetic-alternativereason",
                      *         "alternativeVersion": "synthetic-alternativeversion",
@@ -148240,6 +150889,95 @@ export interface operations {
                                 /** @description Customer or business phone number in international format. */
                                 phone: string;
                             };
+                            /** @description Reschedule Requests validated by this operation's strict request contract. */
+                            rescheduleRequests: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "PENDING" | "APPROVED" | "DECLINED" | "WITHDRAWN" | "SUPERSEDED";
+                                /**
+                                 * @description Source validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                source: "CUSTOMER" | "WORKSHOP_ALTERNATIVE";
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the slot resource; ownership is resolved server-side.
+                                 */
+                                slotId: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                startsAt: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                reason: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                decidedAt: string | null;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                decisionReason: string | null;
+                                /** @description Proposed Staff validated by this operation's strict request contract. */
+                                proposedStaff: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description First Name validated by this operation's strict request contract. */
+                                    firstName: string;
+                                    /** @description Last Name validated by this operation's strict request contract. */
+                                    lastName: string;
+                                } | null;
+                            }[];
+                            /** @description Schedule Version validated by this operation's strict request contract. */
+                            scheduleVersion: number;
+                            /** @description Timing Snapshots validated by this operation's strict request contract. */
+                            timingSnapshots: {
+                                /** @description Schedule Version validated by this operation's strict request contract. */
+                                scheduleVersion: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                scheduledAt: string;
+                                /** @description Duration Minutes validated by this operation's strict request contract. */
+                                durationMinutes: number | null;
+                                /** @description Preparation Minutes validated by this operation's strict request contract. */
+                                preparationMinutes: number | null;
+                                /** @description Cleanup Minutes validated by this operation's strict request contract. */
+                                cleanupMinutes: number | null;
+                                /**
+                                 * @description Source validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                source: "SERVICE_DEFAULT" | "APPOINTMENT_OVERRIDE" | "LEGACY_CAPTURE" | "RESCHEDULE_CARRY_FORWARD";
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                reason: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                            }[];
                             /**
                              * Format: date-time
                              * @description ISO 8601 timestamp interpreted and validated by the server.

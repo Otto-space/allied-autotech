@@ -5,7 +5,15 @@ process.env.CAPABILITY_TEST_TRANSPORT = "loopback";
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  testMatch: "runtime-capabilities.spec.ts",
+  testMatch: [
+    "runtime-capabilities.spec.ts",
+    "appointment-export.spec.ts",
+    "booking-reschedule-approval.spec.ts",
+    "workforce-booking-reschedule.spec.ts",
+    "booking-timing.spec.ts",
+    "service-timing.spec.ts",
+    "slot-timing-review.spec.ts",
+  ],
   outputDir: "./test-results/runtime-capabilities",
   timeout: 90_000,
   expect: { timeout: 20_000 },

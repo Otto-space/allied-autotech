@@ -1,3 +1,8 @@
+import { bookingTimingOverrideBodySchema } from "./service-operations.schemas.js";
+import {
+  bookingRescheduleDecisionBodySchema,
+  bookingRescheduleWithdrawBodySchema,
+} from "./service-operations.schemas.js";
 import {
   bookingAlternativeBodySchema,
   bookingAlternativeResponseBodySchema,
@@ -75,7 +80,10 @@ const publicServiceListResponseSchema = responseSchema.extend({
 const publicServiceResponseSchema = responseSchema.extend({ data: publicServiceSchema });
 // The administrator projection has the same fields, with inactive records and
 // categories retained and image URLs routed through authorized private reads.
-export const adminServiceSchema = publicServiceSchema;
+export const adminServiceSchema = publicServiceSchema.extend({
+  preparationMinutes: z.number().int().min(0).max(1440).nullable(),
+  cleanupMinutes: z.number().int().min(0).max(1440).nullable(),
+});
 export const adminServicePageSchema = z.object({
   items: z.array(adminServiceSchema).max(100),
   nextCursor: z.uuid().optional(),
@@ -210,12 +218,42 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
     {
       method: "patch",
       path: "/customers/bookings/{bookingId}/schedule",
-      summary: "Request one permitted reschedule of a confirmed booking",
+      summary: "Request a reasoned reschedule while preserving the confirmed appointment",
+      description:
+        "The request does not move the appointment, release its capacity or cancel its reminders. Staff approval rechecks the replacement and switches atomically. A request or available-time display does not reserve replacement capacity.",
       params: bookingParamsSchema,
       body: bookingRescheduleBodySchema,
       secured: true,
       csrf: true,
       idempotent: true,
+    },
+    {
+      method: "post",
+      path: "/customers/bookings/{bookingId}/reschedule-withdraw",
+      summary: "Withdraw a pending reschedule request without changing the appointment",
+      params: bookingParamsSchema,
+      body: bookingRescheduleWithdrawBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/timing",
+      summary: "Review a reasoned appointment timing override with capacity checks",
+      params: bookingParamsSchema,
+      body: bookingTimingOverrideBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/reschedule-decision",
+      summary:
+        "Approve a replacement atomically or decline while preserving the original appointment",
+      params: bookingParamsSchema,
+      body: bookingRescheduleDecisionBodySchema,
+      secured: true,
+      csrf: true,
     },
     {
       method: "post",

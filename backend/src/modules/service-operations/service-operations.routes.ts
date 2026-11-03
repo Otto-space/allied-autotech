@@ -1,3 +1,8 @@
+import { bookingTimingOverrideBodySchema } from "./service-operations.schemas.js";
+import {
+  bookingRescheduleDecisionBodySchema,
+  bookingRescheduleWithdrawBodySchema,
+} from "./service-operations.schemas.js";
 import {
   bookingAlternativeBodySchema,
   bookingAlternativeResponseBodySchema,
@@ -130,6 +135,18 @@ export function createCustomerServiceOperationsRouter(): Router {
     controller.rescheduleBooking,
   );
   router.post(
+    "/bookings/:bookingId/reschedule-withdraw",
+    requireCsrf,
+    createSensitiveRateLimit(20),
+    validate({
+      params: bookingParamsSchema,
+      body: bookingRescheduleWithdrawBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.withdrawBookingReschedule,
+  );
+
+  router.post(
     "/bookings/:bookingId/cancel",
     requireCsrf,
     validate({
@@ -223,6 +240,29 @@ export function createStaffServiceOperationsRouter(): Router {
     }),
     controller.proposeBookingAlternative,
   );
+  router.post(
+    "/bookings/:bookingId/timing",
+    requireCsrf,
+    createSensitiveRateLimit(20),
+    validate({
+      params: bookingParamsSchema,
+      body: bookingTimingOverrideBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.overrideBookingTiming,
+  );
+  router.post(
+    "/bookings/:bookingId/reschedule-decision",
+    requireCsrf,
+    createSensitiveRateLimit(20),
+    validate({
+      params: bookingParamsSchema,
+      body: bookingRescheduleDecisionBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.decideBookingReschedule,
+  );
+
   router.patch(
     "/bookings/:bookingId/assignment",
     requireCsrf,

@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import {
   orderPaymentAcceptedReview,
+  orderPaymentReviewKey,
   orderPaymentUnavailable,
 } from "@/lib/api/order-payment";
+import { ApiError } from "@/lib/api/client";
 import { purchaseRequest } from "@/lib/purchase/client";
 import { usePurchaseResource } from "@/lib/purchase/resource";
 import {
@@ -219,8 +221,20 @@ function OrderDetail({ orderId }: { orderId: string }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState<string>();
   const locked = useRef(false);
+  const [rejectedReview, setRejectedReview] = useState<string>();
+  const offerUnavailable = !!(
+    resource.data &&
+    rejectedReview &&
+    orderPaymentReviewKey(resource.data) === rejectedReview
+  );
   async function prepare(order: GuestOrder) {
-    if (locked.current || !checkoutEnabled || !!orderPaymentUnavailable(order)) return;
+    if (
+      locked.current ||
+      offerUnavailable ||
+      !checkoutEnabled ||
+      !!orderPaymentUnavailable(order)
+    )
+      return;
     locked.current = true;
     setBusy(true);
     setError(undefined);
@@ -246,7 +260,13 @@ function OrderDetail({ orderId }: { orderId: string }) {
       )
         throw Error("Payment does not match order");
       router.push(`/purchase/payments/${receipt.payment.id}`);
-    } catch {
+    } catch (value) {
+      if (
+        value instanceof ApiError &&
+        value.status === 409 &&
+        ["PURCHASE_OFFER_CHANGED", "CONFLICT"].includes(value.code)
+      )
+        setRejectedReview(orderPaymentReviewKey(order));
       setError(
         "The payment could not be prepared. Refresh the order before continuing. Repeating this action uses the same request and does not take payment.",
       );
@@ -272,11 +292,15 @@ function OrderDetail({ orderId }: { orderId: string }) {
           <OrderSummary order={resource.data} />
           <PurchaseSuitability
             order={resource.data}
+            offerUnavailable={offerUnavailable}
             guest
             disabled={
               !checkoutEnabled || busy || resource.loading || !!resource.data.paymentId
             }
-            onSaved={resource.refresh}
+            onSaved={() => {
+              setError(undefined);
+              resource.refresh();
+            }}
             onBusyChange={setBusy}
           />
           <section className="purchase-panel">
@@ -299,7 +323,9 @@ function OrderDetail({ orderId }: { orderId: string }) {
               >
                 View payment details
               </Link>
-            ) : checkoutEnabled && !orderPaymentUnavailable(resource.data, now) ? (
+            ) : checkoutEnabled &&
+              !offerUnavailable &&
+              !orderPaymentUnavailable(resource.data, now) ? (
               <>
                 <p>
                   Continue to review the payment provider. Preparing a payment does not
@@ -315,7 +341,9 @@ function OrderDetail({ orderId }: { orderId: string }) {
               </>
             ) : (
               <p>
-                {orderPaymentUnavailable(resource.data, now) ??
+                {(offerUnavailable
+                  ? "Recheck suitability and availability before continuing to payment."
+                  : orderPaymentUnavailable(resource.data, now)) ??
                   "Contact the team if you need help with payment, changes or collection."}
               </p>
             )}

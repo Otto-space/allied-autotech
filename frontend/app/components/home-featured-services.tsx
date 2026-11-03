@@ -54,6 +54,9 @@ export function HomeFeaturedServices({
                 {item.key === "oil-service" && (
                   <small>Illustrative oil-service image.</small>
                 )}
+                {record?.durationMinutes != null && (
+                  <small>Estimated job time: {record.durationMinutes} min</small>
+                )}
                 <p className="home-feature-price">
                   {record
                     ? record.pricingType === "FIXED" && record.priceKobo !== null

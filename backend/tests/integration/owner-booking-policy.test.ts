@@ -1,3 +1,4 @@
+import { testBranchResources } from "../helpers/owner-policy.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
@@ -69,6 +70,8 @@ async function fixture() {
       pricingType: "FIXED",
       priceKobo: 10000n,
       durationMinutes: 60,
+      preparationMinutes: 0,
+      cleanupMinutes: 0,
     },
   });
   const startsAt = new Date(Date.now() + 8 * 86_400_000);
@@ -78,6 +81,10 @@ async function fixture() {
       branchId: branch.id,
       serviceId: service.id,
       staffId: admin.user.staffProfile!.id,
+      durationMinutes: 60,
+      preparationMinutes: 0,
+      cleanupMinutes: 0,
+      serviceTimingVersion: 0,
       startsAt,
       endsAt: new Date(startsAt.getTime() + 3_600_000),
     },
@@ -90,6 +97,14 @@ async function fixture() {
     },
   });
   const operations = new ServiceOperationsService(prisma);
+  // An offered slot is an assessed calendar offer; preference requests have separate no-policy coverage.
+  await capacity({ branch, admin }, 20);
+  await testBranchResources(
+    branch.id,
+    admin.user.id,
+    [service.id],
+    [admin.user.staffProfile!.id],
+  );
   const created = (await operations.createBooking(
     customer.actor,
     { slotId: slot.id, policyVersion: bookingPolicy.version },
@@ -109,18 +124,25 @@ async function fixture() {
     booking: created.booking,
   };
 }
-async function capacity(f: Awaited<ReturnType<typeof fixture>>) {
+async function capacity(
+  f: { branch: { id: string }; admin: { user: { id: string } } },
+  dailyLimit = 1,
+) {
+  const latest = await prisma.businessPolicyVersion.findFirst({
+    where: { key: `booking-capacity:${f.branch.id}` },
+    orderBy: { version: "desc" },
+  });
   await prisma.businessPolicyVersion.create({
     data: {
       key: `booking-capacity:${f.branch.id}`,
-      version: 1,
+      version: (latest?.version ?? 0) + 1,
       approvalStatus: "APPROVED",
       source: "Disposable integration-test assumption: one booking per day",
       sourceQuestion: "Q5 test fixture",
       approvedByUserId: f.admin.user.id,
       effectiveAt: new Date(),
       settings: {
-        dailyLimit: 1,
+        dailyLimit,
         openingDays: [0, 1, 2, 3, 4, 5, 6],
         opensAt: "08:00",
         closesAt: "18:00",
@@ -165,6 +187,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         }
         const before = await prisma.booking.findUniqueOrThrow({
           where: { id: f.booking.id },
+        });
+        const pendingRemindersBefore = await prisma.bookingReminder.count({
+          where: { bookingId: f.booking.id, status: "PENDING" },
         });
         const startsAt = new Date(before.scheduledAt.getTime() + 86400000).toISOString();
         const input = {
@@ -215,20 +240,35 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         const accepted = await prisma.booking.findUniqueOrThrow({
           where: { id: f.booking.id },
         });
-        expect(accepted.status).toBe("REQUESTED");
-        expect(accepted.scheduledAt.toISOString()).toBe(startsAt);
+        expect(accepted.status).toBe("CONFIRMED");
+        expect(accepted.scheduledAt).toEqual(before.scheduledAt);
         expect(accepted.alternativeStartsAt).toBeNull();
-        expect(accepted.bookingSlotId).toBeNull();
-        expect(accepted.assignedStaffId).toBeNull();
+        expect(accepted.bookingSlotId).toBe(before.bookingSlotId);
+        expect(accepted.assignedStaffId).toBe(before.assignedStaffId);
         expect(accepted.customerRescheduleCount).toBe(before.customerRescheduleCount);
         expect(accepted.depositAmountKobo).toBe(before.depositAmountKobo);
         expect(accepted.depositForfeitedAt).toBeNull();
-        expect(accepted.disruptionResolution).toBe(disrupted ? "TRANSFERRED" : null);
+        expect(accepted.disruptionResolution).toBe(before.disruptionResolution);
         expect(
           await prisma.bookingReminder.count({
             where: { bookingId: f.booking.id, status: "PENDING" },
           }),
-        ).toBe(0);
+        ).toBe(pendingRemindersBefore);
+        const pendingChange = await prisma.bookingRescheduleRequest.findFirstOrThrow({
+          where: { bookingId: f.booking.id, status: "PENDING" },
+        });
+        expect(pendingChange.startsAt.toISOString()).toBe(startsAt);
+        expect(pendingChange.source).toBe("WORKSHOP_ALTERNATIVE");
+        await f.operations.withdrawBookingReschedule(
+          f.customer.actor,
+          f.booking.id,
+          {
+            requestId: pendingChange.id,
+            expectedVersion: accepted.version,
+            reason: "Customer kept the original appointment",
+          },
+          context(),
+        );
         await f.operations.proposeBookingAlternative(
           f.admin.actor,
           f.booking.id,
@@ -237,7 +277,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             preferredAt: new Date(
               before.scheduledAt.getTime() + 2 * 86400000,
             ).toISOString(),
-            expectedVersion: accepted.version,
+            expectedVersion: accepted.version + 1,
           },
           context(),
         );
@@ -599,7 +639,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ),
       ).rejects.toThrow();
     });
-    it("reschedules a confirmed preference once with replay protection and fresh staff review", async () => {
+    it("requests a confirmed preference once while preserving its appointment and reminders", async () => {
       const f = await fixture();
       await capacity(f);
       await f.operations.transitionBooking(
@@ -619,6 +659,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const input = {
         preferredAt: new Date(f.startsAt.getTime() + 86_400_000).toISOString(),
         expectedVersion: original.version,
+        reason: "Customer requested an alternative day",
       };
       const stranger = await account("CUSTOMER", f.branch.id);
       await expect(
@@ -646,21 +687,31 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         where: { id: original.id },
       });
       expect(saved).toMatchObject({
-        status: "REQUESTED",
-        bookingSlotId: null,
-        assignedStaffId: null,
-        customerRescheduleCount: 1,
-        scheduleVersion: 1,
-        confirmedAt: null,
-        resourceReviewNote: null,
-        capacityPolicyVersionId: null,
+        status: "CONFIRMED",
+        scheduledAt: original.scheduledAt,
+        bookingSlotId: original.bookingSlotId,
+        assignedStaffId: original.assignedStaffId,
+        customerRescheduleCount: 0,
+        scheduleVersion: original.scheduleVersion,
+        confirmedAt: original.confirmedAt,
+        resourceReviewNote: original.resourceReviewNote,
+        capacityPolicyVersionId: original.capacityPolicyVersionId,
       });
-      expect(saved.scheduledAt.toISOString()).toBe(input.preferredAt);
+      const request = await prisma.bookingRescheduleRequest.findFirstOrThrow({
+        where: { bookingId: original.id },
+      });
+      expect(request.startsAt.toISOString()).toBe(input.preferredAt);
+      expect(request.status).toBe("PENDING");
+      expect(
+        await prisma.bookingRescheduleRequest.count({
+          where: { bookingId: original.id },
+        }),
+      ).toBe(1);
       expect(
         await prisma.bookingReminder.count({
           where: { bookingId: original.id, status: "PENDING" },
         }),
-      ).toBe(0);
+      ).toBeGreaterThan(0);
       await expect(
         f.operations.rescheduleBooking(
           f.customer.actor,
@@ -790,6 +841,17 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     });
     it("takes a request without payment and requires approved capacity before staff confirmation", async () => {
       const f = await fixture();
+      await prisma.businessPolicyVersion.create({
+        data: {
+          key: `booking-capacity:${f.branch.id}`,
+          version: 2,
+          approvalStatus: "DRAFT",
+          source: "Synthetic isolated withdrawal before confirmation",
+          sourceQuestion: "Q5",
+          effectiveAt: new Date(),
+          settings: {},
+        },
+      });
       expect(f.booking).toMatchObject({ status: "REQUESTED", depositPayment: null });
       const confirm = () =>
         f.operations.transitionBooking(
@@ -857,6 +919,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
               branchId: f.branch.id,
               serviceId: f.service.id,
               staffId: f.admin.user.staffProfile!.id,
+              durationMinutes: 60,
+              preparationMinutes: 0,
+              cleanupMinutes: 0,
+              serviceTimingVersion: 0,
               startsAt: new Date(f.startsAt.getTime() + 7_200_000),
               endsAt: new Date(f.startsAt.getTime() + 10_800_000),
             },
@@ -947,6 +1013,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           branchId: f.branch.id,
           serviceId: f.service.id,
           staffId: f.admin.user.staffProfile!.id,
+          durationMinutes: 60,
+          preparationMinutes: 0,
+          cleanupMinutes: 0,
+          serviceTimingVersion: 0,
           startsAt: new Date(f.startsAt.getTime() + 7_200_000),
           endsAt: new Date(f.startsAt.getTime() + 10_800_000),
         },
@@ -1000,6 +1070,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           branchId: f.branch.id,
           serviceId: f.service.id,
           staffId: f.admin.user.staffProfile!.id,
+          durationMinutes: 60,
+          preparationMinutes: 0,
+          cleanupMinutes: 0,
+          serviceTimingVersion: 0,
           startsAt: new Date(f.startsAt.getTime() + 3_600_000),
           endsAt: new Date(f.startsAt.getTime() + 7_200_000),
         },

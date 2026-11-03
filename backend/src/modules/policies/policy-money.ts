@@ -1,4 +1,4 @@
-/** Integer half-up rounding. This is a labelled draft basis until finance approval. */
+/** Integer half-up rounding; callers retain their separate policy and activation gates. */
 export function basisPoints(amountKobo: bigint, rate: number): bigint {
   if (amountKobo < 0n || !Number.isInteger(rate) || rate < 0 || rate > 10_000)
     throw new Error("Invalid monetary basis");

@@ -1,3 +1,8 @@
+3 November resource integration: booking-confirmation v9 describes actual atomic
+resource allocation, preserved history, cleanup and unfinished work. Service-request
+v23 preserves independent unpaid booking and adds truthful pending-resource guidance.
+Eligibility and feature flags are unchanged; native acceptance is pending.
+
 ## 3 November 2026: own-account guide and strict catalogue destinations
 
 Work-account-profile v1 targets the genuine read-only `/admin/profile`, with
@@ -7,6 +12,7 @@ closed. Actual server projections are checked against the client contract across
 all roles and bounded independent-grant combinations. Flags remain unchanged.
 This source entry is not backend publication. See
 `AUDIT_LEARNING_CHECKPOINT_20261103.md` and the consolidated audit for evidence.
+
 ## 3 November: independent booking/purchase controls - source
 
 Parts-fitment v9 records the owner's revised sequence: unpaid order/specifications,
@@ -244,14 +250,14 @@ mean a production publication. Feature flags remain off in committed examples.
 | ----------------------- | -------------------- | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | privacy-and-allie       | public               | 1 / 2026-11-01   | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff                                         |
 | financial-aftercare     | financial-aftercare  | 4 / 2026-11-03   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
-| booking-confirmation    | booking-confirmation | 3 / 2026-10-27   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
+| booking-confirmation    | booking-confirmation | 9 / 2026-11-03   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
 | refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
 | dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
 | privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
 | financial-policy-work   | financial-policy     | 4 / 2026-11-02   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
-| parts-fitment           | public               | 13 / 2026-11-03  | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
+| parts-fitment           | public               | 14 / 2026-11-03  | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
-| service-request         | public               | 13 / 2026-11-01  | /services                    | Public launch mode and Services page                                                                                                        |
+| service-request         | public               | 23 / 2026-11-03  | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
 | no-live-lookup          | public               | 2 / 2026-10-26   | /help                        | Launch restrictions and existing status contracts                                                                                           |
 | own-conversation        | customer             | 4 / 2026-10-27   | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |
@@ -445,3 +451,7 @@ Parts-fitment v11 UI follow-up: supplier arrival estimates are visible before pa
 3 November cart vehicle carry-through: parts-fitment v12 explains explicit vehicle choice on the cart item, quantity-edit preservation, replacement on a fresh add, current pre-payment checking and honest unresolved review. Source only; no audience, permission, guide-target or activation change.
 
 3 November displayed-offer payment binding: parts-fitment v13 explains current-offer review, changed-offer refresh and original uncertain-request recovery. Account and guest payment creation carry the displayed review identity; this adds no fresh staff approval, customer screen, permission, audience, guide target or live activation. Source checks remain pending.
+
+3 November booking integration: service-request v21 and restricted booking-confirmation v7 cover preserved original appointments, reasoned approval/withdrawal, saved estimates and explicit confirmed-arrival calendar export. Parts-fitment v14 adds changed-offer rechecking without retaining an earlier payment approval. Existing automatic eligibility, audiences, guide targets and permissions remain unchanged; these source changes do not activate booking or finance. Native isolated and production-browser acceptance for the combined source remain pending.
+
+3 November integration correction: service-request v22 restores the independently enabled unpaid-booking explanation lost while merging older booking guidance. Tablet and both laptop navigation states are added to the browser acceptance suite; this does not enable a live capability.

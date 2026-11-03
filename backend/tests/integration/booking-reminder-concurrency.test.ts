@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import { prisma } from "../../src/config/database.js";
 import type { Prisma, PrismaClient } from "../../src/generated/prisma/client.js";
 import { BookingReminderWorker } from "../../src/workers/booking-reminder.worker.js";
@@ -35,6 +36,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Booking reminder claim ownership",
   () => {
     const jobs: string[] = [];
+    beforeAll(() => assertIsolatedLoopbackDatabase());
     afterEach(async () => {
       await prisma.bookingReminder.updateMany({
         where: { id: { in: jobs }, status: { in: ["PENDING", "PROCESSING", "FAILED"] } },

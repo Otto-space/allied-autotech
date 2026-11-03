@@ -1,3 +1,33 @@
+import { allocateBookingResources } from "./booking-resources.js";
+import {
+  assertCurrentSlotTiming,
+  assertSlotCalendar,
+  openSlotConflictSelect,
+  slotTimingIsCurrent,
+} from "./booking-slot-timing.js";
+import { capacitySettingsSchema } from "./booking-capacity.js";
+import { Prisma as PrismaSql } from "../../generated/prisma/client.js";
+import {
+  assignmentTimingWindow,
+  assertPublishedSlotAssignment,
+  captureAssessedTimingIfMissing,
+} from "./booking-timing.js";
+import type { BookingTimingOverrideInput } from "./service-operations.schemas.js";
+import {
+  captureBookingTiming,
+  carryBookingTiming,
+  bookedJobMinutes,
+  preserveExistingBookingTiming,
+  timingWindow,
+} from "./booking-timing.js";
+import {
+  assertOriginalAppointment,
+  createPendingReschedule,
+} from "./booking-reschedule.js";
+import type {
+  BookingRescheduleDecisionInput,
+  BookingRescheduleWithdrawInput,
+} from "./service-operations.schemas.js";
 import { publicServiceCopy } from "./public-service-copy.js";
 import type {
   BookingAlternativeInput,
@@ -16,6 +46,8 @@ import { lockWorkforce } from "../organization/workforce-access.service.js";
 import { lockAccessActor } from "../organization/team-access-security.js";
 import {
   bookingScope,
+  bookingSnapshotAllowed,
+  branchesFor,
   workforceSnapshot,
   workforceDenied,
   workforceNotFound,
@@ -114,22 +146,83 @@ function jsonSafe(value: unknown): unknown {
 function customerSafeBooking<
   T extends {
     staffNotes: unknown;
-    service: null | { description: string | null; shortDescription: string | null };
+    scheduleVersion: number;
+    timingSnapshots: Array<{ scheduleVersion: number; durationMinutes: number | null }>;
+    bookingSlot?: Awaited<ReturnType<ServiceOperationsRepository["bookingSlot"]>>;
+    service: null | {
+      description: string | null;
+      shortDescription: string | null;
+      durationMinutes: number | null;
+      timingVersion?: number;
+      preparationMinutes: number | null;
+      cleanupMinutes: number | null;
+    };
     workOrder: null | { internalNotes: unknown };
     depositPayment: null | { settledAttemptId: unknown };
     quotes: Array<{ status: string; issuedAt: Date | null }>;
   },
 >(booking: T) {
-  const { staffNotes: _staffNotes, workOrder, depositPayment, ...safe } = booking;
+  const {
+    staffNotes: _staffNotes,
+    timingSnapshots,
+    workOrder,
+    depositPayment,
+    ...safe
+  } = booking;
+  const timing = timingSnapshots.find(
+    (row) => row.scheduleVersion === booking.scheduleVersion,
+  );
+  const safeService = booking.service
+    ? (() => {
+        const {
+          timingVersion: _timingVersion,
+          preparationMinutes: _preparation,
+          cleanupMinutes: _cleanup,
+          ...service
+        } = booking.service;
+        return {
+          ...service,
+          durationMinutes: timing ? timing.durationMinutes : service.durationMinutes,
+        };
+      })()
+    : null;
+  const safeSlot = booking.bookingSlot
+    ? (() => {
+        const {
+          durationMinutes: _slotDuration,
+          preparationMinutes: _slotPreparation,
+          cleanupMinutes: _slotCleanup,
+          serviceTimingVersion: _slotRevision,
+          service: slotService,
+          ...slot
+        } = booking.bookingSlot!;
+        const {
+          timingVersion: _serviceRevision,
+          preparationMinutes: _preparation,
+          cleanupMinutes: _cleanup,
+          ...service
+        } = slotService;
+        return {
+          ...slot,
+          service: {
+            ...service,
+            durationMinutes: safeService?.durationMinutes ?? null,
+            description: publicServiceCopy(service.description),
+            shortDescription: publicServiceCopy(service.shortDescription),
+          },
+        };
+      })()
+    : booking.bookingSlot;
   return {
     ...safe,
+    bookingSlot: safeSlot,
     service:
-      booking.service === null
+      safeService === null
         ? null
         : {
-            ...booking.service,
-            description: publicServiceCopy(booking.service.description),
-            shortDescription: publicServiceCopy(booking.service.shortDescription),
+            ...safeService,
+            description: publicServiceCopy(safeService.description),
+            shortDescription: publicServiceCopy(safeService.shortDescription),
           },
     quotes: booking.quotes.filter(
       (quote) => quote.status !== "DRAFT" && quote.issuedAt !== null,
@@ -279,7 +372,13 @@ export class ServiceOperationsService {
   async publicService(id: string) {
     const service = await this.repository.service(id, true);
     if (service === null) throw serviceOperationNotFound();
-    return jsonSafe(service);
+    const {
+      timingVersion: _timingVersion,
+      preparationMinutes: _preparation,
+      cleanupMinutes: _cleanup,
+      ...publicService
+    } = service;
+    return jsonSafe(publicService);
   }
 
   publicBookingPolicy() {
@@ -295,6 +394,17 @@ export class ServiceOperationsService {
       service.durationMinutes === null
     )
       throw serviceOperationNotFound();
+    if (service.preparationMinutes === null || service.cleanupMinutes === null)
+      return { items: [] };
+    const policy = await this.database.businessPolicyVersion.findFirst({
+      where: {
+        key: `booking-capacity:${query.branchId}`,
+        effectiveAt: { lte: new Date() },
+      },
+      orderBy: [{ effectiveAt: "desc" }, { version: "desc" }],
+    });
+    const calendar = capacitySettingsSchema.safeParse(policy?.settings);
+    if (policy?.approvalStatus !== "APPROVED" || !calendar.success) return { items: [] };
     const allowed = bookingWindow();
     const requestedFrom = query.from === undefined ? allowed.from : new Date(query.from);
     const requestedTo = query.to === undefined ? allowed.to : new Date(query.to);
@@ -303,14 +413,66 @@ export class ServiceOperationsService {
     if (to < from) return { items: [] };
     return jsonSafe(
       page(
-        await this.repository.publicBookingSlots(serviceId, {
-          ...query,
-          from: from.toISOString(),
-          to: to.toISOString(),
-        }),
+        await this.repository.publicBookingSlots(
+          serviceId,
+          {
+            ...query,
+            from: from.toISOString(),
+            to: to.toISOString(),
+          },
+          calendar.data,
+        ),
         query.limit,
       ),
     );
+  }
+
+  private async reviewOfferedSlot(
+    tx: Prisma.TransactionClient,
+    slot: NonNullable<Awaited<ReturnType<ServiceOperationsRepository["bookingSlot"]>>>,
+    excludeBookingId: string | null = null,
+  ) {
+    if (
+      await tx.booking.findFirst({
+        where: {
+          bookingSlotId: slot.id,
+          status: { in: [...activeBookingStatuses] },
+          ...(excludeBookingId ? { id: { not: excludeBookingId } } : {}),
+        },
+        select: { id: true },
+      })
+    )
+      throw scheduleConflict();
+    await tx.$queryRaw`SELECT "id" FROM "Service" WHERE "id"=${slot.serviceId}::uuid FOR SHARE`;
+    const service = await this.repository.service(slot.serviceId, true, tx);
+    const staff = await this.repository.assignableStaff(slot.staffId, tx);
+    if (
+      !service ||
+      !staff ||
+      staff.branchId !== slot.branchId ||
+      !(await this.repository.branch(slot.branchId, tx))
+    )
+      throw serviceOperationNotFound();
+    const occupied = assertCurrentSlotTiming(slot, service);
+    await assertSlotCalendar(
+      tx,
+      slot.branchId,
+      occupied.startsAt,
+      occupied.endsAt,
+      excludeBookingId,
+    );
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${slot.staffId}`},0))`;
+    if (
+      await this.repository.hasScheduleConflict(
+        slot.staffId,
+        occupied.startsAt,
+        occupied.endsAt,
+        excludeBookingId,
+        tx,
+      )
+    )
+      throw scheduleConflict();
+    return occupied;
   }
 
   async staffBookingSlots(actor: AuthenticatedActor, query: StaffBookingSlotListQuery) {
@@ -323,10 +485,15 @@ export class ServiceOperationsService {
       throw serviceOperationForbidden();
     return jsonSafe(
       page(
-        await this.repository.listBookingSlots(
-          query,
-          actor.role === "STAFF" ? profile!.branchId : null,
-        ),
+        (
+          await this.repository.listBookingSlots(
+            query,
+            actor.role === "STAFF" ? profile!.branchId : null,
+          )
+        ).map((slot) => ({
+          ...slot,
+          timingReviewRequired: !slotTimingIsCurrent(slot, slot.service),
+        })),
         query.limit,
       ),
     );
@@ -342,6 +509,7 @@ export class ServiceOperationsService {
     if (startsAt <= new Date())
       throw serviceOperationConflict("Booking slots must start in the future");
     return this.database.$transaction(async (transaction) => {
+      await lockWorkforce(transaction);
       const [actorProfile, targetStaff, service, branch] = await Promise.all([
         this.repository.staffProfile(actor.userId, transaction),
         this.repository.assignableStaff(input.staffId, transaction),
@@ -365,17 +533,40 @@ export class ServiceOperationsService {
           actorProfile.branchId !== input.branchId)
       )
         throw serviceOperationForbidden();
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot-staff:${input.staffId}`}, 0))`;
-      const endsAt = new Date(startsAt.getTime() + service.durationMinutes * 60_000);
-      const conflict = await transaction.bookingSlot.count({
-        where: {
-          staffId: input.staffId,
-          status: "OPEN",
-          startsAt: { lt: endsAt },
-          endsAt: { gt: startsAt },
-        },
-      });
-      if (conflict > 0) throw scheduleConflict();
+      await transaction.$queryRaw`SELECT "id" FROM "Service" WHERE "id"=${service.id}::uuid FOR SHARE`;
+      const currentService = await this.repository.service(service.id, true, transaction);
+      if (!currentService) throw serviceOperationNotFound();
+      if (
+        input.expectedServiceVersion !== undefined &&
+        currentService.version !== input.expectedServiceVersion
+      )
+        throw staleServiceOperation();
+      const occupied = timingWindow(startsAt, currentService);
+      await assertSlotCalendar(
+        transaction,
+        branch.id,
+        occupied.startsAt,
+        occupied.endsAt,
+      );
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${input.staffId}`}, 0))`;
+      if (
+        await this.repository.hasScheduleConflict(
+          input.staffId,
+          occupied.startsAt,
+          occupied.endsAt,
+          null,
+          transaction,
+        )
+      )
+        throw scheduleConflict();
+      const conflict = await transaction.$queryRaw<Array<{ exists: boolean }>>(
+        PrismaSql.sql`SELECT EXISTS (${openSlotConflictSelect(input.staffId, occupied.startsAt, occupied.endsAt, null)}) AS "exists"`,
+      );
+      if (conflict[0]?.exists)
+        throw serviceOperationConflict(
+          "Another open offer overlaps this period. Close obsolete offers before publishing a replacement, or choose another time.",
+        );
+      const endsAt = occupied.jobEndsAt;
       const slot = await this.repository.createBookingSlot(
         {
           branchId: input.branchId,
@@ -383,6 +574,10 @@ export class ServiceOperationsService {
           staffId: input.staffId,
           startsAt,
           endsAt,
+          durationMinutes: currentService.durationMinutes,
+          preparationMinutes: currentService.preparationMinutes,
+          cleanupMinutes: currentService.cleanupMinutes,
+          serviceTimingVersion: currentService.timingVersion,
         },
         transaction,
       );
@@ -411,6 +606,7 @@ export class ServiceOperationsService {
   ) {
     assertPrivilegedActor(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockWorkforce(transaction);
       const [profile, slot] = await Promise.all([
         this.repository.staffProfile(actor.userId, transaction),
         this.repository.lockBookingSlot(id, transaction),
@@ -424,6 +620,79 @@ export class ServiceOperationsService {
           profile.branchId !== slot.branchId)
       )
         throw serviceOperationForbidden();
+      if (slot.version !== input.expectedVersion) throw staleServiceOperation();
+      if (input.status === "OPEN") {
+        if (slot.startsAt <= new Date())
+          throw serviceOperationConflict("Publish a future appointment time");
+        if (
+          await transaction.booking.findFirst({
+            where: { bookingSlotId: id, status: { in: [...activeBookingStatuses] } },
+            select: { id: true },
+          })
+        )
+          throw serviceOperationConflict(
+            "An active appointment retains this offer; review its own estimate instead",
+          );
+        await transaction.$queryRaw`SELECT "id" FROM "Service" WHERE "id"=${slot.serviceId}::uuid FOR SHARE`;
+        const service = await this.repository.service(slot.serviceId, true, transaction);
+        const staff = await this.repository.assignableStaff(slot.staffId, transaction);
+        if (
+          !service ||
+          !staff ||
+          staff.branchId !== slot.branchId ||
+          !(await this.repository.branch(slot.branchId, transaction))
+        )
+          throw serviceOperationNotFound();
+        if (
+          input.expectedServiceVersion !== undefined &&
+          service.version !== input.expectedServiceVersion
+        )
+          throw staleServiceOperation();
+        const history = await transaction.booking.findFirst({
+          where: { bookingSlotId: id },
+          select: { id: true },
+        });
+        if (history && !slotTimingIsCurrent(slot, service))
+          throw serviceOperationConflict(
+            "This offer has booking history. Publish a new slot with the current estimates; the earlier schedule must remain unchanged.",
+          );
+        const occupied = timingWindow(slot.startsAt, service);
+        await assertSlotCalendar(
+          transaction,
+          slot.branchId,
+          occupied.startsAt,
+          occupied.endsAt,
+        );
+        await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${slot.staffId}`},0))`;
+        if (
+          await this.repository.hasScheduleConflict(
+            slot.staffId,
+            occupied.startsAt,
+            occupied.endsAt,
+            null,
+            transaction,
+          )
+        )
+          throw scheduleConflict();
+        const overlaps = await transaction.$queryRaw<Array<{ exists: boolean }>>(
+          PrismaSql.sql`SELECT EXISTS (${openSlotConflictSelect(slot.staffId, occupied.startsAt, occupied.endsAt, id)}) AS "exists"`,
+        );
+        if (overlaps[0]?.exists)
+          throw serviceOperationConflict(
+            "Another open offer overlaps this period. Close obsolete offers before reopening a replacement, or choose another time.",
+          );
+        if (!history)
+          await transaction.bookingSlot.update({
+            where: { id },
+            data: {
+              durationMinutes: service.durationMinutes,
+              preparationMinutes: service.preparationMinutes,
+              cleanupMinutes: service.cleanupMinutes,
+              serviceTimingVersion: service.timingVersion,
+              endsAt: occupied.jobEndsAt,
+            },
+          });
+      }
       const updated = await this.repository.updateBookingSlot(
         id,
         input.expectedVersion,
@@ -438,8 +707,22 @@ export class ServiceOperationsService {
         action: "STATUS_CHANGE",
         entityType: "BOOKING_SLOT",
         entityId: id,
-        oldValues: { status: slot.status, version: slot.version },
-        newValues: { status: result.status, version: result.version },
+        oldValues: {
+          status: slot.status,
+          version: slot.version,
+          durationMinutes: slot.durationMinutes,
+          preparationMinutes: slot.preparationMinutes,
+          cleanupMinutes: slot.cleanupMinutes,
+          serviceTimingVersion: slot.serviceTimingVersion,
+        },
+        newValues: {
+          status: result.status,
+          version: result.version,
+          durationMinutes: result.durationMinutes,
+          preparationMinutes: result.preparationMinutes,
+          cleanupMinutes: result.cleanupMinutes,
+          serviceTimingVersion: result.serviceTimingVersion,
+        },
         context,
       });
       return jsonSafe(result);
@@ -491,6 +774,7 @@ export class ServiceOperationsService {
   ) {
     assertServiceAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockWorkforce(transaction);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`service:${id}`}, 0))`;
       const existing = await this.repository.service(id, false, transaction);
       if (existing === null) throw serviceOperationNotFound();
@@ -513,7 +797,21 @@ export class ServiceOperationsService {
             "Active bookings must be resolved before deactivating this service",
           );
       }
-      const updated = await this.repository.updateService(id, input, transaction);
+      const timingChanged =
+        (input.durationMinutes !== undefined &&
+          input.durationMinutes !== existing.durationMinutes) ||
+        (input.preparationMinutes !== undefined &&
+          input.preparationMinutes !== existing.preparationMinutes) ||
+        (input.cleanupMinutes !== undefined &&
+          input.cleanupMinutes !== existing.cleanupMinutes);
+      if (timingChanged)
+        await preserveExistingBookingTiming(transaction, id, actor.userId);
+      const updated = await this.repository.updateService(
+        id,
+        input,
+        transaction,
+        timingChanged,
+      );
       if (updated.count !== 1) throw staleServiceOperation();
       const service = await this.repository.service(id, false, transaction);
       if (service === null) throw serviceOperationNotFound();
@@ -640,6 +938,7 @@ export class ServiceOperationsService {
         )
           throw scheduleConflict();
 
+        await this.reviewOfferedSlot(transaction, offered);
         slot = offered;
       } else {
         if (
@@ -769,6 +1068,16 @@ export class ServiceOperationsService {
         },
         transaction,
       );
+      if (booking.serviceId) {
+        const timing = await captureBookingTiming(
+          transaction,
+          booking,
+          actor.userId,
+          true,
+          "SERVICE_DEFAULT",
+        );
+        booking.timingSnapshots = [timing];
+      }
       await enqueueNotification(transaction, {
         userId: actor.userId,
         type: "BOOKING",
@@ -874,6 +1183,10 @@ export class ServiceOperationsService {
     await assertCapability(tx, actor, "BOOKING_CONFIRM");
     if (!["REQUESTED", "CONFIRMED"].includes(booking.status) || !booking.branchId)
       throw invalidServiceTransition();
+    if (booking.rescheduleRequests.some((request) => request.status === "PENDING"))
+      throw serviceOperationConflict(
+        "Review the pending reschedule request before proposing another time",
+      );
     const startsAt = new Date(input.preferredAt);
     assertWithinBookingWindow(startsAt);
     if (startsAt.getTime() === booking.scheduledAt.getTime())
@@ -944,7 +1257,7 @@ export class ServiceOperationsService {
           await tx.$queryRaw`SELECT "id" FROM "Service" WHERE "id" = ${booking.serviceId}::uuid FOR SHARE`;
           const service = await this.repository.service(booking.serviceId, true, tx);
           if (!service) throw serviceOperationNotFound();
-          duration = service.durationMinutes;
+          duration = bookedJobMinutes({ ...booking, service });
         }
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${booking.customerId}`}, 0))`;
         if (
@@ -972,6 +1285,17 @@ export class ServiceOperationsService {
         )
           throw scheduleConflict();
       }
+      if (input.decision === "ACCEPT") {
+        await createPendingReschedule(
+          tx,
+          booking,
+          actor.userId,
+          { id: null, branchId: booking.branchId, startsAt },
+          booking.alternativeReason ??
+            "Customer accepted the workshop-proposed alternative",
+          "WORKSHOP_ALTERNATIVE",
+        );
+      }
       const changed = await this.repository.updateBooking(
         id,
         input.expectedVersion,
@@ -979,28 +1303,10 @@ export class ServiceOperationsService {
           alternativeStartsAt: null,
           alternativeReason: null,
           alternativeVersion: null,
-          ...(input.decision === "ACCEPT"
-            ? {
-                scheduledAt: startsAt,
-                status: "REQUESTED",
-                bookingSlotId: null,
-                assignedStaffId: null,
-                confirmedAt: null,
-                attendanceConfirmedAt: null,
-                requestedAt: new Date(),
-                capacityPolicyVersionId: null,
-                resourceReviewNote: null,
-                scheduleVersion: { increment: 1 },
-                ...(booking.disruptionResolution === "PENDING"
-                  ? { disruptionResolution: "TRANSFERRED" as const }
-                  : {}),
-              }
-            : {}),
         },
         tx,
       );
       if (changed.count !== 1) throw staleServiceOperation();
-      if (input.decision === "ACCEPT") await cancelPendingReminders(tx, id);
       const updated = await this.repository.customerBooking(id, tx);
       if (!updated) throw serviceOperationNotFound();
       await enqueueNotification(tx, {
@@ -1013,7 +1319,7 @@ export class ServiceOperationsService {
             : "Alternative time declined",
         message:
           input.decision === "ACCEPT"
-            ? "Your chosen alternative now awaits staff confirmation. This workshop-proposed change does not use your customer reschedule allowance or charge a fee."
+            ? "Your chosen alternative awaits staff approval. Your original appointment remains unchanged. This workshop-proposed change does not use your customer reschedule allowance or charge a fee."
             : "You declined the proposed time. Your existing booking time and status are unchanged.",
         resourceType: "BOOKING",
         resourceId: id,
@@ -1098,6 +1404,7 @@ export class ServiceOperationsService {
           })
         )
           throw scheduleConflict();
+        await this.reviewOfferedSlot(transaction, offered, booking.id);
         replacement = offered;
       } else {
         if (!input.preferredAt || !booking.branchId || !booking.serviceId)
@@ -1119,11 +1426,19 @@ export class ServiceOperationsService {
           staffId: null,
           startsAt,
           endsAt:
-            service.durationMinutes === null
+            bookedJobMinutes({ ...booking, service }) === null
               ? null
-              : new Date(startsAt.getTime() + service.durationMinutes * 60_000),
+              : new Date(
+                  startsAt.getTime() +
+                    bookedJobMinutes({ ...booking, service })! * 60_000,
+                ),
         };
       }
+      const savedJobMinutes = bookedJobMinutes(booking);
+      replacement.endsAt =
+        savedJobMinutes === null
+          ? null
+          : new Date(replacement.startsAt.getTime() + savedJobMinutes * 60000);
       assertWithinBookingWindow(replacement.startsAt);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${booking.customerId}`}, 0))`;
       if (
@@ -1150,46 +1465,613 @@ export class ServiceOperationsService {
         }))
       )
         throw scheduleConflict();
+      await createPendingReschedule(
+        transaction,
+        booking,
+        actor.userId,
+        replacement,
+        input.reason,
+        "CUSTOMER",
+      );
       const result = await this.repository.updateBooking(
         id,
         input.expectedVersion,
-        {
-          bookingSlotId: replacement.id,
-          branchId: replacement.branchId,
-          assignedStaffId: replacement.staffId,
-          scheduledAt: replacement.startsAt,
-          status: "REQUESTED",
-          confirmedAt: null,
-          attendanceConfirmedAt: null,
-          requestedAt: new Date(),
-          capacityPolicyVersionId: null,
-          resourceReviewNote: null,
-          customerRescheduleCount: { increment: 1 },
-          scheduleVersion: { increment: 1 },
-        },
+        {},
         transaction,
       );
       if (result.count !== 1) throw staleServiceOperation();
-      const rescheduled = await this.repository.customerBooking(id, transaction);
-      if (rescheduled === null) throw serviceOperationNotFound();
-      await cancelPendingReminders(transaction, id);
       const updated = await this.repository.customerBooking(id, transaction);
-      if (updated === null) throw serviceOperationNotFound();
-      await enqueueNotification(transaction, {
-        userId: actor.userId,
-        type: "BOOKING",
-        category: "TRANSACTIONAL",
-        title: "Booking rescheduled",
-        message: `Your booking has been moved to ${updated.scheduledAt.toISOString()}. Staff will review availability and confirm the new appointment. Cancellation remains free.`,
-        resourceType: "BOOKING",
-        resourceId: id,
-        deduplicationKey: `booking:${id}:rescheduled:${updated.scheduleVersion}`,
-        channels: ["EMAIL"],
-      });
+      if (!updated) throw serviceOperationNotFound();
+      await this.notifyReschedule(
+        transaction,
+        booking,
+        actor.userId,
+        "Reschedule requested",
+        "Your requested replacement awaits staff approval. Your original appointment remains confirmed and unchanged.",
+        updated.version,
+      );
       await this.auditBooking(transaction, actor, booking, updated, context);
       await this.repository.completeIdempotency(scope, keyHash, id, transaction, 200);
       return jsonSafe({ ...customerSafeBooking(updated), replayed: false });
     });
+  }
+
+  private async notifyReschedule(
+    tx: Prisma.TransactionClient,
+    booking: { id: string; assignedStaffId: string | null },
+    customerUserId: string,
+    title: string,
+    message: string,
+    version: number,
+    previousStaffId?: string | null,
+  ) {
+    const recipients = new Set([customerUserId]);
+    for (const staffId of new Set(
+      [booking.assignedStaffId, previousStaffId].filter((id): id is string => !!id),
+    )) {
+      const staff = await tx.staffProfile.findUnique({
+        where: { id: staffId },
+        select: { userId: true, user: { select: { status: true } } },
+      });
+      if (staff?.user.status === "ACTIVE") recipients.add(staff.userId);
+    }
+    for (const userId of recipients)
+      await enqueueNotification(tx, {
+        userId,
+        type: "BOOKING",
+        category: "TRANSACTIONAL",
+        title,
+        message,
+        resourceType: "BOOKING",
+        resourceId: booking.id,
+        deduplicationKey: `booking:${booking.id}:reschedule:${version}:${userId}`,
+        channels: ["EMAIL"],
+      });
+  }
+
+  async withdrawBookingReschedule(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingRescheduleWithdrawInput,
+    context: RequestSecurityContext,
+  ) {
+    assertCustomerActor(actor);
+    return this.database.$transaction(async (tx) => {
+      const booking = await this.lockOwnedCustomerBooking(actor.userId, id, tx);
+      if (booking.version !== input.expectedVersion) throw staleServiceOperation();
+      const request = await tx.bookingRescheduleRequest.findFirst({
+        where: {
+          id: input.requestId,
+          bookingId: id,
+          status: "PENDING",
+          requestedByUserId: actor.userId,
+        },
+      });
+      if (!request) throw serviceOperationNotFound();
+      await tx.bookingRescheduleRequest.update({
+        where: { id: request.id },
+        data: {
+          status: "WITHDRAWN",
+          decidedByUserId: actor.userId,
+          decidedAt: new Date(),
+          decisionReason: input.reason,
+        },
+      });
+      const changed = await this.repository.updateBooking(
+        id,
+        input.expectedVersion,
+        {},
+        tx,
+      );
+      if (changed.count !== 1) throw staleServiceOperation();
+      const updated = await this.repository.customerBooking(id, tx);
+      if (!updated) throw serviceOperationNotFound();
+      await this.auditBooking(tx, actor, booking, updated, context);
+      await this.notifyReschedule(
+        tx,
+        booking,
+        actor.userId,
+        "Reschedule request withdrawn",
+        "The requested change was withdrawn. The appointment time and status have not changed.",
+        updated.version,
+      );
+      return jsonSafe(customerSafeBooking(updated));
+    });
+  }
+
+  async decideBookingReschedule(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingRescheduleDecisionInput,
+    context: RequestSecurityContext,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      await lockWorkforce(tx);
+      await lockAccessActor(tx, actor);
+      const booking = await this.lockAuthorizedStaffBooking(actor, id, tx, false);
+      return jsonSafe(
+        await this.decideLockedBookingReschedule(tx, actor, booking, input, context),
+      );
+    });
+  }
+
+  async decideWorkforceBookingReschedule(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingRescheduleDecisionInput,
+    context: RequestSecurityContext,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      await lockWorkforce(tx);
+      await lockAccessActor(tx, actor);
+      let original:
+        { branchId: string | null; assignedStaffId: string | null } | undefined;
+      const permitted = async (assignmentChanged = false) => {
+        const access = await workforceSnapshot(tx, actor);
+        if (
+          !access.managed ||
+          !access.independentCapabilities.includes("BOOKING_CONFIRM")
+        )
+          workforceDenied();
+        if (
+          original &&
+          (!bookingSnapshotAllowed(access, "BOOKINGS_READ", original) ||
+            (assignmentChanged &&
+              !bookingSnapshotAllowed(access, "JOBS_ASSIGN", original)))
+        )
+          workforceNotFound();
+        const filters = [
+          { id },
+          bookingScope(access, "BOOKINGS_READ"),
+          ...(assignmentChanged ? [bookingScope(access, "JOBS_ASSIGN")] : []),
+        ];
+        if (
+          !(await tx.booking.findFirst({ where: { AND: filters }, select: { id: true } }))
+        )
+          workforceNotFound();
+      };
+      await permitted();
+      const booking = await this.repository.lockBooking(id, tx);
+      if (!booking) workforceNotFound();
+      original = booking;
+      await permitted();
+      const updated = await this.decideLockedBookingReschedule(
+        tx,
+        actor,
+        booking,
+        input,
+        context,
+        permitted,
+      );
+      const request = updated.rescheduleRequests.find(
+        (row) => row.id === input.requestId,
+      );
+      if (!request || !request.decidedAt)
+        throw serviceOperationConflict("The decision receipt could not be verified");
+      return jsonSafe({
+        id: updated.id,
+        branchId: updated.branchId,
+        assignedStaffId: updated.assignedStaffId,
+        status: updated.status,
+        scheduledAt: updated.scheduledAt,
+        version: updated.version,
+        requestId: request.id,
+        requestStatus: request.status,
+        decidedAt: request.decidedAt,
+        performedByUserId: actor.userId,
+      });
+    });
+  }
+
+  private async decideLockedBookingReschedule(
+    tx: Prisma.TransactionClient,
+    actor: AuthenticatedActor,
+    booking: NonNullable<Awaited<ReturnType<ServiceOperationsRepository["lockBooking"]>>>,
+    input: BookingRescheduleDecisionInput,
+    context: RequestSecurityContext,
+    scope?: (assignmentChanged: boolean) => Promise<void>,
+  ) {
+    const id = booking.id;
+    let assignmentChanged = false;
+    let verifyTechnician: (() => Promise<void>) | undefined;
+    await assertCapability(tx, actor, "BOOKING_CONFIRM");
+    if (booking.version !== input.expectedVersion) throw staleServiceOperation();
+    const request = await tx.bookingRescheduleRequest.findFirst({
+      where: { id: input.requestId, bookingId: id, status: "PENDING" },
+    });
+    if (!request) throw serviceOperationNotFound();
+    if (input.decision === "APPROVE") {
+      assertOriginalAppointment(request.originalSchedule, booking);
+      if (request.startsAt <= new Date())
+        throw serviceOperationConflict("The requested replacement time has passed");
+      if (booking.serviceId)
+        await tx.$queryRaw`SELECT "id" FROM "Service" WHERE "id" = ${booking.serviceId}::uuid FOR SHARE`;
+      await tx.$queryRaw`SELECT "id" FROM "Branch" WHERE "id" = ${request.branchId}::uuid FOR SHARE`;
+      const service = booking.serviceId
+        ? await this.repository.service(booking.serviceId, true, tx)
+        : null;
+      if (!service) throw serviceOperationNotFound();
+      if (!(await this.repository.branch(request.branchId, tx)))
+        throw serviceOperationNotFound();
+      for (const slotId of [
+        ...new Set(
+          [booking.bookingSlotId, request.slotId].filter(
+            (value): value is string => !!value,
+          ),
+        ),
+      ].sort()) {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot:${slotId}`}, 0))`;
+        await tx.$queryRaw`SELECT "id" FROM "BookingSlot" WHERE "id" = ${slotId}::uuid FOR UPDATE`;
+      }
+      const slot = request.slotId
+        ? await this.repository.bookingSlot(request.slotId, tx)
+        : null;
+      if (
+        request.slotId &&
+        (!slot ||
+          slot.status !== "OPEN" ||
+          slot.serviceId !== booking.serviceId ||
+          slot.branchId !== request.branchId ||
+          slot.startsAt.getTime() !== request.startsAt.getTime())
+      )
+        throw serviceOperationConflict(
+          "The requested slot changed or is unavailable. The original appointment is unchanged",
+        );
+      if (
+        request.slotId &&
+        (await tx.booking.findFirst({
+          where: {
+            bookingSlotId: request.slotId,
+            id: { not: id },
+            status: { in: [...activeBookingStatuses] },
+          },
+          select: { id: true },
+        }))
+      )
+        throw scheduleConflict();
+      if (slot) await this.reviewOfferedSlot(tx, slot, booking.id);
+      const staffId = input.assignedStaffId ?? slot?.staffId ?? booking.assignedStaffId;
+      const staff = staffId ? await this.repository.assignableStaff(staffId, tx) : null;
+      if (!staff || (!scope && staff.branchId !== request.branchId))
+        throw serviceOperationConflict(
+          "Assign an available staff member at the replacement branch before approval",
+        );
+      if (scope) {
+        verifyTechnician = async () => {
+          const target = await tx.staffProfile.findFirst({
+            where: {
+              id: staff.id,
+              user: { status: "ACTIVE", emailVerifiedAt: { not: null } },
+            },
+            select: { userId: true, user: { select: { role: true } } },
+          });
+          if (!target)
+            workforceDenied(
+              "Select an active technician with work access in this branch",
+            );
+          const targetAccess = await workforceSnapshot(tx, {
+            ...actor,
+            userId: target.userId,
+            role: target.user.role,
+          });
+          if (!branchesFor(targetAccess, "JOBS_UPDATE").includes(request.branchId))
+            workforceDenied(
+              "Select an active technician with work access in this branch",
+            );
+        };
+        await verifyTechnician();
+      }
+      const actorProfile = await this.repository.staffProfile(actor.userId, tx);
+      if (!scope && actor.role === "STAFF" && actorProfile?.id !== staff.id)
+        throw serviceOperationForbidden();
+      if (slot?.staffId && slot.staffId !== staff.id)
+        throw serviceOperationConflict(
+          "Choose the technician published for the requested slot, or another available time",
+        );
+      assignmentChanged =
+        staff.id !== booking.assignedStaffId || request.branchId !== booking.branchId;
+      if (scope) await scope(assignmentChanged);
+      const originalTiming = await captureBookingTiming(tx, booking, actor.userId, true);
+      const replacementWindow = timingWindow(request.startsAt, originalTiming);
+      await assertSlotCalendar(
+        tx,
+        request.branchId,
+        replacementWindow.startsAt,
+        replacementWindow.endsAt,
+        id,
+      );
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${staff.id}`},0))`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${booking.customerId}`},0))`;
+      const end = replacementWindow.jobEndsAt;
+      if (
+        await this.repository.hasCustomerScheduleConflict(
+          booking.customerId,
+          request.startsAt,
+          end,
+          id,
+          tx,
+        )
+      )
+        throw scheduleConflict();
+      // Both changes and all capacity checks are one transaction. Any failure
+      // rolls back to the original confirmed appointment and its reminders.
+      const changed = await this.repository.updateBooking(
+        id,
+        input.expectedVersion,
+        {
+          scheduledAt: request.startsAt,
+          bookingSlotId: request.slotId,
+          branchId: request.branchId,
+          assignedStaffId: staff.id,
+          status: "REQUESTED",
+          confirmedAt: null,
+          attendanceConfirmedAt: null,
+          capacityPolicyVersionId: null,
+          resourceReviewNote: null,
+          scheduleVersion: { increment: 1 },
+          ...(request.source === "CUSTOMER"
+            ? { customerRescheduleCount: { increment: 1 } }
+            : {}),
+          ...(booking.disruptionResolution === "PENDING"
+            ? { disruptionResolution: "TRANSFERRED" as const }
+            : {}),
+        },
+        tx,
+      );
+      if (changed.count !== 1) throw staleServiceOperation();
+      if (scope) await scope(assignmentChanged);
+      const candidate = scope
+        ? await this.repository.lockBooking(id, tx)
+        : await this.lockAuthorizedStaffBooking(actor, id, tx, false);
+      if (!candidate) throw serviceOperationNotFound();
+      await carryBookingTiming(tx, booking, candidate, actor.userId);
+      await cancelPendingReminders(tx, id);
+      await this.transitionLockedBooking(
+        tx,
+        actor,
+        candidate,
+        {
+          status: "CONFIRMED",
+          expectedVersion: candidate.version,
+          resourceReviewNote: input.resourceReviewNote,
+        },
+        context,
+      );
+    } else {
+      const changed = await this.repository.updateBooking(
+        id,
+        input.expectedVersion,
+        {},
+        tx,
+      );
+      if (changed.count !== 1) throw staleServiceOperation();
+    }
+    await tx.bookingRescheduleRequest.update({
+      where: { id: request.id },
+      data: {
+        status: input.decision === "APPROVE" ? "APPROVED" : "DECLINED",
+        decidedByUserId: actor.userId,
+        decidedAt: new Date(),
+        decisionReason: input.reason,
+      },
+    });
+    const updated = await this.repository.staffBooking(id, actor.role !== "STAFF", tx);
+    if (!updated) throw serviceOperationNotFound();
+    const customer = await tx.customerProfile.findUniqueOrThrow({
+      where: { id: booking.customerId },
+      select: { userId: true },
+    });
+    await this.auditBooking(tx, actor, booking, updated, context);
+    await this.notifyReschedule(
+      tx,
+      updated,
+      customer.userId,
+      input.decision === "APPROVE" ? "Reschedule approved" : "Reschedule declined",
+      input.decision === "APPROVE"
+        ? "The workshop approved the replacement appointment. Review the confirmed time and update your saved calendar event."
+        : "The workshop declined the requested change. Your original appointment remains unchanged.",
+      updated.version,
+      booking.assignedStaffId,
+    );
+    if (verifyTechnician) await verifyTechnician();
+    if (scope) await scope(assignmentChanged);
+    await lockAccessActor(tx, actor);
+    return updated;
+  }
+
+  async overrideBookingTiming(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingTimingOverrideInput,
+    context: RequestSecurityContext,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      await lockWorkforce(tx);
+      await lockAccessActor(tx, actor);
+      const booking = await this.lockAuthorizedStaffBooking(actor, id, tx);
+      const updated = await this.changeLockedBookingTiming(
+        tx,
+        actor,
+        booking,
+        input,
+        context,
+      );
+      return jsonSafe({ ...updated, performedByUserId: actor.userId });
+    });
+  }
+  async overrideWorkforceBookingTiming(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingTimingOverrideInput,
+    context: RequestSecurityContext,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      await lockWorkforce(tx);
+      await lockAccessActor(tx, actor);
+      const scope = async () => {
+        const access = await workforceSnapshot(tx, actor);
+        if (
+          !access.managed ||
+          !access.independentCapabilities.includes("BOOKING_CONFIRM")
+        )
+          workforceDenied();
+        if (
+          !(await tx.booking.findFirst({
+            where: { AND: [{ id }, bookingScope(access, "BOOKINGS_READ")] },
+            select: { id: true },
+          }))
+        )
+          workforceNotFound();
+      };
+      await scope();
+      const booking = await this.repository.lockBooking(id, tx);
+      if (!booking) workforceNotFound();
+      await scope();
+      const updated = await this.changeLockedBookingTiming(
+        tx,
+        actor,
+        booking,
+        input,
+        context,
+        scope,
+      );
+      const timing = updated.timingSnapshots.find(
+        (row) => row.scheduleVersion === updated.scheduleVersion,
+      );
+      if (!timing)
+        throw serviceOperationConflict("The saved timing could not be verified");
+      return jsonSafe({
+        id: updated.id,
+        branchId: updated.branchId,
+        version: updated.version,
+        scheduleVersion: updated.scheduleVersion,
+        scheduledAt: updated.scheduledAt,
+        status: updated.status,
+        timing,
+        performedByUserId: actor.userId,
+      });
+    });
+  }
+  private async changeLockedBookingTiming(
+    tx: Prisma.TransactionClient,
+    actor: AuthenticatedActor,
+    booking: NonNullable<Awaited<ReturnType<ServiceOperationsRepository["lockBooking"]>>>,
+    input: BookingTimingOverrideInput,
+    context: RequestSecurityContext,
+    scope?: () => Promise<void>,
+  ) {
+    await assertCapability(tx, actor, "BOOKING_CONFIRM");
+    if (booking.version !== input.expectedVersion) throw staleServiceOperation();
+    if (
+      !["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED"].includes(booking.status) ||
+      booking.startedAt !== null ||
+      !booking.serviceId ||
+      !booking.service
+    )
+      throw serviceOperationConflict(
+        "Only an assessed appointment whose work has not started can have its estimate changed",
+      );
+    if (!booking.assignedStaffId)
+      throw serviceOperationConflict(
+        "Assign the actual technician before reviewing appointment timing",
+      );
+    if (booking.scheduledAt <= new Date())
+      throw serviceOperationConflict(
+        "Review a future appointment; arrival and work in progress need the operational workflow",
+      );
+    const occupied = timingWindow(booking.scheduledAt, input);
+    await captureBookingTiming(tx, booking, actor.userId, true);
+    await assertBookingCapacity(
+      tx,
+      { ...booking, service: { durationMinutes: input.durationMinutes } },
+      input.resourceReviewNote,
+      input,
+    );
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${booking.assignedStaffId}`},0))`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${booking.customerId}`},0))`;
+    if (
+      (await this.repository.hasScheduleConflict(
+        booking.assignedStaffId,
+        occupied.startsAt,
+        occupied.endsAt,
+        booking.id,
+        tx,
+      )) ||
+      (await this.repository.hasCustomerScheduleConflict(
+        booking.customerId,
+        booking.scheduledAt,
+        occupied.jobEndsAt,
+        booking.id,
+        tx,
+      ))
+    )
+      throw scheduleConflict();
+
+    const result = await this.repository.updateBooking(
+      booking.id,
+      input.expectedVersion,
+      { scheduleVersion: { increment: 1 } },
+      tx,
+    );
+    if (result.count !== 1) throw staleServiceOperation();
+    await tx.bookingTimingSnapshot.create({
+      data: {
+        bookingId: booking.id,
+        scheduleVersion: booking.scheduleVersion + 1,
+        scheduledAt: booking.scheduledAt,
+        serviceVersion: booking.service.version,
+        durationMinutes: input.durationMinutes,
+        preparationMinutes: input.preparationMinutes,
+        cleanupMinutes: input.cleanupMinutes,
+        serviceId: booking.serviceId,
+        source: "APPOINTMENT_OVERRIDE",
+        reason: input.reason,
+        createdByUserId: actor.userId,
+      },
+    });
+    await tx.bookingRescheduleRequest.updateMany({
+      where: { bookingId: booking.id, status: "PENDING" },
+      data: {
+        status: "SUPERSEDED",
+        decidedByUserId: actor.userId,
+        decidedAt: new Date(),
+        decisionReason:
+          "Staff reviewed this appointment's timing again; request another change if needed",
+      },
+    });
+    const updated = await this.repository.staffBooking(
+      booking.id,
+      actor.role !== "STAFF",
+      tx,
+    );
+    if (!updated) throw serviceOperationNotFound();
+    await allocateBookingResources(tx, actor, booking.id, input.resourceReviewNote);
+    if (updated.status === "CONFIRMED") await scheduleReminders(tx, updated);
+    const customer = await tx.customerProfile.findUniqueOrThrow({
+      where: { id: booking.customerId },
+      select: { userId: true },
+    });
+    await enqueueNotification(tx, {
+      userId: customer.userId,
+      type: "BOOKING",
+      category: "TRANSACTIONAL",
+      title: "Appointment estimate updated",
+      message:
+        "The workshop reviewed your estimated job time. Your appointment time and status remain unchanged. View your booking for the current estimate.",
+      resourceType: "BOOKING",
+      resourceId: booking.id,
+      deduplicationKey: `booking:${booking.id}:timing:${updated.scheduleVersion}`,
+      channels: ["EMAIL"],
+    });
+    await this.auditBooking(tx, actor, booking, updated, context);
+    await assertCapability(tx, actor, "BOOKING_CONFIRM");
+    if (scope) await scope();
+    await lockAccessActor(tx, actor);
+    return updated;
   }
 
   async cancelBooking(
@@ -1225,6 +2107,15 @@ export class ServiceOperationsService {
           data: { status: "CANCELLED", cancelledAt: now },
         });
       await cancelPendingReminders(transaction, id);
+      await transaction.bookingRescheduleRequest.updateMany({
+        where: { bookingId: id, status: "PENDING" },
+        data: {
+          status: "SUPERSEDED",
+          decidedByUserId: actor.userId,
+          decidedAt: new Date(),
+          decisionReason: "Customer cancelled the appointment",
+        },
+      });
       const updated = await this.repository.customerBooking(id, transaction);
       if (updated === null) throw serviceOperationNotFound();
       await enqueueNotification(transaction, {
@@ -1293,6 +2184,7 @@ export class ServiceOperationsService {
   ) {
     assertPrivilegedActor(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockWorkforce(transaction);
       const booking = await this.lockAuthorizedStaffBooking(
         actor,
         id,
@@ -1316,6 +2208,7 @@ export class ServiceOperationsService {
       const actorProfile = await this.repository.staffProfile(actor.userId, transaction);
       if (actor.role === "STAFF" && actorProfile?.id !== target.id)
         throw serviceOperationForbidden();
+      assertPublishedSlotAssignment(booking, target.id);
       let service = booking.service;
       if (input.serviceId && booking.serviceId && input.serviceId !== booking.serviceId)
         throw serviceOperationConflict(
@@ -1330,16 +2223,17 @@ export class ServiceOperationsService {
         service = await this.repository.service(input.serviceId, true, transaction);
         if (!service || service.currency !== "NGN") throw serviceOperationNotFound();
       }
-      const duration = service.durationMinutes;
-      if (duration === null)
-        throw serviceOperationConflict(
-          "Service duration must be configured before assignment",
-        );
-      const end = new Date(booking.scheduledAt.getTime() + duration * 60_000);
+      const occupied = await assignmentTimingWindow(
+        transaction,
+        booking,
+        actor.userId,
+        booking.serviceId === null ? input.serviceId : undefined,
+      );
+      const end = occupied.endsAt;
       if (
         await this.repository.hasScheduleConflict(
           target.id,
-          booking.scheduledAt,
+          occupied.startsAt,
           end,
           booking.id,
           transaction,
@@ -1362,6 +2256,17 @@ export class ServiceOperationsService {
         transaction,
       );
       if (result.count !== 1) throw staleServiceOperation();
+      await captureAssessedTimingIfMissing(
+        transaction,
+        { ...booking, serviceId: booking.serviceId ?? input.serviceId ?? null },
+        actor.userId,
+      );
+      await allocateBookingResources(
+        transaction,
+        actor,
+        id,
+        "Technician assignment reviewed against current workshop resources",
+      );
       const updated = await this.repository.staffBooking(
         id,
         actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
@@ -1381,6 +2286,7 @@ export class ServiceOperationsService {
   ) {
     assertPrivilegedActor(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockWorkforce(transaction);
       const booking = await this.lockAuthorizedStaffBooking(
         actor,
         id,
@@ -1495,24 +2401,28 @@ export class ServiceOperationsService {
         throw serviceOperationConflict(
           "Choose the service for this concern before confirmation",
         );
+      const timing = await captureBookingTiming(transaction, booking, actor.userId);
+      const occupied = timingWindow(booking.scheduledAt, timing);
       await assertBookingCapacity(
         transaction,
-        { ...booking, service: booking.service },
+        {
+          ...booking,
+          service: { ...booking.service, durationMinutes: timing.durationMinutes },
+        },
         input.resourceReviewNote,
+        timing,
       );
 
-      if (booking.assignedStaffId === null || booking.service.durationMinutes === null)
+      if (booking.assignedStaffId === null || timing.durationMinutes === null)
         throw serviceOperationConflict(
           "Assign an available staff member before confirmation",
         );
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${booking.assignedStaffId}`}, 0))`;
-      const end = new Date(
-        booking.scheduledAt.getTime() + booking.service.durationMinutes * 60_000,
-      );
+      const end = occupied.endsAt;
       if (
         await this.repository.hasScheduleConflict(
           booking.assignedStaffId,
-          booking.scheduledAt,
+          occupied.startsAt,
           end,
           booking.id,
           transaction,
@@ -1540,12 +2450,37 @@ export class ServiceOperationsService {
       transaction,
     );
     if (result.count !== 1) throw staleServiceOperation();
+    if (["IN_PROGRESS", "COMPLETED", "CANCELLED", "NO_SHOW"].includes(input.status))
+      await transaction.bookingRescheduleRequest.updateMany({
+        where: { bookingId: id, status: "PENDING" },
+        data: {
+          status: "SUPERSEDED",
+          decidedByUserId: actor.userId,
+          decidedAt: new Date(),
+          decisionReason:
+            input.status === "IN_PROGRESS"
+              ? "Work started on the original appointment"
+              : input.status === "COMPLETED"
+                ? "The original work was completed"
+                : input.status === "CANCELLED"
+                  ? "The original appointment was cancelled"
+                  : "Staff recorded the original appointment as missed",
+        },
+      });
     const updated = await this.repository.staffBooking(
       id,
       actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
       transaction,
     );
     if (updated === null) throw serviceOperationNotFound();
+    if (input.status === "CONFIRMED" || input.status === "IN_PROGRESS")
+      await allocateBookingResources(
+        transaction,
+        actor,
+        id,
+        input.resourceReviewNote ??
+          "Authorised work start; resource availability rechecked",
+      );
     if (input.status === "CONFIRMED") await scheduleReminders(transaction, updated);
     if (["COMPLETED", "CANCELLED", "NO_SHOW"].includes(input.status))
       await cancelPendingReminders(transaction, id);
@@ -1679,13 +2614,24 @@ export class ServiceOperationsService {
           replacement.branch.isActive !== true
         )
           throw serviceOperationNotFound();
+        const originalTiming = await captureBookingTiming(
+          transaction,
+          booking,
+          actor.userId,
+          true,
+        );
+        await this.reviewOfferedSlot(transaction, replacement, booking.id);
+        const replacementJobEnd = timingWindow(
+          replacement.startsAt,
+          originalTiming,
+        ).jobEndsAt;
         assertWithinBookingWindow(replacement.startsAt);
         await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${booking.customerId}`}, 0))`;
         if (
           await this.repository.hasCustomerScheduleConflict(
             booking.customerId,
             replacement.startsAt,
-            replacement.endsAt,
+            replacementJobEnd,
             booking.id,
             transaction,
           )
@@ -1710,6 +2656,15 @@ export class ServiceOperationsService {
           transaction,
         );
         if (changed.count !== 1) throw staleServiceOperation();
+        await carryBookingTiming(
+          transaction,
+          booking,
+          {
+            scheduleVersion: booking.scheduleVersion + 1,
+            scheduledAt: replacement.startsAt,
+          },
+          actor.userId,
+        );
         const updated = await this.repository.customerBooking(id, transaction);
         if (updated === null) throw serviceOperationNotFound();
         await cancelPendingReminders(transaction, id);
@@ -2124,6 +3079,7 @@ export class ServiceOperationsService {
   ) {
     assertPrivilegedActor(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockWorkforce(transaction);
       const booking = await this.lockAuthorizedStaffBooking(
         actor,
         bookingId,
@@ -2166,6 +3122,12 @@ export class ServiceOperationsService {
           transaction,
         );
         if (changed.count !== 1) throw staleServiceOperation();
+        await allocateBookingResources(
+          transaction,
+          actor,
+          booking.id,
+          "Work-order start reviewed against current workshop resources",
+        );
       }
       if (input.status === "COMPLETED" && booking.status === "IN_PROGRESS") {
         const changed = await this.repository.updateBooking(

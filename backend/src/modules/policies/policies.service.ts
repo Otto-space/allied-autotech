@@ -1,3 +1,5 @@
+import { validateWorkshopResourceReferences } from "./workshop-resource-policy.js";
+import { lockWorkforce } from "../organization/workforce-access.service.js";
 import type { PublishPolicyInput } from "./policies.schemas.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -220,8 +222,12 @@ export async function publishPolicy(
   const key =
     input.kind === "BRANCH_CAPACITY"
       ? `booking-capacity:${input.branchId}`
-      : input.kind.toLowerCase();
+      : input.kind === "BRANCH_RESOURCES"
+        ? `booking-resources:${input.branchId}`
+        : input.kind.toLowerCase();
   return prisma.$transaction(async (tx) => {
+    if (input.kind === "BRANCH_RESOURCES" || input.kind === "BRANCH_CAPACITY")
+      await lockWorkforce(tx);
     if (
       input.kind === "RETENTION" ||
       input.kind === "BANK_REFUND_CLOCK" ||
@@ -229,7 +235,7 @@ export async function publishPolicy(
       input.kind === "VEHICLE_RESERVATION_TERMS"
     )
       await lockAccessActor(tx, actor);
-    if (input.kind === "BRANCH_CAPACITY") {
+    if (input.kind === "BRANCH_CAPACITY" || input.kind === "BRANCH_RESOURCES") {
       await lockAccessActor(tx, actor);
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`branch:${input.branchId}`}, 0))`;
       await tx.$queryRaw`SELECT "id" FROM "Branch" WHERE "id" = ${input.branchId}::uuid FOR UPDATE`;
@@ -282,10 +288,12 @@ export async function publishPolicy(
     )
       throw paymentConflict("Both dispute contacts require dispute capability");
     if (
-      input.kind === "BRANCH_CAPACITY" &&
+      (input.kind === "BRANCH_CAPACITY" || input.kind === "BRANCH_RESOURCES") &&
       !(await tx.branch.findFirst({ where: { id: input.branchId, isActive: true } }))
     )
       throw paymentConflict("Select an active branch");
+    if (input.kind === "BRANCH_RESOURCES")
+      await validateWorkshopResourceReferences(tx, actor, input.branchId, input.settings);
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`policy:${key}`}, 0))`;
     const latest = await tx.businessPolicyVersion.findFirst({
       where: { key },
@@ -306,6 +314,7 @@ export async function publishPolicy(
           FINANCE: "Q7-Q8",
           DELIVERY: "Q1",
           BRANCH_CAPACITY: "Q5",
+          BRANCH_RESOURCES: "D06-D07",
           COMPLAINTS: "Q11",
           DISPUTES: "Q9",
           RETENTION: "Q13",

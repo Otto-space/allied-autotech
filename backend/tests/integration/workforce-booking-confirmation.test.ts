@@ -1,3 +1,4 @@
+import { testBranchResources } from "../helpers/owner-policy.js";
 import * as auditService from "../../src/modules/audit/audit.service.js";
 import * as notifications from "../../src/modules/notifications/notifications.service.js";
 import { randomUUID } from "node:crypto";
@@ -80,18 +81,24 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             },
           },
         });
+      const technicianId =
+        branchId === f.home.id
+          ? f.mechanical1.user.staffProfile!.id
+          : (await f.account("ELECTRICAL_TECHNICIAN", "STAFF", branchId)).user
+              .staffProfile!.id;
+      await testBranchResources(
+        branchId,
+        f.owner.id,
+        [f.job1.serviceId!],
+        [technicianId],
+      );
       const booking = await prisma.booking.create({
         data: {
           customerId: f.customer.user.profile!.id,
           branchId,
           serviceId: f.job1.serviceId,
           scheduledAt,
-          assignedStaffId:
-            options.assigned === false
-              ? null
-              : branchId === f.other.id
-                ? f.electrical.user.staffProfile!.id
-                : f.mechanical1.user.staffProfile!.id,
+          assignedStaffId: options.assigned === false ? null : technicianId,
           status: options.status ?? "REQUESTED",
         },
       });

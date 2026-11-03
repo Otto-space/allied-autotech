@@ -113,3 +113,25 @@ describe("Administrator service query and record boundaries", () => {
       expect(() => parseAdminServices({ items })).toThrow();
   });
 });
+
+it("keeps unassessed preparation and cleanup distinct from explicit zero", () => {
+  const base = {
+    name: "Synthetic service",
+    slug: "synthetic-service",
+    categoryId: "",
+    shortDescription: "",
+    description: "",
+    pricingType: "QUOTE_REQUIRED",
+    price: "",
+    duration: "60",
+    isActive: true,
+  };
+  expect(serviceFormSchema.parse(base).preparationMinutes).toBe("");
+  expect(
+    serviceFormSchema.parse({ ...base, preparationMinutes: "0", cleanupMinutes: "15" }),
+  ).toMatchObject({ preparationMinutes: "0", cleanupMinutes: "15" });
+  for (const value of ["-1", "1.5", "1441", "unknown"])
+    expect(
+      serviceFormSchema.safeParse({ ...base, preparationMinutes: value }).success,
+    ).toBe(false);
+});

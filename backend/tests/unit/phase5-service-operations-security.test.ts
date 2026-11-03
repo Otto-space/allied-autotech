@@ -131,8 +131,15 @@ describe("Phase 5 service-operation security contracts", () => {
   });
 
   it("requires exactly one reschedule time source and preserves version checks", () => {
-    const input = { preferredAt: "2026-11-10T10:00:00+01:00", expectedVersion: 2 };
+    const input = {
+      preferredAt: "2026-11-10T10:00:00+01:00",
+      expectedVersion: 2,
+      reason: "Synthetic customer requires a different appointment time",
+    };
     expect(bookingRescheduleBodySchema.safeParse(input).success).toBe(true);
+    expect(
+      bookingRescheduleBodySchema.safeParse({ ...input, reason: undefined }).success,
+    ).toBe(false);
     for (const value of [
       { expectedVersion: 2 },
       { ...input, slotId: crypto.randomUUID() },

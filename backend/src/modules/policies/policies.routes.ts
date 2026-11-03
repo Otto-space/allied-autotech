@@ -1,3 +1,4 @@
+import { readWorkshopResourcePolicy } from "./capacity-policy-workspace.js";
 import {
   capabilityListQuerySchema,
   publishPolicyBodySchema,
@@ -164,6 +165,24 @@ export function createPoliciesRouter() {
         userAgent: req.get("user-agent") ?? null,
       });
       res.json(successResponse("Current retention policy", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/booking-resources/:branchId/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ params: capacityBranchParams, query: financeEmptyQuery }),
+    async (req, res) => {
+      const { branchId } = capacityBranchParams.parse(req.params);
+      res.set("Cache-Control", "private, no-store");
+      const result = await readWorkshopResourcePolicy(req.actor!, branchId, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(
+        successResponse("Current workshop resource configuration", req.id, result),
+      );
     },
   );
   router.get(

@@ -7,6 +7,7 @@ import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
 import { upcomingAppointment } from "@/lib/booking-appointment";
 import { AppointmentTiming } from "./appointment-timing";
+import { AppointmentExport } from "./appointment-export";
 import { BookingReference } from "./booking-reference";
 
 export type BookingQuote = CustomerBookingDetail["quotes"][number];
@@ -43,6 +44,7 @@ export function BookingAppointment({
         current={current}
       />
       <BookingReference id={booking.id} />
+      <AppointmentExport booking={booking} now={now} current={current} />
       {booking.customerConcern && (
         <p className="booking-concern-description">{booking.customerConcern}</p>
       )}

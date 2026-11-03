@@ -1,3 +1,19 @@
+## 3 November 2026: owner-approved monetary arithmetic
+
+The user explicitly selected "Use the recommended rule" in this chat after
+reviewing the concrete proposal: for future orders, round the percentage discount
+and VAT once per order to the nearest kobo, resolve exact halves upward, and
+allocate partial refunds by largest fractional remainder, breaking ties by the
+saved line order. Allocations must reconcile to saved totals. Issued historical
+amounts remain unchanged. This resolves the former tie/boundary/allocation question;
+do not request that decision again. Implement the same saved snapshot across
+review, payment, invoice/receipt, verification and refunds.
+
+This is owner decision evidence, not a fabricated runtime publisher or policy
+activation. Live payments and existing controlled finance settings remain unchanged.
+Actual invoice identity, VAT exceptions and provider/operational acceptance retain
+their separate unresolved requirements.
+
 # Remaining owner and operator decisions
 
 The signed checklist and attachment were implemented with explicit gates. These are unresolved details, not a request to repeat already approved decisions. Record new approvals with source, evidence, effective time and a verified approver; never edit old policy versions.
@@ -8,7 +24,7 @@ The signed checklist and attachment were implemented with explicit gates. These 
 4. **Workshop (Q5):** per-branch daily capacity, opening days/holidays, resource review and out-of-hours meaning of the 10?30-minute confirmation target. Support hours do not define workshop opening days.
 5. **Cancellation and returns (Q6):** exactly NGN100,000; item versus order, unit versus line/quantity, VAT/discount and partial treatment; precise confirmation event. Confirm collection return anchor, inclusive 14-day boundary and defective-item/mandatory-rights review.
 6. **Bank refund timing (Q6):** interpret ?10 business days after refund is received or confirmed?; approve start event, counting convention, banking days and holiday calendar. No due date is promised until those inputs exist.
-7. **Accounting (Q7?8):** approve applicability/exceptions, rounding, discount/delivery tax treatment, registered invoice identity and terms. Owner draft is exclusive 7.5% VAT and seven-day quotations. Public checkout/invoice issue stays blocked until approval.
+7. **Accounting (Q7?8):** resolve genuine applicability/exceptions, discount/delivery tax treatment, registered invoice identity and terms. Exclusive 7.5% VAT after discounts, seven-day quotations and the arithmetic above are already approved. Public checkout/invoice issue stays blocked until approval.
 8. **Disputes/complaints (Q9/Q11):** map Newworld Orlu/Confidence Olaka to actual primary/backup accounts; supply pending customer-service/escalation emails, working-day coverage, urgent classes, public holidays and ordinary business-day meaning. Acknowledgement is separate from resolution.
 9. **Marketing (Q12):** approve content, consent wording/version, sender identity and unsubscribe mechanism. Marketing execution remains disabled; essential messages remain available.
 10. **Retention (Q13):** legal/accounting rules by record type, start events, holds and reviewed anonymization/deletion. The provisional 6?12 months is not an operative purge policy. Destructive execution remains disabled.

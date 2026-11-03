@@ -1,3 +1,4 @@
+import type { BookingRescheduleRequest } from "@/lib/api/booking-schemas";
 import type { Page } from "@playwright/test";
 import { workBookingsFixture, workBooking, bookingId } from "./work-bookings";
 export { bookingId };
@@ -6,6 +7,7 @@ export async function workBookingDetailFixture(page: Page, role = "ADMIN") {
   const state = {
     record: {
       ...workBooking(1, "CONFIRMED"),
+      rescheduleRequests: [] as BookingRescheduleRequest[],
       depositAmountKobo: null,
       depositPaidAt: null,
       customerNotes: "Engine warning light appears intermittently.",
@@ -103,6 +105,19 @@ export async function workBookingDetailFixture(page: Page, role = "ADMIN") {
       if (state.outcome === "conflict") return fail(409, "STALE_SERVICE_OPERATION");
       if (path.endsWith("/status") && !path.includes("/work-orders/"))
         state.record.status = body.status;
+      if (path.endsWith("/reschedule-decision")) {
+        const pending = state.record.rescheduleRequests.find(
+          (request) => request.id === body.requestId,
+        )!;
+        pending.status = body.decision === "APPROVE" ? "APPROVED" : "DECLINED";
+        pending.decidedAt = new Date().toISOString();
+        pending.decisionReason = body.reason;
+        if (body.decision === "APPROVE") {
+          state.record.scheduledAt = pending.startsAt;
+          state.record.version++;
+          state.record.customerRescheduleCount++;
+        }
+      }
       if (path.endsWith("/assignment")) state.assigned = true;
       if (path.endsWith("/disruption")) {
         state.record.disruptionRequestedAt = "2026-10-12T09:00:00Z";

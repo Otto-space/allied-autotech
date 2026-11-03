@@ -23,7 +23,7 @@ it("explains controllable workshop highlights without turning a discovery reques
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
-  expect([parts.version, vehicles.version]).toEqual([13, 5]);
+  expect([parts.version, vehicles.version]).toEqual([14, 5]);
   expect(parts.steps.join(" ")).toContain("payment without another staff approval");
   expect(parts.steps.join(" ")).toContain("changing only quantity retains the vehicle");
   expect(parts.steps.join(" ")).toContain("If the offer changes, refresh and review");
@@ -83,9 +83,12 @@ it("versions guest refund handoff guidance while preserving separate financial a
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(18);
+  expect(article.version).toBe(23);
   expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
   expect(article.steps.join(" ")).toContain("wait for the current availability check");
+  expect(article.steps.join(" ")).toContain(
+    "unpaid requests do not depend on checkout being available",
+  );
   expect(article.steps.join(" ")).toContain(
     "No permission is requested by the invitation",
   );
@@ -158,4 +161,28 @@ it("keeps every reviewed article within the established client step bound withou
     "only for a confirmed future appointment",
   ])
     expect(text).toContain(condition);
+});
+
+it("explains confirmed calendar export without promising sync, completion or an alarm", () => {
+  const text = learningArticles
+    .find((item) => item.id === "service-request")!
+    .steps.join(" ");
+  for (const phrase of [
+    "Only a confirmed future appointment",
+    "not private notes or a promised job-end time",
+    "may not sync automatically",
+    "does not confirm a pending request or guarantee an alarm",
+  ])
+    expect(text).toContain(phrase);
+});
+it("explains reasoned pending reschedules without releasing the original appointment", () => {
+  const booking = learningArticles.find((item) => item.id === "service-request")!;
+  const text = booking.steps.join(" ");
+  expect(text).toContain("provide a reason");
+  expect(text).toContain(
+    "original appointment and reminders remain unchanged until staff approves",
+  );
+  expect(text).toContain("original stays confirmed");
+  expect(text).toContain("withdraw only the pending change");
+  expect(text).toContain("Cancellation is a separate action");
 });

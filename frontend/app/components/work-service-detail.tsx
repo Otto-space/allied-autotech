@@ -169,7 +169,7 @@ function ServiceRecord({ serviceId, owner }: { serviceId: string; owner: string 
             <div>
               <dt>
                 <Clock3 size={23} aria-hidden="true" />
-                Duration
+                Estimated job time
               </dt>
               <dd>
                 {record.durationMinutes === null
@@ -283,6 +283,22 @@ function ServiceFacts({ record }: { record: AdminService }) {
         <div>
           <dt>URL name</dt>
           <dd>{record.slug}</dd>
+        </div>
+        <div>
+          <dt>Preparation before arrival</dt>
+          <dd>
+            {record.preparationMinutes == null
+              ? "Not assessed"
+              : `${record.preparationMinutes} minutes`}
+          </dd>
+        </div>
+        <div>
+          <dt>Cleanup after work</dt>
+          <dd>
+            {record.cleanupMinutes == null
+              ? "Not assessed"
+              : `${record.cleanupMinutes} minutes`}
+          </dd>
         </div>
         <div>
           <dt>Created</dt>

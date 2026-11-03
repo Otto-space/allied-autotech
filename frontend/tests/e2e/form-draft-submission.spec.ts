@@ -6,6 +6,8 @@ const id = "fa000000-0000-4000-8000-000000000003";
 test("Super Admin service draft survives reload and rejection, then clears after confirmed save", async ({
   page,
 }) => {
+  // Three full reloads plus rejection/review on the shared local preview.
+  test.setTimeout(90_000);
   let reject = true;
   const writes: unknown[] = [];
   await page.route("**/api/v1/**", async (route) => {
@@ -52,7 +54,15 @@ test("Super Admin service draft survives reload and rejection, then clears after
     .getByLabel("Full description (optional)", { exact: true })
     .fill("Diagnostic notes kept after reloading.");
   await page.getByLabel("Pricing", { exact: true }).last().selectOption("QUOTE_REQUIRED");
-  await page.getByLabel("Duration in minutes", { exact: true }).fill("60");
+  await page
+    .getByLabel("Estimated job time in minutes (optional)", { exact: true })
+    .fill("60");
+  await page
+    .getByLabel("Preparation before arrival (minutes, optional)", { exact: true })
+    .fill("10");
+  await page
+    .getByLabel("Cleanup after work (minutes, optional)", { exact: true })
+    .fill("0");
   await page.getByLabel("Active", { exact: true }).uncheck();
   await page.reload();
   await expect(page.getByLabel("Name", { exact: true })).toHaveValue("Draft diagnostics");
@@ -63,6 +73,12 @@ test("Super Admin service draft survives reload and rejection, then clears after
     "QUOTE_REQUIRED",
   );
   await expect(page.getByLabel("Active", { exact: true })).not.toBeChecked();
+  await expect(
+    page.getByLabel("Preparation before arrival (minutes, optional)", { exact: true }),
+  ).toHaveValue("10");
+  await expect(
+    page.getByLabel("Cleanup after work (minutes, optional)", { exact: true }),
+  ).toHaveValue("0");
   await page.getByRole("button", { name: "Review changes", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("button", { name: "Confirm save", exact: true }).click();
@@ -80,6 +96,8 @@ test("Super Admin service draft survives reload and rejection, then clears after
       pricingType: "QUOTE_REQUIRED",
       isActive: false,
       durationMinutes: 60,
+      preparationMinutes: 10,
+      cleanupMinutes: 0,
     }),
   ]);
   await page.reload();

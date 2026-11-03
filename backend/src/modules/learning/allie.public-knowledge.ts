@@ -55,7 +55,7 @@ export function publicServiceSource(
       : "Quotation required; the price has not been agreed.",
     row.durationMinutes === null
       ? "Duration is not published."
-      : `Published service duration: ${row.durationMinutes} minutes.`,
+      : `Estimated job time: ${row.durationMinutes} minutes; scope and timing may vary. This is not a promised vehicle-collection time.`,
     "This published listing does not prove appointment availability. A request requires staff confirmation; payment does not confirm an appointment.",
   ]
     .filter(Boolean)

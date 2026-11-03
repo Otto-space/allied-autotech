@@ -172,6 +172,21 @@ export function branchesFor(
     ),
   ];
 }
+/** Apply the same scope rule to a locked original appointment after an atomic
+ * branch/assignment change. This is not a substitute for reading the real row. */
+export function bookingSnapshotAllowed(
+  snapshot: WorkforceSnapshot,
+  action: WorkforceAction,
+  booking: { branchId: string | null; assignedStaffId: string | null },
+) {
+  return snapshot.assignments.some(
+    (assignment) =>
+      assignmentAllows(assignment, action) &&
+      assignment.branchId === booking.branchId &&
+      (assignment.scope !== "ASSIGNED" ||
+        (snapshot.staffId !== null && booking.assignedStaffId === snapshot.staffId)),
+  );
+}
 export function bookingScope(
   snapshot: WorkforceSnapshot,
   action: WorkforceAction,

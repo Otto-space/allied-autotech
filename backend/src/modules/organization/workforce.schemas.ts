@@ -1,3 +1,4 @@
+import { bookingRescheduleDecisionBodySchema } from "../service-operations/service-operations.schemas.js";
 export { bookingAlternativeBodySchema as workforceBookingAlternativeSchema } from "../service-operations/service-operations.schemas.js";
 import { supportEmailDeliveryPageSchema } from "../support/customer-email.js";
 export { supportDeliveryDismissSchema } from "../support/customer-email.js";
@@ -659,6 +660,43 @@ export function workforceResponseSchema(action: string): z.ZodType {
         generatedAt: timestamp,
         access: workforceOwnResponseSchema,
       });
+    case "bookingTiming":
+      return z.object({
+        id: z.uuid(),
+        branchId: z.uuid().nullable(),
+        version,
+        scheduleVersion: version,
+        scheduledAt: timestamp,
+        status: z.string(),
+        performedByUserId: z.uuid(),
+        timing: bookingTimingProjectionSchema,
+      });
+    case "bookingReschedule":
+      return z.object({
+        id: z.uuid(),
+        branchId: z.uuid().nullable(),
+        assignedStaffId: z.uuid().nullable(),
+        status: z.string(),
+        scheduledAt: timestamp,
+        version,
+        requestId: z.uuid(),
+        requestStatus: z.enum(["APPROVED", "DECLINED"]),
+        decidedAt: timestamp,
+        performedByUserId: z.uuid(),
+      });
+    case "bookingRescheduleAssignees":
+      return z.object({
+        items: z.array(
+          z.object({ id: z.uuid(), firstName: z.string(), lastName: z.string() }),
+        ),
+        nextCursor: z.uuid().optional(),
+        generatedAt: timestamp,
+        access: workforceOwnResponseSchema,
+        jobId: z.uuid(),
+        jobVersion: version,
+        branchId: z.uuid(),
+        requestId: z.uuid(),
+      });
     case "bookingConfirmation":
       return z.object({
         id: z.uuid(),
@@ -686,6 +724,9 @@ export function workforceResponseSchema(action: string): z.ZodType {
       });
     case "booking":
       return bookingRow.extend({
+        rescheduleRequests: z.array(bookingRescheduleProjectionSchema).max(10),
+        scheduleVersion: version,
+        timingSnapshots: z.array(bookingTimingProjectionSchema).max(10),
         alternativeStartsAt: timestamp.nullable(),
         alternativeReason: z.string().nullable(),
         alternativeVersion: version.nullable(),
@@ -892,3 +933,41 @@ export function workforceResponseSchema(action: string): z.ZodType {
       throw Error(`Missing workforce response contract: ${action}`);
   }
 }
+
+export const workforceBookingRescheduleSchema = bookingRescheduleDecisionBodySchema;
+export const workforceBookingRescheduleAssigneesSchema = workforceJobAssigneesQuerySchema
+  .extend({ requestId: z.uuid(), staffId: z.uuid().optional() })
+  .strict();
+const bookingRescheduleProjectionSchema = z.object({
+  id: z.uuid(),
+  status: z.enum(["PENDING", "APPROVED", "DECLINED", "WITHDRAWN", "SUPERSEDED"]),
+  source: z.enum(["CUSTOMER", "WORKSHOP_ALTERNATIVE"]),
+  branchId: z.uuid(),
+  slotId: z.uuid().nullable(),
+  startsAt: z.iso.datetime(),
+  reason: z.string(),
+  createdAt: z.iso.datetime(),
+  decidedAt: z.iso.datetime().nullable(),
+  decisionReason: z.string().nullable(),
+  proposedStaff: z
+    .object({ id: z.uuid(), firstName: z.string(), lastName: z.string() })
+    .nullable(),
+});
+
+export { bookingTimingOverrideBodySchema as workforceBookingTimingSchema } from "../service-operations/service-operations.schemas.js";
+
+const bookingTimingProjectionSchema = z.object({
+  scheduleVersion: version,
+  scheduledAt: timestamp,
+  durationMinutes: z.number().int().min(15).max(1440).nullable(),
+  preparationMinutes: z.number().int().min(0).max(1440).nullable(),
+  cleanupMinutes: z.number().int().min(0).max(1440).nullable(),
+  source: z.enum([
+    "SERVICE_DEFAULT",
+    "APPOINTMENT_OVERRIDE",
+    "LEGACY_CAPTURE",
+    "RESCHEDULE_CARRY_FORWARD",
+  ]),
+  reason: z.string().max(1000),
+  createdAt: timestamp,
+});

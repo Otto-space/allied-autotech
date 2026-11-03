@@ -74,7 +74,7 @@ test("editing reviews every field, cancels without a write and saves one version
   await page.goto(url);
   await page.getByRole("button", { name: "Edit service", exact: true }).click();
   await expect(page).toHaveURL(/view=edit/);
-  await page.getByLabel("Duration in minutes").fill("75");
+  await page.getByLabel("Estimated job time in minutes (optional)").fill("75");
   await page
     .getByLabel("Service price (NGN) (optional)", { exact: true })
     .fill("87654.32");
@@ -135,7 +135,7 @@ for (const outcome of ["uncertain", "uncommitted"])
     const { state } = await workServicesFixture(page);
     state.outcome = outcome;
     await page.goto(`${url}?view=edit`);
-    await page.getByLabel("Duration in minutes").fill("75");
+    await page.getByLabel("Estimated job time in minutes (optional)").fill("75");
     await review(page).click();
     await confirm(page).click();
     await page.getByRole("button", { name: "Close & review record" }).click();
@@ -162,7 +162,7 @@ for (const outcome of ["uncertain", "uncommitted"])
     await page
       .getByRole("button", { name: "Discard draft and reload saved service" })
       .click();
-    await expect(page.getByLabel("Duration in minutes")).toHaveValue(
+    await expect(page.getByLabel("Estimated job time in minutes (optional)")).toHaveValue(
       outcome === "uncertain" ? "75" : "120",
     );
     await expect(review(page)).toBeEnabled();

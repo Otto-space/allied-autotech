@@ -1,3 +1,19 @@
+## 3 November 2026: owner-approved monetary arithmetic
+
+The user explicitly selected "Use the recommended rule" in this chat after
+reviewing the concrete proposal: for future orders, round the percentage discount
+and VAT once per order to the nearest kobo, resolve exact halves upward, and
+allocate partial refunds by largest fractional remainder, breaking ties by the
+saved line order. Allocations must reconcile to saved totals. Issued historical
+amounts remain unchanged. This resolves the former tie/boundary/allocation question;
+do not request that decision again. Implement the same saved snapshot across
+review, payment, invoice/receipt, verification and refunds.
+
+This is owner decision evidence, not a fabricated runtime publisher or policy
+activation. Live payments and existing controlled finance settings remain unchanged.
+Actual invoice identity, VAT exceptions and provider/operational acceptance retain
+their separate unresolved requirements.
+
 ## Superseding owner decisions - received 2 November 2026, recorded 3 November
 
 Source: section7 of the user-supplied self-contained implementation brief,
@@ -32,7 +48,7 @@ release follow from this instruction.
 Still unresolved/deferred: verified invoice name/address/TaxID/CAC; broader returns/
 refunds/warranty; exact30/60/120-minute cancellation cutoff (60minutes is proposed);
 which weekdays/closures/start-day count for the five-day hold and custom-order hold;
-exact rounding tie/aggregate/allocation rules; genuine service/resource values and
+genuine service/resource values and
 shared bays/lift/break/holiday/Sunday constraints; materials procurement boundary;
 actual Paystack setup/acceptance; verified Newworld account/backup and distinct
 financial approver. Missing finance identity must not block an unpaid request.
@@ -155,7 +171,6 @@ enquiry workflow, including owner-dashboard visibility, have passed as recorded
 above. Checkout, paid
 reservations and live payments remain disabled under the approved launch scope.
 
-
 ## Catalogue fallback approved ? 22 October 2026
 
 The owner requested public access tonight and approved a catalogue-only fallback: public services, products, vehicles and direct phone/email/WhatsApp contact. Website enquiry/complaint intake, customer registration/dashboard functions, checkout, reservations and live payments remain unavailable. Staff authentication and MFA remain required.
@@ -163,7 +178,6 @@ The owner requested public access tonight and approved a catalogue-only fallback
 The user approved the catalogue privacy wording in `frontend/app/privacy/page.tsx` on 22 October 2026. At the user?s request, the public notice uses ?website hosting, cloud storage and email service providers?; named-provider records remain internal. This approval does not close the broader provider/overseas-processing review or authorise website customer intake. No additional purchase is authorised.
 
 Implementation and deployment verification are in progress; this entry is not evidence that public cutover has occurred. BitLocker was last reported by the user at 51%; completion has not been verified.
-
 
 ## Public catalogue release verified ? 22 October 2026
 

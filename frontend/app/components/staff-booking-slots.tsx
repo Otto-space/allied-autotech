@@ -122,12 +122,20 @@ function SlotWorkspace({ admin }: { admin: boolean }) {
     slots.refresh();
     profile.refresh();
   }
-  function change(slot: z.infer<typeof staffSlotSchema>) {
+  function change(
+    slot: z.infer<typeof staffSlotSchema>,
+    requestedStatus?: "OPEN" | "CLOSED",
+  ) {
     if (disabled || (!admin && slot.staff.id !== own?.id)) return;
-    const nextStatus = slot.status === "OPEN" ? "CLOSED" : "OPEN";
+    const nextStatus =
+      requestedStatus ??
+      (slot.timingReviewRequired ? "OPEN" : slot.status === "OPEN" ? "CLOSED" : "OPEN");
     const body: RequestBody<"/staff/booking-slots/{slotId}", "patch"> = {
       expectedVersion: slot.version,
       status: nextStatus,
+      ...(nextStatus === "OPEN" && slot.timingReviewRequired !== undefined
+        ? { expectedServiceVersion: slot.service.version }
+        : {}),
     };
     setMessage(undefined);
     setProposal({
@@ -135,12 +143,37 @@ function SlotWorkspace({ admin }: { admin: boolean }) {
       description:
         nextStatus === "CLOSED"
           ? "This removes the slot from new customer booking choices. It does not cancel an existing booking; handle any business disruption from that booking's record."
-          : "The slot can appear in customer booking choices when it meets the booking policy and availability checks.",
+          : "This records the current assessed job and buffer estimates. The full period must fit the approved calendar and technician availability; an active appointment keeps its existing estimate.",
       facts: [
         { label: "Service", value: slot.service.name },
         { label: "Branch", value: slot.branch.name },
         { label: "Staff", value: `${slot.staff.firstName} ${slot.staff.lastName}` },
         { label: "Starts", value: formatBusinessDate(slot.startsAt) },
+        ...(nextStatus === "OPEN"
+          ? [
+              {
+                label: "Estimated job time",
+                value:
+                  slot.service.durationMinutes == null
+                    ? "Not assessed"
+                    : `${slot.service.durationMinutes} minutes`,
+              },
+              {
+                label: "Preparation before arrival",
+                value:
+                  slot.service.preparationMinutes == null
+                    ? "Not assessed"
+                    : `${slot.service.preparationMinutes} minutes`,
+              },
+              {
+                label: "Cleanup after work",
+                value:
+                  slot.service.cleanupMinutes == null
+                    ? "Not assessed"
+                    : `${slot.service.cleanupMinutes} minutes`,
+              },
+            ]
+          : []),
       ],
       retryAfterRejection: false,
       submit: () =>
@@ -300,7 +333,9 @@ function SlotWorkspace({ admin }: { admin: boolean }) {
                         {formatBusinessDate(slot.startsAt)}
                       </time>
                       <span className="work-slot-meta">
-                        Ends{" "}
+                        {slot.timingReviewRequired
+                          ? "Previous estimate ends"
+                          : "Estimated job ends"}{" "}
                         <time dateTime={slot.endsAt}>
                           {formatBusinessDate(slot.endsAt)}
                         </time>
@@ -314,18 +349,37 @@ function SlotWorkspace({ admin }: { admin: boolean }) {
                         className={`work-slot-status ${slot.status.toLowerCase()}`}
                         data-status={slot.status}
                       >
-                        {slot.status === "OPEN" ? "Open" : "Closed"}
+                        {slot.status === "CLOSED"
+                          ? "Closed"
+                          : slot.timingReviewRequired
+                            ? "Timing review required"
+                            : "Open"}
                       </span>
                     </td>
                     <td data-label="Availability">
                       {admin || slot.staff.id === own?.id ? (
-                        <button
-                          className="button secondary"
-                          disabled={disabled}
-                          onClick={() => change(slot)}
-                        >
-                          {slot.status === "OPEN" ? "Close slot" : "Open slot"}
-                        </button>
+                        <>
+                          <button
+                            className="button secondary"
+                            disabled={disabled}
+                            onClick={() => change(slot)}
+                          >
+                            {slot.timingReviewRequired
+                              ? "Review and reopen"
+                              : slot.status === "OPEN"
+                                ? "Close slot"
+                                : "Open slot"}
+                          </button>
+                          {slot.timingReviewRequired && slot.status === "OPEN" && (
+                            <button
+                              className="button secondary"
+                              disabled={disabled}
+                              onClick={() => change(slot, "CLOSED")}
+                            >
+                              Close slot
+                            </button>
+                          )}
+                        </>
                       ) : (
                         <span className="work-slot-meta">
                           Assigned staff or administrator manages this slot.
@@ -476,7 +530,7 @@ function SlotCreateForm({
     onReview({
       title: "Publish this appointment slot?",
       description:
-        "The server uses the service duration to calculate the end time and checks the staff member's branch and existing slot schedule before saving.",
+        "The server saves the assessed job estimate and preparation/cleanup buffers, checks the approved calendar, and rechecks the technician's full occupied period. Changed service timing requires a fresh slot review.",
       facts: [
         { label: "Branch", value: selected("new-slot-branch") },
         { label: "Service", value: selected("new-slot-service") },

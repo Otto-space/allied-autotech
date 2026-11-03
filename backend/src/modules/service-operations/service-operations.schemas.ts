@@ -68,6 +68,8 @@ const serviceFields = {
   pricingType: z.enum(["FIXED", "QUOTE_REQUIRED"]),
   priceKobo: kobo.nullable(),
   currency: z.literal("NGN").default("NGN"),
+  preparationMinutes: z.number().int().min(0).max(1440).nullable().optional(),
+  cleanupMinutes: z.number().int().min(0).max(1440).nullable().optional(),
   durationMinutes: z
     .number()
     .int()
@@ -77,7 +79,7 @@ const serviceFields = {
     .meta({
       example: 60,
       description:
-        "Confirmed job duration in minutes, or null when unknown. A null duration cannot provide appointment slots.",
+        "Estimated job duration in minutes, or null when unknown. A null duration cannot provide appointment slots.",
     }),
   isActive: z.boolean().default(true),
 } as const;
@@ -103,6 +105,8 @@ export const serviceUpdateBodySchema = z
     pricingType: serviceFields.pricingType.optional(),
     priceKobo: serviceFields.priceKobo.optional(),
     currency: z.literal("NGN").optional(),
+    preparationMinutes: serviceFields.preparationMinutes,
+    cleanupMinutes: serviceFields.cleanupMinutes,
     durationMinutes: serviceFields.durationMinutes.optional(),
     isActive: z.boolean().optional(),
   })
@@ -201,6 +205,7 @@ export const bookingCreateBodySchema = z
   });
 export const bookingRescheduleBodySchema = z
   .object({
+    reason: cleanText(500),
     slotId: uuid.optional(),
     preferredAt: dateTime.optional(),
     expectedVersion: version,
@@ -263,10 +268,20 @@ export const staffBookingSlotListQuerySchema = z
   })
   .strict();
 export const bookingSlotCreateBodySchema = z
-  .object({ branchId: uuid, serviceId: uuid, staffId: uuid, startsAt: dateTime })
+  .object({
+    branchId: uuid,
+    serviceId: uuid,
+    staffId: uuid,
+    startsAt: dateTime,
+    expectedServiceVersion: version.optional(),
+  })
   .strict();
 export const bookingSlotUpdateBodySchema = z
-  .object({ expectedVersion: version, status: z.enum(["OPEN", "CLOSED"]) })
+  .object({
+    expectedVersion: version,
+    status: z.enum(["OPEN", "CLOSED"]),
+    expectedServiceVersion: version.optional(),
+  })
   .strict();
 export const bookingDisruptionBodySchema = z
   .object({ expectedVersion: version, reason: cleanText(1_000) })
@@ -390,3 +405,39 @@ export type BookingAlternativeInput = z.infer<typeof bookingAlternativeBodySchem
 export type BookingAlternativeResponseInput = z.infer<
   typeof bookingAlternativeResponseBodySchema
 >;
+
+export const bookingRescheduleDecisionBodySchema = z
+  .object({
+    requestId: uuid,
+    expectedVersion: version,
+    decision: z.enum(["APPROVE", "DECLINE"]),
+    reason: cleanText(500),
+    resourceReviewNote: cleanText(2000).optional(),
+    assignedStaffId: uuid.optional(),
+  })
+  .strict();
+export const bookingRescheduleWithdrawBodySchema = z
+  .object({
+    requestId: uuid,
+    expectedVersion: version,
+    reason: cleanText(500),
+  })
+  .strict();
+export type BookingRescheduleDecisionInput = z.infer<
+  typeof bookingRescheduleDecisionBodySchema
+>;
+export type BookingRescheduleWithdrawInput = z.infer<
+  typeof bookingRescheduleWithdrawBodySchema
+>;
+
+export const bookingTimingOverrideBodySchema = z
+  .object({
+    expectedVersion: version,
+    durationMinutes: z.number().int().min(15).max(1440),
+    preparationMinutes: z.number().int().min(0).max(1440),
+    cleanupMinutes: z.number().int().min(0).max(1440),
+    reason: cleanText(1000).min(10),
+    resourceReviewNote: cleanText(2000).min(10),
+  })
+  .strict();
+export type BookingTimingOverrideInput = z.infer<typeof bookingTimingOverrideBodySchema>;

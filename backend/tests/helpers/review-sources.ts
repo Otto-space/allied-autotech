@@ -65,6 +65,8 @@ export async function reviewSourceFixtures(customerId: string) {
       name: "Completed maintenance",
       slug: suffix,
       pricingType: "FIXED",
+      preparationMinutes: 0,
+      cleanupMinutes: 0,
       priceKobo: 100n,
     },
   });

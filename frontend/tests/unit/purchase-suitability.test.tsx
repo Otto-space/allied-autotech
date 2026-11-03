@@ -197,6 +197,27 @@ describe("purchase suitability", () => {
       mocks.account.mock.calls.filter(([, options]) => options?.method === "POST"),
     ).toHaveLength(1);
   });
+  it("opens a rejected offer for fresh checking without retaining a payment shortcut", () => {
+    render(
+      <PurchaseSuitability
+        order={parseOrder(orderRecord(3))}
+        offerUnavailable
+        onSaved={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("link", { name: "View payment options" })).toBeNull();
+    expect(
+      screen.getByText("Enter or reuse vehicle details").closest("details")!.open,
+    ).toBe(true);
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Check details and availability",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false);
+    expect(mocks.account).not.toHaveBeenCalled();
+  });
   it("keeps optional changes collapsed on an already verified order", () => {
     render(<PurchaseSuitability order={parseOrder(orderRecord(3))} onSaved={vi.fn()} />);
     expect(

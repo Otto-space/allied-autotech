@@ -1,3 +1,4 @@
+import { workshopResourceSettingsSchema } from "../service-operations/workshop-resources.js";
 import { z } from "zod";
 import { capacitySettingsSchema } from "../service-operations/booking-capacity.js";
 import { reservationTermsSettingsSchema } from "../vehicle-sales/reservation-terms.js";
@@ -251,6 +252,14 @@ export const publishPolicyBodySchema = z.discriminatedUnion("kind", [
       kind: z.literal("BRANCH_CAPACITY"),
       branchId: z.uuid(),
       settings: capacitySettingsSchema,
+    })
+    .strict(),
+  z
+    .object({
+      ...metadata,
+      kind: z.literal("BRANCH_RESOURCES"),
+      branchId: z.uuid(),
+      settings: workshopResourceSettingsSchema,
     })
     .strict(),
   z

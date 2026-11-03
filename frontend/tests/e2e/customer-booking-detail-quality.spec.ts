@@ -53,6 +53,9 @@ test("reschedule reviews exact slot and records the version with a key", async (
   await page.goto(route);
   await page.getByRole("button", { name: "Reschedule appointment", exact: true }).click();
   await page.locator(".booking-slot").click();
+  await page
+    .getByLabel("Reason for rescheduling", { exact: true })
+    .fill("Customer needs another day");
   await page.getByRole("button", { name: "Review reschedule" }).click();
   const modal = page.getByRole("dialog");
   await expect(modal).toContainText("New appointment");
@@ -60,11 +63,13 @@ test("reschedule reviews exact slot and records the version with a key", async (
   await expect(modal.getByRole("button", { name: "Go back" })).toBeFocused();
   await modal.getByRole("button", { name: "Confirm change" }).click();
   await expect(modal).toHaveCount(0);
-  await expect(page.locator(".booking-appointment")).toContainText(
-    "Awaiting workshop confirmation.",
-  );
+  await expect(page.locator(".booking-appointment")).toContainText("Confirmed");
   expect(state.writes).toHaveLength(1);
-  expect(state.writes[0].body).toEqual({ slotId: bookingId(504), expectedVersion: 1 });
+  expect(state.writes[0].body).toEqual({
+    slotId: bookingId(504),
+    expectedVersion: 1,
+    reason: "Customer needs another day",
+  });
   expect(state.writes[0].key).toBeTruthy();
 });
 test("uncertain reschedule repeats the identical key and body", async ({ page }) => {
@@ -73,6 +78,9 @@ test("uncertain reschedule repeats the identical key and body", async ({ page })
   await page.goto(route);
   await page.getByRole("button", { name: "Reschedule appointment", exact: true }).click();
   await page.locator(".booking-slot").click();
+  await page
+    .getByLabel("Reason for rescheduling", { exact: true })
+    .fill("Customer needs another day");
   await page.getByRole("button", { name: "Review reschedule" }).click();
   await page.getByRole("button", { name: "Confirm change" }).click();
   await expect(page.getByRole("button", { name: "Retry same request" })).toBeVisible();
@@ -378,6 +386,9 @@ test("slot paging clears selection and excludes original or mismatched slots", a
   await page.getByRole("button", { name: "Reschedule appointment", exact: true }).click();
   await expect(page.locator(".booking-slot")).toHaveCount(1);
   await page.locator(".booking-slot").click();
+  await page
+    .getByLabel("Reason for rescheduling", { exact: true })
+    .fill("Customer needs another day");
   await expect(page.getByRole("button", { name: "Review reschedule" })).toBeEnabled();
   await page.getByRole("button", { name: "More slots" }).click();
   await expect(page.getByRole("button", { name: "Review reschedule" })).toBeDisabled();
@@ -457,6 +468,9 @@ test("confirmed booking without a slot reviews a preferred reschedule", async ({
   await page
     .getByLabel("Or request a preferred time (Lagos time)")
     .fill("2026-11-10T10:30");
+  await page
+    .getByLabel("Reason for rescheduling", { exact: true })
+    .fill("Customer needs another day");
   await page.getByRole("button", { name: "Review reschedule" }).click();
   await expect(page.getByRole("dialog")).toContainText("10:30");
   expect(state.writes).toHaveLength(0);
@@ -466,11 +480,10 @@ test("confirmed booking without a slot reviews a preferred reschedule", async ({
   expect(state.writes[0].body).toEqual({
     preferredAt: "2026-11-10T09:30:00.000Z",
     expectedVersion: 1,
+    reason: "Customer needs another day",
   });
   expect(state.writes[0].key).toBeTruthy();
-  await expect(page.locator(".booking-appointment")).toContainText(
-    "Awaiting workshop confirmation.",
-  );
+  await expect(page.locator(".booking-appointment")).toContainText("Confirmed");
 });
 
 for (const width of [390, 1440])

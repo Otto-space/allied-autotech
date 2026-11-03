@@ -1,3 +1,8 @@
+import type { BookingTimingOverrideInput } from "./service-operations.schemas.js";
+import type {
+  BookingRescheduleDecisionInput,
+  BookingRescheduleWithdrawInput,
+} from "./service-operations.schemas.js";
 import type {
   BookingAlternativeInput,
   BookingAlternativeResponseInput,
@@ -264,12 +269,57 @@ export class ServiceOperationsController {
           ),
         ),
       );
+  overrideBookingTiming = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Appointment estimate recorded",
+          req.id,
+          await this.service.overrideBookingTiming(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingTimingOverrideInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+  decideBookingReschedule = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Reschedule decision recorded",
+          req.id,
+          await this.service.decideBookingReschedule(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingRescheduleDecisionInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+  withdrawBookingReschedule = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Reschedule request withdrawn",
+          req.id,
+          await this.service.withdrawBookingReschedule(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingRescheduleWithdrawInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
   rescheduleBooking = async (req: Request, res: Response) =>
     res
       .status(200)
       .json(
         successResponse(
-          "Booking rescheduled",
+          "Reschedule requested",
           req.id,
           await this.service.rescheduleBooking(
             actor(req),

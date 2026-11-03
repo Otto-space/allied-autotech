@@ -27,6 +27,7 @@ import { paymentMessages, type PaymentRecord } from "@/lib/api/payment-schemas";
 import {
   blockingOrderPayment,
   orderPaymentAcceptedReview,
+  orderPaymentReviewKey,
   orderPaymentSnapshot,
   orderPaymentUnavailable,
   parseOrderPayment,
@@ -76,6 +77,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
   const [notice, setNotice] = useState<string>();
   const [uncertain, setUncertain] = useState<"cancel" | "payment">();
   const [review, setReview] = useState<CustomerOrder>();
+  const [rejectedReview, setRejectedReview] = useState<string>();
   const [cancelReview, setCancelReview] = useState<CustomerOrder>();
   const [payment, setPayment] = useState<PaymentRecord>();
   const [now, setNow] = useState(() => Date.now());
@@ -100,6 +102,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       cancelForm.current?.reset();
       dialog.current?.close();
       setReview(undefined);
+      setRejectedReview(undefined);
       setCancelReview(undefined);
       paymentRequest.current = null;
       key.current = null;
@@ -126,7 +129,16 @@ export function OrderDetail({ orderId }: { orderId: string }) {
     order.refreshing ||
     !!order.error ||
     !!order.refreshError;
-  const unavailable = current ? orderPaymentUnavailable(current, now) : undefined;
+  const offerUnavailable = !!(
+    current &&
+    rejectedReview &&
+    orderPaymentReviewKey(current) === rejectedReview
+  );
+  const unavailable = offerUnavailable
+    ? "Recheck suitability and availability before continuing to payment."
+    : current
+      ? orderPaymentUnavailable(current, now)
+      : undefined;
   const reviewChanged =
     !!review &&
     !!current &&
@@ -171,7 +183,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
     };
   }
   async function reviewPayment() {
-    if (disabled || !current || orderPaymentUnavailable(current)) return;
+    if (disabled || !current || unavailable) return;
     const controller = begin();
     if (!controller) return;
     try {
@@ -266,6 +278,13 @@ export function OrderDetail({ orderId }: { orderId: string }) {
         value instanceof ApiError && value.status >= 400 && value.status < 500;
       if (sent && (!known || recover)) setUncertain("payment");
       else if (known) {
+        if (
+          !recover &&
+          review &&
+          value instanceof ApiError &&
+          ["PURCHASE_OFFER_CHANGED", "CONFLICT"].includes(value.code)
+        )
+          setRejectedReview(orderPaymentReviewKey(review));
         key.current = null;
         paymentRequest.current = null;
         setReview(undefined);
@@ -408,8 +427,12 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       {current && (
         <PurchaseSuitability
           order={current}
+          offerUnavailable={offerUnavailable}
           disabled={disabled}
-          onSaved={order.revalidate}
+          onSaved={() => {
+            setError(undefined);
+            order.revalidate();
+          }}
           onBusyChange={setSpecificationBusy}
         />
       )}

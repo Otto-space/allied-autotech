@@ -236,6 +236,17 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
     },
     {
       method: "get",
+      path: "/admin/policies/booking-resources/{branchId}/current",
+      summary: "Read approved workshop resources, upcoming version and immutable history",
+      params: capacityBranchParams,
+      query: financeEmptyQuery,
+      data: capacityWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private/no-store, current actor/session checked, repeatable snapshot and atomic minimal branch READ audit. Resource policy publication validates actual active services and verified technicians with current scoped work permission. Managed technicians need current branch duties; legacy technicians retain the existing verified role/branch work boundary. Explicit service eligibility never grants work access. Resource configuration alone does not reserve an appointment; confirmation and reviewed changes record immutable allocations atomically.",
+    },
+    {
+      method: "get",
       path: "/admin/policies/booking-capacity/{branchId}/current",
       summary: "Read current branch capacity, scheduled version and bounded history",
       params: capacityBranchParams,
@@ -266,7 +277,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       capability:
         "FINANCE_POLICY_APPROVE for FINANCE; SUPER_ADMIN for other policy kinds",
       description:
-        "RETENTION rechecks the current actor/session under the organization access lock. COMPLAINTS and DISPUTES additionally recheck the current actor/session under the organization access lock and lock selected contact accounts in stable order before eligibility validation. Expected-version checking, immutable version creation and the audit are atomic. Other policy kinds retain their existing authorization and publication rules.",
+        "RETENTION rechecks the current actor/session under the organization access lock. COMPLAINTS and DISPUTES additionally recheck the current actor/session under the organization access lock and lock selected contact accounts in stable order before eligibility validation. Expected-version checking, immutable version creation and the audit are atomic. BRANCH_RESOURCES acquires the workforce/actor locks before validating real branch, service and scoped technician references. Resources, shifts and exceptions remain versioned configuration; publication neither fabricates employees nor confirms appointments. Other policy kinds retain their existing authorization and publication rules.",
     },
     {
       method: "get",

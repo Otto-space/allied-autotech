@@ -63,3 +63,26 @@ it("isolates proposal markers and redacts both booking actions", () => {
   expect(readWorkforceBookingPending(owner, "alternative")).toBe("unknown");
   expect(JSON.stringify(sessionStorage)).not.toContain(booking);
 });
+
+it("isolates reschedule recovery and redacts it on account changes", () => {
+  const original = markWorkforceBookingPending(owner, booking, 1);
+  const pending = markWorkforceBookingPending(owner, booking, 1, "reschedule");
+  expect(readWorkforceBookingPending(owner, "reschedule")).toEqual(pending);
+  expect(() =>
+    clearWorkforceBookingPending(owner, original.token, "reschedule"),
+  ).toThrow();
+  expect(Object.keys(pending).sort()).toEqual(["id", "token", "version"]);
+  redactWorkforceBookingPending();
+  expect(readWorkforceBookingPending(owner, "reschedule")).toBe("unknown");
+  expect(JSON.stringify(sessionStorage)).not.toContain(booking);
+});
+
+it("keeps timing recovery separate and redacts its reference on account changes", () => {
+  const marker = markWorkforceBookingPending(owner, booking, 2, "timing");
+  expect(readWorkforceBookingPending(owner, "timing")).toEqual(marker);
+  expect(readWorkforceBookingPending(owner, "reschedule")).toBeUndefined();
+  expect(Object.keys(marker).sort()).toEqual(["id", "token", "version"]);
+  redactWorkforceBookingPending();
+  expect(readWorkforceBookingPending(owner, "timing")).toBe("unknown");
+  expect(JSON.stringify(sessionStorage)).not.toContain(booking);
+});

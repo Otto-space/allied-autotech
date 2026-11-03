@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { draftIdentity } from "../forms/drafts";
-type BookingAction = "confirm" | "alternative";
+type BookingAction = "confirm" | "alternative" | "reschedule" | "timing";
 const prefix = (action: BookingAction) => `aat:workforce-booking-${action}:v1:`;
 const schema = z
   .object({ token: z.uuid(), id: z.uuid(), version: z.number().int().nonnegative() })
@@ -55,7 +55,12 @@ export function redactWorkforceBookingPending() {
   if (typeof window === "undefined") return;
   try {
     for (const key of Object.keys(sessionStorage))
-      if (key.startsWith(prefix("confirm")) || key.startsWith(prefix("alternative")))
+      if (
+        key.startsWith(prefix("confirm")) ||
+        key.startsWith(prefix("alternative")) ||
+        key.startsWith(prefix("reschedule")) ||
+        key.startsWith(prefix("timing"))
+      )
         sessionStorage.setItem(key, "pending");
   } catch {}
 }

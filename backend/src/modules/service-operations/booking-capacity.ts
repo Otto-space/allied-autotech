@@ -1,3 +1,4 @@
+import { timingWindow, type TimingValues } from "./booking-timing.js";
 import { z } from "zod";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { approvedPolicy } from "../policies/policies.service.js";
@@ -23,6 +24,7 @@ export async function assertBookingCapacity(
     service: { durationMinutes: number | null };
   },
   resourceReviewNote: string | undefined,
+  timing?: TimingValues,
 ) {
   if (!booking.branchId || !resourceReviewNote || resourceReviewNote.trim().length < 10)
     throw serviceOperationConflict(
@@ -35,14 +37,19 @@ export async function assertBookingCapacity(
       "Approved branch capacity and opening calendar are not configured",
     );
   const settings = parsed.data;
-  const local = new Date(booking.scheduledAt.getTime() + 3_600_000);
+  const window = timing ? timingWindow(booking.scheduledAt, timing) : null;
+  const local = new Date((window?.startsAt ?? booking.scheduledAt).getTime() + 3_600_000);
   const day = local.toISOString().slice(0, 10);
   const minutes = local.getUTCHours() * 60 + local.getUTCMinutes();
   if (
     !settings.openingDays.includes(local.getUTCDay()) ||
     settings.holidays.includes(day) ||
     minutes < 480 ||
-    minutes + (booking.service.durationMinutes ?? 0) > 1080
+    (window
+      ? new Date(window.endsAt.getTime() + 3_600_000).toISOString().slice(0, 10) !==
+          day ||
+        (window.endsAt.getTime() - window.startsAt.getTime()) / 60000 + minutes > 1080
+      : minutes + (booking.service.durationMinutes ?? 0) > 1080)
   )
     throw serviceOperationConflict(
       "Appointment is outside the approved workshop calendar",

@@ -1,3 +1,6 @@
+import { technicianConflictSelect } from "./booking-slot-timing.js";
+import type { capacitySettingsSchema } from "./booking-capacity.js";
+import { bookedJobMinutes } from "./booking-timing.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { resourceImageSelect } from "../media/media.projection.js";
@@ -25,6 +28,9 @@ export const serviceSelect = {
   pricingType: true,
   priceKobo: true,
   currency: true,
+  timingVersion: true,
+  preparationMinutes: true,
+  cleanupMinutes: true,
   durationMinutes: true,
   isActive: true,
   version: true,
@@ -43,13 +49,21 @@ export function projectCatalogueService(
   row: Prisma.ServiceGetPayload<{ select: typeof serviceCatalogueSelect }>,
   publicRead: boolean,
 ) {
-  const { mediaImages, category, ...service } = row;
+  const {
+    mediaImages,
+    category,
+    preparationMinutes,
+    cleanupMinutes,
+    timingVersion,
+    ...service
+  } = row;
   const visibleCategory =
     category && (!publicRead || category.isActive)
       ? { id: category.id, name: category.name, slug: category.slug }
       : null;
   return {
     ...service,
+    ...(!publicRead ? { preparationMinutes, cleanupMinutes, timingVersion } : {}),
     ...(publicRead
       ? {
           description: publicServiceCopy(service.description),
@@ -135,6 +149,10 @@ export const bookingSlotSelect = {
   startsAt: true,
   endsAt: true,
   status: true,
+  durationMinutes: true,
+  preparationMinutes: true,
+  cleanupMinutes: true,
+  serviceTimingVersion: true,
   version: true,
   createdAt: true,
   updatedAt: true,
@@ -163,6 +181,36 @@ const publicBookingSlotSelect = {
 } satisfies Prisma.BookingSlotSelect;
 
 export const bookingSelect = {
+  timingSnapshots: {
+    select: {
+      scheduleVersion: true,
+      scheduledAt: true,
+      durationMinutes: true,
+      preparationMinutes: true,
+      cleanupMinutes: true,
+      source: true,
+      reason: true,
+      createdAt: true,
+    },
+    orderBy: { scheduleVersion: "desc" as const },
+    take: 10,
+  },
+  rescheduleRequests: {
+    select: {
+      id: true,
+      status: true,
+      source: true,
+      branchId: true,
+      slotId: true,
+      startsAt: true,
+      reason: true,
+      createdAt: true,
+      decidedAt: true,
+      decisionReason: true,
+    },
+    orderBy: [{ createdAt: "desc" as const }, { id: "desc" as const }],
+    take: 10,
+  },
   requestedAt: true,
   attendanceConfirmedAt: true,
   id: true,
@@ -280,7 +328,12 @@ export class ServiceOperationsRepository {
       select: serviceCatalogueSelect,
     });
     if (!row) return null;
-    return projectCatalogueService(row, activeOnly);
+    return {
+      ...projectCatalogueService(row, activeOnly),
+      timingVersion: row.timingVersion,
+      preparationMinutes: row.preparationMinutes,
+      cleanupMinutes: row.cleanupMinutes,
+    };
   }
 
   createService(input: ServiceCreateInput, client: DatabaseClient) {
@@ -292,6 +345,8 @@ export class ServiceOperationsRepository {
         pricingType: input.pricingType,
         priceKobo: input.priceKobo === null ? null : BigInt(input.priceKobo),
         currency: input.currency,
+        preparationMinutes: input.preparationMinutes ?? null,
+        cleanupMinutes: input.cleanupMinutes ?? null,
         durationMinutes: input.durationMinutes,
         isActive: input.isActive,
         ...(input.description === undefined ? {} : { description: input.description }),
@@ -303,7 +358,12 @@ export class ServiceOperationsRepository {
     });
   }
 
-  updateService(id: string, input: ServiceUpdateInput, client: DatabaseClient) {
+  updateService(
+    id: string,
+    input: ServiceUpdateInput,
+    client: DatabaseClient,
+    timingChanged = false,
+  ) {
     return client.service.updateMany({
       where: { id, version: input.expectedVersion },
       data: {
@@ -319,6 +379,13 @@ export class ServiceOperationsRepository {
           ? {}
           : { priceKobo: input.priceKobo === null ? null : BigInt(input.priceKobo) }),
         ...(input.currency === undefined ? {} : { currency: input.currency }),
+        ...(timingChanged ? { timingVersion: { increment: 1 } } : {}),
+        ...(input.preparationMinutes === undefined
+          ? {}
+          : { preparationMinutes: input.preparationMinutes }),
+        ...(input.cleanupMinutes === undefined
+          ? {}
+          : { cleanupMinutes: input.cleanupMinutes }),
         ...(input.durationMinutes === undefined
           ? {}
           : { durationMinutes: input.durationMinutes }),
@@ -339,27 +406,41 @@ export class ServiceOperationsRepository {
     });
   }
 
-  publicBookingSlots(serviceId: string, query: PublicBookingSlotListQuery) {
-    const now = new Date();
+  async publicBookingSlots(
+    serviceId: string,
+    query: PublicBookingSlotListQuery,
+    calendar: ReturnType<typeof capacitySettingsSchema.parse>,
+  ) {
+    const from = query.from === undefined ? new Date() : new Date(query.from),
+      to = query.to === undefined ? new Date("9999-01-01") : new Date(query.to);
+    const starts = Prisma.sql`slot."startsAt"-make_interval(mins=>slot."preparationMinutes")`;
+    const ends = Prisma.sql`slot."endsAt"+make_interval(mins=>slot."cleanupMinutes")`;
+    const cursor = query.cursor ?? null;
+    const ids = await this.database.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+      SELECT slot."id" FROM "BookingSlot" slot JOIN "Service" service ON service."id"=slot."serviceId"
+      JOIN "Branch" branch ON branch."id"=slot."branchId"
+      JOIN "StaffProfile" staff ON staff."id"=slot."staffId" JOIN "User" worker ON worker."id"=staff."userId"
+      WHERE slot."serviceId"=${serviceId}::uuid AND slot."branchId"=${query.branchId}::uuid AND slot."status"='OPEN'
+      AND branch."isActive" AND worker."status"='ACTIVE' AND worker."role" IN ('STAFF','ADMIN','SUPER_ADMIN') AND worker."emailVerifiedAt" IS NOT NULL AND staff."branchId"=slot."branchId"
+      AND service."isActive" AND service."pricingType"='FIXED' AND service."priceKobo" IS NOT NULL
+      AND slot."serviceTimingVersion"=service."timingVersion" AND slot."durationMinutes"=service."durationMinutes"
+      AND slot."preparationMinutes"=service."preparationMinutes" AND slot."cleanupMinutes"=service."cleanupMinutes"
+      AND slot."startsAt">=${from} AND slot."startsAt"<=${to}
+      AND (${cursor}::uuid IS NULL OR (slot."startsAt",slot."id")>(SELECT c."startsAt",c."id" FROM "BookingSlot" c WHERE c."id"=${cursor}::uuid AND c."serviceId"=${serviceId}::uuid AND c."branchId"=${query.branchId}::uuid))
+      AND NOT EXISTS (SELECT 1 FROM "Booking" held WHERE held."bookingSlotId"=slot."id" AND held."status" IN ('REQUESTED','AWAITING_DEPOSIT','CONFIRMED','IN_PROGRESS'))
+      AND NOT EXISTS (${technicianConflictSelect(Prisma.sql`slot."staffId"`, starts, ends, Prisma.sql`NULL::uuid`)})
+      AND EXTRACT(DOW FROM (${starts}+interval '1 hour'))::integer=ANY(${calendar.openingDays}::integer[])
+      AND (${starts}+interval '1 hour')::date::text<>ALL(${calendar.holidays}::text[])
+      AND (${starts}+interval '1 hour')::date=(${ends}+interval '1 hour')::date
+      AND (${starts}+interval '1 hour')::time >= TIME '08:00' AND (${ends}+interval '1 hour')::time<=TIME '18:00'
+      AND (SELECT count(*) FROM "Booking" used WHERE used."branchId"=slot."branchId" AND used."status" IN ('CONFIRMED','IN_PROGRESS','COMPLETED','NO_SHOW')
+       AND (used."scheduledAt"+interval '1 hour')::date=(slot."startsAt"+interval '1 hour')::date)<${calendar.dailyLimit}
+      ORDER BY slot."startsAt",slot."id" LIMIT ${query.limit + 1}
+    `);
     return this.database.bookingSlot.findMany({
-      where: {
-        serviceId,
-        branchId: query.branchId,
-        status: "OPEN",
-        startsAt: {
-          gte: query.from === undefined ? now : new Date(query.from),
-          ...(query.to === undefined ? {} : { lte: new Date(query.to) }),
-        },
-        bookings: {
-          none: {
-            status: { in: ["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED", "IN_PROGRESS"] },
-          },
-        },
-      },
+      where: { id: { in: ids.map((row) => row.id) } },
       select: publicBookingSlotSelect,
       orderBy: [{ startsAt: "asc" }, { id: "asc" }],
-      take: query.limit + 1,
-      ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
     });
   }
 
@@ -533,18 +614,44 @@ export class ServiceOperationsRepository {
     });
   }
 
-  staffBooking(
+  async staffBooking(
     id: string,
     includePayment: boolean,
     client: DatabaseClient = this.database,
   ) {
-    return client.booking.findUnique({
+    const row = await client.booking.findUnique({
       where: { id },
       select: {
         ...bookingSelect,
+        rescheduleRequests: {
+          ...bookingSelect.rescheduleRequests,
+          select: {
+            ...bookingSelect.rescheduleRequests.select,
+            slot: {
+              select: {
+                staff: { select: { id: true, firstName: true, lastName: true } },
+              },
+            },
+          },
+        },
         depositPayment: includePayment ? bookingSelect.depositPayment : false,
       },
     });
+    return row
+      ? {
+          ...row,
+          service: row.service
+            ? { ...row.service, durationMinutes: bookedJobMinutes(row) }
+            : null,
+          rescheduleRequests: row.rescheduleRequests.map(({ slot, ...request }) => ({
+            ...request,
+            proposedStaff:
+              includePayment || request.branchId === row.branchId
+                ? (slot?.staff ?? null)
+                : null,
+          })),
+        }
+      : null;
   }
 
   async lockBooking(id: string, client: Prisma.TransactionClient) {
@@ -581,15 +688,7 @@ export class ServiceOperationsRepository {
     client: Prisma.TransactionClient,
   ) {
     const rows = await client.$queryRaw<Array<{ exists: boolean }>>(Prisma.sql`
-      SELECT EXISTS (
-        SELECT 1 FROM "Booking" b
-        JOIN "Service" s ON s."id" = b."serviceId"
-        WHERE b."assignedStaffId" = ${staffId}::uuid
-          AND b."status" IN ('REQUESTED', 'AWAITING_DEPOSIT', 'CONFIRMED', 'IN_PROGRESS')
-          AND (${excludeBookingId}::uuid IS NULL OR b."id" <> ${excludeBookingId}::uuid)
-          AND b."scheduledAt" < ${end}
-          AND b."scheduledAt" + make_interval(mins => COALESCE(s."durationMinutes", 60)) > ${start}
-      ) AS "exists"
+      SELECT EXISTS (${technicianConflictSelect(Prisma.sql`${staffId}::uuid`, Prisma.sql`${start}::timestamp`, Prisma.sql`${end}::timestamp`, Prisma.sql`${excludeBookingId}::uuid`)}) AS "exists"
     `);
     return rows[0]?.exists ?? false;
   }
@@ -604,12 +703,18 @@ export class ServiceOperationsRepository {
     const rows = await client.$queryRaw<Array<{ exists: boolean }>>(Prisma.sql`
       SELECT EXISTS (
         SELECT 1 FROM "Booking" b
-        JOIN "Service" s ON s."id" = b."serviceId"
+        LEFT JOIN "Service" s ON s."id" = b."serviceId"
+        LEFT JOIN "BookingTimingSnapshot" t ON t."bookingId"=b."id" AND t."scheduleVersion"=b."scheduleVersion"
         WHERE b."customerId" = ${customerId}::uuid
           AND b."status" IN ('REQUESTED', 'AWAITING_DEPOSIT', 'CONFIRMED', 'IN_PROGRESS')
           AND (${excludeBookingId}::uuid IS NULL OR b."id" <> ${excludeBookingId}::uuid)
-          AND b."scheduledAt" < ${end}
-          AND b."scheduledAt" + make_interval(mins => COALESCE(s."durationMinutes", 60)) > ${start}
+          AND (
+            ((CASE WHEN t."id" IS NOT NULL THEN t."durationMinutes" ELSE s."durationMinutes" END) IS NOT NULL
+              AND b."scheduledAt" < ${end}
+              AND b."scheduledAt" + make_interval(mins => CASE WHEN t."id" IS NOT NULL THEN t."durationMinutes" ELSE s."durationMinutes" END) > ${start})
+            OR ((CASE WHEN t."id" IS NOT NULL THEN t."durationMinutes" ELSE s."durationMinutes" END) IS NULL AND (b."scheduledAt" >= date_trunc('day', ${start}::timestamp + interval '1 hour') - interval '1 hour'
+              AND b."scheduledAt" < date_trunc('day', ${end}::timestamp + interval '1 hour') + interval '23 hours' ))
+          )
       ) AS "exists"
     `);
     return rows[0]?.exists ?? false;

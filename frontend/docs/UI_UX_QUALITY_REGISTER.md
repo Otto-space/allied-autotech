@@ -17,6 +17,199 @@ and excluded from this release. Full self-contained ledger and reviewed captures
 frontend/docs/CONSOLIDATED_AUDIT_20261103.md. Earlier pending checkpoints below
 are historical; this checkpoint supersedes only this audit package's status.
 
+3 November 20:25 UTC verification and arithmetic checkpoint: 21c633af frontend
+41708675936 passes 1,457 units (12 existing skips) and 64/64 Chromium cases.
+Retained artifact 13267077668 (3,613,983 bytes) is safely extracted under
+runtime-ci-21c633af. Inspected 768px and collapsed-1440px slot records plus the
+768px calendar: status words remain whole and calendar copy has no replacement
+character. The two slot actions still touched, so their shared cell now adds an
+8px gap; the updated browser case measures that gap. Its new rendered rerun is
+pending; inspected screenshots do not prove this last spacing correction.
+
+Backend 41708675927 passes 97-migration replay/db:check, eight reminder concurrency
+cases and 148 combined booking/resource cases (four separately provisioned-workspace
+cases remain skipped), plus 82 purchase and 88 guest cases and subsequent workflow
+gates. Its final Care/Allie stage fails two guidance tests. The stale alternative
+fixture now asserts preserved original staff/reminders. Auxiliary query words
+such as may/have/currently had let a long public article crowd out the relevant
+permitted delegation guide; retrieval now ignores those question fillers without
+changing eligibility, whole passages, four-source or 8,000-character limits.
+Positive provider fixtures use the current parts source version; duplicate and
+obsolete sources still have explicit rejection cases. Five suites pass 99/99.
+Full workflow rerun is required; this backend run is not a successful release gate.
+
+The user approved future-order HALF_UP aggregate percentage discount/VAT and
+largest-remainder refund allocation with saved-line-order ties in this chat.
+Decision/checklist/ledger records now reflect that approval. Percentage promotions
+use the existing integer HALF_UP helper rather than truncation; fixed discounts
+and caps are preserved. Two money suites pass 13/13 for account/guest evaluation,
+exact halves, non-ties, large integers, caps and VAT after discount. Saved monetary
+snapshot/partial-refund allocation integration remains unfinished under D02/D17;
+it is no longer an unresolved owner arithmetic decision. No existing issued
+record, service price, package quantity, live finance setting or payment flag changed.
+
+Both public aliases were refreshed through Vercel and still target
+dpl_Fzq4yoEwLMH1puuvqznu9SdRAqAX / source fabbe7a600a02e002f1f4ee773dada4b5cf25697.
+The local cache review found only about 0.77 GiB of compiler cache in this worktree;
+it was retained as insufficient to unlock the standard build allowance. No cache,
+profile, source, database, image or other task resource was deleted.
+
+3 November 20:03 UTC continuation: signed correction 21c633af0c98f0cc7c43c710c7a74fadfab96b82
+is pushed. Exact-source workflows: frontend 41708675936, backend 41708675927,
+secrets 41708675909. These are pending/in progress, not accepted or deployed.
+All 19 native booking test files remain in the workflow; YAML and Bash syntax
+validation pass after the worker invocation split. Current working source is
+recoverable, with no real records, shared migrations or live flags changed.
+Next: inspect these exact runs, fix actual failures and inspect corrected rendered
+badge/calendar evidence before closing this batch. Resource dashboard source is
+being prepared in the other active worktree; its uncommitted UI is untouched.
+D03/D11-D17 and other full-goal items remain in the ledger, not silently deferred.
+
+3 November 19:59 UTC verification follow-up: resource source 330e7cba replayed
+97 migrations and passed db:check/types/scripts/lint plus 14/14 resource lifecycle
+and 9/9 policy cases under the isolated non-owner runtime. The combined booking
+run has 152 passes, four failures and four provisioned-workspace skips; it is not
+a passing backend gate. Three failures came from global reminder-worker assertions
+consuming due reminders left by synthetic-clock resource fixtures. The worker
+suite is now invoked first on the fresh schema, retains every assertion and adds
+an explicit loopback guard; no fixture data is cleared. The fourth was a test's
+incorrect workshop-source enum; it now asserts WORKSHOP_ALTERNATIVE from the real
+contract. Native rerun is required. Secrets 41707257982 pass; frontend 41707258054
+was still running at last inspection.
+
+Downloaded 406f7814 browser artifact 13266860032 (3,364,796 bytes). Tablet calendar,
+slot review and collapsed-laptop screenshots are retained under runtime-ci-406f7814.
+Manual inspection found a badge breaking Required across lines and a replacement
+character in calendar copy. Shared badges now prefer whole-word wrapping while
+retaining long-token fallback, and slot status gets sufficient column space;
+control radii and font sizes are unchanged. Calendar copy uses plain readable
+words. Updated browser cases inspect whole-word layout in both laptop states,
+activate review with Enter and retain unobscured badge screenshots. Local calendar
+units pass 8/8, scoped lint passes, and 64 browser cases collect; this correction's
+rendered rerun is pending. This is fixture evidence, not real roles/devices.
+
+3 November 19:51 UTC exact-source follow-up: 406f7814 frontend workflow
+41705432560 passes 1,457 units (12 existing isolated-audit skips), production
+checks and 64/64 Chromium cases with no browser skips. Secrets 41705432562 pass.
+Backend 41705432590 passes 96-migration replay/db:check and preceding source/
+safeguard gates, then isolated booking tests report 115 passed, one failed and
+four skipped. The skipped cases require a separately provisioned workspace; this
+run does not prove that acceptance. The one failure expected the older immediate
+alternative move. Its journey fixture now verifies the preserved appointment/
+technician and pending request, explicit authorised approval and duplicate-decision
+rejection. Explicit synthetic buffers/resources support that journey; no real
+workshop facts are invented. Native rerun of this correction remains required.
+
+The resource candidate validates 445 OpenAPI paths/521 operations, with four
+explicit infrastructure routes. All four account/guest purchase/payment request
+contracts and the current purchase-review model remain identical. Its new unapplied
+allocation migration matches original committed bytes (SHA-256
+1d410b0ce58125e6d074d2b8104963b14916b40f7da77ba9a1f262005ddfe71e).
+No publication or shared migration is authorised by these partial results.
+
+### 3 November 19:44 UTC package: actual workshop resource integration
+
+Target 20:44 UTC. Integrated committed resource source 90ddaf49/287f5307,
+selected domain tests and its unchanged forward allocation migration. Uncommitted
+resource dashboard work in the other active worktree is untouched. Current
+payment-review schema/automatic purchasing and strict loopback isolation helper
+are preserved; no alternative purchase model or shared grants are imported.
+
+Plans distinguish technician eligibility/working periods, distinct equipment and
+shared spaces. Confirmation, rescheduling, timing review, reassignment and work
+start reserve current resources atomically. Conflicts retain the original state;
+eligible cancellation releases occupancy while append-only history remains.
+Recorded cleanup and overdue ongoing work protect capacity. Legacy unknown work
+requires review rather than invented facts. Resource policies retain owner-only
+current-MFA/CSRF/version controls and cannot grant workforce permission.
+
+Schema/client validation and backend type/script/lint checks pass. Five focused
+unit suites pass 44/44. Public service guidance v23 preserves the settled D01
+independent-booking sentence; restricted confirmation v9 describes reservations.
+Native CI now includes resource-policy and fourteen resource lifecycle cases under
+the isolated non-owner runtime role. Actual execution, migration replay, dashboard
+authoring, real configuration and role/provider acceptance remain pending. No
+shared migration, live record mutation, notification or capability activation.
+
+3 November 19:42 UTC release checkpoint: correction and expanded responsive
+acceptance are signed/pushed as 406f78149b7a06e881c0b00eb41f3d1acf8d0eba.
+Exact-source workflows started: frontend 41705432560, backend 41705432590,
+secrets 41705432562. Results are pending; do not publish from earlier green runs.
+
+Downloaded browser artifact 13264177211 for 8bd2e173 (2,484,399 bytes), safely
+extracted selected evidence and inspected changed-offer screenshots at 320/1440.
+The alert is in view, the stale green approval/payment shortcut is absent, known
+vehicle details reopen for a fresh check and the laptop form retains readable
+columns. These are synthetic Chromium screenshots, not production/real-role or
+physical-device acceptance. Evidence directory:
+C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/runtime-ci-8bd2e173/.
+No real order, stock, payment or notification was changed. Disk preflight passed
+with 21.94 GiB free and a 0.03 GiB allowance. Full D01-D17 scope remains active.
+
+3 November 19:37 UTC integration follow-up: frontend source 8bd2e173 passes
+41702361178 with 1,457 unit cases (12 existing skips) and 54/54 Chromium cases.
+The first backend failure was an old positive schema fixture missing the newly
+required reschedule reason; the corrected seven-case unit suite passes without
+relaxing validation. Retry 257faa0d passed the preceding database/runtime checks,
+then failed the authenticated Help test because merged service guidance lost the
+settled D01 unpaid-booking/checkout independence sentence. That content is restored
+in service-request v22; the test remains, and 13 relevant Help units pass.
+
+The new isolated runtime-role booking suite is moved earlier to expose its actual
+native results before unrelated later gates; no required check is removed.
+Browser discovery now collects 64 cases including 768px, plus collapsed/expanded
+laptop slot review. Passing estimate screenshots now use the normal retained
+test-artifact directory. These expanded executions remain pending; the 54-case
+pass does not prove the new tablet/sidebar cases. No migration or capability was
+applied/activated on a shared application target.
+
+### 3 November 18:44 UTC package: booking/calendar integration candidate
+
+Target 19:44 UTC. Working source integrates the committed calendar portion of
+71e185d3 and booking commits e3d627ae, e9a588cd, f32ae2bd and add274bf into master
+7384abf8. It preserves the approved automatic purchase engine, current purchase
+history, dashboard/learning repairs and independent runtime gates. The alternative
+purchase-review implementation/migration is not imported. Current database
+isolation guards remain unchanged; native acceptance will run in hosted loopback.
+
+Customer reschedules retain the existing appointment until an authorised scoped
+decision switches it atomically. Reasons, withdrawal, decline, stale/conflict and
+uncertain-result handling are integrated. Customer cancellation is limited to
+eligible unstarted visits. Saved estimates, reasoned pre-start overrides, versioned
+offers and historical timing through approved replacements are integrated.
+Confirmed-arrival .ics and Google Calendar actions avoid invented completion times,
+private notes, forced OAuth or promised alarms. D06 equipment/resource allocations,
+in-progress overrun handling and configurable reminder delivery remain unfinished.
+
+Four booking migrations match their original committed bytes unchanged; the full
+source has 96 migrations. Schema validation/client generation, backend compiler/
+script checks/lint pass. Thirty backend timing/Help units pass; the later ten-case
+Help rerun overlaps that total. Frontend booking/calendar units pass 24/24 and
+payment/recheck units pass 23/23; scoped lint passes. Canonical contracts validate
+444 paths/520 operations. Four existing account/guest checkout/payment request
+contracts are identical after resolving OpenAPI references.
+
+A screenshot-confirmed stale confirmation is also corrected: a rejected offer no
+longer retains its old green payment approval or shortcut. Account/guest forms
+reopen known details for a fresh check; normal automatic purchases gain no step.
+Successful new checks clear the earlier failure message. Parts Help is v14,
+public service guidance v21 and restricted confirmation guidance v7.
+
+CI is prepared for fresh isolated booking acceptance using a distinct non-owner
+runtime role, no schema modification/TRUNCATE/migration-history access and no
+external notification/provider calls. Production-browser discovery collects 54
+cases in seven files, covering phone/laptop rescheduling, estimate review, calendar,
+runtime gates and purchase regressions. These expanded database/browser executions
+and the new source's full production checks remain pending.
+
+Baseline 7384abf8 passes all required workflows: frontend 41695288681 (1,440 units,
+12 existing skips, 21/21 browser cases), backend 41695288523 and secrets 41695288500.
+Inspected its final 320/1440 changed-offer alert screenshots after the whole alert
+reached the viewport; artifact 13261006663 is retained under runtime-ci-7384abf8.
+That baseline does not prove this integration. No shared migration, real record
+write, production publication or booking/payment activation occurred. The full
+D01-D17 goal remains active; owner-deferred financial/calendar inputs stay separate.
+
 ## 3 November 2026: consolidated audit implementation checkpoint
 
 Audit branch `codex/consolidated-audit-fixes-20261103` contains signed implementation
@@ -34,6 +227,47 @@ no retry. Real product media/fitment evidence, service duration and new workforc
 duties remain business inputs. Existing purchase/release work below is preserved.
 Full finding dispositions and evidence: `frontend/docs/CONSOLIDATED_AUDIT_20261103.md`.
 Publication is pending compatible backend/candidate checks and exact-master CI.
+
+### 3 November: payment-offer implementation verified; final viewport evidence running
+
+Application source 88ed8694c5292f20c3996e92c643635637219e56 passes all three
+required workflows: frontend 41692215321, backend 41692215106 and secrets 41692215043. Frontend production checks pass 1,399 unit cases with 12 existing
+skips. Chromium runtime passes 21/21 with no skips or flaky cases. Backend
+migration replay/db:check, types/lint and all workflow stages pass, including
+82 focused purchase checks and 88 guest-flow cases. This is isolated/synthetic
+evidence; no real provider, role or physical-device acceptance is implied.
+
+Artifact 13258915500 (2,149,767 bytes) is preserved locally under
+C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/runtime-ci-88ed8694/.
+Inspected 320/1440 guest-order screenshots: the corrected pre-payment wording,
+readable controls and payment/refresh spacing are visible. Earlier 079ca9ee
+screenshots provide the safe same-fixture visual baseline. Account error screenshots
+were captured before smooth scrolling completed; test-only d52c8cb9590f205d7697d6e4ab1a3a26950c1c34
+now requires the entire alert to reach the viewport before capture. Its frontend
+workflow 41694435584 was cancelled after the consolidated audit merge superseded it.
+Current master 7384abf8 includes d52c8cb9. It was fast-forwarded without losing either
+implementation, and both sets of verification notes were retained. Combined frontend
+41695288681 and backend 41695288523 remain running; secrets 41695288500 pass.
+Earlier 88ed8694 results do not prove the entire newly combined source.
+Follow-up: combined backend 41695288523 completed successfully; frontend
+41695288681 remains active. The final alert-viewport evidence is still pending.
+
+Read-only production checks at approximately 18:04 UTC confirm browse_enquiries,
+checkout/new booking requests disabled and finance Draft. Four public service
+records return no workbook/development-provenance wording. At 18:23 UTC the complete
+public product list has one Engine Oil Filter (89fd9258-c580-43e9-9040-c7e52623e82d):
+description, photos, brand and manufacturer part number are absent, and no public
+compatibility records are returned. Family REPLACEMENT_PART, condition NEW and
+type OIL_FILTER are present. These are precise operator follow-ups, not licence to
+invent facts or suitability. No real product, stock, price or financial data changed.
+
+Next package: integrate committed calendar/reschedule/timing work through add274bf
+while retaining the current automatic purchase implementation and immutable history.
+Do not import the alternative unshipped D04 table-creation migration as a duplicate.
+D02/D03/D05-D17 and real operational/provider acceptance remain in full scope.
+No production publication, shared migration or capability activation occurred.
+Postflight C: 21.34 GiB at 18:41 UTC. Verification notes remain local for the next source batch.
+
 3 November changed-offer feedback follow-up: f6329e33 passes the full backend
 workflow 41689948148, including 82 focused purchase checks, 88 guest-flow cases and
 the affected payment concurrency/provider-port/expiry regressions. Frontend
