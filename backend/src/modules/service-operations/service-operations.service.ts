@@ -1,4 +1,9 @@
-import { allocateBookingResources } from "./booking-resources.js";
+import {
+  allocateBookingResources,
+  findApprovedWorkshopResources,
+  assertOfferedWorkshopResources,
+} from "./booking-resources.js";
+import { eligibleWorkshopTechnicianWhere } from "./workshop-technician-eligibility.js";
 import {
   assertCurrentSlotTiming,
   assertSlotCalendar,
@@ -390,44 +395,79 @@ export class ServiceOperationsService {
   }
 
   async publicBookingSlots(serviceId: string, query: PublicBookingSlotListQuery) {
-    const service = await this.repository.service(serviceId, true);
-    if (
-      service === null ||
-      service.pricingType !== "FIXED" ||
-      service.priceKobo === null ||
-      service.durationMinutes === null
-    )
-      throw serviceOperationNotFound();
-    if (service.preparationMinutes === null || service.cleanupMinutes === null)
-      return { items: [] };
-    const policy = await this.database.businessPolicyVersion.findFirst({
-      where: {
-        key: `booking-capacity:${query.branchId}`,
-        effectiveAt: { lte: new Date() },
-      },
-      orderBy: [{ effectiveAt: "desc" }, { version: "desc" }],
-    });
-    const calendar = capacitySettingsSchema.safeParse(policy?.settings);
-    if (policy?.approvalStatus !== "APPROVED" || !calendar.success) return { items: [] };
-    const allowed = bookingWindow();
-    const requestedFrom = query.from === undefined ? allowed.from : new Date(query.from);
-    const requestedTo = query.to === undefined ? allowed.to : new Date(query.to);
-    const from = requestedFrom > allowed.from ? requestedFrom : allowed.from;
-    const to = requestedTo < allowed.to ? requestedTo : allowed.to;
-    if (to < from) return { items: [] };
-    return jsonSafe(
-      page(
-        await this.repository.publicBookingSlots(
-          serviceId,
-          {
-            ...query,
-            from: from.toISOString(),
-            to: to.toISOString(),
+    const now = new Date();
+    return this.database.$transaction(
+      async (tx) => {
+        const service = await this.repository.service(serviceId, true, tx);
+        if (
+          service === null ||
+          service.pricingType !== "FIXED" ||
+          service.priceKobo === null ||
+          service.durationMinutes === null
+        )
+          throw serviceOperationNotFound();
+        if (service.preparationMinutes === null || service.cleanupMinutes === null)
+          return { items: [] };
+        const canonicalServiceId = service.id;
+        const branchId = query.branchId.toLowerCase();
+        const policy = await tx.businessPolicyVersion.findFirst({
+          where: {
+            key: `booking-capacity:${branchId}`,
+            effectiveAt: { lte: now },
           },
-          calendar.data,
-        ),
-        query.limit,
-      ),
+          orderBy: [{ effectiveAt: "desc" }, { version: "desc" }],
+        });
+        const calendar = capacitySettingsSchema.safeParse(policy?.settings);
+        if (policy?.approvalStatus !== "APPROVED" || !calendar.success)
+          return { items: [] };
+        const plan = await findApprovedWorkshopResources(tx, branchId, now);
+        if (
+          !plan ||
+          !plan.settings.services.some((row) => row.serviceId === canonicalServiceId)
+        )
+          return { items: [] };
+        const staff = await tx.staffProfile.findMany({
+          where: {
+            AND: [
+              {
+                id: {
+                  in: plan.settings.technicians
+                    .filter((row) => row.serviceIds.includes(canonicalServiceId))
+                    .map((row) => row.staffId),
+                },
+              },
+              eligibleWorkshopTechnicianWhere(branchId, now),
+            ],
+          },
+          select: { id: true },
+        });
+        const allowed = bookingWindow();
+        const requestedFrom =
+          query.from === undefined ? allowed.from : new Date(query.from);
+        const requestedTo = query.to === undefined ? allowed.to : new Date(query.to);
+        const from = requestedFrom > allowed.from ? requestedFrom : allowed.from;
+        const to = requestedTo < allowed.to ? requestedTo : allowed.to;
+        if (to < from) return { items: [] };
+        return jsonSafe(
+          page(
+            await this.repository.publicBookingSlots(
+              canonicalServiceId,
+              {
+                ...query,
+                branchId,
+                from: from.toISOString(),
+                to: to.toISOString(),
+              },
+              calendar.data,
+              plan.settings,
+              staff.map((row) => row.id),
+              tx,
+            ),
+            query.limit,
+          ),
+        );
+      },
+      { isolationLevel: "RepeatableRead", timeout: 15000 },
     );
   }
 
@@ -476,6 +516,14 @@ export class ServiceOperationsService {
       )
     )
       throw scheduleConflict();
+    await assertOfferedWorkshopResources(tx, {
+      branchId: slot.branchId,
+      serviceId: slot.serviceId,
+      staffId: slot.staffId,
+      startsAt: occupied.startsAt,
+      endsAt: occupied.endsAt,
+      excludeBookingId,
+    });
     return occupied;
   }
 
@@ -1735,7 +1783,6 @@ export class ServiceOperationsService {
         }))
       )
         throw scheduleConflict();
-      if (slot) await this.reviewOfferedSlot(tx, slot, booking.id);
       const staffId = input.assignedStaffId ?? slot?.staffId ?? booking.assignedStaffId;
       const staff = staffId ? await this.repository.assignableStaff(staffId, tx) : null;
       if (!staff || (!scope && staff.branchId !== request.branchId))
@@ -1777,6 +1824,8 @@ export class ServiceOperationsService {
       assignmentChanged =
         staff.id !== booking.assignedStaffId || request.branchId !== booking.branchId;
       if (scope) await scope(assignmentChanged);
+      // Preserve the workforce permission boundary before reporting availability.
+      if (slot) await this.reviewOfferedSlot(tx, slot, booking.id);
       const originalTiming = await captureBookingTiming(tx, booking, actor.userId, true);
       const replacementWindow = timingWindow(request.startsAt, originalTiming);
       await assertSlotCalendar(

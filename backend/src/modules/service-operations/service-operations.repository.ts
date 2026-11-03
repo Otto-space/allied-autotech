@@ -1,3 +1,8 @@
+import {
+  workshopResourceAvailabilitySelect,
+  type WorkshopResourceAvailability,
+} from "./booking-resource-availability.js";
+import { selectWorkshopResources, type WorkshopResources } from "./workshop-resources.js";
 import { technicianConflictSelect } from "./booking-slot-timing.js";
 import type { capacitySettingsSchema } from "./booking-capacity.js";
 import { bookedJobMinutes } from "./booking-timing.js";
@@ -410,23 +415,48 @@ export class ServiceOperationsRepository {
     serviceId: string,
     query: PublicBookingSlotListQuery,
     calendar: ReturnType<typeof capacitySettingsSchema.parse>,
+    resources: WorkshopResources,
+    eligibleStaffIds: string[],
+    client: DatabaseClient = this.database,
   ) {
     const from = query.from === undefined ? new Date() : new Date(query.from),
       to = query.to === undefined ? new Date("9999-01-01") : new Date(query.to);
     const starts = Prisma.sql`slot."startsAt"-make_interval(mins=>slot."preparationMinutes")`;
     const ends = Prisma.sql`slot."endsAt"+make_interval(mins=>slot."cleanupMinutes")`;
-    const cursor = query.cursor ?? null;
-    const ids = await this.database.$queryRaw<Array<{ id: string }>>(Prisma.sql`
-      SELECT slot."id" FROM "BookingSlot" slot JOIN "Service" service ON service."id"=slot."serviceId"
+    if (eligibleStaffIds.length === 0) return [];
+    const needsResources =
+      (resources.services.find((row) => row.serviceId === serviceId)?.requirements
+        .length ?? 0) > 0;
+    const availabilityQuery = needsResources
+      ? workshopResourceAvailabilitySelect(Prisma.sql`slot."branchId"`, starts, ends)
+      : Prisma.sql`SELECT false AS "legacyUnassessed", ARRAY[]::uuid[] AS "busyResourceIds"`;
+    const batchSize = Math.max(50, query.limit + 1);
+    const accepted: string[] = [];
+    let scanCursor = query.cursor ?? null;
+    // Filter before output pagination. Exhausted early candidates must not hide a
+    // later available offer or produce a cursor based on private resource rows.
+    while (accepted.length < query.limit + 1) {
+      const candidates = await client.$queryRaw<
+        Array<
+          WorkshopResourceAvailability & {
+            id: string;
+            staffId: string;
+            occupiedStartsAt: Date;
+            occupiedEndsAt: Date;
+          }
+        >
+      >(Prisma.sql`
+      SELECT slot."id",slot."staffId",${starts} AS "occupiedStartsAt",${ends} AS "occupiedEndsAt",availability.* FROM "BookingSlot" slot JOIN "Service" service ON service."id"=slot."serviceId"
       JOIN "Branch" branch ON branch."id"=slot."branchId"
       JOIN "StaffProfile" staff ON staff."id"=slot."staffId" JOIN "User" worker ON worker."id"=staff."userId"
+      CROSS JOIN LATERAL (${availabilityQuery}) availability
       WHERE slot."serviceId"=${serviceId}::uuid AND slot."branchId"=${query.branchId}::uuid AND slot."status"='OPEN'
-      AND branch."isActive" AND worker."status"='ACTIVE' AND worker."role" IN ('STAFF','ADMIN','SUPER_ADMIN') AND worker."emailVerifiedAt" IS NOT NULL AND staff."branchId"=slot."branchId"
+      AND slot."staffId"=ANY(${eligibleStaffIds}::uuid[]) AND branch."isActive" AND worker."status"='ACTIVE' AND worker."role" IN ('STAFF','ADMIN','SUPER_ADMIN') AND worker."emailVerifiedAt" IS NOT NULL AND staff."branchId"=slot."branchId"
       AND service."isActive" AND service."pricingType"='FIXED' AND service."priceKobo" IS NOT NULL
       AND slot."serviceTimingVersion"=service."timingVersion" AND slot."durationMinutes"=service."durationMinutes"
       AND slot."preparationMinutes"=service."preparationMinutes" AND slot."cleanupMinutes"=service."cleanupMinutes"
       AND slot."startsAt">=${from} AND slot."startsAt"<=${to}
-      AND (${cursor}::uuid IS NULL OR (slot."startsAt",slot."id")>(SELECT c."startsAt",c."id" FROM "BookingSlot" c WHERE c."id"=${cursor}::uuid AND c."serviceId"=${serviceId}::uuid AND c."branchId"=${query.branchId}::uuid))
+      AND (${scanCursor}::uuid IS NULL OR (slot."startsAt",slot."id")>(SELECT c."startsAt",c."id" FROM "BookingSlot" c WHERE c."id"=${scanCursor}::uuid AND c."serviceId"=${serviceId}::uuid AND c."branchId"=${query.branchId}::uuid))
       AND NOT EXISTS (SELECT 1 FROM "Booking" held WHERE held."bookingSlotId"=slot."id" AND held."status" IN ('REQUESTED','AWAITING_DEPOSIT','CONFIRMED','IN_PROGRESS'))
       AND NOT EXISTS (${technicianConflictSelect(Prisma.sql`slot."staffId"`, starts, ends, Prisma.sql`NULL::uuid`)})
       AND EXTRACT(DOW FROM (${starts}+interval '1 hour'))::integer=ANY(${calendar.openingDays}::integer[])
@@ -435,10 +465,29 @@ export class ServiceOperationsRepository {
       AND (${starts}+interval '1 hour')::time >= TIME '08:00' AND (${ends}+interval '1 hour')::time<=TIME '18:00'
       AND (SELECT count(*) FROM "Booking" used WHERE used."branchId"=slot."branchId" AND used."status" IN ('CONFIRMED','IN_PROGRESS','COMPLETED','NO_SHOW')
        AND (used."scheduledAt"+interval '1 hour')::date=(slot."startsAt"+interval '1 hour')::date)<${calendar.dailyLimit}
-      ORDER BY slot."startsAt",slot."id" LIMIT ${query.limit + 1}
+      ORDER BY slot."startsAt",slot."id" LIMIT ${batchSize}
     `);
-    return this.database.bookingSlot.findMany({
-      where: { id: { in: ids.map((row) => row.id) } },
+      for (const candidate of candidates) {
+        if (
+          !candidate.legacyUnassessed &&
+          selectWorkshopResources(resources, {
+            serviceId,
+            staffId: candidate.staffId,
+            startsAt: candidate.occupiedStartsAt,
+            endsAt: candidate.occupiedEndsAt,
+            busyResourceIds: new Set(
+              candidate.busyResourceIds.map((id) => id.toLowerCase()),
+            ),
+          }).ok
+        )
+          accepted.push(candidate.id);
+        if (accepted.length === query.limit + 1) break;
+      }
+      if (candidates.length < batchSize) break;
+      scanCursor = candidates.at(-1)!.id;
+    }
+    return client.bookingSlot.findMany({
+      where: { id: { in: accepted } },
       select: publicBookingSlotSelect,
       orderBy: [{ startsAt: "asc" }, { id: "asc" }],
     });
