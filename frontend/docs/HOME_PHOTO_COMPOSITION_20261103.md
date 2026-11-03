@@ -151,3 +151,25 @@ border requires a ratio tolerance below 0.01, not an exact bitmap aspect asserti
 Remaining: exact-lock CI, compatible integration and hosted candidate/release gates.
 Physical phones, true browser-chrome 200% zoom and a full
 screen-reader pass are not claimed. The 200% text-reflow test is separate evidence.
+
+## Integration checkpoint
+
+Home implementation `9c7b8a2a` is pushed in draft PR #11. Concurrent master
+`80cba6c2` guest-aftercare work was merged into the isolated branch as `736dd40c`;
+only the two checkpoint documents conflicted and both additions were preserved.
+No aftercare implementation was altered. Integrated compiler, eight Home units
+and three representative Admin/Super Admin/Help font regressions pass again.
+
+Exact-source GitHub backend safety 41609953913 and secret guard 41609954130 pass
+for `736dd40c`. Frontend 41609953981 reports 1,357 passed units, 12 pre-existing
+skips and three obsolete copy assertions in public-copy-states. The assertions
+are updated to the new text while retaining empty/loading/error distinctions,
+authoritative availability, invalid-image exclusion and retry checks. Category
+discovery now explicitly verifies its oil-family link when inventory has no valid
+photos. All 17 affected local units pass. Exact-source frontend rerun remains a
+gate; the failed run is not represented as passing.
+
+Vercel automatically built preview `dpl_68NmX7DAQuyRQrZdYhsEa57Snpx1` from
+`736dd40c`, READY with no production target and only preview aliases. READY alone
+is not hosted acceptance. Public domains were not promoted. C: postflight measured
+22.34 GiB free, preserving the 20 GiB reserve.
