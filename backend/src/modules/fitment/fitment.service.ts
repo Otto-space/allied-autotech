@@ -16,7 +16,11 @@ import {
   workforceDenied,
   workforceNotFound,
 } from "../organization/workforce.policy.js";
-import { decideFitment, normalizeFitmentValue } from "./fitment.engine.js";
+import {
+  decideFitment,
+  normalizeFitmentValue,
+  permitsNonCriticalFitment as permitsNonCritical,
+} from "./fitment.engine.js";
 import {
   fitmentAccess,
   fitmentProductScope,
@@ -43,18 +47,6 @@ const keyOf = (name: string) =>
     .replace(/\p{M}/gu, "")
     .replace(/\s+/g, " ");
 const literal = (value: string) => value.replace(/[\\%_]/g, "\\$&");
-const nonCriticalPartTypes = new Set([
-  "ACCESSORY",
-  "OIL_FILTER",
-  "AIR_FILTER",
-  "CABIN_FILTER",
-  "FUEL_FILTER",
-  "SPARK_PLUG",
-  "WIPER_BLADE",
-  "BULB",
-]);
-const permitsNonCritical = (productType: string | null | undefined) =>
-  !!productType && nonCriticalPartTypes.has(productType.toUpperCase());
 const actorSelect = {
   id: true,
   email: true,

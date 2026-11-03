@@ -1,3 +1,24 @@
+### 3 November: pre-payment review foundation - not yet a complete journey
+
+D04 source now includes a separate revisioned purchase-review model and forward
+migration, strict customer specification/staff decision contracts, approved-evidence
+matching, a complete monetary/line fingerprint and a payment-boundary revalidation
+helper. Shared non-critical fitment classification retains its previous values.
+Review history is protected against rewriting or deletion; a new requirements
+revision invalidates the prior approval. Supplier evidence is distinct from stock.
+
+Local foundation checks before disk fell below reserve: 42/42 focused units
+(including 13 existing fitment cases), application TypeScript and backend lint pass.
+An isolated PostgreSQL suite is added to CI for actual review immutability,
+missing/retired evidence, released holds, changed prices and superseding revisions.
+Migration replay/schema comparison, db:check and these database cases remain
+pending until their hosted run succeeds. No shared/production migration applied.
+
+This is foundation work, not D04 completion: order creation, review authoring and
+acceptance UI, guest/account intent/provider boundaries, revised fulfilment and
+Help/learning must still be connected and tested. Do not publish or activate an
+incomplete purchasing journey. C: measured 19.11 GiB; heavy local checks stopped.
+
 ### 3 November: independent-controls rendered repair and hosted verification
 
 Source 2845ef51 is signed/pushed. Backend 41643344538 passed. Frontend

@@ -21,6 +21,18 @@ export type PublishedRule = {
 } & Record<QualifierKey, string | null>;
 export const normalizeFitmentValue = (value: string) =>
   value.normalize("NFKC").trim().toLowerCase();
+const nonCriticalPartTypes = new Set([
+  "ACCESSORY",
+  "OIL_FILTER",
+  "AIR_FILTER",
+  "CABIN_FILTER",
+  "FUEL_FILTER",
+  "SPARK_PLUG",
+  "WIPER_BLADE",
+  "BULB",
+]);
+export const permitsNonCriticalFitment = (productType: string | null | undefined) =>
+  !!productType && nonCriticalPartTypes.has(productType.toUpperCase());
 const literal = (value: string) => value.replace(/[\\%_]/g, "\\$&");
 
 function published(rule: PublishedRule) {

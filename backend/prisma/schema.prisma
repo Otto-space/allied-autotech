@@ -573,6 +573,7 @@ enum OutboxStatus {
 }
 
 model User {
+  purchaseReviews OrderPurchaseReview[]
   partsQuotesIssued            PartsQuote[]
   supportLivePresence          SupportLivePresence?
   supportLiveCoverageChanges   SupportLiveCoverage[]            @relation("SupportCoverageEditor")
@@ -1551,6 +1552,7 @@ model CartItem {
 }
 
 model Order {
+  purchaseReviews              OrderPurchaseReview[]
   partsQuote                   PartsQuote?
   fulfillmentEvidenceAt        DateTime?
   fulfillmentEvidenceReference String?           @db.VarChar(300)
@@ -1608,6 +1610,29 @@ model Order {
   @@index([createdAt], map: "Order_overview_created_idx")
   @@index([branchId, createdAt], map: "Order_overview_branch_created_idx")
   @@index([customerId, id], map: "Order_directory_idx")
+}
+
+// Append a new requirements revision to reopen a review. A decided revision is
+// immutable; it is evidence, not payment, allocation or collection authority.
+model OrderPurchaseReview {
+  id                  String   @id @default(uuid()) @db.Uuid
+  orderId             String   @db.Uuid
+  revision            Int
+  status              String   @default("REQUESTED") @db.VarChar(16)
+  requirements        Json
+  decidedByUserId     String?  @db.Uuid
+  reason              String?  @db.VarChar(2000)
+  decisionSnapshot    Json?
+  payableFingerprint  String?  @db.Char(64)
+  expiresAt           DateTime?
+  createdAt           DateTime @default(now())
+  decidedAt           DateTime?
+
+  order     Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  decidedBy User? @relation(fields: [decidedByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, revision])
+  @@index([orderId, createdAt])
 }
 
 model OrderItem {
