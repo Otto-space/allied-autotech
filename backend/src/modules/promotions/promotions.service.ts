@@ -23,7 +23,7 @@ import type {
   PromotionPreviewInput,
   PromotionUpdateInput,
 } from "./promotions.schemas.js";
-import type { PromotionEvaluation } from "./promotions.types.js";
+import type { PromotionBuyer, PromotionEvaluation } from "./promotions.types.js";
 
 const safe = (value: unknown): unknown =>
   typeof value === "bigint"
@@ -53,7 +53,7 @@ export class PromotionsService {
   }
 
   async lockAndEvaluate(
-    customerId: string,
+    buyer: PromotionBuyer,
     code: string,
     subtotalKobo: bigint,
     transaction: Prisma.TransactionClient,
@@ -70,11 +70,9 @@ export class PromotionsService {
         subtotalKobo < promotion.minimumOrderAmountKobo)
     )
       throw promotionIneligible();
-    const [globalUses, customerUses] = await this.repository.usageCounts(
-      promotion.id,
-      customerId,
-      transaction,
-    );
+    const usage = await this.repository.usageCounts(promotion.id, buyer, transaction);
+    if (!usage) throw promotionIneligible();
+    const [globalUses, customerUses] = usage;
     if (
       (promotion.usageLimit !== null && globalUses >= promotion.usageLimit) ||
       (promotion.perCustomerLimit !== null && customerUses >= promotion.perCustomerLimit)

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { cartItemBodySchema } from "../catalog/catalog.schemas.js";
 
 const uuid = z.uuid();
 const version = z.number().int().min(0).max(2_147_483_647);
@@ -56,6 +57,38 @@ export const checkoutBodySchema = z
 export const customerOrderListQuerySchema = z
   .object({ ...pageFields, status: orderStatus.optional() })
   .strict();
+
+// The same line-quantity and 200-line invoice-document bounds apply to guests.
+// Only product IDs/quantities are client data; prices, totals and buyer identity
+// are resolved again from authoritative records inside checkout.
+export const guestCheckoutBodySchema = checkoutBodySchema
+  .extend({
+    contact: z
+      .object({
+        name: cleanText(400),
+        phone: cleanText(32).refine(
+          (v) => /^\+?[0-9 ()-]{7,32}$/.test(v),
+          "Enter a contact phone number",
+        ),
+      })
+      .strict(),
+    items: z
+      .array(
+        z
+          .object({
+            productId: uuid.transform((value) => value.toLowerCase()),
+            quantity: cartItemBodySchema.shape.quantity,
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(200)
+      .refine(
+        (items) => new Set(items.map((item) => item.productId)).size === items.length,
+        "Combine quantities for each product",
+      ),
+  })
+  .strict();
 export const staffOrderListQuerySchema = z
   .object({
     ...pageFields,
@@ -84,6 +117,7 @@ export const expireOrdersBodySchema = z
   .strict();
 
 export type CheckoutInput = z.infer<typeof checkoutBodySchema>;
+export type GuestCheckoutInput = z.infer<typeof guestCheckoutBodySchema>;
 export type CustomerOrderListQuery = z.infer<typeof customerOrderListQuerySchema>;
 export type StaffOrderListQuery = z.infer<typeof staffOrderListQuerySchema>;
 export type CustomerOrderCancelInput = z.infer<typeof customerOrderCancelBodySchema>;

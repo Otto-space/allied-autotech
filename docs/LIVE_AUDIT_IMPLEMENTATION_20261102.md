@@ -5,6 +5,47 @@ The current requirement ledger is frontend/docs/UI_UX_QUALITY_REGISTER.md; this
 report records a bounded implementation package, not a second backlog or a claim
 that the whole site is ready. Package start: 17:31 UTC; 60-minute review: 18:31 UTC.
 
+## Shared guest checkout core - verified source checkpoint, 3 November
+
+Quotation source 573fb0ea passes exact-source frontend 41544725013, backend
+41544724938 and secrets 41544724989; its signature is verified. Public runtime
+remains 333c3a22 / 87 migrations. No guest routes or transaction flags are enabled.
+
+Account and verified guest checkout now use one engine for current catalogue price,
+branch/product eligibility, stock locks/holds, tax, discounts, invoices, immutable
+contact snapshots and original-key replay. Guest proof/CSRF are rechecked under a
+session row lock; guest IDs/emails/prices/totals from a body are refused. Guests use
+separate ownership and never create a User or alter an account cart. Same-email
+account/guest purchases share the existing per-customer promotion limit; disjoint
+stock-row concurrency verifies promotion locking. Quoted totals cannot stack another
+promotion. Guest reads remain scoped to their own orders, including after a limited
+release closes new checkout. Catalogue mode still closes those reads.
+
+Native guest-checkout-native-3bbaaf1cf6ae474b877cce3763cd7449 passes 52/52
+across six suites, including 14 guest checks, existing account commerce, quotation,
+identity/ownership and refund controls. Replay of all 89 migrations, no drift/db:check
+and non-owner/no-DDL/no-TRUNCATE runtime checks pass. Fifteen commerce unit/API
+boundary checks, production/targeted test TypeScript, repository lint and secret
+checks pass. The first native attempt passed 51/52: Date object reference equality
+in one new assertion was corrected to instant equality; no implementation guard was
+relaxed. This package exceeded its hour review target; the overrun was reported.
+
+Next required implementation is shared guest payment/verification, guest quote
+issuance/acceptance, secure browser/recovery API and public cart/checkout/aftercare UI.
+No complete guest purchase or provider acceptance is claimed. New populated restore,
+compatible recovery images, exact-source CI and publication remain mandatory. All
+unavailable real-role, provider and physical-device acceptance stays separate.
+
+The native first attempt daae9c2a87dd4ce7971b0a14833047e8 (51/52) is
+stopped and retained; successful 3bbaaf1cf6ae474b877cce3763cd7449 (52/52)
+removed its own synthetic data. Both receipts include target/source hashes. Domain
+checks combine real isolated account HTTP and direct guest service calls; guest HTTP
+routes have not been mounted. Email proof uses controlled synthetic recipients and
+encrypted outbox payloads, never external delivery. Core order tests create no payment
+or financial approval. The existing quoted-payment regression uses injected fake
+provider observations. Before/after physical devices, actual customers and production
+business rows were not used. No public authoring or credential bypass is introduced.
+
 ## Seven-day quotation enforcement - source checkpoint, 3 November
 
 Package started 2 November 23:03 UTC (3 November Nigeria time); review target

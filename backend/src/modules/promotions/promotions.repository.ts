@@ -5,6 +5,8 @@ import type {
   PromotionListQuery,
   PromotionUpdateInput,
 } from "./promotions.schemas.js";
+import type { PromotionBuyer } from "./promotions.types.js";
+import { normalizeEmail } from "../../common/security/email.js";
 
 type DatabaseClient = PrismaClient | Prisma.TransactionClient;
 export const promotionSelect = {
@@ -132,13 +134,35 @@ export class PromotionsRepository {
       },
     });
   }
-  usageCounts(promotionId: string, customerId: string, client: DatabaseClient) {
+  async usageCounts(promotionId: string, buyer: PromotionBuyer, client: DatabaseClient) {
+    const profile =
+      typeof buyer === "string"
+        ? await client.customerProfile.findUnique({
+            where: { id: buyer },
+            select: { user: { select: { email: true } } },
+          })
+        : null;
+    const guest =
+      typeof buyer !== "string"
+        ? await client.purchaseGuest.findUnique({
+            where: { id: buyer.guestId },
+            select: { email: true },
+          })
+        : null;
+    const email = profile?.user.email ?? guest?.email;
+    if (!email) return null;
+    const person: Prisma.OrderWhereInput = {
+      OR: [
+        typeof buyer === "string" ? { customerId: buyer } : { guestId: buyer.guestId },
+        { customerEmail: normalizeEmail(email) },
+      ],
+    };
     return Promise.all([
       client.promotionUsage.count({
         where: { promotionId, order: { status: { not: "CANCELLED" } } },
       }),
       client.promotionUsage.count({
-        where: { promotionId, order: { customerId, status: { not: "CANCELLED" } } },
+        where: { promotionId, order: { ...person, status: { not: "CANCELLED" } } },
       }),
     ]);
   }

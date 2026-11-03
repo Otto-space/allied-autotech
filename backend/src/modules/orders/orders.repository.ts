@@ -204,6 +204,12 @@ export class OrdersRepository {
   ownedOrder(id: string, customerId: string, client: DatabaseClient = this.database) {
     return client.order.findFirst({ where: { id, customerId }, select: orderSelect });
   }
+  guestOrder(id: string, guestId: string, client: DatabaseClient = this.database) {
+    return client.order.findFirst({
+      where: { id, guestId, customerId: null },
+      select: orderSelect,
+    });
+  }
   async lockOrder(id: string, client: Prisma.TransactionClient) {
     const rows = await client.$queryRaw<
       Array<{ id: string }>
@@ -311,7 +317,7 @@ export class OrdersRepository {
     });
   }
   createIdempotency(
-    userId: string,
+    userId: string | null,
     scope: string,
     keyHash: string,
     requestHash: string,

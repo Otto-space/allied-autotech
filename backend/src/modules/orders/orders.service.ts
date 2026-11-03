@@ -14,6 +14,7 @@ import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { hashToken } from "../../common/security/session-tokens.js";
 import { prisma } from "../../config/database.js";
+import { env } from "../../config/env.js";
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import {
@@ -38,7 +39,13 @@ import type {
   ExpireOrdersInput,
   OrderTransitionInput,
   StaffOrderListQuery,
+  GuestCheckoutInput,
 } from "./orders.schemas.js";
+import {
+  guestCheckoutBodySchema,
+  orderIdempotencyHeadersSchema,
+} from "./orders.schemas.js";
+import { PurchaseGuestAccessService } from "./purchase-guest-access.service.js";
 import { jsonSafe, orderFingerprint, page } from "./orders.types.js";
 
 const transitions = {
@@ -56,13 +63,25 @@ function customerOrderView<T extends { invoice: null | { status: string } }>(ord
   return { ...order, invoice: order.invoice?.status === "DRAFT" ? null : order.invoice };
 }
 
+type CheckoutBuyer =
+  | { kind: "account"; actor: AuthenticatedActor }
+  | {
+      kind: "guest";
+      sessionToken: string;
+      csrfToken: string;
+      contact: GuestCheckoutInput["contact"];
+      items: GuestCheckoutInput["items"];
+    };
+
 export class OrdersService {
   private readonly repository: OrdersRepository;
+  private readonly guestAccess: PurchaseGuestAccessService;
   constructor(
     private readonly database: PrismaClient = prisma,
     private readonly promotions: PromotionsService = promotionsService,
   ) {
     this.repository = new OrdersRepository(database);
+    this.guestAccess = new PurchaseGuestAccessService(database);
   }
 
   async checkout(
@@ -73,12 +92,95 @@ export class OrdersService {
     partsQuote?: { id: string; revision: number },
   ) {
     assertCustomer(actor);
+    return this.checkoutBuyer(
+      { kind: "account", actor },
+      input,
+      rawKey,
+      context,
+      partsQuote,
+    );
+  }
+
+  async guestCheckout(
+    credentials: { sessionToken: string; csrfToken: string },
+    rawInput: unknown,
+    rawKey: string,
+    context: RequestSecurityContext,
+  ) {
+    orderIdempotencyHeadersSchema.parse({ "idempotency-key": rawKey });
+    const { contact, items, ...input } = guestCheckoutBodySchema.parse(rawInput);
+    return this.checkoutBuyer(
+      {
+        kind: "guest",
+        ...credentials,
+        contact,
+        items: items.toSorted((a, b) => a.productId.localeCompare(b.productId)),
+      },
+      input,
+      rawKey,
+      context,
+    );
+  }
+
+  async guestOrder(sessionToken: string, id: string) {
+    if (env.PUBLIC_LAUNCH_MODE === "catalogue") throw orderForbidden();
+    return this.database.$transaction(async (transaction) => {
+      const access = await this.guestAccess.lockAccess(transaction, sessionToken, {
+        kind: "read",
+      });
+      const order = await this.repository.guestOrder(id, access.guestId, transaction);
+      if (!order) throw orderNotFound();
+      return jsonSafe(customerOrderView(order));
+    });
+  }
+
+  private async checkoutBuyer(
+    buyer: CheckoutBuyer,
+    input: CheckoutInput,
+    rawKey: string,
+    context: RequestSecurityContext,
+    partsQuote?: { id: string; revision: number },
+  ) {
+    if (buyer.kind === "guest" && env.PUBLIC_LAUNCH_MODE !== "full")
+      throw orderConflict(
+        "Online purchasing is not available. Contact the team about an enquiry.",
+      );
     if (input.fulfillmentMethod !== "COLLECTION")
       throw orderConflict("Orders are collection only; delivery is unavailable");
-    const scope = `order-checkout:${actor.userId}`;
-    const keyHash = hashToken("order-checkout-idempotency", rawKey);
-    const requestHash = orderFingerprint(partsQuote ? { ...input, partsQuote } : input);
+    if (partsQuote && input.promotionCode !== undefined)
+      throw orderConflict("A quoted total cannot be combined with another promotion");
     return withTransactionRetry(this.database, async (transaction) => {
+      const guest =
+        buyer.kind === "guest"
+          ? await this.guestAccess.lockAccess(transaction, buyer.sessionToken, {
+              kind: "write",
+              csrfToken: buyer.csrfToken,
+            })
+          : null;
+      let profile =
+        buyer.kind === "account"
+          ? await this.repository.customerProfile(buyer.actor.userId, transaction)
+          : null;
+      if (buyer.kind === "account" && !profile) throw orderNotFound();
+      const actorUserId = buyer.kind === "account" ? buyer.actor.userId : null;
+      const owner = { customerId: profile?.id ?? null, guestId: guest?.guestId ?? null };
+      const scope = guest
+        ? `guest-order-checkout:${guest.guestId}`
+        : `order-checkout:${actorUserId}`;
+      const keyHash = hashToken(
+        "order-checkout-idempotency",
+        guest ? `guest:${guest.guestId}:${rawKey}` : rawKey,
+      );
+      const fingerprint = partsQuote ? { ...input, partsQuote } : input;
+      const requestHash = orderFingerprint(
+        buyer.kind === "guest"
+          ? { ...fingerprint, contact: buyer.contact, items: buyer.items }
+          : fingerprint,
+      );
+      const ownedOrder = (id: string) =>
+        guest
+          ? this.repository.guestOrder(id, guest.guestId, transaction)
+          : this.repository.ownedOrder(id, profile!.id, transaction);
       const checkoutLockKey = `checkout:${keyHash}`;
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${checkoutLockKey}, 0))`;
       const existing = await this.repository.idempotency(scope, keyHash, transaction);
@@ -92,19 +194,17 @@ export class OrdersService {
             : undefined;
         if (existing.status !== "COMPLETED" || typeof orderId !== "string")
           throw orderConflict("Checkout is already in progress");
-        const order = await this.repository.order(orderId, transaction);
+        const order = await ownedOrder(orderId);
         if (order === null) throw orderNotFound();
         return jsonSafe({ order: customerOrderView(order), replayed: true });
       }
       await this.repository.createIdempotency(
-        actor.userId,
+        actorUserId,
         scope,
         keyHash,
         requestHash,
         transaction,
       );
-      let profile = await this.repository.customerProfile(actor.userId, transaction);
-      if (profile === null) throw orderNotFound();
       let quote = partsQuote
         ? await transaction.partsQuote.findUnique({
             where: { id: partsQuote.id },
@@ -114,7 +214,9 @@ export class OrdersService {
       if (partsQuote) {
         if (
           !quote ||
-          quote.enquiry.customerId !== profile.id ||
+          (guest
+            ? quote.enquiry.customerId !== null || quote.guestEmail !== guest.email
+            : quote.enquiry.customerId !== profile!.id) ||
           quote.enquiry.branchId !== input.branchId
         )
           throw orderNotFound();
@@ -126,13 +228,15 @@ export class OrdersService {
         });
         if (
           !quote ||
-          quote.enquiry.customerId !== profile.id ||
+          (guest
+            ? quote.enquiry.customerId !== null || quote.guestEmail !== guest.email
+            : quote.enquiry.customerId !== profile!.id) ||
           quote.enquiry.branchId !== input.branchId
         )
           throw orderNotFound();
         if (quote.revision !== partsQuote.revision) throw orderStale();
         if (quote.status === "ACCEPTED" && quote.orderId) {
-          const saved = await this.repository.order(quote.orderId, transaction);
+          const saved = await ownedOrder(quote.orderId);
           if (!saved) throw orderNotFound();
           await this.repository.completeIdempotency(
             scope,
@@ -156,10 +260,10 @@ export class OrdersService {
           throw orderConflict(
             "This quotation has expired, was declined or has been replaced. Request an updated quotation.",
           );
-      } else {
-        if (!profile.cart) throw orderConflict("Cart is empty");
+      } else if (buyer.kind === "account") {
+        if (!profile?.cart) throw orderConflict("Cart is empty");
         await this.repository.lockCart(profile.cart.id, transaction);
-        profile = await this.repository.customerProfile(actor.userId, transaction);
+        profile = await this.repository.customerProfile(buyer.actor.userId, transaction);
         if (!profile?.cart || !profile.cart.items.length)
           throw orderConflict("Cart is empty");
       }
@@ -167,7 +271,17 @@ export class OrdersService {
         throw orderNotFound();
       const sourceItems = quote
         ? [{ productId: quote.productId, quantity: quote.quantity }]
-        : profile.cart!.items;
+        : buyer.kind === "guest"
+          ? buyer.items
+          : profile!.cart!.items;
+      const contact =
+        guest && buyer.kind === "guest"
+          ? { name: buyer.contact.name, email: guest.email, phone: buyer.contact.phone }
+          : {
+              name: `${profile!.firstName} ${profile!.lastName}`,
+              email: profile!.user.email,
+              phone: profile!.phone,
+            };
       const productIds = [...new Set(sourceItems.map((item) => item.productId))].sort(
         (a, b) => a.localeCompare(b),
       );
@@ -239,7 +353,7 @@ export class OrdersService {
         input.promotionCode === undefined
           ? null
           : await this.promotions.lockAndEvaluate(
-              profile.id,
+              guest ? { guestId: guest.guestId } : profile!.id,
               input.promotionCode,
               subtotalKobo,
               transaction,
@@ -271,7 +385,7 @@ export class OrdersService {
       await this.repository.createOrder(
         {
           id: orderId,
-          customerId: profile.id,
+          ...owner,
           branchId: input.branchId,
           orderNumber: reference("ORD"),
           fulfillmentMethod: input.fulfillmentMethod,
@@ -297,9 +411,9 @@ export class OrdersService {
                 }
               : {}),
           },
-          customerName: `${profile.firstName} ${profile.lastName}`,
-          customerEmail: profile.user.email,
-          customerPhone: profile.phone,
+          customerName: contact.name,
+          customerEmail: contact.email,
+          customerPhone: contact.phone,
           paymentDueAt,
           items: { createMany: { data: items } },
         },
@@ -310,7 +424,7 @@ export class OrdersService {
       await transaction.invoice.create({
         data: {
           invoiceNumber: reference("INV"),
-          customerId: profile.id,
+          ...owner,
           orderId,
           currency: "NGN",
           subtotalKobo: totalKobo - taxKobo,
@@ -318,7 +432,7 @@ export class OrdersService {
           policySnapshot: policySnapshot(finance),
           totalKobo,
           documentSnapshot: await buildInvoiceSnapshot(transaction, {
-            customerId: profile.id,
+            ...owner,
             orderId,
             subtotalKobo: totalKobo - taxKobo,
             taxKobo,
@@ -349,7 +463,7 @@ export class OrdersService {
           data: {
             id: reservationId,
             inventoryId: inventory.id,
-            customerId: profile.id,
+            customerId: owner.customerId,
             quantity,
             expiresAt: paymentDueAt,
             idempotencyKey: lineKey,
@@ -361,7 +475,7 @@ export class OrdersService {
         await transaction.inventoryTransaction.create({
           data: {
             inventoryId: inventory.id,
-            performedById: actor.userId,
+            performedById: actorUserId,
             type: "RESERVATION",
             quantityDelta: 0,
             reservedDelta: quantity,
@@ -382,17 +496,17 @@ export class OrdersService {
           data: { status: "ACCEPTED", orderId, decidedAt: new Date() },
         });
         await appendAuditEvent(transaction, {
-          actorUserId: actor.userId,
+          actorUserId,
           action: "STATUS_CHANGE",
           entityType: "ENQUIRY",
           entityId: quote.enquiryId,
           newValues: { status: "ACCEPTED", orderId, revision: quote.revision },
           context,
         });
-      } else
-        await transaction.cartItem.deleteMany({ where: { cartId: profile.cart!.id } });
+      } else if (buyer.kind === "account")
+        await transaction.cartItem.deleteMany({ where: { cartId: profile!.cart!.id } });
       await appendAuditEvent(transaction, {
-        actorUserId: actor.userId,
+        actorUserId,
         action: "CREATE",
         entityType: "ORDER",
         entityId: orderId,
@@ -402,11 +516,14 @@ export class OrdersService {
           itemCount: items.length,
           totalKobo: totalKobo.toString(),
           promotionId: evaluation?.promotion.id ?? null,
+          ...(guest
+            ? { guestId: guest.guestId, purchaseAccess: "EMAIL_VERIFIED_GUEST" }
+            : {}),
         },
         context,
       });
       await this.repository.completeIdempotency(scope, keyHash, orderId, transaction);
-      const order = await this.repository.order(orderId, transaction);
+      const order = await ownedOrder(orderId);
       if (order === null) throw orderNotFound();
       return jsonSafe({ order: customerOrderView(order), replayed: false });
     });
