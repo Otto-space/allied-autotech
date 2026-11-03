@@ -1,0 +1,41 @@
+/* One viewport-anchored dock; page/hero scroll state never changes its shape. */
+.support-controls {
+  z-index: var(--layer-floating);
+}
+.support-controls .support-trigger {
+  border: 0;
+  box-shadow: none;
+}
+.support-controls .support-trigger.allie-trigger {
+  height: 48px;
+  min-width: 48px;
+  padding: 4px 8px;
+  border: 0;
+}
+.support-controls .support-trigger.allie-trigger .allie-avatar {
+  width: 32px;
+  height: 36px;
+  flex-shrink: 0;
+}
+.support-controls :is(button, a):focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+.support-controls .support-trigger:hover {
+  background: var(--surface);
+}
+/* Public navigation is an ARIA modal, rather than a native top-layer dialog. */
+body:has(.mobile-menu--open) .support-controls {
+  visibility: hidden;
+}
+@media (max-width: 850px),
+  (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) {
+  .support-controls :is(.support-trigger, .whatsapp-control) {
+    min-width: 0;
+    gap: 6px;
+    padding-inline: 8px;
+  }
+  .support-controls .support-control-label {
+    white-space: nowrap;
+  }
+}

@@ -377,7 +377,9 @@ test("dashboard learning entry remains usable at narrow widths", async ({
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/dashboard/support");
-    const trigger = page.locator("[data-learning-entry]");
+    const trigger = page
+      .locator(".support-controls")
+      .getByRole("button", { name: "Ask Allie", exact: true });
     await expect(trigger).toBeVisible();
     await trigger.click();
     await expect(page.getByRole("dialog", { name: "Allie" })).toBeVisible();

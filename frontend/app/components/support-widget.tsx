@@ -11,6 +11,7 @@ import { SESSION_CHANGED } from "@/lib/api/client";
 import { learningEnabled } from "@/lib/learning/contracts";
 import { requestLearningOpen } from "./learning/learning-entry";
 import { containDialogFocus } from "@/lib/dialog-focus";
+import "./support-widget.css";
 import { AllieAvatar } from "./learning/allie-avatar";
 import {
   assistantName,
@@ -53,12 +54,8 @@ export function SupportWidget() {
     };
   }, []);
   if (
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/staff") ||
-    pathname.startsWith("/dashboard/support") ||
     pathname.startsWith("/learn/practice/") ||
     pathname.startsWith("/purchase") ||
-    pathname === "/dashboard/notifications" ||
     [
       "/login",
       "/register",
@@ -88,7 +85,7 @@ export function SupportWidget() {
             {learningEnabled() ? (
               <AllieAvatar />
             ) : (
-              <CircleHelp size={22} aria-hidden="true" />
+              <CircleHelp size={20} aria-hidden="true" />
             )}
             <span className="support-control-label" aria-hidden="true">
               {learningEnabled() ? `Ask ${assistantName}` : "Help"}
@@ -103,7 +100,7 @@ export function SupportWidget() {
           aria-label="Message Allied AutoTech on WhatsApp (opens a new tab)"
           title="Whatsapp"
         >
-          <MessageCircle size={22} aria-hidden="true" />
+          <MessageCircle size={20} aria-hidden="true" />
           <span className="support-control-label" aria-hidden="true">
             Whatsapp
           </span>

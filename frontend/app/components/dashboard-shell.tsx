@@ -43,7 +43,6 @@ import {
 } from "@/lib/notifications/destinations";
 import { NotificationPreview } from "./notification-preview";
 import { NotificationAccessContext } from "@/lib/notifications/access-context";
-import { LearningEntry } from "./learning/learning-entry";
 import { DashboardAccount } from "./dashboard-account";
 import { containDialogFocus } from "@/lib/dialog-focus";
 const SessionContext = createContext<SessionState | null>(null);
@@ -405,7 +404,7 @@ export function DashboardShell({
             aria-label="Open dashboard navigation"
             onClick={() => setMenuPath(menuOpen ? null : pathname)}
           >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
         <div id="dashboard-navigation" className="dashboard-navigation-container">
@@ -477,7 +476,6 @@ export function DashboardShell({
         <header className="dashboard-top">
           <DashboardPageSearch groups={navigation} />
           <div className="dashboard-account-controls">
-            <LearningEntry />
             {(!session.workforceManaged || verifiedWorkforce) && (
               <NotificationPreview
                 key={`${session.id}:${session.user.id}:${session.user.role}:${pathname}`}
@@ -487,11 +485,7 @@ export function DashboardShell({
                 pending={!notifications}
               />
             )}
-            <DashboardAccount
-              session={session}
-              busy={busy}
-              onLogout={() => void logout()}
-            />
+            <DashboardAccount session={session} />
           </div>
         </header>
         <main id="main" className="dashboard-content" key={session.user.id}>

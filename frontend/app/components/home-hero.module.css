@@ -170,35 +170,3 @@
     transition: none;
   }
 }
-/* Keep the existing support actions reachable without covering hero controls on
-   short phones. The ordinary labelled bar returns when the hero leaves view. */
-@media (max-width: 760px) and (max-height: 740px) {
-  body:has(.hero[data-in-view="true"]) :global(.support-controls) {
-    left: auto;
-    right: 12px;
-    bottom: 12px;
-    width: 44px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
-  }
-  body:has(.hero[data-in-view="true"])
-    :global(.support-controls)
-    :global(:is(.support-trigger, .whatsapp-control)) {
-    width: 44px;
-    min-width: 44px;
-    height: 44px;
-    padding: 0;
-    flex: none;
-  }
-  body:has(.hero[data-in-view="true"]) :global(.support-control-label) {
-    display: none;
-  }
-  .controls {
-    max-width: calc(100% - 64px);
-  }
-}

@@ -185,3 +185,6 @@ consolidated-audit.spec.ts > 1280x720 > work profile uses the authorised own-acc
 
 # Renewed brief: nearby customer actions at all seven exact viewport pairs.
 customer-support-actions.spec.ts
+
+# Sticky utilities, single dock, four roles and all seven exact viewport pairs.
+shared-shell-dock.spec.ts
