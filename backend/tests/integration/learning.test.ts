@@ -226,7 +226,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(appointment.status).toBe(200);
       expect(appointment.body.data).toMatchObject({
         id: "service-request",
-        version: 26,
+        version: 27,
         href: "/services",
       });
       expect(appointment.body.data.steps.join(" ")).toContain(

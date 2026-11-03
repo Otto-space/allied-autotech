@@ -1,3 +1,11 @@
+4 November integration checkpoint: c80b4080 passed all exact-source gates:
+Frontend 41741100952 (1,486 units, 12 existing skips; 150 browser cases), Backend
+41741100977 (including all five overview cases), Secrets 41741100951. Master then
+advanced to 8dd5e22e with reviewed resource-aware offers. Both content histories
+and implementations are retained; the combined service-request guide is v27,
+with its existing twelve steps and unchanged eligibility. Exact combined-source
+checks must pass again before merge/publication. No schema or launch flag changed.
+
 4 November CI follow-up: native run 41740199625 passed migration replay,
 db:check and preceding integration stages, then rejected the new closed-enquiry
 fixture because its required resolvedAt timestamp was missing. The fixture now
@@ -46,6 +54,79 @@ ownership/default/private-cover cases pass. Exact-master backend 41737877996 and
 secret 41737878157 and frontend 41737877997 pass for exact master.
 Neither renewed batch has been published by this task. Retain compatible release,
 recoverability, both-domain and exact-source gates.
+4 November final D06 source checkpoint: master 92f3f9fc's customer-overview,
+private booked/default/recent vehicle selection and acceptance changes are retained
+in bc911880. Independent service-request v25 edits are combined as v26, reviewed
+4 November, preserving both overview clarification and resource-aware offers.
+Canonical API regeneration produces no additional contract diff. Uppercase public
+service/branch UUIDs now resolve to their canonical approved identities.
+
+The final focused native run passes 26/26 on this integrated source after all 97
+migrations, Prisma diff, db:check and restricted-runtime proof; the owned tmpfs target
+is removed. Log: %TEMP%/aat-resource-aware-offers-canonical-native.log. Earlier
+100 other native regressions passed before the canonical-ID correction; they are
+not represented as a fresh full-suite run for the current composition. Post-merge
+52 focused units, full backend lint/types and the final unknown-duration 404/no-slot
+unit pass. Hosted exact-source PR checks must pass before merge, and exact-master
+checks plus all production backup/restore/migration/runtime gates remain required.
+No real account, resource, financial setting or production alias was changed.
+
+4 November CI follow-up: PR #16 is open for this integrated batch. Initial
+branch backend run 41737003721 stops at one old unknown-duration unit whose fake
+database lacked the new read-transaction adapter. The stub now invokes the read
+inside that adapter, while retaining the 404 and no-slot-read assertions. All
+66 early CI source/money/API cases pass locally and full backend lint passes.
+No runtime, schema, permission, financial or booking-window rule changed for this
+correction. New hosted exact-source checks remain required before merge/release.
+
+### 4 November 2026: D06 resource-aware public offers — integrated source checkpoint
+
+Current source combines resource discovery with master 92f3f9fc, preserving the
+new Help/Allie dock, dashboard/account, image, financial and resource-authoring
+fixes. No Prisma schema or migration differs from master; all 97 canonical
+migrations remain. Full D01-D17 remains active. Next work includes D06/D07 ongoing
+work/legacy assessment, then the remaining materials, arrival, lead-time,
+collection and exception journeys; this checkpoint does not redefine completion.
+
+Public offered times now require the currently approved resource plan, explicit
+service assessment, current qualified job duty, working periods/absences and
+available distinct equipment/shared spaces for preparation/job/cleanup. Discovery
+reuses confirmation occupancy and maximum matching, including actual completion
+cleanup, overdue unfinished work and unassessed overlapping legacy work. A single
+repeatable-read snapshot covers calendar, plan, eligibility, candidate batches and
+public projection. Filtering precedes output pagination and scans beyond an
+exhausted batch; public output/cursors contain no resource, staff or other-customer
+identities. Existing private/no-store response and booking window are retained.
+
+Selected offers are rechecked without reserving a unit or creating payment.
+Changed offers reject before a booking write. An unconfirmed preferred-time
+request remains available when resources are not configured. Atomic confirmation,
+original reschedule reservations, permission predicates, history and financial
+safeguards remain. Workforce permission checks still precede availability errors;
+existing 403 and rollback regressions were preserved rather than weakened.
+
+Native evidence covers 125 distinct cases across runs: the preceding full run
+passed the other 100 booking/resource-policy/lookup/workforce cases, and the final
+resource lifecycle/discovery run passes 25/25 after correcting three fixture
+assumptions. Each fresh target replayed all 97 migrations and passed Prisma diff,
+db:check and restricted-runtime proof. Final log:
+%TEMP%/aat-resource-aware-offers-focused-native.log. Earlier attempts retain the
+fixture naming collision, SQL-expression cast error, permission ordering error,
+missing required legacy confirmation timestamp and tests outside the preserved
+7–14 day booking window. No assertion was waived or policy changed to obtain a
+pass. All task-owned tmpfs databases were removed; application data was untouched.
+51 resource/learning/role units, source/scripts types, full backend lint, API
+validation (446 paths/522 operations) and 3,842-file secret scan pass. API request,
+response and security contracts are unchanged.
+
+Service-request guidance is v26, with unchanged public eligibility and semantic
+targets. Owner resource-plan v1 stays draft; flags remain unchanged. See
+docs/help-learn/WORKSHOP_RESOURCE_AVAILABILITY_20261103.md. Exact-master hosted
+checks and production publication remain pending for this composition. Actual
+qualified staff/resources/shifts need factual owner configuration and real-role
+acceptance. Booking readiness remains separate from invoice identity, tax and
+provider/financial activation prerequisites. No new pricing, stock, approval,
+provider success or real physical attendance is inferred.
 
 3 November 22:49 UTC follow-up: native run 41733499830 passed migration replay,
 db:check, types and lint, then failed two obsolete service-request v24 expectations.

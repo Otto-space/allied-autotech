@@ -18,9 +18,16 @@ it("does not read appointment slots for a priced service with an unconfirmed dur
     },
     bookingSlot: { findMany: slots },
   };
-  const service = new ServiceOperationsService(database as never);
+  const transaction = vi.fn(async (read: (tx: typeof database) => Promise<unknown>) =>
+    read(database),
+  );
+  const service = new ServiceOperationsService({
+    ...database,
+    $transaction: transaction,
+  } as never);
   await expect(
     service.publicBookingSlots(crypto.randomUUID(), {} as never),
   ).rejects.toMatchObject({ statusCode: 404 });
+  expect(transaction).toHaveBeenCalledOnce();
   expect(slots).not.toHaveBeenCalled();
 });

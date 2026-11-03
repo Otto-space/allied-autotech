@@ -1,0 +1,73 @@
+4 November final D06 source checkpoint: master 92f3f9fc's customer-overview,
+private booked/default/recent vehicle selection and acceptance changes are retained
+in bc911880. Independent service-request v25 edits are combined as v26, reviewed
+4 November, preserving both overview clarification and resource-aware offers.
+Canonical API regeneration produces no additional contract diff. Uppercase public
+service/branch UUIDs now resolve to their canonical approved identities.
+
+The final focused native run passes 26/26 on this integrated source after all 97
+migrations, Prisma diff, db:check and restricted-runtime proof; the owned tmpfs target
+is removed. Log: %TEMP%/aat-resource-aware-offers-canonical-native.log. Earlier
+100 other native regressions passed before the canonical-ID correction; they are
+not represented as a fresh full-suite run for the current composition. Post-merge
+52 focused units, full backend lint/types and the final unknown-duration 404/no-slot
+unit pass. Hosted exact-source PR checks must pass before merge, and exact-master
+checks plus all production backup/restore/migration/runtime gates remain required.
+No real account, resource, financial setting or production alias was changed.
+
+# D06 resource-aware offer discovery — 3 November 2026
+
+Service-request advances to v26, retaining master's v25 customer-overview guidance. Its public gate, guide targets and practice
+permissions remain unchanged. The existing owner resource-plan guide stays draft;
+no guide or feature flag is activated by this source change.
+
+Discovery requires the currently effective approved branch calendar and resource
+plan, an explicitly assessed service, current actual job duty and qualification,
+working periods and recorded absences. It uses the same maximum matcher and
+occupancy predicates as atomic confirmation: distinct working physical units,
+preparation/job/cleanup, actual completion cleanup, overdue unfinished work and
+unassessed overlapping legacy work. No policy or allocation history is rewritten.
+Explicitly assessed no-equipment work remains independent of unrelated equipment;
+its own technician and calendar checks still apply.
+
+The calendar, plan, duty eligibility, candidate reads and public projections share
+one repeatable-read snapshot. Resource filtering happens before output pagination;
+internal scanning continues beyond an exhausted candidate batch. Only existing
+public offer fields and visible offer cursors are returned; equipment, staff,
+allocation and other customers' booking identities remain private. Existing
+private/no-store API headers remain in force.
+
+Submitting a selected offer rechecks actual resource availability without reserving
+physical units or creating a payment. A changed/conflicting selection is rejected
+before a booking is created. Confirmation still performs its separately authorised
+atomic allocation. Missing approved resources do not forbid an unconfirmed
+preferred-time request. Existing reschedule originals and their allocations remain
+held until the reviewed atomic switch.
+
+Final native resource lifecycle/discovery run passes 25/25 after all 97 migrations,
+Prisma diff and db:check on a fresh exact-owned tmpfs test target with restricted
+runtime credentials. The preceding full run passed the other 100 native cases;
+its three remaining failures were corrected fixtures, not waived assertions:
+required legacy confirmation timestamp and the preserved 7–14 day booking window.
+The final focused run includes those three cases. These counts cover 125 distinct
+cases across runs, not 147. All owned test containers were removed after evidence.
+51 resource/learning/role units, source/scripts compilers, full backend lint,
+OpenAPI validation/route coverage and secret guard pass. Logs are under %TEMP%:
+aat-resource-aware-offers-focused-native.log and the retained earlier full-run logs.
+
+Failed attempts are retained: a fixture name collision, the SQL expression cast
+precedence error reproduced with an isolated read-only query and corrected with
+parentheses, and an availability check initially preceding the workforce permission
+boundary. The original 403 and rollback assertions are preserved and pass.
+Exact-source merged hosted checks and production publication are still pending.
+No new schema, real workshop data, grant, provider configuration or production
+publication. Actual owner resource configuration and real-role acceptance remain
+separate; D06 and the complete D01-D17 goal are not marked complete.
+
+4 November CI follow-up: PR #16 is open for this integrated batch. Initial
+branch backend run 41737003721 stops at one old unknown-duration unit whose fake
+database lacked the new read-transaction adapter. The stub now invokes the read
+inside that adapter, while retaining the 404 and no-slot-read assertions. All
+66 early CI source/money/API cases pass locally and full backend lint passes.
+No runtime, schema, permission, financial or booking-window rule changed for this
+correction. New hosted exact-source checks remain required before merge/release.
