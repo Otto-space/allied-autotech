@@ -283,7 +283,7 @@ export function PurchaseSuitability({
         setMessage(`${error.message} Your entered details are retained.`);
       } else if (!retained.current)
         setMessage(
-          "Choose a model and valid year, or select ‘I need help checking’. Your details are retained.",
+          "Choose a model and valid year, or select ‘No vehicle / unsure’. Your details are retained.",
         );
       else {
         setUncertain(true);
@@ -367,9 +367,17 @@ export function PurchaseSuitability({
         team only when more information is needed.
       </p>
       {order.purchaseReviews[0]?.status === "APPROVED" && (
-        <p>
-          Checks completed. Review the payment section for the current payment window.
-        </p>
+        <div>
+          <p>
+            Checks completed. Review the payment section for the current payment window.
+          </p>
+          <a
+            className="button"
+            href={guest ? "#purchase-next-step" : "#order-payment-title"}
+          >
+            View payment options
+          </a>
+        </div>
       )}
       {order.purchaseReviews[0]?.availability
         ?.filter((line) => line.kind === "SUPPLIER")
@@ -495,10 +503,8 @@ export function PurchaseSuitability({
                             }))
                           }
                         >
-                          <option value="help">
-                            I need help checking / no vehicle needed
-                          </option>
-                          <option value="vehicle">For a specific vehicle</option>
+                          <option value="help">No vehicle / unsure</option>
+                          <option value="vehicle">For a vehicle</option>
                         </select>
                       </div>
                       {value.vehicle && (

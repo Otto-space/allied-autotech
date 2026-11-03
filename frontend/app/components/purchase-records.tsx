@@ -286,7 +286,9 @@ function OrderDetail({ orderId }: { orderId: string }) {
             </Link>
           </section>
           <section className="purchase-panel">
-            <h2>Next step</h2>
+            <h2 id="purchase-next-step" tabIndex={-1}>
+              Next step
+            </h2>
             {resource.data.paymentId ? (
               <Link
                 className="button"

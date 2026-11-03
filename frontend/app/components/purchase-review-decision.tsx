@@ -230,6 +230,7 @@ export function PurchaseReviewDecision({
         Resolve the missing suitability or availability information. Orders that match
         approved evidence and current stock are checked automatically.
       </p>
+      {!order.partsQuote && <p>Supplier confirmation requires an accepted quotation.</p>}
       <Link href="/admin/fitment">View fitment evidence and review</Link>
       <Feedback message={error} scrollToMessage />
       <form
@@ -283,9 +284,9 @@ export function PurchaseReviewDecision({
                           }))
                         }
                       >
-                        <option value="stock">Reserve available branch stock</option>
+                        <option value="stock">Available branch stock</option>
                         <option value="supplier" disabled={!order.partsQuote}>
-                          Supplier confirmed · accepted quotation required
+                          Confirmed supplier
                         </option>
                       </select>
                     </div>
@@ -352,8 +353,8 @@ export function PurchaseReviewDecision({
                 setDecision(event.target.value === "DECLINED" ? "DECLINED" : "APPROVED")
               }
             >
-              <option value="APPROVED">Confirm suitability and availability</option>
-              <option value="DECLINED">Unable to confirm this offer</option>
+              <option value="APPROVED">Confirm offer</option>
+              <option value="DECLINED">Cannot confirm offer</option>
             </select>
           </div>
           <div className="field">

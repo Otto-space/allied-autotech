@@ -1,3 +1,29 @@
+### 3 November 16:32 UTC package boundary: review screens verified, final layout polish pending
+
+Source 31c292dd passes frontend 41673219268, backend 41673219659 and secrets
+41673219336. Frontend production checks include 1,386 passing unit cases and 12
+existing skips; Chromium runtime is 19/19, no skipped or flaky cases. The six new
+cases cover account explicit reuse/fresh checking, guest saved-pending refresh,
+Admin reasoned decisions, dialog Escape/focus return and no overflow at 320/1440.
+Axe checks pass on editable and approved customer states. This remains synthetic
+browser/isolated database evidence; real roles, providers and physical devices
+are not accepted. Migration 91 was replayed in CI only; no application DB change.
+
+Safe artifact 13248169300 (1,679,586 bytes) is downloaded under
+C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/runtime-ci-31c292dd/.
+Inspected phone and laptop before/after states, guest pending and staff dialog.
+The images contain synthetic fixtures. Phone selects visibly clipped long labels;
+those are shortened, quotation eligibility remains beside the control, and the
+confirmed panel now links directly to the payment section. Laptop part fields
+use responsive columns. These final source refinements need a fresh exact-source
+check and screenshots; do not extend the 31c292dd pass to untested later changes.
+
+Still outstanding in D04: explicit displayed-offer binding on payment creation,
+checkout vehicle carry-through and operational notification/role/provider acceptance.
+D02/D03/D05-D17 remain in the full objective. No live purchase/booking/payment flag,
+credentials, real records, owner-only permission or production release changed.
+Latest C: reading 23.02 GiB; no new local build, install or database was created.
+
 3 November 16:19 UTC verification follow-up: aed43c10 passed backend
 41670149247 and frontend production checks (1,384 passed, 12 existing skips),
 but browser run 41670149228 finished 15/19. All 13 availability regressions and

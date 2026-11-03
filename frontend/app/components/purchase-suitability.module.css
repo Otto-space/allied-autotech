@@ -18,7 +18,11 @@
   margin: 20px 0 0;
   min-width: 0;
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
   gap: 20px;
+}
+.form > button {
+  grid-column: 1 / -1;
 }
 .item {
   border: 1px solid var(--border-color, #d8d8d8);
