@@ -1,3 +1,19 @@
+3 November 22:08 UTC integration gate review: 7e92d780 preserves both resource
+editor and financial changes. Backend 41726701704 and Secrets 41726701665 pass.
+Frontend 41726701652 passes 1,476 units (12 existing skips) and the production
+build, then fails formatting in the merged UI_UX_QUALITY_REGISTER.md. No browser
+runtime case executed in that run; no acceptance is inferred from collection or
+build success. The quality register is now formatted. Exact-source checks must
+pass for the follow-up commit before publication. Production remains at the
+verified audit release; its backend deployment and four digests were freshly
+read without mutation. Eight managed backups are listed, newest 3 November
+05:22:10 UTC; that read is not a fresh release backup/restore rehearsal.
+C: has about 20.85 GiB free, below the 22 GiB reviewed four-image build budget.
+The conservative old/unshared/inactive/non-cachemount Docker cache filter returns
+no candidates. All application databases, active source, useful caches and current
+and rollback resources are retained. No build, migration or production promotion
+was attempted after the failed disk preflight.
+
 3 November 21:59 UTC merged-source check: backend types/lint pass. Seven
 focused files produced 47 passes and one stale service-request v23 assertion after
 the concurrent v24 started-work correction. The assertion now expects v24 while
@@ -63,8 +79,7 @@ D03/D11-D17 and original audit requirements remain in scope.
 
 3 November 21:44 UTC bounded D02 result: signed master
 d9cf9d093fc8e71f16883bbf2cc2b353da187447 is verified by GitHub and passes all
-three exact-source gates: Frontend 41722772458, Backend 41722772291 and Secrets
-41722772221. Frontend passes 1,458 units (12 existing skips), production lint,
+three exact-source gates: Frontend 41722772458, Backend 41722772291 and Secrets 41722772221. Frontend passes 1,458 units (12 existing skips), production lint,
 types/build/format and 71/71 Chromium cases: zero skips, failures or flaky cases.
 Backend passes 97-migration isolated replay/db:check, compiler/scripts/lint,
 60 safety cases, 64 early source/money/API cases, eight reminder concurrency,
