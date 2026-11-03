@@ -1,3 +1,52 @@
+### 4 November 2026: D06 resource-aware public offers — integrated source checkpoint
+
+Current source combines resource discovery with master 6432da3e, preserving the
+new Help/Allie dock, dashboard/account, image, financial and resource-authoring
+fixes. No Prisma schema or migration differs from master; all 97 canonical
+migrations remain. Full D01-D17 remains active. Next work includes D06/D07 ongoing
+work/legacy assessment, then the remaining materials, arrival, lead-time,
+collection and exception journeys; this checkpoint does not redefine completion.
+
+Public offered times now require the currently approved resource plan, explicit
+service assessment, current qualified job duty, working periods/absences and
+available distinct equipment/shared spaces for preparation/job/cleanup. Discovery
+reuses confirmation occupancy and maximum matching, including actual completion
+cleanup, overdue unfinished work and unassessed overlapping legacy work. A single
+repeatable-read snapshot covers calendar, plan, eligibility, candidate batches and
+public projection. Filtering precedes output pagination and scans beyond an
+exhausted batch; public output/cursors contain no resource, staff or other-customer
+identities. Existing private/no-store response and booking window are retained.
+
+Selected offers are rechecked without reserving a unit or creating payment.
+Changed offers reject before a booking write. An unconfirmed preferred-time
+request remains available when resources are not configured. Atomic confirmation,
+original reschedule reservations, permission predicates, history and financial
+safeguards remain. Workforce permission checks still precede availability errors;
+existing 403 and rollback regressions were preserved rather than weakened.
+
+Native evidence covers 125 distinct cases across runs: the preceding full run
+passed the other 100 booking/resource-policy/lookup/workforce cases, and the final
+resource lifecycle/discovery run passes 25/25 after correcting three fixture
+assumptions. Each fresh target replayed all 97 migrations and passed Prisma diff,
+db:check and restricted-runtime proof. Final log:
+%TEMP%/aat-resource-aware-offers-focused-native.log. Earlier attempts retain the
+fixture naming collision, SQL-expression cast error, permission ordering error,
+missing required legacy confirmation timestamp and tests outside the preserved
+7–14 day booking window. No assertion was waived or policy changed to obtain a
+pass. All task-owned tmpfs databases were removed; application data was untouched.
+51 resource/learning/role units, source/scripts types, full backend lint, API
+validation (446 paths/522 operations) and 3,842-file secret scan pass. API request,
+response and security contracts are unchanged.
+
+Service-request guidance is v25, with unchanged public eligibility and semantic
+targets. Owner resource-plan v1 stays draft; flags remain unchanged. See
+docs/help-learn/WORKSHOP_RESOURCE_AVAILABILITY_20261103.md. Exact-master hosted
+checks and production publication remain pending for this composition. Actual
+qualified staff/resources/shifts need factual owner configuration and real-role
+acceptance. Booking readiness remains separate from invoice identity, tax and
+provider/financial activation prerequisites. No new pricing, stock, approval,
+provider success or real physical attendance is inferred.
+
 ### 3 November 2026: resource authoring reconciled with current master
 
 The signed resource lookup/editor checkpoints were cherry-picked onto current
