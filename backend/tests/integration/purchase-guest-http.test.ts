@@ -57,7 +57,7 @@ async function proof(app: App, email = `guest-http-${randomUUID()}@example.test`
     ).encrypted,
   );
   const token = new URLSearchParams(new URL(payload.link).hash.slice(1)).get("token")!;
-  return { requested, browser, token, email };
+  return { requested, browser, token, email, link: payload.link };
 }
 async function verified(app: App, email?: string) {
   const p = await proof(app, email);
@@ -100,6 +100,19 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     beforeAll(() => assertIsolatedLoopbackDatabase());
     afterAll(() => prisma.$disconnect());
 
+    it("returns the access link to its requesting approved origin when the configured email alias differs", async () => {
+      const previous = env.FRONTEND_VERIFY_EMAIL_URL;
+      env.FRONTEND_VERIFY_EMAIL_URL = "https://other-approved-alias.example/verify-email";
+      try {
+        const requested = await proof(freshApp());
+        expect(new URL(requested.link).origin).toBe(origin);
+        expect(new URL(requested.link).pathname).toBe("/purchase/verify");
+        expect(new URL(requested.link).search).toBe("");
+      } finally {
+        env.FRONTEND_VERIFY_EMAIL_URL = previous;
+      }
+    });
+
     it("consumes a browser-bound proof without creating an account, order or payment and never returns the session token", async () => {
       const app = freshApp(),
         user = await account("CUSTOMER");
@@ -111,6 +124,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const guest = await verified(app, user.user.email);
       expect(guest.result.body.data).toEqual({
         email: user.user.email,
+        buyerReference: expect.any(String),
         expiresAt: expect.any(String),
         csrfToken: expect.stringMatching(/^[A-Za-z0-9_-]{43}$/),
       });
@@ -140,7 +154,11 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .set("Cookie", guest.sessionCookie);
       expect(current.status).toBe(200);
       expect(current.body.data.email).toBe(user.user.email);
-      expect(Object.keys(current.body.data).sort()).toEqual(["email", "expiresAt"]);
+      expect(Object.keys(current.body.data).sort()).toEqual([
+        "buyerReference",
+        "email",
+        "expiresAt",
+      ]);
     });
 
     it("refuses missing or other-browser binding, replay and credentials in the query", async () => {
@@ -519,6 +537,11 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .send({ orderId: order.body.data.order.id });
       expect(intent.status).toBe(201);
       const paymentId = intent.body.data.payment.id;
+      const ownedOrder = await request(app)
+        .get(`/api/v1/purchase/orders/${order.body.data.order.id}`)
+        .set(headers);
+      expect(ownedOrder.status).toBe(200);
+      expect(ownedOrder.body.data.paymentId).toBe(paymentId);
       const bad = await request(app)
         .post("/api/v1/purchase/payments")
         .set(headers)
@@ -535,6 +558,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(checkout.status).toBe(200);
       expect(commands).toHaveLength(1);
       expect(commands[0]!.amountKobo).toBe(21500n);
+      expect(new URL(commands[0]!.callbackUrl!).origin).toBe(origin);
+      expect(new URL(commands[0]!.callbackUrl!).pathname).toBe("/purchase/complete");
       const replay = await request(app)
         .post(checkoutPath)
         .set(headers)

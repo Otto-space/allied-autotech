@@ -31,6 +31,7 @@ import {
 import { prisma } from "../../config/database.js";
 import { env } from "../../config/env.js";
 import { PurchaseGuestAccessService } from "../orders/purchase-guest-access.service.js";
+import { trustedPurchaseOrigin } from "../../common/security/purchase-origin.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import type { PaymentMethod } from "../../generated/prisma/enums.js";
 import type {
@@ -398,6 +399,7 @@ export class PaymentsService {
     rawKey: string,
     context: RequestSecurityContext,
     provider: OnlinePaymentProvider,
+    returnOrigin?: string,
   ) {
     this.assertGuestPurchasing();
     paymentIdempotencyHeadersSchema.parse({ "idempotency-key": rawKey });
@@ -408,6 +410,7 @@ export class PaymentsService {
       rawKey,
       context,
       provider,
+      returnOrigin,
     );
   }
 
@@ -417,7 +420,12 @@ export class PaymentsService {
     rawKey: string,
     context: RequestSecurityContext,
     provider: OnlinePaymentProvider,
+    returnOrigin?: string,
   ) {
+    const guestOrigin =
+      buyer.kind === "guest" && returnOrigin
+        ? trustedPurchaseOrigin(returnOrigin)
+        : undefined;
     const attemptKey = hashToken(
       "payment-attempt-idempotency",
       `${provider}:${id}:${rawKey}`,
@@ -503,11 +511,19 @@ export class PaymentsService {
         replayed: true,
       };
     const callbackUrl =
-      provider === "PAYSTACK" ? env.PAYSTACK_CALLBACK_URL : env.MONNIFY_CALLBACK_URL;
+      (provider === "PAYSTACK" ? env.PAYSTACK_CALLBACK_URL : env.MONNIFY_CALLBACK_URL) ??
+      guestOrigin;
     const ownedCallbackUrl = callbackUrl
       ? (() => {
           const url = new URL(callbackUrl);
-          if (buyer.kind === "guest") url.pathname = "/purchase/complete";
+          if (buyer.kind === "guest") {
+            url.pathname = "/purchase/complete";
+            if (guestOrigin) {
+              const origin = new URL(guestOrigin);
+              url.protocol = origin.protocol;
+              url.host = origin.host;
+            }
+          }
           url.searchParams.set("paymentId", id);
           url.searchParams.set("attemptId", prepared.existing.id);
           return url.toString();

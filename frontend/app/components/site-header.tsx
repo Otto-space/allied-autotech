@@ -329,7 +329,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
             <div className="site-header__divider" />
             {checkoutEnabled && (
               <Link
-                href="/dashboard/cart"
+                href={session?.user.role === "CUSTOMER" ? "/dashboard/cart" : "/cart"}
                 prefetch={false}
                 className="site-cart-link"
                 aria-label="Cart"
@@ -464,7 +464,7 @@ function HeaderContent({ pathname }: { pathname: string }) {
           <div className="mobile-menu__account">
             {checkoutEnabled && (
               <Link
-                href="/dashboard/cart"
+                href={session?.user.role === "CUSTOMER" ? "/dashboard/cart" : "/cart"}
                 className="mobile-account-link"
                 prefetch={false}
                 onClick={() => setOpen(false)}

@@ -120,7 +120,7 @@ export type LearningArticle = z.infer<typeof articleSchema>;
 export type PracticeDefinition = z.infer<typeof practiceSchema>;
 export function learningPage(path: string) {
   if (
-    /^\/(?:login|register|mfa|forgot-password|reset-password|verify-email)(?:\/|$)/.test(
+    /^\/(?:login|register|mfa|forgot-password|reset-password|verify-email|purchase|cart|checkout)(?:\/|$)/.test(
       path,
     ) ||
     /^\/(?:dashboard|admin|staff)\/security(?:\/|$)/.test(path)

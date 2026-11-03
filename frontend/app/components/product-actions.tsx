@@ -15,6 +15,7 @@ import type { RequestBody } from "@/lib/api/contracts";
 import { useAccountMutation } from "@/lib/api/use-account-mutation";
 import { AccountChangeNotice } from "./account-change-notice";
 import { CartUpdateDrawer } from "./cart-update-drawer";
+import { PurchaseCartAdd } from "./purchase-cart-add";
 
 const identity = z.object({
   user: z.object({ role: z.enum(["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) }),
@@ -349,16 +350,19 @@ function ProductPurchaseActions({
               : access === "anonymous"
                 ? enquiriesOnly
                   ? "Sign in to a customer account to save favourites."
-                  : "A customer account is required to use the cart and favourites."
+                  : "An account is optional for purchases. Sign in to save favourites."
                 : access === "restricted"
                   ? "Saving favourites is available to customer accounts. Contact our team for help."
                   : "We could not check your account. Please try again."}
           </p>
           {access === "anonymous" && (
-            <Link className={enquiriesOnly ? "pd-link" : "button"} href={loginHref}>
-              {enquiriesOnly ? "Sign in to save this product" : "Sign in to continue"}{" "}
+            <Link className="pd-link" href={loginHref}>
+              {enquiriesOnly ? "Sign in to save this product" : "Sign in (optional)"}{" "}
               <ArrowRight size={17} aria-hidden="true" />
             </Link>
+          )}
+          {access === "anonymous" && !enquiriesOnly && (
+            <PurchaseCartAdd productId={productId} available={available} />
           )}
           {access === "restricted" && (
             <Link className="button secondary" href="/dashboard">

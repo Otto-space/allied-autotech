@@ -6,6 +6,7 @@ import { issueCsrfToken, verifyCsrfToken } from "../../common/security/csrf-toke
 import { normalizeEmail } from "../../common/security/email.js";
 import { encryptIdentityPayload } from "../../common/security/mfa-encryption.js";
 import { generateOpaqueToken, hashToken } from "../../common/security/session-tokens.js";
+import { trustedPurchaseOrigin } from "../../common/security/purchase-origin.js";
 import { env } from "../../config/env.js";
 import { prisma } from "../../config/database.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
@@ -41,8 +42,15 @@ export class PurchaseGuestAccessService {
 
   /** Caller must require a trusted origin and sensitive IP throttling.
    * No public route is mounted until the complete guest checkout is ready. */
-  async request(emailInput: string, previousBrowserToken?: string) {
+  async request(
+    emailInput: string,
+    previousBrowserToken?: string,
+    requestOrigin?: string,
+  ) {
     const email = emailSchema.parse(emailInput);
+    const linkOrigin = requestOrigin
+      ? trustedPurchaseOrigin(requestOrigin)
+      : env.FRONTEND_VERIFY_EMAIL_URL;
     const browserToken = opaqueToken.safeParse(previousBrowserToken).success
       ? previousBrowserToken!
       : generateOpaqueToken();
@@ -67,7 +75,7 @@ export class PurchaseGuestAccessService {
         },
         select: { id: true },
       });
-      const link = new URL("/purchase/verify", env.FRONTEND_VERIFY_EMAIL_URL);
+      const link = new URL("/purchase/verify", linkOrigin);
       link.hash = new URLSearchParams({ token: rawToken }).toString();
       const payload: IdentityEmailPayload = {
         template: "purchase-guest-access",

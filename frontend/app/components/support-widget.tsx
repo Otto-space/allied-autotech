@@ -57,6 +57,7 @@ export function SupportWidget() {
     pathname.startsWith("/staff") ||
     pathname.startsWith("/dashboard/support") ||
     pathname.startsWith("/learn/practice/") ||
+    pathname.startsWith("/purchase") ||
     pathname === "/dashboard/notifications" ||
     [
       "/login",

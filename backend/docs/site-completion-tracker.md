@@ -1,3 +1,37 @@
+### 3 November 2026: Account-optional cart and payment screens verified (source only)
+
+HTTP source 79e0d46d passes frontend 41574039845, backend 41574040046 and
+secrets 41574039839. Published runtime remains 333c3a22 / 87 migrations;
+commerce, booking deposits, delivery and vehicle reservations remain closed.
+
+Guest email links and payment returns keep the requesting approved frontend origin,
+with unapproved origins rejected before attempts/provider calls. This preserves
+host-only cookies across the supported alias choice; actual provider acceptance
+on each production alias remains unperformed.
+
+Public cart, browser-bound email verification, guest history, exact order/payment
+review, callback checking, same-attempt recovery and expiry controls are implemented.
+Account carts/favourites remain separate. Browser storage holds product IDs/quantities
+and buyer-scoped non-authorizing retry metadata; contact fields and CSRF/proof/session
+credentials are not stored there. Failed/uncertain requests recover the original order.
+A return URL never proves payment, and paid never means allocated or ready.
+
+Native guest-ui-native-ed8d3f410c2e47d48cae41c33ac8c00b passes 52/52 across five
+suites with 89-migration replay, no drift/db:check and non-owner runtime privileges.
+Fifteen rendered cases plus three expiry/touch/route-handoff cases pass (18 distinct local cases),
+covering 320/390/430/768/1024/1366px, keyboard, buyer changes, failed loads, uncertain
+receipts and safe provider links. Sampled 320/1366 Axe reports have zero violations.
+The initial 9/12 run found a wrong skip target and draft loss on availability refresh;
+both were fixed before the full repeat passed. Three cart units and 35 unchanged
+payment/learning regressions pass. TypeScript, repository backend lint, focused
+frontend ESLint/format and secret guard pass. Screenshots are synthetic, not real
+accounts/providers; physical devices and live-role acceptance remain unperformed.
+
+Next: guest quotation issuance/acceptance, invoice/receipt delivery, cancellation/
+aftercare and operator refund-review completion, with matching guidance. New populated
+restore, compatible recovery images, exact-source CI and publication remain mandatory.
+No complete operational purchasing or whole-site readiness is claimed.
+
 ### 3 November 2026: Guest HTTP ownership boundary verified (source only)
 
 Payment source 56cf0bd8 passes frontend 41572993041, backend 41572993099

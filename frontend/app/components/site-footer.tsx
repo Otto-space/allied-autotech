@@ -67,6 +67,11 @@ export function SiteFooter() {
             >
               {catalogueOnly() ? "Staff sign in" : "Your Account"}
             </Link>
+            {!catalogueOnly() && (
+              <Link href="/purchase" className="hover:text-white transition-colors">
+                Guest purchases
+              </Link>
+            )}
           </nav>
         </div>
         <div>

@@ -391,5 +391,23 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       }
       expect(f.commands).toHaveLength(0);
     });
+
+    it("rejects an unapproved guest return origin before creating an attempt or calling a provider", async () => {
+      const f = await setup();
+      await expect(
+        f.payments.guestInitialize(
+          f.credentials,
+          f.intent.payment.id,
+          randomUUID(),
+          context(),
+          "PAYSTACK",
+          "https://untrusted.example",
+        ),
+      ).rejects.toMatchObject({ statusCode: 403, code: "CSRF_INVALID" });
+      expect(f.commands).toHaveLength(0);
+      expect(
+        await prisma.paymentAttempt.count({ where: { paymentId: f.intent.payment.id } }),
+      ).toBe(0);
+    });
   },
 );

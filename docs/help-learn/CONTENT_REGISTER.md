@@ -1,3 +1,13 @@
+## 3 November 2026: Guest browser journey (source)
+
+Cart, explicit email verification, owned history and guarded payment review/recovery
+screens are implemented and locally verified. Purchase paths suppress conversational
+AI as security-sensitive pages; no AI/practice flag or permission is enabled. Booking
+reference/copy controls retain their default semantics and accept explicit order/
+payment labels. Guest quotation/documents/aftercare guidance still needs reconciliation
+with those next implementations before publication. Current public runtime is 333c3a22;
+this source does not establish provider, live-role or physical-device acceptance.
+
 ## 3 November 2026: Guest API boundary (source)
 
 Separate purchase-access routes and owned history/payment recovery are implemented

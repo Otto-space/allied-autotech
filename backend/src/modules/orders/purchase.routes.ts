@@ -88,6 +88,7 @@ export function createPurchaseRouter(
       const result = await access.request(
         validated<{ email: string }>(res, "body").email,
         req.cookies?.[purchaseBrowserCookieName],
+        req.get("origin"),
       );
       res.cookie(
         purchaseBrowserCookieName,
@@ -116,6 +117,7 @@ export function createPurchaseRouter(
       );
       send(req, res, "Purchase access verified", {
         email: result.access.email,
+        buyerReference: result.access.guestId,
         expiresAt: result.access.expiresAt,
         csrfToken: result.csrfToken,
       });
@@ -125,6 +127,7 @@ export function createPurchaseRouter(
     const current = await access.access(session(req), { kind: "read" });
     send(req, res, "Purchase access retrieved", {
       email: current.email,
+      buyerReference: current.guestId,
       expiresAt: current.expiresAt,
     });
   });
@@ -278,6 +281,7 @@ export function createPurchaseRouter(
           key(res),
           context(req),
           validated<{ provider: "PAYSTACK" | "MONNIFY" }>(res, "body").provider,
+          req.get("origin"),
         ),
       );
     },

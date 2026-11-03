@@ -1,3 +1,13 @@
+### 3 November 2026: Guest cart/payment screen checkpoint (source only)
+
+Public cart, explicit email verification, buyer-scoped history/recovery and exact
+order/payment review are implemented. Native final 52/52; 18 distinct local browser
+cases pass, including 320-1366px, keyboard, touch emulation, expiry, failed loads and
+buyer changes. Sampled 320/1366 Axe reports have zero violations. Initial skip-link
+and focus-refresh draft regressions were fixed. No real roles/providers/devices or
+activation/publication are claimed. See the requirement row and existing full-audit
+report; guest quotation, documents and aftercare/operator work remains next.
+
 ### 3 November 2026: Guest HTTP ownership boundary verified (source only)
 
 Payment source 56cf0bd8 passes frontend 41572993041, backend 41572993099
@@ -335,7 +345,7 @@ No payment, booking, AI, delivery, deposit or reservation activation is authoris
 | 6.3 real customer calendar/countdown                  | Owned month API query, Nigeria boundaries, stable paging, proposals across months, semantic dates/details, offline/session invalidation, Today/Escape/focus | Published; 16 distinct calendar fixtures, CI/native authenticated isolated HTTP and held/deployed calendar cases pass; real-account acceptance unavailable                                                                                                                                                                   |
 | 6.4 retained carousel/media/favourites/radii          | Existing approved whole-team/hero/card assets, manual/focus pause and later owner preference that laptop hover continues autoplay                           | Published; retained hero regressions pass including three real-time autoplay loops, pause/resume, slow/failed images; physical devices/Safari unverified                                                                                                                                                                     |
 | Operational booking                                   | Existing request/confirm, proposals, customer response, capacity/resource checks and disabled deposits                                                      | No activation; reconcile actual approved hours/resources/responsibility/policy values, isolated lifecycle regression and authorised operational acceptance remain                                                                                                                                                            |
-| Account-optional purchasing                           | Audit and original approved requirement permit optional accounts; current Order/Cart/checkout/payment paths require customer account                        | Source-only proof/session and order/invoice/aftercare ownership foundation: exact foundation CI passes; ownership replay/regressions 28/28 and migration/finance/document checks 57/57. No guest public route yet; shared checkout/payment/cart/quote/recovery integration and populated restore/publication remain required |
+| Account-optional purchasing | Owner-approved; published commerce remains closed | Source: separate guest ownership/access, shared checkout/payment and public cart/verification/history/recovery screens. Native final 52/52; 18 distinct local browser cases; three cart units plus 35 existing payment/learning regressions pass. Guest quotation, invoice/receipt, aftercare/operator integration, fresh populated restore, exact CI/publication and actual provider/role/device acceptance remain required. |
 | Payment/collection/finance                            | Preserve pay-first then final compatibility/availability review, separate paid/allocated/ready states, collection-only, seven-day quote validity            | New quotation seven-day enforcement is source-only, verified 37 native / seven rendered cases; existing offers unchanged. Actual provider acceptance and verified Tax/CAC, VAT applicability, percentage rounding and service-invoice timing remain separate owner/accountant items                                          |
 | Release and evidence                                  | Exact master CI, packaged safety, held-hosted checks, backup/recovery/read-only DB checks and alias verification required                                   | Batch published with exact-source CI, packaged, held, deployed and safety gates above. Whole-site readiness is not established; provider/physical/real-role evidence stays separate                                                                                                                                          |
 
@@ -3100,7 +3110,7 @@ eight browser-only fixture journeys and one explicit autoplay pause/play case.
 The real 13 journeys were repeated successfully on the public production domain
 after promotion, at the representative widths above, with zero page exceptions.
 The 17 health/screenshot/axe entries in each real-data receipt are checkpoints
-within those 13 scenarios, not 17 distinct scenarios. The full local 127-case
+within those 13 scenarios, not 18 distinct scenarios. The full local 127-case
 matrix remains unexecuted because preview startup was blocked by tool policy;
 the selected hosted acceptance replaces the release blocker without claiming
 that entire matrix passed. Real-device keyboards, screen-reader speech and real

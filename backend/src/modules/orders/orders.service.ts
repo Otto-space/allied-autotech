@@ -130,7 +130,12 @@ export class OrdersService {
       });
       const order = await this.repository.guestOrder(id, access.guestId, transaction);
       if (!order) throw orderNotFound();
-      return jsonSafe(customerOrderView(order));
+      const payment = await transaction.payment.findFirst({
+        where: { orderId: order.id, customerId: null },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        select: { id: true },
+      });
+      return jsonSafe({ ...customerOrderView(order), paymentId: payment?.id ?? null });
     });
   }
 
