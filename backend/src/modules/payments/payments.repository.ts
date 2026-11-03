@@ -175,6 +175,16 @@ export class PaymentsRepository {
       select: paymentSelect,
     });
   }
+  byGuestIdempotency(hash: string, guestId: string, client: DatabaseClient) {
+    return client.payment.findFirst({
+      where: {
+        idempotencyKeyHash: hash,
+        customerId: null,
+        order: { guestId, customerId: null },
+      },
+      select: paymentSelect,
+    });
+  }
   create(data: Prisma.PaymentUncheckedCreateInput, client: DatabaseClient) {
     return client.payment.create({ data, select: paymentSelect });
   }
@@ -187,6 +197,12 @@ export class PaymentsRepository {
   owned(id: string, customerId: string, client: DatabaseClient = this.database) {
     return client.payment.findFirst({
       where: { id, customerId },
+      select: customerPaymentSelect,
+    });
+  }
+  guestOwned(id: string, guestId: string, client: DatabaseClient = this.database) {
+    return client.payment.findFirst({
+      where: { id, customerId: null, order: { guestId, customerId: null } },
       select: customerPaymentSelect,
     });
   }

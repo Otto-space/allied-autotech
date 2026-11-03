@@ -30,6 +30,7 @@ import {
 } from "../../common/security/payment-checkout-state.js";
 import { prisma } from "../../config/database.js";
 import { env } from "../../config/env.js";
+import { PurchaseGuestAccessService } from "../orders/purchase-guest-access.service.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import type { PaymentMethod } from "../../generated/prisma/enums.js";
 import type {
@@ -91,7 +92,10 @@ import {
   writeWebhookResult,
   type WebhookClaim,
 } from "./webhook-claim.js";
-import { paymentCreateBodySchema } from "./payments.schemas.js";
+import {
+  paymentCreateBodySchema,
+  paymentIdempotencyHeadersSchema,
+} from "./payments.schemas.js";
 import {
   assertNoCompetingPayment,
   lockStoredTarget,
@@ -136,14 +140,28 @@ const monnifyRefundRetrySchema = z
   })
   .strict();
 
+export type GuestPaymentCredentials = { sessionToken: string; csrfToken: string };
+type PaymentBuyer =
+  | { kind: "account"; actor: AuthenticatedActor }
+  | ({ kind: "guest" } & GuestPaymentCredentials);
+type PaymentBuyerIdentity = {
+  customerId: string | null;
+  guestId: string | null;
+  actorUserId: string | null;
+  email: string;
+  name: string | null;
+};
+
 export class PaymentsService {
   private readonly repository: PaymentsRepository;
+  private readonly guestAccess: PurchaseGuestAccessService;
   constructor(
     private readonly database: PrismaClient = prisma,
     private readonly providers: PaymentProviderRegistry = paymentProviders,
     private readonly storage: ObjectStoragePort = objectStorage,
   ) {
     this.repository = new PaymentsRepository(database);
+    this.guestAccess = new PurchaseGuestAccessService(database);
   }
 
   async customerList(actor: AuthenticatedActor, query: PaymentListQuery) {
@@ -177,6 +195,20 @@ export class PaymentsService {
       ...customerPaymentView(payment),
       // Availability is informational; initialization still enforces payable rules.
       checkoutProviders: this.providers.enabledProviders(),
+    });
+  }
+  async guestGet(sessionToken: string, id: string) {
+    if (env.PUBLIC_LAUNCH_MODE === "catalogue") throw paymentNotFound();
+    return this.database.$transaction(async (tx) => {
+      const access = await this.guestAccess.lockAccess(tx, sessionToken, {
+        kind: "read",
+      });
+      const payment = await this.repository.guestOwned(id, access.guestId, tx);
+      if (!payment) throw paymentNotFound();
+      return paymentJsonSafe({
+        ...customerPaymentView(payment),
+        checkoutProviders: this.providers.enabledProviders(),
+      });
     });
   }
   async staffList(
@@ -231,14 +263,49 @@ export class PaymentsService {
     context: RequestSecurityContext,
   ) {
     assertPaymentCustomer(actor);
-    const keyHash = hashToken("payment-intent-idempotency", `${actor.userId}:${rawKey}`);
+    return this.createBuyerIntent({ kind: "account", actor }, input, rawKey, context);
+  }
+
+  async guestCreateIntent(
+    credentials: GuestPaymentCredentials,
+    orderId: string,
+    rawKey: string,
+    context: RequestSecurityContext,
+  ) {
+    this.assertGuestPurchasing();
+    paymentIdempotencyHeadersSchema.parse({ "idempotency-key": rawKey });
+    const input = paymentCreateBodySchema.parse({
+      targetType: "ORDER",
+      targetId: orderId,
+      purpose: "ORDER_PAYMENT",
+    });
+    return this.createBuyerIntent(
+      { kind: "guest", ...credentials },
+      input,
+      rawKey,
+      context,
+    );
+  }
+
+  private async createBuyerIntent(
+    buyer: PaymentBuyer,
+    input: PaymentCreateInput,
+    rawKey: string,
+    context: RequestSecurityContext,
+  ) {
     const fingerprint = paymentFingerprint(input);
     return withTransactionRetry(this.database, async (tx) => {
-      await lockCurrentPaymentCustomer(tx, actor);
+      const identity = await this.lockPaymentBuyer(tx, buyer);
+      const keyHash = hashToken(
+        "payment-intent-idempotency",
+        buyer.kind === "account"
+          ? `${buyer.actor.userId}:${rawKey}`
+          : `guest:${identity.guestId}:${rawKey}`,
+      );
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`payment:${keyHash}`}, 0))`;
-      const profile = await this.repository.customerProfile(actor.userId, tx);
-      if (!profile) throw paymentNotFound();
-      const existing = await this.repository.byIdempotency(keyHash, profile.id, tx);
+      const existing = identity.guestId
+        ? await this.repository.byGuestIdempotency(keyHash, identity.guestId, tx)
+        : await this.repository.byIdempotency(keyHash, identity.customerId!, tx);
       if (existing) {
         const same =
           existing.purpose === input.purpose &&
@@ -253,14 +320,14 @@ export class PaymentsService {
       const finance = await assertFinanceGate(tx);
       if (input.targetType === "VEHICLE_TRANSACTION") await approvedPolicy(tx, "vehicle");
       await lockTarget(tx, input);
-      const source = await this.resolveSource(profile.id, input, tx);
+      const source = await this.resolveBuyerSource(identity, input, tx);
       await assertNoCompetingPayment(tx, input);
       const expiresAt =
         source.expiresAt ?? new Date(Date.now() + env.PAYMENT_INTENT_TTL_SECONDS * 1_000);
       if (expiresAt <= new Date()) throw paymentConflict("The payable has expired");
       const payment = await this.repository.create(
         {
-          customerId: profile.id,
+          customerId: identity.customerId,
           paymentNumber: paymentNumber(),
           purpose: input.purpose,
           amountKobo: source.amountKobo,
@@ -278,7 +345,7 @@ export class PaymentsService {
         tx,
       );
       await appendAuditEvent(tx, {
-        actorUserId: actor.userId,
+        actorUserId: identity.actorUserId,
         action: "CREATE",
         entityType: "PAYMENT",
         entityId: payment.id,
@@ -299,7 +366,14 @@ export class PaymentsService {
     rawKey: string,
     context: RequestSecurityContext,
   ) {
-    return this.initializeOnlineProvider(actor, id, rawKey, context, "PAYSTACK");
+    assertPaymentCustomer(actor);
+    return this.initializeOnlineProvider(
+      { kind: "account", actor },
+      id,
+      rawKey,
+      context,
+      "PAYSTACK",
+    );
   }
 
   async initializeMonnify(
@@ -308,29 +382,54 @@ export class PaymentsService {
     rawKey: string,
     context: RequestSecurityContext,
   ) {
-    return this.initializeOnlineProvider(actor, id, rawKey, context, "MONNIFY");
+    assertPaymentCustomer(actor);
+    return this.initializeOnlineProvider(
+      { kind: "account", actor },
+      id,
+      rawKey,
+      context,
+      "MONNIFY",
+    );
   }
 
-  private async initializeOnlineProvider(
-    actor: AuthenticatedActor,
+  async guestInitialize(
+    credentials: GuestPaymentCredentials,
     id: string,
     rawKey: string,
     context: RequestSecurityContext,
     provider: OnlinePaymentProvider,
   ) {
-    assertPaymentCustomer(actor);
-    const profile = await this.repository.customerProfile(actor.userId);
-    if (!profile) throw paymentNotFound();
+    this.assertGuestPurchasing();
+    paymentIdempotencyHeadersSchema.parse({ "idempotency-key": rawKey });
+    z.enum(["PAYSTACK", "MONNIFY"]).parse(provider);
+    return this.initializeOnlineProvider(
+      { kind: "guest", ...credentials },
+      id,
+      rawKey,
+      context,
+      provider,
+    );
+  }
+
+  private async initializeOnlineProvider(
+    buyer: PaymentBuyer,
+    id: string,
+    rawKey: string,
+    context: RequestSecurityContext,
+    provider: OnlinePaymentProvider,
+  ) {
     const attemptKey = hashToken(
       "payment-attempt-idempotency",
       `${provider}:${id}:${rawKey}`,
     );
     const reference = `AAT-${provider}-${attemptKey.slice(0, 32)}`;
     const prepared = await withTransactionRetry(this.database, async (tx) => {
-      await lockCurrentPaymentCustomer(tx, actor);
+      const identity = await this.lockPaymentBuyer(tx, buyer);
       await lockStoredTarget(tx, id);
       const payment = await this.repository.lockPayment(id, tx);
-      if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
+      if (!payment || !(await this.paymentBelongsTo(identity, payment, tx)))
+        throw paymentNotFound();
+      const payer = await this.paymentPayer(identity, payment, tx);
       this.assertPayable(payment);
       if (payment.bookingId)
         throw paymentConflict(
@@ -368,7 +467,7 @@ export class PaymentsService {
             existing.authorizationExpiresAt > new Date() &&
             new Date(state.expiresAt) > new Date()
           )
-            return { payment, existing, checkout: state };
+            return { payment, existing, checkout: state, payer };
           throw paymentConflict(
             "The payment checkout has expired. Check its status before continuing.",
           );
@@ -393,7 +492,7 @@ export class PaymentsService {
         },
         tx,
       );
-      return { payment, existing: attempt, checkout: null };
+      return { payment, existing: attempt, checkout: null, payer };
     });
     if (prepared.checkout)
       return {
@@ -408,14 +507,14 @@ export class PaymentsService {
     const ownedCallbackUrl = callbackUrl
       ? (() => {
           const url = new URL(callbackUrl);
+          if (buyer.kind === "guest") url.pathname = "/purchase/complete";
           url.searchParams.set("paymentId", id);
           url.searchParams.set("attemptId", prepared.existing.id);
           return url.toString();
         })()
       : undefined;
     const initialized = await this.providers.get(provider).initialize({
-      email: profile.user.email,
-      customerName: `${profile.firstName} ${profile.lastName}`,
+      ...prepared.payer,
       amountKobo: prepared.payment.amountKobo,
       currency: "NGN",
       reference,
@@ -432,7 +531,7 @@ export class PaymentsService {
     if (authorizationExpiresAt <= new Date())
       throw paymentConflict("The payable expired during checkout initialization");
     await withTransactionRetry(this.database, async (tx) => {
-      await lockCurrentPaymentCustomer(tx, actor);
+      const identity = await this.lockPaymentBuyer(tx, buyer);
       await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${prepared.existing.id}::uuid FOR UPDATE`;
       await lockStoredTarget(tx, id);
       const current = await tx.paymentAttempt.findUnique({
@@ -440,7 +539,7 @@ export class PaymentsService {
         select: { status: true, redactedGatewayData: true },
       });
       const payment = await this.repository.lockPayment(id, tx);
-      if (!current || !payment || payment.customerId !== profile.id)
+      if (!current || !payment || !(await this.paymentBelongsTo(identity, payment, tx)))
         throw paymentNotFound();
       this.assertPayable(payment);
       await this.assertCurrentPaymentSource(payment, tx);
@@ -481,7 +580,7 @@ export class PaymentsService {
         data: { status: "PROCESSING" },
       });
       await appendAuditEvent(tx, {
-        actorUserId: actor.userId,
+        actorUserId: identity.actorUserId,
         action: "PAYMENT_INITIALIZED",
         entityType: "PAYMENT_ATTEMPT",
         entityId: prepared.existing.id,
@@ -520,6 +619,34 @@ export class PaymentsService {
       .verify(attempt.internalReference);
     await this.applyVerifiedAttempt(attempt.id, verified, context, actor.userId);
     return this.customerGet(actor, paymentId);
+  }
+  async guestVerifyAttempt(
+    credentials: GuestPaymentCredentials,
+    paymentId: string,
+    attemptId: string,
+    context: RequestSecurityContext,
+  ) {
+    this.assertGuestPurchasing();
+    const attempt = await this.database.$transaction(async (tx) => {
+      const identity = await this.lockPaymentBuyer(tx, { kind: "guest", ...credentials });
+      const payment = await this.repository.guestOwned(paymentId, identity.guestId!, tx);
+      const stored = await this.repository.attempt(attemptId, tx);
+      if (
+        !payment ||
+        !stored ||
+        stored.paymentId !== paymentId ||
+        !["PAYSTACK", "MONNIFY"].includes(stored.provider)
+      )
+        throw paymentNotFound();
+      return stored;
+    });
+    const verified = await this.providers
+      .get(attempt.provider as OnlinePaymentProvider)
+      .verify(attempt.internalReference);
+    // Verified funds are reconciled even if the browser logs out while the
+    // provider responds; the final private read still rechecks current access.
+    await this.applyVerifiedAttempt(attempt.id, verified, context, null);
+    return this.guestGet(credentials.sessionToken, paymentId);
   }
 
   async submitManual(
@@ -2414,19 +2541,129 @@ export class PaymentsService {
       throw paymentConflict("Payment has expired");
   }
 
+  private assertGuestPurchasing() {
+    if (env.PUBLIC_LAUNCH_MODE !== "full")
+      throw paymentConflict(
+        "Online purchasing is not available. Contact the team about an enquiry.",
+      );
+  }
+
+  private async lockPaymentBuyer(
+    tx: Prisma.TransactionClient,
+    buyer: PaymentBuyer,
+  ): Promise<PaymentBuyerIdentity> {
+    if (buyer.kind === "account") {
+      await lockCurrentPaymentCustomer(tx, buyer.actor);
+      const profile = await this.repository.customerProfile(buyer.actor.userId, tx);
+      if (!profile) throw paymentNotFound();
+      return {
+        customerId: profile.id,
+        guestId: null,
+        actorUserId: buyer.actor.userId,
+        email: profile.user.email,
+        name: `${profile.firstName} ${profile.lastName}`,
+      };
+    }
+    this.assertGuestPurchasing();
+    const guest = await this.guestAccess.lockAccess(tx, buyer.sessionToken, {
+      kind: "write",
+      csrfToken: buyer.csrfToken,
+    });
+    return {
+      customerId: null,
+      guestId: guest.guestId,
+      actorUserId: null,
+      email: guest.email,
+      name: null,
+    };
+  }
+
+  private async paymentBelongsTo(
+    owner: Pick<PaymentBuyerIdentity, "customerId" | "guestId">,
+    payment: { customerId: string | null; orderId: string | null },
+    tx: Prisma.TransactionClient,
+  ) {
+    if (owner.customerId) return payment.customerId === owner.customerId;
+    if (!owner.guestId || payment.customerId !== null || !payment.orderId) return false;
+    return (
+      (await tx.order.count({
+        where: { id: payment.orderId, guestId: owner.guestId, customerId: null },
+      })) === 1
+    );
+  }
+
+  private async paymentPayer(
+    owner: PaymentBuyerIdentity,
+    payment: { orderId: string | null },
+    tx: Prisma.TransactionClient,
+  ) {
+    if (owner.customerId) return { email: owner.email, customerName: owner.name! };
+    if (!owner.guestId || !payment.orderId) throw paymentNotFound();
+    const order = await tx.order.findFirst({
+      where: { id: payment.orderId, guestId: owner.guestId, customerId: null },
+      select: { customerName: true, customerEmail: true },
+    });
+    if (!order) throw paymentNotFound();
+    return { email: order.customerEmail, customerName: order.customerName };
+  }
+
+  private async resolveBuyerSource(
+    owner: Pick<PaymentBuyerIdentity, "customerId" | "guestId">,
+    input: PaymentCreateInput,
+    tx: Prisma.TransactionClient,
+  ): Promise<{ amountKobo: bigint; expiresAt: Date | null }> {
+    if (owner.customerId) return this.resolveSource(owner.customerId, input, tx);
+    if (
+      !owner.guestId ||
+      input.targetType !== "ORDER" ||
+      input.purpose !== "ORDER_PAYMENT"
+    )
+      throw paymentNotFound();
+    await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${input.targetId}::uuid AND "guestId" = ${owner.guestId}::uuid AND "customerId" IS NULL FOR UPDATE`;
+    const order = await tx.order.findFirst({
+      where: { id: input.targetId, guestId: owner.guestId, customerId: null },
+      select: {
+        currency: true,
+        status: true,
+        paidAt: true,
+        totalKobo: true,
+        paymentDueAt: true,
+      },
+    });
+    if (
+      !order ||
+      order.currency !== "NGN" ||
+      !["PENDING", "CONFIRMED"].includes(order.status)
+    )
+      throw paymentNotFound();
+    if (order.paidAt !== null) throw paymentConflict("This order is already paid");
+    return { amountKobo: order.totalKobo, expiresAt: order.paymentDueAt };
+  }
+
   private async assertCurrentPaymentSource(
     payment: NonNullable<Awaited<ReturnType<PaymentsRepository["get"]>>>,
     tx: Prisma.TransactionClient,
   ) {
     const target = paymentTarget(payment);
-    if (!target || !payment.customerId) throw paymentNotFound();
+    if (!target) throw paymentNotFound();
     const input = paymentCreateBodySchema.safeParse({
       ...target,
       purpose: payment.purpose,
     });
     if (!input.success) throw paymentConflict();
     await assertNoCompetingPayment(tx, target, payment.id);
-    const source = await this.resolveSource(payment.customerId, input.data, tx);
+    const guestOrder =
+      !payment.customerId && payment.orderId
+        ? await tx.order.findUnique({
+            where: { id: payment.orderId },
+            select: { guestId: true },
+          })
+        : null;
+    const source = await this.resolveBuyerSource(
+      { customerId: payment.customerId, guestId: guestOrder?.guestId ?? null },
+      input.data,
+      tx,
+    );
     if (source.amountKobo !== payment.amountKobo || payment.currency !== "NGN")
       throw paymentConflict(
         "The amount due changed. Review the existing payment before continuing.",
