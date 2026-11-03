@@ -1,5 +1,14 @@
 ### 3 November: independent-controls rendered repair and hosted verification
 
+Source 2845ef51 is signed/pushed. Backend 41643344538 passed. Frontend
+41643344661 passed lint/types/units/production build and 10/13 browser cases;
+all three independent-switch width cases passed. The three failures exposed a
+stale test assumption: intercepting the session API does not set the cookie used
+by the server's guest/account checkout handoff. The regression now checks the
+guest route and supplies an explicit synthetic cookie before checking the account
+route. Existing account assertion is retained. No real authentication is bypassed;
+this isolated fixture has no business-write capability. Corrected-source CI pending.
+
 Exact source 8aec5020 passed frontend 41638126292, backend 41637103255 and
 secrets 41637103251. This source remains unpublished. The subsequent rendered
 check found a genuine defect: full mode with bookings independently disabled

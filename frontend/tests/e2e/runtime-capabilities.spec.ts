@@ -147,6 +147,22 @@ for (const width of [320, 768, 1440]) {
       "Returning from checkout does not confirm payment",
     );
     await fixture(page, "CUSTOMER");
+    // Session API interception alone does not create an HTTP session cookie.
+    // Verify the guest handoff first, then explicitly mark this isolated browser
+    // as the fixture customer so the server can select the account handoff.
+    await page.goto("/checkout");
+    await expect(page).toHaveURL(/\/cart$/);
+    await page
+      .context()
+      .addCookies([
+        {
+          name: "aat_session",
+          value: "synthetic-browser-fixture-only",
+          url: page.url(),
+          httpOnly: true,
+          sameSite: "Lax",
+        },
+      ]);
     await page.goto("/checkout");
     await expect(page).toHaveURL(/\/dashboard\/cart#cart-checkout-form$/);
     await expect(
