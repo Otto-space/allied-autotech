@@ -1,3 +1,26 @@
+### 3 November 2026: Final integrated audit publication and coverage boundary
+
+Application fabbe7a6 is published on both custom domains and backend adc7be72
+(ACTIVE16/16, schema89). Integrated held 122/122 and separate authoring/search30/30
+pass with no skipped/flaky cases. Final actual public 16 HTTP/8 rendered views pass.
+Phone390/laptop1366 screenshots inspected, including complete team photograph;
+synthetic private aftercare320/1366 reviewed. Earlier pending-publication entries
+below are historical. See the completion tracker and final audit report for receipts.
+
+Coverage includes recorded 320-1440 widths, sidebar states, keyboard/touch, focus,
+forced colours, loading/error/disabled/recovery, image stalls/failures, no-JS,
+200%text reflow and three real-time carousel loops. Later owner-approved laptop
+hover continues rotation; explicit/focus pause stays persistent. Shared vehicle,
+fitment, product/inventory, enquiry, booking/order/aftercare primitives are covered
+with fixtures. This does not establish actual-role, physical-device/Safari, full
+screen-reader, provider test-mode or real push/email delivery acceptance.
+
+Highest remaining acceptance: authorised real operator journeys, product source
+information/evidence, workshop capacity decisions, financial policy and controlled
+merchant/delivery tests. All transaction gates and independent/owner-only controls
+remain. Browsing/enquiries published; purchasing/booking activation not approved.
+No further engineering claim is inferred from build success alone.
+
 ### 3 November 2026: Home and aftercare integration checkpoint
 
 Preserve the concurrent signed/CI-green Home merge 3ddb55f7 while integrating the

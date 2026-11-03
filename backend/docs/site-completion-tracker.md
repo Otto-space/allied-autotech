@@ -1,3 +1,58 @@
+### 3 November 2026, 11:20 UTC: Audit implementation published; operational acceptance remains gated
+
+Current item: engineering implementation and bounded publication verification
+complete. Next work is named operator/owner acceptance and capability-specific
+activation, not another general audit. Earlier pending-source/release statements
+below are historical and superseded by this checkpoint.
+
+Signed checked application source fabbe7a600a02e002f1f4ee773dada4b5cf25697 is live:
+backend adc7be72-e564-4fc7-b1db-5f1c0f8d4cf2 ACTIVE 16/16; frontend
+ dpl_Fzq4yoEwLMH1puuvqznu9SdRAqAX on apex and www. Exact-master frontend
+41615440555 (1,360 passed/12 existing skips), backend 41615440915 and secrets
+41615440637 pass. Concurrent Home work and published Admin vehicle repair retained.
+Four image digests changed only; readonly predeploy/settings/activation unchanged.
+
+Final integrated held regressions 122/122 and separate authoring/search 30/30 pass
+(no skipped/flaky cases). Public post-promotion checks: 16/16 HTTP and 8/8 rendered
+views, no API writes or page overflow. Safe before/after Home and synthetic guest
+screenshots inspected. Full results, requirement ledger, failures, exact evidence
+and launch-readiness table: docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md, final section
+at top. Protected roles remain fixture evidence; actual accounts unavailable.
+
+Both four-image candidate/recovery sets pass nine packaged checks plus all89 SQL
+bytes. Fresh backup, separate populated replay preserving original hashes/counts,
+guarded production 87->89 migration, migrator db:check and actual runtime schema
+probe pass. Runtime migration-history SELECT remains denied by design. The first
+post-migration helper used the wrong checker and stopped; read-only reconciliation
+passed without retrying migrations or granting history access. Eight live worker
+heartbeats pass; guest-refund review scan advances. Temporary firewall/review access
+removed; review credential files removed. No QA financial/customer/stock mutation.
+Managed backup/PITR evidence is distinct from the successful logical restore.
+
+The oil-service duration changed separately before this rollout: 30 minutes/version2
+is present in the 10:58 backup and final live response (05:27 record update). Its
+approval was not inspected. All service commercial fields match the fresh backup;
+prices and package quantities were not altered or discounted again.
+
+Launch state: browsing/enquiries/search/Help published and checked; operational
+and calendar/invitation implementations published, actual-role/device acceptance
+outstanding. Account/guest purchase/quotes/documents/aftercare implemented and
+published behind closed activation gates. Payment provider/test-mode, real delivery,
+physical-phone/Safari/full-screen-reader acceptance remain unperformed. No whole-site
+readiness or payment/booking activation claim. Optional live AI/delivery/deposits off.
+
+Owner/operator decisions: verified Tax/CAC, VAT applicability/rounding/service timing;
+workshop hours/durations/resources/capacity and responsible operators; genuine
+product identity/photos/compatibility; controlled merchant/refund acceptance and
+explicit next launch scope. Preserve settled collection, pay-first then final checks,
+seven-day quote validity and owner-only/separate financial approvals.
+
+Disk review: 22.36->22.31 GiB free, no existing resources deleted; installer candidates
+~176 MiB. Larger caches/images are conditional, retained with current/recovery/shared
+resources. Prior policy-blocked temporary DB directories remain untouched. No new
+worktree/dependency install or duplicate host build. No inactive branch retired:
+concurrent/active worktree and recovery resources are preserved.
+
 ### 3 November 2026: Concurrent Home source integrated for the final release
 
 Remote master 3ddb55f7 landed during the aftercare evidence push; that push was

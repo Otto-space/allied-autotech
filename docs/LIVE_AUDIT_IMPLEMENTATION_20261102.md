@@ -1,5 +1,151 @@
 # Complete live audit implementation - 2 November 2026
 
+## Final implementation and publication - 3 November 2026, 11:20 UTC
+
+The audit engineering implementation is published. This closes the source and
+bounded verification work; it does not approve transaction activation or certify
+all roles/devices. Earlier source-only and outstanding-release entries below are
+historical checkpoints superseded by this section.
+
+Published application source: fabbe7a600a02e002f1f4ee773dada4b5cf25697, signed and
+verified. Exact-master checks pass: frontend 41615440555 (1,360 passed, 12 existing
+skips), backend 41615440915 and secrets 41615440637. The concurrent Home composition
+and Nippo/Quicksand changes are integrated without replacing the published Admin
+vehicle-operations repair or widening owner-only/independent financial controls.
+
+Backend adc7be72-e564-4fc7-b1db-5f1c0f8d4cf2 is ACTIVE, 16/16, with four matching
+candidate digests and readiness HTTP 200. Only those four digests changed in the
+AppSpec; environment, business/activation flags and read-only PRE_DEPLOY were kept.
+Frontend dpl_Fzq4yoEwLMH1puuvqznu9SdRAqAX is verified on both alliedautotech.com and
+www.alliedautotech.com after backend readiness. Published mode is browse_enquiries.
+
+| Requirement | Final engineering status and evidence boundary |
+| --- | --- |
+| F01 public provenance | Three normal protected-editor description saves completed; public full descriptions and summaries are clean. Prices/package boundaries preserved; internal history retained. |
+| F02 service images | Canonical Home/catalogue/detail rendering and stable missing/failed-media geometry implemented; genuine diagnostics/alignment and explicitly illustrative oil imagery. |
+| F03 capability guidance | Authoritative runtime capabilities, stale/unavailable recovery and consistent public/dashboard/Help handoffs implemented. Direct URLs retain server gates. |
+| F04 genuine product information | Family-specific gaps and next actions visible to operators; genuine product photo, brand/part identity and reviewed compatibility still require the operator. Nothing fabricated. |
+| F05 search focus | Shared branded focus and forced-colour/keyboard states pass fixture checks for four roles. Actual signed-in role acceptance remains unavailable. |
+| F06 filters | Progressive fields, concise help and explicit applied/pending/URL/clear semantics implemented; existing filters preserved. |
+| F07 public wording | Workbook/development jargon removed; private provenance retained. Commercial conditions remain explicit. |
+| F08 vehicle detail | Consolidated specifications; owner-reported AC fault, exact price and inspection distinction preserved. |
+| F09 Contact | One useful location/directions area and shared business data; contextual enquiries preserved. |
+| F10 dashboard authoring | Explicit View/Edit actions, responsive task sections and existing permissions; Admin/Super Admin/assigned Staff fixture paths pass. Actual-role acceptance pending. |
+| Public search | Anonymous published services/products/vehicles/Help, grouped results, ranking, native GET, retry and URL/Back recovery; final live diagnostics search succeeds. |
+| Notifications | Optional user-initiated invitation reuses settings/subscriptions. Fixture permission/session/device/click cases do not establish actual push/email delivery. |
+| Appointments | Owned Nigeria-time calendar/details and confirmed-only countdown, resume/reschedule/error handling implemented; no capacity/date invented. New booking activation remains closed. |
+| Home/media | Separate responsive photo/copy areas, complete seven-person team photo and shared card geometry. Three real-time autoplay loops and all existing controls preserved. Later approved laptop hover-continues requirement supersedes the older hover-pause suggestion; explicit/focus pause persists. |
+| Approved purchasing | Shared account/guest ownership, private recovery/cart/checkout/payment, seven-day quotes, invoices/receipts and cancellation/aftercare/operator refund-review handoff implemented. No fake account, automatic guest refund authority or provider activation. |
+
+Verification results are distinct runs, not a unique whole-site test total:
+
+- Integrated held build: 122/122 browser cases, no skipped/flaky cases; separate
+  authoring/public-search run 30/30, no skipped/flaky cases. Installed Edge,
+  Playwright, held production build. Protected roles and transaction records are
+  synthetic fixtures. Public Home reads use approved actual imagery.
+- Covers sampled 320/360/390/430/768/1024/1280/1366/1440 layouts, sidebar states,
+  keyboard/touch, focus, loading/error/denied/disabled/recovery, reduced motion,
+  doubled-text reflow, image stalls/failures, visibility/offscreen suspension,
+  no-JavaScript first slide and three full real-time autoplay loops. This is not
+  physical-phone, Safari or complete screen-reader acceptance.
+- Final published smoke: 16/16 anonymous HTTP checks across apex/www, including
+  exact deployment, capabilities, public Help, private-guide denial, anonymous
+  booking denial, readiness and preserved service commercial values. Eight actual
+  public browser views pass at 390/1366 with no overflow or API writes. Final Home,
+  diagnostics and search screenshots inspected. Earlier full batches remain below.
+- Native isolated aftercare: 71/71 across nine suites; focused later learning checks
+  14/14. Current backend CI includes 87 guest tests across eight suites. Tests use
+  fresh isolated targets; no real customer/stock/payment submission for QA.
+- Candidate and schema-compatible recovery images each pass all nine actual
+  packaged runtime tests plus byte verification of all 89 SQL migrations. Both
+  four-image manifests are retained; old schema-87 images are not the schema-89
+  recovery plan. Recovery source 80cba6c2 has byte-identical backend runtime,
+  migration, safety and dependency inputs to the published integration.
+- Fresh verified backup and separate populated 87 -> 89 restore/replay pass;
+  original business/audit/financial column hashes/counts and ownership remain.
+  Production guarded forward migration passes; all 89 hashes/history and original
+  rolled-back history are preserved. Critical counts do not decrease against the
+  fresh verified pre-migration backup. Runtime has required new-table DML, no
+  database/table ownership, DDL, TRUNCATE, superuser or role-creation powers.
+- Production read-only db:check passes as migrator. The actual application
+  verifyDatabaseSchema passes as runtime without reading business rows. Eight
+  worker heartbeats are fresh/error-free; the new guest-refund operational scan
+  exists and advances (observed version 4). No worker was manually invoked on real
+  records. Temporary trusted-source access is removed with concurrent rules kept.
+- Managed daily backups/PITR availability, retention and provider encryption
+  documentation were checked; eight actual managed backups were present. This
+  run rehearsed a populated logical restore, not a managed-PITR disaster restore.
+
+Retained failures and verification corrections: the first runtime post-migration
+check wrongly used the migration-history checker with the restricted runtime role
+and was denied SELECT on _prisma_migrations. The rollout stopped, temporary access
+was removed, and the actual state was reconciled read-only. No migration retry or
+history grant was used. Final history/schema check uses migrator and the actual
+application probe uses runtime. A temporary health helper had a JavaScript quote
+syntax error before executing; corrected before its successful run. The final
+public harness initially used body rather than the server HTML deployment marker,
+an obsolete service snapshot and the wrong search parameter q; corrected to the
+actual html response, fresh backup baseline and form parameter search. Its first
+fresh-baseline parser omitted shortDescription; corrected from the same verified
+archive. Assertions on price/scope/duration/version remain strict against the
+fresh pre-release backup. These were verification failures, not successful runs.
+
+The oil-service duration is now 30 minutes/version 2 in both the 10:58 UTC backup
+and final live response (record updated 05:27 UTC), predating this rollout. Earlier
+editorial evidence had unknown duration. Preserve the later record; its separate
+approval/author was not verified and should be checked before booking activation.
+All final service names, short descriptions, prices, currencies, pricing types,
+durations, versions, categories and active states match that immediate backup.
+
+| Capability | Launch-readiness status |
+| --- | --- |
+| Browsing, service/vehicle enquiries, public search and reviewed Help | Published; final public checks pass within recorded coverage. |
+| Admin/Super Admin/assigned Staff operations | Published with existing boundaries; fixture coverage passes; fresh actual-role sign-off outstanding. |
+| Customer calendar/details and confirmed countdown | Published; synthetic lifecycle/responsiveness passes; real populated appointment acceptance outstanding. New requests remain gated. |
+| Optional browser invitation/settings | Published; fixture lifecycle passes; real device subscription and end delivery unverified. |
+| Account/guest purchasing, quotation, documents and aftercare | Published implementation behind existing gates; isolated/fixture acceptance passes. Not approved for taking online payments. |
+| Payment/booking activation | Closed pending policy, operational/provider acceptance and explicit approved launch scope. |
+| Live AI, delivery and booking deposits | Deferred/off; no new AI evaluation budget or activation authority. |
+
+Owner/operator work still required: verified Tax ID/CAC and accountant-approved VAT
+applicability/rounding boundaries; service invoice payment timing; real workshop
+hours, durations/resources/capacity and named responsible operators; genuine product
+identity/photos/compatibility evidence; controlled merchant test-mode success,
+cancellation, duplicate/delayed/wrong-amount/currency/webhook/reconciliation and
+refund acceptance; authorised actual-role and delivery/device acceptance; final
+capability-specific launch sign-off. Reconcile saved policies before asking again.
+Collection-only, full payment then final compatibility/availability, separate
+paid/allocated/ready states, seven-day quote validity and independent financial
+approval are settled instructions and are preserved, not reopened as new questions.
+
+Safe evidence (public anonymous reads; private screenshots use synthetic fixtures):
+
+- [Home before final composition, 390px](C:/Users/PC/AppData/Local/Temp/allied-home-baseline-live-390.png)
+- [Published Home after, 390px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/final-published-home-390.png)
+- [Published Home after, 1366px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/final-published-home-1366.png)
+- [Published search, 390px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/final-published-search-390.png)
+- [Synthetic guest aftercare, 320px](C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/integrated-held/purchase-guest-aftercare-g-5dc3b--and-saved-history-at-320px/synthetic-guest-aftercare-320.png)
+
+JSON evidence: integrated-held.json, integrated-authoring.json,
+guest-final-public-release.json and guest-final-published-browser.json in the
+existing temporary evidence directory. Protected release receipts remain in the
+ignored backend/ops/digitalocean/.private directory; do not publish credentials,
+AppSpec contents, backups, populated clones or private customer rows. All task-owned
+held-review tokens are revoked, and their task-created credential files removed.
+
+Cleanup review: C: measured 22.36 GiB before this final review and 22.31 GiB after
+browser checks. No existing installer/cache/source/database/image was deleted.
+Git/Node/Chrome installers total about 104 MiB; adding unverified-needed Radmin and
+Python installers brings candidates to 176 MiB. Preserve workshop media archives.
+Docker reports 141 images/10.84 GB, 392 cache records/12.46 GB and 15 volumes/3.049 GB;
+reclaimable does not mean disposable. Candidate/recovery/current/rollback images,
+warm caches, shared PostgreSQL server, populated rehearsal, other-task containers,
+volumes and active worktrees are retained. Earlier automatic review rejected
+selected temporary database-directory deletions with blocked by policy; those
+exact targets remain untouched, with no alternate deletion attempt. The minimum
+20 GiB remains a preflight rule, not an OS-wide guarantee.
+
+
 ### 3 November 2026: Aftercare source gates and populated recovery rehearsal pass
 
 Signed source 80cba6c2 passes exact-master frontend 41599139743 (1,360 passed,
