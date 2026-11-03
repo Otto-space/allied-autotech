@@ -6,7 +6,10 @@ import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
 import { orderFingerprint } from "../../src/modules/orders/orders.types.js";
 import { randomUUID } from "node:crypto";
-import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
+import {
+  fixtureAcceptedReview,
+  reviewFixtureOrderForPayment,
+} from "../helpers/purchase-review.js";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
 import { createApp } from "../../src/app.js";
@@ -394,7 +397,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       await reviewFixtureOrderForPayment(created.order.id, undefined, "SUPPLIER");
       const intent = (await payments.createIntent(
         f.buyer,
-        { targetType: "ORDER", targetId: created.order.id, purpose: "ORDER_PAYMENT" },
+        {
+          targetType: "ORDER",
+          targetId: created.order.id,
+          purpose: "ORDER_PAYMENT",
+          acceptedReview: await fixtureAcceptedReview(created.order.id),
+        },
         randomUUID(),
         context(),
       )) as { payment: { id: string } };

@@ -382,7 +382,10 @@ export class CatalogController {
       );
   };
   setCartItem = async (req: Request, res: Response) => {
-    const input = validated<{ quantity: number }>(res, "body");
+    const input = validated<{ quantity: number; vehicleSelection?: unknown }>(
+      res,
+      "body",
+    );
     res
       .status(200)
       .json(
@@ -393,6 +396,7 @@ export class CatalogController {
             actor(req),
             params(res).productId,
             input.quantity,
+            input.vehicleSelection,
           ),
         ),
       );

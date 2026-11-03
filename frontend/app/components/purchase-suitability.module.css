@@ -1,0 +1,88 @@
+.panel {
+  padding: clamp(16px, 3vw, 28px);
+  border: 1px solid var(--border-color, #d8d8d8);
+  border-radius: var(--radius-card, 12px);
+  background: var(--surface, #fff);
+  min-width: 0;
+}
+.panel h2 {
+  margin-top: 0;
+}
+.approved {
+  margin-bottom: 12px;
+}
+.paymentLink {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+}
+.panel p,
+.item legend {
+  overflow-wrap: anywhere;
+}
+.form {
+  border: 0;
+  padding: 0;
+  margin: 20px 0 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 20px;
+}
+.form > button {
+  grid-column: 1 / -1;
+}
+.item {
+  border: 1px solid var(--border-color, #d8d8d8);
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 0;
+}
+.item legend {
+  font-weight: 600;
+  max-width: 100%;
+  padding: 0 6px;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.technical {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.panel :is(input, select, textarea) {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  font: inherit;
+}
+.panel summary {
+  cursor: pointer;
+  padding: 12px 0;
+  min-height: 44px;
+}
+.panel button {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+}
+.panel details > button {
+  margin: 8px 8px 8px 0;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

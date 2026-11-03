@@ -1,6 +1,9 @@
 import { fitmentDecisionSchema, fitmentQualifierKeys } from "../parts-fitment";
 import { z } from "zod";
-import { purchaseReviewSummarySchema } from "./purchase-review-schema";
+import {
+  purchaseReviewSummarySchema,
+  purchaseVehicleSelectionSchema,
+} from "./purchase-review-schema";
 import { productFamily, recordedProductFields } from "../product-family";
 export const money = z.string().regex(/^\d+$/);
 export const branchRef = z.object({
@@ -113,6 +116,10 @@ export const cartSchema = z.object({
       quantity: z.number().int(),
       unitPriceKobo: money,
       lineSubtotalKobo: money,
+      vehicleSelection: purchaseVehicleSelectionSchema
+        .nullable()
+        .optional()
+        .default(null),
       product: productSchema,
     }),
   ),

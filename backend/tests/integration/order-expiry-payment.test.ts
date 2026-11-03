@@ -3,7 +3,10 @@ import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { OrdersService } from "../../src/modules/orders/orders.service.js";
-import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
+import {
+  fixtureAcceptedReview,
+  reviewFixtureOrderForPayment,
+} from "../helpers/purchase-review.js";
 import { OrdersRepository } from "../../src/modules/orders/orders.repository.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
 import { paymentTestSession } from "../helpers/payment-session.js";
@@ -106,7 +109,12 @@ async function fixture(state: "unpaid" | "review" | "processing") {
     const payments = new PaymentsService(prisma);
     await payments.createIntent(
       owner,
-      { targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" },
+      {
+        targetType: "ORDER",
+        targetId: order.id,
+        purpose: "ORDER_PAYMENT",
+        acceptedReview: await fixtureAcceptedReview(order.id),
+      },
       randomUUID(),
       context(),
     );
@@ -253,7 +261,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             : (
                 await payments.createIntent(
                   f.owner,
-                  { targetType: "ORDER", targetId: f.order.id, purpose: "ORDER_PAYMENT" },
+                  {
+                    targetType: "ORDER",
+                    targetId: f.order.id,
+                    purpose: "ORDER_PAYMENT",
+                    acceptedReview: await fixtureAcceptedReview(f.order.id),
+                  },
                   randomUUID(),
                   context(),
                 )
@@ -289,7 +302,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           operation === "intent"
             ? payments.createIntent(
                 f.owner,
-                { targetType: "ORDER", targetId: f.order.id, purpose: "ORDER_PAYMENT" },
+                {
+                  targetType: "ORDER",
+                  targetId: f.order.id,
+                  purpose: "ORDER_PAYMENT",
+                  acceptedReview: await fixtureAcceptedReview(f.order.id),
+                },
                 randomUUID(),
                 context(),
               )

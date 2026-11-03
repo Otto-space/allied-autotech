@@ -5,6 +5,13 @@ import { parsePayments, paymentSchema, type PaymentRecord } from "./payment-sche
 
 export type CustomerOrder = ReturnType<typeof parseOrder>;
 
+export function orderPaymentAcceptedReview(order: CustomerOrder) {
+  const review = order.purchaseReviews?.[0];
+  if (!review || review.status !== "APPROVED")
+    throw new Error("Refresh the order before preparing payment.");
+  return { id: review.id, revision: review.revision };
+}
+
 export function orderPaymentUnavailable(order: CustomerOrder, now = Date.now()) {
   if (order.paidAt) return "Payment is already recorded for this order.";
   if (order.status !== "PENDING")

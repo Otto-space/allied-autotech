@@ -1,5 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
+import {
+  fixtureAcceptedReview,
+  reviewFixtureOrderForPayment,
+} from "../helpers/purchase-review.js";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import { env } from "../../src/config/env.js";
@@ -70,7 +73,12 @@ async function fixture() {
   await reviewFixtureOrderForPayment(order.id);
   await service.createIntent(
     owner,
-    { targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" },
+    {
+      targetType: "ORDER",
+      targetId: order.id,
+      purpose: "ORDER_PAYMENT",
+      acceptedReview: await fixtureAcceptedReview(order.id),
+    },
     randomUUID(),
     context(),
   );

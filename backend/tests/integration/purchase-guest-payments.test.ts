@@ -1,5 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
+import {
+  fixtureAcceptedReview,
+  reviewFixtureOrderForPayment,
+} from "../helpers/purchase-review.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import { env } from "../../src/config/env.js";
@@ -81,6 +84,7 @@ async function setup() {
     result.order.id,
     intentKey,
     context(),
+    await fixtureAcceptedReview(result.order.id),
   )) as { payment: { id: string; amountKobo: string }; replayed: boolean };
   return {
     ...f,
@@ -114,6 +118,54 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     beforeAll(() => assertIsolatedLoopbackDatabase());
     afterAll(() => prisma.$disconnect());
 
+    it("requires the guest's displayed offer for a new intent while retaining exact receipt recovery", async () => {
+      const f = await setup();
+      const created = (await orders.guestCheckout(
+        f.credentials,
+        {
+          branchId: f.branch.id,
+          fulfillmentMethod: "COLLECTION",
+          contact: { name: "Synthetic Offer Buyer", phone: "+2348000000000" },
+          items: [{ productId: f.inventory.productId, quantity: 1 }],
+        },
+        randomUUID(),
+        context(),
+      )) as { order: { id: string } };
+      const review = await reviewFixtureOrderForPayment(created.order.id, f.credentials);
+      const accepted = { id: review.id, revision: review.revision };
+      const key = randomUUID();
+      const prepare = (offer?: typeof accepted) =>
+        f.payments.guestCreateIntent(
+          f.credentials,
+          created.order.id,
+          key,
+          context(),
+          offer,
+        );
+      await expect(prepare()).rejects.toMatchObject({ statusCode: 409 });
+      await expect(
+        prepare({ ...accepted, revision: accepted.revision + 1 }),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      expect(await prisma.payment.count({ where: { orderId: created.order.id } })).toBe(
+        0,
+      );
+      const payment = (await prepare(accepted)) as {
+        payment: { id: string };
+        replayed: boolean;
+      };
+      expect(payment.replayed).toBe(false);
+      expect(await prepare()).toMatchObject({
+        replayed: true,
+        payment: { id: payment.payment.id },
+      });
+      await expect(prepare({ ...accepted, id: randomUUID() })).rejects.toMatchObject({
+        statusCode: 409,
+      });
+      expect(await prisma.payment.count({ where: { orderId: created.order.id } })).toBe(
+        1,
+      );
+      expect(f.commands).toHaveLength(0);
+    });
     it.each(["PAYSTACK", "MONNIFY"] as const)(
       "verifies %s funds once while keeping payment, allocation and collection readiness separate",
       async (provider) => {
@@ -247,6 +299,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         targetType: "ORDER",
         targetId: order.body.data.order.id,
         purpose: "ORDER_PAYMENT",
+        acceptedReview: await fixtureAcceptedReview(order.body.data.order.id),
       });
       expect(intent.status).toBe(201);
       await expect(

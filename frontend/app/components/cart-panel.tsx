@@ -20,6 +20,7 @@ import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
 import { CartCheckout } from "./cart-checkout";
+import { CartVehicleSummary } from "./cart-vehicle-summary";
 import { notify } from "@/lib/notifications";
 import { useScrollToMessage } from "@/lib/use-scroll-to-message";
 import { MutationReview, type MutationProposal } from "./mutation-review";
@@ -36,6 +37,7 @@ function cartSnapshot(value?: ReturnType<typeof parseCart>) {
       item.quantity,
       item.unitPriceKobo,
       item.lineSubtotalKobo,
+      item.vehicleSelection,
     ]),
   });
 }
@@ -76,6 +78,10 @@ function CartLine({
         <Link className="cart-product-name" href={`/parts/${item.product.id}`}>
           {item.product.name}
         </Link>
+        <CartVehicleSummary
+          selection={item.vehicleSelection}
+          productId={item.product.id}
+        />
         <p className="cart-sku">
           {item.product.brand ? `${item.product.brand} · ` : ""}SKU: {item.product.sku}
         </p>
@@ -346,6 +352,7 @@ export function CartPanel() {
                 productId: item.product.id,
                 quantity: item.quantity,
                 unitPriceKobo: item.unitPriceKobo,
+                vehicleSelection: item.vehicleSelection,
               })),
             },
             csrf: true,
@@ -484,7 +491,7 @@ export function CartPanel() {
                   ? "Order cancelled"
                   : order.paidAt
                     ? "Payment recorded"
-                    : "Awaiting payment"}
+                    : "Payment not recorded"}
               </strong>
               {order.paymentDueAt && !order.paidAt && order.status !== "CANCELLED" && (
                 <p>Payment deadline: {formatBusinessDate(order.paymentDueAt)}</p>

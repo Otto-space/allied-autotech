@@ -1,5 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
+import {
+  fixtureAcceptedReview,
+  reviewFixtureOrderForPayment,
+} from "../helpers/purchase-review.js";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApp } from "../../src/app.js";
@@ -449,6 +452,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         accepted.order.id,
         randomUUID(),
         ctx(),
+        await fixtureAcceptedReview(accepted.order.id),
       )) as { payment: { id: string } };
       const initialized = await payments.guestInitialize(
         f.credentials,

@@ -20,13 +20,15 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("account-optional browser cart", () => {
-  it("stores only validated product IDs and quantities, replacing the selected quantity", () => {
+  it("stores validated product IDs, quantities and an explicit empty vehicle choice", () => {
     render(<PurchaseCartAdd productId={productId} available />);
     fireEvent.change(screen.getByLabelText("Quantity"), { target: { value: "3" } });
     fireEvent.submit(
       screen.getByRole("button", { name: "Add to cart" }).closest("form")!,
     );
-    expect(readPurchaseCart()).toEqual([{ productId, quantity: 3 }]);
+    expect(readPurchaseCart()).toEqual([
+      { productId, quantity: 3, vehicleSelection: null },
+    ]);
     expect(screen.getByRole("link", { name: "Review cart" }).getAttribute("href")).toBe(
       "/cart",
     );
@@ -34,10 +36,44 @@ describe("account-optional browser cart", () => {
     fireEvent.submit(
       screen.getByRole("button", { name: "Add to cart" }).closest("form")!,
     );
-    expect(readPurchaseCart()).toEqual([{ productId, quantity: 2 }]);
+    expect(readPurchaseCart()).toEqual([
+      { productId, quantity: 2, vehicleSelection: null },
+    ]);
     expect(
       Object.keys(JSON.parse(localStorage.getItem("aat:purchase-cart:1")!)[0]),
-    ).toEqual(["productId", "quantity"]);
+    ).toEqual(["productId", "quantity", "vehicleSelection"]);
+  });
+  it("saves the explicitly chosen vehicle and clears it when a new add has no vehicle", () => {
+    const vehicleSelection = {
+      vehicleModelId: productId,
+      year: 2026,
+      engineCode: "Synthetic engine",
+    };
+    const view = render(
+      <PurchaseCartAdd
+        productId={productId}
+        available
+        vehicleSelection={vehicleSelection}
+      />,
+    );
+    fireEvent.submit(
+      screen.getByRole("button", { name: "Add to cart" }).closest("form")!,
+    );
+    expect(readPurchaseCart()[0]).toEqual({ productId, quantity: 1, vehicleSelection });
+    view.rerender(<PurchaseCartAdd productId={productId} available />);
+    fireEvent.submit(
+      screen.getByRole("button", { name: "Add to cart" }).closest("form")!,
+    );
+    expect(readPurchaseCart()[0].vehicleSelection).toBeNull();
+    expect(
+      purchaseCartSchema.safeParse([
+        {
+          productId,
+          quantity: 1,
+          vehicleSelection: { ...vehicleSelection, approved: true },
+        },
+      ]).success,
+    ).toBe(false);
   });
   it("refuses fractional quantities and disabled purchasing without changing storage", () => {
     const view = render(<PurchaseCartAdd productId={productId} available />);

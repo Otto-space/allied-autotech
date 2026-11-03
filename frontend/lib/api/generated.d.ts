@@ -39390,7 +39390,11 @@ export interface operations {
                  *           "id": "00000000-0000-4000-8000-000000000001",
                  *           "productId": "00000000-0000-4000-8000-000000000001",
                  *           "quantity": 1,
-                 *           "unitPriceKobo": "300000"
+                 *           "unitPriceKobo": "300000",
+                 *           "vehicleSelection": {
+                 *             "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                 *             "year": 1886
+                 *           }
                  *         }
                  *       ]
                  *     }
@@ -39412,6 +39416,41 @@ export interface operations {
                         quantity: number;
                         /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
                         unitPriceKobo: string;
+                        /** @description Vehicle Selection validated by this operation's strict request contract. */
+                        vehicleSelection?: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the vehicle make resource; ownership is resolved server-side.
+                             */
+                            vehicleMakeId?: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                             */
+                            vehicleModelId: string;
+                            /** @description Year validated by this operation's strict request contract. */
+                            year: number;
+                            /** @description Trim validated by this operation's strict request contract. */
+                            trim?: string;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            engineCode?: string;
+                            /** @description Market validated by this operation's strict request contract. */
+                            market?: string;
+                            /** @description Position validated by this operation's strict request contract. */
+                            position?: string;
+                            /** @description Brake System validated by this operation's strict request contract. */
+                            brakeSystem?: string;
+                            /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                            brakeDiameterMm?: string;
+                            /** @description Body Type validated by this operation's strict request contract. */
+                            bodyType?: string;
+                            /** @description Transmission validated by this operation's strict request contract. */
+                            transmission?: string;
+                            /** @description Generation validated by this operation's strict request contract. */
+                            generation?: string;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            chassisCode?: string;
+                        } | null;
                     }[];
                 };
             };
@@ -39640,12 +39679,51 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "quantity": 1
+                 *       "quantity": 1,
+                 *       "vehicleSelection": {
+                 *         "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                 *         "year": 1886
+                 *       }
                  *     }
                  */
                 "application/json": {
                     /** @description Quantity validated by this operation's strict request contract. */
                     quantity: number;
+                    /** @description Vehicle Selection validated by this operation's strict request contract. */
+                    vehicleSelection?: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the vehicle make resource; ownership is resolved server-side.
+                         */
+                        vehicleMakeId?: string;
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                         */
+                        vehicleModelId: string;
+                        /** @description Year validated by this operation's strict request contract. */
+                        year: number;
+                        /** @description Trim validated by this operation's strict request contract. */
+                        trim?: string;
+                        /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                        engineCode?: string;
+                        /** @description Market validated by this operation's strict request contract. */
+                        market?: string;
+                        /** @description Position validated by this operation's strict request contract. */
+                        position?: string;
+                        /** @description Brake System validated by this operation's strict request contract. */
+                        brakeSystem?: string;
+                        /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                        brakeDiameterMm?: string;
+                        /** @description Body Type validated by this operation's strict request contract. */
+                        bodyType?: string;
+                        /** @description Transmission validated by this operation's strict request contract. */
+                        transmission?: string;
+                        /** @description Generation validated by this operation's strict request contract. */
+                        generation?: string;
+                        /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                        chassisCode?: string;
+                    } | null;
                 };
             };
         };
@@ -67989,7 +68067,11 @@ export interface operations {
                  *       "items": [
                  *         {
                  *           "productId": "00000000-0000-4000-8000-000000000001",
-                 *           "quantity": 1
+                 *           "quantity": 1,
+                 *           "vehicleSelection": {
+                 *             "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                 *             "year": 1886
+                 *           }
                  *         }
                  *       ]
                  *     }
@@ -68024,6 +68106,41 @@ export interface operations {
                         productId: string;
                         /** @description Quantity validated by this operation's strict request contract. */
                         quantity: number;
+                        /** @description Vehicle Selection validated by this operation's strict request contract. */
+                        vehicleSelection?: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the vehicle make resource; ownership is resolved server-side.
+                             */
+                            vehicleMakeId?: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                             */
+                            vehicleModelId: string;
+                            /** @description Year validated by this operation's strict request contract. */
+                            year: number;
+                            /** @description Trim validated by this operation's strict request contract. */
+                            trim?: string;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            engineCode?: string;
+                            /** @description Market validated by this operation's strict request contract. */
+                            market?: string;
+                            /** @description Position validated by this operation's strict request contract. */
+                            position?: string;
+                            /** @description Brake System validated by this operation's strict request contract. */
+                            brakeSystem?: string;
+                            /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                            brakeDiameterMm?: string;
+                            /** @description Body Type validated by this operation's strict request contract. */
+                            bodyType?: string;
+                            /** @description Transmission validated by this operation's strict request contract. */
+                            transmission?: string;
+                            /** @description Generation validated by this operation's strict request contract. */
+                            generation?: string;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            chassisCode?: string;
+                        } | null;
                     }[];
                 };
             };
@@ -68494,7 +68611,11 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "orderId": "00000000-0000-4000-8000-000000000001"
+                 *       "orderId": "00000000-0000-4000-8000-000000000001",
+                 *       "acceptedReview": {
+                 *         "id": "00000000-0000-4000-8000-000000000001",
+                 *         "revision": 1
+                 *       }
                  *     }
                  */
                 "application/json": {
@@ -68503,6 +68624,16 @@ export interface operations {
                      * @description Identifier of the order resource; ownership is resolved server-side.
                      */
                     orderId: string;
+                    /** @description Displayed checked offer. Required for a new order payment; omission only recovers an existing original-key receipt. */
+                    acceptedReview?: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                        /** @description Revision validated by this operation's strict request contract. */
+                        revision: number;
+                    };
                 };
             };
         };
@@ -91003,7 +91134,11 @@ export interface operations {
                  * @example {
                  *       "targetType": "ORDER",
                  *       "targetId": "00000000-0000-4000-8000-000000000001",
-                 *       "purpose": "ORDER_PAYMENT"
+                 *       "purpose": "ORDER_PAYMENT",
+                 *       "acceptedReview": {
+                 *         "id": "00000000-0000-4000-8000-000000000001",
+                 *         "revision": 1
+                 *       }
                  *     }
                  */
                 "application/json": {
@@ -91022,6 +91157,16 @@ export interface operations {
                      * @enum {string}
                      */
                     purpose: "ORDER_PAYMENT";
+                    /** @description Displayed checked offer. Required for a new order payment; omission only recovers an existing original-key receipt. */
+                    acceptedReview?: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                        /** @description Revision validated by this operation's strict request contract. */
+                        revision: number;
+                    };
                 } | {
                     /**
                      * @description Target Type validated by this operation's strict request contract.

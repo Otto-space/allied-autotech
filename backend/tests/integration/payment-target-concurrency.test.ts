@@ -237,6 +237,8 @@ async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
   );
   const purchaseReview =
     kind === "ORDER" ? await reviewFixtureOrderForPayment(input.targetId) : null;
+  if (input.targetType === "ORDER" && purchaseReview)
+    input.acceptedReview = { id: purchaseReview.id, revision: purchaseReview.revision };
   const create = (key = randomUUID(), body = input) =>
     service.createIntent(actor, body, key, context());
   const payments = () => prisma.payment.findMany({ where: { customerId } });

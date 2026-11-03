@@ -3,7 +3,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { orderPaymentUnavailable } from "@/lib/api/order-payment";
+import {
+  orderPaymentAcceptedReview,
+  orderPaymentUnavailable,
+} from "@/lib/api/order-payment";
 import { purchaseRequest } from "@/lib/purchase/client";
 import { usePurchaseResource } from "@/lib/purchase/resource";
 import {
@@ -25,6 +28,7 @@ import {
 } from "@/lib/api/payment-checkout";
 import { paymentMessage } from "@/lib/api/payment-schemas";
 import { Feedback } from "./feedback";
+import { PurchaseSuitability } from "./purchase-suitability";
 import { PurchaseAccess, EndPurchaseAccess } from "./purchase-access";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { StatusBadge } from "./status-progress";
@@ -184,8 +188,8 @@ function OrderSummary({ order }: { order: GuestOrder }) {
             : order.status === "CANCELLED"
               ? "This order is cancelled. If you paid, check its payment status or contact the team about the outcome."
               : order.paidAt
-                ? "Payment is recorded. The team still needs to complete the relevant checks and preparation. Wait for a ready-for-collection confirmation before travelling."
-                : "No payment is recorded. Review the exact total before continuing. Payment is followed by final suitability and availability checks."}
+                ? "Payment is recorded. Wait for a ready-for-collection confirmation before travelling."
+                : "No payment is recorded. Suitability and availability must be confirmed before payment. Review the itemised total before continuing."}
       </p>
       {order.paymentDueAt && !order.paidAt && (
         <p>Payment deadline: {formatBusinessDate(order.paymentDueAt)}</p>
@@ -224,7 +228,7 @@ function OrderDetail({ orderId }: { orderId: string }) {
       const result = await purchaseRequest("/purchase/payments", {
         method: "POST",
         idempotencyKey: guestIntentKey(order.id),
-        body: { orderId: order.id },
+        body: { orderId: order.id, acceptedReview: orderPaymentAcceptedReview(order) },
       });
       const receipt = z
         .object({
@@ -266,6 +270,15 @@ function OrderDetail({ orderId }: { orderId: string }) {
       {resource.data && (
         <>
           <OrderSummary order={resource.data} />
+          <PurchaseSuitability
+            order={resource.data}
+            guest
+            disabled={
+              !checkoutEnabled || busy || resource.loading || !!resource.data.paymentId
+            }
+            onSaved={resource.refresh}
+            onBusyChange={setBusy}
+          />
           <section className="purchase-panel">
             <h2>Changes and aftercare</h2>
             <Link
@@ -276,7 +289,9 @@ function OrderDetail({ orderId }: { orderId: string }) {
             </Link>
           </section>
           <section className="purchase-panel">
-            <h2>Next step</h2>
+            <h2 id="purchase-next-step" tabIndex={-1}>
+              Next step
+            </h2>
             {resource.data.paymentId ? (
               <Link
                 className="button"
@@ -300,7 +315,8 @@ function OrderDetail({ orderId }: { orderId: string }) {
               </>
             ) : (
               <p>
-                Contact the team if you need help with payment, changes or collection.
+                {orderPaymentUnavailable(resource.data, now) ??
+                  "Contact the team if you need help with payment, changes or collection."}
               </p>
             )}
             <Feedback message={error} />

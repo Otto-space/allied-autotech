@@ -1,5 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
+import {
+  fixtureAcceptedReview,
+  reviewFixtureOrderForPayment,
+} from "../helpers/purchase-review.js";
 import { Router } from "express";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -544,7 +547,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .post("/api/v1/purchase/payments")
         .set(headers)
         .set("Idempotency-Key", intentKey)
-        .send({ orderId: order.body.data.order.id });
+        .send({
+          orderId: order.body.data.order.id,
+          acceptedReview: await fixtureAcceptedReview(order.body.data.order.id),
+        });
       expect(intent.status).toBe(201);
       const paymentId = intent.body.data.payment.id;
       const ownedOrder = await request(app)

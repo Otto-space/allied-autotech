@@ -78,6 +78,7 @@ export const guestCheckoutBodySchema = checkoutBodySchema
           .object({
             productId: uuid.transform((value) => value.toLowerCase()),
             quantity: cartItemBodySchema.shape.quantity,
+            vehicleSelection: cartItemBodySchema.shape.vehicleSelection,
           })
           .strict(),
       )

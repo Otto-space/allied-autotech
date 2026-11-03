@@ -26,6 +26,8 @@ import {
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import { reviewSourceCustomer } from "../helpers/review-sources.js";
 import { testOwner } from "../helpers/owner.js";
+import { purchaseGuest } from "../helpers/purchase-guest.js";
+import { purchaseCookieName } from "../../src/common/security/cookies.js";
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "isolated pre-payment purchase review",
@@ -166,6 +168,182 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       prisma.$transaction((tx) => assertReviewedPurchasePayable(tx, id), {
         isolationLevel: "Serializable",
       });
+    async function chosenVehicle(f: Awaited<ReturnType<typeof fixture>>, approve = true) {
+      await prisma.productCompatibility.update({
+        where: { id: f.rule.id },
+        data: { reviewStatus: "RETIRED", version: { increment: 1 } },
+      });
+      const key = randomUUID();
+      const make = await prisma.vehicleMake.create({
+        data: { key, name: `Synthetic cart make ${key}` },
+      });
+      const model = await prisma.vehicleModel.create({
+        data: {
+          key,
+          makeId: make.id,
+          name: "Synthetic cart model",
+          yearFrom: 2020,
+          yearTo: 2030,
+          sourceReference: "Synthetic isolated vehicle configuration",
+        },
+      });
+      if (approve)
+        await prisma.productCompatibility.create({
+          data: {
+            productId: f.product.id,
+            vehicleModelId: model.id,
+            make: make.name,
+            model: model.name,
+            scope: "MODEL",
+            effect: "INCLUDE",
+            reviewStatus: "APPROVED",
+            allVariantsConfirmed: true,
+            safetyCritical: false,
+            yearFrom: 2020,
+            yearTo: 2030,
+            sourceReference:
+              "Synthetic isolated approved vehicle-specific accessory evidence",
+            evidenceNotes:
+              "Independent synthetic author and reviewer confirm this isolated model and year range; not production evidence",
+            createdByUserId: f.rule.createdByUserId,
+            updatedByUserId: f.rule.updatedByUserId,
+            reviewedByUserId: f.rule.reviewedByUserId,
+            reviewedAt: new Date(),
+          },
+        });
+      return { vehicleMakeId: make.id, vehicleModelId: model.id, year: 2026 };
+    }
+    it("carries the account cart vehicle through quantity edits and automatic checkout without repricing or double holding", async () => {
+      const f = await fixture(),
+        selection = await chosenVehicle(f);
+      await prisma.inventory.update({
+        where: { id: f.inventory.id },
+        data: { quantity: 3 },
+      });
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      const put = (body: unknown) =>
+        request(app)
+          .put(`/api/v1/customers/cart/items/${f.product.id}`)
+          .set("Origin", env.FRONTEND_URL)
+          .set("Cookie", f.buyer.cookie)
+          .set("x-csrf-token", f.buyer.csrf)
+          .send(body);
+      const added = await put({ quantity: 1, vehicleSelection: selection });
+      expect(added.status, JSON.stringify(added.body)).toBe(200);
+      const edited = await put({ quantity: 2 });
+      expect(edited.status, JSON.stringify(edited.body)).toBe(200);
+      expect(edited.body.data.items[0].vehicleSelection).toEqual(selection);
+      const key = randomUUID();
+      const checkout = () =>
+        request(app)
+          .post("/api/v1/customers/orders/checkout")
+          .set("Origin", env.FRONTEND_URL)
+          .set("Cookie", f.buyer.cookie)
+          .set("x-csrf-token", f.buyer.csrf)
+          .set("Idempotency-Key", key)
+          .send({ branchId: f.order.branchId, fulfillmentMethod: "COLLECTION" });
+      const result = await checkout();
+      expect(result.status, JSON.stringify(result.body)).toBe(201);
+      const order = result.body.data.order;
+      expect(order.purchaseReviews[0]).toMatchObject({
+        status: "APPROVED",
+        requirements: { lines: [{ orderItemId: order.items[0].id, selection }] },
+      });
+      expect(order.items[0].quantity).toBe(2);
+      expect(order.totalKobo).toBe("21500");
+      expect(order.paidAt).toBeNull();
+      expect((await checkout()).body.data).toMatchObject({
+        replayed: true,
+        order: { id: order.id },
+      });
+      expect(
+        await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }),
+      ).toMatchObject({ quantity: 3, reserved: 3 });
+      expect(
+        await prisma.inventoryReservation.count({
+          where: { referenceId: order.id, status: "ACTIVE" },
+        }),
+      ).toBe(1);
+    });
+    it("retains genuine guest vehicle details for unresolved fitment without a payment deadline or stock hold", async () => {
+      const f = await fixture(),
+        selection = await chosenVehicle(f, false),
+        guest = await purchaseGuest();
+      await prisma.inventory.update({
+        where: { id: f.inventory.id },
+        data: { quantity: 2 },
+      });
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      const users = await prisma.user.count();
+      const result = await request(app)
+        .post("/api/v1/purchase/orders")
+        .set("Origin", env.FRONTEND_URL)
+        .set("Cookie", `${purchaseCookieName}=${guest.sessionToken}`)
+        .set("x-csrf-token", guest.csrfToken)
+        .set("Idempotency-Key", randomUUID())
+        .send({
+          branchId: f.order.branchId,
+          fulfillmentMethod: "COLLECTION",
+          contact: { name: "Synthetic guest cart choice", phone: "+2348000000000" },
+          items: [{ productId: f.product.id, quantity: 1, vehicleSelection: selection }],
+        });
+      expect(result.status, JSON.stringify(result.body)).toBe(201);
+      const order = result.body.data.order;
+      expect(order.purchaseReviews[0]).toMatchObject({
+        status: "REQUESTED",
+        requirements: { lines: [{ orderItemId: order.items[0].id, selection }] },
+      });
+      expect(order.paymentDueAt).toBeNull();
+      expect(order.paidAt).toBeNull();
+      expect(order.totalKobo).toBe("10750");
+      expect(await prisma.user.count()).toBe(users);
+      expect(
+        await prisma.inventoryReservation.count({ where: { referenceId: order.id } }),
+      ).toBe(0);
+      expect(
+        (await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }))
+          .reserved,
+      ).toBe(1);
+    });
+    it("refuses to clear a cart whose vehicle choice changed after the customer reviewed it", async () => {
+      const f = await fixture(),
+        selection = await chosenVehicle(f);
+      await prisma.inventory.update({
+        where: { id: f.inventory.id },
+        data: { quantity: 2 },
+      });
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      const put = (vehicleSelection: unknown) =>
+        request(app)
+          .put(`/api/v1/customers/cart/items/${f.product.id}`)
+          .set("Origin", env.FRONTEND_URL)
+          .set("Cookie", f.buyer.cookie)
+          .set("x-csrf-token", f.buyer.csrf)
+          .send({ quantity: 1, vehicleSelection });
+      const first = await put(selection);
+      expect(first.status).toBe(200);
+      const item = first.body.data.items[0];
+      expect((await put({ ...selection, year: 2027 })).status).toBe(200);
+      const result = await request(app)
+        .delete("/api/v1/customers/cart")
+        .set("Origin", env.FRONTEND_URL)
+        .set("Cookie", f.buyer.cookie)
+        .set("x-csrf-token", f.buyer.csrf)
+        .send({
+          expectedItems: [
+            {
+              id: item.id,
+              productId: f.product.id,
+              quantity: 1,
+              unitPriceKobo: item.unitPriceKobo,
+              vehicleSelection: selection,
+            },
+          ],
+        });
+      expect(result.status).toBe(409);
+      const row = await prisma.cartItem.findUniqueOrThrow({ where: { id: item.id } });
+      expect(row.vehicleSelection).toMatchObject({ year: 2027 });
+    });
     it.each(["verified", "missing-evidence", "no-stock"] as const)(
       "automatically checks %s without attributing a new human approval",
       async (state) => {
@@ -570,6 +748,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(safe.body.data.purchaseReviews[0]).toMatchObject({
         revision: 2,
         status: "APPROVED",
+        availability: [{ orderItemId: f.order.items[0]!.id, kind: "BRANCH_STOCK" }],
       });
       for (const key of [
         "decisionSnapshot",
@@ -727,12 +906,68 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const intent = () =>
         payments.createIntent(
           actor,
-          { targetType: "ORDER", targetId: f.order.id, purpose: "ORDER_PAYMENT" },
+          {
+            targetType: "ORDER",
+            targetId: f.order.id,
+            purpose: "ORDER_PAYMENT",
+            acceptedReview: { id: f.review.id, revision: f.review.revision },
+          },
           randomUUID(),
           context,
         );
       return { ...f, actor, commands, payments, context, intent };
     }
+    it("binds account payment creation to the displayed offer and preserves original receipt recovery", async () => {
+      const f = await payerFixture();
+      await prisma.orderPurchaseReview.update({
+        where: { id: f.review.id },
+        data: f.approval,
+      });
+      const app = createApp();
+      const key = randomUUID();
+      const body = {
+        targetType: "ORDER",
+        targetId: f.order.id,
+        purpose: "ORDER_PAYMENT",
+      };
+      const send = (acceptedReview?: { id: string; revision: number }) =>
+        request(app)
+          .post("/api/v1/customers/payments")
+          .set("Origin", env.FRONTEND_URL)
+          .set("Cookie", f.buyer.cookie)
+          .set("x-csrf-token", f.buyer.csrf)
+          .set("idempotency-key", key)
+          .send({ ...body, acceptedReview });
+      for (const accepted of [
+        undefined,
+        { id: randomUUID(), revision: 1 },
+        { id: f.review.id, revision: 2 },
+      ]) {
+        const rejected = await send(accepted);
+        expect(rejected.status, JSON.stringify(rejected.body)).toBe(409);
+      }
+      expect(await prisma.payment.count({ where: { orderId: f.order.id } })).toBe(0);
+      const accepted = { id: f.review.id, revision: f.review.revision };
+      const created = await send(accepted);
+      expect(created.status, JSON.stringify(created.body)).toBe(201);
+      expect(created.body.data.replayed).toBe(false);
+      await prisma.productCompatibility.update({
+        where: { id: f.rule.id },
+        data: { reviewStatus: "RETIRED", version: { increment: 1 } },
+      });
+      const recovered = await send();
+      expect(recovered.status, JSON.stringify(recovered.body)).toBe(201);
+      expect(recovered.body.data).toMatchObject({
+        replayed: true,
+        payment: { id: created.body.data.payment.id },
+      });
+      expect((await send(accepted)).body.data.replayed).toBe(true);
+      expect((await send({ ...accepted, revision: accepted.revision + 1 })).status).toBe(
+        409,
+      );
+      expect(await prisma.payment.count({ where: { orderId: f.order.id } })).toBe(1);
+      expect(f.commands).toHaveLength(0);
+    });
     it("requires approval before intent and rechecks revoked evidence before contacting a provider", async () => {
       const f = await payerFixture();
       await expect(f.intent()).rejects.toMatchObject({ statusCode: 409 });

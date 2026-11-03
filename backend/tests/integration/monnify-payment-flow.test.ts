@@ -1,7 +1,10 @@
 import { testCapability } from "../helpers/owner-policy.js";
 import { RefundWorker } from "../../src/workers/refund.worker.js";
 import { randomUUID } from "node:crypto";
-import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
+import {
+  fixtureAcceptedReview,
+  reviewFixtureOrderForPayment,
+} from "../helpers/purchase-review.js";
 import { afterAll, describe, expect, it } from "vitest";
 
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
@@ -157,7 +160,12 @@ describe.skipIf(!runDatabaseTests)("Monnify payment flow", () => {
     const customerActor = await actor(customer.id, "CUSTOMER");
     const created = (await service.createIntent(
       customerActor,
-      { targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" },
+      {
+        targetType: "ORDER",
+        targetId: order.id,
+        purpose: "ORDER_PAYMENT",
+        acceptedReview: await fixtureAcceptedReview(order.id),
+      },
       `intent-${randomUUID()}`,
       context,
     )) as { payment: { id: string } };

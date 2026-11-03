@@ -3,6 +3,7 @@ vi.mock("../../lib/api/client", () => ({ apiRequest: vi.fn() }));
 import { apiRequest } from "../../lib/api/client";
 import {
   blockingOrderPayment,
+  orderPaymentAcceptedReview,
   orderPaymentSnapshot,
   orderPaymentUnavailable,
   parseOrderPayment,
@@ -47,6 +48,18 @@ const payment: PaymentRecord = {
 const request = vi.mocked(apiRequest);
 beforeEach(() => request.mockReset());
 describe("order payment boundaries", () => {
+  it("sends only the displayed approved review identity, never a fabricated approval", () => {
+    expect(orderPaymentAcceptedReview(order)).toEqual({ id: id(3), revision: 1 });
+    expect(() => orderPaymentAcceptedReview({ ...order, purchaseReviews: [] })).toThrow(
+      /Refresh/,
+    );
+    expect(() =>
+      orderPaymentAcceptedReview({
+        ...order,
+        purchaseReviews: [{ ...order.purchaseReviews[0]!, status: "REQUESTED" }],
+      }),
+    ).toThrow(/Refresh/);
+  });
   it("allows only a reviewed pending unpaid offer before its deadline", () => {
     const now = Date.parse("2026-10-08T09:59:59Z");
     expect(orderPaymentUnavailable(order, now)).toBeUndefined();

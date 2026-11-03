@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import type { PurchaseSelection } from "@/lib/purchase/suitability";
 import { useRef, useState } from "react";
 import { setPurchaseCartItem } from "@/lib/purchase/cart";
 import { usePublicCapabilities } from "./public-capabilities";
@@ -7,9 +8,11 @@ import { usePublicCapabilities } from "./public-capabilities";
 export function PurchaseCartAdd({
   productId,
   available,
+  vehicleSelection,
 }: {
   productId: string;
   available: boolean;
+  vehicleSelection?: PurchaseSelection | null;
 }) {
   const { checkoutEnabled } = usePublicCapabilities();
   const [saved, setSaved] = useState(false),
@@ -28,7 +31,7 @@ export function PurchaseCartAdd({
           return;
         }
         try {
-          setPurchaseCartItem(productId, value);
+          setPurchaseCartItem(productId, value, vehicleSelection ?? null);
           setSaved(true);
           setError(undefined);
         } catch {
@@ -62,8 +65,8 @@ export function PurchaseCartAdd({
         </p>
       )}
       <p className="pd-hint">
-        This saves the total quantity for this product. Price and stock are checked at
-        checkout.
+        This replaces the quantity and chosen vehicle for this product in your cart.
+        Price, suitability and stock are checked at checkout.
       </p>
     </form>
   );

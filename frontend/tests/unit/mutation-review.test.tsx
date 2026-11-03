@@ -4,6 +4,7 @@ import "@testing-library/jest-dom/vitest";
 import { afterAll, afterEach, beforeAll, expect, it, vi } from "vitest";
 import { MutationReview, type MutationProposal } from "@/app/components/mutation-review";
 import { ApiError } from "@/lib/api/client";
+import { useLayoutEffect, useState } from "react";
 
 vi.mock("@/app/components/feedback", () => ({
   Feedback: ({ message }: { message?: string }) =>
@@ -27,6 +28,42 @@ afterAll(() => {
   else Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal");
 });
 afterEach(cleanup);
+it("restores the opener when opening the review disables and blurs its fieldset", async () => {
+  function Harness() {
+    const [open, setOpen] = useState(false);
+    useLayoutEffect(() => {
+      // Match the browser blur observed when the opener's fieldset is disabled.
+      if (open && document.activeElement instanceof HTMLElement)
+        document.activeElement.blur();
+    }, [open]);
+    return (
+      <>
+        <fieldset disabled={open}>
+          <button onClick={() => setOpen(true)}>Review fixture</button>
+        </fieldset>
+        {open && (
+          <MutationReview
+            proposal={{
+              title: "Fixture review",
+              description: "Synthetic focus recovery",
+              facts: [],
+              submit: async () => undefined,
+            }}
+            onClose={() => setOpen(false)}
+            onSuccess={() => setOpen(false)}
+          />
+        )}
+      </>
+    );
+  }
+  render(<Harness />);
+  const opener = screen.getByRole("button", { name: "Review fixture" });
+  opener.focus();
+  fireEvent.click(opener);
+  expect(document.activeElement).toBe(screen.getByRole("button", { name: "Go back" }));
+  fireEvent.click(screen.getByRole("button", { name: "Go back" }));
+  await waitFor(() => expect(document.activeElement).toBe(opener));
+});
 function review(submit: MutationProposal["submit"], retrySafely = true) {
   const onSuccess = vi.fn(),
     onClose = vi.fn(),

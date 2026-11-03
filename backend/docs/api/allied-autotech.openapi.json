@@ -42670,6 +42670,96 @@
                           "type": "string",
                           "pattern": "^(?:0|[1-9][0-9]{0,15})$",
                           "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                        },
+                        "vehicleSelection": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "vehicleMakeId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the vehicle make resource; ownership is resolved server-side."
+                            },
+                            "vehicleModelId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                            },
+                            "year": {
+                              "type": "integer",
+                              "minimum": 1886,
+                              "maximum": 2200,
+                              "description": "Year validated by this operation's strict request contract."
+                            },
+                            "trim": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Trim validated by this operation's strict request contract."
+                            },
+                            "engineCode": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                            },
+                            "market": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Market validated by this operation's strict request contract."
+                            },
+                            "position": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Position validated by this operation's strict request contract."
+                            },
+                            "brakeSystem": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Brake System validated by this operation's strict request contract."
+                            },
+                            "brakeDiameterMm": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                            },
+                            "bodyType": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Body Type validated by this operation's strict request contract."
+                            },
+                            "transmission": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Transmission validated by this operation's strict request contract."
+                            },
+                            "generation": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Generation validated by this operation's strict request contract."
+                            },
+                            "chassisCode": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                            }
+                          },
+                          "required": [
+                            "vehicleModelId",
+                            "year"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Vehicle Selection validated by this operation's strict request contract."
                         }
                       },
                       "required": [
@@ -42697,7 +42787,11 @@
                     "id": "00000000-0000-4000-8000-000000000001",
                     "productId": "00000000-0000-4000-8000-000000000001",
                     "quantity": 1,
-                    "unitPriceKobo": "300000"
+                    "unitPriceKobo": "300000",
+                    "vehicleSelection": {
+                      "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                      "year": 1886
+                    }
                   }
                 ]
               }
@@ -42974,6 +43068,96 @@
                     "minimum": 1,
                     "maximum": 1000,
                     "description": "Quantity validated by this operation's strict request contract."
+                  },
+                  "vehicleSelection": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "vehicleMakeId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the vehicle make resource; ownership is resolved server-side."
+                      },
+                      "vehicleModelId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                      },
+                      "year": {
+                        "type": "integer",
+                        "minimum": 1886,
+                        "maximum": 2200,
+                        "description": "Year validated by this operation's strict request contract."
+                      },
+                      "trim": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "description": "Trim validated by this operation's strict request contract."
+                      },
+                      "engineCode": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                      },
+                      "market": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "description": "Market validated by this operation's strict request contract."
+                      },
+                      "position": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "description": "Position validated by this operation's strict request contract."
+                      },
+                      "brakeSystem": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "description": "Brake System validated by this operation's strict request contract."
+                      },
+                      "brakeDiameterMm": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                      },
+                      "bodyType": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "description": "Body Type validated by this operation's strict request contract."
+                      },
+                      "transmission": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "description": "Transmission validated by this operation's strict request contract."
+                      },
+                      "generation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "description": "Generation validated by this operation's strict request contract."
+                      },
+                      "chassisCode": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                      }
+                    },
+                    "required": [
+                      "vehicleModelId",
+                      "year"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Vehicle Selection validated by this operation's strict request contract."
                   }
                 },
                 "required": [
@@ -42983,7 +43167,11 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
-                "quantity": 1
+                "quantity": 1,
+                "vehicleSelection": {
+                  "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                  "year": 1886
+                }
               }
             }
           }
@@ -80920,6 +81108,96 @@
                           "minimum": 1,
                           "maximum": 1000,
                           "description": "Quantity validated by this operation's strict request contract."
+                        },
+                        "vehicleSelection": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "vehicleMakeId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the vehicle make resource; ownership is resolved server-side."
+                            },
+                            "vehicleModelId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                            },
+                            "year": {
+                              "type": "integer",
+                              "minimum": 1886,
+                              "maximum": 2200,
+                              "description": "Year validated by this operation's strict request contract."
+                            },
+                            "trim": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Trim validated by this operation's strict request contract."
+                            },
+                            "engineCode": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                            },
+                            "market": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Market validated by this operation's strict request contract."
+                            },
+                            "position": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Position validated by this operation's strict request contract."
+                            },
+                            "brakeSystem": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Brake System validated by this operation's strict request contract."
+                            },
+                            "brakeDiameterMm": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                            },
+                            "bodyType": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Body Type validated by this operation's strict request contract."
+                            },
+                            "transmission": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Transmission validated by this operation's strict request contract."
+                            },
+                            "generation": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Generation validated by this operation's strict request contract."
+                            },
+                            "chassisCode": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                            }
+                          },
+                          "required": [
+                            "vehicleModelId",
+                            "year"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Vehicle Selection validated by this operation's strict request contract."
                         }
                       },
                       "required": [
@@ -80953,7 +81231,11 @@
                 "items": [
                   {
                     "productId": "00000000-0000-4000-8000-000000000001",
-                    "quantity": 1
+                    "quantity": 1,
+                    "vehicleSelection": {
+                      "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                      "year": 1886
+                    }
                   }
                 ]
               }
@@ -81513,6 +81795,28 @@
                     "type": "string",
                     "format": "uuid",
                     "description": "Identifier of the order resource; ownership is resolved server-side."
+                  },
+                  "acceptedReview": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the id resource; ownership is resolved server-side."
+                      },
+                      "revision": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 2147483646,
+                        "description": "Revision validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "revision"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Displayed checked offer. Required for a new order payment; omission only recovers an existing original-key receipt."
                   }
                 },
                 "required": [
@@ -81522,7 +81826,11 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
-                "orderId": "00000000-0000-4000-8000-000000000001"
+                "orderId": "00000000-0000-4000-8000-000000000001",
+                "acceptedReview": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "revision": 1
+                }
               }
             }
           }
@@ -112937,6 +113245,28 @@
                           "ORDER_PAYMENT"
                         ],
                         "description": "Purpose validated by this operation's strict request contract."
+                      },
+                      "acceptedReview": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "Identifier of the id resource; ownership is resolved server-side."
+                          },
+                          "revision": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 2147483646,
+                            "description": "Revision validated by this operation's strict request contract."
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "revision"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Displayed checked offer. Required for a new order payment; omission only recovers an existing original-key receipt."
                       }
                     },
                     "required": [
@@ -113018,7 +113348,11 @@
               "example": {
                 "targetType": "ORDER",
                 "targetId": "00000000-0000-4000-8000-000000000001",
-                "purpose": "ORDER_PAYMENT"
+                "purpose": "ORDER_PAYMENT",
+                "acceptedReview": {
+                  "id": "00000000-0000-4000-8000-000000000001",
+                  "revision": 1
+                }
               }
             }
           }

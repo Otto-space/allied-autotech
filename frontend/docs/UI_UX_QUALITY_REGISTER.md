@@ -1,3 +1,168 @@
+3 November 18:02 UTC follow-up: source 29b7975d backend run 41689033316 passed
+migration replay, schema checks, compiler/lint and 81/82 focused purchase checks.
+The new account HTTP case lacked the required trusted Origin header and stopped at
+CSRF before reaching the offer check. The fixture now supplies the header; the
+guard is unchanged. Later database suites did not run and are not counted as passes.
+Inspected safe 079ca9ee phone/laptop cart and confirmed-state screenshots. They
+exposed touching guest payment/refresh buttons; the shared approved-offer wrapper
+now has explicit spacing and a rendered minimum-gap assertion at 320/1440. These
+latest corrections and the final screenshot comparison still require CI.
+
+### 3 November 17:44 UTC package: displayed-offer payment binding
+
+Target 18:44 UTC. Account and guest payment creation now carry the identity and
+revision of the checked offer displayed to the buyer. Under the existing order
+lock, a new intent rejects missing/stale identity before creating any payment.
+Original-key receipt recovery remains available without revalidating a revoked
+offer; a supplied different offer cannot reuse that key. Initialisation still
+rechecks the private financial/evidence binding, and capture accounting is unchanged.
+
+The account retains the original body for uncertain retries and discards it on
+session change. Guest checkout uses its displayed approved review directly.
+There is no new staff approval, checkbox or customer screen. Existing checked
+stock, ownership, amount, finance and provider controls remain authoritative.
+Removed contradictory guest summary wording which placed final checks after pay.
+
+Backend types, script types and lint pass. Review/safe-view/Help units pass 45/45;
+frontend payment/suitability/staff-review units pass 27/27 and scoped lint passes.
+OpenAPI export/types are regenerated; 438 paths and 514 operations still match.
+New isolated account HTTP and guest cases cover missing/stale offers, exact original
+receipt recovery and mismatched-key denial. Updated provider/lifecycle fixtures
+explicitly read their synthetic checked offers. The 21-case browser suite now
+checks transmitted offer identity and changed-offer handling at 320/1440.
+Those database and browser executions remain pending CI.
+
+Parts Help advances to v13; audience, eligibility, guide targets and flags stay
+unchanged. No new migration is added in this package, no shared database or real
+record is changed, and no new production publication or capability activation
+occurred. Current source remains a candidate for the full D01-D17 goal. Parallel
+booking/timing and dashboard work remains preserved for later verified integration.
+C: about 22.2 GiB; hosted checks handle production builds.
+
+3 November 17:14 UTC carry-through follow-up: recovered guest orders now clear
+only cart lines whose saved vehicle configuration also matches. A changed or cleared
+vehicle choice in another tab is retained even when product/quantity are identical.
+The saved checkout receipt must confirm the requested configuration. Updated cart
+units pass 23/23 (overlap the earlier 50-case run; do not sum them). Guest checkout
+fixtures no longer invent a vehicle choice/approval for an unconfigured cart; the
+payment journey explicitly seeds its synthetic chosen vehicle. The fixture-only
+browser suite is 21 cases. Database/browser results for migration 92 are still pending.
+
+### 3 November 16:33 UTC package: checkout vehicle carry-through
+
+Target 17:33 UTC. Current source carries the explicit Parts-page vehicle/specification
+choice into the account cart or existing browser guest cart, displays it for review,
+preserves it on quantity-only edits and replaces/clears it on a new product add.
+Checkout revalidates the actual selected configuration against current approved
+fitment and reserves real available stock automatically when eligible. Unresolved
+fitment saves the known configuration on the unpaid order for review; it is not
+silently discarded. Clear-cart review now detects a changed vehicle choice.
+Quantities, server pricing, promotions and guest/account ownership stay authoritative.
+
+Forward migration 92 adds only nullable CartItem.vehicleSelection and an object
+constraint. Existing rows remain NULL; no backfill, destructive operation, grant
+change or shared migration was performed. Client generation used a generation-only
+loopback configuration, not an application connection. Canonical OpenAPI/handbook
+and frontend types are regenerated: 438 paths/514 operations still match routes.
+Parts Help advances to v12 without audience or guide-target changes. Removed a
+remaining guest-cart sentence that incorrectly placed suitability checks after pay.
+
+Local backend compiler/lint, eight Help cases and 50 focused frontend cases pass.
+Three added isolated cases verify account quantity/vehicle preservation and single
+stock holding, honest guest unresolved configuration and stale-clear protection.
+Database replay/new database cases remain pending CI. Two new browser cases at
+320/1440 take a selected guest cart to its payment step (21 runtime cases total),
+using explicitly synthetic API data. No provider or real business record is touched.
+
+Previous f1f9acaf backend 41675282098 and secrets 41675281845 passed. Frontend
+41675281937 passed compiler/unit/build, then stopped on quality-register formatting;
+that document is formatted now. Its browser step did not run. The earlier verified
+31c292dd 19/19 evidence must not be represented as a new-source browser pass.
+
+Remaining D04: bind new payment creation to the displayed offer revision, verify
+notification/real-role/provider behaviour and complete affected acceptance. D02/D03/
+D05-D17 remain in the full objective. This package neither publishes nor activates
+new payment/booking capabilities. Current C: about 22.68 GiB; heavy builds use CI.
+
+### 3 November 16:32 UTC package boundary: review screens verified, final layout polish pending
+
+Source 31c292dd passes frontend 41673219268, backend 41673219659 and secrets 41673219336. Frontend production checks include 1,386 passing unit cases and 12
+existing skips; Chromium runtime is 19/19, no skipped or flaky cases. The six new
+cases cover account explicit reuse/fresh checking, guest saved-pending refresh,
+Admin reasoned decisions, dialog Escape/focus return and no overflow at 320/1440.
+Axe checks pass on editable and approved customer states. This remains synthetic
+browser/isolated database evidence; real roles, providers and physical devices
+are not accepted. Migration 91 was replayed in CI only; no application DB change.
+
+Safe artifact 13248169300 (1,679,586 bytes) is downloaded under
+C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/runtime-ci-31c292dd/.
+Inspected phone and laptop before/after states, guest pending and staff dialog.
+The images contain synthetic fixtures. Phone selects visibly clipped long labels;
+those are shortened, quotation eligibility remains beside the control, and the
+confirmed panel now links directly to the payment section. Laptop part fields
+use responsive columns. These final source refinements need a fresh exact-source
+check and screenshots; do not extend the 31c292dd pass to untested later changes.
+
+Still outstanding in D04: explicit displayed-offer binding on payment creation,
+checkout vehicle carry-through and operational notification/role/provider acceptance.
+D02/D03/D05-D17 remain in the full objective. No live purchase/booking/payment flag,
+credentials, real records, owner-only permission or production release changed.
+Latest C: reading 23.02 GiB; no new local build, install or database was created.
+
+3 November 16:19 UTC verification follow-up: aed43c10 passed backend
+41670149247 and frontend production checks (1,384 passed, 12 existing skips),
+but browser run 41670149228 finished 15/19. All 13 availability regressions and
+two guest cases passed. Two staff cases exposed shared dialog focus capture after
+the opener's fieldset was disabled; two customer cases used malformed fixture
+responses missing required metadata. The fixtures are corrected without relaxing
+API validation. Guest acceptance now waits for the saved order refresh rather
+than accepting an uncertain outcome. Shared dialog focus tests pass 6/6 locally.
+
+Supplier controls are unavailable without an accepted quotation; their confirmation
+summary includes validity and arrival dates. The additional Lagos-time supplier UI
+case passes (staff suite 5/5). Editable vehicle fields now receive an explicit Axe
+check in the browser. The corrected exact-source production/browser checks remain
+required; no new live-role, provider or physical-device acceptance is claimed.
+
+3 November 16:02 UTC UI follow-up: source ebc62510's frontend check stopped
+at two type errors indexing the shared dynamic qualifier shape. The schema now
+preserves those qualifier types at the source. New customer/staff detail reads
+also expose only supply kind and genuine supplier arrival estimates; private
+reviewer, evidence, supplier-reference and reservation fields remain excluded.
+Local backend projection 8/8, compiler and lint pass; customer/staff/payment
+fixture units pass 25/25. The next exact-source build and 19 runtime browser
+cases, including six new purchase cases, remain required. No live acceptance is
+claimed and no capability was activated.
+
+### 3 November 15:32 UTC package: customer/staff review screens in progress
+
+Target 16:32 UTC. Current source 1f573fd4 passes all three exact-source workflows:
+frontend 41664863114, backend 41664863113 and secrets 41664863132. These are source,
+synthetic-browser and isolated-database results, not a live activation. Source
+migration 91 remains unapplied to the shared application database.
+
+This package adds the shared account/guest suitability form and optional explicit
+reuse of previous matching product configurations. Prior approval, prices and
+stock promises are never copied. Unknown details can be submitted without invented
+vehicle information. Successful automatic checks leave optional changes collapsed.
+Pending and uncertain requests have recovery/refresh actions; current-version and
+revision checks protect identical retries. Drafts are in memory and discarded on
+access changes. Payment and fulfilment remain distinct.
+
+Admin/Super Admin order detail now has the existing authorised exception decision
+form: current version/revision, reason, branch stock or actual supplier confirmation
+and arrival window on an accepted quotation. Existing shared review dialog is used;
+Staff permissions are unchanged. Parts Help advances to v11. Local focused fixture
+units pass seven customer and four staff cases; scoped frontend lint passed before
+final copy refinements. A local full TypeScript attempt exhausted its 768 MiB heap;
+no compiler pass is claimed for this UI. Hosted full checks and six added phone/
+laptop runtime cases (19 total) with safe screenshots are pending.
+
+Unfinished: final offer supplier estimates in safe customer projections, reviewed
+customer acceptance binding, notification delivery acceptance, checkout vehicle
+carry-through and all remaining D02/D03/D05-D17 requirements. No real records,
+provider credentials, payment flags or owner-only permissions were changed.
+
 ### 3 November: independently closed booking links
 
 Rendered testing found full-mode service cards still offered Request a visit

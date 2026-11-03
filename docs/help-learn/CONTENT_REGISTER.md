@@ -240,7 +240,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
 | privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
 | financial-policy-work   | financial-policy     | 4 / 2026-11-02   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
-| parts-fitment           | public               | 8 / 2026-11-03   | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
+| parts-fitment           | public               | 13 / 2026-11-03  | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
 | service-request         | public               | 13 / 2026-11-01  | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
@@ -428,3 +428,11 @@ Nine hosted synthetic workflow checks passed; no production stock action occurre
 2 November: privacy-and-allie v2 is live in runtime 6f3cf203. Both public version-2 catalogues returned it; staff-only privacy-work remained 404. Four public 320/1440 disclosure/navigation fixtures passed with zero AI writes. Policy version, eligibility and activation gates are unchanged.
 
 3 November: parts-fitment v10 follows the owner-approved automatic check path. Current approved suitability evidence plus reserved branch stock allows payment without a fresh human decision; unresolved fitment or supplier evidence needs staff review. Source only, no audience or live flag changes.
+
+3 November customer review package: parts-fitment v11 adds the account/guest order suitability panel, explicit previous-purchase vehicle reuse, fresh checking and order-status refresh. Eligibility, public guide targets and permissions remain unchanged. Source only.
+
+Parts-fitment v11 UI follow-up: supplier arrival estimates are visible before payment, with collection readiness kept separate. Internal sourcing references and technical approval provenance remain private; no eligibility or guide target changes.
+
+3 November cart vehicle carry-through: parts-fitment v12 explains explicit vehicle choice on the cart item, quantity-edit preservation, replacement on a fresh add, current pre-payment checking and honest unresolved review. Source only; no audience, permission, guide-target or activation change.
+
+3 November displayed-offer payment binding: parts-fitment v13 explains current-offer review, changed-offer refresh and original uncertain-request recovery. Account and guest payment creation carry the displayed review identity; this adds no fresh staff approval, customer screen, permission, audience, guide target or live activation. Source checks remain pending.

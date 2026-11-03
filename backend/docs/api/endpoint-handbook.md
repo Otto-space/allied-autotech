@@ -4704,7 +4704,11 @@ Synthetic request example:
       "id": "00000000-0000-4000-8000-000000000001",
       "productId": "00000000-0000-4000-8000-000000000001",
       "quantity": 1,
-      "unitPriceKobo": "300000"
+      "unitPriceKobo": "300000",
+      "vehicleSelection": {
+        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+        "year": 1886
+      }
     }
   ]
 }
@@ -4745,12 +4749,17 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `quantity` | integer | Yes | Quantity validated by this operation's strict request contract. |
+| `vehicleSelection` | object / null | No | Vehicle Selection validated by this operation's strict request contract. |
 
 Synthetic request example:
 
 ```json
 {
-  "quantity": 1
+  "quantity": 1,
+  "vehicleSelection": {
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "year": 1886
+  }
 }
 ```
 
@@ -6484,7 +6493,11 @@ Synthetic request example:
 {
   "targetType": "ORDER",
   "targetId": "00000000-0000-4000-8000-000000000001",
-  "purpose": "ORDER_PAYMENT"
+  "purpose": "ORDER_PAYMENT",
+  "acceptedReview": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "revision": 1
+  }
 }
 ```
 
@@ -28750,7 +28763,11 @@ Synthetic request example:
   "items": [
     {
       "productId": "00000000-0000-4000-8000-000000000001",
-      "quantity": 1
+      "quantity": 1,
+      "vehicleSelection": {
+        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+        "year": 1886
+      }
     }
   ]
 }
@@ -28828,12 +28845,17 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `orderId` | string (uuid) | Yes | Identifier of the order resource; ownership is resolved server-side. |
+| `acceptedReview` | object | No | Displayed checked offer. Required for a new order payment; omission only recovers an existing original-key receipt. |
 
 Synthetic request example:
 
 ```json
 {
-  "orderId": "00000000-0000-4000-8000-000000000001"
+  "orderId": "00000000-0000-4000-8000-000000000001",
+  "acceptedReview": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "revision": 1
+  }
 }
 ```
 
@@ -28982,4 +29004,3 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
-
