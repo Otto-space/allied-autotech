@@ -4,6 +4,7 @@ export async function fixture(page: Page, role = "ADMIN") {
   const state = {
     reads: [] as URL[],
     mode: "normal",
+    userId: "b9000000-0000-4000-8000-000000000101",
     care: overviewFixture(role).care,
     held: undefined as (() => void) | undefined,
   };
@@ -62,7 +63,7 @@ export async function fixture(page: Page, role = "ADMIN") {
             ? {
                 id: "b9000000-0000-4000-8000-000000000100",
                 user: {
-                  id: "b9000000-0000-4000-8000-000000000101",
+                  id: state.userId,
                   email: "overview@example.test",
                   role,
                 },

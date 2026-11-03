@@ -293,6 +293,7 @@ jobs:
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/integration/customers-care.test.ts tests/integration/customer-directory.test.ts \
+            tests/integration/customer-care-overview.test.ts \
             tests/integration/support-customer-email.test.ts tests/integration/support-timeline.test.ts \
             tests/integration/identity-flow.test.ts --maxWorkers=2
       - name: Verify eligible learning and practice definitions on isolated PostgreSQL

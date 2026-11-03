@@ -1,6 +1,6 @@
 # D06 resource-aware offer discovery — 3 November 2026
 
-Service-request advances to v25. Its public gate, guide targets and practice
+Service-request advances to v26, retaining master's v25 customer-overview guidance. Its public gate, guide targets and practice
 permissions remain unchanged. The existing owner resource-plan guide stays draft;
 no guide or feature flag is activated by this source change.
 

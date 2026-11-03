@@ -14,6 +14,7 @@ export default defineConfig({
     "service-timing.spec.ts",
     "slot-timing-review.spec.ts",
     "customer-support-actions.spec.ts",
+    "customer-overview-selection.spec.ts",
     "shared-shell-dock.spec.ts",
 
     "order-money-breakdown.spec.ts",

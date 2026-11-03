@@ -195,3 +195,6 @@ workshop-resources.spec.ts > owner reviews real names, split periods and one app
 workshop-resources.spec.ts > drop response blocks duplicate save and survives refresh for explicit recovery
 workshop-resources.spec.ts > managed SUPER_ADMIN retains the correct resource authoring boundary
 workshop-resources.spec.ts > managed ADMIN retains the correct resource authoring boundary
+
+# Own default/cover, older server fallback, booked priority and auth invalidation at seven exact sizes.
+customer-overview-selection.spec.ts

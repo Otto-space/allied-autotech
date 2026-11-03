@@ -157992,6 +157992,56 @@
                                     "null"
                                   ],
                                   "description": "Registration Number validated by this operation's strict request contract."
+                                },
+                                "photo": {
+                                  "type": [
+                                    "object",
+                                    "null"
+                                  ],
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "description": "Identifier of the id resource; ownership is resolved server-side."
+                                    },
+                                    "url": {
+                                      "type": "string",
+                                      "description": "HTTPS location validated against the operation's server-side allowlist."
+                                    },
+                                    "altText": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "description": "Alt Text validated by this operation's strict request contract."
+                                    },
+                                    "sortOrder": {
+                                      "type": "integer",
+                                      "description": "Sort Order validated by this operation's strict request contract."
+                                    },
+                                    "isPrimary": {
+                                      "type": "boolean",
+                                      "description": "Boolean control for is primary; authorization is still enforced server-side."
+                                    },
+                                    "width": {
+                                      "type": "integer",
+                                      "description": "Width validated by this operation's strict request contract."
+                                    },
+                                    "height": {
+                                      "type": "integer",
+                                      "description": "Height validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "url",
+                                    "altText",
+                                    "sortOrder",
+                                    "isPrimary",
+                                    "width",
+                                    "height"
+                                  ],
+                                  "description": "Photo validated by this operation's strict request contract."
                                 }
                               },
                               "required": [
@@ -158002,6 +158052,96 @@
                                 "registrationNumber"
                               ],
                               "description": "Vehicle validated by this operation's strict request contract."
+                            },
+                            "defaultVehicle": {
+                              "type": [
+                                "object",
+                                "null"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "make": {
+                                  "type": "string",
+                                  "description": "Make validated by this operation's strict request contract."
+                                },
+                                "model": {
+                                  "type": "string",
+                                  "description": "Model validated by this operation's strict request contract."
+                                },
+                                "year": {
+                                  "type": "integer",
+                                  "description": "Year validated by this operation's strict request contract."
+                                },
+                                "registrationNumber": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "description": "Registration Number validated by this operation's strict request contract."
+                                },
+                                "photo": {
+                                  "type": [
+                                    "object",
+                                    "null"
+                                  ],
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "description": "Identifier of the id resource; ownership is resolved server-side."
+                                    },
+                                    "url": {
+                                      "type": "string",
+                                      "description": "HTTPS location validated against the operation's server-side allowlist."
+                                    },
+                                    "altText": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "description": "Alt Text validated by this operation's strict request contract."
+                                    },
+                                    "sortOrder": {
+                                      "type": "integer",
+                                      "description": "Sort Order validated by this operation's strict request contract."
+                                    },
+                                    "isPrimary": {
+                                      "type": "boolean",
+                                      "description": "Boolean control for is primary; authorization is still enforced server-side."
+                                    },
+                                    "width": {
+                                      "type": "integer",
+                                      "description": "Width validated by this operation's strict request contract."
+                                    },
+                                    "height": {
+                                      "type": "integer",
+                                      "description": "Height validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "url",
+                                    "altText",
+                                    "sortOrder",
+                                    "isPrimary",
+                                    "width",
+                                    "height"
+                                  ],
+                                  "description": "Photo validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "make",
+                                "model",
+                                "year",
+                                "registrationNumber"
+                              ],
+                              "description": "Default Vehicle validated by this operation's strict request contract."
                             },
                             "vehicleSource": {
                               "type": "string",
@@ -159055,6 +159195,56 @@
                                     "null"
                                   ],
                                   "description": "Registration Number validated by this operation's strict request contract."
+                                },
+                                "photo": {
+                                  "type": [
+                                    "object",
+                                    "null"
+                                  ],
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "description": "Identifier of the id resource; ownership is resolved server-side."
+                                    },
+                                    "url": {
+                                      "type": "string",
+                                      "description": "HTTPS location validated against the operation's server-side allowlist."
+                                    },
+                                    "altText": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "description": "Alt Text validated by this operation's strict request contract."
+                                    },
+                                    "sortOrder": {
+                                      "type": "integer",
+                                      "description": "Sort Order validated by this operation's strict request contract."
+                                    },
+                                    "isPrimary": {
+                                      "type": "boolean",
+                                      "description": "Boolean control for is primary; authorization is still enforced server-side."
+                                    },
+                                    "width": {
+                                      "type": "integer",
+                                      "description": "Width validated by this operation's strict request contract."
+                                    },
+                                    "height": {
+                                      "type": "integer",
+                                      "description": "Height validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "url",
+                                    "altText",
+                                    "sortOrder",
+                                    "isPrimary",
+                                    "width",
+                                    "height"
+                                  ],
+                                  "description": "Photo validated by this operation's strict request contract."
                                 }
                               },
                               "required": [
@@ -159065,6 +159255,96 @@
                                 "registrationNumber"
                               ],
                               "description": "Vehicle validated by this operation's strict request contract."
+                            },
+                            "defaultVehicle": {
+                              "type": [
+                                "object",
+                                "null"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "make": {
+                                  "type": "string",
+                                  "description": "Make validated by this operation's strict request contract."
+                                },
+                                "model": {
+                                  "type": "string",
+                                  "description": "Model validated by this operation's strict request contract."
+                                },
+                                "year": {
+                                  "type": "integer",
+                                  "description": "Year validated by this operation's strict request contract."
+                                },
+                                "registrationNumber": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "description": "Registration Number validated by this operation's strict request contract."
+                                },
+                                "photo": {
+                                  "type": [
+                                    "object",
+                                    "null"
+                                  ],
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "description": "Identifier of the id resource; ownership is resolved server-side."
+                                    },
+                                    "url": {
+                                      "type": "string",
+                                      "description": "HTTPS location validated against the operation's server-side allowlist."
+                                    },
+                                    "altText": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "description": "Alt Text validated by this operation's strict request contract."
+                                    },
+                                    "sortOrder": {
+                                      "type": "integer",
+                                      "description": "Sort Order validated by this operation's strict request contract."
+                                    },
+                                    "isPrimary": {
+                                      "type": "boolean",
+                                      "description": "Boolean control for is primary; authorization is still enforced server-side."
+                                    },
+                                    "width": {
+                                      "type": "integer",
+                                      "description": "Width validated by this operation's strict request contract."
+                                    },
+                                    "height": {
+                                      "type": "integer",
+                                      "description": "Height validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "url",
+                                    "altText",
+                                    "sortOrder",
+                                    "isPrimary",
+                                    "width",
+                                    "height"
+                                  ],
+                                  "description": "Photo validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "make",
+                                "model",
+                                "year",
+                                "registrationNumber"
+                              ],
+                              "description": "Default Vehicle validated by this operation's strict request contract."
                             },
                             "vehicleSource": {
                               "type": "string",

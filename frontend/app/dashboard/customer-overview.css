@@ -464,3 +464,35 @@
   outline: 3px solid var(--ink);
   outline-offset: 3px;
 }
+
+.care-vehicle .care-vehicle-photo {
+  flex: 0 0 112px;
+  width: 112px;
+  height: 84px;
+  overflow: hidden;
+  border-radius: var(--radius-md, 8px);
+  background: #edf1f5;
+}
+.care-vehicle-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.care-vehicle .care-vehicle-photo > span {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  color: #203540;
+  text-align: center;
+}
+@media (max-width: 430px) {
+  .care-vehicle .care-vehicle-photo {
+    flex-basis: 100%;
+    width: 100%;
+    height: 150px;
+  }
+}

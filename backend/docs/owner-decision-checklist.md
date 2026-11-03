@@ -1,6 +1,6 @@
 ### 4 November 2026: D06 resource-aware public offers — integrated source checkpoint
 
-Current source combines resource discovery with master 6432da3e, preserving the
+Current source combines resource discovery with master 92f3f9fc, preserving the
 new Help/Allie dock, dashboard/account, image, financial and resource-authoring
 fixes. No Prisma schema or migration differs from master; all 97 canonical
 migrations remain. Full D01-D17 remains active. Next work includes D06/D07 ongoing
@@ -38,7 +38,7 @@ pass. All task-owned tmpfs databases were removed; application data was untouche
 validation (446 paths/522 operations) and 3,842-file secret scan pass. API request,
 response and security contracts are unchanged.
 
-Service-request guidance is v25, with unchanged public eligibility and semantic
+Service-request guidance is v26, with unchanged public eligibility and semantic
 targets. Owner resource-plan v1 stays draft; flags remain unchanged. See
 docs/help-learn/WORKSHOP_RESOURCE_AVAILABILITY_20261103.md. Exact-master hosted
 checks and production publication remain pending for this composition. Actual

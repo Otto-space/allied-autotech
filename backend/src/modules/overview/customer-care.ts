@@ -1,4 +1,5 @@
 import type { Prisma } from "../../generated/prisma/client.js";
+import { projectResourceImage, resourceImageSelect } from "../media/media.projection.js";
 
 const vehicleSelect = {
   id: true,
@@ -7,7 +8,22 @@ const vehicleSelect = {
   model: true,
   year: true,
   registrationNumber: true,
+  mediaImages: {
+    select: resourceImageSelect,
+    orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }, { id: "asc" }],
+    take: 1,
+  },
 } satisfies Prisma.CustomerVehicleSelect;
+type SelectedVehicle = Prisma.CustomerVehicleGetPayload<{ select: typeof vehicleSelect }>;
+const serializeVehicle = (vehicle: SelectedVehicle | null) =>
+  vehicle && {
+    id: vehicle.id,
+    make: vehicle.make,
+    model: vehicle.model,
+    year: vehicle.year,
+    registrationNumber: vehicle.registrationNumber,
+    photo: vehicle.mediaImages[0] ? projectResourceImage(vehicle.mediaImages[0]) : null,
+  };
 const bookingSelect = {
   id: true,
   status: true,
@@ -41,6 +57,7 @@ export async function customerCare(
     current,
     next,
     recentVehicle,
+    defaultVehicle,
     quote,
     payment,
     order,
@@ -65,6 +82,11 @@ export async function customerCare(
     tx.customerVehicle.findFirst({
       where: { customerId },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      select: vehicleSelect,
+    }),
+    // Independent of list pagination and creation order; never guess a default.
+    tx.customerVehicle.findFirst({
+      where: { customerId, defaultSlot: 1 },
       select: vehicleSelect,
     }),
     tx.serviceQuote.findFirst({
@@ -154,15 +176,9 @@ export async function customerCare(
   const vehicle = linked?.customerId === customerId ? linked : recentVehicle;
   const inspection = appointment ?? requested;
   return {
-    vehicle: vehicle
-      ? {
-          id: vehicle.id,
-          make: vehicle.make,
-          model: vehicle.model,
-          year: vehicle.year,
-          registrationNumber: vehicle.registrationNumber,
-        }
-      : null,
+    // Preserve the legacy vehicle/source contract for already released clients.
+    vehicle: serializeVehicle(vehicle),
+    defaultVehicle: serializeVehicle(defaultVehicle),
     vehicleSource: vehicle ? (vehicle === linked ? "BOOKING" : "RECENT") : "NONE",
     currentBooking: serializeBooking(current),
     nextBooking: serializeBooking(next),
