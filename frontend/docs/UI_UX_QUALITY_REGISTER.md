@@ -1,3 +1,46 @@
+### 3 November 2026: resource authoring reconciled with current master
+
+The signed resource lookup/editor checkpoints were cherry-picked onto current
+master 3be68d5d, then merged with d9cf9d09 in b9c9c089. This preserves the newer
+purchasing reviews, canonical 97 migrations, saved monetary allocations, approved
+rounding rule, own-profile access, home imagery and audit fixes. The alternate
+20261103103000 prototype migration stays only on the retained historical branch;
+it is not merged over master. Other active page-audit work remains untouched.
+Both financial and resource tests are retained in the combined CI configurations.
+
+Pre-financial-merge source 418705dc passed all 116 native booking/resource HTTP and
+database cases on an exact task-owned temporary isolated database after all 97
+migrations replayed, Prisma diff and db:check passed, and a restricted CRUD runtime
+was verified. The initial 107-pass run retained one Docker identity timeout;
+an attempted reuse failed test authentication and was cleaned up. The final full
+run passed without skips and removed its exact tmpfs container. No application,
+shared or production database was written. Final log:
+%TEMP%/aat-resource-current-master-native-final.log.
+
+D09 prevents customer cancellation after a recorded start even if a legacy status
+still says Confirmed; D15 skips missed one-hour reminders instead of sending them
+immediately. No cutoff or proposed extra reminder interval is activated. The screen
+now checks the recorded start, with two new 320/1440px refresh regressions. Public
+service-request guidance advances to v24 with unchanged gates/targets. Exact-source
+post-merge frontend/backend compilers, 33 focused frontend and 49 backend unit
+cases, scoped frontend/full backend lint, formatting and a 3,839-file secret scan
+pass. The old v23 learning assertion initially failed and was updated to the
+explicit v24 definition; its final 12-case file passes. Hosted rendered checks
+remain pending until recorded.
+The previous 19-case editor browser result remains synthetic pre-integration
+acceptance, not evidence for this new composition or real operational accounts.
+
+Read-only Vercel checks identify both aliases at audit source 7384abf8. Its
+recorded backend receipt is schema 92; no fresh backend schema probe is claimed;
+this resource/97-migration composition has not been deployed. Exact-master CI,
+fresh backup, populated restore, reviewed pending migrations, matching backend and
+runtime/alias verification are still required. Resource-aware public offer
+filtering and remaining D01-D17 items are not marked complete. Purchasing remains
+separately gated; the owner's approved aggregate half-up/largest-remainder rule is
+preserved, while invoice identities, VAT applicability and provider acceptance
+remain separate. Historical evidence below retains its original source/migration
+counts and does not supersede this current checkpoint.
+
 3 November 21:32 UTC exact-source follow-up: 2b9bf542 signature is valid and
 its secrets check 41721669591 passes. Backend 41721669595 passes migration replay,
 types/scripts/lint, 63 early source/money/API checks, eight reminder cases and 162

@@ -676,7 +676,14 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                 </div>
               </section>
             )}
-            {["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED"].includes(current.status) &&
+            {current.startedAt !== null && (
+              <p>
+                Work has started. Contact the workshop to discuss any change or
+                cancellation.
+              </p>
+            )}
+            {current.startedAt === null &&
+              ["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED"].includes(current.status) &&
               (!disruption || !hasDeposit) && (
                 <details className="booking-cancellation">
                   <summary>Cancel this booking</summary>

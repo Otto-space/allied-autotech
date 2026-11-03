@@ -12,7 +12,7 @@ export function detailRecord() {
     scheduledAt: future(72),
     requestedAt: new Date(Date.now() - 86400000).toISOString(),
     confirmedAt: new Date().toISOString(),
-    startedAt: null,
+    startedAt: null as string | null,
     completedAt: null,
     cancelledAt: null,
     customerNotes: "Please check the warning light and the brakes.",
