@@ -119,7 +119,11 @@ function OrderRecord({
     ) {
       invalidate(
         "fulfilment-reason",
-        "Enter a reason of up to 500 characters, in one paragraph. Cancellation requires a reason. Quoted order confirmation requires at least 10 characters recording final compatibility (or why fitment is not applicable) and availability review.",
+        !reason.success
+          ? "Use one paragraph of up to 500 characters."
+          : status.data === "CANCELLED"
+            ? "Enter a reason for cancellation."
+            : "Describe final compatibility (or why no check applies) and availability in at least 10 characters.",
       );
       return;
     }
@@ -525,8 +529,14 @@ function OrderRecord({
                       </div>
                       <div className="field">
                         <label htmlFor="fulfilment-reason">
-                          Reason / final compatibility and availability review
+                          Reason (required for cancellation)
                         </label>
+                        {current.partsQuote && (
+                          <p id="fulfilment-quote-review" className="work-order-muted">
+                            To confirm this quotation, describe the final compatibility
+                            and availability checks in at least 10 characters.
+                          </p>
+                        )}
                         <textarea
                           id="fulfilment-reason"
                           name="reason"
@@ -534,9 +544,14 @@ function OrderRecord({
                           rows={3}
                           aria-invalid={validation?.field === "fulfilment-reason"}
                           aria-describedby={
-                            validation?.field === "fulfilment-reason"
-                              ? "fulfilment-validation"
-                              : undefined
+                            [
+                              current.partsQuote ? "fulfilment-quote-review" : "",
+                              validation?.field === "fulfilment-reason"
+                                ? "fulfilment-validation"
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ") || undefined
                           }
                         />
                       </div>
@@ -568,6 +583,39 @@ function OrderRecord({
                 </p>
               </section>
               <section className="work-order-panel work-order-aftercare">
+                {administrator && current.paymentReferences && (
+                  <>
+                    <h2>Payments and refunds</h2>
+                    {current.status === "CANCELLED" && !current.confirmedAt && (
+                      <p>
+                        Cancellation before confirmation is free. Review each verified
+                        payment and request its full remaining refundable amount. A
+                        different authorised operator must approve it; cancellation does
+                        not mean money has been returned.
+                      </p>
+                    )}
+                    {current.paymentReferences.length ? (
+                      <ul>
+                        {current.paymentReferences.map((payment) => (
+                          <li key={payment.id}>
+                            <Link
+                              className="text-link"
+                              href={`/admin/payments?selected=${payment.id}`}
+                            >
+                              Review payment and refunds: {payment.paymentNumber}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>No payment records are linked.</p>
+                    )}
+                    <p className="work-order-muted">
+                      Latest 25 linked payment records. Use Payment records for older
+                      entries.
+                    </p>
+                  </>
+                )}
                 <h2>Returns and cancellation review</h2>
                 <p>Review requests and collection or delivery evidence for this order.</p>
                 <Link className="text-link" href={`/admin/orders/${orderId}/aftercare`}>

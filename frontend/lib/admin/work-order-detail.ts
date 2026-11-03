@@ -33,6 +33,16 @@ export const staffOrderDetailSchema = workOrderSchema
     customerName: z.string().min(1),
     customerEmail: z.email(),
     customerPhone: z.string().nullable(),
+    paymentReferences: z
+      .array(
+        z.object({
+          id: z.uuid(),
+          paymentNumber: z.string().min(1),
+          status: z.string().min(1),
+        }),
+      )
+      .max(25)
+      .optional(),
     cancellationReason: z.string().nullable(),
     updatedAt: date,
     confirmedAt: date,
@@ -71,8 +81,9 @@ export type StaffOrderRecord = z.infer<typeof staffOrderDetailSchema>;
 export const parseStaffOrderDetail = (value: unknown) =>
   staffOrderDetailSchema.parse(value);
 export function orderChangeSnapshot(order: StaffOrderRecord) {
-  const { invoice: _invoice, ...operational } = order;
+  const { invoice: _invoice, paymentReferences: _payments, ...operational } = order;
   void _invoice;
+  void _payments;
   return JSON.stringify(operational);
 }
 export const fulfilmentReason = z

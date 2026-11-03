@@ -21,6 +21,9 @@ export const guestOrder = () => ({
   createdAt: new Date().toISOString(),
   paymentDueAt: new Date(Date.now() + 1_800_000).toISOString(),
   paidAt: null as string | null,
+  confirmedAt: null as string | null,
+  fulfillmentEvidenceAt: null as string | null,
+  fulfillmentEvidenceReference: null as string | null,
   branch,
   items: [
     {

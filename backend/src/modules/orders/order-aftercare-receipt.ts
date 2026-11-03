@@ -13,9 +13,50 @@ const conflict = () =>
     message: "This request key does not match the original aftercare submission",
   });
 
+/** Ownership must be established before calling; the random key grants no access. */
+export async function readAftercareReceipt<T extends { id: string }>(
+  tx: Prisma.TransactionClient,
+  userId: string | null,
+  scope: string,
+  key: string,
+  readOwned: (id: string) => Promise<T | null>,
+) {
+  aftercareKeySchema.parse(key);
+  const issuedAt = Number(key.split(".")[1]);
+  const [clock] = await tx.$queryRaw<
+    { now: Date }[]
+  >`SELECT clock_timestamp() AT TIME ZONE 'UTC' AS "now"`;
+  if (!clock || issuedAt > clock.now.getTime() + 60_000) throw conflict();
+  const prior = await tx.idempotencyRecord.findUnique({
+    where: { scope_keyHash: { scope, keyHash: digest(key) } },
+  });
+  let record: T | null = null;
+  if (prior) {
+    if (
+      prior.userId !== userId ||
+      prior.status !== "COMPLETED" ||
+      prior.responseStatus !== 201
+    )
+      throw conflict();
+    const body = prior.responseBody;
+    const id =
+      body && typeof body === "object" && !Array.isArray(body)
+        ? body["resourceId"]
+        : undefined;
+    record = typeof id === "string" ? await readOwned(id) : null;
+    if (!record) throw conflict();
+  }
+  return {
+    found: record !== null,
+    record,
+    canStartNew: !record && issuedAt + windowMs <= clock.now.getTime(),
+    recoveryUntil: new Date(issuedAt + windowMs).toISOString(),
+  };
+}
+
 export async function aftercareReceipt<T extends { id: string }>(
   tx: Prisma.TransactionClient,
-  userId: string,
+  userId: string | null,
   scope: string,
   key: string,
   normalized: object,

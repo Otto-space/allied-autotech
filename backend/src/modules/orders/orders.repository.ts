@@ -105,6 +105,7 @@ const inventoryCheckoutSelect = {
 } satisfies Prisma.InventorySelect;
 
 const lockedOrderSelect = {
+  confirmedAt: true,
   customerId: true,
   guestId: true,
   customerEmail: true,

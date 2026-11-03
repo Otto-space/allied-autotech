@@ -214,6 +214,15 @@ function OperationsOverview() {
                       </time>
                     </div>
                     <p>{alert.message}</p>
+                    {alert.category === "GUEST_ORDER_REFUND_REVIEW" &&
+                      alert.resourceId && (
+                        <Link
+                          className="text-link"
+                          href={`/admin/orders/${alert.resourceId}`}
+                        >
+                          Review order payments and refunds
+                        </Link>
+                      )}
                   </li>
                 ))}
               </ul>

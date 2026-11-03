@@ -19,6 +19,7 @@ export class OperationalAlertsWorker {
     const cancelledPaid = await this.database.order.findMany({
       where: {
         status: "CANCELLED",
+        customerId: { not: null },
         confirmedAt: null,
         paidAt: { not: null },
         payments: {
@@ -34,21 +35,39 @@ export class OperationalAlertsWorker {
         await this.database.$transaction((tx) =>
           requestFreeCancellationRefund(tx, order.id, requesterId),
         );
-      else
-        // HUMAN refunds require a real operator requester and separate approval.
-        // Guest proof must never manufacture that operator or authorise a refund.
-        await this.database.operationalAlert.upsert({
-          where: { key: `guest-cancellation-refund:${order.id}` },
-          update: { resolvedAt: null },
-          create: {
-            key: `guest-cancellation-refund:${order.id}`,
-            category: "GUEST_ORDER_REFUND_REVIEW",
-            resourceId: order.id,
-            message:
-              "A cancelled guest order has a verified payment. An authorised operator must request the full pre-confirmation refund for separate approval. No automatic refund is authorised.",
-          },
-        });
     }
+    const guestScan = await readOperationalScan(
+      this.database,
+      "guest-cancellation-refunds",
+    );
+    // Scan only genuinely uncovered verified captures, cycling a durable cursor.
+    // A failed/cancelled refund reopens review; a pending full refund belongs in
+    // the existing separate-approval/refund queues, never automatic guest authority.
+    const guestOrders = await this.database.$queryRaw<{ id: string; createdAt: Date }[]>`
+      SELECT o."id", o."createdAt" FROM "Order" o
+      WHERE o."guestId" IS NOT NULL AND o."customerId" IS NULL
+        AND o."status" = 'CANCELLED' AND o."confirmedAt" IS NULL
+        AND (${guestScan.afterCreatedAt}::timestamp IS NULL OR ${guestScan.afterId}::uuid IS NULL
+          OR (o."createdAt",o."id") > (${guestScan.afterCreatedAt}::timestamp,${guestScan.afterId}::uuid))
+        AND EXISTS (SELECT 1 FROM "Payment" p JOIN "PaymentAttempt" pa ON pa."paymentId" = p."id"
+          WHERE p."orderId" = o."id" AND pa."status" = 'SUCCESSFUL' AND pa."verificationStatus" = 'VERIFIED'
+          AND pa."amountKobo" > COALESCE((SELECT SUM(r."amountKobo") FROM "Refund" r
+            WHERE r."paymentAttemptId" = pa."id" AND r."status" NOT IN ('FAILED','CANCELLED')),0))
+      ORDER BY o."createdAt",o."id" LIMIT ${operationalScanLimit}`;
+    for (const order of guestOrders) {
+      await this.database.operationalAlert.upsert({
+        where: { key: `guest-cancellation-refund:${order.id}` },
+        update: { resolvedAt: null },
+        create: {
+          key: `guest-cancellation-refund:${order.id}`,
+          category: "GUEST_ORDER_REFUND_REVIEW",
+          resourceId: order.id,
+          message:
+            "A cancelled guest order has a verified payment. An authorised operator must request the full pre-confirmation refund for separate approval. No automatic refund is authorised.",
+        },
+      });
+    }
+    await advanceOperationalScan(this.database, guestScan, guestOrders);
     const disputeScan = await readOperationalScan(this.database, "disputes");
     const disputes = await this.database.paymentDispute.findMany({
       where: { resolvedAt: null, AND: operationalScanBoundary(disputeScan) },
@@ -278,6 +297,13 @@ export class OperationalAlertsWorker {
       WHERE a."resolvedAt" IS NULL AND (
         (a."category" = 'URGENT_COMPLAINT_OVERDUE' AND EXISTS (SELECT 1 FROM "Complaint" c WHERE c."id" = a."resourceId" AND c."acknowledgedAt" IS NOT NULL))
         OR (a."category" = 'REFUND_RECONCILIATION' AND EXISTS (SELECT 1 FROM "Refund" r WHERE r."id" = a."resourceId" AND r."status" IN ('SUCCEEDED','CANCELLED')))
+        OR (a."category" = 'GUEST_ORDER_REFUND_REVIEW'
+          AND EXISTS (SELECT 1 FROM "Payment" p JOIN "PaymentAttempt" pa ON pa."paymentId" = p."id"
+            WHERE p."orderId" = a."resourceId" AND pa."status" = 'SUCCESSFUL' AND pa."verificationStatus" = 'VERIFIED')
+          AND NOT EXISTS (SELECT 1 FROM "Payment" p JOIN "PaymentAttempt" pa ON pa."paymentId" = p."id"
+            WHERE p."orderId" = a."resourceId" AND pa."status" = 'SUCCESSFUL' AND pa."verificationStatus" = 'VERIFIED'
+            AND pa."amountKobo" > COALESCE((SELECT SUM(r."amountKobo") FROM "Refund" r
+              WHERE r."paymentAttemptId" = pa."id" AND r."status" NOT IN ('FAILED','CANCELLED')),0)))
         OR (a."category" = 'DISPUTE_ACTION_REQUIRED' AND EXISTS (SELECT 1 FROM "PaymentDispute" d WHERE d."id" = a."resourceId" AND d."resolvedAt" IS NOT NULL))
         OR (a."category" = 'PAYMENT_RECONCILIATION' AND EXISTS (SELECT 1 FROM "Payment" p WHERE p."id" = a."resourceId" AND p."status" NOT IN ('REQUIRES_REVIEW','PROCESSING')))
         OR (a."category" = 'VEHICLE_HOLD_POLICY_PENDING' AND EXISTS (SELECT 1 FROM "VehicleTransaction" v WHERE v."id" = a."resourceId" AND (v."paidHoldStartsAt" IS NOT NULL OR v."status" NOT IN ('PARTIALLY_PAID','PAID','HANDOVER_PENDING'))))

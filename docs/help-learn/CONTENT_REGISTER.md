@@ -1,3 +1,15 @@
+## 3 November 2026: Guest aftercare and operator refund guidance (source)
+
+Parts-fitment v8 explains free cancellation before confirmation, reviewed later
+cancellation/returns, separate refund payment and original-action recovery.
+Financial-aftercare advances from v3 to v4 with the existing Administrator alert
+to order to payment handoff, full remaining pre-confirmation refund, independent
+approval and reopening of failed/cancelled requests. Its restricted financial gate,
+five steps and current scope/grant checks remain unchanged. Public guide targets,
+practice permissions and activation flags are unchanged. The latest isolated native
+run passes 71/71; final browser/source/release checks remain recorded in the current
+completion tracker. No provider refund, delivery or real-role acceptance is implied.
+
 ## 3 November 2026: Private purchase documents (source)
 
 Parts-fitment v7 explains order ? invoice and verified-payment ? receipt download/
@@ -199,13 +211,13 @@ mean a production publication. Feature flags remain off in committed examples.
 | Article                 | Eligibility gate     | Version / review | Actual destination           | Authority                                                                                                                                   |
 | ----------------------- | -------------------- | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | privacy-and-allie       | public               | 1 / 2026-11-01   | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff                                         |
-| financial-aftercare     | financial-aftercare  | 3 / 2026-10-27   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
+| financial-aftercare     | financial-aftercare  | 4 / 2026-11-03   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
 | booking-confirmation    | booking-confirmation | 3 / 2026-10-27   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
 | refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
 | dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
 | privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
 | financial-policy-work   | financial-policy     | 4 / 2026-11-02   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
-| parts-fitment           | public               | 7 / 2026-11-03   | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
+| parts-fitment           | public               | 8 / 2026-11-03   | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
 | service-request         | public               | 13 / 2026-11-01  | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |

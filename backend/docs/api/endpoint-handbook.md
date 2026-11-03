@@ -16062,6 +16062,7 @@ Success: HTTP 200.
       "refundDueAt": "2030-01-15T10:00:00.000Z",
       "refundClockStatus": "synthetic-refundclockstatus",
       "customerId": "00000000-0000-4000-8000-000000000001",
+      "guestId": "00000000-0000-4000-8000-000000000001",
       "reviewReason": "synthetic-reviewreason",
       "inspectedByUserId": "00000000-0000-4000-8000-000000000001",
       "inspectionNote": "synthetic-inspectionnote",
@@ -16119,6 +16120,7 @@ Success: HTTP 200.
     "refundDueAt": "2030-01-15T10:00:00.000Z",
     "refundClockStatus": "synthetic-refundclockstatus",
     "customerId": "00000000-0000-4000-8000-000000000001",
+    "guestId": "00000000-0000-4000-8000-000000000001",
     "reviewReason": "synthetic-reviewreason",
     "inspectedByUserId": "00000000-0000-4000-8000-000000000001",
     "inspectionNote": "synthetic-inspectionnote",
@@ -16249,6 +16251,7 @@ Success: HTTP 200.
     "refundDueAt": "2030-01-15T10:00:00.000Z",
     "refundClockStatus": "synthetic-refundclockstatus",
     "customerId": "00000000-0000-4000-8000-000000000001",
+    "guestId": "00000000-0000-4000-8000-000000000001",
     "reviewReason": "synthetic-reviewreason",
     "inspectedByUserId": "00000000-0000-4000-8000-000000000001",
     "inspectionNote": "synthetic-inspectionnote",
@@ -27833,10 +27836,187 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/purchase/orders/{orderId}/aftercare/original-request`
+
+- Operation ID: `getPurchaseOrdersByOrderIdAftercareOriginalRequest`
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Recover an owned guest cancellation or aftercare action without resubmitting private request details. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: PURCHASE_GUEST
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `operation` | query | cancel / aftercare | Yes | Operation used to constrain this request. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Recover an owned guest cancellation or aftercare action without resubmitting private request details",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/purchase/orders/{orderId}/aftercare`
+
+- Operation ID: `getPurchaseOrdersByOrderIdAftercare`
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read only the verified guest's customer-visible order requests. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PURCHASE_GUEST
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read only the verified guest's customer-visible order requests",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/purchase/orders/{orderId}/aftercare`
+
+- Operation ID: `postPurchaseOrdersByOrderIdAftercare`
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Request scoped guest return or cancellation review without changing money or stock. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: PURCHASE_GUEST
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| `x-csrf-token` | header | string | Yes | Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `kind` | RETURN / CANCELLATION | Yes | Kind validated by this operation's strict request contract. |
+| `items` | array<object> | Yes | Items validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "reason": "synthetic-reason",
+  "kind": "RETURN",
+  "items": [
+    {
+      "orderItemId": "00000000-0000-4000-8000-000000000001",
+      "quantity": 1
+    }
+  ]
+}
+```
+
+Success: HTTP 201.
+
+```json
+{
+  "success": true,
+  "message": "Request scoped guest return or cancellation review without changing money or stock",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/purchase/orders/{orderId}/cancel`
+
+- Operation ID: `postPurchaseOrdersByOrderIdCancel`
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Cancel an owned pending guest order with a version check; paid cancellations require separate human refund review. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: PURCHASE_GUEST
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| `x-csrf-token` | header | string | Yes | Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Cancel an owned pending guest order with a version check; paid cancellations require separate human refund review",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/purchase/invoices/{invoiceId}/document`
 
 - Operation ID: `getPurchaseInvoicesByInvoiceIdDocument`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned issued guest invoice as a document. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned issued guest invoice as a document. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -27869,7 +28049,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/purchase/payments/{paymentId}/receipt/document`
 
 - Operation ID: `getPurchasePaymentsByPaymentIdReceiptDocument`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned verified settled guest payment receipt as a document. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned verified settled guest payment receipt as a document. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -27902,7 +28082,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/purchase/invoices/{invoiceId}/download`
 
 - Operation ID: `getPurchaseInvoicesByInvoiceIdDownload`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned issued guest invoice as a private PDF. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned issued guest invoice as a private PDF. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -27922,7 +28102,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/purchase/payments/{paymentId}/receipt/download`
 
 - Operation ID: `getPurchasePaymentsByPaymentIdReceiptDownload`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned verified settled guest payment receipt as a private PDF. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned verified settled guest payment receipt as a private PDF. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -27942,7 +28122,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/purchase/parts-quotes`
 
 - Operation ID: `getPurchasePartsQuotes`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. List only explicit guest-directed quotations for the verified purchase recipient. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. List only explicit guest-directed quotations for the verified purchase recipient. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -27981,7 +28161,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/purchase/parts-quotes/{quoteId}/decline`
 
 - Operation ID: `postPurchasePartsQuotesByQuoteIdDecline`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Decline an owned current guest quotation. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Decline an owned current guest quotation. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -28029,7 +28209,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/purchase/parts-quotes/{quoteId}/accept`
 
 - Operation ID: `postPurchasePartsQuotesByQuoteIdAccept`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Accept a guest quotation through the shared exact-price collection checkout without creating an account. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Accept a guest quotation through the shared exact-price collection checkout without creating an account. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -28083,7 +28263,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/purchase/access/request`
 
 - Operation ID: `postPurchaseAccessRequest`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Request a browser-bound private purchase-access link without creating an account. Access boundary: public-purchase-proof. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Request a browser-bound private purchase-access link without creating an account. Access boundary: public-purchase-proof. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -28124,7 +28304,7 @@ Relevant errors: 400 The request is malformed.; 409 The request conflicts with c
 ### POST `/purchase/access/verify`
 
 - Operation ID: `postPurchaseAccessVerify`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Consume a single-use purchase proof in its requesting browser. Access boundary: public-purchase-proof. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Consume a single-use purchase proof in its requesting browser. Access boundary: public-purchase-proof. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -28165,7 +28345,7 @@ Relevant errors: 400 The request is malformed.; 409 The request conflicts with c
 ### GET `/purchase/access`
 
 - Operation ID: `getPurchaseAccess`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read the current verified purchase access. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read the current verified purchase access. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -28192,7 +28372,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### DELETE `/purchase/access`
 
 - Operation ID: `deletePurchaseAccess`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. End this purchase access or revoke all purchase sessions for its verified buyer. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. End this purchase access or revoke all purchase sessions for its verified buyer. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -28235,7 +28415,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/purchase/access/csrf`
 
 - Operation ID: `postPurchaseAccessCsrf`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Rotate the purchase CSRF token using a current guest cookie and trusted origin. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Rotate the purchase CSRF token using a current guest cookie and trusted origin. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -28273,7 +28453,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/purchase/orders/original-request`
 
 - Operation ID: `getPurchaseOrdersOriginalRequest`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Recover an owned checkout receipt using its original retry key; absence is not proof of failure. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Recover an owned checkout receipt using its original retry key; absence is not proof of failure. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -28306,7 +28486,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/purchase/orders`
 
 - Operation ID: `getPurchaseOrders`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. List only this verified guest's orders. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. List only this verified guest's orders. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -28346,7 +28526,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/purchase/orders`
 
 - Operation ID: `postPurchaseOrders`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Save a server-priced guest collection order without creating an account or charging it. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Save a server-priced guest collection order without creating an account or charging it. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -28410,7 +28590,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/purchase/orders/{orderId}`
 
 - Operation ID: `getPurchaseOrdersByOrderId`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned guest order. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned guest order. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -28443,7 +28623,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/purchase/payments`
 
 - Operation ID: `postPurchasePayments`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Prepare an exact payment for an owned guest order. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Prepare an exact payment for an owned guest order. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -28491,7 +28671,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/purchase/payments/{paymentId}`
 
 - Operation ID: `getPurchasePaymentsByPaymentId`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned guest payment without treating a callback as proof of payment. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Read an owned guest payment without treating a callback as proof of payment. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -28524,7 +28704,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/purchase/payments/{paymentId}/checkout`
 
 - Operation ID: `postPurchasePaymentsByPaymentIdCheckout`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Initialize or recover a guarded guest gateway checkout. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Initialize or recover a guarded guest gateway checkout. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -28573,7 +28753,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/purchase/payments/{paymentId}/attempts/{attemptId}/verify`
 
 - Operation ID: `postPurchasePaymentsByPaymentIdAttemptsByAttemptIdVerify`
-- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Verify an owned guest attempt through its configured provider and reconcile capture once. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Verify an owned guest attempt through its configured provider and reconcile capture once. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: PURCHASE_GUEST
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`

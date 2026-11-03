@@ -2,6 +2,7 @@ import { withTransactionRetry } from "../../common/database/transaction-retry.js
 import { buildInvoiceSnapshot } from "../billing/document-snapshot.js";
 import { requestFreeCancellationRefund } from "../payments/refund-workflow.js";
 import { requestAftercare } from "./order-aftercare.service.js";
+import { aftercareReceipt } from "./order-aftercare-receipt.js";
 import { customerAftercareView } from "./order-aftercare.schemas.js";
 import {
   assertFinanceGate,
@@ -43,6 +44,7 @@ import type {
 } from "./orders.schemas.js";
 import {
   guestCheckoutBodySchema,
+  customerOrderCancelBodySchema,
   orderIdempotencyHeadersSchema,
 } from "./orders.schemas.js";
 import { PurchaseGuestAccessService } from "./purchase-guest-access.service.js";
@@ -689,7 +691,83 @@ export class OrdersService {
     return jsonSafe({
       ...order,
       allowedTransitions: await this.allowedTransitions(order),
+      ...(actor.role === "ADMIN" || actor.role === "SUPER_ADMIN"
+        ? {
+            paymentReferences: await this.database.payment.findMany({
+              where: { orderId: id },
+              select: { id: true, paymentNumber: true, status: true },
+              orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+              take: 25,
+            }),
+          }
+        : {}),
     });
+  }
+  async guestCancel(
+    credentials: { sessionToken: string; csrfToken: string },
+    id: string,
+    rawInput: unknown,
+    key: string,
+    context: RequestSecurityContext,
+  ) {
+    if (env.PUBLIC_LAUNCH_MODE === "catalogue") throw orderForbidden();
+    const input = customerOrderCancelBodySchema.parse(rawInput);
+    const receipt = await withTransactionRetry(this.database, async (tx) => {
+      const guest = await this.guestAccess.lockAccess(tx, credentials.sessionToken, {
+        kind: "write",
+        csrfToken: credentials.csrfToken,
+      });
+      const order = await this.repository.lockOrder(id, tx);
+      if (!order || order.guestId !== guest.guestId || order.customerId !== null)
+        throw orderNotFound();
+      return aftercareReceipt(
+        tx,
+        null,
+        `guest-cancel:${id}:${guest.guestId}`,
+        key,
+        input,
+        async () => {
+          if (order.status !== "CANCELLED") {
+            if (order.status !== "PENDING" || order.confirmedAt !== null)
+              throw orderConflict(
+                "This order now needs a cancellation request for staff review. Refresh its details before continuing.",
+              );
+            if (order.version !== input.expectedVersion) throw orderStale();
+            await this.cancelLocked(
+              null,
+              order,
+              input.expectedVersion,
+              input.reason,
+              tx,
+              context,
+              guest.guestId,
+            );
+            if (order.paidAt)
+              await tx.operationalAlert.upsert({
+                where: { key: `guest-cancellation-refund:${id}` },
+                update: {},
+                create: {
+                  key: `guest-cancellation-refund:${id}`,
+                  category: "GUEST_ORDER_REFUND_REVIEW",
+                  resourceId: id,
+                  message:
+                    "A cancelled guest order has a verified payment. Review its payments and request the full remaining pre-confirmation refund for separate approval. Cancellation does not confirm a refund.",
+                },
+              });
+          }
+          return { id };
+        },
+        (savedId) =>
+          tx.order.findFirst({
+            where: { id: savedId, guestId: guest.guestId, customerId: null },
+            select: { id: true },
+          }),
+      );
+    });
+    return {
+      order: await this.guestOrder(credentials.sessionToken, id),
+      replayed: receipt.replayed,
+    };
   }
   async customerCancel(
     actor: AuthenticatedActor,
@@ -1200,6 +1278,7 @@ export class OrdersService {
     reason: string,
     transaction: Prisma.TransactionClient,
     context: RequestSecurityContext,
+    guestId?: string,
   ) {
     if (!(["PENDING", "CONFIRMED", "PROCESSING"] as string[]).includes(order.status))
       throw invalidOrderTransition();
@@ -1229,7 +1308,12 @@ export class OrdersService {
       entityType: "ORDER",
       entityId: order.id,
       oldValues: { status: order.status, version: order.version },
-      newValues: { status: "CANCELLED", version: expectedVersion + 1, reason },
+      newValues: {
+        status: "CANCELLED",
+        version: expectedVersion + 1,
+        reason,
+        ...(guestId ? { guestId, purchaseAccess: "EMAIL_VERIFIED_GUEST" } : {}),
+      },
       context,
     });
   }

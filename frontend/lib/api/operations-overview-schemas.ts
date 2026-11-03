@@ -33,12 +33,23 @@ const schema = z.object({
     .optional(),
   operationalAlerts: z
     .array(
-      z.object({
-        id: z.uuid(),
-        category: z.string().min(1),
-        message: z.string(),
-        createdAt: date,
-      }),
+      z
+        .object({
+          id: z.uuid(),
+          category: z.string().min(1),
+          resourceId: z.unknown().optional(),
+          message: z.string(),
+          createdAt: date,
+        })
+        .transform(({ resourceId, ...alert }) => {
+          const orderId = z.uuid().safeParse(resourceId);
+          return {
+            ...alert,
+            ...(alert.category === "GUEST_ORDER_REFUND_REVIEW" && orderId.success
+              ? { resourceId: orderId.data }
+              : {}),
+          };
+        }),
     )
     .max(100)
     .optional(),

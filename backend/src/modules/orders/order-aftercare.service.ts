@@ -1,4 +1,4 @@
-import { aftercareReceipt } from "./order-aftercare-receipt.js";
+import { aftercareReceipt, readAftercareReceipt } from "./order-aftercare-receipt.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -27,6 +27,11 @@ import type {
   workforceAftercareDecisionSchema,
 } from "../organization/workforce.schemas.js";
 import { prisma } from "../../config/database.js";
+import { env } from "../../config/env.js";
+import {
+  PurchaseGuestAccessService,
+  type PurchaseGuestAccess,
+} from "./purchase-guest-access.service.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import {
   currentPolicy,
@@ -40,22 +45,30 @@ import {
   aftercareReturnBody,
   aftercareReviewBody,
   customerAftercareSelect,
+  customerAftercareView,
 } from "./order-aftercare.schemas.js";
 type AftercareReviewInput = z.infer<typeof aftercareReviewBody>;
 
 export async function requestAftercare(
   tx: Prisma.TransactionClient,
-  actor: AuthenticatedActor,
+  actor: AuthenticatedActor | PurchaseGuestAccess,
   orderId: string,
   kind: "CANCELLATION" | "RETURN",
   reason: string,
   context: RequestSecurityContext,
   requestedItems?: Array<{ orderItemId: string; quantity: number }>,
 ) {
-  assertCustomer(actor);
+  const guest = "guestId" in actor ? actor : null;
+  const account = "userId" in actor ? actor : null;
+  if (account) assertCustomer(account);
   await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${orderId}::uuid FOR UPDATE`;
   const order = await tx.order.findFirst({
-    where: { id: orderId, customer: { userId: actor.userId } },
+    where: {
+      id: orderId,
+      ...(guest
+        ? { guestId: guest.guestId, customerId: null }
+        : { customer: { userId: account!.userId } }),
+    },
     include: { items: true },
   });
   if (!order) throw orderNotFound();
@@ -101,6 +114,7 @@ export async function requestAftercare(
     data: {
       orderId,
       customerId: order.customerId,
+      guestId: order.guestId,
       kind,
       reason,
       reviewReason,
@@ -109,11 +123,18 @@ export async function requestAftercare(
     },
   });
   await appendAuditEvent(tx, {
-    actorUserId: actor.userId,
+    actorUserId: account?.userId ?? null,
     action: "CREATE",
     entityType: "ORDER",
     entityId: orderId,
-    newValues: { aftercareRequestId: record.id, kind, reviewReason },
+    newValues: {
+      aftercareRequestId: record.id,
+      kind,
+      reviewReason,
+      ...(guest
+        ? { guestId: guest.guestId, purchaseAccess: "EMAIL_VERIFIED_GUEST" }
+        : {}),
+    },
     context,
   });
   return record;
@@ -121,6 +142,136 @@ export async function requestAftercare(
 
 export class OrderAftercareService {
   constructor(private readonly database = prisma) {}
+  async guestOriginal(
+    sessionToken: string,
+    orderId: string,
+    operation: "cancel" | "aftercare",
+    key: string,
+  ) {
+    if (env.PUBLIC_LAUNCH_MODE === "catalogue") throw orderForbidden();
+    return withTransactionRetry(this.database, async (tx) => {
+      const access = await new PurchaseGuestAccessService(this.database).lockAccess(
+        tx,
+        sessionToken,
+        { kind: "read" },
+      );
+      await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${orderId}::uuid FOR UPDATE`;
+      if (
+        !(await tx.order.findFirst({
+          where: { id: orderId, guestId: access.guestId, customerId: null },
+          select: { id: true },
+        }))
+      )
+        throw orderNotFound();
+      if (operation === "cancel")
+        return readAftercareReceipt(
+          tx,
+          null,
+          `guest-cancel:${orderId}:${access.guestId}`,
+          key,
+          (id) =>
+            tx.order.findFirst({
+              where: { id, guestId: access.guestId, customerId: null },
+              select: { id: true, status: true },
+            }),
+        );
+      const receipt = await readAftercareReceipt(
+        tx,
+        null,
+        `guest-aftercare:${orderId}:${access.guestId}`,
+        key,
+        (id) =>
+          tx.orderAftercareRequest.findFirst({
+            where: { id, orderId, guestId: access.guestId, customerId: null },
+            select: customerAftercareSelect,
+          }),
+      );
+      return {
+        ...receipt,
+        record: receipt.record ? customerAftercareView(receipt.record) : null,
+      };
+    });
+  }
+  async guestList(sessionToken: string, orderId: string) {
+    if (env.PUBLIC_LAUNCH_MODE === "catalogue") throw orderForbidden();
+    return withTransactionRetry(this.database, async (tx) => {
+      const access = await new PurchaseGuestAccessService(this.database).lockAccess(
+        tx,
+        sessionToken,
+        { kind: "read" },
+      );
+      if (
+        !(await tx.order.findFirst({
+          where: { id: orderId, guestId: access.guestId, customerId: null },
+          select: { id: true },
+        }))
+      )
+        throw orderNotFound();
+      return tx.orderAftercareRequest.findMany({
+        where: { orderId, guestId: access.guestId, customerId: null },
+        select: customerAftercareSelect,
+        orderBy: [{ requestedAt: "desc" }, { id: "desc" }],
+        take: 100,
+      });
+    });
+  }
+  async guestRequest(
+    credentials: { sessionToken: string; csrfToken: string },
+    orderId: string,
+    rawInput: unknown,
+    context: RequestSecurityContext,
+    key: string,
+  ) {
+    if (env.PUBLIC_LAUNCH_MODE === "catalogue") throw orderForbidden();
+    const input = aftercarePartialBody.parse(rawInput);
+    input.items.sort((a, b) => a.orderItemId.localeCompare(b.orderItemId));
+    return withTransactionRetry(
+      this.database,
+      async (tx) => {
+        const access = await new PurchaseGuestAccessService(this.database).lockAccess(
+          tx,
+          credentials.sessionToken,
+          { kind: "write", csrfToken: credentials.csrfToken },
+        );
+        await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${orderId}::uuid FOR UPDATE`;
+        if (
+          !(await tx.order.findFirst({
+            where: { id: orderId, guestId: access.guestId, customerId: null },
+            select: { id: true },
+          }))
+        )
+          throw orderNotFound();
+        return aftercareReceipt(
+          tx,
+          null,
+          `guest-aftercare:${orderId}:${access.guestId}`,
+          key,
+          { operation: "aftercare", ...input },
+          () =>
+            requestAftercare(
+              tx,
+              access,
+              orderId,
+              input.kind,
+              input.reason,
+              context,
+              input.items,
+            ),
+          (id) =>
+            tx.orderAftercareRequest.findFirst({
+              where: {
+                id,
+                orderId,
+                guestId: access.guestId,
+                customerId: null,
+                kind: input.kind,
+              },
+            }),
+        );
+      },
+      { isolationLevel: "Serializable" },
+    );
+  }
   async request(
     actor: AuthenticatedActor,
     orderId: string,

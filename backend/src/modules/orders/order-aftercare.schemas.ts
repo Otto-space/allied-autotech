@@ -60,7 +60,8 @@ export const customerAftercareResponse = z.object({
   refundClockStatus: z.string(),
 });
 export const staffAftercareResponse = customerAftercareResponse.extend({
-  customerId: z.uuid(),
+  customerId: z.uuid().nullable(),
+  guestId: z.uuid().nullable(),
   reviewReason: z.string(),
   inspectedByUserId: z.uuid().nullable(),
   inspectionNote: z.string().nullable(),

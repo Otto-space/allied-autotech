@@ -23,11 +23,13 @@ it("explains controllable workshop highlights without turning a discovery reques
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
-  expect([parts.version, vehicles.version]).toEqual([7, 5]);
+  expect([parts.version, vehicles.version]).toEqual([8, 5]);
   expect(parts.steps.join(" ")).toContain("An account is optional");
   expect(parts.steps.join(" ")).toContain("browser that requested it");
   expect(parts.steps.join(" ")).toContain("download or share a verified receipt");
   expect(parts.steps.join(" ")).toContain("forwarding a link does not grant access");
+  expect(parts.steps.join(" ")).toContain("Check original action");
+  expect(parts.steps.join(" ")).toContain("Cancellation before confirmation is free");
   expect(vehicles.steps.join(" ")).toContain(
     "there is no online inspection request action",
   );
@@ -53,6 +55,16 @@ it("versions reversal guidance without granting live lookups or writes", () => {
   expect(guidance.summary).toContain("does not look up");
   expect(guidance.steps.join(" ")).toContain("do not pay again");
   expect(guidance.steps.join(" ")).toContain("does not prove a refund");
+});
+
+it("versions guest refund handoff guidance while preserving separate financial authority", () => {
+  const guidance = learningArticles.find((item) => item.id === "financial-aftercare")!;
+  expect(guidance.version).toBe(4);
+  expect(guidance.gate).toBe("financial-aftercare");
+  expect(guidance.steps).toHaveLength(5);
+  expect(guidance.steps.join(" ")).toContain("full remaining pre-confirmation refund");
+  expect(guidance.steps.join(" ")).toContain("A different authorised operator");
+  expect(guidance.steps.join(" ")).toContain("a queued refund is not money returned");
 });
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {

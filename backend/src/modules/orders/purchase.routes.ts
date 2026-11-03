@@ -18,14 +18,23 @@ import { PartsQuotesService } from "./parts-quotes.service.js";
 import { FinancialDocumentsService } from "../billing/documents.service.js";
 import { documentFilename, renderFinancialPdf } from "../billing/document-pdf.js";
 import { invoiceParamsSchema } from "../billing/billing.schemas.js";
+import { OrderAftercareService } from "./order-aftercare.service.js";
+import {
+  aftercareHeaders,
+  aftercarePartialBody,
+  customerAftercareView,
+} from "./order-aftercare.schemas.js";
+import { jsonSafe } from "./orders.types.js";
 import {
   purchaseQuoteParamsSchema,
   purchaseQuoteAcceptSchema,
   purchaseQuoteDecisionSchema,
   purchaseQuoteListSchema,
+  purchaseAftercareRecoverySchema,
 } from "./purchase.schemas.js";
 import {
   customerOrderListQuerySchema,
+  customerOrderCancelBodySchema,
   guestCheckoutBodySchema,
   orderIdempotencyHeadersSchema,
   orderParamsSchema,
@@ -74,6 +83,7 @@ export function createPurchaseRouter(
   payments = new PaymentsService(),
   quotes = new PartsQuotesService(),
   documents = new FinancialDocumentsService(),
+  aftercare = new OrderAftercareService(),
 ): Router {
   const router = Router();
   router.use((req, res, next) => {
@@ -382,6 +392,98 @@ export function createPurchaseRouter(
           context(req),
         ),
         201,
+      );
+    },
+  );
+  router.get(
+    "/orders/:orderId/aftercare/original-request",
+    validate({
+      params: orderParamsSchema,
+      query: purchaseAftercareRecoverySchema,
+      headers: aftercareHeaders,
+    }),
+    async (req, res) => {
+      send(
+        req,
+        res,
+        "Original order action checked",
+        jsonSafe(
+          await aftercare.guestOriginal(
+            session(req),
+            validated<{ orderId: string }>(res, "params").orderId,
+            validated<{ operation: "cancel" | "aftercare" }>(res, "query").operation,
+            key(res),
+          ),
+        ),
+      );
+    },
+  );
+  router.get(
+    "/orders/:orderId/aftercare",
+    validate({ params: orderParamsSchema, query: purchaseEmptySchema }),
+    async (req, res) => {
+      send(
+        req,
+        res,
+        "Your order requests",
+        jsonSafe(
+          await aftercare.guestList(
+            session(req),
+            validated<{ orderId: string }>(res, "params").orderId,
+          ),
+        ),
+      );
+    },
+  );
+  router.post(
+    "/orders/:orderId/aftercare",
+    createSensitiveRateLimit(20, 60 * 60_000),
+    requireTrustedOrigin,
+    validate({
+      params: orderParamsSchema,
+      query: purchaseEmptySchema,
+      headers: aftercareHeaders.extend(purchaseCsrfHeadersSchema.shape),
+      body: aftercarePartialBody,
+    }),
+    async (req, res) => {
+      const record = await aftercare.guestRequest(
+        credentials(req),
+        validated<{ orderId: string }>(res, "params").orderId,
+        validated(res, "body"),
+        context(req),
+        key(res),
+      );
+      send(
+        req,
+        res,
+        "Order request received for staff review",
+        jsonSafe({ ...customerAftercareView(record), replayed: record.replayed }),
+        201,
+      );
+    },
+  );
+  router.post(
+    "/orders/:orderId/cancel",
+    createSensitiveRateLimit(20, 60 * 60_000),
+    requireTrustedOrigin,
+    validate({
+      params: orderParamsSchema,
+      query: purchaseEmptySchema,
+      headers: aftercareHeaders.extend(purchaseCsrfHeadersSchema.shape),
+      body: customerOrderCancelBodySchema,
+    }),
+    async (req, res) => {
+      send(
+        req,
+        res,
+        "Order cancellation recorded; no refund is confirmed",
+        await orders.guestCancel(
+          credentials(req),
+          validated<{ orderId: string }>(res, "params").orderId,
+          validated(res, "body"),
+          key(res),
+          context(req),
+        ),
       );
     },
   );

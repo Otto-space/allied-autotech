@@ -104,8 +104,12 @@ function OrderHistory({ email }: { email: string }) {
                   </p>
                   <StatusBadge status={order.status} />
                   <p>
-                    {order.paidAt ? "Payment recorded" : "Payment not recorded"} ·{" "}
-                    {formatKobo(order.totalKobo)}
+                    {order.status === "CANCELLED"
+                      ? "Check payment outcome"
+                      : order.paidAt
+                        ? "Payment recorded"
+                        : "Payment not recorded"}{" "}
+                    · {formatKobo(order.totalKobo)}
                   </p>
                 </div>
                 <Link className="button secondary" href={`/purchase/orders/${order.id}`}>
@@ -269,6 +273,15 @@ function OrderDetail({ orderId }: { orderId: string }) {
       {resource.data && (
         <>
           <OrderSummary order={resource.data} />
+          <section className="purchase-panel">
+            <h2>Changes and aftercare</h2>
+            <Link
+              className="purchase-link"
+              href={`/purchase/orders/${resource.data.id}/aftercare`}
+            >
+              Review cancellation or return options
+            </Link>
+          </section>
           <section className="purchase-panel">
             <h2>Next step</h2>
             {resource.data.paymentId ? (
