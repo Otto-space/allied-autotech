@@ -1,3 +1,11 @@
+3 November integrated resource editor checkpoint: booking-confirmation v10 now
+points authorised owners to the real Workshop resources authoring/review/recovery
+flow while preserving separate booking duties. New workshop-resource-plan v1 stays
+owner-only and draft pending separate publication. The editor carries its own
+instructions; learning content cannot publish a plan or grant duties. Strict current
+record lookup exposes only labels and eligibility; recorded settings and approval
+history remain private. This source integration does not activate live booking.
+
 3 November saved-money checkpoint: financial-aftercare v5 explains Saved order
 amounts, requested versus ordered quantities and issued-record review when no
 snapshot exists. Financial-policy-work v5 records the approved future-order arithmetic
@@ -266,7 +274,8 @@ mean a production publication. Feature flags remain off in committed examples.
 | ----------------------- | -------------------- | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | privacy-and-allie       | public               | 1 / 2026-11-01   | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff                                         |
 | financial-aftercare     | financial-aftercare  | 5 / 2026-11-03   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
-| booking-confirmation    | booking-confirmation | 9 / 2026-11-03   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
+| booking-confirmation    | booking-confirmation | 10 / 2026-11-03   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
+| workshop-resource-plan | owner | 1 / 2026-11-03, draft | /admin/booking-resources | Owner-only lookup, current record, versioned approval and uncertain-result recovery; not published |
 | refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
 | dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
 | privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |

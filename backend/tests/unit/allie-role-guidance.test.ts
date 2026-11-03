@@ -142,7 +142,7 @@ describe("provider-observed role guidance regressions", () => {
     };
     const permitted = catalogue(access);
     const article = permitted.articles.find((a) => a.id === "booking-confirmation")!;
-    expect(article.version).toBe(9);
+    expect(article.version).toBe(10);
     expect(article.steps.join(" ")).toContain("Propose another time");
     expect(article.steps.join(" ")).toContain(
       "preserves the original appointment, staff and reminders",

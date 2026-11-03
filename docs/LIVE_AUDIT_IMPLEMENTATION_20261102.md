@@ -1,3 +1,86 @@
+3 November 21:53 UTC D06/D07 integrated authoring checkpoint:
+selected changes from 89719302/08454401 are reconciled onto current d9cf9d09,
+preserving the automatic purchase review model, financial allocations, current
+Prisma schema and all existing migrations. The owner editor now has genuine
+service/technician search and pagination, unavailable-reference disclosure, explicit
+physical-unit condition and service assessments, qualifications, separate working
+periods around breaks, dated exceptions, current/scheduled/history views, reviewed
+approval and uncertain-result recovery. It does not grant duties, release existing
+allocations, invent actual staff/equipment availability or activate booking/payment.
+Managed owners retain the exact policy pages; Admin operational access and owner-only
+policy authority remain distinct. Shared focus and control-radius tokens replace
+the prepared editor's blue focus and five-pixel input corner override.
+
+Local backend types/scripts/lint and 34 focused learning cases pass; six broader
+retrieval coverage cases also pass. Local frontend lint and 18 new resource-contract,
+draft/navigation cases pass. Canonical API is regenerated and validates 446 paths,
+522 mounted operations and four explicit infrastructure routes. Twenty-one resource
+browser cases are now in the retained production-build matrix (92 total), including
+320/768/1440, expanded/collapsed laptop, keyboard focus and target size, whole-page
+Axe, explicit approval/cancellation, empty/unknown inputs, search/pagination, stale
+preflight, access loss, rejection, uncertain receipt/refresh recovery, future Nigeria
+time, device-clock disagreement and preserved exception precision. These cases are
+collected, not yet executed on this integrated source. Native lookup tests are added
+to the existing isolated non-owner runtime suite; no prior test file is removed.
+
+Browser plugin is not available; use the repository's Playwright production-build
+workflow and synthetic API fixture. Local disk reserve remains above 20 GiB; no new
+installation/build/Docker resource is authorised by this checkpoint. Use hosted
+exact-source checks, then manually inspect retained rendered captures. Resource and
+financial guidance versions/eligibility are preserved and draft owner instructions
+remain unpublished. Real-role operational configuration, provider/storage/notification
+acceptance and 92→97 compatible release gates remain outstanding. The full ledger,
+D03/D11-D17 and original audit requirements remain in scope.
+
+3 November 21:44 UTC bounded D02 result: signed master
+d9cf9d093fc8e71f16883bbf2cc2b353da187447 is verified by GitHub and passes all
+three exact-source gates: Frontend 41722772458, Backend 41722772291 and Secrets
+41722772221. Frontend passes 1,458 units (12 existing skips), production lint,
+types/build/format and 71/71 Chromium cases: zero skips, failures or flaky cases.
+Backend passes 97-migration isolated replay/db:check, compiler/scripts/lint,
+60 safety cases, 64 early source/money/API cases, eight reminder concurrency,
+163 combined booking/financial cases (four separately provisioned-workspace cases
+not run), 82 purchase, 90 guest, 41 Admin/full-operations/owner-control and final
+113 Care/Allie cases, plus every other required stage. The earlier 63 count in
+the pending checkpoint was a transcription error; the run logs show 64.
+
+New account/guest journeys prove saved order/invoice allocations, original three-unit
+quantity and unchanged totals after synthetic catalogue repricing; aftercare copies
+the original allocation without charging money. Scoped STAFF/ADMIN reads, malformed
+money rejection on managed and legacy approval routes, unchanged owner controls and
+customer-history privacy pass. No runtime permission was broadened. Five expanded
+purchase/checkout request bodies are unchanged; the only API contract extension is
+optional read-only monetaryBreakdown. Canonical validation covers 445 paths/521
+operations with four explicit infrastructure routes.
+
+Seven added browser cases verify STAFF/ADMIN at 320/768/1440px, readable original
+amounts, no horizontal overflow, keyboard focus, scoped automated WCAG AA checks,
+zero writes, legacy review and invalid evidence without a decision form. Artifact
+13273543068 is 4,090,004 bytes; SHA-256
+66b0e574eddc4c30ec583a7813224fa6a30c12a5d9e64e03f55ebba2052c5c8b
+was verified before safe selective extraction to runtime-ci-d9cf9d09. Manually
+inspected STAFF 320px, ADMIN 768px and expanded-sidebar ADMIN 1440px screenshots:
+requested 1 of 3 and saved amounts for all 3 are distinct, labels and amounts are
+readable, and cards have purposeful spacing without clipped content. These are
+synthetic built-app captures, not actual-role persistence or physical-device proof.
+The new financial section has no equivalent retained before capture; do not claim
+one. Existing slot-action before/after captures remain under 21c633af/0a61508e.
+
+Status: this arithmetic/saved-amount batch is verified in source and isolated tests,
+not deployed or live-payment activated. D17 durable refund-unit reservations,
+capture/prior-refund reconciliation and execution remain unfinished; the pure helper
+alone does not reserve units or transfer money. D03 staged materials/workmanship,
+D11 arrival, D12-D14 collection/sourcing/private codes, D15 reminder configuration,
+D16 verified no-show and remaining full-ledger requirements stay in scope. Next
+bounded implementation: reconcile committed 89719302/08454401 resource-authoring
+contracts/UI with current master and test them before compatible release preparation.
+The wider 92→97 rollout still needs fresh target/backup/populated restore/recovery
+and packaged-runtime gates. Round-off arithmetic requires no further owner decision.
+Real roles, provider test mode, notification delivery, private storage, Safari/Firefox,
+physical devices and full screen-reader use remain unverified where recorded.
+No real records, stock, prices, flags or production deployment changed in this batch.
+Final reserve check: 20.87 GiB. No local cleanup, installation, build or Docker operation occurred.
+
 3 November 21:32 UTC exact-source follow-up: 2b9bf542 signature is valid and
 its secrets check 41721669591 passes. Backend 41721669595 passes migration replay,
 types/scripts/lint, 63 early source/money/API checks, eight reminder cases and 162
@@ -668,7 +751,7 @@ and technical/provider/actual-role acceptance remain distinct.
 | ID  | Current instruction                                              | Current implementation evidence/status                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | --- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | D01 | Appointment requests and parts purchases approved independently  | Independent server switches/HTTP guards/capability/parser and shared entry points implemented. Full frontend checks and 13/13 hosted runtime browser cases pass at 320/768/1440, including independent module states and recovery. Unpublished; no activation.                                                                                                                                                                                                                       |
-| D02 | VAT-exclusive7.5%after discounts; nearest-kobo                   | Owner explicitly approved order-level HALF_UP percentage discount/VAT and largest-remainder partial-refund allocation, ties by saved line order, in this chat on 3 November. Preserve issued historical amounts; aggregate percentage discounts now use HALF_UP and 13 money checks pass. Saved monetary snapshots, disjoint unit-range arithmetic and scoped financial amounts are implemented locally; native/browser acceptance and D17 durable refund-unit reservations, capture/prior-refund limits and execution remain required. This arithmetic is no longer an unresolved owner decision; no live activation. |
+| D02 | VAT-exclusive7.5%after discounts; nearest-kobo                   | Owner explicitly approved order-level HALF_UP percentage discount/VAT and largest-remainder partial-refund allocation, ties by saved line order, in this chat on 3 November. Preserve issued historical amounts; aggregate percentage discounts now use HALF_UP and 13 money checks pass. Saved monetary snapshots, disjoint unit-range arithmetic and scoped financial amounts are implemented locally; isolated native/browser acceptance passes on d9cf9d09. Actual-role/provider acceptance and D17 durable refund-unit reservations, capture/prior-refund limits and execution remain required. This arithmetic is no longer an unresolved owner decision; no live activation. |
 | D03 | Materials first; workmanship after work/before collection        | Current workflows require payment before order confirmation; service staged money/balance handling needs implementation.                                                                                                                                                                                                                                                                                                                                                             |
 | D04 | Final suitability and availability before full parts payment     | Automatic account/guest suitability and stock checks, chosen-vehicle carry-through and displayed-offer binding are implemented. Signed 0a61508e passes all three required workflows, 82 purchase and 88 guest checks, 1,457 frontend units (12 existing skips) and 64 browser cases. Rejected-offer screenshots show no stale green approval. Shared rollout, notifications, real-role/provider/physical acceptance and D13/D17 fulfilment remain unaccepted; no activation.         |
 | D05 | Normal workshopMon-Sat08:00-18:00                                | Reconcile actual capacity configuration; do not infer Sunday/holidays.                                                                                                                                                                                                                                                                                                                                                                                                               |

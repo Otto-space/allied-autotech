@@ -113,6 +113,11 @@ const operationalGroups: DashboardGroup[] = [
         label: "Booking capacity",
         roles: ["SUPER_ADMIN"],
       },
+      {
+        href: "/admin/booking-resources",
+        label: "Workshop resources",
+        roles: ["SUPER_ADMIN"],
+      },
       adminOnly("/admin/services", "Services"),
       adminOnly("/admin/service-categories", "Service categories"),
     ],
@@ -252,5 +257,49 @@ export function isDashboardDestination(pathname: string, href: string) {
   return (
     pathname === href ||
     (href !== "/admin" && href !== "/dashboard" && pathname.startsWith(`${href}/`))
+  );
+}
+
+/** Owner policy authoring is separate from managed job responsibilities. APIs recheck the owner and MFA. */
+export function withOwnerWorkshopPolicies(
+  groups: DashboardGroup[],
+  role: Role,
+): DashboardGroup[] {
+  if (role !== "SUPER_ADMIN") return groups;
+  const ownerLinks = [
+    { href: "/admin/booking-capacity", label: "Booking capacity" },
+    { href: "/admin/booking-resources", label: "Workshop resources" },
+  ];
+  const group = groups.find((g) => g.id === "workshop");
+  if (group)
+    return groups.map((g) =>
+      g !== group
+        ? g
+        : {
+            ...g,
+            links: [
+              ...g.links,
+              ...ownerLinks.filter(
+                (link) => !g.links.some((existing) => existing.href === link.href),
+              ),
+            ],
+          },
+    );
+  return [
+    ...groups.slice(0, 1),
+    {
+      id: "workshop-policy",
+      label: "Workshop policies",
+      icon: CalendarDays,
+      links: ownerLinks,
+    },
+    ...groups.slice(1),
+  ];
+}
+
+export function isOwnerWorkshopPolicyRoute(role: Role, pathname: string) {
+  return (
+    role === "SUPER_ADMIN" &&
+    ["/admin/booking-capacity", "/admin/booking-resources"].includes(pathname)
   );
 }

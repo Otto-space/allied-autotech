@@ -182,3 +182,10 @@ launch-truth.spec.ts
 # Own-account profile uses personal scope; synthetic identity, no operational grants.
 consolidated-audit.spec.ts > 320x720 > work profile uses the authorised own-account contract without inventing employee identity
 consolidated-audit.spec.ts > 1280x720 > work profile uses the authorised own-account contract without inventing employee identity
+
+# 3 November D06 source-only owner resource editor; synthetic fixtures, actual-role/hosted acceptance separate.
+workshop-resources.spec.ts > owner reviews real names, split periods and one approval at 320px
+workshop-resources.spec.ts > owner reviews real names, split periods and one approval at 1440px
+workshop-resources.spec.ts > drop response blocks duplicate save and survives refresh for explicit recovery
+workshop-resources.spec.ts > managed SUPER_ADMIN retains the correct resource authoring boundary
+workshop-resources.spec.ts > managed ADMIN retains the correct resource authoring boundary

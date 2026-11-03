@@ -1,4 +1,5 @@
 "use client";
+import { redactResourcePolicyChanges } from "../admin/workshop-resource-pending";
 import { clearBookingSignInDraft } from "../forms/booking-sign-in-draft";
 import { redactRefundTimingPolicyChanges } from "../admin/work-refund-timing-pending";
 import { redactFinancePolicyChanges } from "../admin/work-finance-policy-pending";
@@ -292,6 +293,7 @@ export function invalidateSession(reason?: "password-changed" | "sign-in"): void
   redactDisputePolicyChanges();
   redactRetentionPolicyChanges();
   redactCapacityPolicyChanges();
+  redactResourcePolicyChanges();
   redactDeliveryPolicyChanges();
   redactReservationPolicyChanges();
   redactRefundTimingPolicyChanges();

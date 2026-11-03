@@ -165281,6 +165281,398 @@
         "x-idempotency-required": false
       }
     },
+    "/admin/policies/booking-resources/{branchId}/options": {
+      "get": {
+        "tags": [
+          "Owner policy operations"
+        ],
+        "summary": "Find actual service and eligible technician references for a resource plan",
+        "description": "Private/no-store and atomically audited under current actor/session checks. Eligibility filtering precedes cursor pagination. Exact-ID lookup retains unavailable references honestly; it grants no work permission and exposes no contact, login or financial fields. Find actual service and eligible technician references for a resource plan. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "x-required-roles": [
+          "SUPER_ADMIN"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the branch resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "branchId",
+            "in": "path",
+            "description": "Identifier selecting the branch resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SERVICE",
+                "TECHNICIAN"
+              ],
+              "description": "Kind validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "kind",
+            "in": "query",
+            "description": "Kind used to constrain this request.",
+            "example": "SERVICE"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "Q validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "q",
+            "in": "query",
+            "description": "Q used to constrain this request.",
+            "example": "synthetic-q"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Opaque cursor returned by the previous page."
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query",
+            "description": "Opaque cursor returned by the preceding page.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 25,
+              "description": "Maximum page size, subject to the documented server bound."
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return, bounded by the API.",
+            "example": 1
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 3700,
+              "description": "Ids validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "ids",
+            "in": "query",
+            "description": "Ids used to constrain this request.",
+            "example": "synthetic-ids"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Find actual service and eligible technician references for a resource plan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "branchId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the branch resource; ownership is resolved server-side."
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "SERVICE",
+                            "TECHNICIAN"
+                          ],
+                          "description": "Kind validated by this operation's strict request contract."
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "Label validated by this operation's strict request contract."
+                              },
+                              "eligible": {
+                                "type": "boolean",
+                                "description": "Eligible validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "eligible"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Items Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 100,
+                          "description": "Items validated by this operation's strict request contract."
+                        },
+                        "nextCursor": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Next Cursor validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "branchId",
+                        "kind",
+                        "items",
+                        "nextCursor"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Find actual service and eligible technician references for a resource plan",
+                  "data": {
+                    "branchId": "00000000-0000-4000-8000-000000000001",
+                    "kind": "SERVICE",
+                    "items": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "label": "synthetic-label",
+                        "eligible": true
+                      }
+                    ],
+                    "nextCursor": "00000000-0000-4000-8000-000000000001"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getAdminPoliciesBookingResourcesByBranchIdOptions",
+        "x-access-boundary": "mfa-verified-admin",
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
     "/admin/policies/booking-resources/{branchId}/current": {
       "get": {
         "tags": [

@@ -1,0 +1,165 @@
+.workshop-resources {
+  max-width: 1100px;
+  color: var(--ink);
+  font-size: 14px;
+}
+.workshop-resources header {
+  margin: 16px 0 24px;
+}
+.workshop-resources h1 {
+  font-size: 30px;
+  line-height: 1.25;
+}
+.workshop-resources .breadcrumbs ol {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.workshop-resources .breadcrumbs li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 44px;
+}
+.resource-panel {
+  background: #fff;
+  border: 1px solid #d8e1eb;
+  border-radius: 8px;
+  padding: 24px;
+  margin: 20px 0;
+  box-shadow: 0 4px 14px #01121a08;
+  min-width: 0;
+}
+.workshop-resources fieldset {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 12px 0;
+}
+.workshop-resources legend {
+  font-size: 18px;
+  font-weight: 700;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.workshop-resources label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  margin: 10px 0;
+}
+.workshop-resources .resource-check {
+  flex-direction: row;
+  align-items: flex-start;
+  min-height: 44px;
+}
+.workshop-resources input:not([type="checkbox"]),
+.workshop-resources select,
+.workshop-resources textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid #91a0b2;
+  border-radius: var(--radius-control);
+  padding: 10px;
+  background: #fff;
+  color: #15283b;
+  font: inherit;
+}
+.workshop-resources input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.workshop-resources textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+.workshop-resources button {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+  margin: 6px 8px 6px 0;
+}
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 20px;
+}
+.resource-evidence {
+  grid-column: 1/-1;
+}
+.workshop-resources .resource-row {
+  border: 1px solid #d8e1eb;
+  padding: 18px;
+  border-radius: 6px;
+  margin: 20px 0;
+}
+.resource-period {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+  border-bottom: 1px solid #d8e1eb;
+  padding: 8px 0;
+}
+.resource-picker {
+  padding: 12px;
+  background: #f4f7fa;
+  border-radius: 6px;
+}
+.resource-facts > div {
+  margin: 12px 0;
+}
+.resource-facts dt {
+  font-weight: 700;
+}
+.resource-facts dd {
+  margin: 6px 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.workshop-resources details {
+  margin: 12px 0;
+}
+.workshop-resources summary {
+  min-height: 44px;
+  cursor: pointer;
+  padding: 10px 0;
+  overflow-wrap: anywhere;
+}
+.resource-validation {
+  scroll-margin: 100px;
+}
+.workshop-resources :focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--focus-shadow);
+}
+.resource-branch {
+  max-width: 600px;
+}
+.resource-recovery {
+  border-left: 4px solid #b85a00;
+}
+@media (max-width: 640px) {
+  .resource-panel {
+    padding: 16px;
+  }
+  .resource-grid,
+  .resource-period {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workshop-resources .resource-row {
+    padding: 12px;
+  }
+  .workshop-resources h1 {
+    font-size: 26px;
+  }
+}

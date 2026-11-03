@@ -26680,6 +26680,52 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/admin/policies/booking-resources/{branchId}/options`
+
+- Operation ID: `getAdminPoliciesBookingResourcesByBranchIdOptions`
+- Purpose: Private/no-store and atomically audited under current actor/session checks. Eligibility filtering precedes cursor pagination. Exact-ID lookup retains unavailable references honestly; it grants no work permission and exposes no contact, login or financial fields. Find actual service and eligible technician references for a resource plan. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+| `kind` | query | SERVICE / TECHNICIAN | Yes | Kind used to constrain this request. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `ids` | query | string | No | Ids used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Find actual service and eligible technician references for a resource plan",
+  "data": {
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "kind": "SERVICE",
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "label": "synthetic-label",
+        "eligible": true
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/admin/policies/booking-resources/{branchId}/current`
 
 - Operation ID: `getAdminPoliciesBookingResourcesByBranchIdCurrent`

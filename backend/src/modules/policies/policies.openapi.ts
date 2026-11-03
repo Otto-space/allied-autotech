@@ -1,4 +1,8 @@
 import {
+  resourceOptionsQuery,
+  resourceOptionsResponse,
+} from "./workshop-resource-options.js";
+import {
   aftercareReturnBody,
   aftercareHeaders,
   aftercarePartialBody,
@@ -233,6 +237,18 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       roles: ["SUPER_ADMIN"],
       description:
         "Private/no-store, current actor/session checked and atomically audited in a repeatable snapshot. Effective and next scheduled policies are selected independently from the latest 100 history entries. Availability uses the existing finance/delivery fulfillment rules at the same evaluation time. Publication rechecks the actor before immutable Q1 policy/audit creation; existing orders retain their saved delivery fees and addresses.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/booking-resources/{branchId}/options",
+      summary:
+        "Find actual service and eligible technician references for a resource plan",
+      params: capacityBranchParams,
+      query: resourceOptionsQuery,
+      data: resourceOptionsResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private/no-store and atomically audited under current actor/session checks. Eligibility filtering precedes cursor pagination. Exact-ID lookup retains unavailable references honestly; it grants no work permission and exposes no contact, login or financial fields.",
     },
     {
       method: "get",
