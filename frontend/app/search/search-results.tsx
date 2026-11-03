@@ -150,52 +150,79 @@ export async function SearchResults({
   return (
     <div className={styles.results} aria-label="Public search results">
       <h2>Results for “{query}”</h2>
-      <p>
-        Public services, products, vehicles and guidance. Private account records are not
-        searched.
-      </p>
-      {groups.map((group, index) => {
-        const result = results[index];
-        if (result.status === "rejected") unstable_rethrow(result.reason);
-        const additionalHelpUnavailable =
-          group.name === "Help" && result.status === "fulfilled" && result.value.partial;
-        return (
-          <section key={group.name} aria-label={`${group.name} search results`}>
-            <h3>{group.name}</h3>
-            {group.name === "Help" && additionalHelpUnavailable && (
-              <p role="status">
-                More Help &amp; Learn results are temporarily unavailable. <RetrySearch />
-              </p>
-            )}
-            {result.status === "rejected" ? (
-              <p role="status">
-                {group.name} results are temporarily unavailable. <RetrySearch />
-              </p>
-            ) : result.value.entries.length ? (
-              <ul>
-                {[...result.value.entries]
-                  .sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title))
-                  .slice(0, 5)
-                  .map((entry) => (
-                    <li key={entry.href}>
-                      <Link href={entry.href}>{entry.title}</Link>
-                      {entry.detail && <p>{entry.detail}</p>}
-                    </li>
-                  ))}
-              </ul>
-            ) : (
-              <p>
-                {group.name === "Help" && additionalHelpUnavailable
-                  ? "No matching FAQs found."
-                  : `No ${group.name.toLowerCase()} results found.`}
-              </p>
-            )}
-            <Link className="text-link" href={group.href}>
-              View all {group.name.toLowerCase()} results
-            </Link>
-          </section>
-        );
-      })}
+      <p>Public results only. Your private records are not searched.</p>
+      {groups
+        .map((group, index) => ({ group, index }))
+        .sort((a, b) => {
+          const empty = (index: number) => {
+            const result = results[index];
+            return result.status === "fulfilled" &&
+              !result.value.entries.length &&
+              !result.value.partial
+              ? 1
+              : 0;
+          };
+          return empty(a.index) - empty(b.index);
+        })
+        .map(({ group, index }) => {
+          const result = results[index];
+          if (result.status === "rejected") unstable_rethrow(result.reason);
+          const additionalHelpUnavailable =
+            group.name === "Help" &&
+            result.status === "fulfilled" &&
+            result.value.partial;
+          if (
+            result.status === "fulfilled" &&
+            !result.value.entries.length &&
+            !result.value.partial
+          )
+            return (
+              <details key={group.name} className={styles.emptyResults}>
+                <summary>{group.name}: no matches</summary>
+                <p>No {group.name.toLowerCase()} results found.</p>
+                <Link className="text-link" href={group.href}>
+                  View all {group.name.toLowerCase()} results
+                </Link>
+              </details>
+            );
+          return (
+            <section key={group.name} aria-label={`${group.name} search results`}>
+              <h3>{group.name}</h3>
+              {group.name === "Help" && additionalHelpUnavailable && (
+                <p role="status">
+                  More Help &amp; Learn results are temporarily unavailable.{" "}
+                  <RetrySearch />
+                </p>
+              )}
+              {result.status === "rejected" ? (
+                <p role="status">
+                  {group.name} results are temporarily unavailable. <RetrySearch />
+                </p>
+              ) : result.value.entries.length ? (
+                <ul>
+                  {[...result.value.entries]
+                    .sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title))
+                    .slice(0, 5)
+                    .map((entry) => (
+                      <li key={entry.href}>
+                        <Link href={entry.href}>{entry.title}</Link>
+                        {entry.detail && <p>{entry.detail}</p>}
+                      </li>
+                    ))}
+                </ul>
+              ) : (
+                <p>
+                  {group.name === "Help" && additionalHelpUnavailable
+                    ? "No matching FAQs found."
+                    : `No ${group.name.toLowerCase()} results found.`}
+                </p>
+              )}
+              <Link className="text-link" href={group.href}>
+                View all {group.name.toLowerCase()} results
+              </Link>
+            </section>
+          );
+        })}
     </div>
   );
 }

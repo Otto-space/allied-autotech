@@ -1,3 +1,12 @@
+## 3 November 2026: own-account guide and strict catalogue destinations
+
+Work-account-profile v1 targets the genuine read-only `/admin/profile`, with
+verified work-account eligibility and no operational grant. The client explicitly
+accepts this and the existing `/admin/vehicles` target; unknown targets still fail
+closed. Actual server projections are checked against the client contract across
+all roles and bounded independent-grant combinations. Flags remain unchanged.
+This source entry is not backend publication. See
+`AUDIT_LEARNING_CHECKPOINT_20261103.md` and the consolidated audit for evidence.
 ## 3 November: independent booking/purchase controls - source
 
 Parts-fitment v9 records the owner's revised sequence: unpaid order/specifications,

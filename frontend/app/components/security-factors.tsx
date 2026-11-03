@@ -78,14 +78,16 @@ export function SecurityFactors({ compact = false }: { compact?: boolean }) {
       tabIndex={compact ? -1 : undefined}
     >
       <h2>Multi-factor authentication</h2>
-      <Link className="button secondary" href="/mfa?setup=1">
-        Add MFA factor
-      </Link>
-      {active.some((factor) => factor.type === "TOTP") && (
-        <Link className="text-link" href="/mfa?replace=1">
-          Set up authenticator again
+      <div className="actions" role="group" aria-label="MFA setup options">
+        <Link className="button secondary" href="/mfa?setup=1">
+          Add MFA factor
         </Link>
-      )}
+        {active.some((factor) => factor.type === "TOTP") && (
+          <Link className="text-link" href="/mfa?replace=1">
+            Set up authenticator again
+          </Link>
+        )}
+      </div>
       <p>
         Review the factors registered to your account. Pending setup is not an active
         sign-in factor. Deleting an entry from your authenticator app does not remove it

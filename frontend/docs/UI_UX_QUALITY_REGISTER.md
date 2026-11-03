@@ -1,3 +1,20 @@
+## 3 November 2026: consolidated audit implementation checkpoint
+
+Audit branch `codex/consolidated-audit-fixes-20261103` contains signed implementation
+commit `76b52eaa`, reconciled with master through `f6329e33` in `8368ad71`.
+Learning destination validation, own-account navigation/identity, compact mobile
+search, MFA spacing, invoice discovery, nearby support/workforce row actions,
+public search history and truthful vehicle/order presentation are implemented.
+Local acceptance covers 128 distinct corrected browser cases across seven exact
+sizes in installed Edge and Chrome; these are synthetic emulation, not real-role,
+provider, storage or physical-device acceptance. Focused units passed 81/81;
+integrated exact-source CI and final profile screenshots remain required.
+No migration, production record write, permission change or capability activation
+is introduced by this audit batch. F02 email suppression is CONSENT_WITHDRAWN:
+no retry. Real product media/fitment evidence, service duration and new workforce
+duties remain business inputs. Existing purchase/release work below is preserved.
+Full finding dispositions and evidence: `frontend/docs/CONSOLIDATED_AUDIT_20261103.md`.
+Publication is pending compatible backend/candidate checks and exact-master CI.
 3 November changed-offer feedback follow-up: f6329e33 passes the full backend
 workflow 41689948148, including 82 focused purchase checks, 88 guest-flow cases and
 the affected payment concurrency/provider-port/expiry regressions. Frontend

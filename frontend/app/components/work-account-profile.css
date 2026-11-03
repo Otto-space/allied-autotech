@@ -1,0 +1,36 @@
+.work-own-profile {
+  max-width: 760px;
+  min-width: 0;
+}
+.work-own-profile > p {
+  color: #435563;
+  line-height: 1.7;
+}
+.dashboard .dashboard-content .work-own-profile .panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-block: 20px;
+  padding: clamp(16px, 3vw, 28px);
+}
+.work-own-profile dl {
+  display: grid;
+  gap: 16px;
+  margin-block: 20px;
+}
+.work-own-profile dl > div {
+  min-width: 0;
+}
+.work-own-profile dt {
+  font-size: 13px;
+  color: #435563;
+  margin-bottom: 6px;
+}
+.work-own-profile dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.work-own-profile .panel > p {
+  font-size: 14px;
+  line-height: 1.7;
+}

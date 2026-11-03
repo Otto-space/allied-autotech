@@ -30,6 +30,7 @@ const destinations = new Set([
   "/admin/workforce/access",
   "/admin/staff",
   "/admin/customers",
+  "/admin/profile",
   "/admin/security",
   "/admin/support",
   "/admin/service-categories",

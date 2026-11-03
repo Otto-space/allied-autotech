@@ -178,3 +178,7 @@ workforce-independent.spec.ts
 # 2 November record-authoring follow-up: isolated role fixtures; real-role acceptance separate.
 authoring-affordances.spec.ts
 launch-truth.spec.ts
+
+# Own-account profile uses personal scope; synthetic identity, no operational grants.
+consolidated-audit.spec.ts > 320x720 > work profile uses the authorised own-account contract without inventing employee identity
+consolidated-audit.spec.ts > 1280x720 > work profile uses the authorised own-account contract without inventing employee identity

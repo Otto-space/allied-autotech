@@ -2,7 +2,7 @@
 import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, UserRound, X } from "lucide-react";
+import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import {
   createContext,
   useContext,
@@ -44,6 +44,7 @@ import {
 import { NotificationPreview } from "./notification-preview";
 import { NotificationAccessContext } from "@/lib/notifications/access-context";
 import { LearningEntry } from "./learning/learning-entry";
+import { DashboardAccount } from "./dashboard-account";
 import { containDialogFocus } from "@/lib/dialog-focus";
 const SessionContext = createContext<SessionState | null>(null);
 const StaffPermissionContext = createContext<ReturnType<
@@ -486,25 +487,11 @@ export function DashboardShell({
                 pending={!notifications}
               />
             )}
-            <Link
-              className="dashboard-account-link"
-              aria-label="Open your account"
-              href={audience === "staff" ? "/admin/security" : "/dashboard/profile"}
-              prefetch={false}
-            >
-              <span className="dashboard-avatar" aria-hidden="true">
-                <UserRound size={19} />
-              </span>
-              <span className="dashboard-account-email">{session.user.email}</span>
-            </Link>
-            <button
-              className="dashboard-mobile-logout"
-              disabled={busy}
-              onClick={() => void logout()}
-              aria-label="Sign out"
-            >
-              <LogOut size={20} />
-            </button>
+            <DashboardAccount
+              session={session}
+              busy={busy}
+              onLogout={() => void logout()}
+            />
           </div>
         </header>
         <main id="main" className="dashboard-content" key={session.user.id}>
@@ -643,7 +630,8 @@ export function DashboardShell({
                   <>
                     {retainedWorkforce && (
                       <div hidden={!verifiedWorkforce} inert={!verifiedWorkforce}>
-                        {workforcePage?.id === "security" ||
+                        {workforcePage?.id === "profile" ||
+                        workforcePage?.id === "security" ||
                         workforcePage?.id === "notifications" ? (
                           children
                         ) : (

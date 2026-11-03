@@ -120,7 +120,7 @@
   gap: 20px;
 }
 .home-page .home-vehicle-grid[data-single="true"] {
-  grid-template-columns: minmax(0, 480px);
+  grid-template-columns: minmax(0, 880px);
   justify-content: center;
 }
 .home-page .home-vehicle-card .product-media img {
@@ -998,5 +998,16 @@
   }
   .home-page .home-feature-body {
     padding: 20px;
+  }
+}
+
+/* One available listing receives a focused feature without inventing more stock. */
+@media (min-width: 768px) {
+  .home-page .home-vehicle-grid[data-single="true"] .home-vehicle-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+  }
+  .home-page .home-vehicle-grid[data-single="true"] .home-vehicle-card .product-media {
+    aspect-ratio: 4 / 3;
   }
 }

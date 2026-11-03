@@ -108,6 +108,7 @@ describe("maintained workforce route and scope policy", () => {
       expect(allowed.map((entry) => entry.id)).toEqual([
         "overview",
         ...expected,
+        "profile",
         "security",
         "notifications",
       ]);
@@ -160,6 +161,7 @@ describe("maintained workforce route and scope policy", () => {
     expect(permittedWorkforceDestinations(a).map((entry) => entry.id)).toEqual([
       "overview",
       "access",
+      "profile",
       "security",
       "notifications",
     ]);

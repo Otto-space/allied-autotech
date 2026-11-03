@@ -83,6 +83,25 @@ const article = (
 export const learningArticles: LearningArticle[] = [
   {
     ...article(
+      "work-account-profile",
+      "work",
+      "work",
+      "View your work profile",
+      "Find your own recorded identity and account security without changing access.",
+      [
+        "Open Account options in the dashboard header and choose My profile.",
+        "Review the name and email actually recorded for your signed-in account. An absent employee profile does not establish a name or photo.",
+        "Use Account security for passwords, MFA and active sessions. Ask an authorised account manager about corrections to work details; this profile view does not grant or change responsibilities.",
+      ],
+      "/admin/profile",
+      "Current own-account projection and security controls",
+      "own profile name account identity security",
+    ),
+    version: 1,
+    reviewedAt: "2026-11-03",
+  },
+  {
+    ...article(
       "vehicle-operations",
       "vehicle-admin",
       "work",
