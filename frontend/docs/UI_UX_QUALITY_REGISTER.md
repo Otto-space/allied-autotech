@@ -1,3 +1,20 @@
+4 November final D06 source checkpoint: master 92f3f9fc's customer-overview,
+private booked/default/recent vehicle selection and acceptance changes are retained
+in bc911880. Independent service-request v25 edits are combined as v26, reviewed
+4 November, preserving both overview clarification and resource-aware offers.
+Canonical API regeneration produces no additional contract diff. Uppercase public
+service/branch UUIDs now resolve to their canonical approved identities.
+
+The final focused native run passes 26/26 on this integrated source after all 97
+migrations, Prisma diff, db:check and restricted-runtime proof; the owned tmpfs target
+is removed. Log: %TEMP%/aat-resource-aware-offers-canonical-native.log. Earlier
+100 other native regressions passed before the canonical-ID correction; they are
+not represented as a fresh full-suite run for the current composition. Post-merge
+52 focused units, full backend lint/types and the final unknown-duration 404/no-slot
+unit pass. Hosted exact-source PR checks must pass before merge, and exact-master
+checks plus all production backup/restore/migration/runtime gates remain required.
+No real account, resource, financial setting or production alias was changed.
+
 ### 4 November 2026: D06 resource-aware public offers — integrated source checkpoint
 
 Current source combines resource discovery with master 92f3f9fc, preserving the

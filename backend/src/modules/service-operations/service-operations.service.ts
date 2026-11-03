@@ -408,9 +408,11 @@ export class ServiceOperationsService {
           throw serviceOperationNotFound();
         if (service.preparationMinutes === null || service.cleanupMinutes === null)
           return { items: [] };
+        const canonicalServiceId = service.id;
+        const branchId = query.branchId.toLowerCase();
         const policy = await tx.businessPolicyVersion.findFirst({
           where: {
-            key: `booking-capacity:${query.branchId}`,
+            key: `booking-capacity:${branchId}`,
             effectiveAt: { lte: now },
           },
           orderBy: [{ effectiveAt: "desc" }, { version: "desc" }],
@@ -418,8 +420,11 @@ export class ServiceOperationsService {
         const calendar = capacitySettingsSchema.safeParse(policy?.settings);
         if (policy?.approvalStatus !== "APPROVED" || !calendar.success)
           return { items: [] };
-        const plan = await findApprovedWorkshopResources(tx, query.branchId, now);
-        if (!plan || !plan.settings.services.some((row) => row.serviceId === serviceId))
+        const plan = await findApprovedWorkshopResources(tx, branchId, now);
+        if (
+          !plan ||
+          !plan.settings.services.some((row) => row.serviceId === canonicalServiceId)
+        )
           return { items: [] };
         const staff = await tx.staffProfile.findMany({
           where: {
@@ -427,11 +432,11 @@ export class ServiceOperationsService {
               {
                 id: {
                   in: plan.settings.technicians
-                    .filter((row) => row.serviceIds.includes(serviceId))
+                    .filter((row) => row.serviceIds.includes(canonicalServiceId))
                     .map((row) => row.staffId),
                 },
               },
-              eligibleWorkshopTechnicianWhere(query.branchId, now),
+              eligibleWorkshopTechnicianWhere(branchId, now),
             ],
           },
           select: { id: true },
@@ -446,9 +451,10 @@ export class ServiceOperationsService {
         return jsonSafe(
           page(
             await this.repository.publicBookingSlots(
-              serviceId,
+              canonicalServiceId,
               {
                 ...query,
+                branchId,
                 from: from.toISOString(),
                 to: to.toISOString(),
               },

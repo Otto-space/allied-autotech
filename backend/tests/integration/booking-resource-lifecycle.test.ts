@@ -241,6 +241,21 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         claim,
       };
     }
+    it("treats uppercase public service and branch UUIDs as the same approved identities", async () => {
+      const v = await fixture(),
+        slot = await v.publish();
+      const listed = await v.list(v.b.id.toUpperCase(), {
+        branchId: v.branch.id.toUpperCase(),
+      });
+      expect(listed.status, JSON.stringify(listed.body)).toBe(200);
+      expect(listed.body.data.items.map((row: { id: string }) => row.id)).toEqual([
+        slot.id,
+      ]);
+      expect(listed.body.data.items[0]).toMatchObject({
+        serviceId: v.b.id,
+        branchId: v.branch.id,
+      });
+    });
     it("withholds unknown resource offers but still accepts an unconfirmed preferred-time request", async () => {
       const v = await fixture(false),
         slot = await v.publish();
