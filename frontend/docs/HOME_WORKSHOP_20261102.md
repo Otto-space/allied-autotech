@@ -1,3 +1,35 @@
+### 3 November 2026: Service description authoring completed
+
+The restored authorized Chrome session completed three normal Review changes /
+Confirm save operations on the production Services workspace. Each returned
+Service saved. Only the full description was edited; names, URL names, categories,
+short descriptions, active states, fixed prices and durations were preserved.
+
+- Wheel Alignment: NGN 4,000; 60 minutes; seven-day warranty wording retained.
+- Comprehensive Vehicle Diagnostics: NGN 8,000; duration remains unknown.
+- Generic Lube Oil Service: NGN 8,000; duration remains unknown; the distinction
+  from Basic Oil Service and compatibility/material conditions remain explicit.
+- Tyre Change was not edited and still displayed NGN 1,000 and 30 minutes.
+
+All three real public service-detail pages displayed the exact saved copy and
+unchanged price/duration after the saves. Internal workbook/discount notes are
+removed at their record source, not hidden by a presentation filter. Public
+Wheel Alignment anchor navigation brought About this service into view without
+an unwanted container outline. Safe screenshot:
+C:/Users/PC/AppData/Local/Temp/aat-wheel-description-20261103.png.
+No booking, payment, fitment approval, permission or policy record was changed.
+These live editorial changes require no application redeployment. The previously
+recorded admin-access blocker for these three edits is resolved; older pending
+notes below are historical. The documentation follow-up at 8fe2ece5 passed
+Frontend 41430768107, Backend 41430768169 and Secrets 41430768220.
+
+Financial activation decisions, provider acceptance, actual operational coverage,
+physical-device keyboard and full screen-reader/unsampled real-role limits remain
+as listed in the mobile completion ledger and finance review packet. They are not
+newly approved or claimed complete by this editorial acceptance. Disk preflight
+passed at 22.56 GiB with a 0.1 GiB allowance; no builds, Docker resources or database
+maintenance were needed.
+
 Public service-note exposure is resolved by the reviewed public projection in
 2c6f58d0; stored administrator evidence is retained. Service catalogue/detail imagery
 is restored. See [the release report](../../docs/PUBLIC_SERVICE_PRESENTATION_20261102.md).
