@@ -4,6 +4,8 @@
 }
 
 :root {
+  --layer-sticky: 20;
+  --layer-floating: 30;
   --radius-control: 6px;
   --elevation-low: 0 2px 5px #080c0f05, 0 6px 20px #080c0f08;
   --elevation-medium: 0 4px 12px #080c0f08, 0 14px 36px #080c0f0f;

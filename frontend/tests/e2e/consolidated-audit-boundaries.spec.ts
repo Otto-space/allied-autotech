@@ -59,6 +59,7 @@ for (const [width, height] of [
       await rejectedImage;
       await expect(summary).toContainText("Amara Okafor");
       await expect(summary.locator("img")).toHaveCount(0);
+      await expect(summary.locator(".dashboard-avatar-initials")).toHaveText("AO");
       expect(state.writes).toEqual([]);
     });
     test("managed own profile needs no operational grant and hides after access denial", async ({

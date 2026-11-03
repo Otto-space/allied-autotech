@@ -177,37 +177,43 @@ function SupportCategory({
               aria-label="Your customer care requests"
               tabIndex={0}
             >
-              <table className="care-table">
+              <p className="care-request-scroll-hint">
+                Scroll across for request type and updated date.
+              </p>
+              <table className="care-table care-customer-requests">
+                <colgroup>
+                  <col className="care-request-primary-column" />
+                  <col />
+                  <col />
+                </colgroup>
                 <thead>
                   <tr>
-                    <th scope="col">Subject</th>
+                    <th scope="col">Request</th>
                     <th scope="col">Type</th>
-                    <th scope="col">Status</th>
                     <th scope="col">Updated</th>
-                    <th scope="col">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {records.data?.items.map((record) => (
                     <tr className="cc-record" key={record.id}>
-                      <td>{record.subject}</td>
-                      <td>{kind === "enquiries" ? "Enquiry" : "Complaint"}</td>
                       <td>
-                        <StatusBadge status={record.status} />
+                        <div className="care-request-primary">
+                          <span>{record.subject}</span>
+                          <StatusBadge status={record.status} />
+                          <Link
+                            className="text-link"
+                            href={"/dashboard/support/" + kind + "/" + record.id}
+                          >
+                            View <ChevronRight size={16} aria-hidden="true" />
+                            <span className="sr-only"> {record.subject}</span>
+                          </Link>
+                        </div>
                       </td>
+                      <td>{kind === "enquiries" ? "Enquiry" : "Complaint"}</td>
                       <td>
                         <time dateTime={record.updatedAt}>
                           {formatBusinessDate(record.updatedAt)}
                         </time>
-                      </td>
-                      <td>
-                        <Link
-                          className="text-link"
-                          href={"/dashboard/support/" + kind + "/" + record.id}
-                        >
-                          View <ChevronRight size={16} aria-hidden="true" />
-                          <span className="sr-only"> {record.subject}</span>
-                        </Link>
                       </td>
                     </tr>
                   ))}

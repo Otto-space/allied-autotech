@@ -1,3 +1,37 @@
+## Renewed briefs: integrated verification checkpoint
+
+Source ca3d2464 passes Frontend release checks 41726745577: locked Next 16.4.3
+production build, types/lint/format, 1,458 unit tests (12 existing skips), and
+113/113 isolated Chromium browser regressions. Secrets 41726745554 passes.
+The same backend source in 8845c4ec passes every stage of 41725720928, including
+migration replay and database checks. These are branch checks, not exact-master
+publication or actual-role production acceptance.
+
+Master 27e41b75 is reconciled without discarding its booking/resource authoring,
+financial behavior, test coverage or evidence. Owner resource navigation and the
+new shared shell both remain. The duplicated workshop-resources testMatch entry
+is consolidated to one entry; no test is removed. Required checks must rerun for
+the resulting integration. Production remains unpromoted by this task.
+
+Real browser zoom remains unverified. Dedicated Chrome Playwright
+page.keyboard.press('Control+Equal') left viewport/DPR unchanged; that probe was
+skipped. Native Computer Use sky.get_window / activate_window / get_window_state
+on only the dedicated test window returned "Computer Use app approval timed out".
+The waiting zoom test then timed out after 180 seconds; no zoom input or everyday
+browser operation occurred. This is an execution limitation, not a zoom pass.
+No Firefox/WebKit installation or physical-device test was performed.
+
+## Renewed briefs checkpoint — 3 November 2026
+
+The owner confirmed the newer Page by Page and Live Chrome/Cross Browser briefs.
+The earlier deployed audit does not complete that expanded goal. First bounded
+batches e075e8ba/a3297c0b improve customer support action proximity and the shared
+sticky shell/dock. Seven-size Edge/Chrome evidence, existing implementation found
+and the full remaining scope are recorded in frontend/docs/UI_UX_QUALITY_REGISTER.md.
+PR #14 is not production publication. Preserve newer master financial work and
+all unrelated worktrees. Full page/state, role/API, browser, business-data and
+exact-master compatible release gates remain open.
+
 3 November 22:09 UTC exact-source verification follow-up: signed 7e92d780 is
 verified by GitHub. Backend run 41726701704 and Secrets run 41726701665 pass.
 Backend passes 97-migration replay/db:check, types/scripts/lint, 60 safety cases,

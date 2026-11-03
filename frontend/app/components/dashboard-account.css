@@ -76,7 +76,8 @@
 }
 @media (max-width: 900px) {
   .dashboard .dashboard-top:has(.dashboard-page-search) {
-    position: relative;
+    position: sticky;
+    top: var(--dashboard-mobile-brand-height);
     display: flex;
     flex-wrap: nowrap;
     gap: 8px;
@@ -121,15 +122,62 @@
   .dashboard-page-search .dashboard-search-results {
     width: 100%;
   }
-  .dashboard .dashboard-account-controls .learning-entry {
-    width: 44px;
-    min-width: 44px;
-    padding: 4px;
-  }
-  .dashboard .dashboard-account-controls .learning-entry > span {
-    display: none;
-  }
   .dashboard .dashboard-mobile-logout {
     display: none;
+  }
+}
+
+/* Keep the existing two-row mobile shell anchored as one navigation area. */
+.dashboard .dashboard-top {
+  position: sticky;
+  top: 0;
+  z-index: var(--layer-sticky);
+}
+.dashboard
+  :is(
+    .dashboard-icon-link,
+    .dashboard-collapse-toggle,
+    .dashboard-menu-toggle,
+    .dashboard-search-toggle
+  ) {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.dashboard :is(.dashboard-icon-link, .dashboard-search-toggle):hover {
+  background: var(--surface);
+}
+.dashboard :is(.dashboard-collapse-toggle, .dashboard-menu-toggle):hover {
+  background: #ffffff18;
+}
+.dashboard
+  :is(
+    .dashboard-icon-link,
+    .dashboard-collapse-toggle,
+    .dashboard-menu-toggle,
+    .dashboard-search-toggle
+  ):focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+.dashboard-avatar-initials {
+  font-size: 14px;
+  font-weight: 700;
+}
+@media (max-width: 900px) {
+  .dashboard {
+    --dashboard-mobile-brand-height: 72px;
+  }
+  .dashboard .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: var(--layer-sticky);
+    height: var(--dashboard-mobile-brand-height);
+    padding: 14px 16px;
+  }
+  .dashboard .dashboard-top:has(.dashboard-page-search) {
+    top: var(--dashboard-mobile-brand-height);
   }
 }

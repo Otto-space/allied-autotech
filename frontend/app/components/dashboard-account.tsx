@@ -10,29 +10,11 @@ import { useOwnStaffPermissions } from "./dashboard-shell";
 import "./dashboard-account.css";
 
 import { PROFILE_UPDATED } from "@/lib/api/profile-events";
-export function DashboardAccount({
-  session,
-  busy,
-  onLogout,
-}: {
-  session: SessionState;
-  busy: boolean;
-  onLogout: () => void;
-}) {
+export function DashboardAccount({ session }: { session: SessionState }) {
   return session.user.role === "CUSTOMER" ? (
-    <CustomerAccount
-      key={session.user.id}
-      session={session}
-      busy={busy}
-      onLogout={onLogout}
-    />
+    <CustomerAccount key={session.user.id} session={session} />
   ) : (
-    <WorkAccount
-      key={session.user.id}
-      session={session}
-      busy={busy}
-      onLogout={onLogout}
-    />
+    <WorkAccount key={session.user.id} session={session} />
   );
 }
 type Props = Parameters<typeof DashboardAccount>[0];
@@ -86,8 +68,6 @@ function AccountMenu({
   name,
   photo,
   profileHref,
-  busy,
-  onLogout,
 }: Props & {
   name?: string | null;
   photo?: string;
@@ -127,6 +107,17 @@ function AccountMenu({
               unoptimized
               onError={() => setFailedPhoto(photo)}
             />
+          ) : name?.trim() ? (
+            <span className="dashboard-avatar-initials">
+              {name
+                .trim()
+                .split(/\s+/u)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((part) => Array.from(part)[0])
+                .join("")
+                .toLocaleUpperCase()}
+            </span>
           ) : (
             <UserRound size={19} />
           )}
@@ -158,9 +149,6 @@ function AccountMenu({
         >
           Account security
         </Link>
-        <button type="button" disabled={busy} onClick={onLogout}>
-          Sign out
-        </button>
       </nav>
     </details>
   );
