@@ -338,6 +338,7 @@
                   "IDEMPOTENCY_EXPIRED",
                   "PAYMENT_ATTEMPT_PENDING",
                   "PAYMENT_TARGET_PENDING",
+                  "PURCHASE_OFFER_CHANGED",
                   "INSUFFICIENT_STOCK",
                   "STALE_VERSION",
                   "INVALID_TRANSITION",

@@ -1,3 +1,17 @@
+3 November changed-offer feedback follow-up: f6329e33 passes the full backend
+workflow 41689948148, including 82 focused purchase checks, 88 guest-flow cases and
+the affected payment concurrency/provider-port/expiry regressions. Frontend
+41689948280 passes compiler, lint, build and 1,398 unit cases (12 existing skips);
+browser results are 19/21. The two new account error cases expected raw server text,
+but the shared client correctly displays trusted mapped messages. The new
+PURCHASE_OFFER_CHANGED response now has a specific safe refresh/review instruction;
+the fixture deliberately supplies unrelated raw text and checks it stays hidden.
+A local 45-case API/payment unit run, backend compiler/lint and scoped frontend
+lint pass. Updated final browser/error screenshots and exact-source CI remain
+required. The successful guest browser cases include the corrected 12px spacing
+at 320/1440; their new screenshots still need visual inspection. No production
+release, shared migration or capability activation occurred.
+
 3 November 18:02 UTC follow-up: source 29b7975d backend run 41689033316 passed
 migration replay, schema checks, compiler/lint and 81/82 focused purchase checks.
 The new account HTTP case lacked the required trusted Origin header and stopped at

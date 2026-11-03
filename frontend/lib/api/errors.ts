@@ -70,6 +70,8 @@ export const messages: Readonly<Record<string, string>> = {
     "This payment already has an attempt awaiting confirmation or review. Check its status before making another payment.",
   PAYMENT_TARGET_PENDING:
     "A payment already exists for this purchase or invoice. Open Payments and check the existing request before paying again.",
+  PURCHASE_OFFER_CHANGED:
+    "The offer changed. Refresh the order and review its current details before continuing.",
   INSUFFICIENT_STOCK:
     "There is not enough available stock for this quantity. Refresh availability and review the quantity before trying again.",
   INVALID_TRANSITION: "This action is no longer available. Refresh the current status.",

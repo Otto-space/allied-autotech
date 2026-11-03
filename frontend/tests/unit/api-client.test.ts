@@ -22,6 +22,16 @@ const envelope = (data: unknown) =>
 beforeEach(() => invalidateSession());
 afterEach(() => vi.unstubAllGlobals());
 describe("API security and recovery", () => {
+  it("explains a changed purchase offer without exposing server text", () => {
+    const error = new ApiError(409, {
+      message: "private offer evidence must never be echoed",
+      error: { code: "PURCHASE_OFFER_CHANGED" },
+    });
+    expect(error.message).toBe(
+      "The offer changed. Refresh the order and review its current details before continuing.",
+    );
+    expect(error.message).not.toContain("private");
+  });
   it("preserves Retry-After on a rate-limited response without leaking server copy", async () => {
     vi.stubGlobal(
       "fetch",
