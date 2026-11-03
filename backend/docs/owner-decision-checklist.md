@@ -1,3 +1,13 @@
+### 3 November 2026: D06 owner resource editor checkpoint
+
+The source owner editor now covers real-record selection, explicit qualifications,
+physical condition/calendars, versioned approval and reference-only uncertain-save
+recovery. Local evidence (19 rendered, 70 frontend and 22 backend learning tests) is in
+the completion tracker.
+Operational resource facts/configuration, public offer filtering and D07 extension/
+legacy workflows remain; no production readiness or publication is claimed.
+D01-D17 approvals, delegated choices and unresolved values below are preserved.
+
 ### 3 November 2026: D06 authoring foundation checkpoint
 
 Real-record owner-only lookup, strict resource approval receipts and reference-only

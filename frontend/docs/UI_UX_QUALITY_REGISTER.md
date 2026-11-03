@@ -1,3 +1,69 @@
+### 3 November 2026: D06 owner resource editor — local acceptance checkpoint
+
+Current item advances to resource-aware public offered-time filtering, then the
+remaining D06/D07 operational extension/legacy-assessment workflows. Full D01-D17
+remains active. Worktree allied-contact-validation-20261027 reuses signed 89719302;
+no new worktree, dependency install, image build or operational record was created.
+
+/admin/booking-resources now selects actual service/staff references, records each
+physical equipment/shared-space identity once, explicit condition/categories,
+service quantities or explicit no-resource assessments, actual qualifications,
+split working periods and dated unavailable periods. New fields do not fabricate
+people, machines, status or hours. Drafts stay in memory. Explicit branch/navigation
+checks protect unsaved edits. Source, written evidence and immediate/future effective
+time are reviewed before one CAS publication. Fresh account/branch/version checks
+precede POST; exact provenance/actor/settings receipts precede success. Immediate
+approval uses the freshly checked server clock, and recorded exception seconds and
+milliseconds survive unrelated edits. Policies and booking allocations are not
+rewritten by this editor.
+
+Definitive rejections retain the draft. Unknown transport or invalid receipts block
+another submission, retaining only the opaque reference/version/fingerprint through
+refresh. Recovery displays fresh current/history evidence and requires explicit
+acknowledgement without resubmission or attributing success from a version alone.
+Access loss removes private details. Both ordinary and managed Super Admin access
+are supported; managed owners retain verified-workforce gating plus independent
+owner/profile/MFA API checks. Only the exact calendar/resource policy pages use that
+owner path; ordinary managed administrators gain no link, data or job responsibility.
+The first managed test exposed the old registry redirect and a follow-up missing
+import; both were corrected and the two-role check passed. No job predicate widened.
+
+Final evidence: frontend resource/draft/recovery/API/capacity/managed-route units
+70/70, backend learning/catalogue/retrieval units 22/22, frontend/backend compiler,
+scoped lint and formatting pass. The final expanded rendered suite passes 19/19 with no retries or skipped
+cases: %TEMP%/aat-resource-editor-browser-accepted.log. The prior 16-case pass
+and two managed-role cases are retained separately, not added to this count.
+Earlier browser failures include a cold preview/label-locator problem and incomplete
+synthetic notification/periodic-capability fixtures; strict console checks remain.
+The final fixture handles those expected reads instead of ignoring errors.
+Playwright uses installed Edge because the Browser plugin is unavailable; all
+records/approvals are synthetic. Responsive approval cases cover 320/1440px, with
+other state checks at their declared/default widths. No actual device, screen-reader,
+hosted or operational-role acceptance is claimed. Screenshots are outside Git under
+%TEMP%/allied-resource-editor-{320,1440}.png and allied-resource-overview-{320,1440}.png.
+
+Restricted booking-confirmation instructions advance to v10. The new owner-only
+workshop-resource-plan v1 remains draft and excluded from publication; owner gate,
+MFA/session requirements and no-permission-grant checks are preserved. Existing
+semantic guide targets and production flags are unchanged. Help checkpoint:
+docs/help-learn/WORKSHOP_RESOURCE_AUTHORING_20261103.md.
+
+No production publication, provider call, financial approval, schema migration or
+new capability activation. Existing parent native 18-case lookup/policy evidence is
+not a fresh browser/API/database end-to-end run for this editor. Actual staff mapping,
+working equipment, spaces, qualifications and shifts still need factual owner
+configuration. Public resource-aware offer filtering, in-progress estimates,
+legacy/disruption recovery and remaining D03/D11/D13/D14/D16/D17 work remain.
+Purchasing keeps suitability and availability BEFORE payment and stays separately
+gated by its financial/provider prerequisites. Exact-master CI, compatible backend,
+95-migration backup/restore/rollout safeguards and real-role acceptance remain release
+gates. The existing 320px capacity-page regression also passes 1/1
+(%TEMP%/aat-resource-capacity-regression.log). The owned preview and capability-only
+fixture are stopped; useful warm caches and all other tasks are preserved. The disk
+reserve passed after shutdown at 20.92 GiB. Development stream-abort diagnostics
+from interrupted/negative-route fixture requests are retained separately; this is
+not production-runtime acceptance.
+
 ### 3 November 2026: D06 resource authoring lookup and receipt foundation
 
 Current item remains the owner resource-authoring/review interface and resource-aware
