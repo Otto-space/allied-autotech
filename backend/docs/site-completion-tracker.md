@@ -5,9 +5,12 @@ requests, plus current-session/MFA Admin and Super Admin decisions. No Staff
 approval grant was added. Buyer responses expose the latest specification/status,
 not supplier references, private reasoning, reviewer identity or proof snapshots.
 Requests release prior unpaid holds through the existing audited inventory ledger.
-Fixed shared consume/release/restock bookkeeping to advance the in-memory balance
-and version between multiple holds for one inventory row; a two-line release
-regression is added. These entry-point and shared-ledger cases await hosted CI.
+The database's existing one-active-hold-per-order/stock-record constraint rules out
+the initially hypothesised repeated-active-hold defect in shared release code.
+Removed that speculative shared-code change. Review approval instead creates one
+aggregate hold per stock record; each configured line references its share and the
+payment recheck verifies the complete aggregate. A two-line release/reapproval
+regression also preserves an unrelated order's hold. New-source CI remains pending.
 
 Canonical OpenAPI/handbook/client types are regenerated: 514 mounted/documented
 operations across 438 paths pass local route/spec checks. Coverage inventory was

@@ -1247,9 +1247,6 @@ export class OrdersService {
           referenceId: orderId,
         },
       });
-      inventory.quantity = nextQuantity;
-      inventory.reserved = nextReserved;
-      inventory.version += 1;
     }
   }
   private async releaseOrRestock(
@@ -1322,8 +1319,6 @@ export class OrdersService {
             referenceId: orderId,
           },
         });
-        inventory.reserved = nextReserved;
-        inventory.version += 1;
       } else {
         const nextQuantity = inventory.quantity + reservation.quantity;
         if (
@@ -1362,8 +1357,6 @@ export class OrdersService {
             referenceId: orderId,
           },
         });
-        inventory.quantity = nextQuantity;
-        inventory.version += 1;
       }
     }
   }

@@ -481,7 +481,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(safe.body.data.purchaseReviews[0]).not.toHaveProperty(key);
       expect((await payable(f.order.id)).order.paidAt).toBeNull();
     });
-    it("releases every configured line against the same inventory without stale balance reuse", async () => {
+    it("releases and approves one aggregated hold for configured lines while preserving another order", async () => {
       const f = await fixture();
       // Create the complete immutable two-line snapshot from the outset. Keep
       // the first order and its hold untouched to test preservation as well.
@@ -514,19 +514,18 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         where: { id: f.inventory.id },
         data: { quantity: 3, reserved: 3 },
       });
-      for (let index = 0; index < current.items.length; index++)
-        await prisma.inventoryReservation.create({
-          data: {
-            inventoryId: f.inventory.id,
-            customerId: f.order.customerId,
-            quantity: 1,
-            expiresAt: f.order.paymentDueAt!,
-            idempotencyKey: randomUUID(),
-            requestHash: "b".repeat(64),
-            referenceType: "ORDER",
-            referenceId: current.id,
-          },
-        });
+      await prisma.inventoryReservation.create({
+        data: {
+          inventoryId: f.inventory.id,
+          customerId: f.order.customerId,
+          quantity: 2,
+          expiresAt: f.order.paymentDueAt!,
+          idempotencyKey: randomUUID(),
+          requestHash: "b".repeat(64),
+          referenceType: "ORDER",
+          referenceId: current.id,
+        },
+      });
       const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
       const result = await request(app)
         .post(`/api/v1/customers/orders/${current.id}/purchase-review`)
@@ -556,15 +555,43 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         where: { referenceId: current.id, type: "RESERVATION_RELEASE" },
         orderBy: { createdAt: "asc" },
       });
-      expect(ledger).toHaveLength(2);
+      expect(ledger).toHaveLength(1);
       expect(
         ledger
           .map((entry) => [entry.reservedBefore, entry.reservedAfter])
           .sort((a, b) => a[0]! - b[0]!),
-      ).toEqual([
-        [2, 1],
-        [3, 2],
-      ]);
+      ).toEqual([[3, 1]]);
+      await prisma.$transaction(
+        async (tx) =>
+          decidePurchaseReview(
+            tx,
+            await lockPurchaseReviewOrder(tx, current.id),
+            {
+              expectedVersion: 1,
+              expectedRevision: 1,
+              decision: "APPROVED",
+              reason: "Synthetic approval of both configured lines with one stock hold",
+              availability: current.items.map((item) => ({
+                orderItemId: item.id,
+                evidence: { kind: "BRANCH_STOCK" },
+              })),
+            },
+            f.approval.decidedByUserId,
+            { requestId: randomUUID(), ipAddress: null, userAgent: null },
+          ),
+        { isolationLevel: "Serializable" },
+      );
+      const holds = await prisma.inventoryReservation.findMany({
+        where: { referenceType: "ORDER", referenceId: current.id, status: "ACTIVE" },
+      });
+      expect(holds).toHaveLength(1);
+      expect(holds[0]!.quantity).toBe(2);
+      expect((await payable(current.id)).order.totalKobo).toBe(21500n);
+      const after = await prisma.inventory.findUniqueOrThrow({
+        where: { id: f.inventory.id },
+      });
+      expect(after.quantity).toBe(3);
+      expect(after.reserved).toBe(3);
     });
   },
 );

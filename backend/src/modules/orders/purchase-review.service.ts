@@ -202,6 +202,7 @@ export async function decidePurchaseReview(
     // Aggregate by product: future orders may contain distinct configured lines
     // for one product. Two lines must never each reserve the same last unit.
     const needed = new Map<string, number>();
+    const reservationByInventory = new Map<string, string>();
     for (const line of branchLines) {
       const item = order.items.find((entry) => entry.id === line.orderItemId)!;
       needed.set(item.productId, (needed.get(item.productId) ?? 0) + item.quantity);
@@ -222,6 +223,24 @@ export async function decidePurchaseReview(
         tx,
       );
       if (changed.count !== 1) throw orderStale();
+      const reservationId = randomUUID();
+      await tx.inventoryReservation.create({
+        data: {
+          id: reservationId,
+          inventoryId: inventory.id,
+          customerId: order.customerId,
+          quantity,
+          expiresAt,
+          idempotencyKey: hashToken(
+            "order-reservation",
+            `review:${review.id}:${inventory.id}`,
+          ),
+          requestHash: orderFingerprint({ reviewId: review.id, productId, quantity }),
+          referenceType: "ORDER",
+          referenceId: order.id,
+        },
+      });
+      reservationByInventory.set(inventory.id, reservationId);
       await tx.inventoryTransaction.create({
         data: {
           inventoryId: inventory.id,
@@ -246,27 +265,7 @@ export async function decidePurchaseReview(
     for (const line of branchLines) {
       const item = order.items.find((entry) => entry.id === line.orderItemId)!;
       const inventory = inventories.find((entry) => entry.productId === item.productId)!;
-      const reservationId = randomUUID();
-      await tx.inventoryReservation.create({
-        data: {
-          id: reservationId,
-          inventoryId: inventory.id,
-          customerId: order.customerId,
-          quantity: item.quantity,
-          expiresAt,
-          idempotencyKey: hashToken(
-            "order-reservation",
-            `review:${review.id}:${item.id}`,
-          ),
-          requestHash: orderFingerprint({
-            reviewId: review.id,
-            orderItemId: item.id,
-            quantity: item.quantity,
-          }),
-          referenceType: "ORDER",
-          referenceId: order.id,
-        },
-      });
+      const reservationId = reservationByInventory.get(inventory.id)!;
       availability.push({
         orderItemId: item.id,
         evidence: {

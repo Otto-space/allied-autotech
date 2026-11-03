@@ -60,14 +60,24 @@ export async function assertReviewedPurchasePayable(
   const stockLines = snapshot.availability.filter(
     (line) => line.evidence.kind === "BRANCH_STOCK",
   );
-  const reservationIds = stockLines.map((line) =>
-    line.evidence.kind === "BRANCH_STOCK" ? line.evidence.reservationId : "",
-  );
-  if (new Set(reservationIds).size !== reservationIds.length)
-    throw orderConflict("Each order line needs its own current stock hold.");
   const quantities = new Map<string, number>();
+  const holds = new Map<string, { reservationId: string; productId: string }>();
   for (const line of stockLines) {
     if (line.evidence.kind !== "BRANCH_STOCK") continue;
+    const productId = order.items.find((item) => item.id === line.orderItemId)!.productId;
+    const previous = holds.get(line.evidence.inventoryId);
+    if (
+      previous &&
+      (previous.reservationId !== line.evidence.reservationId ||
+        previous.productId !== productId)
+    )
+      throw orderConflict(
+        "Configured lines must share one complete hold for each stock record.",
+      );
+    holds.set(line.evidence.inventoryId, {
+      reservationId: line.evidence.reservationId,
+      productId,
+    });
     quantities.set(
       line.evidence.inventoryId,
       (quantities.get(line.evidence.inventoryId) ?? 0) + line.evidence.quantity,
@@ -117,7 +127,7 @@ export async function assertReviewedPurchasePayable(
       !inventory ||
       inventory.productId !== item.productId ||
       inventory.branchId !== order.branchId ||
-      reservation.quantity !== item.quantity ||
+      reservation.quantity !== quantities.get(evidence.inventoryId) ||
       evidence.quantity !== item.quantity ||
       inventory.reserved < (quantities.get(evidence.inventoryId) ?? item.quantity) ||
       inventory.quantity < inventory.reserved
