@@ -1,3 +1,46 @@
+## 3 November: renewed Markdown implementation goal — reconciliation in progress
+
+The owner renewed the goal as "Read and implement the md files". The owner confirmed the two newer briefs; the newer Page by Page Improvement and Deployment brief
+was read completely. Its requested end state extends the released consolidated
+audit. Do not treat the earlier release as completion of this broader scope.
+Desktop checkout f45efc6e is stale and has an unrelated dirty home-hero.tsx; preserve
+it. Reused audit checkout 12789e4f was clean before this checkpoint.
+
+First reproduced gap: /dashboard/support, CUSTOMER fixture on native released
+assets in dedicated Edge. At verified 1280x720 the View action ended at x=1149.78;
+at 390x844 and 320x720 it ended at x=585.81, outside the phone viewport. Document
+width stayed within the viewport: contained table action reachability, not page
+overflow. Baseline: one pass, two defect failures. Evidence: local Temp
+allied-page-batch-20261103/baseline.json and results/support-baseline-* captures.
+
+Implemented bounded correction: customer-support.tsx keeps subject, status and
+View together in the first table cell; type/date remain secondary columns with a
+mobile scroll hint. Existing query/category/cursor state and owned detail links
+are unchanged. Scoped care-workspace.css gives View a 44px target. No backend,
+permission, launch flag, Help semantic target or business data changed.
+
+Verification: customer-support-actions.spec.ts passes all seven exact requested
+pairs in dedicated Edge: 1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800,
+320x720. Phone contexts use mobile/touch emulation; actual dimensions asserted.
+Both enquiry/complaint actions are reachable before horizontal scrolling; keyboard
+and pointer navigation render the intended record, long text/status stay with the
+action, and fixtures record no writes. First cold dev run timed out on two desktop
+navigations; both passed after compilation, not counted as initial passes.
+Four adjacent loading/stale-history/pagination/accessibility regressions pass.
+Scoped ESLint, Prettier, nonincremental TypeScript and git diff --check pass.
+Inspected 320px screenshot: full subject, status and View visible together.
+Evidence: Temp/allied-page-batch-20261103/{after,desktop-rerun,recovery}.
+
+These are local API-fixture checks using reused Next 16.3.8 dependencies; lockfile
+16.4.3 exact-source CI/build remains required. No real-role persistence, physical
+phone, other-engine or production acceptance is inferred. Not deployed yet.
+
+Next: reconcile shared sticky shell/dock and per-page states against current
+implementation; personalization, role/API isolation and browser/device matrix
+remain open. Both newer briefs were read fully. Earlier F20 in the consolidated
+audit means vehicle fault disclosure; newer report F20 means customer support
+actions. Use route-qualified identifiers. The full renewed goal remains open.
+
 ## 3 November 2026: consolidated audit deployed checkpoint
 
 Checked application source 7384abf8 (PR #12) is live on both domains as
