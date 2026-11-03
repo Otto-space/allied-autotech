@@ -152,17 +152,16 @@ for (const width of [320, 768, 1440]) {
     // as the fixture customer so the server can select the account handoff.
     await page.goto("/checkout");
     await expect(page).toHaveURL(/\/cart$/);
-    await page
-      .context()
-      .addCookies([
-        {
-          name: "aat_session",
-          value: "synthetic-browser-fixture-only",
-          url: page.url(),
-          httpOnly: true,
-          sameSite: "Lax",
-        },
-      ]);
+    const browserContext = page.context();
+    await browserContext.addCookies([
+      {
+        name: "aat_session",
+        value: "synthetic-browser-fixture-only",
+        url: page.url(),
+        httpOnly: true,
+        sameSite: "Lax",
+      },
+    ]);
     await page.goto("/checkout");
     await expect(page).toHaveURL(/\/dashboard\/cart#cart-checkout-form$/);
     await expect(
