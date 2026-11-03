@@ -8,6 +8,8 @@ import {
   type StaffOrderRecord,
 } from "@/lib/admin/work-order-detail";
 import { formatKobo } from "@/lib/format/money";
+import { formatBusinessDate } from "@/lib/format/date";
+import type { RequestBody } from "@/lib/api/contracts";
 import {
   fitmentLabels,
   fitmentQualifierKeys,
@@ -18,6 +20,7 @@ import type { PurchaseSelection } from "@/lib/purchase/suitability";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import styles from "./purchase-suitability.module.css";
+type ReviewBody = RequestBody<"/admin/orders/{orderId}/purchase-review/decision", "post">;
 
 function RequestedVehicle({ selection }: { selection: PurchaseSelection }) {
   const model = useResource(
@@ -58,7 +61,7 @@ export function PurchaseReviewDecision({
   const id = useId(),
     review = order.purchaseReviews[0];
   const [supplier, setSupplier] = useState<Record<string, boolean>>({});
-  const [decision, setDecision] = useState("APPROVED");
+  const [decision, setDecision] = useState<ReviewBody["decision"]>("APPROVED");
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [error, setError] = useState<string>();
   const [changed, setChanged] = useState(false);
@@ -99,7 +102,7 @@ export function PurchaseReviewDecision({
         throw Error(
           "Enter a clear reason using one paragraph of 10 to 2,000 characters.",
         );
-      const body = {
+      const body: ReviewBody = {
         expectedVersion: order.version,
         expectedRevision: review.revision,
         decision,
@@ -140,8 +143,8 @@ export function PurchaseReviewDecision({
           { label: "Order", value: order.orderNumber },
           { label: "Review", value: String(review.revision) },
           { label: "Total", value: formatKobo(order.totalKobo) },
-          ...order.items.map((item) => ({
-            label: `${item.productName} · ${item.quantity}`,
+          ...order.items.map((item, index) => ({
+            label: `Part ${index + 1}: ${item.productName} · ${item.quantity}`,
             value:
               decision === "DECLINED"
                 ? "Not offered"
@@ -149,6 +152,24 @@ export function PurchaseReviewDecision({
                   ? "Confirmed supplier supply"
                   : "Current branch stock",
           })),
+          ...body.availability.flatMap((line, index) =>
+            line.evidence.kind === "SUPPLIER"
+              ? [
+                  {
+                    label: `Part ${index + 1}: supplier confirmation`,
+                    value: line.evidence.sourceReference,
+                  },
+                  {
+                    label: `Part ${index + 1}: confirmation valid until`,
+                    value: formatBusinessDate(line.evidence.availableUntil),
+                  },
+                  {
+                    label: `Part ${index + 1}: arrival estimate`,
+                    value: `${formatBusinessDate(line.evidence.expectedFrom)} to ${formatBusinessDate(line.evidence.expectedTo)}`,
+                  },
+                ]
+              : [],
+          ),
           { label: "Reason", value: reason },
         ],
         retrySafely: true,
@@ -263,7 +284,7 @@ export function PurchaseReviewDecision({
                         }
                       >
                         <option value="stock">Reserve available branch stock</option>
-                        <option value="supplier">
+                        <option value="supplier" disabled={!order.partsQuote}>
                           Supplier confirmed · accepted quotation required
                         </option>
                       </select>
@@ -327,7 +348,9 @@ export function PurchaseReviewDecision({
             <select
               id={`${id}-decision`}
               value={decision}
-              onChange={(event) => setDecision(event.target.value)}
+              onChange={(event) =>
+                setDecision(event.target.value === "DECLINED" ? "DECLINED" : "APPROVED")
+              }
             >
               <option value="APPROVED">Confirm suitability and availability</option>
               <option value="DECLINED">Unable to confirm this offer</option>

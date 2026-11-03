@@ -52,7 +52,11 @@ export function MutationReview({
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const cancel = useRef<HTMLButtonElement>(null);
-  const previousFocus = useRef<Element | null>(null);
+  // Capture before the commit disables the opener's fieldset. Waiting for the
+  // effect can observe body after the browser has already blurred that button.
+  const previousFocus = useRef<Element | null>(
+    typeof document === "undefined" ? null : document.activeElement,
+  );
   const submitting = useRef(false);
   const active = useRef(true);
   const [busy, setBusy] = useState(false);

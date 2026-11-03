@@ -1,3 +1,18 @@
+3 November 16:19 UTC verification follow-up: aed43c10 passed backend
+41670149247 and frontend production checks (1,384 passed, 12 existing skips),
+but browser run 41670149228 finished 15/19. All 13 availability regressions and
+two guest cases passed. Two staff cases exposed shared dialog focus capture after
+the opener's fieldset was disabled; two customer cases used malformed fixture
+responses missing required metadata. The fixtures are corrected without relaxing
+API validation. Guest acceptance now waits for the saved order refresh rather
+than accepting an uncertain outcome. Shared dialog focus tests pass 6/6 locally.
+
+Supplier controls are unavailable without an accepted quotation; their confirmation
+summary includes validity and arrival dates. The additional Lagos-time supplier UI
+case passes (staff suite 5/5). Editable vehicle fields now receive an explicit Axe
+check in the browser. The corrected exact-source production/browser checks remain
+required; no new live-role, provider or physical-device acceptance is claimed.
+
 3 November 16:02 UTC UI follow-up: source ebc62510's frontend check stopped
 at two type errors indexing the shared dynamic qualifier shape. The schema now
 preserves those qualifier types at the source. New customer/staff detail reads

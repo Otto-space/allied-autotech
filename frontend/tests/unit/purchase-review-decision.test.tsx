@@ -51,6 +51,70 @@ afterEach(() => {
   vi.resetAllMocks();
 });
 describe("staff purchase exception decisions", () => {
+  it("records genuine supplier fields in Lagos time only for a quoted order", async () => {
+    const order = fixture(),
+      saved = vi.fn();
+    order.partsQuote = {
+      id: order.items[0].id,
+      enquiryId: order.items[1].id,
+      revision: 1,
+      notes: "Synthetic accepted quotation for UI fixture only",
+    };
+    mocks.request.mockImplementation(async (_path, options) => ({
+      data: options?.method
+        ? {
+            ...order,
+            purchaseReviews: [
+              {
+                ...order.purchaseReviews[0],
+                status: "APPROVED",
+                decidedAt: "2026-11-03T15:00:00Z",
+                expiresAt: "2099-10-08T09:30:00Z",
+              },
+            ],
+          }
+        : order,
+    }));
+    render(
+      <PurchaseReviewDecision
+        order={order}
+        disabled={false}
+        onSaved={saved}
+        onBusyChange={vi.fn()}
+      />,
+    );
+    fireEvent.change(screen.getAllByLabelText("Availability")[0], {
+      target: { value: "supplier" },
+    });
+    fireEvent.change(screen.getByLabelText("Supplier confirmation reference"), {
+      target: { value: "Synthetic confirmed supply reference" },
+    });
+    fireEvent.change(screen.getByLabelText("Confirmation valid until · Lagos time"), {
+      target: { value: "2026-12-01T12:00" },
+    });
+    fireEvent.change(screen.getByLabelText("Estimated arrival from"), {
+      target: { value: "2026-12-02" },
+    });
+    fireEvent.change(screen.getByLabelText("Estimated arrival to"), {
+      target: { value: "2026-12-04" },
+    });
+    fireEvent.change(screen.getByLabelText("Reason and next step"), {
+      target: { value: "Synthetic evidence and supplier confirmation reviewed" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Review decision" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm fixture decision" }));
+    await waitFor(() => expect(saved).toHaveBeenCalledTimes(1));
+    const body = mocks.request.mock.calls.find(
+      ([, options]) => options?.method === "POST",
+    )![1].body;
+    expect(body.availability[0].evidence).toEqual({
+      kind: "SUPPLIER",
+      sourceReference: "Synthetic confirmed supply reference",
+      availableUntil: "2026-12-01T11:00:00.000Z",
+      expectedFrom: "2026-12-02T07:00:00.000Z",
+      expectedTo: "2026-12-04T17:00:00.000Z",
+    });
+  });
   it.each(["APPROVED", "DECLINED"])(
     "binds %s to the current offer and never records payment",
     async (decision) => {

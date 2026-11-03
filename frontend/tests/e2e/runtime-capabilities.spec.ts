@@ -49,7 +49,14 @@ for (const width of [320, 1440]) {
           status: "DECLINED",
           decidedAt: new Date().toISOString(),
         });
-        return route.fulfill({ json: { success: true, data: state.record } });
+        return route.fulfill({
+          json: {
+            success: true,
+            message: "Synthetic review",
+            meta: { requestId: "purchase-review-fixture" },
+            data: state.record,
+          },
+        });
       },
     );
     await page.goto(`/admin/orders/${state.record.id}`);
@@ -96,12 +103,21 @@ for (const width of [320, 1440]) {
     current.paymentDueAt = null;
     const previous = orderRecord(1);
     await page.route("**/api/v1/auth/csrf", (route) =>
-      route.fulfill({ json: { success: true, data: { csrfToken: "s".repeat(43) } } }),
+      route.fulfill({
+        json: {
+          success: true,
+          message: "Synthetic CSRF",
+          meta: { requestId: "purchase-review-fixture" },
+          data: { csrfToken: "s".repeat(43) },
+        },
+      }),
     );
     await page.route(`**/api/v1/public/fitment/models/${orderId(5000)}`, (route) =>
       route.fulfill({
         json: {
           success: true,
+          message: "Synthetic vehicle names",
+          meta: { requestId: "purchase-review-fixture" },
           data: {
             id: orderId(5000),
             makeId: orderId(5001),
@@ -133,7 +149,14 @@ for (const width of [320, 1440]) {
             requirements: { lines: body.lines },
           },
         ];
-        return route.fulfill({ json: { success: true, data: current } });
+        return route.fulfill({
+          json: {
+            success: true,
+            message: "Synthetic review",
+            meta: { requestId: "purchase-review-fixture" },
+            data: current,
+          },
+        });
       },
     );
     await page.goto(`/dashboard/orders/${current.id}`);
@@ -155,6 +178,11 @@ for (const width of [320, 1440]) {
     await expect(page.getByLabel("Model", { exact: true }).first()).toHaveValue(
       "Synthetic test model",
     );
+    const editableAccessibility = await new AxeBuilder({ page })
+      .include("main")
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+      .analyze();
+    expect(editableAccessibility.violations).toEqual([]);
     await page.getByRole("button", { name: "Check details and availability" }).click();
     await expect(
       page.getByRole("button", { name: "Review payment options" }),
@@ -204,7 +232,14 @@ for (const width of [320, 1440]) {
             },
           ],
         });
-        return route.fulfill({ json: { success: true, data: state.order } });
+        return route.fulfill({
+          json: {
+            success: true,
+            message: "Synthetic review",
+            meta: { requestId: "purchase-review-fixture" },
+            data: state.order,
+          },
+        });
       },
     );
     await page.goto(`/purchase/orders/${state.order.id}`);
@@ -214,8 +249,17 @@ for (const width of [320, 1440]) {
     await expect(
       page.getByRole("button", { name: "Review payment", exact: true }),
     ).toHaveCount(0);
+    const refreshed = page.waitForResponse(
+      (response) =>
+        response.request().method() === "GET" &&
+        new URL(response.url()).pathname === `/api/v1/purchase/orders/${state.order.id}`,
+    );
     await page.getByRole("button", { name: "Check details and availability" }).click();
+    await refreshed;
     await expect(page.getByRole("heading", { name: "Next step" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Check saved details" })).toHaveCount(
+      0,
+    );
     await expect(
       page
         .getByText(
