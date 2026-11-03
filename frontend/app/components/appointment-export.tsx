@@ -35,8 +35,8 @@ export function AppointmentExport({
       </div>
       <p className={styles.hint}>
         Save the confirmed arrival time. After a change, update or remove your saved
-        event. Imported events may not sync automatically; check your calendar�s reminder
-        settings.
+        event. Imported events may not sync automatically; check reminder settings in your
+        calendar app.
       </p>
     </div>
   );

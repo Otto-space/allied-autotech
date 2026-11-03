@@ -90,14 +90,20 @@ jobs:
             THEN RAISE EXCEPTION 'Booking CI runtime privileges exceed the allowed scope'; END IF;
           END $$;
           SQL
-          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+          # This worker claims the global due queue. Run its concurrency proof
+          # before lifecycle fixtures add reminders under declared synthetic clocks.
+          run_booking_tests() {
+            docker run --rm --network "container:${{ job.services.postgres.id }}" \
             --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
             -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
             -e DB_NAME=allied_booking_acceptance_ci -e TEST_DB_NAME=allied_booking_acceptance_ci \
             -e DB_USER=allied_booking_runtime_ci -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
             -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
-            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run "$@" --maxWorkers=1
+          }
+          run_booking_tests tests/integration/booking-reminder-concurrency.test.ts
+          run_booking_tests \
             tests/unit/booking-timing.test.ts tests/unit/booking-slot-timing.test.ts \
             tests/unit/workshop-resources.test.ts tests/integration/workshop-resource-policy.test.ts \
             tests/integration/booking-resource-lifecycle.test.ts \
@@ -106,8 +112,8 @@ jobs:
             tests/integration/workforce-booking-reschedule.test.ts tests/integration/booking-timing.test.ts \
             tests/integration/booking-slot-timing.test.ts tests/integration/owner-booking-policy.test.ts \
             tests/integration/workforce-booking-confirmation.test.ts tests/integration/workforce-bookings.test.ts \
-            tests/integration/booking-response.test.ts tests/integration/booking-reminder-concurrency.test.ts \
-            tests/integration/booking-settlement-race.test.ts tests/integration/concern-booking-journey.test.ts --maxWorkers=1
+            tests/integration/booking-response.test.ts \
+            tests/integration/booking-settlement-race.test.ts tests/integration/concern-booking-journey.test.ts
       - name: Verify administrator authoring on the new isolated CI database
         run: |
           docker run --rm --network "container:${{ job.services.postgres.id }}" \

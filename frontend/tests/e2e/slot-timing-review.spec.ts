@@ -49,13 +49,40 @@ for (const role of ["ADMIN", "STAFF"])
       await expect(
         page.getByRole("button", { name: "Close slot", exact: true }),
       ).toBeVisible();
+      const status = page.getByText("Timing review required", { exact: true });
+      const assertWholeStatusWords = async () => {
+        const wrappedWords = await status.evaluate((element) => {
+          const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+          const split: string[] = [];
+          while (walker.nextNode()) {
+            const node = walker.currentNode;
+            for (const match of (node.textContent ?? "").matchAll(/\S+/g)) {
+              const range = document.createRange();
+              range.setStart(node, match.index!);
+              range.setEnd(node, match.index! + match[0].length);
+              if (range.getClientRects().length > 1) split.push(match[0]);
+            }
+          }
+          return split;
+        });
+        expect(wrappedWords, "Status words must remain whole").toEqual([]);
+      };
+      await assertWholeStatusWords();
       if (width === 1440) {
         await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
         await expect(
           page.getByRole("button", { name: "Expand sidebar", exact: true }),
         ).toBeVisible();
+        await assertWholeStatusWords();
       }
-      await page.getByRole("button", { name: "Review and reopen", exact: true }).click();
+      if (role === "ADMIN")
+        await page.screenshot({
+          path: test.info().outputPath(`slot-status-before-review-${width}.png`),
+        });
+      const review = page.getByRole("button", { name: "Review and reopen", exact: true });
+      await review.focus();
+      await expect(review).toBeFocused();
+      await review.press("Enter");
       const dialog = page.getByRole("dialog");
       await expect(dialog).toContainText("45 minutes");
       await expect(dialog).toContainText("10 minutes");

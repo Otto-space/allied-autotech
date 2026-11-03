@@ -249,7 +249,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         assignedStaffId: f.mechanical1.user.staffProfile!.id,
         alternativeStartsAt: null,
         rescheduleRequests: [
-          { status: "PENDING", source: "WORKSHOP", startsAt: alternative },
+          { status: "PENDING", source: "WORKSHOP_ALTERNATIVE", startsAt: alternative },
         ],
       });
       const requestId = pending.body.data.rescheduleRequests[0].id;

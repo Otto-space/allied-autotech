@@ -1,3 +1,26 @@
+3 November 19:59 UTC verification follow-up: resource source 330e7cba replayed
+97 migrations and passed db:check/types/scripts/lint plus 14/14 resource lifecycle
+and 9/9 policy cases under the isolated non-owner runtime. The combined booking
+run has 152 passes, four failures and four provisioned-workspace skips; it is not
+a passing backend gate. Three failures came from global reminder-worker assertions
+consuming due reminders left by synthetic-clock resource fixtures. The worker
+suite is now invoked first on the fresh schema, retains every assertion and adds
+an explicit loopback guard; no fixture data is cleared. The fourth was a test's
+incorrect workshop-source enum; it now asserts WORKSHOP_ALTERNATIVE from the real
+contract. Native rerun is required. Secrets 41707257982 pass; frontend 41707258054
+was still running at last inspection.
+
+Downloaded 406f7814 browser artifact 13266860032 (3,364,796 bytes). Tablet calendar,
+slot review and collapsed-laptop screenshots are retained under runtime-ci-406f7814.
+Manual inspection found a badge breaking Required across lines and a replacement
+character in calendar copy. Shared badges now prefer whole-word wrapping while
+retaining long-token fallback, and slot status gets sufficient column space;
+control radii and font sizes are unchanged. Calendar copy uses plain readable
+words. Updated browser cases inspect whole-word layout in both laptop states,
+activate review with Enter and retain unobscured badge screenshots. Local calendar
+units pass 8/8, scoped lint passes, and 64 browser cases collect; this correction's
+rendered rerun is pending. This is fixture evidence, not real roles/devices.
+
 3 November 19:51 UTC exact-source follow-up: 406f7814 frontend workflow
 41705432560 passes 1,457 units (12 existing isolated-audit skips), production
 checks and 64/64 Chromium cases with no browser skips. Secrets 41705432562 pass.

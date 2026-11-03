@@ -200,16 +200,16 @@
   overflow-wrap: anywhere;
 }
 .work-slot-table th:first-child {
-  width: 24%;
+  width: 22%;
 }
 .work-slot-table th:nth-child(2) {
-  width: 26%;
+  width: 24%;
 }
 .work-slot-table th:nth-child(3) {
-  width: 16%;
+  width: 14%;
 }
 .work-slot-table th:nth-child(4) {
-  width: 12%;
+  width: 18%;
 }
 .work-slot-table th:nth-child(5) {
   width: 22%;

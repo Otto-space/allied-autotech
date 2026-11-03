@@ -40,6 +40,9 @@ for (const width of [320, 768, 1440]) {
     await expect(
       page.getByText("Save the confirmed arrival time.", { exact: false }),
     ).toHaveCSS("color", "rgb(219, 229, 238)");
+    const hint = page.getByText("Save the confirmed arrival time.", { exact: false });
+    await expect(hint).toContainText("check reminder settings in your calendar app.");
+    await expect(hint).not.toContainText("\uFFFD");
     await page.screenshot({ path: info.outputPath(`calendar-${width}.png`) });
     state.record.status = "REQUESTED";
     await page.reload();
