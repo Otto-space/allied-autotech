@@ -484,6 +484,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             message: "private",
             name: "private",
             email: own.user.email,
+            resolvedAt: old,
             closedAt: now,
           },
           {

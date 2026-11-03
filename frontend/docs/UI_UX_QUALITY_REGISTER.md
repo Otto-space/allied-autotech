@@ -1,3 +1,10 @@
+4 November CI follow-up: native run 41740199625 passed migration replay,
+db:check and preceding integration stages, then rejected the new closed-enquiry
+fixture because its required resolvedAt timestamp was missing. The fixture now
+records resolution before closure; database guards and all ownership/terminal
+state assertions remain unchanged. The new attention case is not accepted until
+its rerun passes. Frontend production checks pass; rendered CI is still running.
+
 ## 4 November: customer attention summaries — local verification
 
 Current batch: owned customer attention at /dashboard. The source baseline had no
