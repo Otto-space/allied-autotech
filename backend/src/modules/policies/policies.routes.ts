@@ -1,3 +1,7 @@
+import {
+  readResourceOptions,
+  resourceOptionsQuery,
+} from "./workshop-resource-options.js";
 import { readWorkshopResourcePolicy } from "./capacity-policy-workspace.js";
 import {
   capabilityListQuerySchema,
@@ -165,6 +169,27 @@ export function createPoliciesRouter() {
         userAgent: req.get("user-agent") ?? null,
       });
       res.json(successResponse("Current retention policy", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/booking-resources/:branchId/options",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ params: capacityBranchParams, query: resourceOptionsQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const { branchId } = capacityBranchParams.parse(req.params);
+      const result = await readResourceOptions(
+        req.actor!,
+        branchId,
+        resourceOptionsQuery.parse(req.query),
+        {
+          requestId: String(req.id),
+          ipAddress: req.ip ?? null,
+          userAgent: req.get("user-agent") ?? null,
+        },
+      );
+      res.json(successResponse("Workshop resource record choices", req.id, result));
     },
   );
   router.get(

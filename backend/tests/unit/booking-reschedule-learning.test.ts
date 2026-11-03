@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { learningArticles } from "../../src/modules/learning/learning.content.js";
 it("preserves the appointment pending approval and describes independent managed responsibilities", () => {
   const article = learningArticles.find((row) => row.id === "booking-confirmation")!;
-  expect(article.version).toBe(9);
+  expect(article.version).toBe(10);
   expect(article.gate).toBe("booking-confirmation");
   expect(article.href).toBe("/admin/workforce/bookings");
   const text = article.steps.join(" ");
@@ -69,6 +69,6 @@ it("explains resource allocation, rollback, cleanup and unknown legacy work with
   ])
     expect(work).toContain(phrase);
   const customer = learningArticles.find((row) => row.id === "service-request")!;
-  expect(customer.version).toBe(23);
+  expect(customer.version).toBe(24);
   expect(customer.steps.join(" ")).toContain("does not create a payment");
 });

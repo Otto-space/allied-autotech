@@ -23,7 +23,11 @@ import {
 import type { SessionState } from "@/lib/api/types";
 import { Brand } from "./brand";
 import { Feedback } from "./feedback";
-import { dashboardNavigation } from "@/lib/dashboard-navigation";
+import {
+  dashboardNavigation,
+  withOwnerWorkshopPolicies,
+  isOwnerWorkshopPolicyRoute,
+} from "@/lib/dashboard-navigation";
 import { DashboardNavigation, DashboardPageSearch } from "./dashboard-navigation";
 import { useResource } from "@/lib/api/use-resource";
 import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
@@ -176,7 +180,10 @@ export function DashboardShell({
       : [];
   const navigation = session?.workforceManaged
     ? verifiedWorkforce
-      ? workforceNavigation(verifiedWorkforce)
+      ? withOwnerWorkshopPolicies(
+          workforceNavigation(verifiedWorkforce),
+          session.user.role,
+        )
       : []
     : session
       ? dashboardNavigation(session.user.role, navigationCapabilities, release)
@@ -562,6 +569,7 @@ export function DashboardShell({
             pathname !== "/admin/dispute-policy" &&
             pathname !== "/admin/retention-policy" &&
             pathname !== "/admin/booking-capacity" &&
+            pathname !== "/admin/booking-resources" &&
             pathname !== "/admin/delivery-policy" &&
             pathname !== "/admin/reservation-terms" &&
             pathname !== "/admin/refund-timing" &&
@@ -626,7 +634,8 @@ export function DashboardShell({
                       <div hidden={!verifiedWorkforce} inert={!verifiedWorkforce}>
                         {workforcePage?.id === "profile" ||
                         workforcePage?.id === "security" ||
-                        workforcePage?.id === "notifications" ? (
+                        workforcePage?.id === "notifications" ||
+                        isOwnerWorkshopPolicyRoute(session.user.role, pathname) ? (
                           children
                         ) : (
                           <WorkforceWorkspace

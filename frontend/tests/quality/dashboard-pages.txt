@@ -188,3 +188,10 @@ customer-support-actions.spec.ts
 
 # Sticky utilities, single dock, four roles and all seven exact viewport pairs.
 shared-shell-dock.spec.ts
+
+# 3 November D06 source-only owner resource editor; synthetic fixtures, actual-role/hosted acceptance separate.
+workshop-resources.spec.ts > owner reviews real names, split periods and one approval at 320px
+workshop-resources.spec.ts > owner reviews real names, split periods and one approval at 1440px
+workshop-resources.spec.ts > drop response blocks duplicate save and survives refresh for explicit recovery
+workshop-resources.spec.ts > managed SUPER_ADMIN retains the correct resource authoring boundary
+workshop-resources.spec.ts > managed ADMIN retains the correct resource authoring boundary

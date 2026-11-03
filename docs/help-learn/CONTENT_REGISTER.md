@@ -1,3 +1,11 @@
+3 November integrated resource editor checkpoint: booking-confirmation v10 now
+points authorised owners to the real Workshop resources authoring/review/recovery
+flow while preserving separate booking duties. New workshop-resource-plan v1 stays
+owner-only and draft pending separate publication. The editor carries its own
+instructions; learning content cannot publish a plan or grant duties. Strict current
+record lookup exposes only labels and eligibility; recorded settings and approval
+history remain private. This source integration does not activate live booking.
+
 3 November saved-money checkpoint: financial-aftercare v5 explains Saved order
 amounts, requested versus ordered quantities and issued-record review when no
 snapshot exists. Financial-policy-work v5 records the approved future-order arithmetic
@@ -266,14 +274,15 @@ mean a production publication. Feature flags remain off in committed examples.
 | ----------------------- | -------------------- | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | privacy-and-allie       | public               | 1 / 2026-11-01   | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff                                         |
 | financial-aftercare     | financial-aftercare  | 5 / 2026-11-03   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
-| booking-confirmation    | booking-confirmation | 9 / 2026-11-03   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
+| booking-confirmation    | booking-confirmation | 10 / 2026-11-03   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
+| workshop-resource-plan | owner | 1 / 2026-11-03, draft | /admin/booking-resources | Owner-only lookup, current record, versioned approval and uncertain-result recovery; not published |
 | refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
 | dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
 | privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
 | financial-policy-work   | financial-policy     | 5 / 2026-11-03   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
 | parts-fitment           | public               | 14 / 2026-11-03  | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
-| service-request         | public               | 23 / 2026-11-03  | /services                    | Public launch mode and Services page                                                                                                        |
+| service-request         | public               | 24 / 2026-11-03  | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
 | no-live-lookup          | public               | 2 / 2026-10-26   | /help                        | Launch restrictions and existing status contracts                                                                                           |
 | own-conversation        | customer             | 4 / 2026-10-27   | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |
@@ -471,3 +480,5 @@ Parts-fitment v11 UI follow-up: supplier arrival estimates are visible before pa
 3 November booking integration: service-request v21 and restricted booking-confirmation v7 cover preserved original appointments, reasoned approval/withdrawal, saved estimates and explicit confirmed-arrival calendar export. Parts-fitment v14 adds changed-offer rechecking without retaining an earlier payment approval. Existing automatic eligibility, audiences, guide targets and permissions remain unchanged; these source changes do not activate booking or finance. Native isolated and production-browser acceptance for the combined source remain pending.
 
 3 November integration correction: service-request v22 restores the independently enabled unpaid-booking explanation lost while merging older booking guidance. Tablet and both laptop navigation states are added to the browser acceptance suite; this does not enable a live capability.
+
+3 November resource integration: service-request v24 clarifies recorded-start cancellation boundaries and skips missed short-notice reminders. Owner resource guidance remains draft; eligibility, guide targets and feature flags are unchanged. Native cancellation safeguards passed in the 116-case isolated run; the two new 320/1440px rendered refresh cases await exact-source hosted verification.

@@ -344,15 +344,19 @@ export async function scheduleReminders(
   booking: { id: string; scheduledAt: Date; scheduleVersion: number },
 ): Promise<void> {
   const definitions = [["ONE_HOUR", 1]] as const;
-  await transaction.bookingReminder.createMany({
-    data: definitions.map(([kind, hours]) => ({
+  const now = Date.now();
+  const reminders = definitions
+    .map(([kind, hours]) => ({
       bookingId: booking.id,
       kind,
-      scheduledFor: new Date(
-        Math.max(Date.now(), booking.scheduledAt.getTime() - hours * 3_600_000),
-      ),
+      scheduledFor: new Date(booking.scheduledAt.getTime() - hours * 3_600_000),
       scheduleVersion: booking.scheduleVersion,
-    })),
+    }))
+    // Short-notice confirmation must not dump already missed reminders at once.
+    .filter((reminder) => reminder.scheduledFor.getTime() > now);
+  if (reminders.length === 0) return;
+  await transaction.bookingReminder.createMany({
+    data: reminders,
     skipDuplicates: true,
   });
 }
@@ -2084,8 +2088,14 @@ export class ServiceOperationsService {
     return this.database.$transaction(async (transaction) => {
       const booking = await this.lockOwnedCustomerBooking(actor.userId, id, transaction);
       if (booking.status === "CANCELLED") return jsonSafe(customerSafeBooking(booking));
-      if (!bookingTransitions[booking.status].includes("CANCELLED"))
-        throw invalidServiceTransition();
+      // Customer self-service ends when work starts; staff retain the separate operational transition.
+      if (
+        booking.startedAt !== null ||
+        !["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED"].includes(booking.status)
+      )
+        throw serviceOperationConflict(
+          "Contact the workshop about work that has started or already ended",
+        );
       const now = new Date();
       const result = await this.repository.updateBooking(
         id,

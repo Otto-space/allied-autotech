@@ -894,6 +894,15 @@ export function BookingCapacity() {
       <header className="capacity-page-heading">
         <h1>Booking capacity</h1>
         <p>Manage each workshop’s approved calendar and daily booking limit.</p>
+        <Link
+          href={
+            branchId
+              ? `/admin/booking-resources?branch=${branchId}`
+              : "/admin/booking-resources"
+          }
+        >
+          Workshop people and equipment
+        </Link>
       </header>
       {canRead && (
         <div className="field capacity-branch-picker">

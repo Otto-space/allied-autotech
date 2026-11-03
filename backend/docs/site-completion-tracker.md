@@ -1,3 +1,26 @@
+## Renewed briefs: integrated verification checkpoint
+
+Source ca3d2464 passes Frontend release checks 41726745577: locked Next 16.4.3
+production build, types/lint/format, 1,458 unit tests (12 existing skips), and
+113/113 isolated Chromium browser regressions. Secrets 41726745554 passes.
+The same backend source in 8845c4ec passes every stage of 41725720928, including
+migration replay and database checks. These are branch checks, not exact-master
+publication or actual-role production acceptance.
+
+Master 27e41b75 is reconciled without discarding its booking/resource authoring,
+financial behavior, test coverage or evidence. Owner resource navigation and the
+new shared shell both remain. The duplicated workshop-resources testMatch entry
+is consolidated to one entry; no test is removed. Required checks must rerun for
+the resulting integration. Production remains unpromoted by this task.
+
+Real browser zoom remains unverified. Dedicated Chrome Playwright
+page.keyboard.press('Control+Equal') left viewport/DPR unchanged; that probe was
+skipped. Native Computer Use sky.get_window / activate_window / get_window_state
+on only the dedicated test window returned "Computer Use app approval timed out".
+The waiting zoom test then timed out after 180 seconds; no zoom input or everyday
+browser operation occurred. This is an execution limitation, not a zoom pass.
+No Firefox/WebKit installation or physical-device test was performed.
+
 ## Renewed briefs checkpoint — 3 November 2026
 
 The owner confirmed the newer Page by Page and Live Chrome/Cross Browser briefs.
@@ -8,6 +31,205 @@ and the full remaining scope are recorded in frontend/docs/UI_UX_QUALITY_REGISTE
 PR #14 is not production publication. Preserve newer master financial work and
 all unrelated worktrees. Full page/state, role/API, browser, business-data and
 exact-master compatible release gates remain open.
+
+3 November 22:09 UTC exact-source verification follow-up: signed 7e92d780 is
+verified by GitHub. Backend run 41726701704 and Secrets run 41726701665 pass.
+Backend passes 97-migration replay/db:check, types/scripts/lint, 60 safety cases,
+65 source/money/API cases, eight reminder concurrency, 184 booking/resource/finance
+cases (four separately provisioned-workspace cases not run), 82 purchase, 90 guest,
+41 Admin/owner-control cases and all later workflow stages, including final 113
+Care/Allie cases. No test file was removed to obtain these results.
+
+Frontend run 41726701652 passes lint/types, 1,476 units (12 existing skips) and
+production build, but fails the final document format check. One standalone
+numeric run ID followed by a period was interpreted as a list in the merged
+quality register. Prettier joined it into its intended paragraph; the document
+format recheck now passes. This run never executed the browser stage, so it is not
+rendered acceptance. A new exact-source check must pass before any release claim.
+
+All 521 existing OpenAPI request/security contracts and their shared components
+are unchanged from d9cf9d09; the sole added path is the owner resource-reference
+lookup. Prisma schema/migration bytes are unchanged. Remaining work still includes
+actual resource configuration/acceptance, public offered-time resource filtering,
+ongoing-work adjustments, and the full ledger. Inspection confirms D11 actual
+arrival history is missing: attendanceConfirmedAt records the customer's RSVP,
+not physical attendance. D16 currently permits CONFIRMED to NO_SHOW without a grace
+check or required evidence. The next implementation must pair actual arrival/wait/
+left history with a configurable delegated attendance check and staff-verified
+missed action; a countdown or RSVP cannot substitute for physical attendance.
+No record, price, live setting, data grant or deployment changed. Last reserve
+check read 20.84 GiB; no local build, dependency installation or Docker write ran.
+
+3 November 22:08 UTC integration gate review: 7e92d780 preserves both resource
+editor and financial changes. Backend 41726701704 and Secrets 41726701665 pass.
+Frontend 41726701652 passes 1,476 units (12 existing skips) and the production
+build, then fails formatting in the merged UI_UX_QUALITY_REGISTER.md. No browser
+runtime case executed in that run; no acceptance is inferred from collection or
+build success. The quality register is now formatted. Exact-source checks must
+pass for the follow-up commit before publication. Production remains at the
+verified audit release; its backend deployment and four digests were freshly
+read without mutation. Eight managed backups are listed, newest 3 November
+05:22:10 UTC; that read is not a fresh release backup/restore rehearsal.
+C: has about 20.85 GiB free, below the 22 GiB reviewed four-image build budget.
+The conservative old/unshared/inactive/non-cachemount Docker cache filter returns
+no candidates. All application databases, active source, useful caches and current
+and rollback resources are retained. No build, migration or production promotion
+was attempted after the failed disk preflight.
+
+3 November 21:59 UTC merged-source check: backend types/lint pass. Seven
+focused files produced 47 passes and one stale service-request v23 assertion after
+the concurrent v24 started-work correction. The assertion now expects v24 while
+retaining its semantic checks; affected file rerun passes 5/5. Frontend lint and
+format pass, and 94 production-build browser cases are collected. The new resource
+fields use shared border/surface/ink/focus/radius tokens; business data, physical
+availability, financial policy and permission predicates are unchanged.
+
+3 November 21:56 UTC concurrent-source reconciliation: origin a2d2ccf3 now
+contains the same resource lookup/editor through b9c9c089 plus started-booking
+cancellation and future-only reminder safeguards. Those changes, their synthetic
+acceptance cases, and all existing financial source are preserved. Our merge adds
+shared control/focus tokens, 768px and collapsed-laptop coverage, actual Tab/Shift+Tab,
+retained overview/review/success screenshots and the corrected booking-confirmation
+v10 Allie expectation. Existing started-booking browser and native checks stay in
+the combined matrix; 94 browser cases are collected after integration.
+
+The native target helper's Docker NAT branch was reviewed: it requires an exact
+64-character container ID, task/name/label match, explicit isolated database name
+and confirmation, Docker-proven tmpfs without persistent mounts, host loopback port,
+matching actual PostgreSQL container address/port and actual database identity.
+Native loopback remains unchanged; arbitrary claimed hosts are not accepted. The
+new rejected-proof and native-loopback regression cases are retained. No Docker
+container, real operational record, database grant or live capability was changed.
+Frontend resource units 18/18 and API/capacity/finance pending regressions 38/38 pass;
+backend 34 focused plus six retrieval cases pass before this merge. New merged
+source checks and rendered acceptance are still required; prior results are not
+claimed as evidence for changed started-booking/reminder composition.
+
+3 November 21:53 UTC D06/D07 integrated authoring checkpoint:
+selected changes from 89719302/08454401 are reconciled onto current d9cf9d09,
+preserving the automatic purchase review model, financial allocations, current
+Prisma schema and all existing migrations. The owner editor now has genuine
+service/technician search and pagination, unavailable-reference disclosure, explicit
+physical-unit condition and service assessments, qualifications, separate working
+periods around breaks, dated exceptions, current/scheduled/history views, reviewed
+approval and uncertain-result recovery. It does not grant duties, release existing
+allocations, invent actual staff/equipment availability or activate booking/payment.
+Managed owners retain the exact policy pages; Admin operational access and owner-only
+policy authority remain distinct. Shared focus and control-radius tokens replace
+the prepared editor's blue focus and five-pixel input corner override.
+
+Local backend types/scripts/lint and 34 focused learning cases pass; six broader
+retrieval coverage cases also pass. Local frontend lint and 18 new resource-contract,
+draft/navigation cases pass. Canonical API is regenerated and validates 446 paths,
+522 mounted operations and four explicit infrastructure routes. Twenty-one resource
+browser cases are now in the retained production-build matrix (92 total), including
+320/768/1440, expanded/collapsed laptop, keyboard focus and target size, whole-page
+Axe, explicit approval/cancellation, empty/unknown inputs, search/pagination, stale
+preflight, access loss, rejection, uncertain receipt/refresh recovery, future Nigeria
+time, device-clock disagreement and preserved exception precision. These cases are
+collected, not yet executed on this integrated source. Native lookup tests are added
+to the existing isolated non-owner runtime suite; no prior test file is removed.
+
+Browser plugin is not available; use the repository's Playwright production-build
+workflow and synthetic API fixture. Local disk reserve remains above 20 GiB; no new
+installation/build/Docker resource is authorised by this checkpoint. Use hosted
+exact-source checks, then manually inspect retained rendered captures. Resource and
+financial guidance versions/eligibility are preserved and draft owner instructions
+remain unpublished. Real-role operational configuration, provider/storage/notification
+acceptance and 92→97 compatible release gates remain outstanding. The full ledger,
+D03/D11-D17 and original audit requirements remain in scope.
+
+3 November 21:44 UTC bounded D02 result: signed master
+d9cf9d093fc8e71f16883bbf2cc2b353da187447 is verified by GitHub and passes all
+three exact-source gates: Frontend 41722772458, Backend 41722772291 and Secrets
+41722772221. Frontend passes 1,458 units (12 existing skips), production lint,
+types/build/format and 71/71 Chromium cases: zero skips, failures or flaky cases.
+Backend passes 97-migration isolated replay/db:check, compiler/scripts/lint,
+60 safety cases, 64 early source/money/API cases, eight reminder concurrency,
+163 combined booking/financial cases (four separately provisioned-workspace cases
+not run), 82 purchase, 90 guest, 41 Admin/full-operations/owner-control and final
+113 Care/Allie cases, plus every other required stage. The earlier 63 count in
+the pending checkpoint was a transcription error; the run logs show 64.
+
+New account/guest journeys prove saved order/invoice allocations, original three-unit
+quantity and unchanged totals after synthetic catalogue repricing; aftercare copies
+the original allocation without charging money. Scoped STAFF/ADMIN reads, malformed
+money rejection on managed and legacy approval routes, unchanged owner controls and
+customer-history privacy pass. No runtime permission was broadened. Five expanded
+purchase/checkout request bodies are unchanged; the only API contract extension is
+optional read-only monetaryBreakdown. Canonical validation covers 445 paths/521
+operations with four explicit infrastructure routes.
+
+Seven added browser cases verify STAFF/ADMIN at 320/768/1440px, readable original
+amounts, no horizontal overflow, keyboard focus, scoped automated WCAG AA checks,
+zero writes, legacy review and invalid evidence without a decision form. Artifact
+13273543068 is 4,090,004 bytes; SHA-256
+66b0e574eddc4c30ec583a7813224fa6a30c12a5d9e64e03f55ebba2052c5c8b
+was verified before safe selective extraction to runtime-ci-d9cf9d09. Manually
+inspected STAFF 320px, ADMIN 768px and expanded-sidebar ADMIN 1440px screenshots:
+requested 1 of 3 and saved amounts for all 3 are distinct, labels and amounts are
+readable, and cards have purposeful spacing without clipped content. These are
+synthetic built-app captures, not actual-role persistence or physical-device proof.
+The new financial section has no equivalent retained before capture; do not claim
+one. Existing slot-action before/after captures remain under 21c633af/0a61508e.
+
+Status: this arithmetic/saved-amount batch is verified in source and isolated tests,
+not deployed or live-payment activated. D17 durable refund-unit reservations,
+capture/prior-refund reconciliation and execution remain unfinished; the pure helper
+alone does not reserve units or transfer money. D03 staged materials/workmanship,
+D11 arrival, D12-D14 collection/sourcing/private codes, D15 reminder configuration,
+D16 verified no-show and remaining full-ledger requirements stay in scope. Next
+bounded implementation: reconcile committed 89719302/08454401 resource-authoring
+contracts/UI with current master and test them before compatible release preparation.
+The wider 92→97 rollout still needs fresh target/backup/populated restore/recovery
+and packaged-runtime gates. Round-off arithmetic requires no further owner decision.
+Real roles, provider test mode, notification delivery, private storage, Safari/Firefox,
+physical devices and full screen-reader use remain unverified where recorded.
+No real records, stock, prices, flags or production deployment changed in this batch.
+Final reserve check: 20.87 GiB. No local cleanup, installation, build or Docker operation occurred.
+
+### 3 November 2026: resource authoring reconciled with current master
+
+The signed resource lookup/editor checkpoints were cherry-picked onto current
+master 3be68d5d, then merged with d9cf9d09 in b9c9c089. This preserves the newer
+purchasing reviews, canonical 97 migrations, saved monetary allocations, approved
+rounding rule, own-profile access, home imagery and audit fixes. The alternate
+20261103103000 prototype migration stays only on the retained historical branch;
+it is not merged over master. Other active page-audit work remains untouched.
+Both financial and resource tests are retained in the combined CI configurations.
+
+Pre-financial-merge source 418705dc passed all 116 native booking/resource HTTP and
+database cases on an exact task-owned temporary isolated database after all 97
+migrations replayed, Prisma diff and db:check passed, and a restricted CRUD runtime
+was verified. The initial 107-pass run retained one Docker identity timeout;
+an attempted reuse failed test authentication and was cleaned up. The final full
+run passed without skips and removed its exact tmpfs container. No application,
+shared or production database was written. Final log:
+%TEMP%/aat-resource-current-master-native-final.log.
+
+D09 prevents customer cancellation after a recorded start even if a legacy status
+still says Confirmed; D15 skips missed one-hour reminders instead of sending them
+immediately. No cutoff or proposed extra reminder interval is activated. The screen
+now checks the recorded start, with two new 320/1440px refresh regressions. Public
+service-request guidance advances to v24 with unchanged gates/targets. Exact-source
+post-merge frontend/backend compilers, 33 focused frontend and 49 backend unit
+cases, scoped frontend/full backend lint, formatting and a 3,839-file secret scan
+pass. The old v23 learning assertion initially failed and was updated to the
+explicit v24 definition; its final 12-case file passes. Hosted rendered checks
+remain pending until recorded.
+The previous 19-case editor browser result remains synthetic pre-integration
+acceptance, not evidence for this new composition or real operational accounts.
+
+Read-only Vercel checks identify both aliases at audit source 7384abf8. Its
+recorded backend receipt is schema 92; no fresh backend schema probe is claimed;
+this resource/97-migration composition has not been deployed. Exact-master CI,
+fresh backup, populated restore, reviewed pending migrations, matching backend and
+runtime/alias verification are still required. Resource-aware public offer
+filtering and remaining D01-D17 items are not marked complete. Purchasing remains
+separately gated; the owner's approved aggregate half-up/largest-remainder rule is
+preserved, while invoice identities, VAT applicability and provider acceptance
+remain separate. Historical evidence below retains its original source/migration
+counts and does not supersede this current checkpoint.
 
 3 November 21:32 UTC exact-source follow-up: 2b9bf542 signature is valid and
 its secrets check 41721669591 passes. Backend 41721669595 passes migration replay,
@@ -97,6 +319,123 @@ approved arithmetic, preserving issued history and prior refund/capture limits;
 then continue D03/D11-D17 and the remaining ledger items. Do not ask again for the
 settled rounding decision. The full goal remains active, not whole-site launch-ready.
 Last reserve checks read 20.97 GiB; no cleanup or substantial local build occurred.
+
+### 3 November 2026: D06 owner resource editor — local acceptance checkpoint
+
+Current item advances to resource-aware public offered-time filtering, then the
+remaining D06/D07 operational extension/legacy-assessment workflows. Full D01-D17
+remains active. Worktree allied-contact-validation-20261027 reuses signed 89719302;
+no new worktree, dependency install, image build or operational record was created.
+
+/admin/booking-resources now selects actual service/staff references, records each
+physical equipment/shared-space identity once, explicit condition/categories,
+service quantities or explicit no-resource assessments, actual qualifications,
+split working periods and dated unavailable periods. New fields do not fabricate
+people, machines, status or hours. Drafts stay in memory. Explicit branch/navigation
+checks protect unsaved edits. Source, written evidence and immediate/future effective
+time are reviewed before one CAS publication. Fresh account/branch/version checks
+precede POST; exact provenance/actor/settings receipts precede success. Immediate
+approval uses the freshly checked server clock, and recorded exception seconds and
+milliseconds survive unrelated edits. Policies and booking allocations are not
+rewritten by this editor.
+
+Definitive rejections retain the draft. Unknown transport or invalid receipts block
+another submission, retaining only the opaque reference/version/fingerprint through
+refresh. Recovery displays fresh current/history evidence and requires explicit
+acknowledgement without resubmission or attributing success from a version alone.
+Access loss removes private details. Both ordinary and managed Super Admin access
+are supported; managed owners retain verified-workforce gating plus independent
+owner/profile/MFA API checks. Only the exact calendar/resource policy pages use that
+owner path; ordinary managed administrators gain no link, data or job responsibility.
+The first managed test exposed the old registry redirect and a follow-up missing
+import; both were corrected and the two-role check passed. No job predicate widened.
+
+Final evidence: frontend resource/draft/recovery/API/capacity/managed-route units
+70/70, backend learning/catalogue/retrieval units 22/22, frontend/backend compiler,
+scoped lint and formatting pass. The final expanded rendered suite passes 19/19 with no retries or skipped
+cases: %TEMP%/aat-resource-editor-browser-accepted.log. The prior 16-case pass
+and two managed-role cases are retained separately, not added to this count.
+Earlier browser failures include a cold preview/label-locator problem and incomplete
+synthetic notification/periodic-capability fixtures; strict console checks remain.
+The final fixture handles those expected reads instead of ignoring errors.
+Playwright uses installed Edge because the Browser plugin is unavailable; all
+records/approvals are synthetic. Responsive approval cases cover 320/1440px, with
+other state checks at their declared/default widths. No actual device, screen-reader,
+hosted or operational-role acceptance is claimed. Screenshots are outside Git under
+%TEMP%/allied-resource-editor-{320,1440}.png and allied-resource-overview-{320,1440}.png.
+
+Restricted booking-confirmation instructions advance to v10. The new owner-only
+workshop-resource-plan v1 remains draft and excluded from publication; owner gate,
+MFA/session requirements and no-permission-grant checks are preserved. Existing
+semantic guide targets and production flags are unchanged. Help checkpoint:
+docs/help-learn/WORKSHOP_RESOURCE_AUTHORING_20261103.md.
+
+No production publication, provider call, financial approval, schema migration or
+new capability activation. Existing parent native 18-case lookup/policy evidence is
+not a fresh browser/API/database end-to-end run for this editor. Actual staff mapping,
+working equipment, spaces, qualifications and shifts still need factual owner
+configuration. Public resource-aware offer filtering, in-progress estimates,
+legacy/disruption recovery and remaining D03/D11/D13/D14/D16/D17 work remain.
+Purchasing keeps suitability and availability BEFORE payment and stays separately
+gated by its financial/provider prerequisites. Exact-master CI, compatible backend,
+95-migration backup/restore/rollout safeguards and real-role acceptance remain release
+gates. The existing 320px capacity-page regression also passes 1/1
+(%TEMP%/aat-resource-capacity-regression.log). The owned preview and capability-only
+fixture are stopped; useful warm caches and all other tasks are preserved. The disk
+reserve passed after shutdown at 20.92 GiB. Development stream-abort diagnostics
+from interrupted/negative-route fixture requests are retained separately; this is
+not production-runtime acceptance.
+
+### 3 November 2026: D06 resource authoring lookup and receipt foundation
+
+Current item remains the owner resource-authoring/review interface and resource-aware
+public offered-time filtering. Full D01-D17 remains active. This batch adds the
+real-record lookup and strict client contracts needed by that interface; it does
+not claim an editor route, rendered acceptance or production publication.
+
+Owner/MFA-only GET /admin/policies/booking-resources/:branchId/options returns
+minimal service/technician references and names, with private/no-store responses and
+an atomic current-session audit. Job-duty eligibility is applied before keyset
+pagination. Legacy branch staff retain existing authority; managed staff need an
+active JOBS_UPDATE assignment. Revoked, future/expired, foreign, inactive and
+unverified references cannot become eligible through a resource selection. Exact
+reference lookup can label retired selections unavailable, without exposing contact,
+login or financial fields or fabricating a replacement record.
+
+Client contracts validate actual resource groups, qualifications, split periods,
+exceptions, versioned workspace consistency and exact D06-D07 approval receipts.
+Recovery stores only an opaque token, expected version and SHA-256 fingerprint;
+shared session invalidation redacts every resource branch marker. No approval body,
+staff schedule or written evidence is stored in browser recovery. These helpers
+are prepared for the forthcoming editor; no existing customer flow is changed.
+
+Evidence: 18/18 native HTTP/database cases across resource lookup and existing
+resource-policy publication pass on fresh aat_d06_48f7fa181984_test, after all 95
+migrations replayed, Prisma diff and db:check passed. Restricted CRUD runtime
+credentials were used, isolation identity checked, and the owned tmpfs target was
+removed. Shared databases/volumes were preserved. Earlier failed fixture-reference
+and expected-status runs remain separate; 422 is the existing validation contract.
+The final log is %TEMP%/aat-d06-options-native-accepted.log. Frontend resource,
+capacity and API-client units pass 43/43. Backend source, scripts and the focused
+native test type check pass; frontend generation/types and scoped lint pass. The
+focused test compiler includes existing Express declarations and permits the same
+environment index-access style as existing test helpers. Initial temporary compiler
+configuration failures are not source failures or counted as passes.
+
+OpenAPI validates 434 paths and 509 mounted documented operations plus four explicit
+infrastructure routes. Export uses the existing synthetic offline environment;
+the first normal export stopped for missing DB environment configuration, without
+connecting or writing to a database. Formatting, diff whitespace and secret checks
+pass. Existing Vite configuration/Node crypto/pg driver warnings remain separate.
+C: reserve passes at 21.86 GiB. No new worktree, dependency install, Docker image
+build, production write, provider call, financial approval or feature activation.
+
+Still required: complete resource author/review/recovery UI and rendered acceptance;
+resource-aware offer filtering; in-progress estimate extensions and legacy resource
+assessment/disruption recovery. Actual staff/account mapping, working equipment,
+shared spaces, service requirements and shifts need authorised factual configuration.
+D03/D11/D13/D14/D16/D17 implementation and all unresolved D01-D17 values remain in
+scope. Purchasing stays separate, with compatibility and availability BEFORE payment.
 
 ## 3 November 2026: consolidated audit deployed checkpoint
 
