@@ -356,6 +356,12 @@ for (const width of [320, 1440]) {
         },
       ),
     ).toBeVisible();
+    await expect(
+      page.getByRole("alert").filter({
+        hasText:
+          "The offer changed. Refresh the order and review its current details before continuing.",
+      }),
+    ).toBeInViewport({ ratio: 1 });
     expect(paymentBodies).toEqual([
       {
         targetType: "ORDER",
