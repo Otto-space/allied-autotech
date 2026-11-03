@@ -483,50 +483,59 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     });
     it("releases every configured line against the same inventory without stale balance reuse", async () => {
       const f = await fixture();
-      await prisma.orderItem.create({
+      // Create the complete immutable two-line snapshot from the outset. Keep
+      // the first order and its hold untouched to test preservation as well.
+      const current = await prisma.order.create({
         data: {
-          orderId: f.order.id,
-          productId: f.product.id,
-          productName: f.product.name,
-          sku: f.product.sku,
-          quantity: 1,
-          unitPriceKobo: 10000n,
-          subtotalKobo: 10000n,
+          customerId: f.order.customerId,
+          branchId: f.order.branchId,
+          orderNumber: randomUUID(),
+          customerName: "Synthetic configured-line buyer",
+          customerEmail: f.buyer.user.email,
+          customerPhone: "08030000000",
+          subtotalKobo: 20000n,
+          taxKobo: 1500n,
+          totalKobo: 21500n,
+          paymentDueAt: f.order.paymentDueAt,
+          items: {
+            create: [1, 2].map(() => ({
+              productId: f.product.id,
+              productName: f.product.name,
+              sku: f.product.sku,
+              quantity: 1,
+              unitPriceKobo: 10000n,
+              subtotalKobo: 10000n,
+            })),
+          },
         },
-      });
-      await prisma.order.update({
-        where: { id: f.order.id },
-        data: { subtotalKobo: 20000n, taxKobo: 1500n, totalKobo: 21500n },
+        select: purchaseReviewOrderSelect,
       });
       await prisma.inventory.update({
         where: { id: f.inventory.id },
-        data: { quantity: 2, reserved: 2 },
+        data: { quantity: 3, reserved: 3 },
       });
-      await prisma.inventoryReservation.create({
-        data: {
-          inventoryId: f.inventory.id,
-          customerId: f.order.customerId,
-          quantity: 1,
-          expiresAt: f.order.paymentDueAt!,
-          idempotencyKey: randomUUID(),
-          requestHash: "b".repeat(64),
-          referenceType: "ORDER",
-          referenceId: f.order.id,
-        },
-      });
-      const current = await prisma.order.findUniqueOrThrow({
-        where: { id: f.order.id },
-        select: purchaseReviewOrderSelect,
-      });
+      for (let index = 0; index < current.items.length; index++)
+        await prisma.inventoryReservation.create({
+          data: {
+            inventoryId: f.inventory.id,
+            customerId: f.order.customerId,
+            quantity: 1,
+            expiresAt: f.order.paymentDueAt!,
+            idempotencyKey: randomUUID(),
+            requestHash: "b".repeat(64),
+            referenceType: "ORDER",
+            referenceId: current.id,
+          },
+        });
       const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
       const result = await request(app)
-        .post(`/api/v1/customers/orders/${f.order.id}/purchase-review`)
+        .post(`/api/v1/customers/orders/${current.id}/purchase-review`)
         .set("Origin", env.FRONTEND_URL)
         .set("Cookie", f.buyer.cookie)
         .set("x-csrf-token", f.buyer.csrf)
         .send({
           expectedVersion: 0,
-          expectedRevision: 1,
+          expectedRevision: 0,
           reason: "Synthetic configured line review update",
           lines: current.items.map((item) => ({ orderItemId: item.id, selection: null })),
         });
@@ -534,10 +543,17 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const inventory = await prisma.inventory.findUniqueOrThrow({
         where: { id: f.inventory.id },
       });
-      expect(inventory.quantity).toBe(2);
-      expect(inventory.reserved).toBe(0);
+      expect(inventory.quantity).toBe(3);
+      expect(inventory.reserved).toBe(1);
+      expect(
+        (
+          await prisma.inventoryReservation.findUniqueOrThrow({
+            where: { id: f.reservation.id },
+          })
+        ).status,
+      ).toBe("ACTIVE");
       const ledger = await prisma.inventoryTransaction.findMany({
-        where: { referenceId: f.order.id, type: "RESERVATION_RELEASE" },
+        where: { referenceId: current.id, type: "RESERVATION_RELEASE" },
         orderBy: { createdAt: "asc" },
       });
       expect(ledger).toHaveLength(2);
@@ -546,8 +562,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           .map((entry) => [entry.reservedBefore, entry.reservedAfter])
           .sort((a, b) => a[0]! - b[0]!),
       ).toEqual([
-        [1, 0],
         [2, 1],
+        [3, 2],
       ]);
     });
   },
