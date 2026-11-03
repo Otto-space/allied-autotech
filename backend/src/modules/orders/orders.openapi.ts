@@ -5,6 +5,10 @@ import {
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 import {
+  purchaseReviewRequestSchema,
+  purchaseReviewDecisionSchema,
+} from "./purchase-review.schemas.js";
+import {
   checkoutBodySchema,
   customerOrderCancelBodySchema,
   customerOrderListQuerySchema,
@@ -36,6 +40,23 @@ interface Path {
 }
 export function registerOrdersOpenApi(registry: OpenAPIRegistry): void {
   const paths: Path[] = [
+    {
+      method: "post",
+      path: "/customers/orders/{orderId}/purchase-review",
+      summary: "Submit an owned unpaid order's specifications for final review",
+      params: orderParamsSchema,
+      body: purchaseReviewRequestSchema,
+      headers: csrf,
+    },
+    {
+      method: "post",
+      path: "/admin/orders/{orderId}/purchase-review/decision",
+      summary:
+        "Record an authorised final compatibility and availability review without charging or allocating the order",
+      params: orderParamsSchema,
+      body: purchaseReviewDecisionSchema,
+      headers: csrf,
+    },
     {
       method: "get",
       path: "/customers/parts-quotes/enquiries/{id}",

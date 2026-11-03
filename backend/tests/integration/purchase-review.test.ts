@@ -1,4 +1,9 @@
 import { randomUUID } from "node:crypto";
+import request from "supertest";
+import { createApp } from "../../src/app.js";
+import { env } from "../../src/config/env.js";
+import { OrdersService } from "../../src/modules/orders/orders.service.js";
+import { paymentTestSession } from "../helpers/payment-session.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import { assertReviewedPurchasePayable } from "../../src/modules/orders/purchase-review-payable.js";
@@ -151,7 +156,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           ],
         },
       };
-      return { order, product, rule, review, approval, reservation, inventory };
+      return { order, product, rule, review, approval, reservation, inventory, buyer };
     }
     const payable = (id: string) =>
       prisma.$transaction((tx) => assertReviewedPurchasePayable(tx, id), {
@@ -375,6 +380,175 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           })
         ).status,
       ).toBe("REQUESTED");
+    });
+    it("authorises owned customer specifications and an actual Admin review without exposing private proof", async () => {
+      const f = await fixture();
+      const outsider = await reviewSourceCustomer();
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      const requirements = purchaseRequirementsSchema.parse(f.review.requirements);
+      const path = `/api/v1/customers/orders/${f.order.id}/purchase-review`;
+      const body = {
+        expectedVersion: 0,
+        expectedRevision: 1,
+        reason: "Synthetic customer specification submitted for review",
+        ...requirements,
+      };
+      const foreign = await request(app)
+        .post(path)
+        .set("Origin", env.FRONTEND_URL)
+        .set("Cookie", outsider.cookie)
+        .set("x-csrf-token", outsider.csrf)
+        .send(body);
+      expect(foreign.status, JSON.stringify(foreign.body)).toBe(404);
+      expect(
+        (await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }))
+          .reserved,
+      ).toBe(1);
+      const submitted = await request(app)
+        .post(path)
+        .set("Origin", env.FRONTEND_URL)
+        .set("Cookie", f.buyer.cookie)
+        .set("x-csrf-token", f.buyer.csrf)
+        .send(body);
+      expect(submitted.status, JSON.stringify(submitted.body)).toBe(200);
+      expect(submitted.body.data.purchaseReviews).toHaveLength(1);
+      expect(submitted.body.data.purchaseReviews[0]).toMatchObject({
+        revision: 2,
+        status: "REQUESTED",
+      });
+      expect(submitted.body.data.paymentDueAt).toBeNull();
+      expect(
+        (await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }))
+          .reserved,
+      ).toBe(0);
+      expect(
+        await prisma.inventoryTransaction.count({
+          where: { referenceId: f.order.id, type: "RESERVATION_RELEASE" },
+        }),
+      ).toBe(1);
+      const admin = await prisma.user.create({
+        data: {
+          email: `purchase-operator-${randomUUID()}@example.test`,
+          passwordHash: "unusable-synthetic-admin-fixture",
+          role: "ADMIN",
+          status: "ACTIVE",
+          emailVerifiedAt: new Date(),
+          staffProfile: { create: { firstName: "Synthetic", lastName: "Administrator" } },
+        },
+      });
+      const actor = {
+        userId: admin.id,
+        email: admin.email,
+        role: admin.role,
+        sessionId: await paymentTestSession(admin.id, admin.role),
+        mfaRequired: true,
+        mfaVerifiedAt: new Date(),
+      };
+      const orders = new OrdersService();
+      const decision = {
+        expectedVersion: 1,
+        expectedRevision: 2,
+        decision: "APPROVED",
+        reason: "Synthetic final operational review against approved evidence",
+        availability: [
+          { orderItemId: f.order.items[0]!.id, evidence: { kind: "BRANCH_STOCK" } },
+        ],
+      };
+      const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
+      await expect(
+        orders.decidePurchaseReview(
+          { ...actor, mfaVerifiedAt: null },
+          f.order.id,
+          decision,
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 403 });
+      await orders.decidePurchaseReview(actor, f.order.id, decision, context);
+      const safe = await request(app)
+        .get(`/api/v1/customers/orders/${f.order.id}`)
+        .set("Cookie", f.buyer.cookie);
+      expect(safe.status).toBe(200);
+      expect(safe.body.data.purchaseReviews[0]).toMatchObject({
+        revision: 2,
+        status: "APPROVED",
+      });
+      for (const key of [
+        "decisionSnapshot",
+        "payableFingerprint",
+        "decidedByUserId",
+        "reason",
+      ])
+        expect(safe.body.data.purchaseReviews[0]).not.toHaveProperty(key);
+      expect((await payable(f.order.id)).order.paidAt).toBeNull();
+    });
+    it("releases every configured line against the same inventory without stale balance reuse", async () => {
+      const f = await fixture();
+      await prisma.orderItem.create({
+        data: {
+          orderId: f.order.id,
+          productId: f.product.id,
+          productName: f.product.name,
+          sku: f.product.sku,
+          quantity: 1,
+          unitPriceKobo: 10000n,
+          subtotalKobo: 10000n,
+        },
+      });
+      await prisma.order.update({
+        where: { id: f.order.id },
+        data: { subtotalKobo: 20000n, taxKobo: 1500n, totalKobo: 21500n },
+      });
+      await prisma.inventory.update({
+        where: { id: f.inventory.id },
+        data: { quantity: 2, reserved: 2 },
+      });
+      await prisma.inventoryReservation.create({
+        data: {
+          inventoryId: f.inventory.id,
+          customerId: f.order.customerId,
+          quantity: 1,
+          expiresAt: f.order.paymentDueAt!,
+          idempotencyKey: randomUUID(),
+          requestHash: "b".repeat(64),
+          referenceType: "ORDER",
+          referenceId: f.order.id,
+        },
+      });
+      const current = await prisma.order.findUniqueOrThrow({
+        where: { id: f.order.id },
+        select: purchaseReviewOrderSelect,
+      });
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      const result = await request(app)
+        .post(`/api/v1/customers/orders/${f.order.id}/purchase-review`)
+        .set("Origin", env.FRONTEND_URL)
+        .set("Cookie", f.buyer.cookie)
+        .set("x-csrf-token", f.buyer.csrf)
+        .send({
+          expectedVersion: 0,
+          expectedRevision: 1,
+          reason: "Synthetic configured line review update",
+          lines: current.items.map((item) => ({ orderItemId: item.id, selection: null })),
+        });
+      expect(result.status, JSON.stringify(result.body)).toBe(200);
+      const inventory = await prisma.inventory.findUniqueOrThrow({
+        where: { id: f.inventory.id },
+      });
+      expect(inventory.quantity).toBe(2);
+      expect(inventory.reserved).toBe(0);
+      const ledger = await prisma.inventoryTransaction.findMany({
+        where: { referenceId: f.order.id, type: "RESERVATION_RELEASE" },
+        orderBy: { createdAt: "asc" },
+      });
+      expect(ledger).toHaveLength(2);
+      expect(
+        ledger
+          .map((entry) => [entry.reservedBefore, entry.reservedAfter])
+          .sort((a, b) => a[0]! - b[0]!),
+      ).toEqual([
+        [1, 0],
+        [2, 1],
+      ]);
     });
   },
 );

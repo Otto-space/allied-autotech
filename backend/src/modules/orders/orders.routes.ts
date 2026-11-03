@@ -9,6 +9,10 @@ import { requireCsrf } from "../../common/middleware/csrf.js";
 import { validate } from "../../common/middleware/validate.js";
 import { OrdersController } from "./orders.controller.js";
 import {
+  purchaseReviewRequestSchema,
+  purchaseReviewDecisionSchema,
+} from "./purchase-review.schemas.js";
+import {
   checkoutBodySchema,
   customerOrderCancelBodySchema,
   customerOrderListQuerySchema,
@@ -54,6 +58,16 @@ export function createCustomerOrdersRouter(): Router {
     }),
     controller.customerCancel,
   );
+  router.post(
+    "/:orderId/purchase-review",
+    requireCsrf,
+    validate({
+      params: orderParamsSchema,
+      body: purchaseReviewRequestSchema,
+      query: ordersEmptyQuerySchema,
+    }),
+    controller.customerRequestPurchaseReview,
+  );
   return router;
 }
 export function createStaffOrdersRouter(): Router {
@@ -82,6 +96,16 @@ export function createAdminOrderOperationsRouter(): Router {
   const router = Router();
   const controller = new OrdersController();
   router.use(authenticate(), requireAdministrator);
+  router.post(
+    "/:orderId/purchase-review/decision",
+    requireCsrf,
+    validate({
+      params: orderParamsSchema,
+      body: purchaseReviewDecisionSchema,
+      query: ordersEmptyQuerySchema,
+    }),
+    controller.decidePurchaseReview,
+  );
   router.post(
     "/expire",
     requireCsrf,

@@ -54,6 +54,17 @@ import {
   purchaseQuoteParamsSchema,
 } from "./purchase.schemas.js";
 import { jsonSafe, orderFingerprint, page } from "./orders.types.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
+import { lockPurchaseReviewOrder } from "./purchase-review.repository.js";
+import {
+  assertReviewCanChange,
+  recordPurchaseRequirements,
+  decidePurchaseReview,
+} from "./purchase-review.service.js";
+import {
+  purchaseReviewRequestSchema,
+  purchaseReviewDecisionSchema,
+} from "./purchase-review.schemas.js";
 
 const transitions = {
   PENDING: ["CONFIRMED", "CANCELLED"],
@@ -645,6 +656,83 @@ export class OrdersService {
     );
     return jsonSafe({ ...result, items: result.items.map(customerOrderView) });
   }
+  async customerRequestPurchaseReview(
+    actor: AuthenticatedActor,
+    id: string,
+    raw: unknown,
+    context: RequestSecurityContext,
+  ) {
+    assertCustomer(actor);
+    const input = purchaseReviewRequestSchema.parse(raw);
+    if (!productPurchasesEnabled(env))
+      throw orderConflict(
+        "Online purchasing is not available. Contact the team about an enquiry.",
+      );
+    await withTransactionRetry(
+      this.database,
+      async (tx) => {
+        const profile = await this.repository.customerProfile(actor.userId, tx);
+        const order = await lockPurchaseReviewOrder(tx, id);
+        if (!profile || order.customerId !== profile.id || order.guestId !== null)
+          throw orderNotFound();
+        await assertReviewCanChange(tx, order);
+        await this.releaseOrRestock(actor.userId, id, "PENDING", tx);
+        await recordPurchaseRequirements(tx, order, input, actor.userId, context);
+      },
+      { isolationLevel: "Serializable" },
+    );
+    return this.customerOrder(actor, id);
+  }
+  async guestRequestPurchaseReview(
+    credentials: { sessionToken: string; csrfToken: string },
+    id: string,
+    raw: unknown,
+    context: RequestSecurityContext,
+  ) {
+    const input = purchaseReviewRequestSchema.parse(raw);
+    if (!productPurchasesEnabled(env))
+      throw orderConflict(
+        "Online purchasing is not available. Contact the team about an enquiry.",
+      );
+    await withTransactionRetry(
+      this.database,
+      async (tx) => {
+        const access = await this.guestAccess.lockAccess(tx, credentials.sessionToken, {
+          kind: "write",
+          csrfToken: credentials.csrfToken,
+        });
+        const order = await lockPurchaseReviewOrder(tx, id);
+        if (order.guestId !== access.guestId || order.customerId !== null)
+          throw orderNotFound();
+        await assertReviewCanChange(tx, order);
+        await this.releaseOrRestock(null, id, "PENDING", tx);
+        await recordPurchaseRequirements(tx, order, input, null, context);
+      },
+      { isolationLevel: "Serializable" },
+    );
+    return this.guestOrder(credentials.sessionToken, id);
+  }
+  async decidePurchaseReview(
+    actor: AuthenticatedActor,
+    id: string,
+    raw: unknown,
+    context: RequestSecurityContext,
+  ) {
+    assertOrderOperator(actor);
+    if (actor.role !== "ADMIN" && actor.role !== "SUPER_ADMIN") throw orderForbidden();
+    const input = purchaseReviewDecisionSchema.parse(raw);
+    await withTransactionRetry(
+      this.database,
+      async (tx) => {
+        await lockAccessActor(tx, actor);
+        const order = await lockPurchaseReviewOrder(tx, id);
+        await this.assertBranch(actor, order.branchId, tx);
+        await decidePurchaseReview(tx, order, input, actor.userId, context);
+      },
+      { isolationLevel: "Serializable" },
+    );
+    return this.staffOrder(actor, id, context);
+  }
   async customerOrder(actor: AuthenticatedActor, id: string) {
     assertCustomer(actor);
     const profile = await this.repository.customerProfile(actor.userId);
@@ -1159,6 +1247,9 @@ export class OrdersService {
           referenceId: orderId,
         },
       });
+      inventory.quantity = nextQuantity;
+      inventory.reserved = nextReserved;
+      inventory.version += 1;
     }
   }
   private async releaseOrRestock(
@@ -1231,6 +1322,8 @@ export class OrdersService {
             referenceId: orderId,
           },
         });
+        inventory.reserved = nextReserved;
+        inventory.version += 1;
       } else {
         const nextQuantity = inventory.quantity + reservation.quantity;
         if (
@@ -1269,6 +1362,8 @@ export class OrdersService {
             referenceId: orderId,
           },
         });
+        inventory.quantity = nextQuantity;
+        inventory.version += 1;
       }
     }
   }

@@ -25,6 +25,7 @@ import {
   customerAftercareView,
 } from "./order-aftercare.schemas.js";
 import { jsonSafe } from "./orders.types.js";
+import { purchaseReviewRequestSchema } from "./purchase-review.schemas.js";
 import {
   purchaseQuoteParamsSchema,
   purchaseQuoteAcceptSchema,
@@ -266,6 +267,29 @@ export function createPurchaseRouter(
         201,
       );
     },
+  );
+  router.post(
+    "/orders/:orderId/purchase-review",
+    createSensitiveRateLimit(20),
+    requireTrustedOrigin,
+    validate({
+      headers: purchaseCsrfHeadersSchema,
+      params: orderParamsSchema,
+      body: purchaseReviewRequestSchema,
+      query: purchaseEmptySchema,
+    }),
+    async (req, res) =>
+      send(
+        req,
+        res,
+        "Specifications sent for final review",
+        await orders.guestRequestPurchaseReview(
+          credentials(req),
+          validated<{ orderId: string }>(res, "params").orderId,
+          validated(res, "body"),
+          context(req),
+        ),
+      ),
   );
   router.get(
     "/payments/:paymentId",

@@ -1,5 +1,22 @@
 ### 3 November: pre-payment review foundation - not yet a complete journey
 
+Current source package connects owned customer and verified-guest specification
+requests, plus current-session/MFA Admin and Super Admin decisions. No Staff
+approval grant was added. Buyer responses expose the latest specification/status,
+not supplier references, private reasoning, reviewer identity or proof snapshots.
+Requests release prior unpaid holds through the existing audited inventory ledger.
+Fixed shared consume/release/restock bookkeeping to advance the in-memory balance
+and version between multiple holds for one inventory row; a two-line release
+regression is added. These entry-point and shared-ledger cases await hosted CI.
+
+Canonical OpenAPI/handbook/client types are regenerated: 514 mounted/documented
+operations across 438 paths pass local route/spec checks. Coverage inventory was
+stale at 450 operations and is regenerated to 514; pending integrations stay pending.
+Scoped lint/format checks pass. Production remains unchanged and all D04 work is
+unpublished. Payment gating/provider revalidation, revised checkout/fulfilment,
+customer acceptance and review UI, guest/role acceptance, Help/learning and remaining
+D01-D17 implementation still require completion; this is not launch readiness.
+
 Verified foundation checkpoint: source 1140cba0 passes backend 41648120501,
 including empty migration replay/db:check and all 48 focused cases (42 unit,
 six real isolated PostgreSQL cases). Frontend 2e5e431d passes 41647690436,

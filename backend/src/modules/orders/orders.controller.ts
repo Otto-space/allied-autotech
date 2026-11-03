@@ -80,6 +80,38 @@ export class OrdersController {
           ),
         ),
       );
+  customerRequestPurchaseReview = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Specifications sent for final review",
+          req.id,
+          await this.service.customerRequestPurchaseReview(
+            actor(req),
+            id(res),
+            validated(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+  decidePurchaseReview = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Purchase review recorded",
+          req.id,
+          await this.service.decidePurchaseReview(
+            actor(req),
+            id(res),
+            validated(res, "body"),
+            context(req),
+          ),
+        ),
+      );
   staffList = async (req: Request, res: Response) =>
     res
       .set("Cache-Control", "private, no-store")

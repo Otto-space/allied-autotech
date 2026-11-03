@@ -5230,6 +5230,68 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### POST `/customers/orders/{orderId}/purchase-review`
+
+- Operation ID: `postCustomersOrdersByOrderIdPurchaseReview`
+- Purpose: Submit an owned unpaid order's specifications for final review. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `lines` | array<object> | Yes | Lines validated by this operation's strict request contract. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "lines": [
+    {
+      "orderItemId": "00000000-0000-4000-8000-000000000001",
+      "selection": {
+        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+        "year": 1886
+      }
+    }
+  ],
+  "expectedVersion": 0,
+  "expectedRevision": 0,
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Submit an owned unpaid order's specifications for final review",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/customers/parts-quotes/enquiries/{id}`
 
 - Operation ID: `getCustomersPartsQuotesEnquiriesById`
@@ -24439,6 +24501,69 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Unknown category; 409 Duplicate slug or stale version; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### POST `/admin/orders/{orderId}/purchase-review/decision`
+
+- Operation ID: `postAdminOrdersByOrderIdPurchaseReviewDecision`
+- Purpose: Record an authorised final compatibility and availability review without charging or allocating the order. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `decision` | APPROVED / DECLINED | Yes | Decision validated by this operation's strict request contract. |
+| `availability` | array<object> | Yes | Availability validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "expectedRevision": 1,
+  "reason": "synthetic-reason",
+  "decision": "APPROVED",
+  "availability": [
+    {
+      "orderItemId": "00000000-0000-4000-8000-000000000001",
+      "evidence": {
+        "kind": "BRANCH_STOCK"
+      }
+    }
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Record an authorised final compatibility and availability review without charging or allocating the order",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/admin/parts-quotes/enquiries/{id}`
 
 - Operation ID: `getAdminPartsQuotesEnquiriesById`
@@ -27835,6 +27960,68 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/purchase/orders/{orderId}/purchase-review`
+
+- Operation ID: `postPurchaseOrdersByOrderIdPurchaseReview`
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery, owned reads, cancellation and aftercare review; new checkout/payment mutations remain closed. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Guests cannot approve returns or refunds or initiate money movement. Submit specifications for an owned guest order without creating an account. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PURCHASE_GUEST
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `x-csrf-token` | header | string | Yes | Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `lines` | array<object> | Yes | Lines validated by this operation's strict request contract. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "lines": [
+    {
+      "orderItemId": "00000000-0000-4000-8000-000000000001",
+      "selection": {
+        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+        "year": 1886
+      }
+    }
+  ],
+  "expectedVersion": 0,
+  "expectedRevision": 0,
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Submit specifications for an owned guest order without creating an account",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/purchase/orders/{orderId}/aftercare/original-request`
 

@@ -295,7 +295,7 @@ export async function decidePurchaseReview(
       reason: input.reason,
       decidedByUserId: actorUserId,
       decidedAt: now,
-      ...(approval ?? {}),
+      ...approval,
     },
   });
   const changed = await tx.order.updateMany({

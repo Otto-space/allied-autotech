@@ -1,5 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
+import { purchaseReviewRequestSchema } from "./purchase-review.schemas.js";
 import { invoiceParamsSchema } from "../billing/billing.schemas.js";
 import { aftercareHeaders, aftercarePartialBody } from "./order-aftercare.schemas.js";
 import {
@@ -60,6 +61,15 @@ export function registerPurchaseOpenApi(registry: OpenAPIRegistry): void {
   });
   const keyed = orderIdempotencyHeadersSchema.extend(purchaseCsrfHeadersSchema.shape);
   const paths: Path[] = [
+    {
+      method: "post",
+      path: "/orders/{orderId}/purchase-review",
+      summary:
+        "Submit specifications for an owned guest order without creating an account",
+      params: orderParamsSchema,
+      body: purchaseReviewRequestSchema,
+      headers: purchaseCsrfHeadersSchema,
+    },
     {
       method: "get",
       path: "/orders/{orderId}/aftercare/original-request",
