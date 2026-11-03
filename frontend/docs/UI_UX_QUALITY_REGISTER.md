@@ -1,3 +1,20 @@
+3 November 19:37 UTC integration follow-up: frontend source 8bd2e173 passes
+41702361178 with 1,457 unit cases (12 existing skips) and 54/54 Chromium cases.
+The first backend failure was an old positive schema fixture missing the newly
+required reschedule reason; the corrected seven-case unit suite passes without
+relaxing validation. Retry 257faa0d passed the preceding database/runtime checks,
+then failed the authenticated Help test because merged service guidance lost the
+settled D01 unpaid-booking/checkout independence sentence. That content is restored
+in service-request v22; the test remains, and 13 relevant Help units pass.
+
+The new isolated runtime-role booking suite is moved earlier to expose its actual
+native results before unrelated later gates; no required check is removed.
+Browser discovery now collects 64 cases including 768px, plus collapsed/expanded
+laptop slot review. Passing estimate screenshots now use the normal retained
+test-artifact directory. These expanded executions remain pending; the 54-case
+pass does not prove the new tablet/sidebar cases. No migration or capability was
+applied/activated on a shared application target.
+
 ### 3 November 18:44 UTC package: booking/calendar integration candidate
 
 Target 19:44 UTC. Working source integrates the committed calendar portion of

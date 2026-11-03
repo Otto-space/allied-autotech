@@ -1,7 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import os from "node:os";
-import path from "node:path";
 import {
   workforceBookingConfirmationFixture,
   id,
@@ -194,7 +192,7 @@ async function review(page: Page, decline = false) {
   await expect(page.getByRole("dialog")).toBeVisible();
 }
 for (const role of ["STAFF", "ADMIN"] as const)
-  for (const width of [320, 1440])
+  for (const width of [320, 768, 1440])
     test(`${role} approves replacement at ${width}px while retaining original until confirmation`, async ({
       page,
     }) => {
@@ -215,7 +213,7 @@ for (const role of ["STAFF", "ADMIN"] as const)
       ).toEqual([]);
       if (role === "STAFF")
         await page.screenshot({
-          path: path.join(os.tmpdir(), `allied-managed-reschedule-${width}.png`),
+          path: test.info().outputPath(`allied-managed-reschedule-${width}.png`),
         });
       await dialog
         .getByRole("button", { name: "Confirm reschedule decision", exact: true })

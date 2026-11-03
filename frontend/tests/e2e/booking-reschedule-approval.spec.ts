@@ -25,7 +25,7 @@ const pending = (): BookingRescheduleRequest => ({
   decidedAt: null,
   decisionReason: null,
 });
-for (const width of [320, 1440]) {
+for (const width of [320, 768, 1440]) {
   test(`customer request preserves the appointment and can be withdrawn at ${width}px`, async ({
     page,
   }, info) => {

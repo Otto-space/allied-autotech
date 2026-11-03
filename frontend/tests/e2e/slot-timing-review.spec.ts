@@ -1,7 +1,5 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import os from "node:os";
-import path from "node:path";
 import { workSlotsFixture } from "../fixtures/work-slots";
 import { verifyConsole } from "../fixtures/preview-console";
 import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
@@ -11,7 +9,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 for (const role of ["ADMIN", "STAFF"])
-  for (const width of [320, 1440])
+  for (const width of [320, 768, 1440])
     test(`${role} reviews a stale slot against current service estimates at ${width}px`, async ({
       page,
     }) => {
@@ -51,6 +49,12 @@ for (const role of ["ADMIN", "STAFF"])
       await expect(
         page.getByRole("button", { name: "Close slot", exact: true }),
       ).toBeVisible();
+      if (width === 1440) {
+        await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+        await expect(
+          page.getByRole("button", { name: "Expand sidebar", exact: true }),
+        ).toBeVisible();
+      }
       await page.getByRole("button", { name: "Review and reopen", exact: true }).click();
       const dialog = page.getByRole("dialog");
       await expect(dialog).toContainText("45 minutes");
@@ -67,7 +71,7 @@ for (const role of ["ADMIN", "STAFF"])
       ).toEqual([]);
       if (role === "ADMIN")
         await page.screenshot({
-          path: path.join(os.tmpdir(), `allied-slot-timing-${width}.png`),
+          path: test.info().outputPath(`allied-slot-timing-${width}.png`),
         });
       await dialog.getByRole("button", { name: "Confirm change", exact: true }).click();
       await expect(
@@ -84,6 +88,12 @@ for (const role of ["ADMIN", "STAFF"])
       await expect(page.getByText("Timing review required", { exact: true })).toHaveCount(
         0,
       );
+      if (width === 1440) {
+        await page.getByRole("button", { name: "Expand sidebar", exact: true }).click();
+        await expect(
+          page.getByRole("button", { name: "Collapse sidebar", exact: true }),
+        ).toBeVisible();
+      }
       await page.reload();
       await expect(
         page.getByRole("button", { name: "Close slot", exact: true }),

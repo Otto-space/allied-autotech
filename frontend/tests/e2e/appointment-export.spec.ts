@@ -7,7 +7,7 @@ test.beforeEach(async ({ request }) => {
   await bookingRuntimeCapabilities(request);
 });
 
-for (const width of [320, 1440]) {
+for (const width of [320, 768, 1440]) {
   test(`calendar export downloads only current confirmed appointment at ${width}px`, async ({
     page,
   }, info) => {

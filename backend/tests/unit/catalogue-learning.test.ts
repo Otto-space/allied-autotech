@@ -83,9 +83,12 @@ it("versions guest refund handoff guidance while preserving separate financial a
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(21);
+  expect(article.version).toBe(22);
   expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
   expect(article.steps.join(" ")).toContain("wait for the current availability check");
+  expect(article.steps.join(" ")).toContain(
+    "unpaid requests do not depend on checkout being available",
+  );
   expect(article.steps.join(" ")).toContain(
     "No permission is requested by the invitation",
   );

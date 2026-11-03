@@ -8,7 +8,7 @@ test.beforeEach(async ({ request }) => {
   await bookingRuntimeCapabilities(request);
 });
 
-for (const width of [320, 1440])
+for (const width of [320, 768, 1440])
   test(`service estimates distinguish unassessed from zero and persist reviewed buffers at ${width}px`, async ({
     page,
   }) => {
