@@ -360,7 +360,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         photos.push(
           await prisma.resourceImage.create({
             data: {
-              customerVehicleId: chosen.id,
+              customerVehicle: { connect: { id: chosen.id } },
               isPrimary,
               sortOrder: isPrimary ? 4 : 0,
               asset: {
