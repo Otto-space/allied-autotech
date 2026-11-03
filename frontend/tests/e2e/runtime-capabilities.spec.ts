@@ -338,8 +338,8 @@ for (const width of [320, 1440]) {
         status: 409,
         json: {
           success: false,
-          message: "The offer changed. Refresh the order before continuing.",
-          error: { code: "PAYMENT_CONFLICT" },
+          message: "Untrusted synthetic server message which must not be displayed.",
+          error: { code: "PURCHASE_OFFER_CHANGED" },
           meta: { requestId: "offer-fixture" },
         },
       });
@@ -349,9 +349,12 @@ for (const width of [320, 1440]) {
       .getByRole("button", { name: "Create payment request", exact: true })
       .click();
     await expect(
-      page.getByText("The offer changed. Refresh the order before continuing.", {
-        exact: true,
-      }),
+      page.getByText(
+        "The offer changed. Refresh the order and review its current details before continuing.",
+        {
+          exact: true,
+        },
+      ),
     ).toBeVisible();
     expect(paymentBodies).toEqual([
       {
@@ -364,7 +367,15 @@ for (const width of [320, 1440]) {
         },
       },
     ]);
+    await expect(
+      page.getByText("Untrusted synthetic server message which must not be displayed.", {
+        exact: true,
+      }),
+    ).toHaveCount(0);
     expect(current.paidAt).toBeNull();
+    await page.screenshot({
+      path: info.outputPath(`payment-offer-changed-${width}.png`),
+    });
   });
   test(`guest uncertainty preserves a clear next step without offering payment at ${width}px`, async ({
     page,

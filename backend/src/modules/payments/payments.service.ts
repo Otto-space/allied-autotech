@@ -58,6 +58,7 @@ import { lockAccessActor } from "../organization/team-access-security.js";
 import { enqueueNotification } from "../notifications/notifications.service.js";
 import {
   paymentConflict,
+  paymentOfferChanged,
   paymentAttemptPending,
   paymentIdempotencyConflict,
   paymentNotFound,
@@ -363,9 +364,7 @@ export class PaymentsService {
             input.acceptedReview.id !== source.purchaseReview.id ||
             input.acceptedReview.revision !== source.purchaseReview.revision)
         )
-          throw paymentConflict(
-            "The offer changed or could not be confirmed. Refresh the order and review its current details before continuing.",
-          );
+          throw paymentOfferChanged();
         await assertNoCompetingPayment(tx, input);
         const expiresAt =
           source.expiresAt ??

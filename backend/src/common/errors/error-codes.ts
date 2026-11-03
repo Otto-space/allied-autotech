@@ -40,6 +40,7 @@ export const errorCodes = {
   idempotencyExpired: "IDEMPOTENCY_EXPIRED",
   paymentAttemptPending: "PAYMENT_ATTEMPT_PENDING",
   paymentTargetPending: "PAYMENT_TARGET_PENDING",
+  purchaseOfferChanged: "PURCHASE_OFFER_CHANGED",
   insufficientStock: "INSUFFICIENT_STOCK",
   staleVersion: "STALE_VERSION",
   invalidTransition: "INVALID_TRANSITION",

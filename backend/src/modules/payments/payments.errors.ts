@@ -12,6 +12,12 @@ export const paymentForbidden = () =>
   error(errorCodes.forbidden, "You do not have permission to perform this action", 403);
 export const paymentConflict = (message = "The payment cannot be changed") =>
   error(errorCodes.conflict, message, 409);
+export const paymentOfferChanged = () =>
+  error(
+    errorCodes.purchaseOfferChanged,
+    "The offer changed. Refresh the order and review its current details before continuing.",
+    409,
+  );
 export const paymentAttemptPending = () =>
   error(
     errorCodes.paymentAttemptPending,

@@ -945,6 +945,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ]) {
         const rejected = await send(accepted);
         expect(rejected.status, JSON.stringify(rejected.body)).toBe(409);
+        expect(rejected.body.error.code).toBe("PURCHASE_OFFER_CHANGED");
       }
       expect(await prisma.payment.count({ where: { orderId: f.order.id } })).toBe(0);
       const accepted = { id: f.review.id, revision: f.review.revision };

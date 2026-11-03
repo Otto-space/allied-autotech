@@ -259,7 +259,7 @@ export async function purchaseFixture(page: Page, access = true) {
         accepted.id !== displayed?.id ||
         accepted.revision !== displayed?.revision
       )
-        return fail(409, "PAYMENT_CONFLICT");
+        return fail(409, "PURCHASE_OFFER_CHANGED");
       state.order.paymentId = state.payment.id;
       return ok({ payment: state.payment, replayed: false }, 201);
     }
