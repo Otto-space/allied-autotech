@@ -2,6 +2,7 @@ import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { prisma } from "../../config/database.js";
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
+import { basisPoints } from "../policies/policy-money.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import {
   promotionIneligible,
@@ -80,7 +81,7 @@ export class PromotionsService {
       throw promotionIneligible();
     let discountAmountKobo =
       promotion.discountType === "PERCENTAGE"
-        ? (subtotalKobo * BigInt(promotion.percentageBasisPoints!)) / 10_000n
+        ? basisPoints(subtotalKobo, promotion.percentageBasisPoints!)
         : promotion.fixedAmountKobo!;
     if (
       promotion.maximumDiscountAmountKobo !== null &&

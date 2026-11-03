@@ -222,6 +222,9 @@
   padding: 8px;
   font-size: 12px;
 }
+.work-slot-table td[data-label="Availability"] > .button + .button {
+  margin-top: 8px;
+}
 .work-slot-meta {
   display: block;
   margin-top: 4px;

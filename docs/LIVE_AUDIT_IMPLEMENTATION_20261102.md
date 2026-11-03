@@ -1,3 +1,67 @@
+3 November 20:25 UTC verification and arithmetic checkpoint: 21c633af frontend
+41708675936 passes 1,457 units (12 existing skips) and 64/64 Chromium cases.
+Retained artifact 13267077668 (3,613,983 bytes) is safely extracted under
+runtime-ci-21c633af. Inspected 768px and collapsed-1440px slot records plus the
+768px calendar: status words remain whole and calendar copy has no replacement
+character. The two slot actions still touched, so their shared cell now adds an
+8px gap; the updated browser case measures that gap. Its new rendered rerun is
+pending; inspected screenshots do not prove this last spacing correction.
+
+Backend 41708675927 passes 97-migration replay/db:check, eight reminder concurrency
+cases and 148 combined booking/resource cases (four separately provisioned-workspace
+cases remain skipped), plus 82 purchase and 88 guest cases and subsequent workflow
+gates. Its final Care/Allie stage fails two guidance tests. The stale alternative
+fixture now asserts preserved original staff/reminders. Auxiliary query words
+such as may/have/currently had let a long public article crowd out the relevant
+permitted delegation guide; retrieval now ignores those question fillers without
+changing eligibility, whole passages, four-source or 8,000-character limits.
+Positive provider fixtures use the current parts source version; duplicate and
+obsolete sources still have explicit rejection cases. Five suites pass 99/99.
+Full workflow rerun is required; this backend run is not a successful release gate.
+
+The user approved future-order HALF_UP aggregate percentage discount/VAT and
+largest-remainder refund allocation with saved-line-order ties in this chat.
+Decision/checklist/ledger records now reflect that approval. Percentage promotions
+use the existing integer HALF_UP helper rather than truncation; fixed discounts
+and caps are preserved. Two money suites pass 13/13 for account/guest evaluation,
+exact halves, non-ties, large integers, caps and VAT after discount. Saved monetary
+snapshot/partial-refund allocation integration remains unfinished under D02/D17;
+it is no longer an unresolved owner arithmetic decision. No existing issued
+record, service price, package quantity, live finance setting or payment flag changed.
+
+Both public aliases were refreshed through Vercel and still target
+dpl_Fzq4yoEwLMH1puuvqznu9SdRAqAX / source fabbe7a600a02e002f1f4ee773dada4b5cf25697.
+The local cache review found only about 0.77 GiB of compiler cache in this worktree;
+it was retained as insufficient to unlock the standard build allowance. No cache,
+profile, source, database, image or other task resource was deleted.
+
+## 3 November 2026: owner-approved monetary arithmetic
+
+The user explicitly selected "Use the recommended rule" in this chat after
+reviewing the concrete proposal: for future orders, round the percentage discount
+and VAT once per order to the nearest kobo, resolve exact halves upward, and
+allocate partial refunds by largest fractional remainder, breaking ties by the
+saved line order. Allocations must reconcile to saved totals. Issued historical
+amounts remain unchanged. This resolves the former tie/boundary/allocation question;
+do not request that decision again. Implement the same saved snapshot across
+review, payment, invoice/receipt, verification and refunds.
+
+This is owner decision evidence, not a fabricated runtime publisher or policy
+activation. Live payments and existing controlled finance settings remain unchanged.
+Actual invoice identity, VAT exceptions and provider/operational acceptance retain
+their separate unresolved requirements.
+
+3 November 20:03 UTC continuation: signed correction 21c633af0c98f0cc7c43c710c7a74fadfab96b82
+is pushed. Exact-source workflows: frontend 41708675936, backend 41708675927,
+secrets 41708675909. These are pending/in progress, not accepted or deployed.
+All 19 native booking test files remain in the workflow; YAML and Bash syntax
+validation pass after the worker invocation split. Current working source is
+recoverable, with no real records, shared migrations or live flags changed.
+Next: inspect these exact runs, fix actual failures and inspect corrected rendered
+badge/calendar evidence before closing this batch. Resource dashboard source is
+being prepared in the other active worktree; its uncommitted UI is untouched.
+D03/D11-D17 and other full-goal items remain in the ledger, not silently deferred.
+
 3 November 19:59 UTC verification follow-up: resource source 330e7cba replayed
 97 migrations and passed db:check/types/scripts/lint plus 14/14 resource lifecycle
 and 9/9 policy cases under the isolated non-owner runtime. The combined booking
@@ -515,7 +579,7 @@ and technical/provider/actual-role acceptance remain distinct.
 | ID  | Current instruction                                              | Current implementation evidence/status                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | --- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | D01 | Appointment requests and parts purchases approved independently  | Independent server switches/HTTP guards/capability/parser and shared entry points implemented. Full frontend checks and 13/13 hosted runtime browser cases pass at 320/768/1440, including independent module states and recovery. Unpublished; no activation.                                                                                                                                                                                                                                           |
-| D02 | VAT-exclusive7.5%after discounts; nearest-kobo                   | Existing integer snapshots/VAT; percentage-discount truncation and exact rule publication need reconciliation. Tie/allocation remains unspecified.                                                                                                                                                                                                                                                                                                                                                       |
+| D02 | VAT-exclusive7.5%after discounts; nearest-kobo                   | Owner explicitly approved order-level HALF_UP percentage discount/VAT and largest-remainder partial-refund allocation, ties by saved line order, in this chat on 3 November. Preserve issued historical amounts; aggregate percentage discounts now use HALF_UP and 13 money checks pass. Saved monetary snapshot/partial-refund allocation integration and acceptance remain required under D02/D17. This arithmetic is no longer an unresolved owner decision; no live activation.                     |
 | D03 | Materials first; workmanship after work/before collection        | Current workflows require payment before order confirmation; service staged money/balance handling needs implementation.                                                                                                                                                                                                                                                                                                                                                                                 |
 | D04 | Final suitability and availability before full parts payment     | Automatic account/guest suitability and stock checks, chosen-vehicle carry-through and displayed-offer payment binding are implemented. Source 8bd2e173 passed 1,457 frontend units (12 existing skips) and 54/54 browser cases. Inspected synthetic 320/1440 changed-offer screenshots show no stale green approval. 406f7814 expands to 64 browser cases, pending exact-source checks. Shared rollout, provider/real-role/physical acceptance and D13/D17 fulfilment remain unaccepted; no activation. |
 | D05 | Normal workshopMon-Sat08:00-18:00                                | Reconcile actual capacity configuration; do not infer Sunday/holidays.                                                                                                                                                                                                                                                                                                                                                                                                                                   |

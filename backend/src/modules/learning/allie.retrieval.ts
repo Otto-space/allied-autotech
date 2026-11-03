@@ -86,7 +86,7 @@ function words(value: string) {
     .filter(
       (word) =>
         word &&
-        !/^(how|do|does|i|can|my|your|what|is|the|a|an|to|me|please|with|it|that|this|where|step|explain|more|and|you|for|of|in|on|am|are)$/.test(
+        !/^(how|do|does|i|can|my|your|what|is|the|a|an|to|me|please|with|it|that|this|where|step|explain|more|and|you|for|of|in|on|am|are|may|might|could|would|should|have|has|had|than|currently)$/.test(
           word,
         ),
     )

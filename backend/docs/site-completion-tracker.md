@@ -1,3 +1,51 @@
+3 November 20:25 UTC verification and arithmetic checkpoint: 21c633af frontend
+41708675936 passes 1,457 units (12 existing skips) and 64/64 Chromium cases.
+Retained artifact 13267077668 (3,613,983 bytes) is safely extracted under
+runtime-ci-21c633af. Inspected 768px and collapsed-1440px slot records plus the
+768px calendar: status words remain whole and calendar copy has no replacement
+character. The two slot actions still touched, so their shared cell now adds an
+8px gap; the updated browser case measures that gap. Its new rendered rerun is
+pending; inspected screenshots do not prove this last spacing correction.
+
+Backend 41708675927 passes 97-migration replay/db:check, eight reminder concurrency
+cases and 148 combined booking/resource cases (four separately provisioned-workspace
+cases remain skipped), plus 82 purchase and 88 guest cases and subsequent workflow
+gates. Its final Care/Allie stage fails two guidance tests. The stale alternative
+fixture now asserts preserved original staff/reminders. Auxiliary query words
+such as may/have/currently had let a long public article crowd out the relevant
+permitted delegation guide; retrieval now ignores those question fillers without
+changing eligibility, whole passages, four-source or 8,000-character limits.
+Positive provider fixtures use the current parts source version; duplicate and
+obsolete sources still have explicit rejection cases. Five suites pass 99/99.
+Full workflow rerun is required; this backend run is not a successful release gate.
+
+The user approved future-order HALF_UP aggregate percentage discount/VAT and
+largest-remainder refund allocation with saved-line-order ties in this chat.
+Decision/checklist/ledger records now reflect that approval. Percentage promotions
+use the existing integer HALF_UP helper rather than truncation; fixed discounts
+and caps are preserved. Two money suites pass 13/13 for account/guest evaluation,
+exact halves, non-ties, large integers, caps and VAT after discount. Saved monetary
+snapshot/partial-refund allocation integration remains unfinished under D02/D17;
+it is no longer an unresolved owner arithmetic decision. No existing issued
+record, service price, package quantity, live finance setting or payment flag changed.
+
+Both public aliases were refreshed through Vercel and still target
+dpl_Fzq4yoEwLMH1puuvqznu9SdRAqAX / source fabbe7a600a02e002f1f4ee773dada4b5cf25697.
+The local cache review found only about 0.77 GiB of compiler cache in this worktree;
+it was retained as insufficient to unlock the standard build allowance. No cache,
+profile, source, database, image or other task resource was deleted.
+
+3 November 20:03 UTC continuation: signed correction 21c633af0c98f0cc7c43c710c7a74fadfab96b82
+is pushed. Exact-source workflows: frontend 41708675936, backend 41708675927,
+secrets 41708675909. These are pending/in progress, not accepted or deployed.
+All 19 native booking test files remain in the workflow; YAML and Bash syntax
+validation pass after the worker invocation split. Current working source is
+recoverable, with no real records, shared migrations or live flags changed.
+Next: inspect these exact runs, fix actual failures and inspect corrected rendered
+badge/calendar evidence before closing this batch. Resource dashboard source is
+being prepared in the other active worktree; its uncommitted UI is untouched.
+D03/D11-D17 and other full-goal items remain in the ledger, not silently deferred.
+
 3 November 19:59 UTC verification follow-up: resource source 330e7cba replayed
 97 migrations and passed db:check/types/scripts/lint plus 14/14 resource lifecycle
 and 9/9 policy cases under the isolated non-owner runtime. The combined booking

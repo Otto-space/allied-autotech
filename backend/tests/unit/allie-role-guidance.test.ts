@@ -142,9 +142,12 @@ describe("provider-observed role guidance regressions", () => {
     };
     const permitted = catalogue(access);
     const article = permitted.articles.find((a) => a.id === "booking-confirmation")!;
-    expect(article.version).toBe(4);
+    expect(article.version).toBe(9);
     expect(article.steps.join(" ")).toContain("Propose another time");
-    expect(article.steps.join(" ")).toContain("clears the previous staff assignment");
+    expect(article.steps.join(" ")).toContain(
+      "preserves the original appointment, staff and reminders",
+    );
+    expect(article.steps.join(" ")).not.toContain("clears the previous staff assignment");
     expect(article.steps.join(" ")).toContain("Neither answer charges a fee");
     expect(
       retrieveAllieContext(
@@ -247,14 +250,15 @@ describe("provider-observed role guidance regressions", () => {
       "authorised branch scope",
     );
   });
-  it("retrieves eligible access guidance for delegation and authority paraphrases", () => {
+  it.each([
+    "May I delegate more authority than I currently have?",
+    "Could I delegate responsibilities outside my current authority?",
+    "How should I review permission delegation?",
+    "Which privileges may I delegate?",
+  ])("retrieves eligible access guidance for: %s", (question) => {
     const manager = catalogue({ role: "ADMIN", managed: true, canManage: true });
-    const context = retrieveAllieContext(
-      manager,
-      "May I delegate more authority than I currently have?",
-      "work",
-    );
-    expect(context.sources.some((s) => s.articleId === "access-review")).toBe(true);
+    const context = retrieveAllieContext(manager, question, "work");
+    expect(context.sources.map((s) => s.articleId)).toContain("access-review");
     expect(
       context.sources.find((s) => s.articleId === "access-review")!.passage,
     ).toContain("Do not delegate");

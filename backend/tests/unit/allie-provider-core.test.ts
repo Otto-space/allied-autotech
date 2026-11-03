@@ -23,6 +23,11 @@ const settings = {
   apiKey: "synthetic-provider-test-key-not-real",
   model: "configured-test-model",
 };
+function partsSourceId() {
+  const article = learningArticles.find((value) => value.id === "parts-fitment")!;
+  return `${article.id}@v${article.version}`;
+}
+
 function catalogue(): AllieCatalogue {
   const articles = learningArticles
     .filter((article) => article.gate === "public")
@@ -58,7 +63,7 @@ function output() {
     answer: "A name match does not confirm compatibility.",
     steps: ["Check the compatibility evidence in Parts."],
     caveat: null,
-    sourceIds: ["parts-fitment@v4"],
+    sourceIds: [partsSourceId()],
     actionIds: ["read:parts-fitment"],
   };
 }
@@ -296,7 +301,7 @@ describe("reviewed retrieval, follow-ups and current-source validation", () => {
           {
             question: "Find a part",
             answer: "Check compatibility.",
-            sourceIds: ["parts-fitment@v4"],
+            sourceIds: [partsSourceId()],
           },
         ],
       };
@@ -358,7 +363,8 @@ describe("reviewed retrieval, follow-ups and current-source validation", () => {
     { answer: "Visit https://attacker.example" },
     { answer: "I have queued your message." },
     { answer: "My password is synthetic-secret." },
-    { sourceIds: ["parts-fitment@v4", "parts-fitment@v4"] },
+    { sourceIds: [partsSourceId(), partsSourceId()] },
+    { sourceIds: ["parts-fitment@v4"] },
   ])(
     "rejects forged sources/actions, active output and unperformed success claims",
     (override) => {

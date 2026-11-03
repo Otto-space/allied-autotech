@@ -75,6 +75,17 @@ for (const role of ["ADMIN", "STAFF"])
         ).toBeVisible();
         await assertWholeStatusWords();
       }
+      const reviewBounds = await page
+        .getByRole("button", { name: "Review and reopen", exact: true })
+        .boundingBox();
+      const closeBounds = await page
+        .getByRole("button", { name: "Close slot", exact: true })
+        .boundingBox();
+      expect(reviewBounds).not.toBeNull();
+      expect(closeBounds).not.toBeNull();
+      expect(
+        closeBounds!.y - reviewBounds!.y - reviewBounds!.height,
+      ).toBeGreaterThanOrEqual(8);
       if (role === "ADMIN")
         await page.screenshot({
           path: test.info().outputPath(`slot-status-before-review-${width}.png`),
