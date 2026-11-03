@@ -203,6 +203,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             yearTo: 2030,
             sourceReference:
               "Synthetic isolated approved vehicle-specific accessory evidence",
+            evidenceNotes:
+              "Independent synthetic author and reviewer confirm this isolated model and year range; not production evidence",
             createdByUserId: f.rule.createdByUserId,
             updatedByUserId: f.rule.updatedByUserId,
             reviewedByUserId: f.rule.reviewedByUserId,
