@@ -88,11 +88,16 @@ async function setup() {
     intentKey,
     context(),
   )) as { payment: { id: string; amountKobo: string }; replayed: boolean };
+  const reviewedOrder = await prisma.order.findUniqueOrThrow({
+    where: { id: result.order.id },
+    select: { version: true },
+  });
   return {
     ...f,
     guest,
     credentials,
     guestOrderId: result.order.id,
+    orderVersion: reviewedOrder.version,
     payments,
     intent,
     intentKey,
@@ -160,7 +165,7 @@ async function intake(
 const cancel = (
   f: Awaited<ReturnType<typeof setup>>,
   requestKey = key(),
-  expectedVersion = 0,
+  expectedVersion = f.orderVersion,
 ) =>
   orders.guestCancel(
     f.credentials,
@@ -244,7 +249,7 @@ describe.skipIf(process.env["RUN_DATABASE_TESTS"] !== "true")(
       expect(response.status).toBe(422);
       expect(
         await prisma.order.findUnique({ where: { id: f.guestOrderId } }),
-      ).toMatchObject({ status: "PENDING", version: 0 });
+      ).toMatchObject({ status: "PENDING", version: f.orderVersion });
     });
     it("records partial aftercare once and exposes only customer-visible fields through actual HTTP", async () => {
       const f = await setup(),
@@ -345,10 +350,12 @@ describe.skipIf(process.env["RUN_DATABASE_TESTS"] !== "true")(
       await orders.transition(
         await actor(f.admin),
         f.guestOrderId,
-        { expectedVersion: 0, status: "CONFIRMED" },
+        { expectedVersion: f.orderVersion, status: "CONFIRMED" },
         context(),
       );
-      await expect(cancel(f, key(), 1)).rejects.toMatchObject({ statusCode: 409 });
+      await expect(cancel(f, key(), f.orderVersion + 1)).rejects.toMatchObject({
+        statusCode: 409,
+      });
       const saved = await aftercare.guestRequest(
         f.credentials,
         f.guestOrderId,
@@ -551,7 +558,7 @@ describe.skipIf(process.env["RUN_DATABASE_TESTS"] !== "true")(
         .set("X-CSRF-Token", f.guest.csrfToken)
         .set("Idempotency-Key", requestKey)
         .send({
-          expectedVersion: 0,
+          expectedVersion: f.orderVersion,
           reason: "Synthetic HTTP cancellation before confirmation",
         });
       expect(reply.status).toBe(200);

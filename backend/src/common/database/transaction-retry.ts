@@ -5,11 +5,21 @@ export function isTransactionConflict(error: unknown): boolean {
   if (typeof error !== "object" || error === null) return false;
   const failure = error as {
     code?: string;
+    name?: string;
+    cause?: { kind?: string; originalCode?: string };
     meta?: { code?: string; driverAdapterError?: { cause?: { originalCode?: string } } };
   };
   const sqlState =
     failure.meta?.code ?? failure.meta?.driverAdapterError?.cause?.originalCode;
-  return failure.code === "P2034" || ["40P01", "40001"].includes(sqlState ?? "");
+  const directAdapterConflict =
+    failure.name === "DriverAdapterError" &&
+    failure.cause?.kind === "TransactionWriteConflict" &&
+    ["40P01", "40001"].includes(failure.cause.originalCode ?? "");
+  return (
+    failure.code === "P2034" ||
+    ["40P01", "40001"].includes(sqlState ?? "") ||
+    directAdapterConflict
+  );
 }
 
 /** Retry only database-aborted transactions. Callback must contain no external side effects. */

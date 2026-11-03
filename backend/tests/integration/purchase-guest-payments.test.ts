@@ -242,6 +242,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           context(),
         ),
       ).rejects.toMatchObject({ statusCode: 404 });
+      await reviewFixtureOrderForPayment(order.body.data.order.id);
       const intent = await post(f.customer, "/customers/payments", {
         targetType: "ORDER",
         targetId: order.body.data.order.id,

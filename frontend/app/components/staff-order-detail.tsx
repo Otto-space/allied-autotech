@@ -123,7 +123,7 @@ function OrderRecord({
           ? "Use one paragraph of up to 500 characters."
           : status.data === "CANCELLED"
             ? "Enter a reason for cancellation."
-            : "Describe final compatibility (or why no check applies) and availability in at least 10 characters.",
+            : "Describe the received part and current stock check in at least 10 characters.",
       );
       return;
     }
@@ -327,8 +327,9 @@ function OrderRecord({
                     Original parts request and quotation
                   </Link>
                   <p>
-                    Confirm only after recording final compatibility and availability
-                    review. Confirmation consumes actual stock.
+                    Payment follows the suitability and availability review. Confirmation
+                    allocates actual stock; sourced parts must have arrived before
+                    allocation.
                   </p>
                 </dd>
               )}
@@ -533,8 +534,10 @@ function OrderRecord({
                         </label>
                         {current.partsQuote && (
                           <p id="fulfilment-quote-review" className="work-order-muted">
-                            To confirm this quotation, describe the final compatibility
-                            and availability checks in at least 10 characters.
+                            For a sourced quotation without a stock hold, record the
+                            received part and current stock check in at least 10
+                            characters. Historical paid orders need a fulfilment
+                            assessment; this does not backdate a payment review.
                           </p>
                         )}
                         <textarea

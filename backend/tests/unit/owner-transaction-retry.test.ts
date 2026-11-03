@@ -2,6 +2,40 @@ import { describe, expect, it, vi } from "vitest";
 import type { PrismaClient } from "../../src/generated/prisma/client.js";
 import { withTransactionRetry } from "../../src/common/database/transaction-retry.js";
 describe("financial transaction retry boundary", () => {
+  it("retries a directly surfaced PostgreSQL adapter serialization abort", async () => {
+    const transaction = vi
+      .fn()
+      .mockRejectedValueOnce({
+        name: "DriverAdapterError",
+        cause: { kind: "TransactionWriteConflict", originalCode: "40001" },
+      })
+      .mockResolvedValue("committed");
+    await expect(
+      withTransactionRetry(
+        { $transaction: transaction } as unknown as PrismaClient,
+        async () => undefined,
+        { isolationLevel: "Serializable" },
+      ),
+    ).resolves.toBe("committed");
+    expect(transaction).toHaveBeenCalledTimes(2);
+  });
+  it.each(["08006", "23505", undefined])(
+    "does not retry adapter failure %s",
+    async (originalCode) => {
+      const failure = {
+        name: "DriverAdapterError",
+        cause: { kind: "TransactionWriteConflict", originalCode },
+      };
+      const transaction = vi.fn().mockRejectedValue(failure);
+      await expect(
+        withTransactionRetry(
+          { $transaction: transaction } as unknown as PrismaClient,
+          async () => undefined,
+        ),
+      ).rejects.toBe(failure);
+      expect(transaction).toHaveBeenCalledTimes(1);
+    },
+  );
   it("retries only database-aborted conflicts and returns the committed result", async () => {
     const transaction = vi
       .fn()

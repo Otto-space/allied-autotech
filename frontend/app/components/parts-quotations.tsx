@@ -114,7 +114,7 @@ function QuotationPanel({
       title: accept ? "Accept this quotation?" : "Decline this quotation?",
       presentation: "quotation",
       description: accept
-        ? "Creates a collection order awaiting payment. Payment does not confirm compatibility, final availability or readiness for collection. Contact Customer Care if checks fail or you need cancellation/refund review."
+        ? "Creates an unpaid collection order. Suitability and availability are checked before payment becomes available. Wait for a separate collection confirmation before travelling."
         : "This revision will be declined. You can ask Customer Care for an updated quotation.",
       facts: [
         { label: "Product", value: quote.productName },
@@ -138,7 +138,7 @@ function QuotationPanel({
         }
         setMessage(
           accept
-            ? "Quotation accepted. Open the linked order to review payment options."
+            ? "Quotation accepted. Open the linked order to follow its review and payment status."
             : "Quotation declined. Your original request remains available.",
         );
       },
@@ -155,7 +155,8 @@ function QuotationPanel({
       <h2 id="parts-quote-title">Parts quotations</h2>
       <p>
         Assessment and quotations stay linked to this request. Collection only; the
-        workshop confirms compatibility and final availability separately from payment.
+        workshop checks suitability and availability before payment becomes available.
+        Readiness for collection is confirmed separately.
       </p>
       <Feedback message={records.error || records.refreshError} />
       <Feedback message={message} tone="success" />

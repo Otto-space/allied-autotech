@@ -397,8 +397,9 @@ export function OrderDetail({ orderId }: { orderId: string }) {
         <section className="notice">
           <h2>Quoted parts order</h2>
           <p>
-            Payment does not confirm compatibility, final availability or readiness for
-            collection. The workshop reviews these before confirming your order.
+            Suitability and availability must be checked before payment becomes available.
+            Payment and readiness for collection are separate; wait for your collection
+            confirmation before travelling.
           </p>
           <p>{current.partsQuote.notes}</p>
           <Link href={`/dashboard/support/enquiries/${current.partsQuote.enquiryId}`}>
