@@ -35,14 +35,14 @@ const nippo = localFont({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { browseEnquiriesOnly } = await getPublicCapabilities();
+  const { bookingRequestsEnabled } = await getPublicCapabilities();
   return {
     title: {
       default: "Allied AutoTech",
       template: "%s · Allied AutoTech",
     },
     robots: { index: indexingEnabled(), follow: indexingEnabled() },
-    description: browseEnquiriesOnly()
+    description: !bookingRequestsEnabled
       ? "Explore vehicle care, automotive parts and vehicles, and contact the Allied AutoTech team."
       : "Book trusted vehicle care, track service, and manage your Allied AutoTech account.",
   };

@@ -14,7 +14,7 @@ export default async function ConcernRequestPage({
 }: {
   searchParams: Promise<{ serviceGroup?: string }>;
 }) {
-  const { browseEnquiriesOnly } = await getPublicCapabilities();
+  const { bookingRequestsEnabled } = await getPublicCapabilities();
   const query = await searchParams;
   const serviceGroup = z.uuid().safeParse(query.serviceGroup).data;
   const enquiryHref = serviceGroup
@@ -45,7 +45,7 @@ export default async function ConcernRequestPage({
               request before confirming a time or service.
             </p>
           </header>
-          {browseEnquiriesOnly() ? (
+          {!bookingRequestsEnabled ? (
             <section>
               <h2>Contact the workshop</h2>
               <p>Online booking requests are not available in this release.</p>

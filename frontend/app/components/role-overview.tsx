@@ -35,8 +35,8 @@ function OverviewLink({
   summaryWhenRestricted,
   ...props
 }: ComponentProps<typeof Link> & { summaryWhenRestricted?: "block" | "inline" }) {
-  const { browseEnquiriesOnly, restrictedLaunchPage } = usePublicCapabilities();
-  if (browseEnquiriesOnly() && typeof href === "string" && restrictedLaunchPage(href)) {
+  const { restrictedLaunchPage } = usePublicCapabilities();
+  if (typeof href === "string" && restrictedLaunchPage(href)) {
     const Summary = summaryWhenRestricted === "block" ? "div" : "span";
     return summaryWhenRestricted ? (
       <Summary className={className} data-release-unavailable>

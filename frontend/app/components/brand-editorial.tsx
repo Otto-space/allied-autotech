@@ -44,8 +44,8 @@ export function EditorialBanner({
 }
 
 export function ServiceJourney({ showStartLink = true }: { showStartLink?: boolean }) {
-  const { browseEnquiriesOnly } = usePublicCapabilities();
-  const enquiriesOnly = browseEnquiriesOnly();
+  const { bookingRequestsEnabled } = usePublicCapabilities();
+  const enquiriesOnly = !bookingRequestsEnabled;
   return (
     <section
       className="services-journey journey-section"

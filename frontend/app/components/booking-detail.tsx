@@ -37,7 +37,7 @@ type Decision = {
   quote?: BookingQuote;
 };
 export function BookingDetail({ bookingId }: { bookingId: string }) {
-  const { browseEnquiriesOnly } = usePublicCapabilities();
+  const { bookingRequestsEnabled } = usePublicCapabilities();
   const path = `/customers/bookings/${encodeURIComponent(bookingId)}`;
   const parse = useCallback(
     (value: unknown) => parseCustomerBookingDetail(value, bookingId),
@@ -131,7 +131,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
       ? preferredDate.toISOString()
       : null;
   const replacementAt = selectedSlot?.startsAt ?? preferredAt;
-  const disabled = browseEnquiriesOnly() || !fresh || mutation.busy || !!proposal;
+  const disabled = !bookingRequestsEnabled || !fresh || mutation.busy || !!proposal;
   function refresh() {
     setProposal(null);
     setSlot("");

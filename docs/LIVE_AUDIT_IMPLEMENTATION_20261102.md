@@ -1,5 +1,15 @@
 # Complete live audit implementation - 2 November 2026
 
+Current D01 checkpoint: signed source 8aec5020 passed frontend 41638126292,
+backend 41637103255 and secrets 41637103251, unpublished. Later rendered testing
+found and repaired full-mode booking links that ignored the independent switch.
+The repaired 320px and 768px cases pass locally; 1440px is incomplete because the
+preview stopped after detecting insufficient disk reserve. No local full-browser
+pass is claimed. Hosted CI now reuses its exact production-check build with a
+loopback-only synthetic API for all 13 runtime regressions and safe screenshots;
+new-source results are pending. D04 pre-payment review, D03 staged service charges
+and remaining D02/D05-D17 requirements remain implementation work.
+
 Additional first-package evidence: the final release-boundary suite passes 71/71
 (including fail-closed omitted controls), and separate process/address checks pass
 26/26. These runs overlap the initial 103 cases and are not a summed unique total.

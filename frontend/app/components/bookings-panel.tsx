@@ -29,7 +29,7 @@ const paymentLabels: Record<string, string> = {
   EXPIRED: "Expired",
 };
 export function BookingsPanel() {
-  const { browseEnquiriesOnly } = usePublicCapabilities();
+  const { bookingRequestsEnabled } = usePublicCapabilities();
   const search = useSearchParams();
   const { params, invalid, path } = customerBookingQuery(
     new URLSearchParams(search.toString()),
@@ -90,7 +90,7 @@ export function BookingsPanel() {
         <div className="booking-list-actions">
           <BookingCalendar />
           <Link className="button" href="/services">
-            {browseEnquiriesOnly() ? "Explore services" : "Request a visit"}
+            {bookingRequestsEnabled ? "Request a visit" : "Explore services"}
           </Link>
           <button
             className="button secondary"
@@ -307,7 +307,7 @@ export function BookingsPanel() {
                 ? "Return to the first page to check the current list."
                 : status
                   ? "Try a different status or reset your filters."
-                  : browseEnquiriesOnly()
+                  : !bookingRequestsEnabled
                     ? "Explore services and ask our team about a workshop visit. Your enquiry does not confirm an appointment."
                     : "Choose a service to request your first appointment."}
             </p>

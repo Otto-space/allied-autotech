@@ -40,7 +40,7 @@ const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURICom
 const directionsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationQuery)}`;
 
 export default async function ContactPage() {
-  const { catalogueOnly, browseEnquiriesOnly } = await getPublicCapabilities();
+  const { catalogueOnly, bookingRequestsEnabled } = await getPublicCapabilities();
   if (catalogueOnly()) return <CatalogueContact />;
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim();
   const mapsEmbed = mapsKey
@@ -244,7 +244,7 @@ export default async function ContactPage() {
                     price or resolution. Explore services to discuss a visit with our
                     team:{" "}
                     <Link href="/services">
-                      {browseEnquiriesOnly() ? "Explore services" : "Book a Service"}
+                      {bookingRequestsEnabled ? "Request a visit" : "Explore services"}
                     </Link>
                     .
                   </p>

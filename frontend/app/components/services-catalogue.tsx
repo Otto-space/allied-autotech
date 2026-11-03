@@ -23,7 +23,7 @@ export function ServicesCatalogue({
 }: {
   initial: PublicSeed<ReturnType<typeof parseServiceDiscovery>>;
 }) {
-  const { browseEnquiriesOnly } = usePublicCapabilities();
+  const { bookingRequestsEnabled } = usePublicCapabilities();
   const searchParams = useSearchParams();
   const { params, invalid } = normalizeServiceQuery(
     new URLSearchParams(searchParams.toString()),
@@ -107,12 +107,12 @@ export function ServicesCatalogue({
             <Link
               className="button"
               href={
-                browseEnquiriesOnly()
+                !bookingRequestsEnabled
                   ? `/contact?serviceGroup=${verifiedGroup.id}#enquiry`
                   : `/services/request?serviceGroup=${verifiedGroup.id}`
               }
             >
-              {browseEnquiriesOnly() ? "Ask about a workshop visit" : "Request a visit"}
+              {!bookingRequestsEnabled ? "Ask about a workshop visit" : "Request a visit"}
             </Link>
             <Link
               className="text-link"

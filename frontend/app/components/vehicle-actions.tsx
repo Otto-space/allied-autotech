@@ -62,7 +62,7 @@ type VehicleActionsProps = {
 };
 
 export function VehicleActions(props: VehicleActionsProps) {
-  const { catalogueOnly, browseEnquiriesOnly } = usePublicCapabilities();
+  const { catalogueOnly, inspectionRequestsEnabled } = usePublicCapabilities();
   if (catalogueOnly())
     return (
       <div className="vd-top-grid">
@@ -81,7 +81,7 @@ export function VehicleActions(props: VehicleActionsProps) {
         {props.children}
       </div>
     );
-  return <VehicleCustomerActions {...props} enquiriesOnly={browseEnquiriesOnly()} />;
+  return <VehicleCustomerActions {...props} enquiriesOnly={!inspectionRequestsEnabled} />;
 }
 
 function VehicleCustomerActions({

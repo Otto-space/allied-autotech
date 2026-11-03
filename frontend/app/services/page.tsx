@@ -46,7 +46,7 @@ export default async function ServicesPage({
 }: {
   searchParams: SearchParameters;
 }) {
-  const { browseEnquiriesOnly } = await getPublicCapabilities();
+  const { bookingRequestsEnabled } = await getPublicCapabilities();
   const initial = await loadPublicSeed(
     await listingPath(searchParams),
     parseServiceDiscovery,
@@ -80,7 +80,7 @@ export default async function ServicesPage({
             <span>Compare services and their details.</span>
             <ArrowUpRight size={20} aria-hidden="true" />
           </Link>
-          <Link href={browseEnquiriesOnly() ? "/contact#enquiry" : "/services/request"}>
+          <Link href={bookingRequestsEnabled ? "/services/request" : "/contact#enquiry"}>
             <strong>Describe a vehicle problem</strong>
             <span>
               Tell the team what you have noticed. A request does not confirm an
@@ -110,10 +110,10 @@ export default async function ServicesPage({
                   "A fixed-price service has a listed price. For a service marked quotation required, share your vehicle details and the work you need so the team can review the scope. Open the service page to see the available next steps.",
                 ],
                 [
-                  browseEnquiriesOnly()
+                  !bookingRequestsEnabled
                     ? "Does an enquiry confirm a visit?"
                     : "Is a booking request a confirmed appointment?",
-                  browseEnquiriesOnly()
+                  !bookingRequestsEnabled
                     ? "An enquiry does not confirm an appointment. Agree visit arrangements with the team. The listed service duration is not a guaranteed collection time."
                     : "A booking request is sent for workshop review. Check your account for the confirmed appointment and updates. The duration shown in the catalogue is the listed service duration, not a guaranteed collection time.",
                 ],

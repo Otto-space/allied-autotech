@@ -1,3 +1,21 @@
+### 3 November: independent-controls rendered repair and hosted verification
+
+Exact source 8aec5020 passed frontend 41638126292, backend 41637103255 and
+secrets 41637103251. This source remains unpublished. The subsequent rendered
+check found a genuine defect: full mode with bookings independently disabled
+still advertised Request a visit. Shared catalogue, concern, Home, Contact,
+dashboard and vehicle actions now use the relevant capability rather than mode
+alone. This new repair still requires its own exact-source checks.
+
+Local fixed browser results: 320px and 768px pass; 1440px was interrupted when
+the task-owned preview stopped after detecting a disk-reserve breach. It is not
+a laptop acceptance pass. C: recovered to 21.43 GiB; no cleanup was performed.
+Do not repeat heavy local previews. A loopback-only synthetic API and dedicated
+Playwright configuration reuse the production-check build in hosted CI for all
+13 runtime capability regressions and preserve safe screenshots. These tests
+cannot establish live-role, provider, physical-device or production-proxy acceptance.
+The full D01-D17 implementation remains active, including D04 and D03 next.
+
 ### 3 November: independent-controls CI correction
 
 Source e958ad18 is signed/pushed; backend run41635950896 failed the authenticated

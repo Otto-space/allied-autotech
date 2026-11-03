@@ -1,3 +1,13 @@
+### 3 November: independently closed booking links
+
+Rendered testing found full-mode service cards still offered Request a visit
+when booking was independently disabled. Shared public/customer entry points now
+use booking/inspection capabilities. Fixed local 320px and 768px cases pass; the
+1440px case was interrupted by the preview's disk-reserve shutdown and is unverified.
+Hosted CI now reuses its production build for 13 isolated runtime regressions at
+320/768/1440, including stale/error/offline/draft recovery and no JavaScript.
+New-source CI results remain pending. No live flag or permission changed.
+
 Additional first-package evidence: the final release-boundary suite passes 71/71
 (including fail-closed omitted controls), and separate process/address checks pass
 26/26. These runs overlap the initial 103 cases and are not a summed unique total.

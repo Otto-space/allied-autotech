@@ -22,7 +22,7 @@ import "../home.css";
 
 export async function PublicHome() {
   const capabilities = await getPublicCapabilities();
-  const { browseEnquiriesOnly } = capabilities;
+  const { bookingRequestsEnabled } = capabilities;
   const faqs = getFaqs(capabilities);
   const [products, vehicles, reviews, services] = await Promise.all([
     loadPublicSeed("/public/catalog/products?limit=4", parseProducts),
@@ -85,7 +85,7 @@ export async function PublicHome() {
               Not sure which service?{" "}
               <Link
                 className="text-link"
-                href={browseEnquiriesOnly() ? "/contact#enquiry" : "/services/request"}
+                href={bookingRequestsEnabled ? "/services/request" : "/contact#enquiry"}
               >
                 Describe a vehicle concern <ArrowUpRight size={16} aria-hidden="true" />
               </Link>

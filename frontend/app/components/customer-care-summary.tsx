@@ -20,8 +20,8 @@ function State({ value }: { value: string }) {
   return <span className="care-status">{label(value)}</span>;
 }
 function Action({ href, children }: { href: string; children: React.ReactNode }) {
-  const { browseEnquiriesOnly, restrictedLaunchPage } = usePublicCapabilities();
-  if (browseEnquiriesOnly() && restrictedLaunchPage(href)) return null;
+  const { restrictedLaunchPage } = usePublicCapabilities();
+  if (restrictedLaunchPage(href)) return null;
   return (
     <Link className="care-link" href={href}>
       {children}

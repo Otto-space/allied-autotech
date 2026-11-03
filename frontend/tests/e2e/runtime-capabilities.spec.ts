@@ -4,6 +4,19 @@ import { fixture } from "../fixtures/overview-browser";
 
 // This control belongs to a separate loopback, in-memory API fixture, never the application.
 const control = process.env.CAPABILITY_TEST_CONTROL_ORIGIN;
+test.beforeEach(async ({ page }) => {
+  if (process.env.CAPABILITY_TEST_TRANSPORT !== "loopback") return;
+  if (!control || !/^http:\/\/127\.0\.0\.1:\d+$/.test(control))
+    throw Error("The browser fixture transport must remain loopback-only");
+  await page.route("**/api/v1/**", async (route) => {
+    const url = new URL(route.request().url());
+    const response = await route.fetch({
+      url: `${control}${url.pathname}${url.search}`,
+      maxRedirects: 0,
+    });
+    await route.fulfill({ response });
+  });
+});
 async function availability(
   request: APIRequestContext,
   mode = "browse_enquiries",
@@ -20,7 +33,7 @@ for (const width of [320, 768, 1440]) {
   test(`independent module switches retain truthful journeys at ${width}px`, async ({
     page,
     request,
-  }) => {
+  }, info) => {
     await page.setViewportSize({ width, height: 900 });
     await availability(request, "full", {
       checkoutApproved: true,
@@ -31,6 +44,19 @@ for (const width of [320, 768, 1440]) {
     await expect(
       page.getByRole("link", { name: "Ask about a workshop visit", exact: true }),
     ).toBeVisible();
+    await page.screenshot({ path: info.outputPath(`booking-closed-${width}.png`) });
+    await page.goto(
+      "/services/request?serviceGroup=37ec8bcf-7edc-4ec7-a185-ec849d71c5de",
+    );
+    await expect(
+      page.getByRole("heading", { name: "Contact the workshop" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Describe your concern" }),
+    ).toHaveAttribute(
+      "href",
+      "/contact?serviceGroup=37ec8bcf-7edc-4ec7-a185-ec849d71c5de#enquiry",
+    );
     await page.goto("/help/pending-payments");
     await expect(page.locator("main")).toContainText(
       "Returning from checkout does not confirm payment",
@@ -44,6 +70,9 @@ for (const width of [320, 768, 1440]) {
     await expect(
       page.getByRole("link", { name: "Request a visit", exact: true }),
     ).toBeVisible();
+    await page.screenshot({
+      path: info.outputPath(`booking-open-checkout-closed-${width}.png`),
+    });
     await page.goto("/help/pending-payments");
     await expect(page.locator("main")).toContainText(
       "Online checkout and payments are not available yet",

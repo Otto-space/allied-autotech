@@ -46,3 +46,15 @@ jobs:
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run check:production
+      - name: Install only the browser used by the isolated regression
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Verify independent runtime availability in the production build
+        run: npx --no-install playwright test --config playwright.runtime.config.ts
+      - name: Preserve synthetic browser evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: runtime-capabilities-browser
+          path: frontend/test-results/runtime-capabilities/
+          retention-days: 7
+          if-no-files-found: ignore
