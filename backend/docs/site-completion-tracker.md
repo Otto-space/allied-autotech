@@ -1,3 +1,19 @@
+3 November 22:49 UTC follow-up: native run 41733499830 passed migration replay,
+db:check, types and lint, then failed two obsolete service-request v24 expectations.
+Both are updated to v25; all behavior assertions remain. Seventeen combined
+catalogue/booking learning tests pass locally. The database stage did not execute
+in that failed run and is not counted as acceptance.
+Chrome now passes all seven populated-photo/selection/account-switch scenarios.
+Edge passed the earlier seven interactions after warm reruns; the subsequent
+populated-photo run retained final-navigation timeouts at 360/320px. The 360px
+rerun passed; 320px is being checked again. Dev-server logs also contain a transient
+Unexpected end of JSON input while serving a route, plus slow chunk responses.
+Do not classify those failures as verified production behavior or silently pass
+them. Exact locked-build browser CI remains decisive for this batch.
+Master 6432da3e passes Frontend 41731942415, Backend 41731942587 and Secrets
+41731942475. The new overview work is draft PR #15, source ff1adafc before this
+follow-up; neither renewed batch has been promoted by this task.
+
 ## 3 November: owned default vehicle and private overview photo
 
 Bounded package started 22:20 UTC. Existing current-care previews, historical

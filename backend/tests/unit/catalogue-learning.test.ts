@@ -83,7 +83,7 @@ it("versions guest refund handoff guidance while preserving separate financial a
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(24);
+  expect(article.version).toBe(25);
   expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
   expect(article.steps.join(" ")).toContain("wait for the current availability check");
   expect(article.steps.join(" ")).toContain(
@@ -204,7 +204,7 @@ it("versions saved financial breakdown guidance without expanding its independen
 
 it("explains recorded-start cancellation and missed reminder boundaries without inventing a cutoff", () => {
   const article = learningArticles.find((value) => value.id === "service-request")!;
-  expect(article.version).toBe(24);
+  expect(article.version).toBe(25);
   const text = article.steps.join(" ");
   expect(text).toContain("only before work starts");
   expect(text).toContain("older status still says Confirmed");
