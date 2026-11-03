@@ -1,3 +1,4 @@
+import { createOrderMoneyAllocation } from "./order-money-allocation.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { buildInvoiceSnapshot } from "../billing/document-snapshot.js";
 import { requestFreeCancellationRefund } from "../payments/refund-workflow.js";
@@ -517,6 +518,19 @@ export class OrdersService {
         if (totalKobo > MAX_MONEY_KOBO)
           throw orderConflict("Order amount exceeds the supported limit");
         const orderId = randomUUID();
+        // Match the persisted item order used by order and invoice readers.
+        const orderItems = items
+          .map((item) => ({ ...item, id: randomUUID() }))
+          .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+        const monetaryAllocation = createOrderMoneyAllocation(
+          orderItems,
+          discountAmountKobo,
+          taxKobo,
+        );
+        const monetaryPolicySnapshot: Prisma.InputJsonObject = {
+          ...policySnapshot(finance),
+          monetaryAllocation,
+        };
         await this.repository.createOrder(
           {
             id: orderId,
@@ -532,6 +546,7 @@ export class OrdersService {
             totalKobo,
             policySnapshot: {
               purchaseWorkflow: { version: 2, sequence: "FINAL_REVIEW_BEFORE_PAYMENT" },
+              monetaryAllocation,
               finance: policySnapshot(finance),
               payment: policySnapshot(timing),
               fulfillment: deliverySnapshot,
@@ -551,7 +566,7 @@ export class OrdersService {
             customerEmail: contact.email,
             customerPhone: contact.phone,
             paymentDueAt: null,
-            items: { createMany: { data: items } },
+            items: { createMany: { data: orderItems } },
           },
           transaction,
         );
@@ -565,7 +580,7 @@ export class OrdersService {
             currency: "NGN",
             subtotalKobo: totalKobo - taxKobo,
             taxKobo,
-            policySnapshot: policySnapshot(finance),
+            policySnapshot: monetaryPolicySnapshot,
             totalKobo,
             documentSnapshot: await buildInvoiceSnapshot(transaction, {
               ...owner,
@@ -573,7 +588,7 @@ export class OrdersService {
               subtotalKobo: totalKobo - taxKobo,
               taxKobo,
               totalKobo,
-              policySnapshot: policySnapshot(finance),
+              policySnapshot: monetaryPolicySnapshot,
             }),
           },
           select: { id: true },

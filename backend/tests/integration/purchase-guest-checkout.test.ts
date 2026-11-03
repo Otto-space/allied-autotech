@@ -1,3 +1,8 @@
+import {
+  readOrderMoneyAllocation,
+  allocatedUnitRange,
+} from "../../src/modules/orders/order-money-allocation.js";
+import { OrderAftercareService } from "../../src/modules/orders/order-aftercare.service.js";
 import { randomUUID } from "node:crypto";
 import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -54,11 +59,11 @@ async function promotion() {
     },
   });
 }
-async function accountCart(f: Awaited<ReturnType<typeof setup>>) {
+async function accountCart(f: Awaited<ReturnType<typeof setup>>, quantity = 2) {
   return prisma.cart.create({
     data: {
       customerId: f.customer.user.profile!.id,
-      items: { create: { productId: f.inventory.productId, quantity: 2 } },
+      items: { create: { productId: f.inventory.productId, quantity } },
     },
     include: { items: true },
   });
@@ -69,6 +74,110 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   () => {
     beforeAll(() => assertIsolatedLoopbackDatabase());
     afterAll(() => prisma.$disconnect());
+
+    it.each(["account", "guest"] as const)(
+      "freezes %s order/invoice allocation and partial-review basis without repricing saved amounts",
+      async (owner) => {
+        const f = await setup();
+        await prisma.product.update({
+          where: { id: f.inventory.productId },
+          data: { priceKobo: 10001n },
+        });
+        const offer = await promotion();
+        await prisma.promotion.update({
+          where: { id: offer.id },
+          data: { percentageBasisPoints: 5000 },
+        });
+        let orderId: string;
+        if (owner === "account") {
+          await accountCart(f, 3);
+          const response = await post(f.customer, "/customers/orders/checkout", {
+            branchId: f.branch.id,
+            fulfillmentMethod: "COLLECTION",
+            promotionCode: offer.code,
+          });
+          expect(response.status, JSON.stringify(response.body)).toBe(201);
+          orderId = response.body.data.order.id;
+        } else {
+          orderId = (
+            await checkout(f.guest, {
+              ...f.input,
+              items: [{ productId: f.inventory.productId, quantity: 3 }],
+              promotionCode: offer.code,
+            })
+          ).order.id;
+        }
+        const saved = await prisma.order.findUniqueOrThrow({
+          where: { id: orderId },
+          include: { invoice: true, items: { orderBy: { id: "asc" } } },
+        });
+        expect(saved).toMatchObject({
+          subtotalKobo: 30003n,
+          discountAmountKobo: 15002n,
+          taxKobo: 1125n,
+          totalKobo: 16126n,
+          paidAt: null,
+        });
+        const allocation = readOrderMoneyAllocation(saved.policySnapshot)!;
+        expect(allocation.lines.map((line) => line.orderItemId)).toEqual(
+          saved.items.map((line) => line.id),
+        );
+        expect(allocation.lines[0]).toMatchObject({
+          quantity: 3,
+          subtotalKobo: "30003",
+          discountKobo: "15002",
+          taxKobo: "1125",
+          totalKobo: "16126",
+        });
+        expect(readOrderMoneyAllocation(saved.invoice!.policySnapshot)).toEqual(
+          allocation,
+        );
+        expect(saved.invoice!.documentSnapshot).toMatchObject({
+          lines: [{ quantity: 3, unitPriceKobo: "10001", subtotalKobo: "30003" }],
+          discountKobo: "15002",
+        });
+        expect(
+          [0, 1, 2].map(
+            (offset) => allocatedUnitRange(allocation.lines[0]!, offset, 1).totalKobo,
+          ),
+        ).toEqual([5376n, 5375n, 5375n]);
+        await prisma.product.update({
+          where: { id: f.inventory.productId },
+          data: { priceKobo: 20001n },
+        });
+        const body = {
+          kind: "CANCELLATION",
+          reason: "Synthetic request to review one saved quantity",
+          items: [{ orderItemId: saved.items[0]!.id, quantity: 1 }],
+        };
+        if (owner === "account") {
+          const response = await post(
+            f.customer,
+            `/customers/orders/${orderId}/aftercare`,
+            body,
+          );
+          expect(response.status, JSON.stringify(response.body)).toBe(201);
+        } else
+          await new OrderAftercareService().guestRequest(
+            credentials(f.guest),
+            orderId,
+            body,
+            context(),
+            `aftercare-v1.${Date.now()}.${randomUUID()}`,
+          );
+        const review = await prisma.orderAftercareRequest.findFirstOrThrow({
+          where: { orderId },
+        });
+        expect(readOrderMoneyAllocation(review.policySnapshot)).toEqual(allocation);
+        expect(review.items).toEqual(body.items);
+        expect(review.status).toBe("REQUESTED");
+        expect(await prisma.payment.count({ where: { orderId } })).toBe(0);
+        const current = await prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+        expect(current.totalKobo).toBe(saved.totalKobo);
+        expect(current.policySnapshot).toEqual(saved.policySnapshot);
+        expect(current.paidAt).toBeNull();
+      },
+    );
 
     it("saves an unpaid owned request and holds stock only after final review without changing the matching account cart", async () => {
       const f = await setup(true),

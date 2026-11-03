@@ -179,3 +179,53 @@ describe("minimal financial decision recovery", () => {
     expect(() => markAftercarePending(aftercareId(1), aftercareId(10))).toThrow();
   });
 });
+
+it("checks saved monetary line identities, quantities and reconciliation before showing finance evidence", () => {
+  const value = detail(),
+    item = value.requestedItems![0]!;
+  const line = {
+    orderItemId: item.orderItemId,
+    productName: item.productName,
+    quantity: item.orderedQuantity,
+    subtotalKobo: "30003",
+    discountKobo: "15002",
+    taxKobo: "1125",
+    totalKobo: "16126",
+  };
+  expect(
+    parseWorkforceAftercare(
+      { ...value, monetaryBreakdown: { status: "SAVED", lines: [line] } },
+      value.id,
+    ).monetaryBreakdown?.status,
+  ).toBe("SAVED");
+  for (const changed of [
+    { ...line, orderItemId: aftercareId(99) },
+    { ...line, quantity: 1 },
+    { ...line, totalKobo: "99999" },
+    { ...line, discountKobo: "99999" },
+  ])
+    expect(() =>
+      parseWorkforceAftercare(
+        { ...value, monetaryBreakdown: { status: "SAVED", lines: [changed] } },
+        value.id,
+      ),
+    ).toThrow();
+  expect(() =>
+    parseWorkforceAftercare(
+      { ...value, monetaryBreakdown: { status: "SAVED", lines: [line, line] } },
+      value.id,
+    ),
+  ).toThrow();
+  expect(() =>
+    parseWorkforceAftercare(
+      { ...value, monetaryBreakdown: { status: "INVALID" }, reviewEvidenceReady: true },
+      value.id,
+    ),
+  ).toThrow();
+  expect(
+    parseWorkforceAftercare(
+      { ...value, monetaryBreakdown: { status: "INVALID" }, reviewEvidenceReady: false },
+      value.id,
+    ).reviewEvidenceReady,
+  ).toBe(false);
+});

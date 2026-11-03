@@ -67,3 +67,16 @@
     width: 100%;
   }
 }
+
+.workforce-aftercare .wfa-money-lines {
+  display: grid;
+  gap: 20px;
+}
+.workforce-aftercare .wfa-money-line + .wfa-money-line {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+.workforce-aftercare .wfa-money-line .wfa-facts {
+  margin-top: 12px;
+  font-variant-numeric: tabular-nums;
+}

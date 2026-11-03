@@ -27,6 +27,28 @@ const row = z.object({
     fulfillmentMethod: z.enum(["COLLECTION", "DELIVERY"]),
   }),
 });
+export const workforceMonetaryBreakdownSchema = z.discriminatedUnion("status", [
+  z.object({ status: z.literal("LEGACY") }),
+  z.object({ status: z.literal("INVALID") }),
+  z.object({
+    status: z.literal("SAVED"),
+    lines: z
+      .array(
+        z.object({
+          orderItemId: z.uuid(),
+          productName: z.string().max(500),
+          quantity: z.number().int().min(1).max(100000),
+          subtotalKobo: money,
+          discountKobo: money,
+          taxKobo: money,
+          totalKobo: money,
+        }),
+      )
+      .min(1)
+      .max(100),
+  }),
+]);
+export type WorkforceMonetaryBreakdown = z.infer<typeof workforceMonetaryBreakdownSchema>;
 const accessSchema = workforceAccessSchema.safeExtend({ managed: z.literal(true) });
 const detail = row.extend({
   reason: z.string().max(2000),
@@ -56,6 +78,7 @@ const detail = row.extend({
       effectiveAt: date,
     })
     .nullable(),
+  monetaryBreakdown: workforceMonetaryBreakdownSchema.optional(),
   reviewEvidenceReady: z.boolean(),
   reviewRevision: z.string().regex(/^[a-f0-9]{64}$/),
   access: accessSchema,
@@ -93,6 +116,30 @@ export function parseWorkforceAftercarePage(value: unknown) {
 export function parseWorkforceAftercare(value: unknown, id: string) {
   const record = detail.parse(value);
   const items = record.requestedItems;
+  const monetary = record.monetaryBreakdown;
+  if (
+    monetary?.status === "SAVED" &&
+    (!items ||
+      monetary.lines.length !== items.length ||
+      new Set(monetary.lines.map((line) => line.orderItemId)).size !==
+        monetary.lines.length ||
+      monetary.lines.reduce((sum, line) => sum + BigInt(line.totalKobo), BigInt(0)) >
+        BigInt(record.order.totalKobo) ||
+      monetary.lines.some((line) => {
+        const item = items.find((value) => value.orderItemId === line.orderItemId);
+        return (
+          !item ||
+          item.orderedQuantity !== line.quantity ||
+          item.productName !== line.productName ||
+          BigInt(line.discountKobo) > BigInt(line.subtotalKobo) ||
+          BigInt(line.subtotalKobo) - BigInt(line.discountKobo) + BigInt(line.taxKobo) !==
+            BigInt(line.totalKobo)
+        );
+      }))
+  )
+    throw Error("Saved monetary evidence could not be verified");
+  if (monetary?.status === "INVALID" && record.reviewEvidenceReady)
+    throw Error("Invalid monetary evidence cannot authorise a financial decision");
   if (
     record.id !== id ||
     !inScope(record, record.access) ||

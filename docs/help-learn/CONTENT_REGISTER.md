@@ -1,3 +1,19 @@
+3 November saved-money checkpoint: financial-aftercare v5 explains Saved order
+amounts, requested versus ordered quantities and issued-record review when no
+snapshot exists. Financial-policy-work v5 records the approved future-order arithmetic
+without representing it as runtime activation. Scope, independent duties and guide
+targets remain unchanged. Financial guidance does not approve a refund or confirm funds.
+
+3 November arithmetic/retrieval checkpoint: owner future-order rounding approval
+is recorded in the policy decisions/checklist. Percentage evaluation now honours
+the existing integer HALF_UP calculation; controlled finance publication, guide
+eligibility, semantic targets and live flags are unchanged. Guidance remains
+truthful about separate verification/approval. Saved refund allocation integration
+must update relevant versioned financial guidance and acceptance when implemented.
+Allie ignores auxiliary question fillers while retaining complete eligible sources,
+source limits and the 8,000-character budget; current-source and stale/duplicate
+source regressions pass. Exact release source 0a61508e passes all required checks.
+
 3 November resource integration: booking-confirmation v9 describes actual atomic
 resource allocation, preserved history, cleanup and unfinished work. Service-request
 v23 preserves independent unpaid booking and adds truthful pending-resource guidance.
@@ -249,12 +265,12 @@ mean a production publication. Feature flags remain off in committed examples.
 | Article                 | Eligibility gate     | Version / review | Actual destination           | Authority                                                                                                                                   |
 | ----------------------- | -------------------- | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | privacy-and-allie       | public               | 1 / 2026-11-01   | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff                                         |
-| financial-aftercare     | financial-aftercare  | 4 / 2026-11-03   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
+| financial-aftercare     | financial-aftercare  | 5 / 2026-11-03   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
 | booking-confirmation    | booking-confirmation | 9 / 2026-11-03   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
 | refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
 | dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
 | privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
-| financial-policy-work   | financial-policy     | 4 / 2026-11-02   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
+| financial-policy-work   | financial-policy     | 5 / 2026-11-03   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
 | parts-fitment           | public               | 14 / 2026-11-03  | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
 | service-request         | public               | 23 / 2026-11-03  | /services                    | Public launch mode and Services page                                                                                                        |

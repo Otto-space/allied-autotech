@@ -1,4 +1,5 @@
 "use client";
+import { SavedOrderAmounts } from "./saved-order-amounts";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -534,6 +535,7 @@ function AftercareDetail({ id, access, refreshAccess }: Props & { id: string }) 
               </p>
             )}
           </section>
+          <SavedOrderAmounts breakdown={row.monetaryBreakdown} />
           <section className="card" aria-labelledby="wfa-evidence-heading">
             <h2 id="wfa-evidence-heading">Inspection and policy evidence</h2>
             <dl className="wfa-facts">
