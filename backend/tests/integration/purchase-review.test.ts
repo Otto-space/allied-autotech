@@ -2,6 +2,13 @@ import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import { assertReviewedPurchasePayable } from "../../src/modules/orders/purchase-review-payable.js";
+import {
+  recordPurchaseRequirements,
+  decidePurchaseReview,
+  assertReviewCanChange,
+} from "../../src/modules/orders/purchase-review.service.js";
+import { lockPurchaseReviewOrder } from "../../src/modules/orders/purchase-review.repository.js";
+import { purchaseRequirementsSchema } from "../../src/modules/orders/purchase-review.schemas.js";
 import { purchasePayableFingerprint } from "../../src/modules/orders/purchase-review.engine.js";
 import {
   loadPurchaseFitment,
@@ -244,6 +251,130 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         data: { orderId: f.order.id, revision: 2, requirements: f.review.requirements },
       });
       await expect(payable(f.order.id)).rejects.toThrow(/review is required/);
+    });
+    it("starts the payment window and stock hold only after a reviewed offer is approved", async () => {
+      const f = await fixture();
+      // Prepare a synthetic unheld request. This is fixture setup, not evidence
+      // that the normal operator stock-release authorisation has been exercised.
+      await prisma.inventoryReservation.update({
+        where: { id: f.reservation.id },
+        data: { status: "RELEASED", releasedAt: new Date() },
+      });
+      await prisma.inventory.update({
+        where: { id: f.inventory.id },
+        data: { reserved: 0, version: { increment: 1 } },
+      });
+      const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
+      const requirements = purchaseRequirementsSchema.parse(f.review.requirements);
+      await prisma.$transaction(
+        async (tx) =>
+          recordPurchaseRequirements(
+            tx,
+            await lockPurchaseReviewOrder(tx, f.order.id),
+            {
+              expectedVersion: 0,
+              expectedRevision: 1,
+              reason: "Synthetic customer specification update",
+              ...requirements,
+            },
+            null,
+            context,
+          ),
+        { isolationLevel: "Serializable" },
+      );
+      const requested = await prisma.order.findUniqueOrThrow({
+        where: { id: f.order.id },
+      });
+      expect(requested.paymentDueAt).toBeNull();
+      expect(requested.paidAt).toBeNull();
+      expect(
+        (await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }))
+          .reserved,
+      ).toBe(0);
+      const decision = {
+        expectedVersion: 1,
+        expectedRevision: 2,
+        decision: "APPROVED" as const,
+        reason: "Synthetic final suitability and availability review",
+        availability: [
+          {
+            orderItemId: f.order.items[0]!.id,
+            evidence: { kind: "BRANCH_STOCK" as const },
+          },
+        ],
+      };
+      await prisma.$transaction(
+        async (tx) =>
+          decidePurchaseReview(
+            tx,
+            await lockPurchaseReviewOrder(tx, f.order.id),
+            decision,
+            f.approval.decidedByUserId,
+            context,
+          ),
+        { isolationLevel: "Serializable" },
+      );
+      const approved = await payable(f.order.id);
+      expect(approved.review.revision).toBe(2);
+      expect(approved.order.paidAt).toBeNull();
+      expect(approved.order.paymentDueAt!.getTime()).toBeGreaterThan(Date.now());
+      const inventory = await prisma.inventory.findUniqueOrThrow({
+        where: { id: f.inventory.id },
+      });
+      expect(inventory.quantity).toBe(1);
+      expect(inventory.reserved).toBe(1);
+      await expect(
+        prisma.$transaction(
+          async (tx) =>
+            decidePurchaseReview(
+              tx,
+              await lockPurchaseReviewOrder(tx, f.order.id),
+              decision,
+              f.approval.decidedByUserId,
+              context,
+            ),
+          { isolationLevel: "Serializable" },
+        ),
+      ).rejects.toThrow(/changed/);
+      expect(
+        await prisma.inventoryReservation.count({
+          where: { referenceId: f.order.id, referenceType: "ORDER", status: "ACTIVE" },
+        }),
+      ).toBe(1);
+    });
+    it("does not replace an offer or release stock while a payment is unresolved", async () => {
+      const f = await fixture();
+      await prisma.payment.create({
+        data: {
+          orderId: f.order.id,
+          customerId: f.order.customerId,
+          paymentNumber: randomUUID(),
+          purpose: "ORDER_PAYMENT",
+          amountKobo: f.order.totalKobo,
+          idempotencyKeyHash: randomUUID().replaceAll("-", "").repeat(2),
+        },
+      });
+      await expect(
+        prisma.$transaction(
+          async (tx) =>
+            assertReviewCanChange(tx, await lockPurchaseReviewOrder(tx, f.order.id)),
+          { isolationLevel: "Serializable" },
+        ),
+      ).rejects.toThrow(/Resolve the existing payment/);
+      expect(
+        (
+          await prisma.inventoryReservation.findUniqueOrThrow({
+            where: { id: f.reservation.id },
+          })
+        ).status,
+      ).toBe("ACTIVE");
+      expect(
+        (
+          await prisma.orderPurchaseReview.findUniqueOrThrow({
+            where: { id: f.review.id },
+          })
+        ).status,
+      ).toBe("REQUESTED");
     });
   },
 );

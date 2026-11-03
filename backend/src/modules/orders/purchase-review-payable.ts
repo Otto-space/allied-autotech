@@ -57,6 +57,22 @@ export async function assertReviewedPurchasePayable(
     order.items.map((item) => item.id),
     snapshot.availability.map((entry) => entry.orderItemId),
   );
+  const stockLines = snapshot.availability.filter(
+    (line) => line.evidence.kind === "BRANCH_STOCK",
+  );
+  const reservationIds = stockLines.map((line) =>
+    line.evidence.kind === "BRANCH_STOCK" ? line.evidence.reservationId : "",
+  );
+  if (new Set(reservationIds).size !== reservationIds.length)
+    throw orderConflict("Each order line needs its own current stock hold.");
+  const quantities = new Map<string, number>();
+  for (const line of stockLines) {
+    if (line.evidence.kind !== "BRANCH_STOCK") continue;
+    quantities.set(
+      line.evidence.inventoryId,
+      (quantities.get(line.evidence.inventoryId) ?? 0) + line.evidence.quantity,
+    );
+  }
   const availability = snapshot.availability.toSorted((left, right) => {
     const leftKey =
       left.evidence.kind === "BRANCH_STOCK"
@@ -103,7 +119,7 @@ export async function assertReviewedPurchasePayable(
       inventory.branchId !== order.branchId ||
       reservation.quantity !== item.quantity ||
       evidence.quantity !== item.quantity ||
-      inventory.reserved < item.quantity ||
+      inventory.reserved < (quantities.get(evidence.inventoryId) ?? item.quantity) ||
       inventory.quantity < inventory.reserved
     )
       throw orderConflict(

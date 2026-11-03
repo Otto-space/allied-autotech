@@ -35,7 +35,16 @@ export const purchaseReviewOrderSelect = {
     orderBy: { id: "asc" as const },
   },
   partsQuote: {
-    select: { id: true, revision: true, status: true, expiresAt: true, totalKobo: true },
+    select: {
+      id: true,
+      revision: true,
+      status: true,
+      expiresAt: true,
+      totalKobo: true,
+      productId: true,
+      quantity: true,
+      unitPriceKobo: true,
+    },
   },
 } satisfies Prisma.OrderSelect;
 export type PurchaseReviewOrder = Prisma.OrderGetPayload<{
@@ -98,7 +107,11 @@ export async function loadPurchaseFitment(
     order.partsQuote &&
     (order.partsQuote.status !== "ACCEPTED" ||
       order.partsQuote.expiresAt <= now ||
-      order.partsQuote.totalKobo !== order.totalKobo)
+      order.partsQuote.totalKobo !== order.totalKobo ||
+      order.items.length !== 1 ||
+      order.items[0]?.productId !== order.partsQuote.productId ||
+      order.items[0]?.quantity !== order.partsQuote.quantity ||
+      order.items[0]?.unitPriceKobo !== order.partsQuote.unitPriceKobo)
   )
     throw orderConflict(
       "The quotation expired or changed. Request a revised offer before payment.",

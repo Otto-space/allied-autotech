@@ -18,6 +18,16 @@ helper. Shared non-critical fitment classification retains its previous values.
 Review history is protected against rewriting or deletion; a new requirements
 revision invalidates the prior approval. Supplier evidence is distinct from stock.
 
+Next source checkpoint adds transactional requirements/decision helpers: requested
+reviews clear payment expiry, approval starts the existing approved 30-minute
+window and creates audited stock holds without decrementing physical stock or
+marking payment. Unresolved intents/attempts block offer replacement. Quantities
+aggregate across configured lines, and revalidation rejects duplicated holds.
+Accepted supplier offers remain tied to the exact quote product, quantity and price.
+Two additional isolated cases exercise these mutations and lost-response stale
+retries; their new-source CI results are pending. Entry-point ownership/permissions,
+customer acceptance UI and actual payment integration are still outstanding.
+
 Local foundation checks before disk fell below reserve: 42/42 focused units
 (including 13 existing fitment cases), application TypeScript and backend lint pass.
 An isolated PostgreSQL suite is added to CI for actual review immutability,
