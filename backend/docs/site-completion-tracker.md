@@ -1,5 +1,16 @@
 ### 3 November: pre-payment review foundation - not yet a complete journey
 
+Hosted frontend source fca5acc9 passes 41646191320: 1,370 unit tests pass,
+12 existing skips; all 13 production-build browser cases pass with no skipped,
+unexpected or flaky browser cases. Safe synthetic artifact 13235113763 retained.
+This is fixture acceptance, not real-role/provider/device acceptance. Source
+1383fd82 passes empty 90-migration replay/schema comparison, db:check, types,
+script types, lint and earlier database gates in 41647044743. Its six new database
+cases failed while constructing evidence because their synthetic author identity
+was omitted. The existing independent-author/reviewer constraint correctly refused
+that fixture. Add a distinct synthetic Staff author; do not weaken the constraint.
+Corrected-source database results remain pending. Later skipped steps are unverified.
+
 D04 source now includes a separate revisioned purchase-review model and forward
 migration, strict customer specification/staff decision contracts, approved-evidence
 matching, a complete monetary/line fingerprint and a payment-boundary revalidation

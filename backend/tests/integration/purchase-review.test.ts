@@ -20,6 +20,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const suffix = randomUUID();
       const buyer = await reviewSourceCustomer();
       const reviewer = await testOwner("unusable-synthetic-review-fixture");
+      const author = await prisma.user.create({
+        data: {
+          email: `review-author-${suffix}@example.test`,
+          passwordHash: "unusable-synthetic-author-fixture",
+          role: "STAFF",
+          status: "ACTIVE",
+          emailVerifiedAt: new Date(),
+          staffProfile: { create: { firstName: "Synthetic", lastName: "Author" } },
+        },
+      });
       const branch = await prisma.branch.create({
         data: {
           code: suffix.slice(0, 10),
@@ -56,6 +66,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           evidenceNotes: "Isolated PostgreSQL regression fixture only",
           reviewedAt: new Date(),
           reviewedByUserId: reviewer.id,
+          createdByUserId: author.id,
+          updatedByUserId: author.id,
         },
       });
       const due = new Date(Date.now() + 1800000);

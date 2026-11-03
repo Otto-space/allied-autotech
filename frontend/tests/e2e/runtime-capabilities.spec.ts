@@ -44,6 +44,9 @@ for (const width of [320, 768, 1440]) {
     await expect(
       page.getByRole("link", { name: "Ask about a workshop visit", exact: true }),
     ).toBeVisible();
+    await page
+      .getByRole("link", { name: "Ask about a workshop visit", exact: true })
+      .scrollIntoViewIfNeeded();
     await page.screenshot({ path: info.outputPath(`booking-closed-${width}.png`) });
     await page.goto(
       "/services/request?serviceGroup=37ec8bcf-7edc-4ec7-a185-ec849d71c5de",
@@ -70,6 +73,9 @@ for (const width of [320, 768, 1440]) {
     await expect(
       page.getByRole("link", { name: "Request a visit", exact: true }),
     ).toBeVisible();
+    await page
+      .getByRole("link", { name: "Request a visit", exact: true })
+      .scrollIntoViewIfNeeded();
     await page.screenshot({
       path: info.outputPath(`booking-open-checkout-closed-${width}.png`),
     });
