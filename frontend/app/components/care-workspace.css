@@ -443,3 +443,30 @@
   overflow-wrap: anywhere;
   background: transparent;
 }
+
+/* Keep the customer case identity and primary action together before secondary columns. */
+.dashboard .care-customer-requests {
+  table-layout: fixed;
+  min-width: 36rem;
+}
+.care-customer-requests .care-request-primary-column {
+  width: clamp(14rem, 40%, 26rem);
+}
+.care-request-primary {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+.care-customer-requests .care-request-primary .text-link {
+  min-height: 44px;
+}
+.care-request-scroll-hint {
+  display: none;
+}
+@media (max-width: 600px) {
+  .care-request-scroll-hint {
+    display: block;
+    margin: 0 0 8px;
+    font-size: 0.875rem;
+  }
+}

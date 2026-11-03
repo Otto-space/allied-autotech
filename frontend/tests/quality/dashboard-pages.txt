@@ -183,6 +183,12 @@ launch-truth.spec.ts
 consolidated-audit.spec.ts > 320x720 > work profile uses the authorised own-account contract without inventing employee identity
 consolidated-audit.spec.ts > 1280x720 > work profile uses the authorised own-account contract without inventing employee identity
 
+# Renewed brief: nearby customer actions at all seven exact viewport pairs.
+customer-support-actions.spec.ts
+
+# Sticky utilities, single dock, four roles and all seven exact viewport pairs.
+shared-shell-dock.spec.ts
+
 # 3 November D06 source-only owner resource editor; synthetic fixtures, actual-role/hosted acceptance separate.
 workshop-resources.spec.ts > owner reviews real names, split periods and one approval at 320px
 workshop-resources.spec.ts > owner reviews real names, split periods and one approval at 1440px
