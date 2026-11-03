@@ -7676,6 +7676,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/policies/booking-resources/{branchId}/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Find actual service and eligible technician references for a resource plan
+         * @description Private/no-store and atomically audited under current actor/session checks. Eligibility filtering precedes cursor pagination. Exact-ID lookup retains unavailable references honestly; it grants no work permission and exposes no contact, login or financial fields. Find actual service and eligible technician references for a resource plan. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getAdminPoliciesBookingResourcesByBranchIdOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/policies/booking-resources/{branchId}/current": {
         parameters: {
             query?: never;
@@ -128444,6 +128464,292 @@ export interface operations {
                      *       "message": "The actor is not authorized for this resource or action.",
                      *       "error": {
                      *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getAdminPoliciesBookingResourcesByBranchIdOptions: {
+        parameters: {
+            query: {
+                /**
+                 * @description Kind used to constrain this request.
+                 * @example SERVICE
+                 */
+                kind: "SERVICE" | "TECHNICIAN";
+                /**
+                 * @description Q used to constrain this request.
+                 * @example synthetic-q
+                 */
+                q?: string;
+                /**
+                 * @description Opaque cursor returned by the preceding page.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                cursor?: string;
+                /**
+                 * @description Maximum number of records to return, bounded by the API.
+                 * @example 1
+                 */
+                limit?: number;
+                /**
+                 * @description Ids used to constrain this request.
+                 * @example synthetic-ids
+                 */
+                ids?: string;
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the branch resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                branchId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Find actual service and eligible technician references for a resource plan. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Find actual service and eligible technician references for a resource plan",
+                     *       "data": {
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "kind": "SERVICE",
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "label": "synthetic-label",
+                     *             "eligible": true
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string;
+                            /**
+                             * @description Kind validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            kind: "SERVICE" | "TECHNICIAN";
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                                /** @description Eligible validated by this operation's strict request contract. */
+                                eligible: boolean;
+                            }[];
+                            /**
+                             * Format: uuid
+                             * @description Next Cursor validated by this operation's strict request contract.
+                             */
+                            nextCursor: string | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"

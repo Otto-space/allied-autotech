@@ -1,3 +1,54 @@
+### 3 November 2026: D06 resource authoring lookup and receipt foundation
+
+Current item remains the owner resource-authoring/review interface and resource-aware
+public offered-time filtering. Full D01-D17 remains active. This batch adds the
+real-record lookup and strict client contracts needed by that interface; it does
+not claim an editor route, rendered acceptance or production publication.
+
+Owner/MFA-only GET /admin/policies/booking-resources/:branchId/options returns
+minimal service/technician references and names, with private/no-store responses and
+an atomic current-session audit. Job-duty eligibility is applied before keyset
+pagination. Legacy branch staff retain existing authority; managed staff need an
+active JOBS_UPDATE assignment. Revoked, future/expired, foreign, inactive and
+unverified references cannot become eligible through a resource selection. Exact
+reference lookup can label retired selections unavailable, without exposing contact,
+login or financial fields or fabricating a replacement record.
+
+Client contracts validate actual resource groups, qualifications, split periods,
+exceptions, versioned workspace consistency and exact D06-D07 approval receipts.
+Recovery stores only an opaque token, expected version and SHA-256 fingerprint;
+shared session invalidation redacts every resource branch marker. No approval body,
+staff schedule or written evidence is stored in browser recovery. These helpers
+are prepared for the forthcoming editor; no existing customer flow is changed.
+
+Evidence: 18/18 native HTTP/database cases across resource lookup and existing
+resource-policy publication pass on fresh aat_d06_48f7fa181984_test, after all 95
+migrations replayed, Prisma diff and db:check passed. Restricted CRUD runtime
+credentials were used, isolation identity checked, and the owned tmpfs target was
+removed. Shared databases/volumes were preserved. Earlier failed fixture-reference
+and expected-status runs remain separate; 422 is the existing validation contract.
+The final log is %TEMP%/aat-d06-options-native-accepted.log. Frontend resource,
+capacity and API-client units pass 43/43. Backend source, scripts and the focused
+native test type check pass; frontend generation/types and scoped lint pass. The
+focused test compiler includes existing Express declarations and permits the same
+environment index-access style as existing test helpers. Initial temporary compiler
+configuration failures are not source failures or counted as passes.
+
+OpenAPI validates 434 paths and 509 mounted documented operations plus four explicit
+infrastructure routes. Export uses the existing synthetic offline environment;
+the first normal export stopped for missing DB environment configuration, without
+connecting or writing to a database. Formatting, diff whitespace and secret checks
+pass. Existing Vite configuration/Node crypto/pg driver warnings remain separate.
+C: reserve passes at 21.86 GiB. No new worktree, dependency install, Docker image
+build, production write, provider call, financial approval or feature activation.
+
+Still required: complete resource author/review/recovery UI and rendered acceptance;
+resource-aware offer filtering; in-progress estimate extensions and legacy resource
+assessment/disruption recovery. Actual staff/account mapping, working equipment,
+shared spaces, service requirements and shifts need authorised factual configuration.
+D03/D11/D13/D14/D16/D17 implementation and all unresolved D01-D17 values remain in
+scope. Purchasing stays separate, with compatibility and availability BEFORE payment.
+
 ## 3 November 2026: consolidated audit deployed checkpoint
 
 Checked application source 7384abf8 (PR #12) is live on both domains as

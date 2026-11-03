@@ -1,3 +1,12 @@
+### 3 November 2026: D06 authoring foundation checkpoint
+
+Real-record owner-only lookup, strict resource approval receipts and reference-only
+recovery are locally verified: 18 native resource-policy/lookup and 43 frontend
+contract/API tests pass. The authoring UI and public resource-aware offer filtering
+remain implementation work; no operational approval, UI acceptance or production
+publication is claimed. D01-D17 instructions, delegation and unresolved values below
+are unchanged. See the completion tracker for exact evidence and failed attempts.
+
 ## 3 November 2026: owner-approved monetary arithmetic
 
 The user explicitly selected "Use the recommended rule" in this chat after
