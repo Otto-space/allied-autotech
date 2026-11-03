@@ -1,3 +1,7 @@
+import {
+  assertOrderMoneyMatches,
+  readOrderMoneyAllocation,
+} from "../orders/order-money-allocation.js";
 import { hashToken } from "../../common/security/session-tokens.js";
 import { z } from "zod";
 import type { Prisma } from "../../generated/prisma/client.js";
@@ -56,8 +60,18 @@ export const aftercareDetailSelect = {
   orderIdRelation: {
     select: {
       ...aftercareSummarySelect.orderIdRelation.select,
+      subtotalKobo: true,
+      discountAmountKobo: true,
+      taxKobo: true,
+      deliveryFeeKobo: true,
       items: {
-        select: { id: true, productName: true, quantity: true },
+        select: {
+          id: true,
+          productName: true,
+          quantity: true,
+          subtotalKobo: true,
+          unitPriceKobo: true,
+        },
         orderBy: { id: "asc" as const },
       },
     },
@@ -124,6 +138,31 @@ export function projectAftercareDetail(row: Detail) {
         };
       })
     : null;
+  let monetaryBreakdown: z.infer<typeof workforceMonetaryBreakdownSchema> = {
+    status: "LEGACY",
+  };
+  try {
+    const allocation = readOrderMoneyAllocation(row.policySnapshot);
+    if (allocation) {
+      assertOrderMoneyMatches(allocation, row.orderIdRelation);
+      if (!requestedItems) throw new Error("Requested quantities are unavailable");
+      monetaryBreakdown = {
+        status: "SAVED",
+        lines: allocation.lines
+          .filter((line) =>
+            requestedItems.some((item) => item.orderItemId === line.orderItemId),
+          )
+          .map((line) => ({
+            ...line,
+            productName: requestedItems.find(
+              (item) => item.orderItemId === line.orderItemId,
+            )!.productName,
+          })),
+      };
+    }
+  } catch {
+    monetaryBreakdown = { status: "INVALID" };
+  }
   const parsedPolicy = policySchema.safeParse(row.policySnapshot);
   const policy = parsedPolicy.success ? parsedPolicy.data : null;
   // Select explicit fields: neither customer data nor raw policy settings may leak
@@ -155,9 +194,11 @@ export function projectAftercareDetail(row: Detail) {
     goodCondition: row.goodCondition,
     reviewNote: row.reviewNote,
     requestedItems,
+    monetaryBreakdown,
     policy,
     reviewEvidenceReady:
       !!requestedItems &&
+      monetaryBreakdown.status !== "INVALID" &&
       !!policy &&
       ["RETURN", "CANCELLATION"].includes(row.kind) &&
       ["REQUESTED", "RECEIVED", "INSPECTED"].includes(row.status),
@@ -193,6 +234,27 @@ export const workforceAftercareRowSchema = z.object({
     fulfillmentMethod: z.enum(["COLLECTION", "DELIVERY"]),
   }),
 });
+export const workforceMonetaryBreakdownSchema = z.discriminatedUnion("status", [
+  z.object({ status: z.literal("LEGACY") }),
+  z.object({ status: z.literal("INVALID") }),
+  z.object({
+    status: z.literal("SAVED"),
+    lines: z
+      .array(
+        z.object({
+          orderItemId: z.uuid(),
+          productName: z.string(),
+          quantity: z.number().int().positive(),
+          subtotalKobo: money,
+          discountKobo: money,
+          taxKobo: money,
+          totalKobo: money,
+        }),
+      )
+      .min(1)
+      .max(100),
+  }),
+]);
 export const workforceAftercareDetailSchema = workforceAftercareRowSchema.extend({
   reason: z.string(),
   reviewReason: z.string(),
@@ -208,6 +270,7 @@ export const workforceAftercareDetailSchema = workforceAftercareRowSchema.extend
     )
     .nullable(),
   policy: policySchema.nullable(),
+  monetaryBreakdown: workforceMonetaryBreakdownSchema.optional(),
   reviewEvidenceReady: z.boolean(),
   reviewRevision: z.string().regex(/^[a-f0-9]{64}$/),
 });

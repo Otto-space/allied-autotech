@@ -1,3 +1,4 @@
+import type { WorkforceMonetaryBreakdown } from "../../lib/admin/workforce-aftercare";
 import type { WorkforceAccess } from "../../lib/api/workforce-schemas";
 import {
   workforceCapabilityScopes,
@@ -117,6 +118,7 @@ export function aftercareFixtureData(
       source: string;
       effectiveAt: string;
     } | null,
+    monetaryBreakdown: { status: "LEGACY" } as WorkforceMonetaryBreakdown,
     reviewEvidenceReady: true,
     reviewRevision: "a".repeat(64),
   };

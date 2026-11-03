@@ -73,9 +73,9 @@ it("versions reversal guidance without granting live lookups or writes", () => {
 
 it("versions guest refund handoff guidance while preserving separate financial authority", () => {
   const guidance = learningArticles.find((item) => item.id === "financial-aftercare")!;
-  expect(guidance.version).toBe(4);
+  expect(guidance.version).toBe(5);
   expect(guidance.gate).toBe("financial-aftercare");
-  expect(guidance.steps).toHaveLength(5);
+  expect(guidance.steps).toHaveLength(6);
   expect(guidance.steps.join(" ")).toContain("full remaining pre-confirmation refund");
   expect(guidance.steps.join(" ")).toContain("A different authorised operator");
   expect(guidance.steps.join(" ")).toContain("a queued refund is not money returned");
@@ -185,4 +185,19 @@ it("explains reasoned pending reschedules without releasing the original appoint
   expect(text).toContain("original stays confirmed");
   expect(text).toContain("withdraw only the pending change");
   expect(text).toContain("Cancellation is a separate action");
+});
+
+it("versions saved financial breakdown guidance without expanding its independent duties", () => {
+  const aftercare = learningArticles.find((value) => value.id === "financial-aftercare")!;
+  const policy = learningArticles.find((value) => value.id === "financial-policy-work")!;
+  expect(aftercare.version).toBe(5);
+  expect(aftercare.gate).toBe("financial-aftercare");
+  expect(aftercare.steps.join(" ")).toContain("Saved order amounts");
+  expect(aftercare.steps.join(" ")).toContain(
+    "does not prove payment or approve a partial refund",
+  );
+  expect(policy.version).toBe(5);
+  expect(policy.gate).toBe("financial-policy");
+  expect(policy.steps.join(" ")).toContain("exact halves rounded up");
+  expect(policy.steps.join(" ")).toContain("Preserve issued historical amounts");
 });

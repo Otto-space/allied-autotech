@@ -237,5 +237,7 @@ export function createApiHandbook(document: unknown): string {
   }
   return `${HANDBOOK_INTRODUCTION.trim()}\n\n${GROUP_ORDER.map(
     (group) => `## ${group}\n\n${grouped.get(group)?.join("\n") ?? ""}`,
-  ).join("\n\n")}\n`;
+  )
+    .join("\n\n")
+    .trimEnd()}\n`;
 }

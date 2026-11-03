@@ -15,6 +15,7 @@ export default defineConfig({
     "slot-timing-review.spec.ts",
     "customer-support-actions.spec.ts",
     "shared-shell-dock.spec.ts",
+    "order-money-breakdown.spec.ts",
   ],
   outputDir: "./test-results/runtime-capabilities",
   timeout: 90_000,

@@ -83,7 +83,15 @@ describe("private API handover contract", () => {
           });
           if (path.startsWith("/customers/"))
             expect(operation["description"]).toContain("Ownership is checked");
-          else {
+          else if (path.startsWith("/purchase/")) {
+            expect(path).toMatch(
+              /^\/purchase\/(?:invoices\/\{invoiceId\}|payments\/\{paymentId\}\/receipt)\/download$/u,
+            );
+            expect(operation["x-required-roles"]).toEqual(["PURCHASE_GUEST"]);
+            expect(operation["security"]).toEqual([{ purchaseGuestCookie: [] }]);
+            expect(operation["description"]).toContain("Read an owned");
+            expect(operation["description"]).toContain("verified-purchase-guest");
+          } else {
             expect(operation["x-required-roles"]).toEqual(["ADMIN", "SUPER_ADMIN"]);
             expect(operation["description"]).toContain("verified MFA");
           }
@@ -108,6 +116,7 @@ describe("private API handover contract", () => {
     }
 
     const handbook = createApiHandbook(document);
+    expect(handbook).toBe(handbook.trimEnd() + "\n");
     const handbookOperations = handbook.match(
       /^### (?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) `/gmu,
     );

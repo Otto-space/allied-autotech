@@ -185160,6 +185160,115 @@
                           ],
                           "description": "Policy validated by this operation's strict request contract."
                         },
+                        "monetaryBreakdown": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "LEGACY"
+                                  ],
+                                  "description": "Requested or filtered lifecycle state from the documented enum."
+                                }
+                              },
+                              "required": [
+                                "status"
+                              ],
+                              "description": "Monetary Breakdown validated by this operation's strict request contract."
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "INVALID"
+                                  ],
+                                  "description": "Requested or filtered lifecycle state from the documented enum."
+                                }
+                              },
+                              "required": [
+                                "status"
+                              ],
+                              "description": "Monetary Breakdown validated by this operation's strict request contract."
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "SAVED"
+                                  ],
+                                  "description": "Requested or filtered lifecycle state from the documented enum."
+                                },
+                                "lines": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "orderItemId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "Identifier of the order item resource; ownership is resolved server-side."
+                                      },
+                                      "productName": {
+                                        "type": "string",
+                                        "description": "Product Name validated by this operation's strict request contract."
+                                      },
+                                      "quantity": {
+                                        "type": "integer",
+                                        "exclusiveMinimum": 0,
+                                        "description": "Quantity validated by this operation's strict request contract."
+                                      },
+                                      "subtotalKobo": {
+                                        "type": "string",
+                                        "pattern": "^\\d+$",
+                                        "description": "Subtotal Kobo validated by this operation's strict request contract."
+                                      },
+                                      "discountKobo": {
+                                        "type": "string",
+                                        "pattern": "^\\d+$",
+                                        "description": "Discount Kobo validated by this operation's strict request contract."
+                                      },
+                                      "taxKobo": {
+                                        "type": "string",
+                                        "pattern": "^\\d+$",
+                                        "description": "Tax Kobo validated by this operation's strict request contract."
+                                      },
+                                      "totalKobo": {
+                                        "type": "string",
+                                        "pattern": "^\\d+$",
+                                        "description": "Total Kobo validated by this operation's strict request contract."
+                                      }
+                                    },
+                                    "required": [
+                                      "orderItemId",
+                                      "productName",
+                                      "quantity",
+                                      "subtotalKobo",
+                                      "discountKobo",
+                                      "taxKobo",
+                                      "totalKobo"
+                                    ],
+                                    "description": "Lines Item validated by this operation's strict request contract."
+                                  },
+                                  "minItems": 1,
+                                  "maxItems": 100,
+                                  "description": "Lines validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "status",
+                                "lines"
+                              ],
+                              "description": "Monetary Breakdown validated by this operation's strict request contract."
+                            }
+                          ],
+                          "description": "Monetary Breakdown validated by this operation's strict request contract."
+                        },
                         "reviewEvidenceReady": {
                           "type": "boolean",
                           "description": "Review Evidence Ready validated by this operation's strict request contract."
