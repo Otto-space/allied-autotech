@@ -8,7 +8,11 @@ import { ServiceOperationsService } from "../../src/modules/service-operations/s
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import { reviewSourceCustomer, reviewSourceFixtures } from "../helpers/review-sources.js";
 import { testOwner } from "../helpers/owner.js";
-import { testCapability, testBranchCapacity } from "../helpers/owner-policy.js";
+import {
+  testCapability,
+  testBranchCapacity,
+  testBranchResources,
+} from "../helpers/owner-policy.js";
 import { paymentTestSession } from "../helpers/payment-session.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 const operations = new ServiceOperationsService();
@@ -66,6 +70,7 @@ async function fixture() {
       },
     },
   });
+  await testBranchResources(branchId, owner.id, [sources.service.id], [staff.id]);
   const startsAt = new Date(Date.now() + 9 * 86400000);
   startsAt.setUTCHours(8, 0, 0, 0);
   const nextAt = new Date(startsAt.getTime() + 86400000);

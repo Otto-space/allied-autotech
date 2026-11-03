@@ -165281,6 +165281,708 @@
         "x-idempotency-required": false
       }
     },
+    "/admin/policies/booking-resources/{branchId}/current": {
+      "get": {
+        "tags": [
+          "Owner policy operations"
+        ],
+        "summary": "Read approved workshop resources, upcoming version and immutable history",
+        "description": "Private/no-store, current actor/session checked, repeatable snapshot and atomic minimal branch READ audit. Resource policy publication validates actual active services and verified technicians with current scoped work permission. Managed technicians need current branch duties; legacy technicians retain the existing verified role/branch work boundary. Explicit service eligibility never grants work access. Resource configuration alone does not reserve an appointment; confirmation and reviewed changes record immutable allocations atomically. Read approved workshop resources, upcoming version and immutable history. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "x-required-roles": [
+          "SUPER_ADMIN"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the branch resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "branchId",
+            "in": "path",
+            "description": "Identifier selecting the branch resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read approved workshop resources, upcoming version and immutable history.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "evaluatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "current": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "key": {
+                              "type": "string",
+                              "description": "Key validated by this operation's strict request contract."
+                            },
+                            "version": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Version validated by this operation's strict request contract."
+                            },
+                            "approvalStatus": {
+                              "type": "string",
+                              "description": "Approval Status validated by this operation's strict request contract."
+                            },
+                            "source": {
+                              "type": "string",
+                              "description": "Source validated by this operation's strict request contract."
+                            },
+                            "sourceQuestion": {
+                              "type": "string",
+                              "description": "Source Question validated by this operation's strict request contract."
+                            },
+                            "sourceSignatory": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Source Signatory validated by this operation's strict request contract."
+                            },
+                            "approvedByUserId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "uuid",
+                              "description": "Identifier of the approved by user resource; ownership is resolved server-side."
+                            },
+                            "effectiveAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "recordedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "settings": {
+                              "description": "Settings validated by this operation's strict request contract."
+                            },
+                            "approvalEvidence": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Approval Evidence validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "key",
+                            "version",
+                            "approvalStatus",
+                            "source",
+                            "sourceQuestion",
+                            "sourceSignatory",
+                            "approvedByUserId",
+                            "effectiveAt",
+                            "recordedAt",
+                            "approvalEvidence"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Current validated by this operation's strict request contract."
+                        },
+                        "latest": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "key": {
+                              "type": "string",
+                              "description": "Key validated by this operation's strict request contract."
+                            },
+                            "version": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Version validated by this operation's strict request contract."
+                            },
+                            "approvalStatus": {
+                              "type": "string",
+                              "description": "Approval Status validated by this operation's strict request contract."
+                            },
+                            "source": {
+                              "type": "string",
+                              "description": "Source validated by this operation's strict request contract."
+                            },
+                            "sourceQuestion": {
+                              "type": "string",
+                              "description": "Source Question validated by this operation's strict request contract."
+                            },
+                            "sourceSignatory": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Source Signatory validated by this operation's strict request contract."
+                            },
+                            "approvedByUserId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "uuid",
+                              "description": "Identifier of the approved by user resource; ownership is resolved server-side."
+                            },
+                            "effectiveAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "recordedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "settings": {
+                              "description": "Settings validated by this operation's strict request contract."
+                            },
+                            "approvalEvidence": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Approval Evidence validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "key",
+                            "version",
+                            "approvalStatus",
+                            "source",
+                            "sourceQuestion",
+                            "sourceSignatory",
+                            "approvedByUserId",
+                            "effectiveAt",
+                            "recordedAt",
+                            "approvalEvidence"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Latest validated by this operation's strict request contract."
+                        },
+                        "nextScheduled": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "key": {
+                              "type": "string",
+                              "description": "Key validated by this operation's strict request contract."
+                            },
+                            "version": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Version validated by this operation's strict request contract."
+                            },
+                            "approvalStatus": {
+                              "type": "string",
+                              "description": "Approval Status validated by this operation's strict request contract."
+                            },
+                            "source": {
+                              "type": "string",
+                              "description": "Source validated by this operation's strict request contract."
+                            },
+                            "sourceQuestion": {
+                              "type": "string",
+                              "description": "Source Question validated by this operation's strict request contract."
+                            },
+                            "sourceSignatory": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Source Signatory validated by this operation's strict request contract."
+                            },
+                            "approvedByUserId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "uuid",
+                              "description": "Identifier of the approved by user resource; ownership is resolved server-side."
+                            },
+                            "effectiveAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "recordedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "settings": {
+                              "description": "Settings validated by this operation's strict request contract."
+                            },
+                            "approvalEvidence": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Approval Evidence validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "key",
+                            "version",
+                            "approvalStatus",
+                            "source",
+                            "sourceQuestion",
+                            "sourceSignatory",
+                            "approvedByUserId",
+                            "effectiveAt",
+                            "recordedAt",
+                            "approvalEvidence"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Next Scheduled validated by this operation's strict request contract."
+                        },
+                        "history": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "key": {
+                                "type": "string",
+                                "description": "Key validated by this operation's strict request contract."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "description": "Version validated by this operation's strict request contract."
+                              },
+                              "approvalStatus": {
+                                "type": "string",
+                                "description": "Approval Status validated by this operation's strict request contract."
+                              },
+                              "source": {
+                                "type": "string",
+                                "description": "Source validated by this operation's strict request contract."
+                              },
+                              "sourceQuestion": {
+                                "type": "string",
+                                "description": "Source Question validated by this operation's strict request contract."
+                              },
+                              "sourceSignatory": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Source Signatory validated by this operation's strict request contract."
+                              },
+                              "approvedByUserId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "uuid",
+                                "description": "Identifier of the approved by user resource; ownership is resolved server-side."
+                              },
+                              "effectiveAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "recordedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "settings": {
+                                "description": "Settings validated by this operation's strict request contract."
+                              },
+                              "approvalEvidence": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Approval Evidence validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "key",
+                              "version",
+                              "approvalStatus",
+                              "source",
+                              "sourceQuestion",
+                              "sourceSignatory",
+                              "approvedByUserId",
+                              "effectiveAt",
+                              "recordedAt",
+                              "approvalEvidence"
+                            ],
+                            "additionalProperties": false,
+                            "description": "History Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 100,
+                          "description": "History validated by this operation's strict request contract."
+                        },
+                        "branch": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Name validated by this operation's strict request contract."
+                            },
+                            "isActive": {
+                              "type": "boolean",
+                              "description": "Boolean control for is active; authorization is still enforced server-side."
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "isActive",
+                            "updatedAt"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Branch validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "evaluatedAt",
+                        "current",
+                        "latest",
+                        "nextScheduled",
+                        "history",
+                        "branch"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read approved workshop resources, upcoming version and immutable history",
+                  "data": {
+                    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+                    "current": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "key": "synthetic-key",
+                      "version": 1,
+                      "approvalStatus": "synthetic-approvalstatus",
+                      "source": "synthetic-source",
+                      "sourceQuestion": "synthetic-sourcequestion",
+                      "sourceSignatory": "synthetic-sourcesignatory",
+                      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+                      "effectiveAt": "2030-01-15T10:00:00.000Z",
+                      "recordedAt": "2030-01-15T10:00:00.000Z",
+                      "approvalEvidence": "synthetic-approvalevidence"
+                    },
+                    "latest": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "key": "synthetic-key",
+                      "version": 1,
+                      "approvalStatus": "synthetic-approvalstatus",
+                      "source": "synthetic-source",
+                      "sourceQuestion": "synthetic-sourcequestion",
+                      "sourceSignatory": "synthetic-sourcesignatory",
+                      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+                      "effectiveAt": "2030-01-15T10:00:00.000Z",
+                      "recordedAt": "2030-01-15T10:00:00.000Z",
+                      "approvalEvidence": "synthetic-approvalevidence"
+                    },
+                    "nextScheduled": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "key": "synthetic-key",
+                      "version": 1,
+                      "approvalStatus": "synthetic-approvalstatus",
+                      "source": "synthetic-source",
+                      "sourceQuestion": "synthetic-sourcequestion",
+                      "sourceSignatory": "synthetic-sourcesignatory",
+                      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+                      "effectiveAt": "2030-01-15T10:00:00.000Z",
+                      "recordedAt": "2030-01-15T10:00:00.000Z",
+                      "approvalEvidence": "synthetic-approvalevidence"
+                    },
+                    "history": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "key": "synthetic-key",
+                        "version": 1,
+                        "approvalStatus": "synthetic-approvalstatus",
+                        "source": "synthetic-source",
+                        "sourceQuestion": "synthetic-sourcequestion",
+                        "sourceSignatory": "synthetic-sourcesignatory",
+                        "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+                        "effectiveAt": "2030-01-15T10:00:00.000Z",
+                        "recordedAt": "2030-01-15T10:00:00.000Z",
+                        "approvalEvidence": "synthetic-approvalevidence"
+                      }
+                    ],
+                    "branch": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "synthetic-name",
+                      "isActive": true,
+                      "updatedAt": "2030-01-15T10:00:00.000Z"
+                    }
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getAdminPoliciesBookingResourcesByBranchIdCurrent",
+        "x-access-boundary": "mfa-verified-admin",
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
     "/admin/policies/booking-capacity/{branchId}/current": {
       "get": {
         "tags": [
@@ -166941,6 +167643,357 @@
                           "closesAt",
                           "holidays",
                           "timezone"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Settings validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": [
+                      "expectedVersion",
+                      "effectiveAt",
+                      "source",
+                      "approvalEvidence",
+                      "kind",
+                      "branchId",
+                      "settings"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Request Body validated by this operation's strict request contract."
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Last server version observed by the client; stale writes are rejected."
+                      },
+                      "effectiveAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 10,
+                        "maxLength": 500,
+                        "description": "Source validated by this operation's strict request contract."
+                      },
+                      "approvalEvidence": {
+                        "type": "string",
+                        "minLength": 20,
+                        "maxLength": 1000,
+                        "description": "Approval Evidence validated by this operation's strict request contract."
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "BRANCH_RESOURCES"
+                        ],
+                        "description": "Kind validated by this operation's strict request contract."
+                      },
+                      "branchId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the branch resource; ownership is resolved server-side."
+                      },
+                      "settings": {
+                        "type": "object",
+                        "properties": {
+                          "timezone": {
+                            "type": "string",
+                            "enum": [
+                              "Africa/Lagos"
+                            ],
+                            "description": "ISO 8601 timestamp interpreted and validated by the server."
+                          },
+                          "resources": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 2,
+                                  "maxLength": 120,
+                                  "description": "Name validated by this operation's strict request contract."
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "EQUIPMENT",
+                                    "SPACE"
+                                  ],
+                                  "description": "Kind validated by this operation's strict request contract."
+                                },
+                                "pools": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 60,
+                                    "pattern": "^[a-z][a-z0-9-]*$",
+                                    "description": "Pools Item validated by this operation's strict request contract."
+                                  },
+                                  "minItems": 1,
+                                  "maxItems": 10,
+                                  "description": "Pools validated by this operation's strict request contract."
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "AVAILABLE",
+                                    "UNAVAILABLE"
+                                  ],
+                                  "description": "Requested or filtered lifecycle state from the documented enum."
+                                },
+                                "workingPeriods": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "weekday": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 6,
+                                        "description": "Weekday validated by this operation's strict request contract."
+                                      },
+                                      "opensAt": {
+                                        "type": "string",
+                                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                      },
+                                      "closesAt": {
+                                        "type": "string",
+                                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                      }
+                                    },
+                                    "required": [
+                                      "weekday",
+                                      "opensAt",
+                                      "closesAt"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "Working Periods Item validated by this operation's strict request contract."
+                                  },
+                                  "minItems": 1,
+                                  "maxItems": 28,
+                                  "description": "Working Periods validated by this operation's strict request contract."
+                                },
+                                "unavailablePeriods": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "startsAt": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                      },
+                                      "endsAt": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                      },
+                                      "reason": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 120,
+                                        "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                                      }
+                                    },
+                                    "required": [
+                                      "startsAt",
+                                      "endsAt",
+                                      "reason"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "Unavailable Periods Item validated by this operation's strict request contract."
+                                  },
+                                  "maxItems": 100,
+                                  "description": "Unavailable Periods validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "kind",
+                                "pools",
+                                "status",
+                                "workingPeriods",
+                                "unavailablePeriods"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Resources Item validated by this operation's strict request contract."
+                            },
+                            "maxItems": 100,
+                            "description": "Resources validated by this operation's strict request contract."
+                          },
+                          "technicians": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "staffId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the staff resource; ownership is resolved server-side."
+                                },
+                                "serviceIds": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Service Ids Item validated by this operation's strict request contract."
+                                  },
+                                  "minItems": 1,
+                                  "maxItems": 100,
+                                  "description": "Service Ids validated by this operation's strict request contract."
+                                },
+                                "workingPeriods": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "weekday": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 6,
+                                        "description": "Weekday validated by this operation's strict request contract."
+                                      },
+                                      "opensAt": {
+                                        "type": "string",
+                                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                      },
+                                      "closesAt": {
+                                        "type": "string",
+                                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                      }
+                                    },
+                                    "required": [
+                                      "weekday",
+                                      "opensAt",
+                                      "closesAt"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "Working Periods Item validated by this operation's strict request contract."
+                                  },
+                                  "minItems": 1,
+                                  "maxItems": 28,
+                                  "description": "Working Periods validated by this operation's strict request contract."
+                                },
+                                "unavailablePeriods": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "startsAt": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                      },
+                                      "endsAt": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                      },
+                                      "reason": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 120,
+                                        "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                                      }
+                                    },
+                                    "required": [
+                                      "startsAt",
+                                      "endsAt",
+                                      "reason"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "Unavailable Periods Item validated by this operation's strict request contract."
+                                  },
+                                  "maxItems": 100,
+                                  "description": "Unavailable Periods validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "staffId",
+                                "serviceIds",
+                                "workingPeriods",
+                                "unavailablePeriods"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Technicians Item validated by this operation's strict request contract."
+                            },
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "description": "Technicians validated by this operation's strict request contract."
+                          },
+                          "services": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "serviceId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the service resource; ownership is resolved server-side."
+                                },
+                                "requirements": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "pool": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 60,
+                                        "pattern": "^[a-z][a-z0-9-]*$",
+                                        "description": "Pool validated by this operation's strict request contract."
+                                      },
+                                      "quantity": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 20,
+                                        "description": "Quantity validated by this operation's strict request contract."
+                                      }
+                                    },
+                                    "required": [
+                                      "pool",
+                                      "quantity"
+                                    ],
+                                    "additionalProperties": false,
+                                    "description": "Requirements Item validated by this operation's strict request contract."
+                                  },
+                                  "maxItems": 10,
+                                  "description": "Requirements validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "serviceId",
+                                "requirements"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Services Item validated by this operation's strict request contract."
+                            },
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "description": "Services validated by this operation's strict request contract."
+                          }
+                        },
+                        "required": [
+                          "timezone",
+                          "resources",
+                          "technicians",
+                          "services"
                         ],
                         "additionalProperties": false,
                         "description": "Settings validated by this operation's strict request contract."

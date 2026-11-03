@@ -5,7 +5,7 @@ import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { workforceFixture } from "../fixtures/workforce.js";
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
-import { testBranchCapacity } from "../helpers/owner-policy.js";
+import { testBranchCapacity, testBranchResources } from "../helpers/owner-policy.js";
 import { createPendingReschedule } from "../../src/modules/service-operations/booking-reschedule.js";
 import { workforceResponseSchema } from "../../src/modules/organization/workforce.schemas.js";
 import * as notifications from "../../src/modules/notifications/notifications.service.js";
@@ -86,6 +86,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           isActive: true,
         },
       });
+      await testBranchResources(branchId, f.owner.id, [service.id], [selectedStaff]);
+      if (branchId !== f.home.id)
+        await testBranchResources(f.home.id, f.owner.id, [service.id], [originalStaff]);
       const booking = await prisma.booking.create({
         data: {
           customerId: f.customer.user.profile!.id,

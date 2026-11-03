@@ -5,7 +5,7 @@ import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { workforceFixture } from "../fixtures/workforce.js";
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
-import { testBranchCapacity } from "../helpers/owner-policy.js";
+import { testBranchCapacity, testBranchResources } from "../helpers/owner-policy.js";
 import {
   captureBookingTiming,
   timingWindow,
@@ -46,6 +46,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           cleanupMinutes: unknown ? null : 20,
         },
       });
+      await testBranchResources(
+        f.home.id,
+        f.owner.id,
+        [service.id],
+        [
+          f.mechanical1.user.staffProfile!.id,
+          f.mechanical2.user.staffProfile!.id,
+          f.electrical.user.staffProfile!.id,
+        ],
+      );
       const scheduledAt = new Date(Date.now() + (10 + day++ * 2) * 86400000);
       scheduledAt.setUTCHours(9, 0, 0, 0);
       const booking = await prisma.booking.create({

@@ -26680,6 +26680,98 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/admin/policies/booking-resources/{branchId}/current`
+
+- Operation ID: `getAdminPoliciesBookingResourcesByBranchIdCurrent`
+- Purpose: Private/no-store, current actor/session checked, repeatable snapshot and atomic minimal branch READ audit. Resource policy publication validates actual active services and verified technicians with current scoped work permission. Managed technicians need current branch duties; legacy technicians retain the existing verified role/branch work boundary. Explicit service eligibility never grants work access. Resource configuration alone does not reserve an appointment; confirmation and reviewed changes record immutable allocations atomically. Read approved workshop resources, upcoming version and immutable history. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read approved workshop resources, upcoming version and immutable history",
+  "data": {
+    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "latest": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "nextScheduled": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "history": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "key": "synthetic-key",
+        "version": 1,
+        "approvalStatus": "synthetic-approvalstatus",
+        "source": "synthetic-source",
+        "sourceQuestion": "synthetic-sourcequestion",
+        "sourceSignatory": "synthetic-sourcesignatory",
+        "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+        "effectiveAt": "2030-01-15T10:00:00.000Z",
+        "recordedAt": "2030-01-15T10:00:00.000Z",
+        "approvalEvidence": "synthetic-approvalevidence"
+      }
+    ],
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "isActive": true,
+      "updatedAt": "2030-01-15T10:00:00.000Z"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/admin/policies/booking-capacity/{branchId}/current`
 
 - Operation ID: `getAdminPoliciesBookingCapacityByBranchIdCurrent`

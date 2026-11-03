@@ -1,5 +1,8 @@
+import { testBranchResources } from "../helpers/owner-policy.js";
+import { captureBookingTiming } from "../../src/modules/service-operations/booking-timing.js";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../src/app.js";
 import { verifyPassword } from "../../src/common/security/passwords.js";
 import { prisma } from "../../src/config/database.js";
@@ -14,9 +17,33 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     let f: Awaited<ReturnType<typeof workforceFixture>>;
     const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
     beforeAll(async () => {
+      await assertIsolatedLoopbackDatabase();
+      // This suite tests permissions, not the host's current opening hours.
+      const morning = new Date();
+      morning.setUTCDate(morning.getUTCDate() - 1);
+      morning.setUTCHours(9, 0, 0, 0);
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(morning);
       f = await workforceFixture();
+      await testBranchResources(
+        f.home.id,
+        f.owner.id,
+        [f.job1.serviceId!],
+        [
+          f.mechanical1.user.staffProfile!.id,
+          f.mechanical2.user.staffProfile!.id,
+          f.electrical.user.staffProfile!.id,
+        ],
+      );
+      await prisma.$transaction(async (tx) => {
+        await captureBookingTiming(tx, f.job1, f.owner.id, true);
+        await captureBookingTiming(tx, f.job2, f.owner.id, true);
+      });
     }, 30000);
-    afterAll(() => prisma.$disconnect());
+    afterAll(async () => {
+      vi.useRealTimers();
+      await prisma.$disconnect();
+    });
     const read = (identity: { headers: Record<string, string> }, path: string) =>
       request(app).get(`/api/v1${path}`).set(identity.headers);
     const mutate = (

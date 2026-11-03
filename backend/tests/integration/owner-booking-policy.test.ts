@@ -1,3 +1,4 @@
+import { testBranchResources } from "../helpers/owner-policy.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
@@ -98,6 +99,12 @@ async function fixture() {
   const operations = new ServiceOperationsService(prisma);
   // An offered slot is an assessed calendar offer; preference requests have separate no-policy coverage.
   await capacity({ branch, admin }, 20);
+  await testBranchResources(
+    branch.id,
+    admin.user.id,
+    [service.id],
+    [admin.user.staffProfile!.id],
+  );
   const created = (await operations.createBooking(
     customer.actor,
     { slotId: slot.id, policyVersion: bookingPolicy.version },

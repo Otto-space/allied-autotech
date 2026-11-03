@@ -1,3 +1,4 @@
+import { allocateBookingResources } from "../service-operations/booking-resources.js";
 import {
   bookedJobMinutes,
   assignmentTimingWindow,
@@ -658,6 +659,13 @@ export class WorkforceWorkService {
           where: { id },
           data: { status: "IN_PROGRESS", startedAt: now, version: { increment: 1 } },
         });
+      if (input.status === "IN_PROGRESS")
+        await allocateBookingResources(
+          tx,
+          actor,
+          id,
+          "Technical work start reviewed against current workshop resources",
+        );
       await audit(tx, actor, context, "WORK_ORDER", work.id, {
         workforceAction: "TECHNICAL_UPDATE",
         status: input.status ?? work.status,
@@ -842,6 +850,7 @@ export class WorkforceWorkService {
         { ...schedule, serviceId: classification?.serviceId ?? schedule.serviceId },
         actor.userId,
       );
+      await allocateBookingResources(tx, actor, id, input.reason);
       await audit(tx, actor, context, "BOOKING", id, {
         workforceAction: "JOB_ASSIGNED",
         staffId: input.staffId,

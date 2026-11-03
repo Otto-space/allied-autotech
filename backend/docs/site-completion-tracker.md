@@ -1,3 +1,85 @@
+3 November 19:51 UTC exact-source follow-up: 406f7814 frontend workflow
+41705432560 passes 1,457 units (12 existing isolated-audit skips), production
+checks and 64/64 Chromium cases with no browser skips. Secrets 41705432562 pass.
+Backend 41705432590 passes 96-migration replay/db:check and preceding source/
+safeguard gates, then isolated booking tests report 115 passed, one failed and
+four skipped. The skipped cases require a separately provisioned workspace; this
+run does not prove that acceptance. The one failure expected the older immediate
+alternative move. Its journey fixture now verifies the preserved appointment/
+technician and pending request, explicit authorised approval and duplicate-decision
+rejection. Explicit synthetic buffers/resources support that journey; no real
+workshop facts are invented. Native rerun of this correction remains required.
+
+The resource candidate validates 445 OpenAPI paths/521 operations, with four
+explicit infrastructure routes. All four account/guest purchase/payment request
+contracts and the current purchase-review model remain identical. Its new unapplied
+allocation migration matches original committed bytes (SHA-256
+1d410b0ce58125e6d074d2b8104963b14916b40f7da77ba9a1f262005ddfe71e).
+No publication or shared migration is authorised by these partial results.
+
+### 3 November 19:44 UTC package: actual workshop resource integration
+
+Target 20:44 UTC. Integrated committed resource source 90ddaf49/287f5307,
+selected domain tests and its unchanged forward allocation migration. Uncommitted
+resource dashboard work in the other active worktree is untouched. Current
+payment-review schema/automatic purchasing and strict loopback isolation helper
+are preserved; no alternative purchase model or shared grants are imported.
+
+Plans distinguish technician eligibility/working periods, distinct equipment and
+shared spaces. Confirmation, rescheduling, timing review, reassignment and work
+start reserve current resources atomically. Conflicts retain the original state;
+eligible cancellation releases occupancy while append-only history remains.
+Recorded cleanup and overdue ongoing work protect capacity. Legacy unknown work
+requires review rather than invented facts. Resource policies retain owner-only
+current-MFA/CSRF/version controls and cannot grant workforce permission.
+
+Schema/client validation and backend type/script/lint checks pass. Five focused
+unit suites pass 44/44. Public service guidance v23 preserves the settled D01
+independent-booking sentence; restricted confirmation v9 describes reservations.
+Native CI now includes resource-policy and fourteen resource lifecycle cases under
+the isolated non-owner runtime role. Actual execution, migration replay, dashboard
+authoring, real configuration and role/provider acceptance remain pending. No
+shared migration, live record mutation, notification or capability activation.
+
+### 3 November 19:44 UTC package: actual workshop resource integration
+
+Target 20:44 UTC. Integrated the committed 90ddaf49/287f5307 resource source,
+selected domain tests and unchanged forward allocation migration. Uncommitted
+resource dashboard work in the other active worktree is untouched. Current
+payment-review schema/automatic purchasing and strict loopback isolation helper
+are preserved; no alternative purchase model or shared grants are imported.
+
+Plans distinguish technician eligibility/working periods, distinct equipment and
+shared spaces. Confirmation, rescheduling, timing review, reassignment and work
+start reserve current resources atomically. Conflicts retain the original state;
+eligible cancellation releases occupancy while append-only history remains.
+Recorded cleanup and overdue ongoing work protect capacity. Legacy unknown work
+requires review rather than invented facts. Resource policies retain owner-only
+current-MFA/CSRF/version controls and cannot grant workforce permission.
+
+Schema/client validation and backend type/script/lint checks pass. Five focused
+unit suites pass 44/44. Public service guidance v23 preserves the settled D01
+independent-booking sentence; restricted confirmation v9 describes reservations.
+Native CI now includes resource-policy and fourteen resource lifecycle cases under
+the isolated non-owner runtime role. Actual execution, migration replay, dashboard
+authoring, real configuration and role/provider acceptance remain pending. No
+shared migration, live record mutation, notification or capability activation.
+
+3 November 19:42 UTC release checkpoint: correction and expanded responsive
+acceptance are signed/pushed as 406f78149b7a06e881c0b00eb41f3d1acf8d0eba.
+Exact-source workflows started: frontend 41705432560, backend 41705432590,
+secrets 41705432562. Results are pending; do not publish from earlier green runs.
+
+Downloaded browser artifact 13264177211 for 8bd2e173 (2,484,399 bytes), safely
+extracted selected evidence and inspected changed-offer screenshots at 320/1440.
+The alert is in view, the stale green approval/payment shortcut is absent, known
+vehicle details reopen for a fresh check and the laptop form retains readable
+columns. These are synthetic Chromium screenshots, not production/real-role or
+physical-device acceptance. Evidence directory:
+C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/runtime-ci-8bd2e173/.
+No real order, stock, payment or notification was changed. Disk preflight passed
+with 21.94 GiB free and a 0.03 GiB allowance. Full D01-D17 scope remains active.
+
 3 November 19:37 UTC integration follow-up: frontend source 8bd2e173 passes
 41702361178 with 1,457 unit cases (12 existing skips) and 54/54 Chromium cases.
 The first backend failure was an old positive schema fixture missing the newly

@@ -99,6 +99,8 @@ jobs:
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/unit/booking-timing.test.ts tests/unit/booking-slot-timing.test.ts \
+            tests/unit/workshop-resources.test.ts tests/integration/workshop-resource-policy.test.ts \
+            tests/integration/booking-resource-lifecycle.test.ts \
             tests/unit/booking-reschedule-notifications.test.ts tests/unit/booking-reschedule-learning.test.ts \
             tests/unit/catalogue-learning.test.ts tests/integration/booking-reschedule-approval.test.ts \
             tests/integration/workforce-booking-reschedule.test.ts tests/integration/booking-timing.test.ts \

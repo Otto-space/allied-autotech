@@ -5,6 +5,7 @@ import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { workforceFixture } from "../fixtures/workforce.js";
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
+import { testBranchResources } from "../helpers/owner-policy.js";
 import { bookingPolicy } from "../../src/modules/service-operations/service-operations.service.js";
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
@@ -102,6 +103,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           slug: randomUUID(),
           pricingType: "QUOTE_REQUIRED",
           durationMinutes: 60,
+          preparationMinutes: 0,
+          cleanupMinutes: 0,
         },
       });
       const preferred = new Date(Date.now() + 10 * 86400000);
@@ -242,11 +245,25 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(pending.body.data).toMatchObject({
         id,
         status: "REQUESTED",
-        scheduledAt: alternative,
-        assignedStaffId: null,
+        scheduledAt: preferred.toISOString(),
+        assignedStaffId: f.mechanical1.user.staffProfile!.id,
         alternativeStartsAt: null,
+        rescheduleRequests: [
+          { status: "PENDING", source: "WORKSHOP", startsAt: alternative },
+        ],
       });
-      expect((await assign(3)).status).toBe(200);
+      const requestId = pending.body.data.rescheduleRequests[0].id;
+      expect(await prisma.booking.findUniqueOrThrow({ where: { id } })).toMatchObject({
+        scheduledAt: preferred,
+        assignedStaffId: f.mechanical1.user.staffProfile!.id,
+        status: "REQUESTED",
+        version: 3,
+        customerRescheduleCount: 0,
+      });
+      expect(
+        await prisma.bookingResourceAllocation.count({ where: { bookingId: id } }),
+      ).toBe(0);
+      expect(await prisma.bookingReminder.count({ where: { bookingId: id } })).toBe(0);
       await prisma.businessPolicyVersion.create({
         data: {
           key: `booking-capacity:${f.home.id}`,
@@ -266,14 +283,36 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           },
         },
       });
-      const confirmed = await request(app)
-        .post(`/api/v1/staff/workforce/bookings/${id}/confirmation`)
-        .set(f.care.headers)
-        .send({
-          expectedVersion: 4,
-          resourceReviewNote: "Reviewed technician, equipment and workshop capacity.",
-        });
-      expect(confirmed.status).toBe(200);
+      await testBranchResources(
+        f.home.id,
+        f.owner.id,
+        [service.id],
+        [f.mechanical1.user.staffProfile!.id],
+      );
+      const decision = {
+        requestId,
+        expectedVersion: 3,
+        decision: "APPROVE",
+        reason: "Reviewed the accepted alternative diagnostic appointment.",
+        resourceReviewNote: "Reviewed technician, equipment and workshop capacity.",
+      };
+      const approve = () =>
+        request(app)
+          .post(`/api/v1/staff/workforce/bookings/${id}/reschedule-decision`)
+          .set(f.care.headers)
+          .send(decision);
+      const confirmed = await approve();
+      expect(confirmed.status, JSON.stringify(confirmed.body)).toBe(200);
+      expect(confirmed.body.data).toMatchObject({
+        requestId,
+        requestStatus: "APPROVED",
+        status: "CONFIRMED",
+        scheduledAt: alternative,
+      });
+      expect((await approve()).status).toBe(409);
+      expect(
+        await prisma.bookingResourceAllocation.count({ where: { bookingId: id } }),
+      ).toBe(1);
       const final = await read();
       expect(final.status).toBe(200);
       expect(final.body.data).toMatchObject({

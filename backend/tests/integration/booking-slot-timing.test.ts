@@ -5,7 +5,11 @@ import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { workforceFixture } from "../fixtures/workforce.js";
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
-import { testBranchCapacity, testCapability } from "../helpers/owner-policy.js";
+import {
+  testBranchCapacity,
+  testCapability,
+  testBranchResources,
+} from "../helpers/owner-policy.js";
 import { captureBookingTiming } from "../../src/modules/service-operations/booking-timing.js";
 import {
   ServiceOperationsService,
@@ -39,6 +43,17 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
       const worker = await f.account("MECHANICAL_TECHNICIAN"),
         buyer = await f.account(null, "CUSTOMER");
+      await testBranchResources(
+        f.home.id,
+        f.owner.id,
+        [service.id],
+        [
+          worker.user.staffProfile!.id,
+          f.mechanical1.user.staffProfile!.id,
+          f.mechanical2.user.staffProfile!.id,
+          f.electrical.user.staffProfile!.id,
+        ],
+      );
       const startsAt = new Date(Date.now() + 9 * 86400000);
       startsAt.setUTCHours(9, 0, 0, 0);
       const publish = (time = startsAt, staffId = worker.user.staffProfile!.id) =>

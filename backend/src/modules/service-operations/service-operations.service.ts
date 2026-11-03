@@ -1,3 +1,4 @@
+import { allocateBookingResources } from "./booking-resources.js";
 import {
   assertCurrentSlotTiming,
   assertSlotCalendar,
@@ -2048,6 +2049,7 @@ export class ServiceOperationsService {
       tx,
     );
     if (!updated) throw serviceOperationNotFound();
+    await allocateBookingResources(tx, actor, booking.id, input.resourceReviewNote);
     if (updated.status === "CONFIRMED") await scheduleReminders(tx, updated);
     const customer = await tx.customerProfile.findUniqueOrThrow({
       where: { id: booking.customerId },
@@ -2259,6 +2261,12 @@ export class ServiceOperationsService {
         { ...booking, serviceId: booking.serviceId ?? input.serviceId ?? null },
         actor.userId,
       );
+      await allocateBookingResources(
+        transaction,
+        actor,
+        id,
+        "Technician assignment reviewed against current workshop resources",
+      );
       const updated = await this.repository.staffBooking(
         id,
         actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
@@ -2465,6 +2473,14 @@ export class ServiceOperationsService {
       transaction,
     );
     if (updated === null) throw serviceOperationNotFound();
+    if (input.status === "CONFIRMED" || input.status === "IN_PROGRESS")
+      await allocateBookingResources(
+        transaction,
+        actor,
+        id,
+        input.resourceReviewNote ??
+          "Authorised work start; resource availability rechecked",
+      );
     if (input.status === "CONFIRMED") await scheduleReminders(transaction, updated);
     if (["COMPLETED", "CANCELLED", "NO_SHOW"].includes(input.status))
       await cancelPendingReminders(transaction, id);
@@ -3063,6 +3079,7 @@ export class ServiceOperationsService {
   ) {
     assertPrivilegedActor(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockWorkforce(transaction);
       const booking = await this.lockAuthorizedStaffBooking(
         actor,
         bookingId,
@@ -3105,6 +3122,12 @@ export class ServiceOperationsService {
           transaction,
         );
         if (changed.count !== 1) throw staleServiceOperation();
+        await allocateBookingResources(
+          transaction,
+          actor,
+          booking.id,
+          "Work-order start reviewed against current workshop resources",
+        );
       }
       if (input.status === "COMPLETED" && booking.status === "IN_PROGRESS") {
         const changed = await this.repository.updateBooking(
