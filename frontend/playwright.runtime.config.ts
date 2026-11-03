@@ -13,6 +13,7 @@ export default defineConfig({
     "booking-timing.spec.ts",
     "service-timing.spec.ts",
     "slot-timing-review.spec.ts",
+    "workshop-resources.spec.ts",
     "order-money-breakdown.spec.ts",
     "workshop-resources.spec.ts",
   ],

@@ -1,3 +1,32 @@
+3 November 21:59 UTC merged-source check: backend types/lint pass. Seven
+focused files produced 47 passes and one stale service-request v23 assertion after
+the concurrent v24 started-work correction. The assertion now expects v24 while
+retaining its semantic checks; affected file rerun passes 5/5. Frontend lint and
+format pass, and 94 production-build browser cases are collected. The new resource
+fields use shared border/surface/ink/focus/radius tokens; business data, physical
+availability, financial policy and permission predicates are unchanged.
+
+3 November 21:56 UTC concurrent-source reconciliation: origin a2d2ccf3 now
+contains the same resource lookup/editor through b9c9c089 plus started-booking
+cancellation and future-only reminder safeguards. Those changes, their synthetic
+acceptance cases, and all existing financial source are preserved. Our merge adds
+shared control/focus tokens, 768px and collapsed-laptop coverage, actual Tab/Shift+Tab,
+retained overview/review/success screenshots and the corrected booking-confirmation
+v10 Allie expectation. Existing started-booking browser and native checks stay in
+the combined matrix; 94 browser cases are collected after integration.
+
+The native target helper's Docker NAT branch was reviewed: it requires an exact
+64-character container ID, task/name/label match, explicit isolated database name
+and confirmation, Docker-proven tmpfs without persistent mounts, host loopback port,
+matching actual PostgreSQL container address/port and actual database identity.
+Native loopback remains unchanged; arbitrary claimed hosts are not accepted. The
+new rejected-proof and native-loopback regression cases are retained. No Docker
+container, real operational record, database grant or live capability was changed.
+Frontend resource units 18/18 and API/capacity/finance pending regressions 38/38 pass;
+backend 34 focused plus six retrieval cases pass before this merge. New merged
+source checks and rendered acceptance are still required; prior results are not
+claimed as evidence for changed started-booking/reminder composition.
+
 3 November 21:53 UTC D06/D07 integrated authoring checkpoint:
 selected changes from 89719302/08454401 are reconciled onto current d9cf9d09,
 preserving the automatic purchase review model, financial allocations, current

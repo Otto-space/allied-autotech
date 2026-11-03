@@ -157,3 +157,27 @@ test("a staff member without confirmation capability sees the pending change wit
   ).toHaveCount(0);
   expect(state.writes).toHaveLength(0);
 });
+
+for (const width of [320, 1440])
+  test(`recorded work start removes customer cancellation at ${width}px`, async ({
+    page,
+  }) => {
+    const state = await bookingDetailFixture(page);
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`/dashboard/bookings/${detailId}`);
+    await expect(page.getByText("Cancel this booking", { exact: true })).toBeVisible();
+    // A legacy record can retain CONFIRMED while already recording actual work.
+    state.record.startedAt = new Date().toISOString();
+    await page.reload();
+    await expect(
+      page.getByText(
+        "Work has started. Contact the workshop to discuss any change or cancellation.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(page.getByText("Cancel this booking", { exact: true })).toHaveCount(0);
+    expect(state.writes).toHaveLength(0);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  });
