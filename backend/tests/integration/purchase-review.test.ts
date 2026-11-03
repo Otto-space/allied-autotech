@@ -418,7 +418,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         where: { id: f.inventory.id },
       });
       expect(inventory.quantity).toBe(1);
-      expect(inventory.reserved).toBe(3);
+      expect(inventory.reserved).toBe(1);
       await expect(
         prisma.$transaction(
           async (tx) =>
@@ -642,7 +642,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         where: { id: f.inventory.id },
       });
       expect(inventory.quantity).toBe(3);
-      expect(inventory.reserved).toBe(1);
+      expect(inventory.reserved).toBe(3);
       expect(
         (
           await prisma.inventoryReservation.findUniqueOrThrow({

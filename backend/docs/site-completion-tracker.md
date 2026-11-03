@@ -1,3 +1,28 @@
+3 November 15:32 UTC follow-up: local capability recovery suite passes 10/10
+using the thread worker after the fork worker could not start. Automatic source
+42c8c3e5 replayed 91 migrations and passed the four added automatic-path database
+cases, including actual universal-accessory checkout. Backend 41664293905 stopped
+with 68/70 focused cases because two stock-count assertions were updated in the
+wrong test locations; those exact assertions are corrected (one single-line hold;
+three units held across the configured order plus the preserved other order).
+The rerun remains required; no full backend or launch pass is claimed.
+
+### 3 November 15:30 UTC package boundary
+
+Automatic-check source 42c8c3e5 is signed/pushed; backend 41664293905 and
+frontend 41664294070 are running, secrets 41664293946 passed. Local backend
+compiler/lint, 41 review/retry units and eight Help cases pass; frontend 13
+payment cases pass. Migration 91 and four additional isolated cases await CI.
+No production publication/activation occurred. C: 23.25 GiB free at boundary.
+
+Earlier frontend run 41662553545 passed production checks but 12/13 runtime
+browser cases: tablet offline/online recovery left a control disabled. A source
+fix now restarts unfinished capability reads after server props refresh; a new
+regression preserves drafts and rejects aborted older responses. Its first local
+run could not start the test worker (zero tests executed), so no pass is claimed.
+A bounded alternate worker run is in progress. Keep the full goal active; the next
+package is review/repeat-purchase UI and affected rendered checks, not activation.
+
 ### 3 November owner clarification: automatic verified purchases, review for exceptions
 
 The owner explicitly approved automatic pre-payment checks instead of a fresh

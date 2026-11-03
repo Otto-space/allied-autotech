@@ -37,6 +37,7 @@ export function PublicCapabilitiesProvider({
     mode: initial?.release.mode ?? null,
   }));
   const [failed, setFailed] = useState(initial === null);
+  const snapshotRef = useRef(initial);
   const refreshRef = useRef<() => void>(() => undefined);
   useEffect(() => {
     let current = true;
@@ -45,6 +46,7 @@ export function PublicCapabilitiesProvider({
     function publish(value: CapabilitySnapshot) {
       if (!current) return;
       const nextKey = capabilityKey(value);
+      snapshotRef.current = value;
       setState((previous) => ({
         snapshot: value,
         mode: value?.release.mode ?? previous.mode,
@@ -61,7 +63,10 @@ export function PublicCapabilitiesProvider({
       const controller = new AbortController();
       pending = controller;
       // Hide stale actions immediately; retain all form drafts and account state.
-      if (disableStale) setState((previous) => ({ ...previous, snapshot: null }));
+      if (disableStale) {
+        snapshotRef.current = null;
+        setState((previous) => ({ ...previous, snapshot: null }));
+      }
       if (!navigator.onLine) {
         publish(null);
         return;
@@ -95,7 +100,10 @@ export function PublicCapabilitiesProvider({
     const timer = window.setInterval(() => {
       if (document.visibilityState === "visible") void refresh(false);
     }, 30_000);
-    if (!navigator.onLine || initial === null) void refresh();
+    // A server refresh may replace initial while an online/retry request is in
+    // flight. Cleanup aborts that request, so restart an unfinished check rather
+    // than leaving every action disabled until the periodic refresh.
+    if (!navigator.onLine || snapshotRef.current === null) void refresh();
     return () => {
       current = false;
       pending?.abort();

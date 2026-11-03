@@ -37,6 +37,32 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe("authoritative availability", () => {
+  it("restarts an unfinished availability check after server props refresh, preserving drafts", async () => {
+    const pending: Array<(value: unknown) => void> = [];
+    mocks.request.mockImplementation(() => new Promise((done) => pending.push(done)));
+    const view = render(
+      <PublicCapabilitiesProvider initial={publicCapabilitiesFixture("full")}>
+        <Probe />
+      </PublicCapabilitiesProvider>,
+    );
+    fireEvent.change(screen.getByLabelText("Draft"), {
+      target: { value: "Keep my details" },
+    });
+    fireEvent(window, new Event("focus"));
+    expect((screen.getByText("Checkout") as HTMLButtonElement).disabled).toBe(true);
+    view.rerender(
+      <PublicCapabilitiesProvider initial={publicCapabilitiesFixture("full")}>
+        <Probe />
+      </PublicCapabilitiesProvider>,
+    );
+    expect(pending).toHaveLength(2);
+    await act(async () => pending[1](reply("full")));
+    await act(async () => pending[0](reply("browse_enquiries")));
+    expect((screen.getByText("Checkout") as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.getByLabelText("Draft") as HTMLInputElement).value).toBe(
+      "Keep my details",
+    );
+  });
   it.each([
     [true, false],
     [false, true],
