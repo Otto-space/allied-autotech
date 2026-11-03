@@ -1,3 +1,54 @@
+## 3 November: renewed briefs — shared shell and dock verified locally
+
+Owner scope: both newer Page by Page Improvement and Deployment and Live Chrome
+Audit/Cross Browser Test Plan (2) briefs, read completely. Historical findings are
+not automatically current results. The full goal remains open beyond these batches.
+
+| Finding, route, role | Reproduction and observed behavior | Correction / evidence |
+| --- | --- | --- |
+| P2 customer actions; /dashboard/support; CUSTOMER | Released fixture: View ended at x585.81 on 390x844 and 320x720, outside the initial viewport. | e075e8ba groups subject/status/View. All seven Edge and Chrome sizes pass enquiry/complaint keyboard/pointer navigation without writes. |
+| P2 scrolling navigation; /admin/security; SUPER_ADMIN baseline | After 500px scroll, toolbar top was -418 at 1280x720, -286 at 390x844, -262 at 320x720. Header Allie remained; no dock. | a3297c0b anchors desktop toolbar and two-row mobile navigation, moves Allie to shared dock and sign-out to labelled sidebar. Borderless utilities retain 44px targets/focus. |
+| P2 Home dock movement; /; public | 320x720 hero visibility switched x264/y612/w44/h96 to x12/y634/w296/h74, reversing on upward scroll. Larger baseline sizes stayed anchored. | Removed the exact hero-conditioned CSS override. Full rectangle stays constant through down/up sections/footer/menu/help at seven sizes in Edge/Chrome. |
+| Account identity; shared shell | Existing canonical profile links and ownership validation preserved. | Recorded-name initials replace absent/failed portraits; private image, refresh, wrong-owner and menu regressions pass. |
+
+35/35 dedicated Edge shared-shell cases pass: four legacy roles plus Home at
+1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800, 320x720. Actual dimensions
+are asserted; phone contexts use mobile/touch emulation. Drawer focus/scroll lock,
+collapse, overlays, forced-help-failure fallback, Escape/focus return, overflow and
+customer-shell Axe checks pass. Chrome passes 14/14 Home/customer-shell cases and
+7/7 support-action cases; the first desktop support navigation exceeded 15 seconds
+during a 15.5-second cold route compile and passed unchanged after warmup. That
+initial timeout is not a pass. Sixteen adjacent Edge profile/search/MFA/keyboard
+checks pass. Scoped ESLint, Prettier, nonincremental TypeScript and diff checks pass.
+Initial shell test assumptions about the availability banner at scroll zero and
+contextual Home help were corrected without weakening sticky/dock assertions.
+
+Evidence: Temp/allied-page-batch-20261103/{shell-baseline,shell-verified,chrome,
+chrome-rerun,shell-adjacent}. Desktop and 320px shell captures visually inspected.
+Local Home uses static images with unavailable API state, not populated inventory
+acceptance. Captures include the dev indicator and truthful availability notice.
+Tests are indexed and wired into existing runtime CI. Local reused Next 16.3.8 is
+not lockfile 16.4.3 certification. e075e8ba Frontend 41722829983 and secrets
+41722829894 pass; these do not certify the later shell commit or integrated master.
+
+Vercel readback: apex remains source 7384abf8 / dpl_GjKGjnPCT8H56HWmikySoyYSjyxP.
+None of these changes are promoted. Draft PR #14 tracks this work; newer master
+financial changes must be preserved and compatible release gates resolved. Last
+reserve check: 20.85 GiB free with 0.25 GiB bounded-write allowance.
+
+### Remaining renewed-goal coverage — all still open
+
+| Batch | Existing implementation found | Remaining verification / implementation |
+| --- | --- | --- |
+| Shared foundation | Palette/type/radius/elevation tokens, mobile search, own-profile APIs, focus helpers, strict learning contract. | Real 200% browser zoom, short-height/virtual keyboard/safe-area checks and other shared consumers. |
+| Public pages/details | Search clarity, galleries, honest issue disclosure and URL filters. | Each distinct page at seven sizes, populated layouts, combined facets/history/gallery interactions, images and measured loading. |
+| Customer personalization/all 15 pages | Server-owned current care, empty states, historical/current separation, no-store and invalidation tests. | Two-account switching, selected/default vehicle/photo, open enquiries/invoices and nested states. Overview currently uses latest garage addition although CustomerVehicle already has defaultSlot; reproduce server fixtures before editing. |
+| Work dashboards/details | Scoped role navigation, own profile, nearby admin actions, invoice task disclosure. | All 39 named admin pages plus managed workforce and real role/branch/independent-permission denial states. Shell cases alone do not certify pages. |
+| Authentication/system/performance | Existing isolated security suites and recovery controls. | Full isolated lifecycle, expired/throttled/session/error states, password-manager/keyboard and measured performance acceptance. |
+| Browser/device | Installed Edge and Chrome verified for these batches. | Firefox/WebKit not installed; physical Safari/Android, real virtual keyboards and 200% browser zoom unverified. |
+| Business data | Known catalogue evidence and approved-duration dependencies. | Real product photography, compatibility, workshop duration and duty decisions; never invent data or approvals. |
+| Release | Verified bounded commits; production unchanged. | Current-master reconciliation, exact-source CI, compatible backend/candidate acceptance, both-domain smoke checks and branch retirement. |
+
 ## 3 November: renewed Markdown implementation goal — reconciliation in progress
 
 The owner renewed the goal as "Read and implement the md files". The owner confirmed the two newer briefs; the newer Page by Page Improvement and Deployment brief

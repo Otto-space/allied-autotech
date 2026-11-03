@@ -1,3 +1,14 @@
+## Renewed briefs checkpoint — 3 November 2026
+
+The owner confirmed the newer Page by Page and Live Chrome/Cross Browser briefs.
+The earlier deployed audit does not complete that expanded goal. First bounded
+batches e075e8ba/a3297c0b improve customer support action proximity and the shared
+sticky shell/dock. Seven-size Edge/Chrome evidence, existing implementation found
+and the full remaining scope are recorded in frontend/docs/UI_UX_QUALITY_REGISTER.md.
+PR #14 is not production publication. Preserve newer master financial work and
+all unrelated worktrees. Full page/state, role/API, browser, business-data and
+exact-master compatible release gates remain open.
+
 ## 3 November 2026: consolidated audit deployed checkpoint
 
 Checked application source 7384abf8 (PR #12) is live on both domains as
