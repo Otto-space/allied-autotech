@@ -25,7 +25,7 @@ async function fixture() {
     userId: owner.id,
     email: owner.email,
     role: owner.role,
-    sessionId: randomUUID(),
+    sessionId: await paymentTestSession(owner.id, owner.role),
     mfaRequired: true,
     mfaVerifiedAt: new Date(),
   };

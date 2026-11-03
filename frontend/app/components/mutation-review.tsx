@@ -41,12 +41,14 @@ export function MutationReview({
   onSuccess,
   confirmLabel = "Confirm change",
   exposeBusyState = false,
+  disabledReason,
 }: {
   proposal: MutationProposal;
   onClose: () => void;
   onSuccess: () => void;
   confirmLabel?: string;
   exposeBusyState?: boolean;
+  disabledReason?: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const cancel = useRef<HTMLButtonElement>(null);
@@ -75,6 +77,7 @@ export function MutationReview({
   }, []);
   async function confirm() {
     if (
+      disabledReason ||
       submitting.current ||
       (uncertain && !proposal.retrySafely) ||
       (attempted && !uncertain && proposal.retryAfterRejection === false)
@@ -140,6 +143,7 @@ export function MutationReview({
         )}
       </div>
       <Feedback message={error} />
+      <Feedback message={disabledReason} tone="info" />
       <div className="actions">
         <button
           ref={cancel}
@@ -153,6 +157,7 @@ export function MutationReview({
           className="button"
           aria-busy={exposeBusyState ? busy : undefined}
           disabled={
+            !!disabledReason ||
             busy ||
             (uncertain && !proposal.retrySafely) ||
             (attempted && !uncertain && proposal.retryAfterRejection === false)

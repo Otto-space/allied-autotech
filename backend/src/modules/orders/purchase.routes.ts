@@ -14,6 +14,13 @@ import {
 import { PaymentsService } from "../payments/payments.service.js";
 import { OrdersService } from "./orders.service.js";
 import { PurchaseGuestAccessService } from "./purchase-guest-access.service.js";
+import { PartsQuotesService } from "./parts-quotes.service.js";
+import {
+  purchaseQuoteParamsSchema,
+  purchaseQuoteAcceptSchema,
+  purchaseQuoteDecisionSchema,
+  purchaseQuoteListSchema,
+} from "./purchase.schemas.js";
 import {
   customerOrderListQuerySchema,
   guestCheckoutBodySchema,
@@ -62,6 +69,7 @@ export function createPurchaseRouter(
   access = new PurchaseGuestAccessService(),
   orders = new OrdersService(),
   payments = new PaymentsService(),
+  quotes = new PartsQuotesService(),
 ): Router {
   const router = Router();
   router.use((req, res, next) => {
@@ -308,6 +316,68 @@ export function createPurchaseRouter(
           ids.attemptId,
           context(req),
         ),
+      );
+    },
+  );
+  router.get(
+    "/parts-quotes",
+    validate({ query: purchaseQuoteListSchema }),
+    async (req, res) => {
+      send(
+        req,
+        res,
+        "Your guest quotations",
+        await quotes.guestList(session(req), validated(res, "query")),
+      );
+    },
+  );
+  router.post(
+    "/parts-quotes/:quoteId/decline",
+    createSensitiveRateLimit(30, 60 * 60_000),
+    requireTrustedOrigin,
+    validate({
+      headers: purchaseCsrfHeadersSchema,
+      params: purchaseQuoteParamsSchema,
+      body: purchaseQuoteDecisionSchema,
+      query: purchaseEmptySchema,
+    }),
+    async (req, res) => {
+      send(
+        req,
+        res,
+        "Quotation declined",
+        await quotes.guestDecline(
+          credentials(req),
+          validated<{ quoteId: string }>(res, "params").quoteId,
+          validated<{ revision: number }>(res, "body").revision,
+          context(req),
+        ),
+      );
+    },
+  );
+  router.post(
+    "/parts-quotes/:quoteId/accept",
+    createSensitiveRateLimit(20, 60 * 60_000),
+    requireTrustedOrigin,
+    validate({
+      headers: orderIdempotencyHeadersSchema.extend(purchaseCsrfHeadersSchema.shape),
+      params: purchaseQuoteParamsSchema,
+      body: purchaseQuoteAcceptSchema,
+      query: purchaseEmptySchema,
+    }),
+    async (req, res) => {
+      send(
+        req,
+        res,
+        "Quotation accepted; order is unpaid",
+        await orders.guestAcceptQuote(
+          credentials(req),
+          validated<{ quoteId: string }>(res, "params").quoteId,
+          validated(res, "body"),
+          key(res),
+          context(req),
+        ),
+        201,
       );
     },
   );

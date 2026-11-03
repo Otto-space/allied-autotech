@@ -1,3 +1,41 @@
+### 3 November 2026: Guest quotation journey verified (source only)
+
+Previous screen source 8e0413d6 passes exact-source frontend 41579358622
+(1,356 tests; 12 existing skips), backend 41579670715 and secrets 41579358706.
+Published runtime remains 333c3a22 / schema 87; transactions remain closed.
+
+Authorised staff can issue a seven-day quotation to the actual email on an open
+public parts enquiry. The encrypted notification uses the existing delivery controls.
+Private guest access lists only explicitly guest-addressed offers, excluding account
+records and drafts even when an email matches. Acceptance rechecks the current
+revision, expiry, branch, session and CSRF, then uses shared exact-price checkout to
+create one unpaid order. Unknown responses recover the original receipt; payment,
+final stock allocation and collection readiness remain separate. Decline and replaced/
+expired offers have explicit states. Focus refresh retains drafts; buyer changes clear
+them and close reviews. Shared review confirmation also respects capability failure.
+
+Final isolated guest-quote-flow-native-44555a97811c49c89b44d05056dc4779 passes
+61/61 across six suites, including actual guest HTTP reads/acceptance/decline,
+concurrent duplicate acceptance, same-email account isolation, immutable quote money,
+revoked issuers, closed capabilities, fake-gateway payment and separate staff final
+review. All 89 migrations replay; no drift, db:check and non-owner/no-DDL/no-TRUNCATE
+runtime checks pass. Successful task data was removed by its guarded harness.
+Guest browser 9/9 and existing account/Admin quotation 7/7 pass: 16 distinct local
+fixture scenarios, including 320/768/1366px, keyboard, draft/identity changes, uncertain
+recovery, failed reads, branch/expiry and capability loss. Sampled modal Axe checks
+report zero violations. Viewport screenshots contain synthetic information only.
+
+Parts-fitment v6 now documents optional accounts and private guest quotations while
+retaining its five steps, public eligibility, guide v3 targets and practice boundaries.
+Learning/quotation units pass 13/13; existing frontend cart/learning units pass 18/18.
+OpenAPI validates 428 paths and 503 mounted operations. No real customer, stock,
+price, email, payment, provider or production record was changed for these checks.
+Actual roles, delivery, provider test mode and physical devices remain unverified.
+Next: guest invoice/receipt access and delivery, cancellation/aftercare and operator
+refund-review integration. Fresh populated restore, compatible recovery images,
+exact-source CI and held/public verification remain release gates. No complete
+purchasing or whole-site launch readiness is claimed.
+
 ### 3 November 2026: Account-optional cart and payment screens verified (source only)
 
 HTTP source 79e0d46d passes frontend 41574039845, backend 41574040046 and

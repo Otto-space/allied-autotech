@@ -46,6 +46,10 @@ import {
   orderIdempotencyHeadersSchema,
 } from "./orders.schemas.js";
 import { PurchaseGuestAccessService } from "./purchase-guest-access.service.js";
+import {
+  purchaseQuoteAcceptSchema,
+  purchaseQuoteParamsSchema,
+} from "./purchase.schemas.js";
 import { jsonSafe, orderFingerprint, page } from "./orders.types.js";
 
 const transitions = {
@@ -119,6 +123,45 @@ export class OrdersService {
       input,
       rawKey,
       context,
+    );
+  }
+
+  async guestAcceptQuote(
+    credentials: { sessionToken: string; csrfToken: string },
+    id: string,
+    rawInput: unknown,
+    rawKey: string,
+    context: RequestSecurityContext,
+  ) {
+    orderIdempotencyHeadersSchema.parse({ "idempotency-key": rawKey });
+    purchaseQuoteParamsSchema.parse({ quoteId: id });
+    const input = purchaseQuoteAcceptSchema.parse(rawInput);
+    const access = await this.guestAccess.access(credentials.sessionToken, {
+      kind: "write",
+      csrfToken: credentials.csrfToken,
+    });
+    const quote = await this.database.partsQuote.findFirst({
+      where: { id, guestEmail: access.email, enquiry: { customerId: null } },
+      select: {
+        productId: true,
+        quantity: true,
+        enquiry: { select: { branchId: true } },
+      },
+    });
+    if (!quote?.enquiry.branchId) throw orderNotFound();
+    // The shared engine rechecks this session and locks/revalidates the enquiry,
+    // quote revision, branch and original receipt before creating an order.
+    return this.checkoutBuyer(
+      {
+        kind: "guest",
+        ...credentials,
+        contact: input.contact,
+        items: [{ productId: quote.productId, quantity: quote.quantity }],
+      },
+      { branchId: quote.enquiry.branchId, fulfillmentMethod: "COLLECTION" },
+      rawKey,
+      context,
+      { id, revision: input.revision },
     );
   }
 
@@ -758,9 +801,13 @@ export class OrdersService {
             throw orderConflict(
               "Record final compatibility assessment (or why fitment is not applicable) and availability review before confirming this quoted order",
             );
-          if (!order.branchId || !quote.enquiry.customerId)
+          const buyerMatches = order.guestId
+            ? quote.enquiry.customerId === null &&
+              quote.guestEmail === order.customerEmail
+            : quote.enquiry.customerId === order.customerId && quote.guestEmail === null;
+          if (!order.branchId || !buyerMatches)
             throw orderConflict(
-              "The quoted order has no valid collection branch or customer",
+              "The quoted order has no valid collection branch or matching buyer",
             );
           const inventory = (
             await this.repository.lockInventories(
@@ -801,7 +848,7 @@ export class OrdersService {
           await transaction.inventoryReservation.create({
             data: {
               inventoryId: inventory.id,
-              customerId: quote.enquiry.customerId,
+              customerId: order.customerId,
               quantity: quote.quantity,
               expiresAt: new Date(Date.now() + 3600000),
               idempotencyKey: key,

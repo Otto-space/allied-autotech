@@ -14,21 +14,7 @@ import { useAccountSession } from "./dashboard-shell";
 import { SupportSourcePicker } from "./support-source-picker";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
-const quoteSchema = z.object({
-  id: z.uuid(),
-  enquiryId: z.uuid(),
-  revision: z.number().int().positive(),
-  productName: z.string(),
-  quantity: z.number().int().positive(),
-  unitPriceKobo: z.string().regex(/^\d+$/),
-  subtotalKobo: z.string().regex(/^\d+$/),
-  taxKobo: z.string().regex(/^\d+$/),
-  totalKobo: z.string().regex(/^\d+$/),
-  status: z.enum(["ISSUED", "ACCEPTED", "REJECTED", "EXPIRED", "VOID", "DRAFT"]),
-  notes: z.string(),
-  expiresAt: z.string(),
-  orderId: z.uuid().nullable(),
-});
+import { partsQuotationSchema as quoteSchema } from "@/lib/api/parts-quotation-schemas";
 type Quote = z.infer<typeof quoteSchema>;
 export function PartsQuotations({ enquiryId }: { enquiryId: string }) {
   const session = useAccountSession();
@@ -257,120 +243,134 @@ function QuotationPanel({
         </article>
       ))}
       {staff && latest?.status !== "ACCEPTED" && (
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (disabled || pickerBlocked || !product) return;
-            const form = new FormData(event.currentTarget),
-              amount = String(form.get("price"));
-            if (!/^\d+(\.\d{1,2})?$/.test(amount)) {
-              setMessage("Enter a positive naira price with at most two decimal places.");
-              return;
-            }
-            const [whole, fraction = ""] = amount.split(".");
-            const unitPriceKobo = (
-              BigInt(whole!) * BigInt(100) +
-              BigInt(fraction.padEnd(2, "0"))
-            ).toString();
-            const quantity = Number(form.get("quantity"));
-            const notes = String(form.get("notes"));
-            const body = {
-              expectedRevision: latest?.revision ?? 0,
-              productId: product.id,
-              quantity,
-              unitPriceKobo,
-              notes,
-            };
-            const key = crypto.randomUUID();
-            setProposal({
-              title: latest ? "Issue revised quotation?" : "Issue quotation?",
-              presentation: "quotation",
-              description:
-                "This creates a fixed commercial revision and replaces any earlier unaccepted revision. It does not create stock, confirm fitment or record a payment. The customer must accept before an order is created.",
-              facts: [
-                { label: "Product", value: product.label },
-                { label: "Quantity", value: String(quantity) },
-                { label: "Unit price before VAT", value: formatKobo(unitPriceKobo) },
-                { label: "Terms", value: notes },
-                { label: "Valid for", value: "7 days from issue" },
-              ],
-              retrySafely: true,
-              submit: async () => {
-                const saved = quoteSchema.parse(
-                  (await send(`${root}/enquiries/${enquiryId}`, body, key)).data,
-                );
-                if (
-                  saved.enquiryId !== enquiryId ||
-                  saved.revision !== body.expectedRevision + 1
-                )
-                  throw Error("Quotation outcome requires review");
-                setMessage(
-                  "Quotation issued and visible in the customer's original request.",
-                );
-              },
-            });
-          }}
-        >
-          <h3>{latest ? "Prepare a revised quotation" : "Prepare a quotation"}</h3>
+        <>
           <p>
-            Select the actual product identified during assessment. If it is not
-            registered, <Link href="/admin/products">manage products</Link> first; do not
-            invent inventory.
+            Check the recipient email and collection branch before issuing. Customers
+            without an account review the offer through Guest purchases; check email
+            delivery separately.
           </p>
-          <SupportSourcePicker
-            type="PRODUCT"
-            value={product}
-            onChange={setProduct}
-            onAvailabilityChange={setPickerBlocked}
-          />
-          <div className="field">
-            <label htmlFor="parts-quote-quantity">Quantity</label>
-            <input
-              id="parts-quote-quantity"
-              name="quantity"
-              type="number"
-              min="1"
-              max="100"
-              step="1"
-              required
-              defaultValue="1"
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="parts-quote-price">Unit price in naira, before VAT</label>
-            <input
-              id="parts-quote-price"
-              name="price"
-              inputMode="decimal"
-              pattern="[0-9]+([.][0-9]{1,2})?"
-              required
-            />
-          </div>
-          <div className="field">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (disabled || pickerBlocked || !product) return;
+              const form = new FormData(event.currentTarget),
+                amount = String(form.get("price"));
+              if (!/^\d+(\.\d{1,2})?$/.test(amount)) {
+                setMessage(
+                  "Enter a positive naira price with at most two decimal places.",
+                );
+                return;
+              }
+              const [whole, fraction = ""] = amount.split(".");
+              const unitPriceKobo = (
+                BigInt(whole!) * BigInt(100) +
+                BigInt(fraction.padEnd(2, "0"))
+              ).toString();
+              const quantity = Number(form.get("quantity"));
+              const notes = String(form.get("notes"));
+              const body = {
+                expectedRevision: latest?.revision ?? 0,
+                productId: product.id,
+                quantity,
+                unitPriceKobo,
+                notes,
+              };
+              const key = crypto.randomUUID();
+              setProposal({
+                title: latest ? "Issue revised quotation?" : "Issue quotation?",
+                presentation: "quotation",
+                description:
+                  "This creates a fixed commercial revision and replaces any earlier unaccepted revision. It does not create stock, confirm fitment or record a payment. The customer must accept before an order is created.",
+                facts: [
+                  { label: "Product", value: product.label },
+                  { label: "Quantity", value: String(quantity) },
+                  { label: "Unit price before VAT", value: formatKobo(unitPriceKobo) },
+                  { label: "Terms", value: notes },
+                  { label: "Valid for", value: "7 days from issue" },
+                ],
+                retrySafely: true,
+                submit: async () => {
+                  const saved = quoteSchema.parse(
+                    (await send(`${root}/enquiries/${enquiryId}`, body, key)).data,
+                  );
+                  if (
+                    saved.enquiryId !== enquiryId ||
+                    saved.revision !== body.expectedRevision + 1
+                  )
+                    throw Error("Quotation outcome requires review");
+                  setMessage(
+                    "Quotation issued and visible in the customer's original request.",
+                  );
+                },
+              });
+            }}
+          >
+            <h3>{latest ? "Prepare a revised quotation" : "Prepare a quotation"}</h3>
             <p>
-              Valid for 7 days from issue. The saved quotation shows its exact expiry.
+              Select the actual product identified during assessment. If it is not
+              registered, <Link href="/admin/products">manage products</Link> first; do
+              not invent inventory.
             </p>
-          </div>
-          <div className="field">
-            <label htmlFor="parts-quote-notes">
-              Assessment, lead time and cancellation/refund terms
-            </label>
-            <textarea
-              id="parts-quote-notes"
-              name="notes"
-              minLength={10}
-              maxLength={2000}
-              required
+            <SupportSourcePicker
+              type="PRODUCT"
+              value={product}
+              onChange={setProduct}
+              onAvailabilityChange={setPickerBlocked}
             />
-          </div>
-          <button className="button" disabled={disabled || pickerBlocked || !product}>
-            Review quotation
-          </button>
-        </form>
+            <div className="field">
+              <label htmlFor="parts-quote-quantity">Quantity</label>
+              <input
+                id="parts-quote-quantity"
+                name="quantity"
+                type="number"
+                min="1"
+                max="100"
+                step="1"
+                required
+                defaultValue="1"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="parts-quote-price">Unit price in naira, before VAT</label>
+              <input
+                id="parts-quote-price"
+                name="price"
+                inputMode="decimal"
+                pattern="[0-9]+([.][0-9]{1,2})?"
+                required
+              />
+            </div>
+            <div className="field">
+              <p>
+                Valid for 7 days from issue. The saved quotation shows its exact expiry.
+              </p>
+            </div>
+            <div className="field">
+              <label htmlFor="parts-quote-notes">
+                Assessment, lead time and cancellation/refund terms
+              </label>
+              <textarea
+                id="parts-quote-notes"
+                name="notes"
+                minLength={10}
+                maxLength={2000}
+                required
+              />
+            </div>
+            <button className="button" disabled={disabled || pickerBlocked || !product}>
+              Review quotation
+            </button>
+          </form>
+        </>
       )}
       {proposal && (
         <MutationReview
           proposal={proposal}
+          disabledReason={
+            !staff && transactionClosed
+              ? "Online quotation decisions are currently unavailable. Close this review and contact Customer Care."
+              : undefined
+          }
           confirmLabel="Confirm quotation decision"
           onClose={() => setProposal(null)}
           onSuccess={records.refresh}

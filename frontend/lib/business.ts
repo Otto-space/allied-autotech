@@ -113,7 +113,7 @@ export function getFaqs(capabilities = capabilityView(null)) {
       question: "How do I order the right part?",
       answer: !checkoutEnabled
         ? "Use Find Parts for My Car to choose your vehicle and review the fitment result. Make, model and year identify candidates; only a verified fit confirms the recorded specifications match. If compatibility is unknown or needs verification, ask our team before choosing a part. Send a product enquiry to discuss fitment, availability and collection from the workshop. Online checkout is not available, and an enquiry does not reserve stock."
-        : "Use Find Parts for My Car and review the product's fitment result and branch availability. If compatibility is unknown or needs verification, ask our team before choosing a part. New orders are for collection from the workshop only. Review quantities and the total at checkout. Adding an item to your cart does not reserve stock.",
+        : "Use Find Parts for My Car and review the product's fitment result and branch availability. If compatibility is unknown or needs verification, ask our team before choosing a part. New orders are for collection from the workshop only. An account is optional; use private email access or your customer account. Review quantities and the total before payment. Adding an item to your cart does not reserve stock.",
       keywords: "shop parts product compatibility cart collection delivery order stock",
       href: "/parts",
       action: "Browse the shop",

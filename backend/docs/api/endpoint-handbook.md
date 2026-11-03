@@ -27833,6 +27833,147 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 Current session required; 403 Current assurance/access unavailable; 404 Disabled, unpublished or unavailable; no restricted existence disclosure; 422 Invalid query or definition ID; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/purchase/parts-quotes`
+
+- Operation ID: `getPurchasePartsQuotes`
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. List only explicit guest-directed quotations for the verified purchase recipient. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PURCHASE_GUEST
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List only explicit guest-directed quotations for the verified purchase recipient",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "synthetic-status"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/purchase/parts-quotes/{quoteId}/decline`
+
+- Operation ID: `postPurchasePartsQuotesByQuoteIdDecline`
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Decline an owned current guest quotation. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PURCHASE_GUEST
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `quoteId` | path | string (uuid) | Yes | Identifier selecting the quote resource. |
+| `x-csrf-token` | header | string | Yes | Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `revision` | integer | Yes | Revision validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "revision": 1
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Decline an owned current guest quotation",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/purchase/parts-quotes/{quoteId}/accept`
+
+- Operation ID: `postPurchasePartsQuotesByQuoteIdAccept`
+- Purpose: No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Accept a guest quotation through the shared exact-price collection checkout without creating an account. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: PURCHASE_GUEST
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `quoteId` | path | string (uuid) | Yes | Identifier selecting the quote resource. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+| `x-csrf-token` | header | string | Yes | Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `revision` | integer | Yes | Revision validated by this operation's strict request contract. |
+| `contact` | object | Yes | Contact validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "revision": 1,
+  "contact": {
+    "name": "synthetic-name",
+    "phone": "+2348000000000"
+  }
+}
+```
+
+Success: HTTP 201.
+
+```json
+{
+  "success": true,
+  "message": "Accept a guest quotation through the shared exact-price collection checkout without creating an account",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/purchase/access/request`
 
 - Operation ID: `postPurchaseAccessRequest`

@@ -1,7 +1,20 @@
 import { workThreadFixture } from "../fixtures/work-support-detail";
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { customerSupportFixture } from "../fixtures/customer-support";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
+async function enabledQuotationCapabilities(page: Page) {
+  await page.route("**/api/v1/public/capabilities", (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        message: "Explicit enabled quotation fixture",
+        data: publicCapabilitiesFixture("full"),
+        meta: { requestId: "quotation-capability-fixture" },
+      },
+    }),
+  );
+}
 const quoteId = "b1000000-0000-4000-8000-000000000001";
 const orderId = "b1000000-0000-4000-8000-000000000002";
 for (const width of [360, 768, 1280])
@@ -10,6 +23,7 @@ for (const width of [360, 768, 1280])
   }, info) => {
     await page.setViewportSize({ width, height: 900 });
     const state = await customerSupportFixture(page);
+    await enabledQuotationCapabilities(page);
     state.records.enquiries.type = "PRODUCT";
     state.records.enquiries.subject = "Replacement filter request";
     const quote = {
@@ -91,6 +105,7 @@ for (const width of [360, 768, 1366])
   }, info) => {
     await page.setViewportSize({ width, height: 900 });
     const { detail: state } = await workThreadFixture(page, "ADMIN", "enquiries");
+    await enabledQuotationCapabilities(page);
     state.record.type = "PRODUCT";
     state.record.serviceId = null as unknown as string;
     state.record.message = "Please quote a replacement filter.";
@@ -206,6 +221,7 @@ test("signed-in unlisted parts request collects quantity without mandatory vehic
 }, info) => {
   await page.setViewportSize({ width: 390, height: 900 });
   const state = await customerSupportFixture(page);
+  await enabledQuotationCapabilities(page);
   await page.goto("/contact?parts=1#enquiry");
   await page
     .getByLabel("Requested part or product", { exact: true })

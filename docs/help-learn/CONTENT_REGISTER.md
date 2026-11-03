@@ -1,3 +1,14 @@
+## 3 November 2026: Optional-account quotation guidance (source)
+
+Parts-fitment v6 explains optional accounts, account Customer Care versus private
+email/browser-bound Guest purchases, current seven-day offers, unpaid-order acceptance
+and separate payment/final fitment/stock/readiness checks. Public eligibility, five
+steps, corolla-fitment guide v3 and semantic targets remain unchanged. No tutorial
+grants permissions; practice/AI/commerce flags are unchanged. Native quotation journey
+61/61, guest/account browser 16/16 and learning/terms units 13/13 pass locally.
+Invoice/receipt and aftercare guidance remains next. Production is still parts-fitment
+v4 on 333c3a22; publication and actual role/provider/device acceptance are unperformed.
+
 ## 3 November 2026: Guest browser journey (source)
 
 Cart, explicit email verification, owned history and guarded payment review/recovery
@@ -183,7 +194,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
 | privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
 | financial-policy-work   | financial-policy     | 4 / 2026-11-02   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
-| parts-fitment           | public               | 4 / 2026-11-01   | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
+| parts-fitment           | public               | 6 / 2026-11-03   | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
 | service-request         | public               | 13 / 2026-11-01  | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |

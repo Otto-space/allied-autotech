@@ -29,6 +29,7 @@ import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { StatusBadge } from "./status-progress";
 import { BookingReference } from "./booking-reference";
 import { usePublicCapabilities } from "./public-capabilities";
+import { PurchaseQuotations } from "./purchase-quotations";
 
 function usePurchaseClock() {
   const [now, setNow] = useState(() => Date.now());
@@ -69,6 +70,7 @@ function OrderHistory({ email }: { email: string }) {
           Open account orders
         </Link>
       </section>
+      <PurchaseQuotations />
       {resource.loading && <p role="status">Loading your purchases…</p>}
       {resource.failed && (
         <section className="purchase-panel">

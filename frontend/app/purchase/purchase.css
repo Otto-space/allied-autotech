@@ -164,6 +164,23 @@
   border-bottom: 1px solid #dfe4e7;
   min-width: 0;
 }
+.purchase-quote {
+  border-top: 1px solid #dfe4e7;
+  margin-top: 24px;
+  padding-top: 24px;
+}
+.purchase-quote h3 {
+  font-size: 1.15rem;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+.purchase-quote form {
+  margin: 16px 0;
+}
+.purchase-quote-notes {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
 .purchase-history-row > div {
   min-width: 0;
 }

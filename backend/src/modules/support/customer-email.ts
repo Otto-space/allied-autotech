@@ -140,17 +140,22 @@ export async function enqueueSupportCustomerUpdate(
     messageId: string | null;
     status?: string;
     response?: string | undefined;
+    notice?: { title: string; summary: string };
     version?: number;
   },
 ) {
   const { record, kind } = input;
   const userId = record.customer?.userId ?? null;
-  const title = input.status
-    ? `Your ${kind} is now ${input.status.toLowerCase().replaceAll("_", " ")}`
-    : "New support reply";
-  const update = input.status
-    ? `Your ${kind} is now ${input.status.toLowerCase().replaceAll("_", " ")}.`
-    : `Our team has replied to your ${kind}.`;
+  const title =
+    input.notice?.title ??
+    (input.status
+      ? `Your ${kind} is now ${input.status.toLowerCase().replaceAll("_", " ")}`
+      : "New support reply");
+  const update =
+    input.notice?.summary ??
+    (input.status
+      ? `Your ${kind} is now ${input.status.toLowerCase().replaceAll("_", " ")}.`
+      : `Our team has replied to your ${kind}.`);
   let recipient = record.email;
   let optedOut = false;
   if (userId) {

@@ -35,6 +35,12 @@ export const guestOrder = () => ({
   ],
   invoice: null,
   paymentId: null as string | null,
+  partsQuote: null as {
+    id: string;
+    enquiryId: string;
+    revision: number;
+    notes: string;
+  } | null,
 });
 export const guestPayment = () => ({
   id: id(83),

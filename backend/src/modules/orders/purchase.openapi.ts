@@ -17,6 +17,12 @@ import {
   purchaseRevokeSchema,
   purchaseVerifySchema,
 } from "./purchase.schemas.js";
+import {
+  purchaseQuoteAcceptSchema,
+  purchaseQuoteDecisionSchema,
+  purchaseQuoteListSchema,
+  purchaseQuoteParamsSchema,
+} from "./purchase.schemas.js";
 
 const response = z.object({
   success: z.boolean(),
@@ -49,6 +55,31 @@ export function registerPurchaseOpenApi(registry: OpenAPIRegistry): void {
   });
   const keyed = orderIdempotencyHeadersSchema.extend(purchaseCsrfHeadersSchema.shape);
   const paths: Path[] = [
+    {
+      method: "get",
+      path: "/parts-quotes",
+      summary:
+        "List only explicit guest-directed quotations for the verified purchase recipient",
+      query: purchaseQuoteListSchema,
+    },
+    {
+      method: "post",
+      path: "/parts-quotes/{quoteId}/decline",
+      summary: "Decline an owned current guest quotation",
+      params: purchaseQuoteParamsSchema,
+      body: purchaseQuoteDecisionSchema,
+      headers: purchaseCsrfHeadersSchema,
+    },
+    {
+      method: "post",
+      path: "/parts-quotes/{quoteId}/accept",
+      summary:
+        "Accept a guest quotation through the shared exact-price collection checkout without creating an account",
+      params: purchaseQuoteParamsSchema,
+      body: purchaseQuoteAcceptSchema,
+      headers: keyed,
+      status: 201,
+    },
     {
       method: "post",
       path: "/access/request",
