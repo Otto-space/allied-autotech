@@ -67,7 +67,7 @@
 }
 .dialog .header h2 {
   flex: 1 1 240px;
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 20px;
   line-height: 1.4;
   letter-spacing: normal;

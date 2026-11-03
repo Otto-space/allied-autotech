@@ -51,11 +51,11 @@
   font-size: 14px;
 }
 .vehicle-detail .vd-heading h1 {
-  font-family: var(--font-nippo), sans-serif;
+  font-family: var(--font-heading);
   font-size: clamp(26px, 2.9vw, 36px);
   line-height: 1.15;
   letter-spacing: -0.025em;
-  font-weight: 700;
+  font-weight: 500;
   margin: 0 0 24px;
   overflow-wrap: anywhere;
 }
@@ -182,7 +182,7 @@
   color: #dddddd;
 }
 .vehicle-detail .vd-summary .vd-price {
-  font-family: var(--font-nippo), sans-serif;
+  font-family: var(--font-body);
   font-size: clamp(24px, 2.1vw, 30px);
   font-weight: 600;
   letter-spacing: -0.035em;
@@ -320,9 +320,9 @@
   background: #fff;
 }
 .vehicle-detail h2 {
-  font-family: var(--font-nippo), sans-serif;
+  font-family: var(--font-heading);
   font-size: clamp(24px, 2.5vw, 32px);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.025em;
   margin: 0 0 24px;
@@ -330,7 +330,7 @@
 }
 .vehicle-detail h3 {
   font-size: 19px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.35;
   margin: 0 0 12px;
 }
@@ -470,9 +470,9 @@
   box-shadow: 0 8px 24px #1717170a;
 }
 .vehicle-detail .vd-inspection-panel h2 {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 21px;
-  font-weight: 700;
+  font-weight: 500;
   margin-bottom: 20px;
   scroll-margin-top: 110px;
 }
@@ -558,7 +558,7 @@
   border-color: #347657;
 }
 .vehicle-detail .vd-feedback :is(h2, h3) {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 17px;
   margin: 0 0 8px;
 }
@@ -676,7 +676,7 @@
 }
 .vehicle-detail .vd-lightbox h2 {
   color: white;
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 20px;
   margin: 0;
 }
@@ -722,9 +722,7 @@
   margin-bottom: 20px;
 }
 .vehicle-detail .vd-state h1 {
-  font:
-    600 clamp(28px, 4vw, 42px)/1.2 var(--font-nippo),
-    sans-serif;
+  font: 600 clamp(28px, 4vw, 42px)/1.2 var(--font-heading);
 }
 @media (max-width: 1199px) {
   .vd-container {
@@ -1111,7 +1109,7 @@
 }
 .vehicle-detail .vd-inspection-panel h2,
 .vehicle-detail .vd-request-review h2 {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 22px;
   margin: 0 0 18px;
   line-height: 1.35;

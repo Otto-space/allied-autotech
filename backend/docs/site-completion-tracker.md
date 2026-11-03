@@ -1,3 +1,21 @@
+### 3 November 2026: Home media, typography and copy checkpoint
+
+Priority owner brief 6.4–6.6 implemented in isolated home-photo-20261103 worktree,
+branch codex/home-photo-composition-20261103 from master 57d58e0d. Other agents'
+Desktop and master dirty edits remain untouched. Genuine 3:2 photographs have a
+separate laptop/mobile media area; Home copy and semantic Nippo/Quicksand overrides
+are corrected. Carousel logic/capabilities/data/security are preserved.
+
+Local acceptance: 21/21 carousel, 14/14 role/public semantic-font cases, eight units,
+compiler, scoped lint; final 390/1366 layout checks 2/2; separate empty/populated/
+failed-read/retry fixture scenarios. All-slide phone/laptop and full-page screenshots
+were inspected, and physical delivered bitmap dimensions/bytes measured. No real
+inventory, message, database or provider write. See frontend/docs/
+HOME_PHOTO_COMPOSITION_20261103.md for history, copy diff and limits. Exact-lock CI,
+compatible integration and hosted publication gates remain. Local dependencies are
+reused (Next 16.3.8 versus lock 16.4.3); no duplicate install/build. Last bounded
+postflight: 22.37 GiB free. Existing other-agent aftercare work is not included.
+
 ### 3 November 2026: Private guest invoices and receipts verified (source only)
 
 Quotation source 2ba96033 is signed/verified and passes frontend 41585900297

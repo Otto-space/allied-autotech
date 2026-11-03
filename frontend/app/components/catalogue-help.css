@@ -26,9 +26,9 @@
   padding-bottom: 0;
 }
 .catalogue-help :is(.catalogue-help-answer, .catalogue-help-contact) h2 {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 21px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.4;
   letter-spacing: -0.015em;
   margin-bottom: 10px;

@@ -44,9 +44,7 @@ export function HomeReviewsPreview({
         <div className="home-feedback__intro">
           <div>
             <h2 id="home-reviews-title">Customer feedback</h2>
-            <p className="muted">
-              Published feedback about Allied AutoTech services and purchases.
-            </p>
+            <p className="muted">Experiences shared by customers of Allied AutoTech.</p>
           </div>
           <Link className="text-link" href="/reviews">
             View all reviews <ArrowUpRight size={17} aria-hidden="true" />
@@ -59,7 +57,7 @@ export function HomeReviewsPreview({
           <Feedback message={reviews.error} />
           <Feedback message={reviews.refreshError} />
           <p className="home-feedback__status" role="status">
-            {reviews.loading || reviews.refreshing ? "Checking published reviews..." : ""}
+            {reviews.loading || reviews.refreshing ? "Checking customer reviews…" : ""}
           </p>
           {reviews.loading && !reviews.data && (
             <div className="home-preview-loading" aria-hidden="true">

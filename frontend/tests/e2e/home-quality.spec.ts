@@ -289,9 +289,10 @@ test("stable hero, keyboard, FAQ and navigation perform their advertised actions
   await page.emulateMedia({ reducedMotion: "reduce" });
   await ready(page);
   const carousel = page.getByRole("region", { name: "Workshop highlights" });
-  await expect(
-    carousel.getByRole("link", { name: "Explore diagnostics" }),
-  ).toHaveAttribute("href", "/services?search=diagnostics");
+  await expect(carousel.getByRole("link", { name: "View diagnostics" })).toHaveAttribute(
+    "href",
+    "/services?search=diagnostics",
+  );
   await carousel.getByRole("button", { name: "Next slide" }).focus();
   await page.keyboard.press("Enter");
   await expect(carousel).toHaveAttribute("data-slide", "2");

@@ -146,7 +146,7 @@
 }
 .work-audit .wa-event h2 {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   overflow-wrap: anywhere;
 }
 .wa-event time {
@@ -186,7 +186,7 @@
 }
 .wa-metadata dd {
   margin: 4px 0 0;
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-body);
   font-size: 12px;
   overflow-wrap: anywhere;
   line-height: 1.6;

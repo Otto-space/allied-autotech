@@ -804,9 +804,7 @@
   margin-top: 10px;
 }
 .home-page .home-care h2 {
-  font:
-    700 clamp(25px, 2.3vw, 32px)/1.25 var(--font-nippo),
-    sans-serif;
+  font: 500 clamp(25px, 2.3vw, 32px)/1.25 var(--font-heading);
 }
 .home-care p {
   font-size: 15px;

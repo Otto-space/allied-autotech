@@ -38,7 +38,7 @@ export async function PublicHome() {
         <section className="public-section">
           <div className="public-wrap partner-layout">
             <div className="partner-intro">
-              <h2>How can we help?</h2>
+              <h2>Choose what you need</h2>
             </div>
             <div className="partner-links">
               {[
@@ -76,10 +76,9 @@ export async function PublicHome() {
         <section className="public-section public-surface home-services">
           <div className="public-wrap">
             <HomeSectionHeading
-              title="Explore our services"
-              copy="Start with diagnostics, wheel care or routine oil servicing."
+              title="Featured services"
               href="/services"
-              action="Explore services"
+              action="View all services"
             />
             <HomeFeaturedServices initial={services} />
             <p className="home-services__enquiry">
@@ -97,8 +96,7 @@ export async function PublicHome() {
         <section className="public-section public-surface home-shop">
           <div className="public-wrap">
             <HomeSectionHeading
-              title="Parts, oils and automotive essentials"
-              copy="Explore the Shop or ask the team to check specifications, suitability and collection availability."
+              title="Parts, oils & essentials"
               href="/parts"
               action="Browse the Shop"
             />
