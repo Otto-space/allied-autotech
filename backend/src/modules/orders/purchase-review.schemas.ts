@@ -15,6 +15,13 @@ const text = z
     "Use printable text",
   );
 const revision = z.number().int().min(0).max(2147483646);
+export const purchaseOfferAcceptanceSchema = z
+  .object({ id: z.uuid(), revision: revision.min(1) })
+  .strict()
+  .describe(
+    "Displayed checked offer. Required for a new order payment; omission only recovers an existing original-key receipt.",
+  );
+export type PurchaseOfferAcceptance = z.infer<typeof purchaseOfferAcceptanceSchema>;
 export const purchaseRequirementsSchema = z
   .object({
     lines: z

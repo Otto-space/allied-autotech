@@ -26,6 +26,7 @@ import { aftercareSchema } from "@/lib/api/aftercare-schemas";
 import { paymentMessages, type PaymentRecord } from "@/lib/api/payment-schemas";
 import {
   blockingOrderPayment,
+  orderPaymentAcceptedReview,
   orderPaymentSnapshot,
   orderPaymentUnavailable,
   parseOrderPayment,
@@ -82,6 +83,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
   const busyRef = useRef(false);
   const pending = useRef<AbortController | null>(null);
   const key = useRef<string | null>(null);
+  const paymentRequest = useRef<RequestBody<"/customers/payments", "post"> | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const cancelForm = useRef<HTMLFormElement>(null);
   const cancelButton = useRef<HTMLButtonElement>(null);
@@ -99,6 +101,8 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       dialog.current?.close();
       setReview(undefined);
       setCancelReview(undefined);
+      paymentRequest.current = null;
+      key.current = null;
       setPayment(undefined);
       setError(undefined);
       setNotice(undefined);
@@ -233,11 +237,15 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       }
       if (!live(controller)) return;
       key.current ??= newIdempotencyKey();
-      const body: RequestBody<"/customers/payments", "post"> = {
-        targetType: "ORDER",
-        targetId: orderId,
-        purpose: "ORDER_PAYMENT",
-      };
+      if (!recover && review)
+        paymentRequest.current = {
+          targetType: "ORDER",
+          targetId: orderId,
+          purpose: "ORDER_PAYMENT",
+          acceptedReview: orderPaymentAcceptedReview(review),
+        };
+      const body = paymentRequest.current;
+      if (!body) throw new Error("The original payment request could not be recovered.");
       sent = true;
       const response = await apiRequest("/customers/payments", {
         method: "POST",
@@ -259,6 +267,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       if (sent && (!known || recover)) setUncertain("payment");
       else if (known) {
         key.current = null;
+        paymentRequest.current = null;
         setReview(undefined);
         order.refresh();
       }

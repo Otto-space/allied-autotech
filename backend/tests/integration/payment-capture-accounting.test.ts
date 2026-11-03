@@ -1,5 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
+import {
+  fixtureAcceptedReview,
+  reviewFixtureOrderForPayment,
+} from "../helpers/purchase-review.js";
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
@@ -79,7 +82,12 @@ async function fixture(paymentProvider: "PAYSTACK" | "MONNIFY" = "PAYSTACK") {
   await reviewFixtureOrderForPayment(order.id);
   await service.createIntent(
     actor,
-    { targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" },
+    {
+      targetType: "ORDER",
+      targetId: order.id,
+      purpose: "ORDER_PAYMENT",
+      acceptedReview: await fixtureAcceptedReview(order.id),
+    },
     randomUUID(),
     context(),
   );

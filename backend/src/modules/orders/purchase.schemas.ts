@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { guestCheckoutBodySchema } from "./orders.schemas.js";
+import { purchaseOfferAcceptanceSchema } from "./purchase-review.schemas.js";
 
 export const purchaseEmptySchema = z.object({}).strict().default({});
 export const purchaseTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
@@ -11,7 +12,9 @@ export const purchaseRevokeSchema = z
 export const purchaseCsrfHeadersSchema = z.looseObject({
   "x-csrf-token": purchaseTokenSchema,
 });
-export const purchasePaymentSchema = z.object({ orderId: z.uuid() }).strict();
+export const purchasePaymentSchema = z
+  .object({ orderId: z.uuid(), acceptedReview: purchaseOfferAcceptanceSchema.optional() })
+  .strict();
 export const purchasePaymentParamsSchema = z.object({ paymentId: z.uuid() }).strict();
 export const purchaseAttemptParamsSchema = purchasePaymentParamsSchema
   .extend({ attemptId: z.uuid() })

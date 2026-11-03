@@ -6,7 +6,10 @@ import request from "supertest";
 import { createApp } from "../../src/app.js";
 import { purchaseCookieName } from "../../src/common/security/cookies.js";
 import { randomUUID } from "node:crypto";
-import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
+import {
+  fixtureAcceptedReview,
+  reviewFixtureOrderForPayment,
+} from "../helpers/purchase-review.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import { env } from "../../src/config/env.js";
@@ -87,6 +90,7 @@ async function setup() {
     result.order.id,
     intentKey,
     context(),
+    await fixtureAcceptedReview(result.order.id),
   )) as { payment: { id: string; amountKobo: string }; replayed: boolean };
   const reviewedOrder = await prisma.order.findUniqueOrThrow({
     where: { id: result.order.id },

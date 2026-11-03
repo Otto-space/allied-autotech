@@ -252,6 +252,14 @@ export async function purchaseFixture(page: Page, access = true) {
     }
     if (path === `/purchase/orders/${state.order.id}`) return ok(state.order);
     if (path === "/purchase/payments" && method === "POST") {
+      const accepted = req.postDataJSON().acceptedReview;
+      const displayed = state.order.purchaseReviews[0];
+      if (
+        !accepted ||
+        accepted.id !== displayed?.id ||
+        accepted.revision !== displayed?.revision
+      )
+        return fail(409, "PAYMENT_CONFLICT");
       state.order.paymentId = state.payment.id;
       return ok({ payment: state.payment, replayed: false }, 201);
     }

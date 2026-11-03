@@ -906,12 +906,67 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const intent = () =>
         payments.createIntent(
           actor,
-          { targetType: "ORDER", targetId: f.order.id, purpose: "ORDER_PAYMENT" },
+          {
+            targetType: "ORDER",
+            targetId: f.order.id,
+            purpose: "ORDER_PAYMENT",
+            acceptedReview: { id: f.review.id, revision: f.review.revision },
+          },
           randomUUID(),
           context,
         );
       return { ...f, actor, commands, payments, context, intent };
     }
+    it("binds account payment creation to the displayed offer and preserves original receipt recovery", async () => {
+      const f = await payerFixture();
+      await prisma.orderPurchaseReview.update({
+        where: { id: f.review.id },
+        data: f.approval,
+      });
+      const app = createApp();
+      const key = randomUUID();
+      const body = {
+        targetType: "ORDER",
+        targetId: f.order.id,
+        purpose: "ORDER_PAYMENT",
+      };
+      const send = (acceptedReview?: { id: string; revision: number }) =>
+        request(app)
+          .post("/api/v1/customers/payments")
+          .set("Cookie", f.buyer.cookie)
+          .set("x-csrf-token", f.buyer.csrf)
+          .set("idempotency-key", key)
+          .send({ ...body, acceptedReview });
+      for (const accepted of [
+        undefined,
+        { id: randomUUID(), revision: 1 },
+        { id: f.review.id, revision: 2 },
+      ]) {
+        const rejected = await send(accepted);
+        expect(rejected.status, JSON.stringify(rejected.body)).toBe(409);
+      }
+      expect(await prisma.payment.count({ where: { orderId: f.order.id } })).toBe(0);
+      const accepted = { id: f.review.id, revision: f.review.revision };
+      const created = await send(accepted);
+      expect(created.status, JSON.stringify(created.body)).toBe(201);
+      expect(created.body.data.replayed).toBe(false);
+      await prisma.productCompatibility.update({
+        where: { id: f.rule.id },
+        data: { reviewStatus: "RETIRED", version: { increment: 1 } },
+      });
+      const recovered = await send();
+      expect(recovered.status, JSON.stringify(recovered.body)).toBe(201);
+      expect(recovered.body.data).toMatchObject({
+        replayed: true,
+        payment: { id: created.body.data.payment.id },
+      });
+      expect((await send(accepted)).body.data.replayed).toBe(true);
+      expect((await send({ ...accepted, revision: accepted.revision + 1 })).status).toBe(
+        409,
+      );
+      expect(await prisma.payment.count({ where: { orderId: f.order.id } })).toBe(1);
+      expect(f.commands).toHaveLength(0);
+    });
     it("requires approval before intent and rechecks revoked evidence before contacting a provider", async () => {
       const f = await payerFixture();
       await expect(f.intent()).rejects.toMatchObject({ statusCode: 409 });

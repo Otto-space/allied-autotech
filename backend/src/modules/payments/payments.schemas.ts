@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { purchaseOfferAcceptanceSchema } from "../orders/purchase-review.schemas.js";
 
 const uuid = z.uuid();
 const cleanText = (max: number) =>
@@ -36,6 +37,9 @@ export const paymentCreateBodySchema = z.discriminatedUnion("targetType", [
       targetType: z.literal("ORDER"),
       targetId: uuid,
       purpose: z.literal("ORDER_PAYMENT"),
+      // Optional only so original intent receipts remain recoverable. New order
+      // intents must identify the offer the buyer saw, checked under the order lock.
+      acceptedReview: purchaseOfferAcceptanceSchema.optional(),
     })
     .strict(),
   z

@@ -68611,7 +68611,11 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "orderId": "00000000-0000-4000-8000-000000000001"
+                 *       "orderId": "00000000-0000-4000-8000-000000000001",
+                 *       "acceptedReview": {
+                 *         "id": "00000000-0000-4000-8000-000000000001",
+                 *         "revision": 1
+                 *       }
                  *     }
                  */
                 "application/json": {
@@ -68620,6 +68624,16 @@ export interface operations {
                      * @description Identifier of the order resource; ownership is resolved server-side.
                      */
                     orderId: string;
+                    /** @description Displayed checked offer. Required for a new order payment; omission only recovers an existing original-key receipt. */
+                    acceptedReview?: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                        /** @description Revision validated by this operation's strict request contract. */
+                        revision: number;
+                    };
                 };
             };
         };
@@ -91120,7 +91134,11 @@ export interface operations {
                  * @example {
                  *       "targetType": "ORDER",
                  *       "targetId": "00000000-0000-4000-8000-000000000001",
-                 *       "purpose": "ORDER_PAYMENT"
+                 *       "purpose": "ORDER_PAYMENT",
+                 *       "acceptedReview": {
+                 *         "id": "00000000-0000-4000-8000-000000000001",
+                 *         "revision": 1
+                 *       }
                  *     }
                  */
                 "application/json": {
@@ -91139,6 +91157,16 @@ export interface operations {
                      * @enum {string}
                      */
                     purpose: "ORDER_PAYMENT";
+                    /** @description Displayed checked offer. Required for a new order payment; omission only recovers an existing original-key receipt. */
+                    acceptedReview?: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                        /** @description Revision validated by this operation's strict request contract. */
+                        revision: number;
+                    };
                 } | {
                     /**
                      * @description Target Type validated by this operation's strict request contract.

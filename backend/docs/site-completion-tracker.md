@@ -1,3 +1,93 @@
+### 3 November 17:44 UTC package: displayed-offer payment binding
+
+Target 18:44 UTC. Account and guest payment creation now carry the identity and
+revision of the checked offer displayed to the buyer. Under the existing order
+lock, a new intent rejects missing/stale identity before creating any payment.
+Original-key receipt recovery remains available without revalidating a revoked
+offer; a supplied different offer cannot reuse that key. Initialisation still
+rechecks the private financial/evidence binding, and capture accounting is unchanged.
+
+The account retains the original body for uncertain retries and discards it on
+session change. Guest checkout uses its displayed approved review directly.
+There is no new staff approval, checkbox or customer screen. Existing checked
+stock, ownership, amount, finance and provider controls remain authoritative.
+Removed contradictory guest summary wording which placed final checks after pay.
+
+Backend types, script types and lint pass. Review/safe-view/Help units pass 45/45;
+frontend payment/suitability/staff-review units pass 27/27 and scoped lint passes.
+OpenAPI export/types are regenerated; 438 paths and 514 operations still match.
+New isolated account HTTP and guest cases cover missing/stale offers, exact original
+receipt recovery and mismatched-key denial. Updated provider/lifecycle fixtures
+explicitly read their synthetic checked offers. The 21-case browser suite now
+checks transmitted offer identity and changed-offer handling at 320/1440.
+Those database and browser executions remain pending CI.
+
+Parts Help advances to v13; audience, eligibility, guide targets and flags stay
+unchanged. No new migration is added in this package, no shared database or real
+record is changed, and no new production publication or capability activation
+occurred. Current source remains a candidate for the full D01-D17 goal. Parallel
+booking/timing and dashboard work remains preserved for later verified integration.
+C: about 22.2 GiB; hosted checks handle production builds.
+
+### 3 November 17:44 UTC remaining-scope reconciliation
+
+Read-only review confirms another active source candidate in
+allied-contact-validation-20261027 already contains pending reschedule records,
+staff approval/withdrawal and preserved-original-slot behaviour, plus saved timing
+and versioned offer work. It is dirty and under verification; do not duplicate it
+or count it as integrated/current-production acceptance. Its tracker identifies
+equipment/resource qualifications and in-progress timing as unfinished. Preserve
+that work and reconcile its migrations/contracts before integration.
+
+The current master payment creation body still does not identify the offer revision
+displayed to the customer. Payment creation/initialisation already lock and validate
+the current review and private saved binding, but a changed-offer race between the
+customer's last read and intent creation still needs closing. The correction must
+not introduce a fresh staff approval or an extra customer confirmation screen.
+Original uncertain-request recovery and captured-money accounting must remain safe.
+
+Corrected a remaining guest order-summary sentence which wrongly placed final
+suitability/availability checks after payment. This is a copy-only change after
+079ca9ee; no new browser/test result is claimed for it. C: recovered to 21.94 GiB
+after external activity; no resources were deleted by this task. Heavy builds stay
+hosted. Full D01-D17 scope and the existing production release gates remain active.
+
+### 3 November 17:36 UTC package result: vehicle carry-through verified
+
+Frontend source 079ca9eef1a461962fb7ac87dd36fb0ce306fd28 passes workflow
+41684225412: production compiler, lint, build and 1,397 unit cases pass;
+12 existing cases remain skipped. Chromium runtime passes 21/21, including
+the two new selected-vehicle cart journeys at 320/1440. Secrets workflow
+41684225285 passes. Backend source 5b7727357fbf7578469c56c91a3a092103351553
+passes workflow 41683363872, including migration 92 replay and 81 focused cases
+(19 isolated database, 29 review, 13 fitment, 12 retry and 8 safe-view cases).
+The later frontend-only commit leaves that backend tree unchanged; these are
+separate source checkpoints, not an exact-master production-release assertion.
+
+The initial new database fixture omitted required independent fitment evidence;
+the fixture now supplies it and the constraint remains enforced. An old frontend
+cart assertion was updated for explicit null vehicle metadata; the new selected-
+vehicle/replacement case also passes. No validation or assertion was weakened.
+
+Safe synthetic screenshot artifact 13253308477 (1,959,228 bytes) is preserved by
+frontend run 41684225412. Download was stopped by the mandatory disk preflight:
+C: had 13.15 GiB free, below the 20 GiB reserve. The new screenshots have not been
+visually inspected locally. Earlier 31c292dd screenshots remain historical evidence,
+not screenshots of this source. No local build, install, download or cleanup ran
+after the failed preflight. Read-only cleanup review found approximately 1.28 GiB
+in two frontend compiler caches; Docker reports 4.652 GB reclaimable build cache,
+which is not proof of safe deletion. An active database task is retained. Source,
+databases, rollback images and other tasks' resources remain untouched.
+
+This completes the bounded cart implementation package. Automatic eligibility is
+verified with synthetic browser data and isolated database records only. New
+payment creation still needs binding to the offer revision displayed to the buyer.
+D02/D03/D05-D17, operational notifications, real-role/provider acceptance and
+physical-device checks remain tracked in the full objective. Migration 92 is not
+applied to the shared application database; no purchase/booking flag, production
+publication, real transaction or owner-only permission changed. The goal remains
+active. Substantial local work must wait until the disk reserve is restored.
+
 3 November 17:14 UTC carry-through follow-up: recovered guest orders now clear
 only cart lines whose saved vehicle configuration also matches. A changed or cleared
 vehicle choice in another tab is retained even when product/quantity are identical.
@@ -45,8 +135,7 @@ new payment/booking capabilities. Current C: about 22.68 GiB; heavy builds use C
 
 ### 3 November 16:32 UTC package boundary: review screens verified, final layout polish pending
 
-Source 31c292dd passes frontend 41673219268, backend 41673219659 and secrets
-41673219336. Frontend production checks include 1,386 passing unit cases and 12
+Source 31c292dd passes frontend 41673219268, backend 41673219659 and secrets 41673219336. Frontend production checks include 1,386 passing unit cases and 12
 existing skips; Chromium runtime is 19/19, no skipped or flaky cases. The six new
 cases cover account explicit reuse/fresh checking, guest saved-pending refresh,
 Admin reasoned decisions, dialog Escape/focus return and no overflow at 320/1440.
@@ -173,8 +262,7 @@ are pending. D02/D03/D05-D17 and full audit acceptance remain in scope.
 Previous source 4c376fc6 passed frontend 41660535204 and secrets 41660534546;
 backend 41660534996 passed all 54 focused review cases but failed guest fixture
 versions and direct adapter-abort retry. Source 8a63d830 fixes these and passed
-that guest stage, then exposed later fixture expiry/initialization mistakes in
-41662553588. Those fixtures now bind actual review expiry without changing guards.
+that guest stage, then exposed later fixture expiry/initialization mistakes in 41662553588. Those fixtures now bind actual review expiry without changing guards.
 Local retry tests pass 12/12; frontend order-payment cases pass 13/13. Current
 automatic source still requires isolated replay/regression and browser results.
 
@@ -396,7 +484,7 @@ below are historical and superseded by this checkpoint.
 
 Signed checked application source fabbe7a600a02e002f1f4ee773dada4b5cf25697 is live:
 backend adc7be72-e564-4fc7-b1db-5f1c0f8d4cf2 ACTIVE 16/16; frontend
- dpl_Fzq4yoEwLMH1puuvqznu9SdRAqAX on apex and www. Exact-master frontend
+dpl_Fzq4yoEwLMH1puuvqznu9SdRAqAX on apex and www. Exact-master frontend
 41615440555 (1,360 passed/12 existing skips), backend 41615440915 and secrets
 41615440637 pass. Concurrent Home work and published Admin vehicle repair retained.
 Four image digests changed only; readonly predeploy/settings/activation unchanged.

@@ -3,7 +3,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { orderPaymentUnavailable } from "@/lib/api/order-payment";
+import {
+  orderPaymentAcceptedReview,
+  orderPaymentUnavailable,
+} from "@/lib/api/order-payment";
 import { purchaseRequest } from "@/lib/purchase/client";
 import { usePurchaseResource } from "@/lib/purchase/resource";
 import {
@@ -185,8 +188,8 @@ function OrderSummary({ order }: { order: GuestOrder }) {
             : order.status === "CANCELLED"
               ? "This order is cancelled. If you paid, check its payment status or contact the team about the outcome."
               : order.paidAt
-                ? "Payment is recorded. The team still needs to complete the relevant checks and preparation. Wait for a ready-for-collection confirmation before travelling."
-                : "No payment is recorded. Review the exact total before continuing. Payment is followed by final suitability and availability checks."}
+                ? "Payment is recorded. Wait for a ready-for-collection confirmation before travelling."
+                : "No payment is recorded. Suitability and availability must be confirmed before payment. Review the itemised total before continuing."}
       </p>
       {order.paymentDueAt && !order.paidAt && (
         <p>Payment deadline: {formatBusinessDate(order.paymentDueAt)}</p>
@@ -225,7 +228,7 @@ function OrderDetail({ orderId }: { orderId: string }) {
       const result = await purchaseRequest("/purchase/payments", {
         method: "POST",
         idempotencyKey: guestIntentKey(order.id),
-        body: { orderId: order.id },
+        body: { orderId: order.id, acceptedReview: orderPaymentAcceptedReview(order) },
       });
       const receipt = z
         .object({

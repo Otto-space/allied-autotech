@@ -25,7 +25,10 @@ import {
   customerAftercareView,
 } from "./order-aftercare.schemas.js";
 import { jsonSafe } from "./orders.types.js";
-import { purchaseReviewRequestSchema } from "./purchase-review.schemas.js";
+import {
+  purchaseReviewRequestSchema,
+  type PurchaseOfferAcceptance,
+} from "./purchase-review.schemas.js";
 import {
   purchaseQuoteParamsSchema,
   purchaseQuoteAcceptSchema,
@@ -263,6 +266,8 @@ export function createPurchaseRouter(
           validated<{ orderId: string }>(res, "body").orderId,
           key(res),
           context(req),
+          validated<{ acceptedReview?: PurchaseOfferAcceptance }>(res, "body")
+            .acceptedReview,
         ),
         201,
       );

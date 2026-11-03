@@ -1,3 +1,93 @@
+### 3 November 17:44 UTC package: displayed-offer payment binding
+
+Target 18:44 UTC. Account and guest payment creation now carry the identity and
+revision of the checked offer displayed to the buyer. Under the existing order
+lock, a new intent rejects missing/stale identity before creating any payment.
+Original-key receipt recovery remains available without revalidating a revoked
+offer; a supplied different offer cannot reuse that key. Initialisation still
+rechecks the private financial/evidence binding, and capture accounting is unchanged.
+
+The account retains the original body for uncertain retries and discards it on
+session change. Guest checkout uses its displayed approved review directly.
+There is no new staff approval, checkbox or customer screen. Existing checked
+stock, ownership, amount, finance and provider controls remain authoritative.
+Removed contradictory guest summary wording which placed final checks after pay.
+
+Backend types, script types and lint pass. Review/safe-view/Help units pass 45/45;
+frontend payment/suitability/staff-review units pass 27/27 and scoped lint passes.
+OpenAPI export/types are regenerated; 438 paths and 514 operations still match.
+New isolated account HTTP and guest cases cover missing/stale offers, exact original
+receipt recovery and mismatched-key denial. Updated provider/lifecycle fixtures
+explicitly read their synthetic checked offers. The 21-case browser suite now
+checks transmitted offer identity and changed-offer handling at 320/1440.
+Those database and browser executions remain pending CI.
+
+Parts Help advances to v13; audience, eligibility, guide targets and flags stay
+unchanged. No new migration is added in this package, no shared database or real
+record is changed, and no new production publication or capability activation
+occurred. Current source remains a candidate for the full D01-D17 goal. Parallel
+booking/timing and dashboard work remains preserved for later verified integration.
+C: about 22.2 GiB; hosted checks handle production builds.
+
+### 3 November 17:44 UTC remaining-scope reconciliation
+
+Read-only review confirms another active source candidate in
+allied-contact-validation-20261027 already contains pending reschedule records,
+staff approval/withdrawal and preserved-original-slot behaviour, plus saved timing
+and versioned offer work. It is dirty and under verification; do not duplicate it
+or count it as integrated/current-production acceptance. Its tracker identifies
+equipment/resource qualifications and in-progress timing as unfinished. Preserve
+that work and reconcile its migrations/contracts before integration.
+
+The current master payment creation body still does not identify the offer revision
+displayed to the customer. Payment creation/initialisation already lock and validate
+the current review and private saved binding, but a changed-offer race between the
+customer's last read and intent creation still needs closing. The correction must
+not introduce a fresh staff approval or an extra customer confirmation screen.
+Original uncertain-request recovery and captured-money accounting must remain safe.
+
+Corrected a remaining guest order-summary sentence which wrongly placed final
+suitability/availability checks after payment. This is a copy-only change after
+079ca9ee; no new browser/test result is claimed for it. C: recovered to 21.94 GiB
+after external activity; no resources were deleted by this task. Heavy builds stay
+hosted. Full D01-D17 scope and the existing production release gates remain active.
+
+### 3 November 17:36 UTC package result: vehicle carry-through verified
+
+Frontend source 079ca9eef1a461962fb7ac87dd36fb0ce306fd28 passes workflow
+41684225412: production compiler, lint, build and 1,397 unit cases pass;
+12 existing cases remain skipped. Chromium runtime passes 21/21, including
+the two new selected-vehicle cart journeys at 320/1440. Secrets workflow
+41684225285 passes. Backend source 5b7727357fbf7578469c56c91a3a092103351553
+passes workflow 41683363872, including migration 92 replay and 81 focused cases
+(19 isolated database, 29 review, 13 fitment, 12 retry and 8 safe-view cases).
+The later frontend-only commit leaves that backend tree unchanged; these are
+separate source checkpoints, not an exact-master production-release assertion.
+
+The initial new database fixture omitted required independent fitment evidence;
+the fixture now supplies it and the constraint remains enforced. An old frontend
+cart assertion was updated for explicit null vehicle metadata; the new selected-
+vehicle/replacement case also passes. No validation or assertion was weakened.
+
+Safe synthetic screenshot artifact 13253308477 (1,959,228 bytes) is preserved by
+frontend run 41684225412. Download was stopped by the mandatory disk preflight:
+C: had 13.15 GiB free, below the 20 GiB reserve. The new screenshots have not been
+visually inspected locally. Earlier 31c292dd screenshots remain historical evidence,
+not screenshots of this source. No local build, install, download or cleanup ran
+after the failed preflight. Read-only cleanup review found approximately 1.28 GiB
+in two frontend compiler caches; Docker reports 4.652 GB reclaimable build cache,
+which is not proof of safe deletion. An active database task is retained. Source,
+databases, rollback images and other tasks' resources remain untouched.
+
+This completes the bounded cart implementation package. Automatic eligibility is
+verified with synthetic browser data and isolated database records only. New
+payment creation still needs binding to the offer revision displayed to the buyer.
+D02/D03/D05-D17, operational notifications, real-role/provider acceptance and
+physical-device checks remain tracked in the full objective. Migration 92 is not
+applied to the shared application database; no purchase/booking flag, production
+publication, real transaction or owner-only permission changed. The goal remains
+active. Substantial local work must wait until the disk reserve is restored.
+
 3 November 17:14 UTC carry-through follow-up: recovered guest orders now clear
 only cart lines whose saved vehicle configuration also matches. A changed or cleared
 vehicle choice in another tab is retained even when product/quantity are identical.
@@ -45,8 +135,7 @@ new payment/booking capabilities. Current C: about 22.68 GiB; heavy builds use C
 
 ### 3 November 16:32 UTC package boundary: review screens verified, final layout polish pending
 
-Source 31c292dd passes frontend 41673219268, backend 41673219659 and secrets
-41673219336. Frontend production checks include 1,386 passing unit cases and 12
+Source 31c292dd passes frontend 41673219268, backend 41673219659 and secrets 41673219336. Frontend production checks include 1,386 passing unit cases and 12
 existing skips; Chromium runtime is 19/19, no skipped or flaky cases. The six new
 cases cover account explicit reuse/fresh checking, guest saved-pending refresh,
 Admin reasoned decisions, dialog Escape/focus return and no overflow at 320/1440.
@@ -148,8 +237,7 @@ are pending. D02/D03/D05-D17 and full audit acceptance remain in scope.
 Previous source 4c376fc6 passed frontend 41660535204 and secrets 41660534546;
 backend 41660534996 passed all 54 focused review cases but failed guest fixture
 versions and direct adapter-abort retry. Source 8a63d830 fixes these and passed
-that guest stage, then exposed later fixture expiry/initialization mistakes in
-41662553588. Those fixtures now bind actual review expiry without changing guards.
+that guest stage, then exposed later fixture expiry/initialization mistakes in 41662553588. Those fixtures now bind actual review expiry without changing guards.
 Local retry tests pass 12/12; frontend order-payment cases pass 13/13. Current
 automatic source still requires isolated replay/regression and browser results.
 
@@ -183,7 +271,6 @@ adds only eight disabled module controls across four components; existing settin
 are preserved and no live configuration changed. Source checkpoint awaits exact
 CI and rendered acceptance; full D01-D17 objective remains active.
 
-
 ## Active self-contained brief implementation - D01-D17, 3 November 2026
 
 The 611-line self-contained brief includes newer owner decisions absent from the
@@ -192,25 +279,25 @@ evidence, not completion of this expanded objective. Payment AFTER final checks
 supersedes pay-first. Source scope approval is definite; controlled publication
 and technical/provider/actual-role acceptance remain distinct.
 
-| ID | Current instruction | Current implementation evidence/status |
-| --- | --- | --- |
-| D01 | Appointment requests and parts purchases approved independently | Independent server switches/HTTP guards/capability/parser and shared entry points implemented. Full frontend checks and 13/13 hosted runtime browser cases pass at 320/768/1440, including independent module states and recovery. Unpublished; no activation. |
-| D02 | VAT-exclusive7.5%after discounts; nearest-kobo | Existing integer snapshots/VAT; percentage-discount truncation and exact rule publication need reconciliation. Tie/allocation remains unspecified. |
-| D03 | Materials first; workmanship after work/before collection | Current workflows require payment before order confirmation; service staged money/balance handling needs implementation. |
-| D04 | Final suitability and availability before full parts payment | Foundation 52 cases pass on 1a9c6039. New source defers initial holds until review, binds/revalidates payment intents and initialization, checks paid fulfilment and gates client payment actions; Help v9 updated. Local backend types/lint/50 units and frontend16 pass; new source CI pending. Review/acceptance UI and full journey/role/provider acceptance remain. No publication/activation. |
-| D05 | Normal workshopMon-Sat08:00-18:00 | Reconcile actual capacity configuration; do not infer Sunday/holidays. |
-| D06 | Three actual specialists; two machines; one alignment specialist | Existing capacity structures need actual resource/qualification reconciliation and collision tests; no fake Staff. |
-| D07 | Editable duration, buffers/resources and booking override | Existing nullable duration is partial; remaining authoring/snapshots/capacity integration required. |
-| D08 | Newworld interim operations | Named decision recorded; actual account/scope mapping unverified; no new grant. |
-| D09 | Reasoned eligible cancellation without approval; release slot | Existing lifecycle requires reconciliation against latest rule/capacity/notifications. No charge/refund inferred. |
-| D10 | Reasoned available-time reschedule requiring approval | Existing proposal flow is partial; preserve old slot and verify atomic approval/conflicts. |
-| D11 | Late arrivals wait or leave | Actual arrival/wait/alternative/left actions need reconciliation and tests. |
-| D12 | Five business days for ready in-stock collection | Calendar counting details unresolved; deadline/overdue/extension support required, no automatic paid-stock release. |
-| D13 | Per-product sourcing/preparation time | Authoring/order estimates/status updates need implementation. No universal one-day promise. |
-| D14 | Private unique third-party pickup code | Order-specific secret storage/reissue/verification/rate limits/transactional partial handover need implementation. |
-| D15 | Reminders and calendar actions | Existing invitation/inbox/calendar/countdown preserved; .ics/Google option and configurable reminders/delivery acceptance required. |
-| D16 | Delegated non-punitive no-show | Configurable attendance review/staff-confirmed missed action/capacity release and notifications required.15minutes is a proposed delegated default. |
-| D17 | Delegated supply-exception handling | Existing independent aftercare/refund kernel preserved; explicit accepted alternative/affected tax-aware portion and revised pre-payment path need reconciliation. Broader returns/warranty deferred. |
+| ID  | Current instruction                                              | Current implementation evidence/status                                                                                                                                                                                                                                                                                                                                                              |
+| --- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D01 | Appointment requests and parts purchases approved independently  | Independent server switches/HTTP guards/capability/parser and shared entry points implemented. Full frontend checks and 13/13 hosted runtime browser cases pass at 320/768/1440, including independent module states and recovery. Unpublished; no activation.                                                                                                                                      |
+| D02 | VAT-exclusive7.5%after discounts; nearest-kobo                   | Existing integer snapshots/VAT; percentage-discount truncation and exact rule publication need reconciliation. Tie/allocation remains unspecified.                                                                                                                                                                                                                                                  |
+| D03 | Materials first; workmanship after work/before collection        | Current workflows require payment before order confirmation; service staged money/balance handling needs implementation.                                                                                                                                                                                                                                                                            |
+| D04 | Final suitability and availability before full parts payment     | Foundation 52 cases pass on 1a9c6039. New source defers initial holds until review, binds/revalidates payment intents and initialization, checks paid fulfilment and gates client payment actions; Help v9 updated. Local backend types/lint/50 units and frontend16 pass; new source CI pending. Review/acceptance UI and full journey/role/provider acceptance remain. No publication/activation. |
+| D05 | Normal workshopMon-Sat08:00-18:00                                | Reconcile actual capacity configuration; do not infer Sunday/holidays.                                                                                                                                                                                                                                                                                                                              |
+| D06 | Three actual specialists; two machines; one alignment specialist | Existing capacity structures need actual resource/qualification reconciliation and collision tests; no fake Staff.                                                                                                                                                                                                                                                                                  |
+| D07 | Editable duration, buffers/resources and booking override        | Existing nullable duration is partial; remaining authoring/snapshots/capacity integration required.                                                                                                                                                                                                                                                                                                 |
+| D08 | Newworld interim operations                                      | Named decision recorded; actual account/scope mapping unverified; no new grant.                                                                                                                                                                                                                                                                                                                     |
+| D09 | Reasoned eligible cancellation without approval; release slot    | Existing lifecycle requires reconciliation against latest rule/capacity/notifications. No charge/refund inferred.                                                                                                                                                                                                                                                                                   |
+| D10 | Reasoned available-time reschedule requiring approval            | Existing proposal flow is partial; preserve old slot and verify atomic approval/conflicts.                                                                                                                                                                                                                                                                                                          |
+| D11 | Late arrivals wait or leave                                      | Actual arrival/wait/alternative/left actions need reconciliation and tests.                                                                                                                                                                                                                                                                                                                         |
+| D12 | Five business days for ready in-stock collection                 | Calendar counting details unresolved; deadline/overdue/extension support required, no automatic paid-stock release.                                                                                                                                                                                                                                                                                 |
+| D13 | Per-product sourcing/preparation time                            | Authoring/order estimates/status updates need implementation. No universal one-day promise.                                                                                                                                                                                                                                                                                                         |
+| D14 | Private unique third-party pickup code                           | Order-specific secret storage/reissue/verification/rate limits/transactional partial handover need implementation.                                                                                                                                                                                                                                                                                  |
+| D15 | Reminders and calendar actions                                   | Existing invitation/inbox/calendar/countdown preserved; .ics/Google option and configurable reminders/delivery acceptance required.                                                                                                                                                                                                                                                                 |
+| D16 | Delegated non-punitive no-show                                   | Configurable attendance review/staff-confirmed missed action/capacity release and notifications required.15minutes is a proposed delegated default.                                                                                                                                                                                                                                                 |
+| D17 | Delegated supply-exception handling                              | Existing independent aftercare/refund kernel preserved; explicit accepted alternative/affected tax-aware portion and revised pre-payment path need reconciliation. Broader returns/warranty deferred.                                                                                                                                                                                               |
 
 Actual remaining inputs are the precise unresolved items in decision-register
 section at top of backend/docs/public-launch-policy-decisions.md. Do not ask again
@@ -222,7 +309,6 @@ backend TypeScript pass. Local browser run13cases was stopped during compilation
 following a failed disk preflight and supplies no completed acceptance. Only owned
 preview/browser processes stopped. Preserve source; reserve readings12.8then21.19GiB.
 No schema/production/role/policy/data write or payment/email occurred in this batch.
-
 
 ## Final implementation and publication - 3 November 2026, 11:20 UTC
 
@@ -243,23 +329,23 @@ AppSpec; environment, business/activation flags and read-only PRE_DEPLOY were ke
 Frontend dpl_Fzq4yoEwLMH1puuvqznu9SdRAqAX is verified on both alliedautotech.com and
 www.alliedautotech.com after backend readiness. Published mode is browse_enquiries.
 
-| Requirement | Final engineering status and evidence boundary |
-| --- | --- |
-| F01 public provenance | Three normal protected-editor description saves completed; public full descriptions and summaries are clean. Prices/package boundaries preserved; internal history retained. |
-| F02 service images | Canonical Home/catalogue/detail rendering and stable missing/failed-media geometry implemented; genuine diagnostics/alignment and explicitly illustrative oil imagery. |
-| F03 capability guidance | Authoritative runtime capabilities, stale/unavailable recovery and consistent public/dashboard/Help handoffs implemented. Direct URLs retain server gates. |
-| F04 genuine product information | Family-specific gaps and next actions visible to operators; genuine product photo, brand/part identity and reviewed compatibility still require the operator. Nothing fabricated. |
-| F05 search focus | Shared branded focus and forced-colour/keyboard states pass fixture checks for four roles. Actual signed-in role acceptance remains unavailable. |
-| F06 filters | Progressive fields, concise help and explicit applied/pending/URL/clear semantics implemented; existing filters preserved. |
-| F07 public wording | Workbook/development jargon removed; private provenance retained. Commercial conditions remain explicit. |
-| F08 vehicle detail | Consolidated specifications; owner-reported AC fault, exact price and inspection distinction preserved. |
-| F09 Contact | One useful location/directions area and shared business data; contextual enquiries preserved. |
-| F10 dashboard authoring | Explicit View/Edit actions, responsive task sections and existing permissions; Admin/Super Admin/assigned Staff fixture paths pass. Actual-role acceptance pending. |
-| Public search | Anonymous published services/products/vehicles/Help, grouped results, ranking, native GET, retry and URL/Back recovery; final live diagnostics search succeeds. |
-| Notifications | Optional user-initiated invitation reuses settings/subscriptions. Fixture permission/session/device/click cases do not establish actual push/email delivery. |
-| Appointments | Owned Nigeria-time calendar/details and confirmed-only countdown, resume/reschedule/error handling implemented; no capacity/date invented. New booking activation remains closed. |
-| Home/media | Separate responsive photo/copy areas, complete seven-person team photo and shared card geometry. Three real-time autoplay loops and all existing controls preserved. Later approved laptop hover-continues requirement supersedes the older hover-pause suggestion; explicit/focus pause persists. |
-| Approved purchasing | Shared account/guest ownership, private recovery/cart/checkout/payment, seven-day quotes, invoices/receipts and cancellation/aftercare/operator refund-review handoff implemented. No fake account, automatic guest refund authority or provider activation. |
+| Requirement                     | Final engineering status and evidence boundary                                                                                                                                                                                                                                                     |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F01 public provenance           | Three normal protected-editor description saves completed; public full descriptions and summaries are clean. Prices/package boundaries preserved; internal history retained.                                                                                                                       |
+| F02 service images              | Canonical Home/catalogue/detail rendering and stable missing/failed-media geometry implemented; genuine diagnostics/alignment and explicitly illustrative oil imagery.                                                                                                                             |
+| F03 capability guidance         | Authoritative runtime capabilities, stale/unavailable recovery and consistent public/dashboard/Help handoffs implemented. Direct URLs retain server gates.                                                                                                                                         |
+| F04 genuine product information | Family-specific gaps and next actions visible to operators; genuine product photo, brand/part identity and reviewed compatibility still require the operator. Nothing fabricated.                                                                                                                  |
+| F05 search focus                | Shared branded focus and forced-colour/keyboard states pass fixture checks for four roles. Actual signed-in role acceptance remains unavailable.                                                                                                                                                   |
+| F06 filters                     | Progressive fields, concise help and explicit applied/pending/URL/clear semantics implemented; existing filters preserved.                                                                                                                                                                         |
+| F07 public wording              | Workbook/development jargon removed; private provenance retained. Commercial conditions remain explicit.                                                                                                                                                                                           |
+| F08 vehicle detail              | Consolidated specifications; owner-reported AC fault, exact price and inspection distinction preserved.                                                                                                                                                                                            |
+| F09 Contact                     | One useful location/directions area and shared business data; contextual enquiries preserved.                                                                                                                                                                                                      |
+| F10 dashboard authoring         | Explicit View/Edit actions, responsive task sections and existing permissions; Admin/Super Admin/assigned Staff fixture paths pass. Actual-role acceptance pending.                                                                                                                                |
+| Public search                   | Anonymous published services/products/vehicles/Help, grouped results, ranking, native GET, retry and URL/Back recovery; final live diagnostics search succeeds.                                                                                                                                    |
+| Notifications                   | Optional user-initiated invitation reuses settings/subscriptions. Fixture permission/session/device/click cases do not establish actual push/email delivery.                                                                                                                                       |
+| Appointments                    | Owned Nigeria-time calendar/details and confirmed-only countdown, resume/reschedule/error handling implemented; no capacity/date invented. New booking activation remains closed.                                                                                                                  |
+| Home/media                      | Separate responsive photo/copy areas, complete seven-person team photo and shared card geometry. Three real-time autoplay loops and all existing controls preserved. Later approved laptop hover-continues requirement supersedes the older hover-pause suggestion; explicit/focus pause persists. |
+| Approved purchasing             | Shared account/guest ownership, private recovery/cart/checkout/payment, seven-day quotes, invoices/receipts and cancellation/aftercare/operator refund-review handoff implemented. No fake account, automatic guest refund authority or provider activation.                                       |
 
 Verification results are distinct runs, not a unique whole-site test total:
 
@@ -321,15 +407,15 @@ approval/author was not verified and should be checked before booking activation
 All final service names, short descriptions, prices, currencies, pricing types,
 durations, versions, categories and active states match that immediate backup.
 
-| Capability | Launch-readiness status |
-| --- | --- |
-| Browsing, service/vehicle enquiries, public search and reviewed Help | Published; final public checks pass within recorded coverage. |
-| Admin/Super Admin/assigned Staff operations | Published with existing boundaries; fixture coverage passes; fresh actual-role sign-off outstanding. |
-| Customer calendar/details and confirmed countdown | Published; synthetic lifecycle/responsiveness passes; real populated appointment acceptance outstanding. New requests remain gated. |
-| Optional browser invitation/settings | Published; fixture lifecycle passes; real device subscription and end delivery unverified. |
-| Account/guest purchasing, quotation, documents and aftercare | Published implementation behind existing gates; isolated/fixture acceptance passes. Not approved for taking online payments. |
-| Payment/booking activation | Closed pending policy, operational/provider acceptance and explicit approved launch scope. |
-| Live AI, delivery and booking deposits | Deferred/off; no new AI evaluation budget or activation authority. |
+| Capability                                                           | Launch-readiness status                                                                                                             |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Browsing, service/vehicle enquiries, public search and reviewed Help | Published; final public checks pass within recorded coverage.                                                                       |
+| Admin/Super Admin/assigned Staff operations                          | Published with existing boundaries; fixture coverage passes; fresh actual-role sign-off outstanding.                                |
+| Customer calendar/details and confirmed countdown                    | Published; synthetic lifecycle/responsiveness passes; real populated appointment acceptance outstanding. New requests remain gated. |
+| Optional browser invitation/settings                                 | Published; fixture lifecycle passes; real device subscription and end delivery unverified.                                          |
+| Account/guest purchasing, quotation, documents and aftercare         | Published implementation behind existing gates; isolated/fixture acceptance passes. Not approved for taking online payments.        |
+| Payment/booking activation                                           | Closed pending policy, operational/provider acceptance and explicit approved launch scope.                                          |
+| Live AI, delivery and booking deposits                               | Deferred/off; no new AI evaluation budget or activation authority.                                                                  |
 
 Owner/operator work still required: verified Tax ID/CAC and accountant-approved VAT
 applicability/rounding boundaries; service invoice payment timing; real workshop
@@ -368,7 +454,6 @@ volumes and active worktrees are retained. Earlier automatic review rejected
 selected temporary database-directory deletions with blocked by policy; those
 exact targets remain untouched, with no alternate deletion attempt. The minimum
 20 GiB remains a preflight rule, not an OS-wide guarantee.
-
 
 ### 3 November 2026: Aftercare source gates and populated recovery rehearsal pass
 

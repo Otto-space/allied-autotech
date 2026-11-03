@@ -3,7 +3,10 @@ import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { testCapability } from "../helpers/owner-policy.js";
 import { RefundWorker } from "../../src/workers/refund.worker.js";
 import { randomUUID } from "node:crypto";
-import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
+import {
+  fixtureAcceptedReview,
+  reviewFixtureOrderForPayment,
+} from "../helpers/purchase-review.js";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
 import { createApp } from "../../src/app.js";
@@ -132,14 +135,24 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     const create = await request(app)
       .post("/api/v1/customers/payments")
       .set(headers(customerSession, "p8-payment-intent"))
-      .send({ targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" });
+      .send({
+        targetType: "ORDER",
+        targetId: order.id,
+        purpose: "ORDER_PAYMENT",
+        acceptedReview: await fixtureAcceptedReview(order.id),
+      });
     expect(create.status).toBe(201);
     expect(create.body.data.payment.amountKobo).toBe("10000");
     const paymentId = create.body.data.payment.id as string;
     const replay = await request(app)
       .post("/api/v1/customers/payments")
       .set(headers(customerSession, "p8-payment-intent"))
-      .send({ targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" });
+      .send({
+        targetType: "ORDER",
+        targetId: order.id,
+        purpose: "ORDER_PAYMENT",
+        acceptedReview: await fixtureAcceptedReview(order.id),
+      });
     expect(replay.body.data.replayed).toBe(true);
     const transferredAt = new Date().toISOString();
     const manual = await request(app)
@@ -193,7 +206,12 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     const settledReplay = await request(app)
       .post("/api/v1/customers/payments")
       .set(headers(customerSession, "p8-payment-intent"))
-      .send({ targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" });
+      .send({
+        targetType: "ORDER",
+        targetId: order.id,
+        purpose: "ORDER_PAYMENT",
+        acceptedReview: await fixtureAcceptedReview(order.id),
+      });
     expect(settledReplay.status).toBe(201);
     expect(settledReplay.body.data.replayed).toBe(true);
     expect(settledReplay.body.data.payment.id).toBe(paymentId);
@@ -201,7 +219,12 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     const newIntent = await request(app)
       .post("/api/v1/customers/payments")
       .set(headers(customerSession, "p8-new-key-after-processing"))
-      .send({ targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" });
+      .send({
+        targetType: "ORDER",
+        targetId: order.id,
+        purpose: "ORDER_PAYMENT",
+        acceptedReview: await fixtureAcceptedReview(order.id),
+      });
     expect(newIntent.status).toBe(404);
     expect(await prisma.payment.count({ where: { orderId: order.id } })).toBe(1);
     const changedReplay = await request(app)
@@ -214,7 +237,12 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     const stolenReplay = await request(app)
       .post("/api/v1/customers/payments")
       .set(headers(strangerSession, "p8-payment-intent"))
-      .send({ targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" });
+      .send({
+        targetType: "ORDER",
+        targetId: order.id,
+        purpose: "ORDER_PAYMENT",
+        acceptedReview: await fixtureAcceptedReview(order.id),
+      });
     expect(stolenReplay.status).toBe(404);
     expect(stolenReplay.body).not.toHaveProperty("data");
     const crossBranch = await request(app)
@@ -476,7 +504,12 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     await reviewFixtureOrderForPayment(onlineOrder.id);
     const onlineResult = (await service.createIntent(
       customerActor,
-      { targetType: "ORDER", targetId: onlineOrder.id, purpose: "ORDER_PAYMENT" },
+      {
+        targetType: "ORDER",
+        targetId: onlineOrder.id,
+        purpose: "ORDER_PAYMENT",
+        acceptedReview: await fixtureAcceptedReview(onlineOrder.id),
+      },
       "online-intent",
       context,
     )) as { payment: { id: string } };

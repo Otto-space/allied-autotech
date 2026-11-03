@@ -1,3 +1,34 @@
+### 3 November 17:44 UTC package: displayed-offer payment binding
+
+Target 18:44 UTC. Account and guest payment creation now carry the identity and
+revision of the checked offer displayed to the buyer. Under the existing order
+lock, a new intent rejects missing/stale identity before creating any payment.
+Original-key receipt recovery remains available without revalidating a revoked
+offer; a supplied different offer cannot reuse that key. Initialisation still
+rechecks the private financial/evidence binding, and capture accounting is unchanged.
+
+The account retains the original body for uncertain retries and discards it on
+session change. Guest checkout uses its displayed approved review directly.
+There is no new staff approval, checkbox or customer screen. Existing checked
+stock, ownership, amount, finance and provider controls remain authoritative.
+Removed contradictory guest summary wording which placed final checks after pay.
+
+Backend types, script types and lint pass. Review/safe-view/Help units pass 45/45;
+frontend payment/suitability/staff-review units pass 27/27 and scoped lint passes.
+OpenAPI export/types are regenerated; 438 paths and 514 operations still match.
+New isolated account HTTP and guest cases cover missing/stale offers, exact original
+receipt recovery and mismatched-key denial. Updated provider/lifecycle fixtures
+explicitly read their synthetic checked offers. The 21-case browser suite now
+checks transmitted offer identity and changed-offer handling at 320/1440.
+Those database and browser executions remain pending CI.
+
+Parts Help advances to v13; audience, eligibility, guide targets and flags stay
+unchanged. No new migration is added in this package, no shared database or real
+record is changed, and no new production publication or capability activation
+occurred. Current source remains a candidate for the full D01-D17 goal. Parallel
+booking/timing and dashboard work remains preserved for later verified integration.
+C: about 22.2 GiB; hosted checks handle production builds.
+
 3 November 17:14 UTC carry-through follow-up: recovered guest orders now clear
 only cart lines whose saved vehicle configuration also matches. A changed or cleared
 vehicle choice in another tab is retained even when product/quantity are identical.

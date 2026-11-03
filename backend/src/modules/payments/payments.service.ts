@@ -6,7 +6,10 @@ import {
 import { snapshotRefundClock } from "../policies/refund-clock.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { assertReviewedPurchasePayable } from "../orders/purchase-review-payable.js";
-import { purchaseReviewPaymentBindingSchema } from "../orders/purchase-review.schemas.js";
+import {
+  purchaseReviewPaymentBindingSchema,
+  type PurchaseOfferAcceptance,
+} from "../orders/purchase-review.schemas.js";
 import { enqueueLateOrderRefund } from "./refund-workflow.js";
 import {
   approvedPolicy,
@@ -280,6 +283,7 @@ export class PaymentsService {
     orderId: string,
     rawKey: string,
     context: RequestSecurityContext,
+    acceptedReview?: PurchaseOfferAcceptance,
   ) {
     this.assertGuestPurchasing();
     paymentIdempotencyHeadersSchema.parse({ "idempotency-key": rawKey });
@@ -287,6 +291,7 @@ export class PaymentsService {
       targetType: "ORDER",
       targetId: orderId,
       purpose: "ORDER_PAYMENT",
+      acceptedReview,
     });
     return this.createBuyerIntent(
       { kind: "guest", ...credentials },
@@ -326,6 +331,24 @@ export class PaymentsService {
             existing.vehicleTransactionId ===
               (input.targetType === "VEHICLE_TRANSACTION" ? input.targetId : null);
           if (!same) throw paymentIdempotencyConflict();
+          if (input.targetType === "ORDER" && input.acceptedReview) {
+            const saved = await tx.payment.findUniqueOrThrow({
+              where: { id: existing.id },
+              select: { policySnapshot: true },
+            });
+            const snapshot = saved.policySnapshot;
+            const binding = purchaseReviewPaymentBindingSchema.safeParse(
+              snapshot && typeof snapshot === "object" && !Array.isArray(snapshot)
+                ? snapshot["purchaseReview"]
+                : undefined,
+            );
+            if (
+              !binding.success ||
+              binding.data.id !== input.acceptedReview.id ||
+              binding.data.revision !== input.acceptedReview.revision
+            )
+              throw paymentIdempotencyConflict();
+          }
           return paymentJsonSafe({ payment: existing, replayed: true });
         }
         const finance = await assertFinanceGate(tx);
@@ -333,6 +356,16 @@ export class PaymentsService {
           await approvedPolicy(tx, "vehicle");
         await lockTarget(tx, input);
         const source = await this.resolveBuyerSource(identity, input, tx);
+        if (
+          input.targetType === "ORDER" &&
+          (!input.acceptedReview ||
+            !source.purchaseReview ||
+            input.acceptedReview.id !== source.purchaseReview.id ||
+            input.acceptedReview.revision !== source.purchaseReview.revision)
+        )
+          throw paymentConflict(
+            "The offer changed or could not be confirmed. Refresh the order and review its current details before continuing.",
+          );
         await assertNoCompetingPayment(tx, input);
         const expiresAt =
           source.expiresAt ??

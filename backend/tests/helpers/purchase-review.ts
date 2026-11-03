@@ -7,6 +7,17 @@ import { assertIsolatedLoopbackDatabase } from "./isolated-database.js";
 import { paymentTestSession } from "./payment-session.js";
 import { testOwner } from "./owner.js";
 
+/** Simulates the buyer reading an already reviewed synthetic offer. It neither
+ * approves an offer nor changes stock, pricing or the payment service input. */
+export async function fixtureAcceptedReview(orderId: string) {
+  await assertIsolatedLoopbackDatabase();
+  return prisma.orderPurchaseReview.findFirstOrThrow({
+    where: { orderId, status: "APPROVED" },
+    orderBy: { revision: "desc" },
+    select: { id: true, revision: true },
+  });
+}
+
 /** Synthetic technical evidence for provider/lifecycle fixtures only. It never
  * changes product prices, quantities, classifications or production fitment.
  * Use the actual request/decision services rather than bypassing payment guards.

@@ -99,6 +99,21 @@ for (const width of [320, 1440]) {
       .getByRole("region", { name: "Suitability and availability" })
       .scrollIntoViewIfNeeded();
     await page.screenshot({ path: info.outputPath(`cart-vehicle-after-${width}.png`) });
+    const paymentRequest = page.waitForRequest(
+      (req) =>
+        new URL(req.url()).pathname === "/api/v1/purchase/payments" &&
+        req.method() === "POST",
+    );
+    await page.getByRole("button", { name: "Review payment", exact: true }).click();
+    expect((await paymentRequest).postDataJSON()).toEqual({
+      orderId: state.order.id,
+      acceptedReview: {
+        id: state.order.purchaseReviews[0].id,
+        revision: state.order.purchaseReviews[0].revision,
+      },
+    });
+    await expect(page).toHaveURL(new RegExp(`/purchase/payments/${state.payment.id}$`));
+    expect(state.order.paidAt).toBeNull();
   });
   test(`staff exception review supports keyboard and a reasoned decision at ${width}px`, async ({
     page,
@@ -293,6 +308,49 @@ for (const width of [320, 1440]) {
       .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
       .analyze();
     expect(accessibility.violations).toEqual([]);
+    const paymentBodies: unknown[] = [];
+    await page.route("**/api/v1/customers/payments**", (route) => {
+      if (route.request().method() === "GET")
+        return route.fulfill({
+          json: {
+            success: true,
+            message: "Synthetic history",
+            meta: { requestId: "offer-fixture" },
+            data: { items: [] },
+          },
+        });
+      paymentBodies.push(route.request().postDataJSON());
+      return route.fulfill({
+        status: 409,
+        json: {
+          success: false,
+          message: "The offer changed. Refresh the order before continuing.",
+          error: { code: "PAYMENT_CONFLICT" },
+          meta: { requestId: "offer-fixture" },
+        },
+      });
+    });
+    await page.getByRole("button", { name: "Review payment options" }).click();
+    await page
+      .getByRole("button", { name: "Create payment request", exact: true })
+      .click();
+    await expect(
+      page.getByText("The offer changed. Refresh the order before continuing.", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    expect(paymentBodies).toEqual([
+      {
+        targetType: "ORDER",
+        targetId: current.id,
+        purpose: "ORDER_PAYMENT",
+        acceptedReview: {
+          id: current.purchaseReviews[0].id,
+          revision: current.purchaseReviews[0].revision,
+        },
+      },
+    ]);
+    expect(current.paidAt).toBeNull();
   });
   test(`guest uncertainty preserves a clear next step without offering payment at ${width}px`, async ({
     page,
