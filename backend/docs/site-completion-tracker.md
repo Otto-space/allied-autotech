@@ -1,3 +1,63 @@
+## 3 November: owned default vehicle and private overview photo
+
+Bounded package started 22:20 UTC. Existing current-care previews, historical
+separation, explicit garage defaults and private media routes were found first.
+The old overview queried only the newest garage record when no booking supplied
+a vehicle. A new component regression reproduced the ignored explicit default
+(11 passing cases, one failing default-selection assertion).
+
+The API now adds an optional defaultVehicle preview without changing the released
+vehicle/vehicleSource meaning. Both are scoped on the server to the signed-in
+customer. Each selected vehicle carries at most one existing private cover image,
+ordered primary first, then saved order/id. Object keys, upload metadata, VIN and
+customer IDs are not projected. The UI prioritizes a booked vehicle, then the
+explicit garage default, then the legacy recent fallback. No default is guessed.
+Old-server responses remain valid. No schema/migration or production data changed.
+
+The private image uses the authenticated customer media route, no public optimizer,
+fixed responsive geometry, contain sizing and an accessible failure state. Changing
+vehicle or cover resets only that image's failure state. No photo uses a neutral
+vehicle icon. Saved defaults never rewrite a booking or imply work has started.
+Service-request guidance v25 explains this; eligibility, semantic targets, review
+safeguards and live feature flags stay unchanged.
+
+Local validation: 12 density/priority units plus six legacy/private-media contract
+cases pass, five learning regressions pass, frontend and regenerated-backend types
+pass, scoped backend lint and canonical OpenAPI validation (446 paths) pass. Client
+regeneration was necessary after importing newer master models; initial backend
+types failed on missing generated BookingRescheduleRequest/resource types, then
+passed after regenerating from the unchanged current schema. Static contract export
+initially lacked DB environment fields; it was rerun with unused loopback-only
+values and performed no database access. No migration was run locally.
+
+Seven Edge viewport interaction cases pass after two unchanged warm reruns for
+1280/430px detail-navigation timeouts. Requests were pending during local development
+compilation; those initial failures are retained. The tests exercise default,
+booked and old-server states, private photo failure, refresh, auth invalidation,
+a different account, keyboard detail navigation and no API writes. Phone contexts
+use mobile/touch emulation. The subsequent populated-photo run uses an existing
+owner workshop photograph only as intercepted test media, never seeded availability.
+Evidence stays under Temp/allied-page-batch-20261103/overview*.
+
+Populated-photo follow-up: desktop and 320px captures were inspected for natural
+colour, contain sizing, wrapping and nearby detail actions. Five of seven first
+runs passed; 360/320px timed out awaiting the final detail navigation. Those
+failures remain recorded separately, and the locked-build CI must pass them.
+The loopback fixture server was started on 5024 for subsequent checks, matching
+the production-build test setup. No real backend or database is used by it.
+
+Four native database cases, including a new two-account/default/cover/privacy case,
+are added to the existing exact-target disposable CI database stage. Their execution,
+the new locked-source build and broader full-page coverage remain pending. No real
+customer ownership, photo storage provider, physical device or live sign-in pass is
+inferred from browser interception. No application storage authorization changed.
+
+Prior batch PR #14 merged to master 6432da3e after cbca7c94 passed all required branch
+checks, including 1,476 units (12 existing skips), 136 production-build browser cases
+and every backend safety stage. Exact-master runs and compatible backend/frontend
+publication remain required. Production was not changed by this package. The full
+renewed-brief scope ledger below remains open; this is not whole-site completion.
+
 ## Renewed briefs: integrated verification checkpoint
 
 Source ca3d2464 passes Frontend release checks 41726745577: locked Next 16.4.3

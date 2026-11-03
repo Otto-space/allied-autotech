@@ -317,6 +317,117 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(safe.body.data.care.vehicleSource).toBe("RECENT");
       expect(JSON.stringify(safe.body.data)).not.toContain("FOREIGN");
     }, 30000);
+    it("keeps explicit defaults and private cover previews isolated between accounts", async () => {
+      const own = await account(),
+        stranger = await account();
+      const createVehicle = (
+        customerId: string,
+        model: string,
+        isDefault: boolean,
+        createdAt: Date,
+      ) =>
+        prisma.customerVehicle.create({
+          data: {
+            customerId,
+            make: "Synthetic",
+            model,
+            year: 2020,
+            defaultSlot: isDefault ? 1 : null,
+            createdAt,
+          },
+        });
+      const chosen = await createVehicle(
+        own.user.profile!.id,
+        "Chosen",
+        true,
+        new Date("2020-01-01"),
+      );
+      const recent = await createVehicle(
+        own.user.profile!.id,
+        "New addition",
+        false,
+        new Date(),
+      );
+      const foreign = await createVehicle(
+        stranger.user.profile!.id,
+        "Other account",
+        true,
+        new Date(),
+      );
+      const photos = [];
+      for (const isPrimary of [false, true]) {
+        const objectKey = `media/verified/${randomUUID()}`;
+        photos.push(
+          await prisma.resourceImage.create({
+            data: {
+              customerVehicleId: chosen.id,
+              isPrimary,
+              sortOrder: isPrimary ? 4 : 0,
+              asset: {
+                create: {
+                  objectKey,
+                  mimeType: "image/webp",
+                  sizeBytes: 32,
+                  width: 160,
+                  height: 120,
+                  checksumSha256: "a".repeat(64),
+                  upload: {
+                    create: {
+                      tokenHash: randomUUID().replaceAll("-", "").repeat(2),
+                      actorUserId: own.user.id,
+                      ownerUserId: own.user.id,
+                      resourceType: "GARAGE",
+                      resourceId: chosen.id,
+                      purpose: "GARAGE_IMAGE",
+                      objectKey: `media/pending/${randomUUID()}`,
+                      verifiedObjectKey: objectKey,
+                      mimeType: "image/png",
+                      sizeBytes: 32,
+                      checksumSha256: "a".repeat(64),
+                      expiresAt: new Date(Date.now() + 3600000),
+                    },
+                  },
+                },
+              },
+            },
+          }),
+        );
+      }
+      const result = await request(app).get(endpoint).set("Cookie", own.cookie);
+      expect(result.status).toBe(200);
+      expect(result.headers["cache-control"]).toContain("no-store");
+      const care = customerCareSchema.parse(result.body.data.care);
+      expect(care.vehicle).toMatchObject({ id: recent.id, photo: null });
+      expect(care.vehicleSource).toBe("RECENT"); // Released clients retain their existing meaning.
+      expect(care.defaultVehicle).toMatchObject({
+        id: chosen.id,
+        photo: {
+          id: photos[1]!.id,
+          url: `/api/v1/customers/media/images/${photos[1]!.id}`,
+          width: 160,
+          height: 120,
+        },
+      });
+      expect(JSON.stringify(care)).not.toMatch(
+        /objectKey|verifiedObjectKey|uploadId|customerId|vin/,
+      );
+      expect(JSON.stringify(care)).not.toContain(foreign.id);
+      const other = await request(app).get(endpoint).set("Cookie", stranger.cookie);
+      expect(other.status).toBe(200);
+      expect(other.body.data.care.defaultVehicle).toMatchObject({
+        id: foreign.id,
+        photo: null,
+      });
+      expect(JSON.stringify(other.body.data.care)).not.toContain(chosen.id);
+      // Removing a default does not guess another; the legacy recent fallback remains.
+      await prisma.customerVehicle.update({
+        where: { id: chosen.id },
+        data: { defaultSlot: null },
+      });
+      const cleared = await request(app).get(endpoint).set("Cookie", own.cookie);
+      expect(cleared.body.data.care.defaultVehicle).toBeNull();
+      expect(cleared.body.data.care.vehicle.id).toBe(recent.id);
+    });
     it("returns explicit null previews for a new account and rejects scope overrides", async () => {
       const own = await account();
       const res = await request(app).get(endpoint).set("Cookie", own.cookie);
@@ -324,6 +435,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(customerCareSchema.parse(res.body.data.care)).toEqual({
         vehicle: null,
         vehicleSource: "NONE",
+        defaultVehicle: null,
         currentBooking: null,
         nextBooking: null,
         quote: null,

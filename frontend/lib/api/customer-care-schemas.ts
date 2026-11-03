@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { profilePhotoSchema } from "./profile-schemas";
 const date = z.iso.datetime({ offset: true });
 const amount = z.string().regex(/^\d+$/);
 const currency = z.string().regex(/^[A-Z]{3}$/);
@@ -11,16 +12,18 @@ const booking = z.object({
   confirmedAt: date.nullable(),
   startedAt: date.nullable(),
 });
+const vehicle = z.object({
+  id: z.uuid(),
+  make: z.string(),
+  model: z.string(),
+  year: z.number().int(),
+  registrationNumber: z.string().nullable(),
+  photo: profilePhotoSchema.nullable().optional(),
+});
 export const customerCareSchema = z.object({
-  vehicle: z
-    .object({
-      id: z.uuid(),
-      make: z.string(),
-      model: z.string(),
-      year: z.number().int(),
-      registrationNumber: z.string().nullable(),
-    })
-    .nullable(),
+  vehicle: vehicle.nullable(),
+  // Additive for rolling releases: older servers omit the explicitly chosen default.
+  defaultVehicle: vehicle.nullable().optional(),
   vehicleSource: z.enum(["BOOKING", "RECENT", "NONE"]),
   currentBooking: booking.nullable(),
   nextBooking: booking.nullable(),

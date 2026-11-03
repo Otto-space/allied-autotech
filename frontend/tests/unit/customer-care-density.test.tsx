@@ -83,3 +83,31 @@ it.each(["full", "browse_enquiries"])(
     expect(screen.getByRole("link", { name: "View vehicle" })).toBeTruthy();
   },
 );
+
+it("respects an explicitly selected garage default instead of the latest addition", () => {
+  const defaultVehicle = {
+    ...full.vehicle!,
+    id: "b9000000-0000-4000-8000-000000000301",
+    model: "Selected default",
+  };
+  const care = {
+    ...empty,
+    vehicle: full.vehicle,
+    vehicleSource: "RECENT" as const,
+    defaultVehicle,
+  };
+  render(<CustomerCareSummary care={care} />);
+  expect(screen.getByText("Default vehicle")).toBeTruthy();
+  expect(screen.getByText(/Selected default/)).toBeTruthy();
+  expect(screen.queryByText("Recently added vehicle")).toBeNull();
+  expect(screen.getByRole("link", { name: "View vehicle" }).getAttribute("href")).toBe(
+    `/dashboard/vehicles/${defaultVehicle.id}`,
+  );
+});
+
+it("keeps the actual booked vehicle ahead of a different garage default", () => {
+  const care = { ...full, defaultVehicle: { ...full.vehicle!, model: "Other default" } };
+  render(<CustomerCareSummary care={care} />);
+  expect(screen.getByText("Booked vehicle")).toBeTruthy();
+  expect(screen.queryByText(/Other default/)).toBeNull();
+});
