@@ -1,3 +1,14 @@
+### 3 November: independent-controls CI correction
+
+Source e958ad18 is signed/pushed; backend run41635950896 failed the authenticated
+learning HTTP suite (15passed,1failed) because it still expected Homev5 and service
+v17 after their intentional update to v6/v18. Corrected both exact assertions and
+added checks for the independent-request wording. Private article denial, audience,
+route and permission assertions remain. Native guest87cases and earlier database/
+security gates passed in that run; no failed run is called a release pass. Source
+remains unpublished, the local browser run remains incomplete, and full D01-D17
+implementation stays active.
+
 Additional first-package evidence: the final release-boundary suite passes 71/71
 (including fail-closed omitted controls), and separate process/address checks pass
 26/26. These runs overlap the initial 103 cases and are not a summed unique total.

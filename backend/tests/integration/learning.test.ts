@@ -217,15 +217,21 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         id: "home-next-step",
         page: "home",
         href: "/services",
-        version: 5,
+        version: 6,
       });
+      expect(home.body.data.steps.join(" ")).toContain(
+        "Appointment requests may be open while purchasing remains closed",
+      );
       const appointment = await read(null, "/public/learning/articles/service-request");
       expect(appointment.status).toBe(200);
       expect(appointment.body.data).toMatchObject({
         id: "service-request",
-        version: 17,
+        version: 18,
         href: "/services",
       });
+      expect(appointment.body.data.steps.join(" ")).toContain(
+        "unpaid requests do not depend on checkout being available",
+      );
       expect(appointment.body.data.steps.join(" ")).toContain(
         "only for a confirmed future appointment",
       );
