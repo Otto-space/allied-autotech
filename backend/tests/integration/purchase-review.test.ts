@@ -201,11 +201,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         where: { id: f.review.id },
         data: f.approval,
       });
+      expect((await payable(f.order.id)).review.id).toBe(f.review.id);
       await prisma.productCompatibility.update({
         where: { id: f.rule.id },
         data: { reviewStatus: "RETIRED", version: { increment: 1 } },
       });
-      await expect(payable(f.order.id)).rejects.toThrow(/fitment evidence/);
+      await expect(payable(f.order.id)).rejects.toThrow(
+        "Vehicle details are required unless approved evidence confirms a universal accessory.",
+      );
     });
     it("rejects released stock holds instead of trusting an earlier availability label", async () => {
       const f = await fixture();
