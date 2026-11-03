@@ -1,5 +1,12 @@
 ## 3 November: independent booking/purchase controls - source
 
+Parts-fitment v9 records the owner's revised sequence: unpaid order/specifications,
+final suitability and branch/supplier availability review, customer amount review,
+then payment. Allocation, arrival and collection readiness remain distinct. This
+source change accompanies D04 payment/fulfilment guards; review UI and full journey
+acceptance are still being completed. Audience/eligibility/targets and practice/AI
+flags are unchanged. No publication or activation is implied.
+
 Home-next-stepv6 and service-requestv18 explain independent appointment and checkout
 availability. Eligibility, semantic targets, practice/AI settings and real grants
 remain unchanged. Catalogue access keys include both switches so retrieved guidance

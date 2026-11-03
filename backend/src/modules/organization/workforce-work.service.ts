@@ -21,6 +21,8 @@ import { enqueueNotification } from "../notifications/notifications.service.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { prisma } from "../../config/database.js";
+import { withTransactionRetry } from "../../common/database/transaction-retry.js";
+import { assertReviewedPurchaseFulfilment } from "../orders/purchase-review-fulfilment.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { cancelPendingReminders } from "../service-operations/service-operations.service.js";
@@ -158,8 +160,9 @@ export class WorkforceWorkService {
   private run<T>(
     actor: AuthenticatedActor,
     work: (tx: Prisma.TransactionClient, access: WorkforceSnapshot) => Promise<T>,
+    options?: { isolationLevel: Prisma.TransactionIsolationLevel },
   ) {
-    return prisma.$transaction(async (tx) => {
+    const operation = async (tx: Prisma.TransactionClient) => {
       await lockWorkforce(tx);
       await lockAccessActor(tx, actor);
       const snapshot = await workforceSnapshot(tx, actor);
@@ -168,7 +171,10 @@ export class WorkforceWorkService {
           "This account has not been enrolled in responsibility-based access",
         );
       return work(tx, snapshot);
-    });
+    };
+    return options
+      ? withTransactionRetry(prisma, operation, options)
+      : prisma.$transaction(operation);
   }
   overview(actor: AuthenticatedActor, context: RequestSecurityContext) {
     return this.run(actor, async (tx, access) => {
@@ -1239,55 +1245,60 @@ export class WorkforceWorkService {
     input: z.infer<typeof workforceOrderSchema>,
     context: RequestSecurityContext,
   ) {
-    return this.run(actor, async (tx, access) => {
-      if (!access.permissions.includes("ORDERS_PREPARE")) workforceDenied();
-      // Serialize preparation with other order writers before checking branch/state/payment.
-      await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${id}::uuid FOR UPDATE`;
-      const row = await tx.order.findFirst({
-        where: { id, branchId: { in: branchesFor(access, "ORDERS_PREPARE") } },
-        select: orderSelect,
-      });
-      if (!row) workforceNotFound();
-      const from = input.status === "PROCESSING" ? "CONFIRMED" : "PROCESSING";
-      if (
-        row.version !== input.expectedVersion ||
-        row.status !== from ||
-        !row.paidAt ||
-        row.fulfillmentMethod !== "COLLECTION"
-      )
-        workforceConflict(
-          "Only paid collection orders in the preceding fulfillment state can advance",
-        );
-      const changed = await tx.order.updateMany({
-        where: {
-          id,
-          version: input.expectedVersion,
-          status: from,
-          paidAt: { not: null },
-        },
-        data: {
+    return this.run(
+      actor,
+      async (tx, access) => {
+        if (!access.permissions.includes("ORDERS_PREPARE")) workforceDenied();
+        // Serialize preparation with other order writers before checking branch/state/payment.
+        await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${id}::uuid FOR UPDATE`;
+        const row = await tx.order.findFirst({
+          where: { id, branchId: { in: branchesFor(access, "ORDERS_PREPARE") } },
+          select: orderSelect,
+        });
+        if (!row) workforceNotFound();
+        const from = input.status === "PROCESSING" ? "CONFIRMED" : "PROCESSING";
+        if (
+          row.version !== input.expectedVersion ||
+          row.status !== from ||
+          !row.paidAt ||
+          row.fulfillmentMethod !== "COLLECTION"
+        )
+          workforceConflict(
+            "Only paid collection orders in the preceding fulfillment state can advance",
+          );
+        await assertReviewedPurchaseFulfilment(tx, id);
+        const changed = await tx.order.updateMany({
+          where: {
+            id,
+            version: input.expectedVersion,
+            status: from,
+            paidAt: { not: null },
+          },
+          data: {
+            status: input.status,
+            ...(input.status === "PROCESSING"
+              ? { processingAt: new Date() }
+              : { readyAt: new Date() }),
+            version: { increment: 1 },
+          },
+        });
+        if (changed.count !== 1) workforceConflict();
+        await audit(tx, actor, context, "ORDER", id, {
+          workforceAction: "PREPARE_COLLECTION",
           status: input.status,
-          ...(input.status === "PROCESSING"
-            ? { processingAt: new Date() }
-            : { readyAt: new Date() }),
-          version: { increment: 1 },
-        },
-      });
-      if (changed.count !== 1) workforceConflict();
-      await audit(tx, actor, context, "ORDER", id, {
-        workforceAction: "PREPARE_COLLECTION",
-        status: input.status,
-        reason: input.reason,
-      });
-      return {
-        ...(await readWorkforceOrder(tx, access, id)),
-        action: "prepare" as const,
-        actorUserId: actor.userId,
-        previousVersion: row.version,
-        previousStatus: row.status,
-        reason: input.reason,
-      };
-    });
+          reason: input.reason,
+        });
+        return {
+          ...(await readWorkforceOrder(tx, access, id)),
+          action: "prepare" as const,
+          actorUserId: actor.userId,
+          previousVersion: row.version,
+          previousStatus: row.status,
+          reason: input.reason,
+        };
+      },
+      { isolationLevel: "Serializable" },
+    );
   }
   finance(
     actor: AuthenticatedActor,

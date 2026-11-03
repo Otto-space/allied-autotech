@@ -1,3 +1,29 @@
+### 3 November, 14:30 UTC package: payment-before-fulfilment boundary in progress
+
+Target 15:30 UTC. Current source changes initial checkout into an unpaid review
+request: no stock hold or payment deadline starts until approval. Account and
+guest intent creation, online initialization/replay/post-initialization and new
+manual submissions validate the current review and bind its identity to the saved
+payment. Review and payment expiry must agree. Source validation uses serializable
+transactions; original receipt recovery and verified-capture accounting remain.
+
+Paid fulfilment rechecks technical evidence and offer/payment identity without
+repricing paid items or expiring a paid quotation's terms. Admin and assigned
+workforce preparation use the same guard. Quoted branch-stock orders consume the
+pre-payment hold once; sourced orders need actual received stock before allocation.
+Historical paid records remain historical, with no backdated approval. Frontend
+payment controls require the persisted approval; review/acceptance screens still
+need implementation. Parts Help advances to v9 without audience/permission changes.
+
+Local backend TypeScript/lint and 50 focused units pass; frontend 16 targeted cases
+pass. Two new isolated cases cover revoked proof before provider contact and capture
+after revocation with fulfilment held; database/full-browser results are pending.
+Affected provider fixtures now perform real request/decision services with clearly
+synthetic, independent technical evidence on guarded loopback CI targets. Existing
+monetary snapshots and package quantities are preserved. No provider or public flag
+was enabled, shared migration applied, or real business record changed. Full D01-D17
+goal stays active; this source package is not operational launch acceptance.
+
 ### 3 November, 14:28 UTC: review API package verified; full objective active
 
 Application source 1a9c6039 passes backend 41653132527 and secrets 41653132637.

@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import { Router } from "express";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -535,6 +536,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         "X-CSRF-Token": f.guest.csrf,
       };
       const intentKey = randomUUID();
+      await reviewFixtureOrderForPayment(order.body.data.order.id, {
+        sessionToken: decodeURIComponent(f.guest.sessionCookie.split("=")[1]!),
+        csrfToken: f.guest.csrf,
+      });
       const intent = await request(app)
         .post("/api/v1/purchase/payments")
         .set(headers)

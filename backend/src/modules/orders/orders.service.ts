@@ -55,6 +55,7 @@ import {
 } from "./purchase.schemas.js";
 import { jsonSafe, orderFingerprint, page } from "./orders.types.js";
 import { lockAccessActor } from "../organization/team-access-security.js";
+import { assertReviewedPurchaseFulfilment } from "./purchase-review-fulfilment.js";
 import { lockPurchaseReviewOrder } from "./purchase-review.repository.js";
 import {
   assertReviewCanChange,
@@ -497,8 +498,6 @@ export class OrdersService {
       if (totalKobo > MAX_MONEY_KOBO)
         throw orderConflict("Order amount exceeds the supported limit");
       const orderId = randomUUID();
-      const now = new Date();
-      const paymentDueAt = new Date(now.getTime() + 30 * 60_000);
       await this.repository.createOrder(
         {
           id: orderId,
@@ -513,6 +512,7 @@ export class OrdersService {
           taxKobo,
           totalKobo,
           policySnapshot: {
+            purchaseWorkflow: { version: 2, sequence: "FINAL_REVIEW_BEFORE_PAYMENT" },
             finance: policySnapshot(finance),
             payment: policySnapshot(timing),
             fulfillment: deliverySnapshot,
@@ -531,7 +531,7 @@ export class OrdersService {
           customerName: contact.name,
           customerEmail: contact.email,
           customerPhone: contact.phone,
-          paymentDueAt,
+          paymentDueAt: null,
           items: { createMany: { data: items } },
         },
         transaction,
@@ -559,54 +559,6 @@ export class OrdersService {
         },
         select: { id: true },
       });
-      for (const inventory of inventories) {
-        const quantity = cartByProduct.get(inventory.productId)!;
-        const nextReserved = inventory.reserved + quantity;
-        if (
-          (
-            await this.repository.updateInventory(
-              inventory.id,
-              inventory.version,
-              inventory.quantity,
-              nextReserved,
-              transaction,
-            )
-          ).count !== 1
-        )
-          throw orderStale();
-        const reservationId = randomUUID();
-        const lineKey = hashToken("order-reservation", `${keyHash}:${inventory.id}`);
-        await transaction.inventoryReservation.create({
-          data: {
-            id: reservationId,
-            inventoryId: inventory.id,
-            customerId: owner.customerId,
-            quantity,
-            expiresAt: paymentDueAt,
-            idempotencyKey: lineKey,
-            requestHash,
-            referenceType: "ORDER",
-            referenceId: orderId,
-          },
-        });
-        await transaction.inventoryTransaction.create({
-          data: {
-            inventoryId: inventory.id,
-            performedById: actorUserId,
-            type: "RESERVATION",
-            quantityDelta: 0,
-            reservedDelta: quantity,
-            quantityBefore: inventory.quantity,
-            quantityAfter: inventory.quantity,
-            reservedBefore: inventory.reserved,
-            reservedAfter: nextReserved,
-            idempotencyKey: hashToken("order-inventory", `${lineKey}:reserve`),
-            requestHash,
-            referenceType: "ORDER",
-            referenceId: orderId,
-          },
-        });
-      }
       if (quote) {
         await transaction.partsQuote.update({
           where: { id: quote.id },
@@ -920,166 +872,175 @@ export class OrdersService {
     context: RequestSecurityContext,
   ) {
     assertOrderOperator(actor);
-    await withTransactionRetry(this.database, async (transaction) => {
-      const order = await this.repository.lockOrder(id, transaction);
-      if (order === null) throw orderNotFound();
-      await this.assertBranch(actor, order.branchId, transaction);
-      if (!(transitions[order.status] as readonly string[]).includes(input.status))
-        throw invalidOrderTransition();
-      if (input.status === "CANCELLED") {
-        if (
-          order.status !== "PENDING" &&
-          !(await transaction.orderAftercareRequest.findFirst({
-            where: { orderId: id, kind: "CANCELLATION", status: "APPROVED" },
-          }))
-        )
-          throw orderConflict(
-            "Cancellation after confirmation requires a reviewed request and fee basis",
-          );
-        if (input.reason === undefined)
-          throw orderConflict("A cancellation reason is required");
-        await this.cancelLocked(
-          actor,
-          order,
-          input.expectedVersion,
-          input.reason,
-          transaction,
-          context,
-        );
-        return;
-      }
-      if (order.paidAt === null)
-        throw orderConflict(
-          "Verified payment is required before confirming or fulfilling an order",
-        );
-      if (
-        input.status === "CONFIRMED" &&
-        order.paidAt === null &&
-        (order.paymentDueAt === null || order.paymentDueAt <= new Date())
-      )
-        throw orderConflict("The checkout reservation has expired");
-      if (input.status === "CONFIRMED") {
-        const quote = await transaction.partsQuote.findUnique({
-          where: { orderId: order.id },
-          include: { enquiry: { select: { customerId: true } } },
-        });
-        if (quote) {
-          if (!input.reason || input.reason.trim().length < 10)
-            throw orderConflict(
-              "Record final compatibility assessment (or why fitment is not applicable) and availability review before confirming this quoted order",
-            );
-          const buyerMatches = order.guestId
-            ? quote.enquiry.customerId === null &&
-              quote.guestEmail === order.customerEmail
-            : quote.enquiry.customerId === order.customerId && quote.guestEmail === null;
-          if (!order.branchId || !buyerMatches)
-            throw orderConflict(
-              "The quoted order has no valid collection branch or matching buyer",
-            );
-          const inventory = (
-            await this.repository.lockInventories(
-              order.branchId,
-              [quote.productId],
-              transaction,
-            )
-          )[0];
+    await withTransactionRetry(
+      this.database,
+      async (transaction) => {
+        const order = await this.repository.lockOrder(id, transaction);
+        if (order === null) throw orderNotFound();
+        await this.assertBranch(actor, order.branchId, transaction);
+        if (!(transitions[order.status] as readonly string[]).includes(input.status))
+          throw invalidOrderTransition();
+        if (input.status === "CANCELLED") {
           if (
-            !inventory ||
-            inventory.quantity - inventory.reserved < quote.quantity ||
-            !inventory.product.isActive ||
-            !inventory.branch.isActive
+            order.status !== "PENDING" &&
+            !(await transaction.orderAftercareRequest.findFirst({
+              where: { orderId: id, kind: "CANCELLATION", status: "APPROVED" },
+            }))
           )
-            throw checkoutStockUnavailable();
-          const nextReserved = inventory.reserved + quote.quantity;
-          if (
-            (
-              await this.repository.updateInventory(
-                inventory.id,
-                inventory.version,
-                inventory.quantity,
-                nextReserved,
+            throw orderConflict(
+              "Cancellation after confirmation requires a reviewed request and fee basis",
+            );
+          if (input.reason === undefined)
+            throw orderConflict("A cancellation reason is required");
+          await this.cancelLocked(
+            actor,
+            order,
+            input.expectedVersion,
+            input.reason,
+            transaction,
+            context,
+          );
+          return;
+        }
+        if (order.paidAt === null)
+          throw orderConflict(
+            "Verified payment is required before confirming or fulfilling an order",
+          );
+        const purchaseReview = await assertReviewedPurchaseFulfilment(transaction, id);
+        if (input.status === "CONFIRMED") {
+          const quote = await transaction.partsQuote.findUnique({
+            where: { orderId: order.id },
+            include: { enquiry: { select: { customerId: true } } },
+          });
+          const activeHolds = await transaction.inventoryReservation.count({
+            where: {
+              referenceType: "ORDER",
+              referenceId: order.id,
+              status: "ACTIVE",
+            },
+          });
+          if (quote && activeHolds === 0) {
+            if (!input.reason || input.reason.trim().length < 10)
+              throw orderConflict(
+                purchaseReview.legacy
+                  ? "Record the fulfilment assessment for this historical paid quotation. This is not a backdated pre-payment review."
+                  : "Record the received part and current stock check before allocating this sourced order",
+              );
+            const buyerMatches = order.guestId
+              ? quote.enquiry.customerId === null &&
+                quote.guestEmail === order.customerEmail
+              : quote.enquiry.customerId === order.customerId &&
+                quote.guestEmail === null;
+            if (!order.branchId || !buyerMatches)
+              throw orderConflict(
+                "The quoted order has no valid collection branch or matching buyer",
+              );
+            const inventory = (
+              await this.repository.lockInventories(
+                order.branchId,
+                [quote.productId],
                 transaction,
               )
-            ).count !== 1
-          )
-            throw orderStale();
-          const key = hashToken(
-            "order-reservation",
-            `quoted:${order.id}:${inventory.id}`,
-          );
-          const fingerprint = orderFingerprint({
-            orderId: order.id,
-            quoteId: quote.id,
-            quantity: quote.quantity,
-          });
-          await transaction.inventoryReservation.create({
-            data: {
-              inventoryId: inventory.id,
-              customerId: order.customerId,
-              quantity: quote.quantity,
-              expiresAt: new Date(Date.now() + 3600000),
-              idempotencyKey: key,
-              requestHash: fingerprint,
-              referenceType: "ORDER",
-              referenceId: order.id,
-            },
-          });
-          await transaction.inventoryTransaction.create({
-            data: {
-              inventoryId: inventory.id,
-              performedById: actor.userId,
-              type: "RESERVATION",
-              quantityDelta: 0,
-              reservedDelta: quote.quantity,
-              quantityBefore: inventory.quantity,
-              quantityAfter: inventory.quantity,
-              reservedBefore: inventory.reserved,
-              reservedAfter: nextReserved,
-              idempotencyKey: hashToken("order-inventory", `${key}:reserve`),
-              requestHash: fingerprint,
-              referenceType: "ORDER",
-              referenceId: order.id,
-            },
-          });
-          await appendAuditEvent(transaction, {
-            actorUserId: actor.userId,
-            action: "UPDATE",
-            entityType: "ORDER",
-            entityId: order.id,
-            newValues: {
+            )[0];
+            if (
+              !inventory ||
+              inventory.quantity - inventory.reserved < quote.quantity ||
+              !inventory.product.isActive ||
+              !inventory.branch.isActive
+            )
+              throw checkoutStockUnavailable();
+            const nextReserved = inventory.reserved + quote.quantity;
+            if (
+              (
+                await this.repository.updateInventory(
+                  inventory.id,
+                  inventory.version,
+                  inventory.quantity,
+                  nextReserved,
+                  transaction,
+                )
+              ).count !== 1
+            )
+              throw orderStale();
+            const key = hashToken(
+              "order-reservation",
+              `quoted:${order.id}:${inventory.id}`,
+            );
+            const fingerprint = orderFingerprint({
+              orderId: order.id,
               quoteId: quote.id,
-              finalCompatibilityAndAvailabilityReview: input.reason.trim(),
-            },
-            context,
-          });
+              quantity: quote.quantity,
+            });
+            await transaction.inventoryReservation.create({
+              data: {
+                inventoryId: inventory.id,
+                customerId: order.customerId,
+                quantity: quote.quantity,
+                expiresAt: new Date(Date.now() + 3600000),
+                idempotencyKey: key,
+                requestHash: fingerprint,
+                referenceType: "ORDER",
+                referenceId: order.id,
+              },
+            });
+            await transaction.inventoryTransaction.create({
+              data: {
+                inventoryId: inventory.id,
+                performedById: actor.userId,
+                type: "RESERVATION",
+                quantityDelta: 0,
+                reservedDelta: quote.quantity,
+                quantityBefore: inventory.quantity,
+                quantityAfter: inventory.quantity,
+                reservedBefore: inventory.reserved,
+                reservedAfter: nextReserved,
+                idempotencyKey: hashToken("order-inventory", `${key}:reserve`),
+                requestHash: fingerprint,
+                referenceType: "ORDER",
+                referenceId: order.id,
+              },
+            });
+            await appendAuditEvent(transaction, {
+              actorUserId: actor.userId,
+              action: "UPDATE",
+              entityType: "ORDER",
+              entityId: order.id,
+              newValues: {
+                quoteId: quote.id,
+                finalCompatibilityAndAvailabilityReview: input.reason.trim(),
+              },
+              context,
+            });
+          }
+          await this.consumeReservations(actor.userId, order.id, transaction);
         }
-        await this.consumeReservations(actor.userId, order.id, transaction);
-      }
-      const now = new Date();
-      const result = await this.repository.updateOrder(
-        id,
-        input.expectedVersion,
-        [order.status],
-        {
-          status: input.status,
-          ...(input.status === "CONFIRMED" ? { confirmedAt: now } : {}),
-          ...(input.status === "PROCESSING" ? { processingAt: now } : {}),
-          ...(input.status === "READY" ? { readyAt: now } : {}),
-          ...(input.status === "COMPLETED" ? { completedAt: now } : {}),
-        },
-        transaction,
-      );
-      if (result.count !== 1) throw orderStale();
-      await appendAuditEvent(transaction, {
-        actorUserId: actor.userId,
-        action: "STATUS_CHANGE",
-        entityType: "ORDER",
-        entityId: id,
-        oldValues: { status: order.status, version: order.version },
-        newValues: { status: input.status, version: input.expectedVersion + 1 },
-        context,
-      });
-    });
+        const now = new Date();
+        const result = await this.repository.updateOrder(
+          id,
+          input.expectedVersion,
+          [order.status],
+          {
+            status: input.status,
+            ...(input.status === "CONFIRMED" ? { confirmedAt: now } : {}),
+            ...(input.status === "PROCESSING" ? { processingAt: now } : {}),
+            ...(input.status === "READY" ? { readyAt: now } : {}),
+            ...(input.status === "COMPLETED" ? { completedAt: now } : {}),
+          },
+          transaction,
+        );
+        if (result.count !== 1) throw orderStale();
+        await appendAuditEvent(transaction, {
+          actorUserId: actor.userId,
+          action: "STATUS_CHANGE",
+          entityType: "ORDER",
+          entityId: id,
+          oldValues: { status: order.status, version: order.version },
+          newValues: { status: input.status, version: input.expectedVersion + 1 },
+          context,
+        });
+      },
+      { isolationLevel: "Serializable" },
+    );
     const updated = await this.repository.staffOrder(
       id,
       actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",

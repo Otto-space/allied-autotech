@@ -98,6 +98,13 @@ export const purchaseReviewDecisionSchema = z
 export type PurchaseRequirements = z.infer<typeof purchaseRequirementsSchema>;
 export type PurchaseReviewRequest = z.infer<typeof purchaseReviewRequestSchema>;
 export type PurchaseReviewDecision = z.infer<typeof purchaseReviewDecisionSchema>;
+export const purchaseReviewPaymentBindingSchema = z
+  .object({
+    id: z.uuid(),
+    revision: z.number().int().positive(),
+    payableFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+  })
+  .strict();
 
 export const purchaseApprovalSnapshotSchema = z
   .object({

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
+import { orderPaymentUnavailable } from "@/lib/api/order-payment";
 import { purchaseRequest } from "@/lib/purchase/client";
 import { usePurchaseResource } from "@/lib/purchase/resource";
 import {
@@ -215,15 +216,7 @@ function OrderDetail({ orderId }: { orderId: string }) {
     [error, setError] = useState<string>();
   const locked = useRef(false);
   async function prepare(order: GuestOrder) {
-    if (
-      locked.current ||
-      !checkoutEnabled ||
-      !["PENDING", "CONFIRMED"].includes(order.status) ||
-      order.paidAt ||
-      !order.paymentDueAt ||
-      Date.parse(order.paymentDueAt) <= Date.now()
-    )
-      return;
+    if (locked.current || !checkoutEnabled || !!orderPaymentUnavailable(order)) return;
     locked.current = true;
     setBusy(true);
     setError(undefined);
@@ -291,11 +284,7 @@ function OrderDetail({ orderId }: { orderId: string }) {
               >
                 View payment details
               </Link>
-            ) : checkoutEnabled &&
-              !resource.data.paidAt &&
-              ["PENDING", "CONFIRMED"].includes(resource.data.status) &&
-              resource.data.paymentDueAt &&
-              Date.parse(resource.data.paymentDueAt) > now ? (
+            ) : checkoutEnabled && !orderPaymentUnavailable(resource.data, now) ? (
               <>
                 <p>
                   Continue to review the payment provider. Preparing a payment does not

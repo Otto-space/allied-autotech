@@ -3,6 +3,9 @@ import request from "supertest";
 import { createApp } from "../../src/app.js";
 import { env } from "../../src/config/env.js";
 import { OrdersService } from "../../src/modules/orders/orders.service.js";
+import { PaymentsService } from "../../src/modules/payments/payments.service.js";
+import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
+import type { PaymentProviderPort } from "../../src/providers/payments/payment-provider.port.js";
 import { paymentTestSession } from "../helpers/payment-session.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
@@ -592,6 +595,147 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
       expect(after.quantity).toBe(3);
       expect(after.reserved).toBe(3);
+    });
+    async function payerFixture() {
+      const f = await fixture();
+      const actor = {
+        userId: f.buyer.user.id,
+        email: f.buyer.user.email,
+        role: "CUSTOMER" as const,
+        sessionId: await paymentTestSession(f.buyer.user.id),
+        mfaRequired: false,
+        mfaVerifiedAt: null,
+      };
+      const commands: unknown[] = [];
+      const port: PaymentProviderPort = {
+        async initialize(command) {
+          commands.push(command);
+          return {
+            authorizationUrl: `https://checkout.paystack.com/${command.reference}`,
+            accessCode: "synthetic-review-checkout",
+            providerReference: command.reference,
+            authorizationExpiresAt: new Date(Date.now() + 600000),
+          };
+        },
+        async verify(reference) {
+          return {
+            reference,
+            gatewayTransactionId: `synthetic-review-${reference}`,
+            status: "success",
+            amountKobo: f.order.totalKobo,
+            currency: "NGN",
+            paidAt: new Date(),
+            providerFeeKobo: 0n,
+            method: "card",
+          };
+        },
+        async refund() {
+          throw Error("No external refund in purchase-review fixtures");
+        },
+      };
+      const payments = new PaymentsService(
+        prisma,
+        new PaymentProviderRegistry({ PAYSTACK: port }),
+      );
+      const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
+      const intent = () =>
+        payments.createIntent(
+          actor,
+          { targetType: "ORDER", targetId: f.order.id, purpose: "ORDER_PAYMENT" },
+          randomUUID(),
+          context,
+        );
+      return { ...f, actor, commands, payments, context, intent };
+    }
+    it("requires approval before intent and rechecks revoked evidence before contacting a provider", async () => {
+      const f = await payerFixture();
+      await expect(f.intent()).rejects.toMatchObject({ statusCode: 409 });
+      expect(await prisma.payment.count({ where: { orderId: f.order.id } })).toBe(0);
+      await prisma.orderPurchaseReview.update({
+        where: { id: f.review.id },
+        data: f.approval,
+      });
+      const created = (await f.intent()) as { payment: { id: string } };
+      const saved = await prisma.payment.findUniqueOrThrow({
+        where: { id: created.payment.id },
+      });
+      expect(saved.policySnapshot).toMatchObject({
+        purchaseReview: {
+          id: f.review.id,
+          revision: 1,
+          payableFingerprint: f.approval.payableFingerprint,
+        },
+      });
+      expect(created.payment).not.toHaveProperty("policySnapshot");
+      await prisma.productCompatibility.update({
+        where: { id: f.rule.id },
+        data: { reviewStatus: "RETIRED", version: { increment: 1 } },
+      });
+      await expect(
+        f.payments.initializePaystack(f.actor, saved.id, randomUUID(), f.context),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      expect(f.commands).toHaveLength(0);
+      expect(await prisma.paymentAttempt.count({ where: { paymentId: saved.id } })).toBe(
+        0,
+      );
+    });
+    it("records verified captured funds after evidence revocation and holds fulfilment for review", async () => {
+      const f = await payerFixture();
+      await prisma.orderPurchaseReview.update({
+        where: { id: f.review.id },
+        data: f.approval,
+      });
+      const created = (await f.intent()) as { payment: { id: string } };
+      const checkout = await f.payments.initializePaystack(
+        f.actor,
+        created.payment.id,
+        randomUUID(),
+        f.context,
+      );
+      await prisma.productCompatibility.update({
+        where: { id: f.rule.id },
+        data: { reviewStatus: "RETIRED", version: { increment: 1 } },
+      });
+      await f.payments.verifyAttempt(
+        f.actor,
+        created.payment.id,
+        checkout.attemptId,
+        f.context,
+      );
+      expect(
+        (await prisma.payment.findUniqueOrThrow({ where: { id: created.payment.id } }))
+          .status,
+      ).toBe("SUCCEEDED");
+      const paidOrder = await prisma.order.findUniqueOrThrow({
+        where: { id: f.order.id },
+      });
+      expect(paidOrder.paidAt).not.toBeNull();
+      const owner = await testOwner("unusable-synthetic-review-fixture");
+      await expect(
+        new OrdersService().transition(
+          {
+            userId: owner.id,
+            email: owner.email,
+            role: owner.role,
+            sessionId: await paymentTestSession(owner.id, owner.role),
+            mfaRequired: true,
+            mfaVerifiedAt: new Date(),
+          },
+          f.order.id,
+          { expectedVersion: paidOrder.version, status: "CONFIRMED" },
+          f.context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const inventory = await prisma.inventory.findUniqueOrThrow({
+        where: { id: f.inventory.id },
+      });
+      expect(inventory.quantity).toBe(1);
+      expect(inventory.reserved).toBe(1);
+      expect(
+        await prisma.paymentLedgerEntry.count({
+          where: { paymentAttemptId: checkout.attemptId, type: "CAPTURE" },
+        }),
+      ).toBe(1);
     });
   },
 );

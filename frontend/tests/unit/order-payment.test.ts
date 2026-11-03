@@ -18,6 +18,17 @@ const order = {
   version: 1,
   paidAt: null,
   paymentDueAt: "2026-10-08T10:00:00Z",
+  purchaseReviews: [
+    {
+      id: id(3),
+      revision: 1,
+      status: "APPROVED",
+      createdAt: "2026-10-08T09:00:00Z",
+      decidedAt: "2026-10-08T09:30:00Z",
+      expiresAt: "2026-10-08T10:00:00Z",
+      requirements: { lines: [{ orderItemId: id(4), selection: null }] },
+    },
+  ],
 } as CustomerOrder;
 const payment: PaymentRecord = {
   id: id(2),
@@ -36,12 +47,12 @@ const payment: PaymentRecord = {
 const request = vi.mocked(apiRequest);
 beforeEach(() => request.mockReset());
 describe("order payment boundaries", () => {
-  it("allows pending and confirmed unpaid orders before the deadline", () => {
+  it("allows only a reviewed pending unpaid offer before its deadline", () => {
     const now = Date.parse("2026-10-08T09:59:59Z");
     expect(orderPaymentUnavailable(order, now)).toBeUndefined();
-    expect(
-      orderPaymentUnavailable({ ...order, status: "CONFIRMED" }, now),
-    ).toBeUndefined();
+    expect(orderPaymentUnavailable({ ...order, status: "CONFIRMED" }, now)).toMatch(
+      /not open/,
+    );
   });
   it.each(["", "tomorrow", "2026-10-08"])(
     "rejects an unverifiable deadline %s",
@@ -51,13 +62,37 @@ describe("order payment boundaries", () => {
       );
     },
   );
-  it("expires exactly at the boundary; absent deadlines stay server-governed", () => {
+  it("expires exactly at the boundary and does not offer payment without a deadline", () => {
     expect(orderPaymentUnavailable(order, Date.parse(order.paymentDueAt!))).toMatch(
       /passed/,
     );
+    expect(orderPaymentUnavailable({ ...order, paymentDueAt: null }, Date.now())).toMatch(
+      /not currently payable/,
+    );
+  });
+  it("requires a current final approval and matching offer expiry", () => {
+    const now = Date.parse("2026-10-08T09:59:59Z");
+    expect(orderPaymentUnavailable({ ...order, purchaseReviews: [] }, now)).toMatch(
+      /review is required/,
+    );
+    for (const status of ["REQUESTED", "DECLINED"] as const)
+      expect(
+        orderPaymentUnavailable(
+          { ...order, purchaseReviews: [{ ...order.purchaseReviews[0]!, status }] },
+          now,
+        ),
+      ).toMatch(/review is required/);
     expect(
-      orderPaymentUnavailable({ ...order, paymentDueAt: null }, Date.now()),
-    ).toBeUndefined();
+      orderPaymentUnavailable(
+        {
+          ...order,
+          purchaseReviews: [
+            { ...order.purchaseReviews[0]!, expiresAt: "2026-10-08T10:01:00Z" },
+          ],
+        },
+        now,
+      ),
+    ).toMatch(/not currently payable/);
   });
   it("does not offer new requests for paid, zero-value or advanced orders", () => {
     expect(orderPaymentUnavailable({ ...order, paidAt: "2026-10-08T09:00:00Z" })).toMatch(

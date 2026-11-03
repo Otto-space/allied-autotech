@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import { afterAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
@@ -77,6 +78,7 @@ async function pendingReview() {
     },
   });
   const service = new PaymentsService(prisma);
+  await reviewFixtureOrderForPayment(order.id);
   await service.createIntent(
     customer,
     { targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" },

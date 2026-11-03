@@ -234,7 +234,7 @@ export function createPurchaseRouter(
       send(
         req,
         res,
-        "Order saved; payment and final review remain separate",
+        "Order saved for final review. Payment is available after approval.",
         await orders.guestCheckout(
           credentials(req),
           validated(res, "body"),

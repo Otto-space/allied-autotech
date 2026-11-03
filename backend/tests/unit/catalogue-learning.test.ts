@@ -23,7 +23,12 @@ it("explains controllable workshop highlights without turning a discovery reques
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
-  expect([parts.version, vehicles.version]).toEqual([8, 5]);
+  expect([parts.version, vehicles.version]).toEqual([9, 5]);
+  expect(parts.steps.join(" ")).toContain("reviewed before payment becomes available");
+  expect(parts.steps.join(" ")).toContain("Verified payment is separate from allocation");
+  expect(parts.steps.join(" ")).not.toContain(
+    "Payment does not confirm final compatibility",
+  );
   expect(parts.steps.join(" ")).toContain("An account is optional");
   expect(parts.steps.join(" ")).toContain("browser that requested it");
   expect(parts.steps.join(" ")).toContain("download or share a verified receipt");

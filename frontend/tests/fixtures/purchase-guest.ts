@@ -6,45 +6,72 @@ export const guestProduct = {
   priceKobo: "10000",
   name: "Synthetic replacement filter with a long product name",
 };
-export const guestOrder = () => ({
-  id: id(81),
-  orderNumber: "ORD-SYNTHETIC-20261103-81",
-  status: "PENDING",
-  fulfillmentMethod: "COLLECTION",
-  currency: "NGN",
-  subtotalKobo: "20000",
-  discountAmountKobo: "0",
-  taxKobo: "1500",
-  deliveryFeeKobo: "0",
-  totalKobo: "21500",
-  version: 0,
-  createdAt: new Date().toISOString(),
-  paymentDueAt: new Date(Date.now() + 1_800_000).toISOString(),
-  paidAt: null as string | null,
-  confirmedAt: null as string | null,
-  fulfillmentEvidenceAt: null as string | null,
-  fulfillmentEvidenceReference: null as string | null,
-  branch,
-  items: [
-    {
-      id: id(82),
-      productId: guestProduct.id,
-      productName: guestProduct.name,
-      sku: guestProduct.sku,
-      unitPriceKobo: "10000",
-      quantity: 2,
-      subtotalKobo: "20000",
-    },
-  ],
-  invoice: null,
-  paymentId: null as string | null,
-  partsQuote: null as {
-    id: string;
-    enquiryId: string;
-    revision: number;
-    notes: string;
-  } | null,
-});
+export const guestOrder = () => {
+  const createdAt = new Date().toISOString();
+  const paymentDueAt = new Date(Date.now() + 1_800_000).toISOString();
+  return {
+    id: id(81),
+    orderNumber: "ORD-SYNTHETIC-20261103-81",
+    status: "PENDING",
+    fulfillmentMethod: "COLLECTION",
+    currency: "NGN",
+    subtotalKobo: "20000",
+    discountAmountKobo: "0",
+    taxKobo: "1500",
+    deliveryFeeKobo: "0",
+    totalKobo: "21500",
+    version: 0,
+    createdAt,
+    paymentDueAt,
+    purchaseReviews: [
+      {
+        id: id(83),
+        revision: 1,
+        status: "APPROVED" as const,
+        createdAt,
+        decidedAt: createdAt,
+        expiresAt: paymentDueAt,
+        requirements: {
+          lines: [
+            {
+              orderItemId: id(82),
+              selection: {
+                vehicleModelId: id(85),
+                year: 2026,
+                position: "front",
+                brakeSystem: "synthetic-fixture-system",
+              },
+            },
+          ],
+        },
+      },
+    ],
+    paidAt: null as string | null,
+    confirmedAt: null as string | null,
+    fulfillmentEvidenceAt: null as string | null,
+    fulfillmentEvidenceReference: null as string | null,
+    branch,
+    items: [
+      {
+        id: id(82),
+        productId: guestProduct.id,
+        productName: guestProduct.name,
+        sku: guestProduct.sku,
+        unitPriceKobo: "10000",
+        quantity: 2,
+        subtotalKobo: "20000",
+      },
+    ],
+    invoice: null,
+    paymentId: null as string | null,
+    partsQuote: null as {
+      id: string;
+      enquiryId: string;
+      revision: number;
+      notes: string;
+    } | null,
+  };
+};
 export const guestPayment = () => ({
   id: id(83),
   paymentNumber: "PAY-SYNTHETIC-83",

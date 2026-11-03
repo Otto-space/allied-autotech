@@ -6,6 +6,7 @@ import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
 import { orderFingerprint } from "../../src/modules/orders/orders.types.js";
 import { randomUUID } from "node:crypto";
+import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
 import { createApp } from "../../src/app.js";
@@ -62,7 +63,7 @@ async function fixture() {
     quantity: 2,
     unitPriceKobo: "10000",
     notes:
-      "Collection only. Final compatibility and availability require review after payment. Contact care for cancellation or refund assessment.",
+      "Collection only. Payment follows final suitability and availability checks. Contact care for cancellation or refund assessment.",
   };
   return { customer, sources, actor, buyer, enquiry, input };
 }
@@ -340,7 +341,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         }),
       ).toBe(0);
     });
-    it("verifies a mocked provider payment before final assessment and actual stock consumption", async () => {
+    it("checks suitability and supplier availability before mocked payment, then requires actual stock on arrival", async () => {
       const f = await fixture();
       f.buyer.sessionId = await paymentTestSession(f.buyer.userId);
       const issued = (await quotes.issue(
@@ -390,6 +391,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         prisma,
         new PaymentProviderRegistry({ PAYSTACK: provider }),
       );
+      await reviewFixtureOrderForPayment(created.order.id, undefined, "SUPPLIER");
       const intent = (await payments.createIntent(
         f.buyer,
         { targetType: "ORDER", targetId: created.order.id, purpose: "ORDER_PAYMENT" },
@@ -426,7 +428,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           { expectedVersion: paid.version, status: "CONFIRMED" },
           context(),
         ),
-      ).rejects.toThrow(/compatibility/i);
+      ).rejects.toThrow(/received part/i);
       await quotes.list(f.actor, f.enquiry.id, context());
       expect(
         await prisma.auditLog.count({
@@ -437,7 +439,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expectedVersion: paid.version,
         status: "CONFIRMED" as const,
         reason:
-          "Synthetic assessment: universal filter compatibility and available stock checked",
+          "Synthetic received part inspected against the approved specification and branch stock checked",
       };
       await expect(
         orders.transition(f.actor, paid.id, confirmation, context()),

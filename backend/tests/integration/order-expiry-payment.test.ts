@@ -3,6 +3,7 @@ import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { OrdersService } from "../../src/modules/orders/orders.service.js";
+import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import { OrdersRepository } from "../../src/modules/orders/orders.repository.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
 import { paymentTestSession } from "../helpers/payment-session.js";
@@ -71,7 +72,7 @@ async function fixture(state: "unpaid" | "review" | "processing") {
     },
   });
   const inventory = await prisma.inventory.create({
-    data: { productId: product.id, branchId: branch.id, quantity: 3, reserved: 1 },
+    data: { productId: product.id, branchId: branch.id, quantity: 3, reserved: 0 },
   });
   const order = await prisma.order.create({
     data: {
@@ -86,18 +87,20 @@ async function fixture(state: "unpaid" | "review" | "processing") {
       paymentDueAt: new Date(Date.now() + 3600000),
     },
   });
-  const reservation = await prisma.inventoryReservation.create({
+  await prisma.orderItem.create({
     data: {
-      inventoryId: inventory.id,
-      customerId: profile.id,
+      orderId: order.id,
+      productId: product.id,
+      productName: product.name,
+      sku: product.sku,
       quantity: 1,
-      createdAt: new Date(Date.now() - 60000),
-      expiresAt: new Date(Date.now() - 1000),
-      idempotencyKey: randomUUID(),
-      requestHash: "a".repeat(64),
-      referenceType: "ORDER",
-      referenceId: order.id,
+      unitPriceKobo: product.priceKobo,
+      subtotalKobo: product.priceKobo,
     },
+  });
+  const review = await reviewFixtureOrderForPayment(order.id);
+  const reservation = await prisma.inventoryReservation.findFirstOrThrow({
+    where: { referenceType: "ORDER", referenceId: order.id, status: "ACTIVE" },
   });
   if (state !== "unpaid") {
     const payments = new PaymentsService(prisma);
@@ -139,12 +142,21 @@ async function fixture(state: "unpaid" | "review" | "processing") {
     where: { id: order.id },
     data: { paymentDueAt: new Date(Date.now() - 1000) },
   });
-  const candidate = { id: order.id, version: order.version };
+  const currentOrder = await prisma.order.findUniqueOrThrow({ where: { id: order.id } });
+  const candidate = { id: order.id, version: currentOrder.version };
   // Isolate candidate discovery; all locking, payment reads, releases and audits use real PostgreSQL.
   const candidates = vi
     .spyOn(OrdersRepository.prototype, "dueOrderIds")
     .mockResolvedValue([candidate]);
-  return { owner, order, reservation, inventory, candidates, candidate };
+  return {
+    owner,
+    order: currentOrder,
+    reservation,
+    inventory,
+    candidates,
+    candidate,
+    review,
+  };
 }
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Strict unpaid order expiry",
@@ -200,7 +212,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       f.candidates.mockImplementationOnce(async () => {
         await prisma.order.update({
           where: { id: f.order.id },
-          data: { paymentDueAt: new Date(Date.now() + 3600000) },
+          data: { paymentDueAt: f.review.expiresAt },
         });
         return [f.candidate];
       });

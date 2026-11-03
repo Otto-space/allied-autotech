@@ -3,6 +3,7 @@ import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { testCapability } from "../helpers/owner-policy.js";
 import { RefundWorker } from "../../src/workers/refund.worker.js";
 import { randomUUID } from "node:crypto";
+import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
 import { createApp } from "../../src/app.js";
@@ -127,6 +128,7 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
         paymentDueAt: new Date(Date.now() + 3_600_000),
       },
     });
+    await reviewFixtureOrderForPayment(order.id);
     const create = await request(app)
       .post("/api/v1/customers/payments")
       .set(headers(customerSession, "p8-payment-intent"))
@@ -471,6 +473,7 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
         paymentDueAt: new Date(Date.now() + 3_600_000),
       },
     });
+    await reviewFixtureOrderForPayment(onlineOrder.id);
     const onlineResult = (await service.createIntent(
       customerActor,
       { targetType: "ORDER", targetId: onlineOrder.id, purpose: "ORDER_PAYMENT" },

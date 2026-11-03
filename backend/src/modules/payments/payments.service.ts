@@ -5,6 +5,8 @@ import {
 } from "./provider-observation.js";
 import { snapshotRefundClock } from "../policies/refund-clock.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
+import { assertReviewedPurchasePayable } from "../orders/purchase-review-payable.js";
+import { purchaseReviewPaymentBindingSchema } from "../orders/purchase-review.schemas.js";
 import { enqueueLateOrderRefund } from "./refund-workflow.js";
 import {
   approvedPolicy,
@@ -153,6 +155,11 @@ type PaymentBuyerIdentity = {
   email: string;
   name: string | null;
 };
+type PaymentSource = {
+  amountKobo: bigint;
+  expiresAt: Date | null;
+  purchaseReview?: z.infer<typeof purchaseReviewPaymentBindingSchema>;
+};
 
 export class PaymentsService {
   private readonly repository: PaymentsRepository;
@@ -296,70 +303,79 @@ export class PaymentsService {
     context: RequestSecurityContext,
   ) {
     const fingerprint = paymentFingerprint(input);
-    return withTransactionRetry(this.database, async (tx) => {
-      const identity = await this.lockPaymentBuyer(tx, buyer);
-      const keyHash = hashToken(
-        "payment-intent-idempotency",
-        buyer.kind === "account"
-          ? `${buyer.actor.userId}:${rawKey}`
-          : `guest:${identity.guestId}:${rawKey}`,
-      );
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`payment:${keyHash}`}, 0))`;
-      const existing = identity.guestId
-        ? await this.repository.byGuestIdempotency(keyHash, identity.guestId, tx)
-        : await this.repository.byIdempotency(keyHash, identity.customerId!, tx);
-      if (existing) {
-        const same =
-          existing.purpose === input.purpose &&
-          existing.orderId === (input.targetType === "ORDER" ? input.targetId : null) &&
-          existing.invoiceId ===
-            (input.targetType === "INVOICE" ? input.targetId : null) &&
-          existing.vehicleTransactionId ===
-            (input.targetType === "VEHICLE_TRANSACTION" ? input.targetId : null);
-        if (!same) throw paymentIdempotencyConflict();
-        return paymentJsonSafe({ payment: existing, replayed: true });
-      }
-      const finance = await assertFinanceGate(tx);
-      if (input.targetType === "VEHICLE_TRANSACTION") await approvedPolicy(tx, "vehicle");
-      await lockTarget(tx, input);
-      const source = await this.resolveBuyerSource(identity, input, tx);
-      await assertNoCompetingPayment(tx, input);
-      const expiresAt =
-        source.expiresAt ?? new Date(Date.now() + env.PAYMENT_INTENT_TTL_SECONDS * 1_000);
-      if (expiresAt <= new Date()) throw paymentConflict("The payable has expired");
-      const payment = await this.repository.create(
-        {
-          customerId: identity.customerId,
-          paymentNumber: paymentNumber(),
-          purpose: input.purpose,
-          amountKobo: source.amountKobo,
-          currency: "NGN",
-          idempotencyKeyHash: keyHash,
-          expiresAt,
-          description: `Payment ${fingerprint.slice(0, 12)}`,
-          policySnapshot: policySnapshot(finance),
-          ...(input.targetType === "ORDER" ? { orderId: input.targetId } : {}),
-          ...(input.targetType === "INVOICE" ? { invoiceId: input.targetId } : {}),
-          ...(input.targetType === "VEHICLE_TRANSACTION"
-            ? { vehicleTransactionId: input.targetId }
-            : {}),
-        },
-        tx,
-      );
-      await appendAuditEvent(tx, {
-        actorUserId: identity.actorUserId,
-        action: "CREATE",
-        entityType: "PAYMENT",
-        entityId: payment.id,
-        newValues: {
-          purpose: payment.purpose,
-          amountKobo: payment.amountKobo.toString(),
-          currency: payment.currency,
-        },
-        context,
-      });
-      return paymentJsonSafe({ payment, replayed: false });
-    });
+    return withTransactionRetry(
+      this.database,
+      async (tx) => {
+        const identity = await this.lockPaymentBuyer(tx, buyer);
+        const keyHash = hashToken(
+          "payment-intent-idempotency",
+          buyer.kind === "account"
+            ? `${buyer.actor.userId}:${rawKey}`
+            : `guest:${identity.guestId}:${rawKey}`,
+        );
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`payment:${keyHash}`}, 0))`;
+        const existing = identity.guestId
+          ? await this.repository.byGuestIdempotency(keyHash, identity.guestId, tx)
+          : await this.repository.byIdempotency(keyHash, identity.customerId!, tx);
+        if (existing) {
+          const same =
+            existing.purpose === input.purpose &&
+            existing.orderId === (input.targetType === "ORDER" ? input.targetId : null) &&
+            existing.invoiceId ===
+              (input.targetType === "INVOICE" ? input.targetId : null) &&
+            existing.vehicleTransactionId ===
+              (input.targetType === "VEHICLE_TRANSACTION" ? input.targetId : null);
+          if (!same) throw paymentIdempotencyConflict();
+          return paymentJsonSafe({ payment: existing, replayed: true });
+        }
+        const finance = await assertFinanceGate(tx);
+        if (input.targetType === "VEHICLE_TRANSACTION")
+          await approvedPolicy(tx, "vehicle");
+        await lockTarget(tx, input);
+        const source = await this.resolveBuyerSource(identity, input, tx);
+        await assertNoCompetingPayment(tx, input);
+        const expiresAt =
+          source.expiresAt ??
+          new Date(Date.now() + env.PAYMENT_INTENT_TTL_SECONDS * 1_000);
+        if (expiresAt <= new Date()) throw paymentConflict("The payable has expired");
+        const payment = await this.repository.create(
+          {
+            customerId: identity.customerId,
+            paymentNumber: paymentNumber(),
+            purpose: input.purpose,
+            amountKobo: source.amountKobo,
+            currency: "NGN",
+            idempotencyKeyHash: keyHash,
+            expiresAt,
+            description: `Payment ${fingerprint.slice(0, 12)}`,
+            policySnapshot: {
+              ...policySnapshot(finance),
+              ...(source.purchaseReview ? { purchaseReview: source.purchaseReview } : {}),
+            },
+            ...(input.targetType === "ORDER" ? { orderId: input.targetId } : {}),
+            ...(input.targetType === "INVOICE" ? { invoiceId: input.targetId } : {}),
+            ...(input.targetType === "VEHICLE_TRANSACTION"
+              ? { vehicleTransactionId: input.targetId }
+              : {}),
+          },
+          tx,
+        );
+        await appendAuditEvent(tx, {
+          actorUserId: identity.actorUserId,
+          action: "CREATE",
+          entityType: "PAYMENT",
+          entityId: payment.id,
+          newValues: {
+            purpose: payment.purpose,
+            amountKobo: payment.amountKobo.toString(),
+            currency: payment.currency,
+          },
+          context,
+        });
+        return paymentJsonSafe({ payment, replayed: false });
+      },
+      { isolationLevel: "Serializable" },
+    );
   }
 
   async initializePaystack(
@@ -432,77 +448,81 @@ export class PaymentsService {
       `${provider}:${id}:${rawKey}`,
     );
     const reference = `AAT-${provider}-${attemptKey.slice(0, 32)}`;
-    const prepared = await withTransactionRetry(this.database, async (tx) => {
-      const identity = await this.lockPaymentBuyer(tx, buyer);
-      await lockStoredTarget(tx, id);
-      const payment = await this.repository.lockPayment(id, tx);
-      if (!payment || !(await this.paymentBelongsTo(identity, payment, tx)))
-        throw paymentNotFound();
-      const payer = await this.paymentPayer(identity, payment, tx);
-      this.assertPayable(payment);
-      if (payment.bookingId)
-        throw paymentConflict(
-          "Booking deposits are disabled under the approved request-and-confirm policy",
-        );
-      await assertFinanceGate(tx);
-      if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
-      const existing = await tx.paymentAttempt.findUnique({
-        where: { internalReference: reference },
-      });
-      if (existing) {
-        if (existing.provider !== provider) throw paymentConflict();
-        if (hasVerificationHold(existing.redactedGatewayData))
+    const prepared = await withTransactionRetry(
+      this.database,
+      async (tx) => {
+        const identity = await this.lockPaymentBuyer(tx, buyer);
+        await lockStoredTarget(tx, id);
+        const payment = await this.repository.lockPayment(id, tx);
+        if (!payment || !(await this.paymentBelongsTo(identity, payment, tx)))
+          throw paymentNotFound();
+        const payer = await this.paymentPayer(identity, payment, tx);
+        this.assertPayable(payment);
+        if (payment.bookingId)
           throw paymentConflict(
-            "Payment requires manual reconciliation before continuing",
+            "Booking deposits are disabled under the approved request-and-confirm policy",
           );
-        if (
-          existing.status !== "INITIALIZED" &&
-          existing.status !== "PENDING" &&
-          existing.status !== "PROCESSING"
-        )
-          throw paymentConflict(
-            "This checkout attempt has finished. Check the payment status before continuing.",
-          );
-        await this.assertCurrentPaymentSource(payment, tx);
-        if (existing.encryptedCheckoutState && existing.authorizationExpiresAt) {
-          let state;
-          try {
-            state = openPaymentCheckoutState(existing.encryptedCheckoutState);
-          } catch {
-            throw paymentConflict("Payment checkout state is unavailable");
-          }
+        await assertFinanceGate(tx);
+        if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
+        const existing = await tx.paymentAttempt.findUnique({
+          where: { internalReference: reference },
+        });
+        if (existing) {
+          if (existing.provider !== provider) throw paymentConflict();
+          if (hasVerificationHold(existing.redactedGatewayData))
+            throw paymentConflict(
+              "Payment requires manual reconciliation before continuing",
+            );
           if (
-            state.provider === provider &&
-            existing.authorizationExpiresAt > new Date() &&
-            new Date(state.expiresAt) > new Date()
+            existing.status !== "INITIALIZED" &&
+            existing.status !== "PENDING" &&
+            existing.status !== "PROCESSING"
           )
-            return { payment, existing, checkout: state, payer };
-          throw paymentConflict(
-            "The payment checkout has expired. Check its status before continuing.",
-          );
+            throw paymentConflict(
+              "This checkout attempt has finished. Check the payment status before continuing.",
+            );
+          await this.assertCurrentPaymentSource(payment, tx);
+          if (existing.encryptedCheckoutState && existing.authorizationExpiresAt) {
+            let state;
+            try {
+              state = openPaymentCheckoutState(existing.encryptedCheckoutState);
+            } catch {
+              throw paymentConflict("Payment checkout state is unavailable");
+            }
+            if (
+              state.provider === provider &&
+              existing.authorizationExpiresAt > new Date() &&
+              new Date(state.expiresAt) > new Date()
+            )
+              return { payment, existing, checkout: state, payer };
+            throw paymentConflict(
+              "The payment checkout has expired. Check its status before continuing.",
+            );
+          }
+          throw paymentConflict("Payment initialization is already in progress");
         }
-        throw paymentConflict("Payment initialization is already in progress");
-      }
-      await this.assertNoUnresolvedAttempt(id, tx);
-      await this.assertCurrentPaymentSource(payment, tx);
-      const latest = await tx.paymentAttempt.aggregate({
-        where: { paymentId: id },
-        _max: { attemptNumber: true },
-      });
-      const attempt = await this.repository.createAttempt(
-        {
-          paymentId: id,
-          attemptNumber: (latest._max.attemptNumber ?? 0) + 1,
-          internalReference: reference,
-          provider,
-          status: "INITIALIZED",
-          amountKobo: payment.amountKobo,
-          currency: payment.currency,
-        },
-        tx,
-      );
-      return { payment, existing: attempt, checkout: null, payer };
-    });
+        await this.assertNoUnresolvedAttempt(id, tx);
+        await this.assertCurrentPaymentSource(payment, tx);
+        const latest = await tx.paymentAttempt.aggregate({
+          where: { paymentId: id },
+          _max: { attemptNumber: true },
+        });
+        const attempt = await this.repository.createAttempt(
+          {
+            paymentId: id,
+            attemptNumber: (latest._max.attemptNumber ?? 0) + 1,
+            internalReference: reference,
+            provider,
+            status: "INITIALIZED",
+            amountKobo: payment.amountKobo,
+            currency: payment.currency,
+          },
+          tx,
+        );
+        return { payment, existing: attempt, checkout: null, payer };
+      },
+      { isolationLevel: "Serializable" },
+    );
     if (prepared.checkout)
       return {
         attemptId: prepared.existing.id,
@@ -547,64 +567,68 @@ export class PaymentsService {
     );
     if (authorizationExpiresAt <= new Date())
       throw paymentConflict("The payable expired during checkout initialization");
-    await withTransactionRetry(this.database, async (tx) => {
-      const identity = await this.lockPaymentBuyer(tx, buyer);
-      await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${prepared.existing.id}::uuid FOR UPDATE`;
-      await lockStoredTarget(tx, id);
-      const current = await tx.paymentAttempt.findUnique({
-        where: { id: prepared.existing.id },
-        select: { status: true, redactedGatewayData: true },
-      });
-      const payment = await this.repository.lockPayment(id, tx);
-      if (!current || !payment || !(await this.paymentBelongsTo(identity, payment, tx)))
-        throw paymentNotFound();
-      this.assertPayable(payment);
-      await this.assertCurrentPaymentSource(payment, tx);
-      if (payment.bookingId)
-        throw paymentConflict(
-          "Booking deposits are disabled under the approved request-and-confirm policy",
-        );
-      await assertFinanceGate(tx);
-      if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
-      if (
-        hasVerificationHold(current.redactedGatewayData) ||
-        !(["INITIALIZED", "PENDING", "PROCESSING"] as string[]).includes(current.status)
-      )
-        throw paymentConflict(
-          "Payment status changed during checkout initialization. Refresh the payment before continuing.",
-        );
-      if (authorizationExpiresAt <= new Date())
-        throw paymentConflict("The checkout expired during initialization");
-      await tx.paymentAttempt.update({
-        where: { id: prepared.existing.id },
-        data: {
-          status: current.status === "INITIALIZED" ? "PENDING" : current.status,
-          providerReference: reference,
-          encryptedCheckoutState: sealPaymentCheckoutState({
-            provider,
-            authorizationUrl: initialized.authorizationUrl,
-            accessCode: initialized.accessCode,
-            expiresAt: authorizationExpiresAt.toISOString(),
-          }),
-          authorizationExpiresAt,
-          redactedGatewayData: {
-            checkoutMethod: provider === "MONNIFY" ? "PAY_WITH_BANK" : "HOSTED",
+    await withTransactionRetry(
+      this.database,
+      async (tx) => {
+        const identity = await this.lockPaymentBuyer(tx, buyer);
+        await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${prepared.existing.id}::uuid FOR UPDATE`;
+        await lockStoredTarget(tx, id);
+        const current = await tx.paymentAttempt.findUnique({
+          where: { id: prepared.existing.id },
+          select: { status: true, redactedGatewayData: true },
+        });
+        const payment = await this.repository.lockPayment(id, tx);
+        if (!current || !payment || !(await this.paymentBelongsTo(identity, payment, tx)))
+          throw paymentNotFound();
+        this.assertPayable(payment);
+        await this.assertCurrentPaymentSource(payment, tx);
+        if (payment.bookingId)
+          throw paymentConflict(
+            "Booking deposits are disabled under the approved request-and-confirm policy",
+          );
+        await assertFinanceGate(tx);
+        if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
+        if (
+          hasVerificationHold(current.redactedGatewayData) ||
+          !(["INITIALIZED", "PENDING", "PROCESSING"] as string[]).includes(current.status)
+        )
+          throw paymentConflict(
+            "Payment status changed during checkout initialization. Refresh the payment before continuing.",
+          );
+        if (authorizationExpiresAt <= new Date())
+          throw paymentConflict("The checkout expired during initialization");
+        await tx.paymentAttempt.update({
+          where: { id: prepared.existing.id },
+          data: {
+            status: current.status === "INITIALIZED" ? "PENDING" : current.status,
+            providerReference: reference,
+            encryptedCheckoutState: sealPaymentCheckoutState({
+              provider,
+              authorizationUrl: initialized.authorizationUrl,
+              accessCode: initialized.accessCode,
+              expiresAt: authorizationExpiresAt.toISOString(),
+            }),
+            authorizationExpiresAt,
+            redactedGatewayData: {
+              checkoutMethod: provider === "MONNIFY" ? "PAY_WITH_BANK" : "HOSTED",
+            },
           },
-        },
-      });
-      await tx.payment.updateMany({
-        where: { id, status: "REQUIRES_PAYMENT" },
-        data: { status: "PROCESSING" },
-      });
-      await appendAuditEvent(tx, {
-        actorUserId: identity.actorUserId,
-        action: "PAYMENT_INITIALIZED",
-        entityType: "PAYMENT_ATTEMPT",
-        entityId: prepared.existing.id,
-        newValues: { provider, paymentId: id },
-        context,
-      });
-    });
+        });
+        await tx.payment.updateMany({
+          where: { id, status: "REQUIRES_PAYMENT" },
+          data: { status: "PROCESSING" },
+        });
+        await appendAuditEvent(tx, {
+          actorUserId: identity.actorUserId,
+          action: "PAYMENT_INITIALIZED",
+          entityType: "PAYMENT_ATTEMPT",
+          entityId: prepared.existing.id,
+          newValues: { provider, paymentId: id },
+          context,
+        });
+      },
+      { isolationLevel: "Serializable" },
+    );
     return {
       attemptId: prepared.existing.id,
       authorizationUrl: initialized.authorizationUrl,
@@ -709,77 +733,81 @@ export class PaymentsService {
       }))
     )
       throw paymentConflict("Payment evidence could not be verified");
-    return withTransactionRetry(this.database, async (tx) => {
-      await lockCurrentPaymentCustomer(tx, actor);
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`manual-payment:${reference}`}, 0))`;
-      await lockStoredTarget(tx, id);
-      const payment = await this.repository.lockPayment(id, tx);
-      if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
-      const committed = await this.manualReplay(
-        tx,
-        profile.id,
-        id,
-        reference,
-        requestFingerprint,
-      );
-      if (committed) return committed;
-      this.assertPayable(payment);
-      if (payment.bookingId)
-        throw paymentConflict(
-          "Booking deposits are disabled under the approved request-and-confirm policy",
+    return withTransactionRetry(
+      this.database,
+      async (tx) => {
+        await lockCurrentPaymentCustomer(tx, actor);
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`manual-payment:${reference}`}, 0))`;
+        await lockStoredTarget(tx, id);
+        const payment = await this.repository.lockPayment(id, tx);
+        if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
+        const committed = await this.manualReplay(
+          tx,
+          profile.id,
+          id,
+          reference,
+          requestFingerprint,
         );
-      await assertFinanceGate(tx);
-      if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
-      await this.assertNoUnresolvedAttempt(id, tx);
-      await this.assertCurrentPaymentSource(payment, tx);
-      const latest = await tx.paymentAttempt.aggregate({
-        where: { paymentId: id },
-        _max: { attemptNumber: true },
-      });
-      const attempt = await this.repository.createAttempt(
-        {
-          paymentId: id,
-          attemptNumber: (latest._max.attemptNumber ?? 0) + 1,
-          internalReference: reference,
-          provider: "MANUAL",
-          method: input.method,
-          status: "PENDING",
-          verificationStatus: "UNVERIFIED",
-          amountKobo: payment.amountKobo,
-          currency: payment.currency,
-          redactedGatewayData: { requestFingerprint },
-        },
-        tx,
-      );
-      await tx.manualPaymentReview.create({
-        data: {
-          paymentAttemptId: attempt.id,
-          submittedByUserId: actor.userId,
-          ...(input.bankReference ? { bankReference: input.bankReference } : {}),
-          payerName: input.payerName,
-          transferredAt: new Date(input.transferredAt),
-          ...(evidence
-            ? {
-                evidenceObjectKey: evidence.objectKey,
-                evidenceSha256: evidence.checksumSha256,
-              }
-            : {}),
-        },
-      });
-      await tx.payment.update({ where: { id }, data: { status: "REQUIRES_REVIEW" } });
-      await appendAuditEvent(tx, {
-        actorUserId: actor.userId,
-        action: "CREATE",
-        entityType: "PAYMENT_ATTEMPT",
-        entityId: attempt.id,
-        newValues: { provider: "MANUAL", paymentId: id },
-        context,
-      });
-      return paymentJsonSafe({
-        ...(await this.repository.get(id, tx)),
-        replayed: false,
-      });
-    });
+        if (committed) return committed;
+        this.assertPayable(payment);
+        if (payment.bookingId)
+          throw paymentConflict(
+            "Booking deposits are disabled under the approved request-and-confirm policy",
+          );
+        await assertFinanceGate(tx);
+        if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
+        await this.assertNoUnresolvedAttempt(id, tx);
+        await this.assertCurrentPaymentSource(payment, tx);
+        const latest = await tx.paymentAttempt.aggregate({
+          where: { paymentId: id },
+          _max: { attemptNumber: true },
+        });
+        const attempt = await this.repository.createAttempt(
+          {
+            paymentId: id,
+            attemptNumber: (latest._max.attemptNumber ?? 0) + 1,
+            internalReference: reference,
+            provider: "MANUAL",
+            method: input.method,
+            status: "PENDING",
+            verificationStatus: "UNVERIFIED",
+            amountKobo: payment.amountKobo,
+            currency: payment.currency,
+            redactedGatewayData: { requestFingerprint },
+          },
+          tx,
+        );
+        await tx.manualPaymentReview.create({
+          data: {
+            paymentAttemptId: attempt.id,
+            submittedByUserId: actor.userId,
+            ...(input.bankReference ? { bankReference: input.bankReference } : {}),
+            payerName: input.payerName,
+            transferredAt: new Date(input.transferredAt),
+            ...(evidence
+              ? {
+                  evidenceObjectKey: evidence.objectKey,
+                  evidenceSha256: evidence.checksumSha256,
+                }
+              : {}),
+          },
+        });
+        await tx.payment.update({ where: { id }, data: { status: "REQUIRES_REVIEW" } });
+        await appendAuditEvent(tx, {
+          actorUserId: actor.userId,
+          action: "CREATE",
+          entityType: "PAYMENT_ATTEMPT",
+          entityId: attempt.id,
+          newValues: { provider: "MANUAL", paymentId: id },
+          context,
+        });
+        return paymentJsonSafe({
+          ...(await this.repository.get(id, tx)),
+          replayed: false,
+        });
+      },
+      { isolationLevel: "Serializable" },
+    );
   }
 
   async createEvidenceUpload(
@@ -2644,7 +2672,7 @@ export class PaymentsService {
     owner: Pick<PaymentBuyerIdentity, "customerId" | "guestId">,
     input: PaymentCreateInput,
     tx: Prisma.TransactionClient,
-  ): Promise<{ amountKobo: bigint; expiresAt: Date | null }> {
+  ): Promise<PaymentSource> {
     if (owner.customerId) return this.resolveSource(owner.customerId, input, tx);
     if (
       !owner.guestId ||
@@ -2670,7 +2698,23 @@ export class PaymentsService {
     )
       throw paymentNotFound();
     if (order.paidAt !== null) throw paymentConflict("This order is already paid");
-    return { amountKobo: order.totalKobo, expiresAt: order.paymentDueAt };
+    return this.reviewedOrderSource(input.targetId, tx);
+  }
+
+  private async reviewedOrderSource(
+    id: string,
+    tx: Prisma.TransactionClient,
+  ): Promise<PaymentSource> {
+    const { order, review } = await assertReviewedPurchasePayable(tx, id);
+    return {
+      amountKobo: order.totalKobo,
+      expiresAt: order.paymentDueAt,
+      purchaseReview: {
+        id: review.id,
+        revision: review.revision,
+        payableFingerprint: review.payableFingerprint!,
+      },
+    };
   }
 
   private async assertCurrentPaymentSource(
@@ -2697,12 +2741,41 @@ export class PaymentsService {
       input.data,
       tx,
     );
+    if (target.targetType === "ORDER") {
+      const saved = await tx.payment.findUnique({
+        where: { id: payment.id },
+        select: { policySnapshot: true },
+      });
+      const snapshot = saved?.policySnapshot;
+      const binding = purchaseReviewPaymentBindingSchema.safeParse(
+        snapshot && typeof snapshot === "object" && !Array.isArray(snapshot)
+          ? snapshot["purchaseReview"]
+          : undefined,
+      );
+      if (
+        !binding.success ||
+        !source.purchaseReview ||
+        binding.data.id !== source.purchaseReview.id ||
+        binding.data.revision !== source.purchaseReview.revision ||
+        binding.data.payableFingerprint !== source.purchaseReview.payableFingerprint
+      )
+        throw paymentConflict(
+          "This payment is not bound to the current approved offer. Review its status before continuing.",
+        );
+    }
     if (source.amountKobo !== payment.amountKobo || payment.currency !== "NGN")
       throw paymentConflict(
         "The amount due changed. Review the existing payment before continuing.",
       );
     if (source.expiresAt && source.expiresAt <= new Date())
       throw paymentConflict("The payable has expired");
+    if (
+      target.targetType === "ORDER" &&
+      (!payment.expiresAt || !source.expiresAt || payment.expiresAt > source.expiresAt)
+    )
+      throw paymentConflict(
+        "The payment window does not match the approved offer. Review the existing payment before continuing.",
+      );
   }
 
   // Both creation paths hold the same Payment row lock before this check.
@@ -2793,7 +2866,7 @@ export class PaymentsService {
     customerId: string,
     input: PaymentCreateInput,
     tx: Prisma.TransactionClient,
-  ): Promise<{ amountKobo: bigint; expiresAt: Date | null }> {
+  ): Promise<PaymentSource> {
     if (input.targetType === "ORDER") {
       // Expiry and cancellation lock the source row. Read its payable state only
       // after taking the same lock, so a concurrent cancellation cannot commit
@@ -2807,7 +2880,7 @@ export class PaymentsService {
       )
         throw paymentNotFound();
       if (source.paidAt !== null) throw paymentConflict("This order is already paid");
-      return { amountKobo: source.totalKobo, expiresAt: source.paymentDueAt };
+      return this.reviewedOrderSource(input.targetId, tx);
     }
     if (input.targetType === "INVOICE") {
       await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${input.targetId}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`;

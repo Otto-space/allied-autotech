@@ -21,6 +21,27 @@ export function orderRecord(
     version: 2,
     createdAt: "2026-10-08T09:00:00Z",
     paymentDueAt: "2099-10-08T09:30:00Z",
+    purchaseReviews: [
+      {
+        id: orderId(3000 + n),
+        revision: 1,
+        status: "APPROVED",
+        createdAt: "2026-10-08T09:00:00Z",
+        decidedAt: "2026-10-08T09:05:00Z",
+        expiresAt: "2099-10-08T09:30:00Z",
+        requirements: {
+          lines: [1000, 2000].map((offset) => ({
+            orderItemId: orderId(offset + n),
+            selection: {
+              vehicleModelId: orderId(5000),
+              year: 2026,
+              position: "front",
+              brakeSystem: "synthetic-fixture-system",
+            },
+          })),
+        },
+      },
+    ],
     paidAt: n === 1 ? "2026-10-08T09:15:00Z" : null,
     branch: { id: orderId(101), code: "QA", name: "Stadium Road workshop" },
     invoice: null,

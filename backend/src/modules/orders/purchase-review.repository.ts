@@ -21,6 +21,7 @@ export const purchaseReviewOrderSelect = {
   taxKobo: true,
   deliveryFeeKobo: true,
   totalKobo: true,
+  policySnapshot: true,
   branch: { select: { isActive: true } },
   items: {
     select: {
@@ -66,6 +67,7 @@ export async function loadPurchaseFitment(
   tx: Prisma.TransactionClient,
   order: PurchaseReviewOrder,
   requirements: PurchaseRequirements,
+  stage: "PAYMENT" | "FULFILMENT" = "PAYMENT",
 ) {
   if (!order.branchId || !order.branch?.isActive || order.currency !== "NGN")
     throw orderConflict("Choose an active collection branch before review.");
@@ -106,7 +108,7 @@ export async function loadPurchaseFitment(
   if (
     order.partsQuote &&
     (order.partsQuote.status !== "ACCEPTED" ||
-      order.partsQuote.expiresAt <= now ||
+      (stage === "PAYMENT" && order.partsQuote.expiresAt <= now) ||
       order.partsQuote.totalKobo !== order.totalKobo ||
       order.items.length !== 1 ||
       order.items[0]?.productId !== order.partsQuote.productId ||
@@ -126,7 +128,11 @@ export async function loadPurchaseFitment(
       (product.category.parentId && !product.category.parent?.isActive)
     )
       throw orderConflict("A product is no longer offered. Request an updated order.");
-    if (!order.partsQuote && item.unitPriceKobo !== product.priceKobo)
+    if (
+      stage === "PAYMENT" &&
+      !order.partsQuote &&
+      item.unitPriceKobo !== product.priceKobo
+    )
       throw orderConflict(
         "A product price changed. Review an updated offer before payment.",
       );

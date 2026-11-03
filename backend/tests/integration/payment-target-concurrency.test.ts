@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
@@ -150,7 +151,7 @@ async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
         totalKobo: 10000n,
         issuedAt: new Date(),
         acceptedAt: new Date(),
-        expiresAt,
+        expiresAt: purchaseReview?.expiresAt ?? expiresAt,
       },
     });
     const invoice = await prisma.invoice.create({
@@ -234,6 +235,8 @@ async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
     prisma,
     new PaymentProviderRegistry({ PAYSTACK: provider, MONNIFY: provider }),
   );
+  const purchaseReview =
+    kind === "ORDER" ? await reviewFixtureOrderForPayment(input.targetId) : null;
   const create = (key = randomUUID(), body = input) =>
     service.createIntent(actor, body, key, context());
   const payments = () => prisma.payment.findMany({ where: { customerId } });
@@ -246,6 +249,17 @@ async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
         purpose: input.purpose,
         amountKobo: 10000n,
         expiresAt,
+        ...(purchaseReview
+          ? {
+              policySnapshot: {
+                purchaseReview: {
+                  id: purchaseReview.id,
+                  revision: purchaseReview.revision,
+                  payableFingerprint: purchaseReview.payableFingerprint,
+                },
+              },
+            }
+          : {}),
         ...(kind === "ORDER"
           ? { orderId: input.targetId }
           : kind === "INVOICE"

@@ -7,7 +7,7 @@ export type CustomerOrder = ReturnType<typeof parseOrder>;
 
 export function orderPaymentUnavailable(order: CustomerOrder, now = Date.now()) {
   if (order.paidAt) return "Payment is already recorded for this order.";
-  if (!["PENDING", "CONFIRMED"].includes(order.status))
+  if (order.status !== "PENDING")
     return "This order is not open for a new payment request.";
   if (BigInt(order.totalKobo) <= BigInt(0))
     return "This order does not have an amount available to pay.";
@@ -17,6 +17,16 @@ export function orderPaymentUnavailable(order: CustomerOrder, now = Date.now()) 
     if (Date.parse(order.paymentDueAt) <= now)
       return "The payment deadline has passed. Check existing payments or contact customer care.";
   }
+  const review = order.purchaseReviews?.[0];
+  if (!review || review.status !== "APPROVED" || !review.decidedAt)
+    return "Final compatibility and availability review is required before payment.";
+  if (
+    !order.paymentDueAt ||
+    !review.expiresAt ||
+    Date.parse(review.expiresAt) <= now ||
+    Date.parse(review.expiresAt) !== Date.parse(order.paymentDueAt)
+  )
+    return "The approved offer is not currently payable. Ask the team for an updated review.";
   return undefined;
 }
 
@@ -28,6 +38,10 @@ export function orderPaymentSnapshot(order: CustomerOrder) {
     order.totalKobo,
     order.paymentDueAt,
     order.paidAt,
+    order.purchaseReviews?.[0]?.id,
+    order.purchaseReviews?.[0]?.revision,
+    order.purchaseReviews?.[0]?.status,
+    order.purchaseReviews?.[0]?.expiresAt,
   ]);
 }
 

@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApp } from "../../src/app.js";
@@ -55,7 +56,7 @@ async function setup() {
     quantity: 2,
     unitPriceKobo: "10000",
     notes:
-      "Collection only. Final suitability and availability are reviewed after payment; collection readiness is separate.",
+      "Collection only. Final suitability and availability are reviewed before payment; collection readiness is separate.",
   };
   const credentials = { sessionToken: guest.sessionToken, csrfToken: guest.csrfToken };
   const headers = {
@@ -397,7 +398,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       }
     });
 
-    it("records verified payment before a real authorized operator can perform final review and allocate stock", async () => {
+    it("records final review before payment and allocates the reviewed stock once after verified payment", async () => {
       const f = await setup(),
         quote = await issue(f),
         accepted = await accept(f, quote);
@@ -442,6 +443,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         prisma,
         new PaymentProviderRegistry({ PAYSTACK: port }),
       );
+      await reviewFixtureOrderForPayment(accepted.order.id, f.credentials);
       const intent = (await payments.guestCreateIntent(
         f.credentials,
         accepted.order.id,
@@ -468,15 +470,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(paid.paidAt).not.toBeNull();
       expect(
         await prisma.inventoryReservation.count({ where: { referenceId: paid.id } }),
-      ).toBe(0);
-      await expect(
-        orders.transition(
-          f.actor,
-          paid.id,
-          { expectedVersion: paid.version, status: "CONFIRMED" },
-          ctx(),
-        ),
-      ).rejects.toMatchObject({ statusCode: 409 });
+      ).toBe(1);
+      const review = await prisma.orderPurchaseReview.findFirstOrThrow({
+        where: { orderId: paid.id },
+      });
+      const payment = await prisma.payment.findUniqueOrThrow({
+        where: { id: intent.payment.id },
+      });
+      expect(review.decidedAt!.getTime()).toBeLessThanOrEqual(
+        payment.createdAt.getTime(),
+      );
       await orders.transition(
         f.actor,
         paid.id,

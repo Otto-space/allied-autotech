@@ -32,7 +32,7 @@ export class OrdersController {
       .status(201)
       .json(
         successResponse(
-          "Checkout completed",
+          "Order saved for final compatibility and availability review",
           req.id,
           await this.service.checkout(
             actor(req),

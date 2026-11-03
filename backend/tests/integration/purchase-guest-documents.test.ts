@@ -6,6 +6,7 @@ import {
 } from "../../src/common/security/cookies.js";
 import { FinancialDocumentsService } from "../../src/modules/billing/documents.service.js";
 import { randomUUID } from "node:crypto";
+import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import { env } from "../../src/config/env.js";
@@ -80,6 +81,7 @@ async function setup() {
     new PaymentProviderRegistry({ PAYSTACK: port("PAYSTACK"), MONNIFY: port("MONNIFY") }),
   );
   const intentKey = randomUUID();
+  await reviewFixtureOrderForPayment(result.order.id, credentials);
   const intent = (await payments.guestCreateIntent(
     credentials,
     result.order.id,

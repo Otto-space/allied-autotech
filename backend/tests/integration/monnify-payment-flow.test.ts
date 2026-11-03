@@ -1,6 +1,7 @@
 import { testCapability } from "../helpers/owner-policy.js";
 import { RefundWorker } from "../../src/workers/refund.worker.js";
 import { randomUUID } from "node:crypto";
+import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import { afterAll, describe, expect, it } from "vitest";
 
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
@@ -152,6 +153,7 @@ describe.skipIf(!runDatabaseTests)("Monnify payment flow", () => {
         paymentDueAt: new Date(Date.now() + 3_600_000),
       },
     });
+    await reviewFixtureOrderForPayment(order.id);
     const customerActor = await actor(customer.id, "CUSTOMER");
     const created = (await service.createIntent(
       customerActor,

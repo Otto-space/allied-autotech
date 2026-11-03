@@ -1,5 +1,6 @@
 import { fitmentDecisionSchema, fitmentQualifierKeys } from "../parts-fitment";
 import { z } from "zod";
+import { purchaseReviewSummarySchema } from "./purchase-review-schema";
 import { productFamily, recordedProductFields } from "../product-family";
 export const money = z.string().regex(/^\d+$/);
 export const branchRef = z.object({
@@ -118,6 +119,7 @@ export const cartSchema = z.object({
 });
 export const parseCart = (value: unknown) => cartSchema.parse(value);
 export const orderSchema = z.object({
+  purchaseReviews: z.array(purchaseReviewSummarySchema).max(1).optional().default([]),
   partsQuote: z
     .object({
       id: z.uuid(),

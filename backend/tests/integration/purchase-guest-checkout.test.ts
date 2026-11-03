@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { reviewFixtureOrderForPayment } from "../helpers/purchase-review.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import { env } from "../../src/config/env.js";
@@ -34,7 +35,7 @@ async function checkout(guest: Guest, input: unknown, key = randomUUID()) {
       subtotalKobo: string;
       discountAmountKobo: string;
       taxKobo: string;
-      paymentDueAt: Date;
+      paymentDueAt: Date | null;
     };
     replayed: boolean;
   };
@@ -69,7 +70,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     beforeAll(() => assertIsolatedLoopbackDatabase());
     afterAll(() => prisma.$disconnect());
 
-    it("creates an owned order, invoice and exact stock hold without an account or changing the matching account cart", async () => {
+    it("saves an unpaid owned request and holds stock only after final review without changing the matching account cart", async () => {
       const f = await setup(true),
         cart = await accountCart(f);
       const before = [await prisma.user.count(), await prisma.customerProfile.count()];
@@ -111,13 +112,26 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       expect(
         await prisma.inventory.findUnique({ where: { id: f.inventory.id } }),
-      ).toMatchObject({ quantity: 12, reserved: 4 });
+      ).toMatchObject({ quantity: 12, reserved: 2 });
       expect(
         await prisma.inventoryReservation.findFirst({ where: { referenceId: saved.id } }),
-      ).toMatchObject({ customerId: null, quantity: 2, status: "ACTIVE" });
+      ).toBeNull();
       expect(
         await prisma.inventoryTransaction.findFirst({ where: { referenceId: saved.id } }),
-      ).toMatchObject({ performedById: null, reservedDelta: 2 });
+      ).toBeNull();
+      expect(result.order.paymentDueAt).toBeNull();
+      await reviewFixtureOrderForPayment(result.order.id, {
+        sessionToken: f.guest.sessionToken,
+        csrfToken: f.guest.csrfToken,
+      });
+      expect(
+        await prisma.inventory.findUnique({ where: { id: f.inventory.id } }),
+      ).toMatchObject({ quantity: 12, reserved: 4 });
+      expect(
+        await prisma.inventoryReservation.findFirst({
+          where: { referenceId: saved.id, status: "ACTIVE" },
+        }),
+      ).toMatchObject({ customerId: null, quantity: 2 });
       expect((await get(f.customer, `/customers/orders/${saved.id}`)).status).toBe(404);
       expect(
         ((await orders.guestOrder(f.guest.sessionToken, saved.id)) as { id: string }).id,
@@ -131,7 +145,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).rejects.toMatchObject({ statusCode: 404 });
     });
 
-    it("recovers one original order across two guest sessions and never extends its hold or reserves twice", async () => {
+    it("recovers one original review request across guest sessions without starting a payment window or reserving stock", async () => {
       const f = await setup(),
         key = randomUUID();
       const second = await purchaseGuest(f.guest.access.email);
@@ -168,12 +182,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).rejects.toMatchObject({ statusCode: 409 });
       expect(
         await prisma.inventory.findUnique({ where: { id: f.inventory.id } }),
-      ).toMatchObject({ reserved: 4 });
+      ).toMatchObject({ reserved: 2 });
       expect(
         await prisma.inventoryReservation.count({
           where: { referenceId: results[0]!.order.id },
         }),
-      ).toBe(1);
+      ).toBe(0);
       await new PurchaseGuestAccessService().revoke(
         f.guest.sessionToken,
         f.guest.csrfToken,
@@ -273,7 +287,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(await prisma.order.count()).toBe(before);
     });
 
-    it("prevents simultaneous guests from holding the same final available unit", async () => {
+    it("accepts unpaid requests but prevents simultaneous review approvals from holding the same final unit", async () => {
       const f = await setup(),
         second = await purchaseGuest();
       await prisma.inventory.update({
@@ -281,9 +295,22 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         data: { quantity: 3 },
       });
       const input = { ...f.input, items: [{ ...f.input.items[0]!, quantity: 1 }] };
-      const result = await Promise.allSettled([
+      const pending = await Promise.all([
         checkout(f.guest, input),
         checkout(second, input),
+      ]);
+      expect(
+        await prisma.inventory.findUnique({ where: { id: f.inventory.id } }),
+      ).toMatchObject({ quantity: 3, reserved: 2 });
+      const result = await Promise.allSettled([
+        reviewFixtureOrderForPayment(pending[0]!.order.id, {
+          sessionToken: f.guest.sessionToken,
+          csrfToken: f.guest.csrfToken,
+        }),
+        reviewFixtureOrderForPayment(pending[1]!.order.id, {
+          sessionToken: second.sessionToken,
+          csrfToken: second.csrfToken,
+        }),
       ]);
       expect(result.filter((r) => r.status === "fulfilled")).toHaveLength(1);
       expect(result.filter((r) => r.status === "rejected")).toHaveLength(1);
