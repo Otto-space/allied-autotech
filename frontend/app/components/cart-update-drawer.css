@@ -25,7 +25,10 @@ dialog.cart-update-drawer {
   background: #01121a99;
 }
 dialog.cart-update-drawer :is(h2, h3, h4, p) {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-body);
+}
+dialog.cart-update-drawer :is(h2, h3, h4) {
+  font-family: var(--font-heading);
 }
 .cart-drawer-heading {
   display: flex;

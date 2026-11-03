@@ -115,19 +115,22 @@ export function HomePartsPreview({
               title: "Engine oils",
               image: "engine-oils",
               href: "/parts?family=ENGINE_OIL",
-              copy: "Browse engine oils and ask about suitability.",
+              copy: "Check oil grades and specifications.",
+              action: "Browse engine oils",
             },
             {
               title: "Filters",
               image: "filters",
               href: "/contact?parts=1&part_search=Filters#enquiry",
               copy: "Ask the team to check the filter your vehicle needs.",
+              action: "Ask about filters",
             },
             {
               title: "Replacement parts",
               image: "replacement-parts",
               href: "/contact?parts=1&part_search=Replacement+parts#enquiry",
               copy: "Discuss the part, vehicle and specifications before collection.",
+              action: "Ask about replacement parts",
             },
           ].map((item) => (
             <article className="home-feature-card" key={item.image}>
@@ -146,8 +149,7 @@ export function HomePartsPreview({
                 <h3>{item.title}</h3>
                 <p>{item.copy}</p>
                 <Link className="text-link" href={item.href}>
-                  Explore {item.title.toLowerCase()}{" "}
-                  <ArrowUpRight size={16} aria-hidden="true" />
+                  {item.action} <ArrowUpRight size={16} aria-hidden="true" />
                 </Link>
               </div>
             </article>
@@ -160,18 +162,10 @@ export function HomePartsPreview({
       )}
       {!parts.loading &&
         !parts.error &&
-        !!parts.data?.items.length &&
-        featured.length === 0 && (
-          <p className="home-product-note">
-            Find published products and their available details in the Shop.
-          </p>
-        )}
-      {!parts.loading &&
-        !parts.error &&
         !parts.refreshError &&
         parts.data?.items.length === 0 && (
           <div className="home-preview-empty">
-            <p>No products are published yet. Contact the team with what you need.</p>
+            <p>No products are currently listed online. Tell the team what you need.</p>
             <Link className="text-link" href="/contact?parts=1#enquiry">
               Ask about a product <ArrowUpRight size={16} aria-hidden="true" />
             </Link>
@@ -210,17 +204,17 @@ export function HomeVehiclesPreview({
                 {empty
                   ? "Looking for a vehicle?"
                   : hasListings
-                    ? "Explore our vehicle listings"
+                    ? "Find your next vehicle"
                     : "Vehicle enquiries"}
               </h2>
               <p>
                 {empty
-                  ? "Our online catalogue has no published listings yet. Tell us what you are looking for."
-                  : "Compare vehicle details or share your requirements with our team."}
+                  ? "No vehicles are currently listed online. Tell us what you are looking for."
+                  : "Compare vehicle details or tell us what you are looking for."}
               </p>
               {hasListings && (
                 <Link className="text-link" href="/vehicles">
-                  Explore vehicles <ArrowUpRight size={16} aria-hidden="true" />
+                  View vehicles <ArrowUpRight size={16} aria-hidden="true" />
                 </Link>
               )}
             </div>

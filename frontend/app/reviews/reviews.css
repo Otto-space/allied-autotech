@@ -27,7 +27,7 @@
   letter-spacing: -0.02em;
 }
 .reviews-page h3 {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 17px;
   line-height: 1.45;
   text-transform: none;

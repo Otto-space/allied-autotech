@@ -1,3 +1,25 @@
+### 3 November 2026: Distinct Home photographs and semantic typography (local acceptance)
+
+Owner brief 6.4–6.6 implemented on isolated `codex/home-photo-composition-20261103`
+from `57d58e0d`, preserving other agents' dirty worktrees. Genuine photographs now
+have their own 3:2 area beside laptop copy and below mobile text/CTA. Home copy
+is shorter and destination-specific. Nippo heading / Quicksand interface tokens
+replace conflicting concrete overrides across public, auth, Help/Learn and role
+dashboard styles. No permissions, commerce capabilities, database or business
+records changed. Historical AI-image source informed hierarchy only.
+
+Local Edge acceptance passes 21 carousel cases across nine widths, 14 font cases
+across Customer/Staff/Admin/Super Admin and public/auth/dialog components, eight
+units, compiler and scoped lint. Final 390/1366 layout reruns pass 2/2 after copy
+cleanup. Separate empty/populated/503 fixture scenarios and product retry pass.
+Final all-slide phone/laptop and complete-page screenshots were inspected. Real
+optimizer response bitmap dimensions/bytes were measured; no quality increase or
+replacement image generation was needed. See HOME_PHOTO_COMPOSITION_20261103.md
+for history, copy diff, image pipeline and exact limits. Local Next is 16.3.8;
+exact-lock 16.4.3 CI, hosted acceptance and release integration remain gates.
+Physical-device, true browser zoom, full screen-reader and every protected page's
+real-role acceptance are not claimed. Restricted features remain unchanged.
+
 ### 3 November 2026: Guest aftercare checkpoint (unpublished)
 
 Guest cancellation/review, original-request recovery, operator payment destinations

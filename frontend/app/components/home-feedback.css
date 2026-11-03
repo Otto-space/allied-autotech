@@ -17,9 +17,7 @@
   gap: 16px 32px;
 }
 .home-page .home-feedback__invitation h2 {
-  font:
-    700 20px/1.4 var(--font-quicksand),
-    sans-serif;
+  font: 500 20px/1.4 var(--font-heading);
   margin: 0 0 6px;
 }
 .home-feedback__invitation p,
@@ -108,9 +106,7 @@
   fill: currentColor;
 }
 .home-page .home-feedback .review-card--testimonial h3 {
-  font:
-    700 20px/1.4 var(--font-quicksand),
-    sans-serif;
+  font: 500 20px/1.4 var(--font-heading);
   margin: 0 0 12px;
   overflow-wrap: anywhere;
 }

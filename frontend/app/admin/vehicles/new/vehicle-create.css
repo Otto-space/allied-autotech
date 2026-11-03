@@ -39,12 +39,12 @@
   min-width: 0;
 }
 .dashboard .dashboard-content .work-vehicle-create h1 {
-  font-family: inherit;
+  font-family: var(--font-heading);
   font-size: 28px;
   line-height: 1.3;
   letter-spacing: -0.025em;
   margin: 0 0 6px;
-  font-weight: 700;
+  font-weight: 500;
 }
 .vc-header p {
   margin: 0;
@@ -99,9 +99,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font:
-    700 16px/1.4 var(--font-quicksand),
-    sans-serif;
+  font: 500 16px/1.4 var(--font-heading);
   letter-spacing: -0.02em;
   margin: 0 0 20px;
 }
@@ -188,9 +186,9 @@
 }
 .vc-guidance h2,
 .vc-state h2 {
-  font-family: inherit;
+  font-family: var(--font-heading);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.4;
   margin: 0 0 20px;
 }

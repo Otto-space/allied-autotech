@@ -114,7 +114,7 @@
 }
 .product-detail .pd-lightbox h2 {
   color: white;
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: var(--font-heading);
   font-size: 20px;
   margin: 0;
 }
@@ -160,9 +160,7 @@
   margin-bottom: 20px;
 }
 .product-detail .pd-state h1 {
-  font:
-    600 clamp(28px, 4vw, 42px)/1.2 var(--font-nippo),
-    sans-serif;
+  font: 600 clamp(28px, 4vw, 42px)/1.2 var(--font-heading);
 }
 .product-detail {
   --pd-muted: #4f6073;
@@ -179,7 +177,7 @@
 .product-detail h1,
 .product-detail h2,
 .product-detail h3 {
-  font-family: var(--font-nippo), sans-serif;
+  font-family: var(--font-heading);
   overflow-wrap: anywhere;
 }
 .product-detail p {
@@ -223,7 +221,7 @@
 .product-detail .pd-heading h1 {
   font-size: clamp(26px, 2.8vw, 36px);
   line-height: 1.15;
-  font-weight: 700;
+  font-weight: 500;
   margin: 0 0 8px;
   letter-spacing: -0.025em;
 }
@@ -280,9 +278,7 @@
   border-block: 1px solid var(--pd-line);
 }
 .product-detail .pd-availability h2 {
-  font:
-    700 15px var(--font-quicksand),
-    sans-serif;
+  font: 500 15px var(--font-heading);
   margin: 0 0 10px;
 }
 .pd-availability ul {
@@ -432,9 +428,7 @@
   background: #f2faf5;
 }
 .product-detail .pd-feedback h2 {
-  font:
-    700 17px var(--font-quicksand),
-    sans-serif;
+  font: 500 17px var(--font-heading);
   margin: 0 0 8px;
 }
 .product-detail .pd-feedback p {
@@ -456,9 +450,7 @@
   flex-shrink: 0;
 }
 .product-detail .pd-assistance h2 {
-  font:
-    700 18px/1.4 var(--font-quicksand),
-    sans-serif;
+  font: 500 18px/1.4 var(--font-heading);
   color: white;
   margin: 0;
   flex: 1;
@@ -554,9 +546,7 @@
   font-size: 14px;
 }
 .product-detail .pd-compatibility h3 {
-  font:
-    700 15px/1.5 var(--font-quicksand),
-    sans-serif;
+  font: 500 15px/1.5 var(--font-heading);
   margin: 0;
 }
 .pd-compatibility li span {
@@ -620,9 +610,7 @@
   color: var(--pd-muted);
 }
 .product-detail .pd-related-item h3 {
-  font:
-    700 17px/1.35 var(--font-quicksand),
-    sans-serif;
+  font: 500 17px/1.35 var(--font-heading);
   margin: 0 0 6px;
 }
 .product-detail .pd-related-item p {
@@ -927,9 +915,7 @@
   padding-top: 3px;
 }
 .product-detail .pd-ordering h3 {
-  font:
-    700 15px/1.5 var(--font-quicksand),
-    sans-serif;
+  font: 500 15px/1.5 var(--font-heading);
   margin: 0 0 6px;
 }
 .product-detail .pd-ordering p {

@@ -52,7 +52,7 @@ export function HomeFeaturedServices({
                 <h3>{item.name}</h3>
                 <p>{item.description}</p>
                 {item.key === "oil-service" && (
-                  <small>Illustrative service photograph.</small>
+                  <small>Illustrative oil-service image.</small>
                 )}
                 <p className="home-feature-price">
                   {record

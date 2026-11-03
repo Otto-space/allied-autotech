@@ -110,7 +110,7 @@
 }
 .public-site h1 {
   font-size: clamp(32px, 4.1vw, 58px);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.14;
   letter-spacing: -0.035em;
   margin: 0 0 24px;
@@ -118,7 +118,7 @@
 }
 .public-site h2 {
   font-size: clamp(28px, 3vw, 40px);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.025em;
   margin: 0 0 20px;

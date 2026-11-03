@@ -2,14 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
-import {
-  type CSSProperties,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useEffect, useReducer, useRef, useState, useSyncExternalStore } from "react";
 import {
   HERO_IMAGE_TIMEOUT_MS,
   HERO_INTERVAL_MS,
@@ -26,32 +19,26 @@ const slides = [
   {
     image: "diagnostics-at-work",
     alt: "Allied technician inspecting a vehicle with its bonnet open",
-    title: "Comprehensive diagnostics. Clear next steps.",
-    copy: "A full vehicle health check, a PDF scan result and clear advice on what comes next.",
-    action: "Explore diagnostics",
+    title: "Understand your vehicle’s condition.",
+    copy: "Comprehensive diagnostics, with scan results explained by our team.",
+    action: "View diagnostics",
     href: "/services?search=diagnostics",
-    position: "62% 46%",
-    mobilePosition: "76% 0%",
   },
   {
     image: "alignment-at-work",
     alt: "Allied technician beside the workshop’s 3D wheel alignment equipment",
-    title: "Wheel care. A considered approach.",
-    copy: "Explore four-wheel alignment and discuss the tyre care your vehicle needs.",
-    action: "Explore wheel care",
+    title: "Keep your wheels in line.",
+    copy: "Four-wheel alignment and tyre maintenance for your vehicle.",
+    action: "View wheel care",
     href: "/services?search=alignment",
-    position: "62% 50%",
-    mobilePosition: "58% 0%",
   },
   {
     image: "tyre-care-at-work",
     alt: "A team member working beside tyre-changing equipment in the Allied workshop",
-    title: "Careful work. People you can meet.",
-    copy: "See the people, tools and working approach behind your vehicle care.",
+    title: "See where the work happens.",
+    copy: "Meet our technicians and see the equipment at our Port Harcourt workshop.",
     action: "Meet the team",
     href: "/about#team",
-    position: "50% 50%",
-    mobilePosition: "12% 0%",
   },
 ] as const;
 
@@ -69,7 +56,6 @@ export function HomeHero() {
   const root = useRef<HTMLElement>(null);
   const touch = useRef<{ x: number; y: number } | null>(null);
   const pointerStop = useRef<boolean | null>(null);
-  const current = slides[state.current];
   const allFailed = state.failed.every(Boolean);
   const rotating = enhanced && !stopped && visible && inView && !allFailed;
   useEffect(() => {
@@ -166,45 +152,66 @@ export function HomeHero() {
       }}
     >
       <div className={styles.layout}>
-        <div className={styles.media}>
-          {slides.map(
-            (slide, index) =>
-              (index === 0 || enhanced) && (
-                <Image
-                  key={slide.image}
-                  src={`/images/workshop/owner/${slide.image}.webp`}
-                  alt={slide.alt}
-                  fill
-                  sizes="100vw"
-                  preload={index === 0}
-                  loading={index === 0 ? undefined : "eager"}
-                  className={styles.photo}
-                  aria-hidden={index !== state.current}
-                  data-current={index === state.current && !state.failed[index]}
-                  style={
-                    {
-                      "--photo-focus": slide.position,
-                      "--photo-mobile-focus": slide.mobilePosition,
-                    } as CSSProperties
-                  }
-                  onLoad={async (event) => {
-                    const img = event.currentTarget;
-                    try {
-                      await img.decode();
-                      dispatch({ type: "ready", index });
-                    } catch {
-                      dispatch({ type: "failed", index });
-                    }
-                  }}
-                  onError={() => dispatch({ type: "failed", index })}
-                />
-              ),
-          )}
-          {state.failed[state.current] && (
-            <span className={styles.unavailable}>Workshop photograph unavailable</span>
-          )}
-        </div>
         <div className={styles.content}>
+          {slides.map((slide, index) => {
+            if (index !== 0 && !enhanced) return null;
+            const active = index === state.current;
+            const Title = active ? "h1" : "div";
+            return (
+              <div
+                key={slide.image}
+                className={styles.slide}
+                data-active={active}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${index + 1} of ${slides.length}`}
+                aria-hidden={!active}
+                inert={!active}
+              >
+                <Title className={styles.title} id={active ? "home-title" : undefined}>
+                  {slide.title}
+                </Title>
+                <p className={styles.copy}>{slide.copy}</p>
+                <Link className="button" href={slide.href}>
+                  {slide.action} <ArrowUpRight size={17} aria-hidden="true" />
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+        <div className={styles.visual}>
+          <div className={styles.media}>
+            {slides.map(
+              (slide, index) =>
+                (index === 0 || enhanced) && (
+                  <Image
+                    key={slide.image}
+                    src={`/images/workshop/owner/${slide.image}.webp`}
+                    alt={slide.alt}
+                    fill
+                    sizes="(max-width: 879px) calc(100vw - 32px), (max-width: 1247px) calc(57.5vw - 50.6px), 667px"
+                    preload={index === 0}
+                    loading={index === 0 ? undefined : "eager"}
+                    className={styles.photo}
+                    aria-hidden={index !== state.current}
+                    data-current={index === state.current && !state.failed[index]}
+                    onLoad={async (event) => {
+                      const img = event.currentTarget;
+                      try {
+                        await img.decode();
+                        dispatch({ type: "ready", index });
+                      } catch {
+                        dispatch({ type: "failed", index });
+                      }
+                    }}
+                    onError={() => dispatch({ type: "failed", index })}
+                  />
+                ),
+            )}
+            {state.failed[state.current] && (
+              <span className={styles.unavailable}>Workshop photograph unavailable</span>
+            )}
+          </div>
           <div className={styles.controls}>
             {enhanced && (
               <>
@@ -265,23 +272,12 @@ export function HomeHero() {
               </>
             )}
           </div>
-          <div
-            role="group"
-            aria-roledescription="slide"
-            aria-label={`${state.current + 1} of ${slides.length}`}
-          >
-            <h1 id="home-title">{current.title}</h1>
-            <p className={styles.copy}>{current.copy}</p>
-            <Link className="button" href={current.href}>
-              {current.action} <ArrowUpRight size={17} aria-hidden="true" />
-            </Link>
-          </div>
-          <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-            {state.announcement !== null
-              ? `Slide ${state.announcement + 1} of 3: ${slides[state.announcement].title}`
-              : ""}
-          </span>
         </div>
+        <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          {state.announcement !== null
+            ? `Slide ${state.announcement + 1} of 3: ${slides[state.announcement].title}`
+            : ""}
+        </span>
       </div>
     </section>
   );
