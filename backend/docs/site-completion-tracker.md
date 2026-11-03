@@ -1,3 +1,19 @@
+3 November 21:32 UTC exact-source follow-up: 2b9bf542 signature is valid and
+its secrets check 41721669591 passes. Backend 41721669595 passes migration replay,
+types/scripts/lint, 63 early source/money/API checks, eight reminder cases and 162
+combined cases, then fails one historical expectation that Admin cannot read an
+operational order. The owner-approved Admin full-operations behaviour is preserved;
+the acceptance expectation now requires 200, while scoped financial responsibility,
+separate decision grants and customer-history privacy assertions remain unchanged.
+No runtime permission was broadened. Source 4d90bb3b is signed and pushed.
+Frontend 41721669566 fails types on a newly introduced BigInt literal under the
+existing frontend target. The validator now uses BigInt(0), retaining exact integer
+arithmetic and the current compiler target. These failed runs are not release gates.
+A new exact-source run must pass before claiming native/browser acceptance.
+Read-only Vercel refresh confirms both domains at READY source 7384abf8,
+dpl_GjKGjnPCT8H56HWmikySoyYSjyxP; www retains its 308 apex redirect. This financial
+package is not deployed. No data/flags changed. Reserve recheck read 21.01 GiB.
+
 3 November 21:25 UTC integration reconciliation: remote master 3be68d5d adds the
 separate audit release receipt for source 7384abf8, frontend dpl_GjKGjnPCT8H56HWmikySoyYSjyxP
 and backend fb5f9ef2-8ffc-4233-9e96-4722c43350a2 at schema 92. Its documentation

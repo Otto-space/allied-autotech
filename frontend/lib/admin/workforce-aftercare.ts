@@ -123,7 +123,7 @@ export function parseWorkforceAftercare(value: unknown, id: string) {
       monetary.lines.length !== items.length ||
       new Set(monetary.lines.map((line) => line.orderItemId)).size !==
         monetary.lines.length ||
-      monetary.lines.reduce((sum, line) => sum + BigInt(line.totalKobo), 0n) >
+      monetary.lines.reduce((sum, line) => sum + BigInt(line.totalKobo), BigInt(0)) >
         BigInt(record.order.totalKobo) ||
       monetary.lines.some((line) => {
         const item = items.find((value) => value.orderItemId === line.orderItemId);
