@@ -291,7 +291,6 @@ function SupportWorkspace({
                     <th scope="col">Status</th>
                     <th scope="col">Assigned to</th>
                     <th scope="col">Updated</th>
-                    <th scope="col">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -524,6 +523,18 @@ function SupportCard({
         >
           {r.subject}
         </Link>
+        <div className="care-case-action">
+          <Link
+            className="text-link"
+            href={"/admin/support/" + r.kind + "/" + r.id}
+            onClick={() => {
+              if (session) rememberCareQueue(session.user.id, r.id, r.kind, returnParams);
+            }}
+          >
+            Open case <ChevronRight size={14} aria-hidden="true" />
+            <span className="sr-only"> {r.subject}</span>
+          </Link>
+        </div>
       </td>
       <td>
         <span>{r.contact?.name || "Contact not recorded"}</span>
@@ -552,18 +563,6 @@ function SupportCard({
             timeZone: "Africa/Lagos",
           }).format(new Date(r.updatedAt))}
         </time>
-      </td>
-      <td>
-        <Link
-          className="text-link"
-          href={"/admin/support/" + r.kind + "/" + r.id}
-          onClick={() => {
-            if (session) rememberCareQueue(session.user.id, r.id, r.kind, returnParams);
-          }}
-        >
-          Open case <ChevronRight size={14} aria-hidden="true" />
-          <span className="sr-only"> {r.subject}</span>
-        </Link>
       </td>
     </tr>
   );

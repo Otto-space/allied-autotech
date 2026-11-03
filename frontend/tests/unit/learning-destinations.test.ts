@@ -3,6 +3,8 @@ import { catalogueSchema, learningHref } from "@/lib/learning/contracts";
 
 const destinations = [
   "/privacy",
+  "/admin/vehicles",
+  "/admin/profile",
   "/admin/service-categories",
   "/admin/workforce/bookings",
   "/admin/workforce/aftercare",

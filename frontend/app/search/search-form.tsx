@@ -1,5 +1,5 @@
 "use client";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useHydrated } from "@/lib/use-hydrated";
 export function PublicSearchForm({
@@ -10,6 +10,7 @@ export function PublicSearchForm({
   className: string;
 }) {
   const router = useRouter();
+  const form = useRef<HTMLFormElement>(null);
   const ready = useHydrated();
   function close() {
     if (window.history.length > 1) window.history.back();
@@ -17,13 +18,31 @@ export function PublicSearchForm({
   }
   const [pending, setPending] = useState(false);
   useEffect(() => {
-    const reset = () => setPending(false);
+    let frame = 0;
+    const reset = () => {
+      setPending(false);
+      // Browsers restore persisted form values after pageshow during Back/Forward.
+      // Reconcile on the next frame so the editor matches the applied URL/results.
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => form.current?.reset());
+    };
     window.addEventListener("pageshow", reset);
-    return () => window.removeEventListener("pageshow", reset);
+    window.addEventListener("popstate", reset);
+    // A history traversal may reload instead of restoring a cached document.
+    // In that case pageshow can precede hydration, so reconcile after mounting.
+    const navigation = performance.getEntriesByType("navigation")[0] as
+      PerformanceNavigationTiming | undefined;
+    if (navigation?.type === "back_forward") reset();
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("pageshow", reset);
+      window.removeEventListener("popstate", reset);
+    };
   }, []);
   return (
     <>
       <form
+        ref={form}
         action="/search"
         method="get"
         role="search"

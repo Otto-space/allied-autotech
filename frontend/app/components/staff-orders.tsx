@@ -16,6 +16,7 @@ import { formatBusinessDate } from "@/lib/format/date";
 import { useAccountSession } from "./dashboard-shell";
 import { AdminBranchPicker } from "./admin-branch-picker";
 import { Feedback } from "./feedback";
+import { usePublicCapabilities } from "./public-capabilities";
 
 export function StaffOrders() {
   const session = useAccountSession();
@@ -38,6 +39,7 @@ function navigate(params: URLSearchParams) {
   window.history.pushState(null, "", `/admin/orders${params.size ? `?${params}` : ""}`);
 }
 function OrdersWorkspace({ administrator }: { administrator: boolean }) {
+  const { checkoutEnabled } = usePublicCapabilities();
   const search = useSearchParams();
   const { params, api, invalid, path } = workOrdersQuery(
     new URLSearchParams(search.toString()),
@@ -173,7 +175,9 @@ function OrdersWorkspace({ administrator }: { administrator: boolean }) {
                 <p>
                   {filters.size
                     ? "Check the full order number or clear filters to see other orders."
-                    : "New orders will appear here when customers complete checkout."}
+                    : checkoutEnabled
+                      ? "New orders will appear here when customers complete checkout."
+                      : "Existing orders remain available here. New online checkout is unavailable in this release."}
                 </p>
                 {(filters.size > 0 || !!cursor) && (
                   <button

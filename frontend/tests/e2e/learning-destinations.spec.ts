@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 import path from "node:path";
 import os from "node:os";
 const destinations = [
+  "/admin/vehicles",
+  "/admin/profile",
   "/admin/service-categories",
   "/admin/workforce/bookings",
   "/admin/workforce/aftercare",
@@ -30,6 +32,8 @@ for (const width of [390, 1440])
   test(`authorised Help destinations survive navigation and refresh at ${width}`, async ({
     page,
   }) => {
+    // Nine independent destinations each navigate, reload and return; keep the whole flow bounded.
+    test.setTimeout(180_000);
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     const errors: string[] = [];

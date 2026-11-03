@@ -1,4 +1,5 @@
 "use client";
+import { PROFILE_UPDATED } from "@/lib/api/profile-events";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -506,6 +507,12 @@ export function ProfilePanel() {
     session?.user.role === "CUSTOMER" ? "/customers/profile" : null,
     parseOwned,
   );
+  const refreshSavedProfile = profile.refresh;
+  const refreshProfile = useCallback(() => {
+    refreshSavedProfile();
+    // Explicit checks also reconcile a save whose result was previously unknown.
+    window.dispatchEvent(new Event(PROFILE_UPDATED));
+  }, [refreshSavedProfile]);
   const [formBusy, setFormBusy] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
   const stale = !!(profile.error || profile.refreshError);
@@ -520,7 +527,7 @@ export function ProfilePanel() {
         <button
           className="button secondary"
           disabled={profile.loading || profile.refreshing || formBusy || photoBusy}
-          onClick={profile.refresh}
+          onClick={refreshProfile}
         >
           <RefreshCw size={16} aria-hidden="true" />
           Refresh profile
@@ -564,7 +571,7 @@ export function ProfilePanel() {
               <ProfilePhoto
                 version={profile.data.mediaVersion}
                 hasPhoto={!!profile.data.photo}
-                refresh={profile.refresh}
+                refresh={refreshProfile}
                 disabled={unavailable || formBusy}
                 onReviewChange={setPhotoBusy}
               />
@@ -585,7 +592,7 @@ export function ProfilePanel() {
           <ProfileForm
             key={profile.data.user.id}
             profile={profile.data}
-            refresh={profile.refresh}
+            refresh={refreshProfile}
             disabled={unavailable || photoBusy}
             onBusyChange={setFormBusy}
           />

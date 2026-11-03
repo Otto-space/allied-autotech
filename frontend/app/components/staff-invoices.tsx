@@ -198,26 +198,35 @@ function InvoiceWorkspace({
         </section>
       ) : (
         <>
-          <InvoiceFilters
-            key={JSON.stringify(filterValues)}
-            value={filterValues}
-            open={filtersOpen}
-            onToggle={() => toggle("filters")}
-            onDenied={deny}
-            onClear={clear}
-            disabled={busy}
-            onApply={(values) => {
-              const p = new URLSearchParams(query.params);
-              for (const [k, v] of Object.entries(values)) {
-                if (v) p.set(k, v);
-                else p.delete(k);
-              }
-              for (const k of ["cursor", "_trail", "expanded"]) p.delete(k);
-              navigate(p);
-            }}
-          />
+          <div hidden={creating}>
+            <InvoiceFilters
+              key={JSON.stringify(filterValues)}
+              value={filterValues}
+              open={filtersOpen}
+              onToggle={() => toggle("filters")}
+              onDenied={deny}
+              onClear={clear}
+              disabled={busy}
+              onApply={(values) => {
+                const p = new URLSearchParams(query.params);
+                for (const [k, v] of Object.entries(values)) {
+                  if (v) p.set(k, v);
+                  else p.delete(k);
+                }
+                for (const k of ["cursor", "_trail", "expanded"]) p.delete(k);
+                navigate(p);
+              }}
+            />
+          </div>
           {(opened || creating) && (
             <div id="invoice-create-workspace" hidden={!creating}>
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => toggle("create")}
+              >
+                Find existing invoices
+              </button>
               <InvoiceCreateForm
                 owner={owner}
                 role={role}

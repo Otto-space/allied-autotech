@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { ChevronDown, Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { isDashboardDestination, type DashboardGroup } from "@/lib/dashboard-navigation";
 import { NotificationBadge } from "./notification-badge";
 
@@ -131,6 +131,10 @@ export function DashboardNavigation({
 }
 
 export function DashboardPageSearch({ groups }: { groups: DashboardGroup[] }) {
+  const [open, setOpen] = useState(false);
+  const searchId = useId();
+  const searchToggle = useRef<HTMLButtonElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const term = query.trim().toLocaleLowerCase();
@@ -139,52 +143,76 @@ export function DashboardPageSearch({ groups }: { groups: DashboardGroup[] }) {
     .filter((link) => `${link.group} ${link.label}`.toLocaleLowerCase().includes(term));
   return (
     <div
-      className="dashboard-search"
+      className="dashboard-page-search"
+      data-open={open}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setFocused(false);
+          setOpen(false);
+        }
       }}
     >
-      <Search size={18} aria-hidden="true" />
-      <input
-        type="search"
-        aria-label="Search dashboard pages"
-        placeholder="Find a page"
-        value={query}
-        onChange={(event) => {
-          setQuery(event.target.value);
-          setFocused(true);
+      <button
+        type="button"
+        className="dashboard-search-toggle"
+        ref={searchToggle}
+        aria-label="Find a dashboard page"
+        aria-expanded={open}
+        aria-controls={searchId}
+        onClick={() => {
+          setOpen(!open);
+          if (!open) requestAnimationFrame(() => searchInput.current?.focus());
         }}
-        onFocus={() => setFocused(true)}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            setQuery("");
-            setFocused(false);
-          }
-        }}
-      />
-      {term && focused && (
-        <div className="dashboard-search-results">
-          <p role="status">
-            {matches.length
-              ? `${matches.length} matching ${matches.length === 1 ? "page" : "pages"}`
-              : "No matching pages"}
-          </p>
-          {matches.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              prefetch={false}
-              onClick={() => {
-                setQuery("");
-                setFocused(false);
-              }}
-            >
-              <span>{link.label}</span>
-              <small>{link.group}</small>
-            </Link>
-          ))}
-        </div>
-      )}
+      >
+        <Search size={20} aria-hidden="true" />
+      </button>
+      <div id={searchId} className="dashboard-search">
+        <Search size={18} aria-hidden="true" />
+        <input
+          ref={searchInput}
+          type="search"
+          aria-label="Search dashboard pages"
+          placeholder="Find a page"
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setFocused(true);
+          }}
+          onFocus={() => setFocused(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              setQuery("");
+              setFocused(false);
+              setOpen(false);
+              if (window.matchMedia("(max-width: 900px)").matches)
+                searchToggle.current?.focus();
+            }
+          }}
+        />
+        {term && focused && (
+          <div className="dashboard-search-results">
+            <p role="status">
+              {matches.length
+                ? `${matches.length} matching ${matches.length === 1 ? "page" : "pages"}`
+                : "No matching pages"}
+            </p>
+            {matches.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                prefetch={false}
+                onClick={() => {
+                  setQuery("");
+                  setFocused(false);
+                }}
+              >
+                <span>{link.label}</span>
+                <small>{link.group}</small>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

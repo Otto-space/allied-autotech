@@ -204,6 +204,7 @@ const operationalGroups: DashboardGroup[] = [
     label: "Settings",
     icon: Settings,
     links: [
+      { href: "/admin/profile", label: "My profile" },
       { href: "/admin/security", label: "My account security" },
       { href: "/admin/notifications", label: "Notifications" },
       {

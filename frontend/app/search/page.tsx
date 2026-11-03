@@ -29,15 +29,21 @@ export default async function SearchPage({
   return (
     <>
       <SiteHeader />
-      <main id="main" className={`public-site ${styles.page}`}>
+      <main
+        id="main"
+        className={`public-site ${styles.page} ${results ? styles.submitted : ""}`}
+      >
         <div className={styles.content}>
           <nav aria-label="Breadcrumb">
             <Link href="/">Home</Link>
             <span aria-current="page">Search</span>
           </nav>
-          <h1>What are you looking for?</h1>
-          <p>Search services, parts, vehicles and help.</p>
-          <PublicSearchForm className={styles.form}>
+          <h1>{results ? "Search results" : "What are you looking for?"}</h1>
+          {!results && <p>Search services, parts, vehicles and help.</p>}
+          <PublicSearchForm
+            key={`${result.scope}:${result.query}`}
+            className={styles.form}
+          >
             <div>
               <label htmlFor="public-search-scope">Search in</label>
               <select
@@ -56,7 +62,7 @@ export default async function SearchPage({
                 ))}
               </select>
             </div>
-            <div>
+            <div className={styles.query}>
               <label htmlFor="public-search-query">Search for</label>
               <input
                 id="public-search-query"

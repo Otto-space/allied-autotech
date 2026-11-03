@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-03",
+  "data": "isolated synthetic fixtures; no authentication data",
+  "selected": [
+    {
+      "file": "dashboard-1280x720.png",
+      "bytes": 135521,
+      "viewport": "1280x720",
+      "dpr": 1
+    },
+    {
+      "file": "dashboard-320x720.png",
+      "bytes": 122381,
+      "viewport": "320x720",
+      "dpr": 2
+    },
+    {
+      "file": "home-vehicle-1280x720.png",
+      "bytes": 304273,
+      "viewport": "1280x720",
+      "dpr": 1
+    },
+    {
+      "file": "home-vehicle-320x720.png",
+      "bytes": 218868,
+      "viewport": "320x720",
+      "dpr": 2
+    },
+    {
+      "file": "search-1280x720.png",
+      "bytes": 60155,
+      "viewport": "1280x720",
+      "dpr": 1
+    },
+    {
+      "file": "search-320x720.png",
+      "bytes": 91299,
+      "viewport": "320x720",
+      "dpr": 2
+    },
+    {
+      "file": "work-profile-1280x720.png",
+      "bytes": 99561,
+      "viewport": "1280x720",
+      "dpr": 1
+    },
+    {
+      "file": "work-profile-320x720.png",
+      "bytes": 105093,
+      "viewport": "320x720",
+      "dpr": 2
+    }
+  ]
+}

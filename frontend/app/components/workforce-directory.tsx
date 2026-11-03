@@ -214,7 +214,6 @@ function DirectoryTable() {
                       <th scope="col">Business position</th>
                       <th scope="col">Status</th>
                       <th scope="col">Responsibilities you can manage</th>
-                      <th scope="col">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -223,6 +222,15 @@ function DirectoryTable() {
                         <th scope="row">
                           <span>{person.name}</span>
                           <span className="wf-directory-secondary">{person.email}</span>
+                          {person.canInspect && (
+                            <Link
+                              className="text-link"
+                              aria-label={`View/manage ${person.name}`}
+                              href={`${base}/${person.userId}${queryText ? `?${queryText}` : ""}`}
+                            >
+                              View/manage
+                            </Link>
+                          )}
                         </th>
                         <td>
                           {person.role === "SUPER_ADMIN"
@@ -284,17 +292,6 @@ function DirectoryTable() {
                               More active responsibilities are available in the account
                               review.
                             </p>
-                          )}
-                        </td>
-                        <td>
-                          {person.canInspect && (
-                            <Link
-                              className="text-link"
-                              aria-label={`View/manage ${person.name}`}
-                              href={`${base}/${person.userId}${queryText ? `?${queryText}` : ""}`}
-                            >
-                              View/manage
-                            </Link>
                           )}
                         </td>
                       </tr>

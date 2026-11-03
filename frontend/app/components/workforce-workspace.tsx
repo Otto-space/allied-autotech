@@ -81,6 +81,7 @@ export function WorkforceWorkspace({
     case "complaints":
       return <WorkforceComplaints access={access} refreshAccess={refreshAccess} />;
     // Personal pages are rendered by DashboardShell, under the same registry guard.
+    case "profile":
     case "security":
     case "notifications":
       return null;
