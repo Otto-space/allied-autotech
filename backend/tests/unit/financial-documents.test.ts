@@ -290,7 +290,7 @@ describe("financial document authority", () => {
     });
     expect(findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id, customerId: account, status: { not: "DRAFT" } },
+        where: { id, customerId: account, guestId: null, status: { not: "DRAFT" } },
       }),
     );
   });

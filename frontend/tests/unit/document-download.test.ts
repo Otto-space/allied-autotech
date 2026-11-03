@@ -10,6 +10,42 @@ const headers = {
 };
 afterEach(() => vi.unstubAllGlobals());
 describe("private document download", () => {
+  it.each(["invoice", "receipt"] as const)(
+    "keeps guest %s downloads in the guest ownership namespace",
+    async (kind) => {
+      const fetch = vi.fn().mockResolvedValue(
+        new Response("%PDF-synthetic", {
+          headers: { ...headers, "x-document-type": kind },
+        }),
+      );
+      vi.stubGlobal("fetch", fetch);
+      await fetchDocumentPdf(kind, id, new AbortController().signal, undefined, true);
+      expect(fetch).toHaveBeenCalledWith(
+        kind === "invoice"
+          ? `/api/v1/purchase/invoices/${id}/download`
+          : `/api/v1/purchase/payments/${id}/receipt/download`,
+        expect.objectContaining({
+          credentials: "include",
+          cache: "no-store",
+          redirect: "error",
+        }),
+      );
+    },
+  );
+  it("rejects mixed guest and administrator export scopes before fetching", async () => {
+    const fetch = vi.fn();
+    vi.stubGlobal("fetch", fetch);
+    await expect(
+      fetchDocumentPdf(
+        "invoice",
+        id,
+        new AbortController().signal,
+        { status: "ISSUED", version: 1 },
+        true,
+      ),
+    ).rejects.toThrow("Invalid invoice export scope");
+    expect(fetch).not.toHaveBeenCalled();
+  });
   it("uses a fixed authenticated private endpoint and checks the binary identity", async () => {
     const fetch = vi.fn().mockResolvedValue(new Response("%PDF-synthetic", { headers }));
     vi.stubGlobal("fetch", fetch);

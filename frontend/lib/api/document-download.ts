@@ -1,5 +1,6 @@
 "use client";
 import { ApiError, invalidateSession } from "./client";
+import { announcePurchaseAccess } from "../purchase/client";
 export type StaffInvoicePdf = {
   version: number;
   status: "DRAFT" | "ISSUED" | "PAID" | "VOID";
@@ -10,23 +11,29 @@ export async function fetchDocumentPdf(
   id: string,
   signal: AbortSignal,
   staff?: StaffInvoicePdf,
+  purchase = false,
 ): Promise<File> {
   if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(id))
     throw new Error("Invalid document identifier");
   if (
-    staff &&
-    (kind !== "invoice" ||
-      !Number.isSafeInteger(staff.version) ||
-      staff.version < 0 ||
-      staff.version > 2_147_483_647 ||
-      !["DRAFT", "ISSUED", "PAID", "VOID"].includes(staff.status))
+    (purchase && staff) ||
+    (staff &&
+      (kind !== "invoice" ||
+        !Number.isSafeInteger(staff.version) ||
+        staff.version < 0 ||
+        staff.version > 2_147_483_647 ||
+        !["DRAFT", "ISSUED", "PAID", "VOID"].includes(staff.status)))
   )
     throw Error("Invalid invoice export scope");
-  const path = staff
-    ? `/staff/invoices/${id}/download?${new URLSearchParams({ expectedVersion: String(staff.version), expectedStatus: staff.status })}`
-    : kind === "invoice"
-      ? `/customers/invoices/${id}/download`
-      : `/customers/payments/${id}/receipt`;
+  const path = purchase
+    ? kind === "invoice"
+      ? `/purchase/invoices/${id}/download`
+      : `/purchase/payments/${id}/receipt/download`
+    : staff
+      ? `/staff/invoices/${id}/download?${new URLSearchParams({ expectedVersion: String(staff.version), expectedStatus: staff.status })}`
+      : kind === "invoice"
+        ? `/customers/invoices/${id}/download`
+        : `/customers/payments/${id}/receipt`;
   const requestSignal = AbortSignal.any([signal, AbortSignal.timeout(30_000)]);
   const response = await fetch(`/api/v1${path}`, {
     headers: { Accept: "application/pdf" },
@@ -38,7 +45,10 @@ export async function fetchDocumentPdf(
   requestSignal.throwIfAborted();
   if (!response.ok) {
     const body: unknown = await response.json().catch(() => undefined);
-    if (response.status === 401) invalidateSession();
+    if (response.status === 401) {
+      if (purchase) announcePurchaseAccess();
+      else invalidateSession();
+    }
     throw new ApiError(response.status, body);
   }
   if (

@@ -15,6 +15,9 @@ import { PaymentsService } from "../payments/payments.service.js";
 import { OrdersService } from "./orders.service.js";
 import { PurchaseGuestAccessService } from "./purchase-guest-access.service.js";
 import { PartsQuotesService } from "./parts-quotes.service.js";
+import { FinancialDocumentsService } from "../billing/documents.service.js";
+import { documentFilename, renderFinancialPdf } from "../billing/document-pdf.js";
+import { invoiceParamsSchema } from "../billing/billing.schemas.js";
 import {
   purchaseQuoteParamsSchema,
   purchaseQuoteAcceptSchema,
@@ -70,6 +73,7 @@ export function createPurchaseRouter(
   orders = new OrdersService(),
   payments = new PaymentsService(),
   quotes = new PartsQuotesService(),
+  documents = new FinancialDocumentsService(),
 ): Router {
   const router = Router();
   router.use((req, res, next) => {
@@ -381,5 +385,47 @@ export function createPurchaseRouter(
       );
     },
   );
+  for (const format of ["document", "download"] as const) {
+    router.get(
+      `/invoices/:invoiceId/${format}`,
+      createSensitiveRateLimit(20),
+      validate({ params: invoiceParamsSchema, query: purchaseEmptySchema }),
+      async (req, res) => {
+        const document = await documents.guestInvoice(
+          session(req),
+          validated<{ invoiceId: string }>(res, "params").invoiceId,
+        );
+        res.set("X-Content-Type-Options", "nosniff");
+        if (format === "document")
+          return send(req, res, "Invoice document retrieved", document);
+        return res
+          .set("X-Document-Id", document.id)
+          .set("X-Document-Type", "invoice")
+          .type("application/pdf")
+          .attachment(documentFilename("invoice", document.invoiceNumber))
+          .send(await renderFinancialPdf(document));
+      },
+    );
+    router.get(
+      `/payments/:paymentId/receipt/${format}`,
+      createSensitiveRateLimit(20),
+      validate({ params: purchasePaymentParamsSchema, query: purchaseEmptySchema }),
+      async (req, res) => {
+        const document = await documents.guestReceipt(
+          session(req),
+          validated<{ paymentId: string }>(res, "params").paymentId,
+        );
+        res.set("X-Content-Type-Options", "nosniff");
+        if (format === "document")
+          return send(req, res, "Payment receipt retrieved", document);
+        return res
+          .set("X-Document-Id", document.paymentId)
+          .set("X-Document-Type", "receipt")
+          .type("application/pdf")
+          .attachment(documentFilename("receipt", document.paymentNumber))
+          .send(await renderFinancialPdf(document));
+      },
+    );
+  }
   return router;
 }

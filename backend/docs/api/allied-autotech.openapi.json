@@ -74497,6 +74497,952 @@
         "x-idempotency-required": false
       }
     },
+    "/purchase/invoices/{invoiceId}/document": {
+      "get": {
+        "tags": [
+          "Purchase access"
+        ],
+        "summary": "Read an owned issued guest invoice as a document",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned issued guest invoice as a document. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "purchaseGuestCookie": []
+          }
+        ],
+        "x-trusted-origin-required": false,
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the invoice resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "invoiceId",
+            "in": "path",
+            "description": "Identifier selecting the invoice resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read an owned issued guest invoice as a document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Read an owned issued guest invoice as a document.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read an owned issued guest invoice as a document",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPurchaseInvoicesByInvoiceIdDocument",
+        "x-access-boundary": "verified-purchase-guest",
+        "x-required-roles": [
+          "PURCHASE_GUEST"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/purchase/payments/{paymentId}/receipt/document": {
+      "get": {
+        "tags": [
+          "Purchase access"
+        ],
+        "summary": "Read an owned verified settled guest payment receipt as a document",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned verified settled guest payment receipt as a document. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "purchaseGuestCookie": []
+          }
+        ],
+        "x-trusted-origin-required": false,
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the payment resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "paymentId",
+            "in": "path",
+            "description": "Identifier selecting the payment resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read an owned verified settled guest payment receipt as a document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Read an owned verified settled guest payment receipt as a document.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read an owned verified settled guest payment receipt as a document",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required provider or database is temporarily unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required provider or database is temporarily unavailable.",
+                  "error": {
+                    "code": "PROVIDER_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPurchasePaymentsByPaymentIdReceiptDocument",
+        "x-access-boundary": "verified-purchase-guest",
+        "x-required-roles": [
+          "PURCHASE_GUEST"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/purchase/invoices/{invoiceId}/download": {
+      "get": {
+        "tags": [
+          "Purchase access"
+        ],
+        "summary": "Read an owned issued guest invoice as a private PDF",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned issued guest invoice as a private PDF. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "purchaseGuestCookie": []
+          }
+        ],
+        "x-trusted-origin-required": false,
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the invoice resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "invoiceId",
+            "in": "path",
+            "description": "Identifier selecting the invoice resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read an owned issued guest invoice as a private PDF.",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPurchaseInvoicesByInvoiceIdDownload",
+        "x-access-boundary": "verified-purchase-guest",
+        "x-required-roles": [
+          "PURCHASE_GUEST"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/purchase/payments/{paymentId}/receipt/download": {
+      "get": {
+        "tags": [
+          "Purchase access"
+        ],
+        "summary": "Read an owned verified settled guest payment receipt as a private PDF",
+        "description": "No account session cookie may coexist with purchase access, including an MFA-pending account session. Catalogue mode closes purchase access. Limited releases retain security/recovery and owned reads but reject new financial mutations. Tokens stay in HttpOnly cookies or memory; no URL query or browser-storage credentials. Trusted Origin is mandatory for every mutation. Payment, allocation and collection readiness remain distinct. Read an owned verified settled guest payment receipt as a private PDF. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "purchaseGuestCookie": []
+          }
+        ],
+        "x-trusted-origin-required": false,
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the payment resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "paymentId",
+            "in": "path",
+            "description": "Identifier selecting the payment resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read an owned verified settled guest payment receipt as a private PDF.",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required provider or database is temporarily unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required provider or database is temporarily unavailable.",
+                  "error": {
+                    "code": "PROVIDER_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPurchasePaymentsByPaymentIdReceiptDownload",
+        "x-access-boundary": "verified-purchase-guest",
+        "x-required-roles": [
+          "PURCHASE_GUEST"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
     "/purchase/parts-quotes": {
       "get": {
         "tags": [

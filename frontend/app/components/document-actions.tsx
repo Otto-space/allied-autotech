@@ -6,16 +6,24 @@ import { fetchDocumentPdf, type StaffInvoicePdf } from "@/lib/api/document-downl
 import { CopyControl } from "./copy-control";
 import { Feedback } from "./feedback";
 import "./document-actions.css";
+import {
+  announcePurchaseAccess,
+  purchaseAccessSchema,
+  purchaseRequest,
+  subscribePurchaseAccess,
+} from "@/lib/purchase/client";
 
 export function DocumentActions({
   kind,
   id,
   disabled = false,
   staff,
+  purchase = false,
 }: {
   kind: "invoice" | "receipt";
   id: string;
   disabled?: boolean;
+  purchase?: boolean;
   staff?: StaffInvoicePdf & {
     verify: (signal: AbortSignal) => Promise<void>;
     onDenied: () => void;
@@ -45,11 +53,13 @@ export function DocumentActions({
       exportBusyChange?.(false);
     }
     window.addEventListener(SESSION_CHANGED, clear);
+    const unsubscribe = purchase ? subscribePurchaseAccess(clear) : undefined;
     return () => {
+      unsubscribe?.();
       clear();
       window.removeEventListener(SESSION_CHANGED, clear);
     };
-  }, [id, kind, staff?.version, staff?.status, exportBusyChange]);
+  }, [id, kind, staff?.version, staff?.status, exportBusyChange, purchase]);
   function save(file: File) {
     const url = URL.createObjectURL(file);
     links.current.add(url);
@@ -75,17 +85,34 @@ export function DocumentActions({
     const controller = new AbortController();
     pending.current = controller;
     try {
+      const buyer = purchase
+        ? purchaseAccessSchema.parse(
+            (await purchaseRequest("/purchase/access", { signal: controller.signal }))
+              .data,
+          )
+        : undefined;
       await staff?.verify(controller.signal);
-      const file = await fetchDocumentPdf(kind, id, controller.signal, staff);
+      const file = await fetchDocumentPdf(kind, id, controller.signal, staff, purchase);
       await staff?.verify(controller.signal);
+      if (buyer) {
+        const current = purchaseAccessSchema.parse(
+          (await purchaseRequest("/purchase/access", { signal: controller.signal })).data,
+        );
+        if (current.buyerReference !== buyer.buyerReference) {
+          announcePurchaseAccess();
+          throw new DOMException("Purchase access changed", "AbortError");
+        }
+      }
       if (!active.current || controller.signal.aborted) return;
       if (mode === "download") save(file);
       else
         setShare({
           file,
-          url: `${window.location.origin}${staff ? "/admin/invoices" : `/dashboard/${kind === "invoice" ? "invoices" : "payments"}`}/${encodeURIComponent(id)}`,
+          url: `${window.location.origin}${purchase ? `/purchase/${kind === "invoice" ? "invoices" : "payments"}` : staff ? "/admin/invoices" : `/dashboard/${kind === "invoice" ? "invoices" : "payments"}`}/${encodeURIComponent(id)}`,
         });
     } catch (value) {
+      if (purchase && value instanceof ApiError && [401, 409].includes(value.status))
+        announcePurchaseAccess();
       if (staff && value instanceof ApiError && [401, 403].includes(value.status))
         staff.onDenied();
       if (active.current && !controller.signal.aborted)
@@ -132,6 +159,7 @@ export function DocumentActions({
           file={share.file}
           url={share.url}
           staff={!!staff}
+          purchase={purchase}
           onClose={() => {
             setShare(null);
             requestAnimationFrame(() => {
@@ -152,6 +180,7 @@ function DocumentShare({
   onClose,
   onDownload,
   staff = false,
+  purchase = false,
 }: {
   kind: "invoice" | "receipt";
   file: File;
@@ -159,6 +188,7 @@ function DocumentShare({
   onClose: () => void;
   onDownload: () => void;
   staff?: boolean;
+  purchase?: boolean;
 }) {
   const modal = useRef<HTMLDialogElement>(null),
     close = useRef<HTMLButtonElement>(null),
@@ -233,7 +263,7 @@ function DocumentShare({
           <X size={18} aria-hidden="true" />
         </button>
       </div>
-      <p>The PDF contains private account information. Choose who receives it.</p>
+      <p>The PDF contains private purchase information. Choose who receives it.</p>
       {native && (
         <button className="button" disabled={busy} onClick={() => void shareFile()}>
           <Share2 size={16} aria-hidden="true" />
@@ -245,7 +275,11 @@ function DocumentShare({
         Download PDF
       </button>
       <label htmlFor={`${id}-link`}>
-        {staff ? "Private invoice link" : "Account link"}
+        {purchase
+          ? "Private purchase link"
+          : staff
+            ? "Private invoice link"
+            : "Account link"}
       </label>
       <input id={`${id}-link`} readOnly value={url} />
       <CopyControl
@@ -254,9 +288,11 @@ function DocumentShare({
         fieldId={`${id}-link`}
       />
       <p className="document-share-note">
-        {staff
-          ? "This private link requires current administrator access. It does not grant access to its recipient."
-          : "The link requires sign-in to the account that owns this record."}
+        {purchase
+          ? "This link requires private email access for the buyer. It does not grant access to its recipient."
+          : staff
+            ? "This private link requires current administrator access. It does not grant access to its recipient."
+            : "The link requires sign-in to the account that owns this record."}
       </p>
       <Feedback message={message} tone="info" />
     </dialog>

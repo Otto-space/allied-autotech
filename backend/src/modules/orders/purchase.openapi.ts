@@ -1,5 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
+import { invoiceParamsSchema } from "../billing/billing.schemas.js";
 import {
   customerOrderListQuerySchema,
   guestCheckoutBodySchema,
@@ -43,6 +44,7 @@ type Path = {
   query?: Fields;
   status?: number;
   public?: boolean;
+  pdf?: boolean;
 };
 
 export function registerPurchaseOpenApi(registry: OpenAPIRegistry): void {
@@ -55,6 +57,22 @@ export function registerPurchaseOpenApi(registry: OpenAPIRegistry): void {
   });
   const keyed = orderIdempotencyHeadersSchema.extend(purchaseCsrfHeadersSchema.shape);
   const paths: Path[] = [
+    ...(["document", "download"] as const).flatMap((format): Path[] => [
+      {
+        method: "get",
+        path: `/invoices/{invoiceId}/${format}`,
+        summary: `Read an owned issued guest invoice as ${format === "download" ? "a private PDF" : "a document"}`,
+        params: invoiceParamsSchema,
+        pdf: format === "download",
+      },
+      {
+        method: "get",
+        path: `/payments/{paymentId}/receipt/${format}`,
+        summary: `Read an owned verified settled guest payment receipt as ${format === "download" ? "a private PDF" : "a document"}`,
+        params: purchasePaymentParamsSchema,
+        pdf: format === "download",
+      },
+    ]),
     {
       method: "get",
       path: "/parts-quotes",
@@ -202,7 +220,9 @@ export function registerPurchaseOpenApi(registry: OpenAPIRegistry): void {
       responses: {
         [entry.status ?? 200]: {
           description: "Success",
-          content: { "application/json": { schema: response } },
+          content: entry.pdf
+            ? { "application/pdf": { schema: { type: "string", format: "binary" } } }
+            : { "application/json": { schema: response } },
         },
       },
       "x-trusted-origin-required": entry.method !== "get",

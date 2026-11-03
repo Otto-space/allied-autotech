@@ -1,3 +1,14 @@
+## 3 November 2026: Private purchase documents (source)
+
+Parts-fitment v7 explains order ? invoice and verified-payment ? receipt download/
+explicit sharing, draft exclusion and private-link ownership. Five steps, public
+eligibility, corolla-fitment guide v3, targets and practice/AI flags remain unchanged.
+Learning/terms units pass 13/13. Guest/account document browser evidence covers
+45 distinct local cases across recorded runs; native document/payment/invoice
+regressions pass 54/54. Production remains v4 / 333c3a22; provider/email delivery,
+real-role/device acceptance and publication remain separate. Cancellation/aftercare
+and operator guidance still needs reconciliation with that next implementation.
+
 ## 3 November 2026: Optional-account quotation guidance (source)
 
 Parts-fitment v6 explains optional accounts, account Customer Care versus private
@@ -194,7 +205,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
 | privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
 | financial-policy-work   | financial-policy     | 4 / 2026-11-02   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
-| parts-fitment           | public               | 6 / 2026-11-03   | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
+| parts-fitment           | public               | 7 / 2026-11-03   | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
 | service-request         | public               | 13 / 2026-11-01  | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |

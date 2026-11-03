@@ -317,7 +317,7 @@ export const learningArticles: LearningArticle[] = [
         "Open Parts. Search by product name, brand or part number.",
         "Use the vehicle make, model and year fields where available; check engine, trim and technical requirements. In Filters, edit pending selections, then choose Apply filters. Clear selections only resets the panel; Clear all filters preserves the search and sort. Reset search clears the full discovery state.",
         "Read the compatibility evidence. Compatible, incompatible and not confirmed have different meanings.",
-        "For unknown fitment or missing stock, send an enquiry with the details you actually know. Collection is the launch fulfilment option; do not assume delivery.",
+        "For unknown fitment or missing stock, send an enquiry with the details you actually know. Collection is the launch fulfilment option; do not assume delivery. After verified payment, open your order and choose View invoice. Open its payment details to download or share a verified receipt. Document links require the owning account or private guest email access; forwarding a link does not grant access. Draft invoices and unverified payments have no downloadable customer document.",
         "An account is optional for parts purchases. Account customers review quotations in their Customer Care request. If you enquired without an account, open Guest purchases and request private email access; open that link in the browser that requested it. An issued quotation shows its revision, quantity, price, VAT, expiry and terms. It is valid for seven days from issue; the saved expiry time applies. This is not a credit period. Where online transactions are enabled, review and accept the current quotation to create one unpaid collection order, then review the exact payment separately. Declined, expired or replaced quotations cannot be accepted. Payment does not confirm final compatibility, availability or collection readiness.",
       ],
       "/parts",
@@ -325,7 +325,7 @@ export const learningArticles: LearningArticle[] = [
       "shop brake pads compatible compatibility vehicle car guest email purchase quotation seven days",
       "Use the available parts, enquiry and purchase actions. A customer account is optional.",
     ),
-    version: 6,
+    version: 7,
     reviewedAt: "2026-11-03",
   },
   {

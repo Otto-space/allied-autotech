@@ -23,9 +23,11 @@ it("explains controllable workshop highlights without turning a discovery reques
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
-  expect([parts.version, vehicles.version]).toEqual([6, 5]);
+  expect([parts.version, vehicles.version]).toEqual([7, 5]);
   expect(parts.steps.join(" ")).toContain("An account is optional");
   expect(parts.steps.join(" ")).toContain("browser that requested it");
+  expect(parts.steps.join(" ")).toContain("download or share a verified receipt");
+  expect(parts.steps.join(" ")).toContain("forwarding a link does not grant access");
   expect(vehicles.steps.join(" ")).toContain(
     "there is no online inspection request action",
   );

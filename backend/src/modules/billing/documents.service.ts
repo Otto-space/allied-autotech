@@ -5,6 +5,9 @@ import { assertInvoiceCustomer, assertInvoiceOperator } from "./billing.policy.j
 import { invoiceConflict, invoiceNotFound, invoiceStale } from "./billing.errors.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
+import { env } from "../../config/env.js";
+import { PurchaseGuestAccessService } from "../orders/purchase-guest-access.service.js";
+import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import {
   assertDocumentTotals,
   buildInvoiceSnapshot,
@@ -47,6 +50,9 @@ export const receiptPaymentSelect = {
   },
 } satisfies Prisma.PaymentSelect;
 type ReceiptPayment = Prisma.PaymentGetPayload<{ select: typeof receiptPaymentSelect }>;
+type DocumentBuyer =
+  | { kind: "account"; actor: AuthenticatedActor }
+  | { kind: "guest"; sessionToken: string };
 
 /** A submitted report or duplicate successful attempt is never a receipt source. */
 export function confirmedReceipt(payment: ReceiptPayment): {
@@ -99,7 +105,14 @@ export class FinancialDocumentsService {
   constructor(private readonly database: PrismaClient = prisma) {}
   async invoice(actor: AuthenticatedActor, invoiceId: string) {
     assertInvoiceCustomer(actor);
-    return invoiceDocumentSchema.parse(await this.readInvoice(actor, invoiceId));
+    return invoiceDocumentSchema.parse(
+      await this.readInvoice({ kind: "account", actor }, invoiceId),
+    );
+  }
+  async guestInvoice(sessionToken: string, invoiceId: string) {
+    return invoiceDocumentSchema.parse(
+      await this.readInvoice({ kind: "guest", sessionToken }, invoiceId),
+    );
   }
   async staffInvoice(
     actor: AuthenticatedActor,
@@ -110,7 +123,7 @@ export class FinancialDocumentsService {
   ) {
     assertInvoiceOperator(actor);
     return staffInvoiceDocumentSchema.parse(
-      await this.readInvoice(actor, invoiceId, {
+      await this.readInvoice({ kind: "account", actor }, invoiceId, {
         context,
         format,
         ...(expected ? { expected } : {}),
@@ -118,7 +131,7 @@ export class FinancialDocumentsService {
     );
   }
   private async readInvoice(
-    actor: AuthenticatedActor,
+    buyer: DocumentBuyer,
     invoiceId: string,
     staff?: {
       context: RequestSecurityContext;
@@ -126,21 +139,36 @@ export class FinancialDocumentsService {
       expected?: { expectedVersion: number; expectedStatus: string };
     },
   ) {
-    return this.database.$transaction(
+    return withTransactionRetry(
+      this.database,
       async (database) => {
-        const customer = staff
-          ? null
-          : await database.customerProfile.findUnique({
-              where: { userId: actor.userId },
-              select: { id: true },
-            });
-        if (!staff && !customer) throw invoiceNotFound();
+        const guest =
+          buyer.kind === "guest"
+            ? await this.guestOwner(database, buyer.sessionToken)
+            : null;
+        const customer =
+          staff || buyer.kind === "guest"
+            ? null
+            : await database.customerProfile.findUnique({
+                where: { userId: buyer.actor.userId },
+                select: { id: true },
+              });
+        if (!staff && !customer && !guest) throw invoiceNotFound();
         const invoice = await database.invoice.findFirst({
           where: {
             id: invoiceId,
             ...(staff
               ? {}
-              : { customerId: customer!.id, status: { not: "DRAFT" as const } }),
+              : {
+                  ...(guest
+                    ? {
+                        guestId: guest.guestId,
+                        customerId: null,
+                        order: { guestId: guest.guestId, customerId: null },
+                      }
+                    : { customerId: customer!.id, guestId: null }),
+                  status: { not: "DRAFT" as const },
+                }),
           },
           select: {
             id: true,
@@ -200,6 +228,9 @@ export class FinancialDocumentsService {
         const payments = await database.payment.findMany({
           where: {
             customerId: invoice.customerId,
+            ...(invoice.guestId
+              ? { order: { guestId: invoice.guestId, customerId: null } }
+              : {}),
             OR: [
               { invoiceId },
               ...(invoice.orderId ? [{ orderId: invoice.orderId }] : []),
@@ -260,9 +291,9 @@ export class FinancialDocumentsService {
             succeededAt: payment.succeededAt?.toISOString() ?? null,
           })),
         });
-        if (staff)
+        if (staff && buyer.kind === "account")
           await appendAuditEvent(database, {
-            actorUserId: actor.userId,
+            actorUserId: buyer.actor.userId,
             action: "READ",
             entityType: "INVOICE",
             entityId: invoice.id,
@@ -282,15 +313,53 @@ export class FinancialDocumentsService {
 
   async receipt(actor: AuthenticatedActor, paymentId: string): Promise<ReceiptDocument> {
     assertInvoiceCustomer(actor);
-    return this.database.$transaction(
+    return this.readReceipt({ kind: "account", actor }, paymentId);
+  }
+  async guestReceipt(sessionToken: string, paymentId: string): Promise<ReceiptDocument> {
+    return this.readReceipt({ kind: "guest", sessionToken }, paymentId);
+  }
+  private async guestOwner(database: Prisma.TransactionClient, sessionToken: string) {
+    if (env.PUBLIC_LAUNCH_MODE === "catalogue") throw invoiceNotFound();
+    return new PurchaseGuestAccessService(this.database).lockAccess(
+      database,
+      sessionToken,
+      { kind: "read" },
+    );
+  }
+  private async readReceipt(
+    buyer: DocumentBuyer,
+    paymentId: string,
+  ): Promise<ReceiptDocument> {
+    return withTransactionRetry(
+      this.database,
       async (database) => {
-        const customer = await database.customerProfile.findUnique({
-          where: { userId: actor.userId },
-          select: { id: true },
-        });
-        if (!customer) throw invoiceNotFound();
+        const guest =
+          buyer.kind === "guest"
+            ? await this.guestOwner(database, buyer.sessionToken)
+            : null;
+        const customer =
+          buyer.kind === "account"
+            ? await database.customerProfile.findUnique({
+                where: { userId: buyer.actor.userId },
+                select: { id: true },
+              })
+            : null;
+        if (!customer && !guest) throw invoiceNotFound();
+        const owner = guest
+          ? { guestId: guest.guestId, customerId: null }
+          : { customerId: customer!.id, guestId: null };
         const payment = await database.payment.findFirst({
-          where: { id: paymentId, customerId: customer.id },
+          where: {
+            id: paymentId,
+            ...(guest
+              ? {
+                  customerId: null,
+                  order: owner,
+                  bookingId: null,
+                  vehicleTransactionId: null,
+                }
+              : { customerId: customer!.id }),
+          },
           select: receiptPaymentSelect,
         });
         if (!payment) throw invoiceNotFound();
@@ -302,7 +371,7 @@ export class FinancialDocumentsService {
           const invoice = await database.invoice.findFirst({
             where: {
               id: payment.invoiceId,
-              customerId: customer.id,
+              ...owner,
               status: { not: "DRAFT" },
             },
             select: {
@@ -322,7 +391,7 @@ export class FinancialDocumentsService {
           };
         } else if (payment.orderId) {
           const order = await database.order.findFirst({
-            where: { id: payment.orderId, customerId: customer.id },
+            where: { id: payment.orderId, ...owner },
             select: { id: true, orderNumber: true },
           });
           if (!order) throw invoiceNotFound();
@@ -333,6 +402,7 @@ export class FinancialDocumentsService {
             description: "Parts order",
           };
         } else if (payment.vehicleTransactionId) {
+          if (!customer) throw invoiceNotFound();
           const purchase = await database.vehicleTransaction.findFirst({
             where: { id: payment.vehicleTransactionId, customerId: customer.id },
             select: { id: true, transactionNumber: true },
@@ -345,6 +415,7 @@ export class FinancialDocumentsService {
             description: "Vehicle purchase",
           };
         } else if (payment.bookingId) {
+          if (!customer) throw invoiceNotFound();
           const booking = await database.booking.findFirst({
             where: { id: payment.bookingId, customerId: customer.id },
             select: { id: true },
@@ -363,7 +434,7 @@ export class FinancialDocumentsService {
           paymentNumber: payment.paymentNumber,
           currency: payment.currency,
           issuer: issuerFromPolicy(payment.policySnapshot),
-          customerReference: customer.id,
+          customerReference: guest?.guestId ?? customer!.id,
           source,
         });
       },

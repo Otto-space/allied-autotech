@@ -5,11 +5,11 @@ import { env } from "../../src/config/env.js";
 export async function assertIsolatedLoopbackDatabase() {
   if (
     env.NODE_ENV !== "test" ||
-    process.env.RUN_DATABASE_TESTS !== "true" ||
+    process.env["RUN_DATABASE_TESTS"] !== "true" ||
     !["127.0.0.1", "localhost"].includes(env.DB_HOST) ||
     !/_(?:test|ci)$/.test(env.DB_NAME) ||
-    process.env.TEST_DB_NAME !== env.DB_NAME ||
-    process.env.CONFIRM_EMPTY_MIGRATION_DATABASE !== "true"
+    process.env["TEST_DB_NAME"] !== env.DB_NAME ||
+    process.env["CONFIRM_EMPTY_MIGRATION_DATABASE"] !== "true"
   )
     throw new Error(
       "Configure an explicitly confirmed isolated local _test/_ci target first.",

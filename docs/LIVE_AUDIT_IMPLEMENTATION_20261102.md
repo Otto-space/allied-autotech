@@ -1,5 +1,65 @@
 # Complete live audit implementation - 2 November 2026
 
+### 3 November 2026: Private guest invoices and receipts verified (source only)
+
+Quotation source 2ba96033 is signed/verified and passes frontend 41585900297
+(1,356 tests; 12 existing skips), backend 41585989863 and secrets 41585900375.
+The earlier merged-source frontend check failed one obsolete Help wording assertion;
+the corrected three-mode test preserves optional accounts and exact review before
+payment. Concurrent 72ac8471 service-description publication is preserved: those
+three protected editorial updates are complete, with prices and durations unchanged.
+Published application runtime remains 333c3a22 / schema 87; commerce stays closed.
+
+Guests can open their issued parts-order invoice and download or explicitly share
+its PDF, and obtain a receipt only for verified settled payment. The existing
+invoice snapshot, integer totals, source ownership, refund summary and private PDF
+headers/body bounds remain authoritative. Matching email never grants account
+records. A draft invoice stays withheld. History remains readable in limited mode;
+catalogue mode closes these reads. Account/administrator invoice layout and document
+actions are shared at source. Private links grant no access by themselves.
+Document preparation checks current guest identity before and after fetching;
+revocation and buyer changes clear the prepared file/review. A mismatched billing
+reference cannot render the guest invoice or its export controls.
+
+Isolated guest-documents-native-4a7def24132347dfab132b0af9ee0404 passes 54/54
+across six suites, including seven guest document cases, existing guest payments,
+Admin invoice discovery/detail, document authority and HTTP boundaries. All 89
+migrations replay; schema/no-drift, db:check and runtime non-owner/no-DDL/no-TRUNCATE
+checks pass. Successful task data was removed. Guest document browser final 9/9
+and unchanged account invoice 36/36 pass: 45 distinct cases across the recorded
+runs, not a single 45-case invocation. Phone/tablet/laptop layouts, keyboard/share
+focus, failed reads, malformed PDF, buyer mismatch/revocation and receipt download
+are covered. Sampled guest sharing Axe reports zero violations. New guest screenshots
+at 320/768/1366px contain synthetic information only.
+
+Parts-fitment v7 adds document access/privacy guidance without changing its five
+steps, public gate, guide targets or practice permission. Learning/terms units pass
+13/13; document download and Help mode units pass 17/17. API validates 432 paths
+and 507 mounted operations. Production and targeted test types, scoped frontend
+lint, backend repository lint, script types, format and secret checks pass.
+
+Guest cancellation/aftercare and operator refund-review integration remain next.
+Fresh populated restore, compatible recovery images, exact-source CI and held/public
+verification remain mandatory before publication. No provider/email delivery, real
+role, physical-device acceptance or activation is claimed; PDF delivery here means
+an explicit browser download/share with synthetic fixtures. No real financial or
+customer record was changed. Full purchasing/site launch readiness remains open.
+
+Evidence: %TEMP%/aat-full-audit-20261102/guest-documents-browser-accepted.json
+(final 9/9), guest-documents-browser.json (36 account checks passed; initial guest
+buyer-change check failed), and the native receipt named above. Final viewport
+screenshots are synthetic-guest-invoice-320.png and matching 768/1366 captures
+under guest-documents-browser-accepted/. Native initial run passed 50/54: three
+new fixtures incorrectly expected access to pre-payment DRAFT invoices, and an
+existing exact ownership assertion omitted the now-explicit guestId:null condition.
+Corrected fixtures/assertion preserved draft exclusion. The first added revocation
+browser check found stale visible content after an access-check rejection; immediate
+invalidation fixed it. A defensive billing-reference comparison also closes a
+wrong-buyer response before rendering. Retained failures are not acceptance.
+The final native runtime was unchanged by subsequent unused-import cleanup and
+strict environment-index syntax; subsequent guidance changes have their separate
+13-case unit evidence. Exact committed-source CI is still required.
+
 ### 3 November 2026: Guest quotation journey verified (source only)
 
 Previous screen source 8e0413d6 passes exact-source frontend 41579358622

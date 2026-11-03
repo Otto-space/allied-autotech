@@ -30,6 +30,7 @@ import { StatusBadge } from "./status-progress";
 import { BookingReference } from "./booking-reference";
 import { usePublicCapabilities } from "./public-capabilities";
 import { PurchaseQuotations } from "./purchase-quotations";
+import { DocumentActions } from "./document-actions";
 
 function usePurchaseClock() {
   const [now, setNow] = useState(() => Date.now());
@@ -183,6 +184,11 @@ function OrderSummary({ order }: { order: GuestOrder }) {
       </p>
       {order.paymentDueAt && !order.paidAt && (
         <p>Payment deadline: {formatBusinessDate(order.paymentDueAt)}</p>
+      )}
+      {order.invoice && (
+        <Link className="purchase-link" href={`/purchase/invoices/${order.invoice.id}`}>
+          View invoice
+        </Link>
       )}
     </section>
   );
@@ -393,6 +399,16 @@ function PaymentOrder({
   return (
     <div className="purchase-grid">
       <OrderSummary order={source.data} />
+      {payment.status === "SUCCEEDED" && (
+        <section className="purchase-panel">
+          <h2>Payment receipt</h2>
+          <p>
+            Download or share the receipt for the verified payment. It does not confirm
+            collection readiness.
+          </p>
+          <DocumentActions purchase kind="receipt" id={payment.id} />
+        </section>
+      )}
       <GatewayPayment
         payment={payment}
         returnedAttemptId={returnedAttemptId}
