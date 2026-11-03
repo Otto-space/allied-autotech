@@ -1,3 +1,32 @@
+### 3 November 15:32 UTC package: customer/staff review screens in progress
+
+Target 16:32 UTC. Current source 1f573fd4 passes all three exact-source workflows:
+frontend 41664863114, backend 41664863113 and secrets 41664863132. These are source,
+synthetic-browser and isolated-database results, not a live activation. Source
+migration 91 remains unapplied to the shared application database.
+
+This package adds the shared account/guest suitability form and optional explicit
+reuse of previous matching product configurations. Prior approval, prices and
+stock promises are never copied. Unknown details can be submitted without invented
+vehicle information. Successful automatic checks leave optional changes collapsed.
+Pending and uncertain requests have recovery/refresh actions; current-version and
+revision checks protect identical retries. Drafts are in memory and discarded on
+access changes. Payment and fulfilment remain distinct.
+
+Admin/Super Admin order detail now has the existing authorised exception decision
+form: current version/revision, reason, branch stock or actual supplier confirmation
+and arrival window on an accepted quotation. Existing shared review dialog is used;
+Staff permissions are unchanged. Parts Help advances to v11. Local focused fixture
+units pass seven customer and four staff cases; scoped frontend lint passed before
+final copy refinements. A local full TypeScript attempt exhausted its 768 MiB heap;
+no compiler pass is claimed for this UI. Hosted full checks and six added phone/
+laptop runtime cases (19 total) with safe screenshots are pending.
+
+Unfinished: final offer supplier estimates in safe customer projections, reviewed
+customer acceptance binding, notification delivery acceptance, checkout vehicle
+carry-through and all remaining D02/D03/D05-D17 requirements. No real records,
+provider credentials, payment flags or owner-only permissions were changed.
+
 ### 3 November owner clarification: automatic verified purchases, review for exceptions
 
 The owner explicitly approved automatic pre-payment checks instead of a fresh

@@ -428,3 +428,5 @@ Nine hosted synthetic workflow checks passed; no production stock action occurre
 2 November: privacy-and-allie v2 is live in runtime 6f3cf203. Both public version-2 catalogues returned it; staff-only privacy-work remained 404. Four public 320/1440 disclosure/navigation fixtures passed with zero AI writes. Policy version, eligibility and activation gates are unchanged.
 
 3 November: parts-fitment v10 follows the owner-approved automatic check path. Current approved suitability evidence plus reserved branch stock allows payment without a fresh human decision; unresolved fitment or supplier evidence needs staff review. Source only, no audience or live flag changes.
+
+3 November customer review package: parts-fitment v11 adds the account/guest order suitability panel, explicit previous-purchase vehicle reuse, fresh checking and order-status refresh. Eligibility, public guide targets and permissions remain unchanged. Source only.

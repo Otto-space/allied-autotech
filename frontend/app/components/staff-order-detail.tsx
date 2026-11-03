@@ -35,6 +35,7 @@ import { useAccountSession } from "./dashboard-shell";
 import { OrderDeliveryDetails } from "./order-delivery-details";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { Feedback } from "./feedback";
+import { PurchaseReviewDecision } from "./purchase-review-decision";
 
 export function StaffOrderDetail({ orderId }: { orderId: string }) {
   const session = useAccountSession();
@@ -78,6 +79,7 @@ function OrderRecord({
   const [validation, setValidation] = useState<{ field: string; message: string }>();
   const [epoch, setEpoch] = useState(0);
   const [reconciling, setReconciling] = useState(false);
+  const [purchaseBusy, setPurchaseBusy] = useState(false);
   const active = useRef(true),
     controller = useRef<AbortController | null>(null);
   useEffect(() => {
@@ -95,7 +97,8 @@ function OrderRecord({
       window.removeEventListener(SESSION_CHANGED, discard);
     };
   }, []);
-  const blocked = busy || !!error || pending || reconciling || !!proposal || !current;
+  const blocked =
+    busy || !!error || pending || reconciling || !!proposal || purchaseBusy || !current;
   function invalidate(field: string, message: string) {
     setValidation({ field, message });
     document.getElementById(field)?.focus();
@@ -305,6 +308,17 @@ function OrderRecord({
       {current && (
         <>
           <WorkflowProgress workflow="order" status={current.status} />
+          {administrator && (
+            <PurchaseReviewDecision
+              order={current}
+              disabled={blocked}
+              onSaved={(notice) => {
+                if (notice) setMessage(notice);
+                order.revalidate();
+              }}
+              onBusyChange={setPurchaseBusy}
+            />
+          )}
           <dl className="work-order-summary">
             <div>
               <dt>

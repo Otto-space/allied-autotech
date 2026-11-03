@@ -1,9 +1,240 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { fixture } from "../fixtures/overview-browser";
+import { ordersFixture, orderRecord, orderId } from "../fixtures/customer-orders";
+import { purchaseFixture } from "../fixtures/purchase-guest";
+import { workOrderDetailFixture } from "../fixtures/work-order-detail";
 
 // This control belongs to a separate loopback, in-memory API fixture, never the application.
 const control = process.env.CAPABILITY_TEST_CONTROL_ORIGIN;
+
+for (const width of [320, 1440]) {
+  test(`staff exception review supports keyboard and a reasoned decision at ${width}px`, async ({
+    page,
+    request,
+  }, info) => {
+    await availability(request, "full");
+    await page.setViewportSize({ width, height: 900 });
+    const { detail: state } = await workOrderDetailFixture(page);
+    Object.assign(state.record, {
+      status: "PENDING",
+      paidAt: null,
+      allowedTransitions: ["CANCELLED"],
+      purchaseReviews: [
+        {
+          ...orderRecord(3).purchaseReviews[0],
+          status: "REQUESTED",
+          decidedAt: null,
+          expiresAt: null,
+          requirements: {
+            lines: state.record.items.map((item) => ({
+              orderItemId: item.id,
+              selection: null,
+            })),
+          },
+        },
+      ],
+    });
+    const writes: unknown[] = [];
+    await page.route(
+      `**/api/v1/admin/orders/${state.record.id}/purchase-review/decision`,
+      async (route) => {
+        const body = route.request().postDataJSON();
+        writes.push(body);
+        expect(body.decision).toBe("DECLINED");
+        expect(body.availability).toEqual([]);
+        expect(body.expectedVersion).toBe(state.record.version);
+        state.record.version++;
+        Object.assign(state.record.purchaseReviews[0], {
+          status: "DECLINED",
+          decidedAt: new Date().toISOString(),
+        });
+        return route.fulfill({ json: { success: true, data: state.record } });
+      },
+    );
+    await page.goto(`/admin/orders/${state.record.id}`);
+    await expect(
+      page.getByRole("heading", { name: "Purchase review needed" }),
+    ).toBeVisible();
+    await page.getByLabel("Outcome", { exact: true }).selectOption("DECLINED");
+    await page
+      .getByLabel("Reason and next step")
+      .fill("Synthetic fixture: confirm the missing specification with the customer.");
+    const opener = page.getByRole("button", { name: "Review decision", exact: true });
+    await opener.focus();
+    await page.keyboard.press("Enter");
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Go back" })).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    await expect(opener).toBeFocused();
+    expect(writes).toHaveLength(0);
+    await page.keyboard.press("Enter");
+    await expect(dialog).toBeVisible();
+    await page.screenshot({ path: info.outputPath(`staff-review-dialog-${width}.png`) });
+    await dialog.getByRole("button", { name: "Confirm change", exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { name: "Purchase review needed" }),
+    ).toHaveCount(0);
+    expect(writes).toHaveLength(1);
+    expect(state.record.paidAt).toBeNull();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  });
+  test(`explicit repeat-purchase details unlock verified payment at ${width}px`, async ({
+    page,
+    request,
+  }, info) => {
+    await availability(request, "full");
+    await page.setViewportSize({ width, height: 900 });
+    const state = await ordersFixture(page);
+    const current = state.records.find((entry) => entry.id === orderId(3))!;
+    current.purchaseReviews = [];
+    current.paymentDueAt = null;
+    const previous = orderRecord(1);
+    await page.route("**/api/v1/auth/csrf", (route) =>
+      route.fulfill({ json: { success: true, data: { csrfToken: "s".repeat(43) } } }),
+    );
+    await page.route(`**/api/v1/public/fitment/models/${orderId(5000)}`, (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          data: {
+            id: orderId(5000),
+            makeId: orderId(5001),
+            name: "Synthetic test model",
+            yearFrom: 2020,
+            yearTo: 2030,
+            make: { id: orderId(5001), name: "Synthetic test make" },
+          },
+        },
+      }),
+    );
+    const submissions: unknown[] = [];
+    await page.route(
+      `**/api/v1/customers/orders/${current.id}/purchase-review`,
+      async (route) => {
+        const body = route.request().postDataJSON();
+        submissions.push(body);
+        expect(body.expectedVersion).toBe(current.version);
+        expect(body.lines).toHaveLength(2);
+        expect(body.lines[0].selection.vehicleModelId).toBe(orderId(5000));
+        expect(body.lines[1].selection.position).toBe("front");
+        current.version += 2;
+        current.paymentDueAt = previous.paymentDueAt;
+        current.purchaseReviews = [
+          {
+            ...previous.purchaseReviews[0],
+            id: orderId(9003),
+            revision: 1,
+            requirements: { lines: body.lines },
+          },
+        ];
+        return route.fulfill({ json: { success: true, data: current } });
+      },
+    );
+    await page.goto(`/dashboard/orders/${current.id}`);
+    await expect(
+      page.getByRole("button", { name: "Review payment options" }),
+    ).toBeDisabled();
+    const panel = page.getByRole("region", { name: "Suitability and availability" });
+    await panel.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: info.outputPath(`suitability-before-${width}.png`) });
+    await page.getByText("Use details from a previous purchase", { exact: true }).click();
+    await page.getByRole("button", { name: "Find previous purchases" }).click();
+    await expect(page.getByLabel("Intended use").first()).toHaveValue("help");
+    await page
+      .getByRole("button", {
+        name: `Use details from ${previous.orderNumber}`,
+        exact: true,
+      })
+      .click();
+    await expect(page.getByLabel("Model", { exact: true }).first()).toHaveValue(
+      "Synthetic test model",
+    );
+    await page.getByRole("button", { name: "Check details and availability" }).click();
+    await expect(
+      page.getByRole("button", { name: "Review payment options" }),
+    ).toBeEnabled();
+    await expect(
+      page.getByText("Change vehicle or part details", { exact: true }),
+    ).toBeVisible();
+    expect(submissions).toHaveLength(1);
+    expect(state.writes.filter((path) => path.includes("payments"))).toEqual([]);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await panel.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: info.outputPath(`suitability-after-${width}.png`) });
+    const accessibility = await new AxeBuilder({ page })
+      .include("main")
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+      .analyze();
+    expect(accessibility.violations).toEqual([]);
+  });
+  test(`guest uncertainty preserves a clear next step without offering payment at ${width}px`, async ({
+    page,
+    request,
+  }, info) => {
+    await availability(request, "full");
+    await page.setViewportSize({ width, height: 900 });
+    const state = await purchaseFixture(page);
+    Object.assign(state.order, { purchaseReviews: [], paymentDueAt: null });
+    let writes = 0;
+    await page.route(
+      `**/api/v1/purchase/orders/${state.order.id}/purchase-review`,
+      async (route) => {
+        const body = route.request().postDataJSON();
+        writes++;
+        expect(body.lines[0].selection).toBeNull();
+        Object.assign(state.order, {
+          version: 1,
+          purchaseReviews: [
+            {
+              id: orderId(9900),
+              revision: 1,
+              status: "REQUESTED",
+              createdAt: new Date().toISOString(),
+              decidedAt: null,
+              expiresAt: null,
+              requirements: { lines: body.lines },
+            },
+          ],
+        });
+        return route.fulfill({ json: { success: true, data: state.order } });
+      },
+    );
+    await page.goto(`/purchase/orders/${state.order.id}`);
+    await expect(
+      page.getByRole("heading", { name: "Suitability and availability" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Review payment", exact: true }),
+    ).toHaveCount(0);
+    await page.getByRole("button", { name: "Check details and availability" }).click();
+    await expect(page.getByRole("heading", { name: "Next step" })).toBeVisible();
+    await expect(
+      page
+        .getByText(
+          "We’ll check suitability and availability, then let you know when you can pay.",
+          { exact: true },
+        )
+        .first(),
+    ).toBeVisible();
+    expect(writes).toBe(1);
+    await expect(
+      page.getByRole("button", { name: "Review payment", exact: true }),
+    ).toHaveCount(0);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.getByRole("heading", { name: "Next step" }).scrollIntoViewIfNeeded();
+    await page.screenshot({ path: info.outputPath(`guest-review-pending-${width}.png`) });
+  });
+}
 test.beforeEach(async ({ page }) => {
   if (process.env.CAPABILITY_TEST_TRANSPORT !== "loopback") return;
   if (!control || !/^http:\/\/127\.0\.0\.1:\d+$/.test(control))

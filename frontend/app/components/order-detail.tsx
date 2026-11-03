@@ -36,6 +36,7 @@ import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { useScrollToMessage } from "@/lib/use-scroll-to-message";
 import { Feedback } from "./feedback";
+import { PurchaseSuitability } from "./purchase-suitability";
 import { CopyControl } from "./copy-control";
 import "./order-detail.css";
 
@@ -68,6 +69,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
   );
   const order = useResource(`/customers/orders/${encodeURIComponent(orderId)}`, parse);
   const [busy, setBusy] = useState(false);
+  const [specificationBusy, setSpecificationBusy] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [error, setError] = useState<string>();
   const [notice, setNotice] = useState<string>();
@@ -113,6 +115,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
   const current = !order.error && order.data?.id === orderId ? order.data : undefined;
   const disabled =
     !checkoutEnabled ||
+    specificationBusy ||
     busy ||
     !!uncertain ||
     order.loading ||
@@ -393,6 +396,14 @@ export function OrderDetail({ orderId }: { orderId: string }) {
           />
         )}
       </div>
+      {current && (
+        <PurchaseSuitability
+          order={current}
+          disabled={disabled}
+          onSaved={order.revalidate}
+          onBusyChange={setSpecificationBusy}
+        />
+      )}
       {current?.partsQuote && (
         <section className="notice">
           <h2>Quoted parts order</h2>

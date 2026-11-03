@@ -25,6 +25,7 @@ import {
 } from "@/lib/api/payment-checkout";
 import { paymentMessage } from "@/lib/api/payment-schemas";
 import { Feedback } from "./feedback";
+import { PurchaseSuitability } from "./purchase-suitability";
 import { PurchaseAccess, EndPurchaseAccess } from "./purchase-access";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { StatusBadge } from "./status-progress";
@@ -266,6 +267,15 @@ function OrderDetail({ orderId }: { orderId: string }) {
       {resource.data && (
         <>
           <OrderSummary order={resource.data} />
+          <PurchaseSuitability
+            order={resource.data}
+            guest
+            disabled={
+              !checkoutEnabled || busy || resource.loading || !!resource.data.paymentId
+            }
+            onSaved={resource.refresh}
+            onBusyChange={setBusy}
+          />
           <section className="purchase-panel">
             <h2>Changes and aftercare</h2>
             <Link
@@ -300,7 +310,8 @@ function OrderDetail({ orderId }: { orderId: string }) {
               </>
             ) : (
               <p>
-                Contact the team if you need help with payment, changes or collection.
+                {orderPaymentUnavailable(resource.data, now) ??
+                  "Contact the team if you need help with payment, changes or collection."}
               </p>
             )}
             <Feedback message={error} />
