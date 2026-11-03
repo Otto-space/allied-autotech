@@ -123922,6 +123922,62 @@ export interface operations {
                                     year: number;
                                     /** @description Registration Number validated by this operation's strict request contract. */
                                     registrationNumber: string | null;
+                                    /** @description Photo validated by this operation's strict request contract. */
+                                    photo?: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description HTTPS location validated against the operation's server-side allowlist. */
+                                        url: string;
+                                        /** @description Alt Text validated by this operation's strict request contract. */
+                                        altText: string | null;
+                                        /** @description Sort Order validated by this operation's strict request contract. */
+                                        sortOrder: number;
+                                        /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                                        isPrimary: boolean;
+                                        /** @description Width validated by this operation's strict request contract. */
+                                        width: number;
+                                        /** @description Height validated by this operation's strict request contract. */
+                                        height: number;
+                                    } | null;
+                                } | null;
+                                /** @description Default Vehicle validated by this operation's strict request contract. */
+                                defaultVehicle?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Make validated by this operation's strict request contract. */
+                                    make: string;
+                                    /** @description Model validated by this operation's strict request contract. */
+                                    model: string;
+                                    /** @description Year validated by this operation's strict request contract. */
+                                    year: number;
+                                    /** @description Registration Number validated by this operation's strict request contract. */
+                                    registrationNumber: string | null;
+                                    /** @description Photo validated by this operation's strict request contract. */
+                                    photo?: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description HTTPS location validated against the operation's server-side allowlist. */
+                                        url: string;
+                                        /** @description Alt Text validated by this operation's strict request contract. */
+                                        altText: string | null;
+                                        /** @description Sort Order validated by this operation's strict request contract. */
+                                        sortOrder: number;
+                                        /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                                        isPrimary: boolean;
+                                        /** @description Width validated by this operation's strict request contract. */
+                                        width: number;
+                                        /** @description Height validated by this operation's strict request contract. */
+                                        height: number;
+                                    } | null;
                                 } | null;
                                 /**
                                  * @description Vehicle Source validated by this operation's strict request contract.
@@ -124528,6 +124584,62 @@ export interface operations {
                                     year: number;
                                     /** @description Registration Number validated by this operation's strict request contract. */
                                     registrationNumber: string | null;
+                                    /** @description Photo validated by this operation's strict request contract. */
+                                    photo?: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description HTTPS location validated against the operation's server-side allowlist. */
+                                        url: string;
+                                        /** @description Alt Text validated by this operation's strict request contract. */
+                                        altText: string | null;
+                                        /** @description Sort Order validated by this operation's strict request contract. */
+                                        sortOrder: number;
+                                        /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                                        isPrimary: boolean;
+                                        /** @description Width validated by this operation's strict request contract. */
+                                        width: number;
+                                        /** @description Height validated by this operation's strict request contract. */
+                                        height: number;
+                                    } | null;
+                                } | null;
+                                /** @description Default Vehicle validated by this operation's strict request contract. */
+                                defaultVehicle?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Make validated by this operation's strict request contract. */
+                                    make: string;
+                                    /** @description Model validated by this operation's strict request contract. */
+                                    model: string;
+                                    /** @description Year validated by this operation's strict request contract. */
+                                    year: number;
+                                    /** @description Registration Number validated by this operation's strict request contract. */
+                                    registrationNumber: string | null;
+                                    /** @description Photo validated by this operation's strict request contract. */
+                                    photo?: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description HTTPS location validated against the operation's server-side allowlist. */
+                                        url: string;
+                                        /** @description Alt Text validated by this operation's strict request contract. */
+                                        altText: string | null;
+                                        /** @description Sort Order validated by this operation's strict request contract. */
+                                        sortOrder: number;
+                                        /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                                        isPrimary: boolean;
+                                        /** @description Width validated by this operation's strict request contract. */
+                                        width: number;
+                                        /** @description Height validated by this operation's strict request contract. */
+                                        height: number;
+                                    } | null;
                                 } | null;
                                 /**
                                  * @description Vehicle Source validated by this operation's strict request contract.

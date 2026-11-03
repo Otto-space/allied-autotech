@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
 import { AppointmentTiming } from "./appointment-timing";
 import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import {
@@ -29,6 +31,30 @@ function Action({ href, children }: { href: string; children: React.ReactNode })
     </Link>
   );
 }
+function VehiclePhoto({ vehicle }: { vehicle: NonNullable<CustomerCare["vehicle"]> }) {
+  const [failed, setFailed] = useState(false);
+  const photo = vehicle.photo;
+  if (!photo) return <CarFront size={36} aria-hidden="true" />;
+  return (
+    <span className="care-vehicle-photo">
+      {failed ? (
+        <span role="img" aria-label="Vehicle photo unavailable">
+          <CarFront size={28} aria-hidden="true" />
+          Photo unavailable
+        </span>
+      ) : (
+        <Image
+          unoptimized
+          src={photo.url}
+          width={photo.width}
+          height={photo.height}
+          alt={photo.altText || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+          onError={() => setFailed(true)}
+        />
+      )}
+    </span>
+  );
+}
 export function CustomerCareSummary({
   care,
   current = true,
@@ -38,7 +64,13 @@ export function CustomerCareSummary({
 }) {
   const { checkoutEnabled } = usePublicCapabilities();
   const booking = care.currentBooking;
-  const vehicle = care.vehicle;
+  const bookedVehicle = care.vehicleSource === "BOOKING" && care.vehicle;
+  const vehicle = bookedVehicle || care.defaultVehicle || care.vehicle;
+  const vehicleLabel = bookedVehicle
+    ? "Booked vehicle"
+    : care.defaultVehicle
+      ? "Default vehicle"
+      : "Recently added vehicle";
   const hasService = Boolean(booking || vehicle || care.nextBooking);
   const hasReview = Boolean(care.quote || care.payment);
   const hasUpdates = Boolean(care.order || care.inspection || care.notification);
@@ -77,13 +109,12 @@ export function CustomerCareSummary({
                   )}
                   {vehicle ? (
                     <div className="care-vehicle">
-                      <CarFront size={36} aria-hidden="true" />
+                      <VehiclePhoto
+                        key={`${vehicle.id}:${vehicle.photo?.id ?? "none"}`}
+                        vehicle={vehicle}
+                      />
                       <div>
-                        <span>
-                          {care.vehicleSource === "BOOKING"
-                            ? "Booked vehicle"
-                            : "Recently added vehicle"}
-                        </span>
+                        <span>{vehicleLabel}</span>
                         <strong>
                           {vehicle.year} {vehicle.make} {vehicle.model}
                         </strong>

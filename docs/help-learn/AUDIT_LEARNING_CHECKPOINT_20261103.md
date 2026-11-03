@@ -18,3 +18,5 @@ eligibility change is needed. Work-account-profile guidance still accurately nam
 Account options and My profile. Practice/auth exclusions, intentional session hiding
 and production flags are preserved. This is local fixture evidence, not AI activation
 or all-role server authorization acceptance.
+
+Renewed overview package: service-request v25 explains booked/default/recent vehicle priority and private cover photos without changing bookings. Existing public eligibility and semantic guide targets are unchanged. Five learning regression cases pass locally; publication remains subject to exact-source CI and compatible release gates.
