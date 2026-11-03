@@ -1,60 +1,92 @@
 {
   "date": "2026-11-03",
-  "data": "isolated synthetic fixtures; no authentication data",
+  "data": "Dashboard: local role fixtures. Profile: native released assets with isolated role fixtures. Home/search: genuine public production data. No authentication data.",
   "selected": [
     {
       "file": "dashboard-1280x720.png",
       "bytes": 135521,
       "viewport": "1280x720",
-      "dpr": 1
+      "dpr": 1,
+      "environment": "local synthetic fixtures"
     },
     {
       "file": "dashboard-320x720.png",
       "bytes": 122381,
       "viewport": "320x720",
-      "dpr": 2
+      "dpr": 2,
+      "environment": "local synthetic fixtures"
+    },
+    {
+      "file": "home-first-viewport-1280x720.png",
+      "bytes": 257115,
+      "viewport": "1280x720",
+      "dpr": 1,
+      "environment": "genuine public production inventory",
+      "commit": "7384abf8d23ad24fe8e9b0b66e144dd023f273bf",
+      "deployment": "dpl_GjKGjnPCT8H56HWmikySoyYSjyxP"
+    },
+    {
+      "file": "home-first-viewport-320x720.png",
+      "bytes": 346829,
+      "viewport": "320x720",
+      "dpr": 2,
+      "environment": "genuine public production inventory",
+      "commit": "7384abf8d23ad24fe8e9b0b66e144dd023f273bf",
+      "deployment": "dpl_GjKGjnPCT8H56HWmikySoyYSjyxP"
     },
     {
       "file": "home-vehicle-1280x720.png",
-      "bytes": 304273,
+      "bytes": 302967,
       "viewport": "1280x720",
-      "dpr": 1
+      "dpr": 1,
+      "environment": "genuine public production inventory",
+      "commit": "7384abf8d23ad24fe8e9b0b66e144dd023f273bf",
+      "deployment": "dpl_GjKGjnPCT8H56HWmikySoyYSjyxP"
     },
     {
       "file": "home-vehicle-320x720.png",
-      "bytes": 218868,
+      "bytes": 319324,
       "viewport": "320x720",
-      "dpr": 2
+      "dpr": 2,
+      "environment": "genuine public production inventory",
+      "commit": "7384abf8d23ad24fe8e9b0b66e144dd023f273bf",
+      "deployment": "dpl_GjKGjnPCT8H56HWmikySoyYSjyxP"
     },
     {
       "file": "search-1280x720.png",
-      "bytes": 60155,
+      "bytes": 56894,
       "viewport": "1280x720",
-      "dpr": 1
+      "dpr": 1,
+      "environment": "genuine public production inventory",
+      "commit": "7384abf8d23ad24fe8e9b0b66e144dd023f273bf",
+      "deployment": "dpl_GjKGjnPCT8H56HWmikySoyYSjyxP"
     },
     {
       "file": "search-320x720.png",
-      "bytes": 91299,
+      "bytes": 86344,
       "viewport": "320x720",
-      "dpr": 2
+      "dpr": 2,
+      "environment": "genuine public production inventory",
+      "commit": "7384abf8d23ad24fe8e9b0b66e144dd023f273bf",
+      "deployment": "dpl_GjKGjnPCT8H56HWmikySoyYSjyxP"
     },
     {
       "file": "work-profile-1280x720.png",
-      "bytes": 106446,
+      "bytes": 109125,
       "viewport": "1280x720",
       "dpr": 1,
-      "environment": "protected hosted preview with isolated fixtures",
-      "commit": "68c37ea8848332355c6db0b768c2e4b6e7cee1a4",
-      "deployment": "dpl_Berpr5K7VFgJFqnZ9hh7UwET9sdH"
+      "environment": "native released assets with isolated private-role fixtures",
+      "commit": "7384abf8d23ad24fe8e9b0b66e144dd023f273bf",
+      "deployment": "dpl_GjKGjnPCT8H56HWmikySoyYSjyxP"
     },
     {
       "file": "work-profile-320x720.png",
-      "bytes": 98427,
+      "bytes": 100989,
       "viewport": "320x720",
       "dpr": 2,
-      "environment": "protected hosted preview with isolated fixtures",
-      "commit": "68c37ea8848332355c6db0b768c2e4b6e7cee1a4",
-      "deployment": "dpl_Berpr5K7VFgJFqnZ9hh7UwET9sdH"
+      "environment": "native released assets with isolated private-role fixtures",
+      "commit": "7384abf8d23ad24fe8e9b0b66e144dd023f273bf",
+      "deployment": "dpl_GjKGjnPCT8H56HWmikySoyYSjyxP"
     }
   ]
 }

@@ -1,3 +1,16 @@
+3 November 21:25 UTC integration reconciliation: remote master 3be68d5d adds the
+separate audit release receipt for source 7384abf8, frontend dpl_GjKGjnPCT8H56HWmikySoyYSjyxP
+and backend fb5f9ef2-8ffc-4233-9e96-4722c43350a2 at schema 92. Its documentation
+and captures are preserved. This supersedes the historical schema-89 provider
+snapshot, but does not publish later 97-migration master or this D02 package.
+The receipt is another package's evidence; current provider identities must still
+be refreshed before any rollout. Both conflicting checkpoint additions were kept.
+Canonical validation also found a handbook final-newline mismatch and an obsolete
+admin-only expectation for existing guest PDF downloads. The generator now emits
+one final newline; the test explicitly checks the two owned guest PDF paths and
+their guest-cookie boundary, retaining admin MFA requirements. Six API handover
+checks pass; canonical validation covers 445 paths and 521 mounted operations.
+
 3 November 21:23 UTC D02 implementation checkpoint (not yet a release gate):
 new account and guest orders save versioned integer-kobo line allocations on the
 order, invoice policy and invoice document. Existing ordered quantities and issued
@@ -57,6 +70,25 @@ approved arithmetic, preserving issued history and prior refund/capture limits;
 then continue D03/D11-D17 and the remaining ledger items. Do not ask again for the
 settled rounding decision. The full goal remains active, not whole-site launch-ready.
 Last reserve checks read 20.97 GiB; no cleanup or substantial local build occurred.
+
+## 3 November 2026: consolidated audit deployed checkpoint
+
+Checked application source 7384abf8 (PR #12) is live on both domains as
+dpl_GjKGjnPCT8H56HWmikySoyYSjyxP. Exact-source Frontend 41695288681,
+Backend 41695288523 and Secrets 41695288500 pass. Backend
+fb5f9ef2-8ffc-4233-9e96-4722c43350a2 is ACTIVE with four verified digests,
+readiness 200 and 13 fresh healthy worker tasks. Reviewed forward migrations
+89→92 passed after fresh backup and populated restore: all 101 original-table
+counts/hashes preserved; current/previous packaged runtimes compatible. Approved
+temporary network access was removed and verified after every lease.
+Native public acceptance: 7/7 across all seven sizes; released private-interface
+fixtures: 14/14 in Edge/Chrome. These do not establish real-role persistence,
+private storage, physical-device or Safari/Firefox acceptance. F02 remains
+consent-suppressed with no retry. Genuine data/duty requirements and authoring
+contracts remain explicit. Later booking/calendar/Allie master work is preserved
+and excluded from this release. Full self-contained ledger and reviewed captures:
+frontend/docs/CONSOLIDATED_AUDIT_20261103.md. Earlier pending checkpoints below
+are historical; this checkpoint supersedes only this audit package's status.
 
 3 November 20:25 UTC verification and arithmetic checkpoint: 21c633af frontend
 41708675936 passes 1,457 units (12 existing skips) and 64/64 Chromium cases.

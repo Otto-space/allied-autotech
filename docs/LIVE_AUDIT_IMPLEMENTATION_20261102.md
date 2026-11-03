@@ -1,3 +1,16 @@
+3 November 21:25 UTC integration reconciliation: remote master 3be68d5d adds the
+separate audit release receipt for source 7384abf8, frontend dpl_GjKGjnPCT8H56HWmikySoyYSjyxP
+and backend fb5f9ef2-8ffc-4233-9e96-4722c43350a2 at schema 92. Its documentation
+and captures are preserved. This supersedes the historical schema-89 provider
+snapshot, but does not publish later 97-migration master or this D02 package.
+The receipt is another package's evidence; current provider identities must still
+be refreshed before any rollout. Both conflicting checkpoint additions were kept.
+Canonical validation also found a handbook final-newline mismatch and an obsolete
+admin-only expectation for existing guest PDF downloads. The generator now emits
+one final newline; the test explicitly checks the two owned guest PDF paths and
+their guest-cookie boundary, retaining admin MFA requirements. Six API handover
+checks pass; canonical validation covers 445 paths and 521 mounted operations.
+
 3 November 21:23 UTC D02 implementation checkpoint (not yet a release gate):
 new account and guest orders save versioned integer-kobo line allocations on the
 order, invoice policy and invoice document. Existing ordered quantities and issued
