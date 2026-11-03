@@ -69,6 +69,6 @@ it("explains resource allocation, rollback, cleanup and unknown legacy work with
   ])
     expect(work).toContain(phrase);
   const customer = learningArticles.find((row) => row.id === "service-request")!;
-  expect(customer.version).toBe(24);
+  expect(customer.version).toBe(25);
   expect(customer.steps.join(" ")).toContain("does not create a payment");
 });

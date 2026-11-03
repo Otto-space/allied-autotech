@@ -5,10 +5,7 @@ import type { RequestSecurityContext } from "../../common/contracts/request-secu
 import { prisma } from "../../config/database.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { lockAccessActor } from "../organization/team-access-security.js";
-import {
-  assignmentAllows,
-  supportedAssignmentPolicies,
-} from "../organization/workforce-catalogue.js";
+import { eligibleWorkshopTechnicianWhere } from "../service-operations/workshop-technician-eligibility.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { paymentForbidden } from "../payments/payments.errors.js";
 import { organizationResourceNotFound } from "../organization/organization.errors.js";
@@ -94,39 +91,7 @@ export async function readResourceOptions(
           eligible: branch.isActive && row.isActive,
         }));
       } else {
-        const pairs = supportedAssignmentPolicies().filter((pair) =>
-          assignmentAllows(pair, "JOBS_UPDATE"),
-        );
-        const eligible: Prisma.StaffProfileWhereInput = {
-          user: {
-            role: { in: ["STAFF", "ADMIN", "SUPER_ADMIN"] },
-            status: "ACTIVE",
-            emailVerifiedAt: { not: null },
-          },
-          OR: [
-            { branchId, user: { workforceAccess: { is: null } } },
-            {
-              user: {
-                workforceAccess: {
-                  is: {
-                    assignments: {
-                      some: {
-                        branchId,
-                        branch: { isActive: true },
-                        revokedAt: null,
-                        startsAt: { lte: now },
-                        AND: [
-                          { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
-                          { OR: pairs },
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          ],
-        };
+        const eligible = eligibleWorkshopTechnicianWhere(branchId, now);
         const scope: Prisma.StaffProfileWhereInput = ids
           ? { id: { in: ids } }
           : {

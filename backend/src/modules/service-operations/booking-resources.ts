@@ -1,3 +1,8 @@
+import { eligibleWorkshopTechnicianWhere } from "./workshop-technician-eligibility.js";
+import {
+  workshopResourceAvailabilitySelect,
+  type WorkshopResourceAvailability,
+} from "./booking-resource-availability.js";
 import { technicianConflictSelect } from "./booking-slot-timing.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import { Prisma } from "../../generated/prisma/client.js";
@@ -7,32 +12,22 @@ import {
   selectWorkshopResources,
   workshopResourceSettingsSchema,
 } from "./workshop-resources.js";
-import { serviceOperationConflict } from "./service-operations.errors.js";
+import {
+  scheduleConflict,
+  serviceOperationConflict,
+} from "./service-operations.errors.js";
 
-/** Latest decision only: returning to an earlier technician never revives an old allocation. */
-const currentAllocation = Prisma.sql`a."bookingId"=b."id" AND a."bookingVersion"=(SELECT max(h."bookingVersion") FROM "BookingResourceAllocation" h WHERE h."bookingId"=b."id")
- AND a."scheduleVersion"=b."scheduleVersion" AND a."branchId"=b."branchId" AND a."serviceId"=b."serviceId"
- AND a."staffId"=b."assignedStaffId" AND a."scheduledAt"=b."scheduledAt"`;
-const effectiveEnd = Prisma.sql`CASE
- WHEN b."status"='IN_PROGRESS' AND a."endsAt"<=timezone('UTC',now()) THEN 'infinity'::timestamp
- WHEN b."status"='COMPLETED' AND b."completedAt" IS NOT NULL THEN b."completedAt"+make_interval(mins=>t."cleanupMinutes")
- WHEN b."status"='CANCELLED' AND b."startedAt" IS NOT NULL AND b."cancelledAt" IS NOT NULL THEN b."cancelledAt"+make_interval(mins=>t."cleanupMinutes")
- ELSE a."endsAt" END`;
-const occupying = Prisma.sql`(b."status" IN ('CONFIRMED','IN_PROGRESS','COMPLETED') OR (b."status"='CANCELLED' AND b."startedAt" IS NOT NULL))`;
-
-export async function approvedWorkshopResources(
+export async function findApprovedWorkshopResources(
   tx: Prisma.TransactionClient,
   branchId: string,
+  now = new Date(),
 ) {
   const policy = await tx.businessPolicyVersion.findFirst({
-    where: { key: `booking-resources:${branchId}`, effectiveAt: { lte: new Date() } },
+    where: { key: `booking-resources:${branchId}`, effectiveAt: { lte: now } },
     orderBy: [{ effectiveAt: "desc" }, { version: "desc" }],
   });
   const parsed = workshopResourceSettingsSchema.safeParse(policy?.settings);
-  if (!policy || policy.approvalStatus !== "APPROVED" || !parsed.success)
-    throw serviceOperationConflict(
-      "Approved workshop resources are not configured. The owner must review actual technicians, equipment, shared spaces and working periods before confirmation.",
-    );
+  if (!policy || policy.approvalStatus !== "APPROVED" || !parsed.success) return null;
   // UUIDs are case-insensitive database identities, including in historical policies.
   const settings = parsed.data;
   settings.resources.forEach((row) => {
@@ -46,6 +41,18 @@ export async function approvedWorkshopResources(
     row.serviceIds = row.serviceIds.map((id) => id.toLowerCase());
   });
   return { policy, settings };
+}
+
+export async function approvedWorkshopResources(
+  tx: Prisma.TransactionClient,
+  branchId: string,
+) {
+  const plan = await findApprovedWorkshopResources(tx, branchId);
+  if (!plan)
+    throw serviceOperationConflict(
+      "Approved workshop resources are not configured. The owner must review actual technicians, equipment, shared spaces and working periods before confirmation.",
+    );
+  return plan;
 }
 
 /** Caller holds the booking row and existing workforce lock. No public DTO includes this history. */
@@ -125,29 +132,20 @@ export async function allocateBookingResources(
   // between branch plans. Other bookings cannot select the last unit concurrently.
   for (const id of settings.resources.map((row) => row.id).sort())
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`workshop-resource:${id}`},0))`;
-  const legacy = needsResources
-    ? await tx.$queryRaw<Array<{ exists: boolean }>>(Prisma.sql`SELECT EXISTS (
- SELECT 1 FROM "Booking" b LEFT JOIN "BookingTimingSnapshot" t ON t."bookingId"=b."id" AND t."scheduleVersion"=b."scheduleVersion"
- WHERE b."id"<>${bookingId}::uuid AND b."branchId"=${booking.branchId}::uuid AND b."status" IN ('CONFIRMED','IN_PROGRESS')
- AND NOT EXISTS(SELECT 1 FROM "BookingResourceAllocation" a WHERE ${currentAllocation})
- AND ((t."durationMinutes" IS NOT NULL AND t."preparationMinutes" IS NOT NULL AND t."cleanupMinutes" IS NOT NULL
- AND b."scheduledAt"-make_interval(mins=>t."preparationMinutes")<${endsAt}
- AND (CASE WHEN b."status"='IN_PROGRESS' AND b."scheduledAt"+make_interval(mins=>t."durationMinutes"+t."cleanupMinutes")<=timezone('UTC',now()) THEN 'infinity'::timestamp ELSE b."scheduledAt"+make_interval(mins=>t."durationMinutes"+t."cleanupMinutes") END)>${startsAt})
- OR ((t."durationMinutes" IS NULL OR t."preparationMinutes" IS NULL OR t."cleanupMinutes" IS NULL)
- AND (b."status"='IN_PROGRESS' OR (b."scheduledAt">=date_trunc('day',${startsAt}::timestamp+interval '1 hour')-interval '1 hour'
- AND b."scheduledAt"<date_trunc('day',${endsAt}::timestamp+interval '1 hour')+interval '23 hours'))))) AS "exists"`)
-    : [{ exists: false }];
-  if (legacy[0]?.exists)
+  const [availability] = needsResources
+    ? await tx.$queryRaw<WorkshopResourceAvailability[]>(
+        workshopResourceAvailabilitySelect(
+          Prisma.sql`${booking.branchId}::uuid`,
+          Prisma.sql`${startsAt}::timestamp`,
+          Prisma.sql`${endsAt}::timestamp`,
+          Prisma.sql`${bookingId}::uuid`,
+        ),
+      )
+    : [{ legacyUnassessed: false, busyResourceIds: [] }];
+  if (!availability || availability.legacyUnassessed)
     throw serviceOperationConflict(
       "Review resource allocations for existing work in this period before confirming another appointment. No existing appointment was displaced.",
     );
-  const rows = needsResources
-    ? await tx.$queryRaw<
-        Array<{ resourceIds: string[] }>
-      >(Prisma.sql`SELECT a."resourceIds" FROM "BookingResourceAllocation" a JOIN "Booking" b ON ${currentAllocation}
- JOIN "BookingTimingSnapshot" t ON t."id"=a."timingSnapshotId"
- WHERE b."id"<>${bookingId}::uuid AND ${occupying} AND a."startsAt"<${endsAt} AND (${effectiveEnd})>${startsAt}`)
-    : ([] as Array<{ resourceIds: string[] }>);
   const prior = await tx.bookingResourceAllocation.findUnique({
     where: { bookingId_bookingVersion: { bookingId, bookingVersion: booking.version } },
   });
@@ -164,9 +162,7 @@ export async function allocateBookingResources(
     throw serviceOperationConflict(
       "The resource review changed; review the current appointment revision",
     );
-  const busy = new Set(
-    rows.flatMap((row) => row.resourceIds.map((id) => id.toLowerCase())),
-  );
+  const busy = new Set(availability.busyResourceIds.map((id) => id.toLowerCase()));
   if (prior)
     for (const unit of settings.resources)
       if (!prior.resourceIds.includes(unit.id)) busy.add(unit.id);
@@ -209,4 +205,57 @@ export async function allocateBookingResources(
       createdByUserId: actor.userId,
     },
   });
+}
+
+/** Recheck a selected offer without reserving a unit or changing another booking. */
+export async function assertOfferedWorkshopResources(
+  tx: Prisma.TransactionClient,
+  input: {
+    branchId: string;
+    serviceId: string;
+    staffId: string;
+    startsAt: Date;
+    endsAt: Date;
+    excludeBookingId?: string | null;
+  },
+) {
+  const { settings } = await approvedWorkshopResources(tx, input.branchId);
+  if (
+    !(await tx.staffProfile.count({
+      where: {
+        AND: [
+          { id: input.staffId },
+          eligibleWorkshopTechnicianWhere(input.branchId, new Date()),
+        ],
+      },
+    }))
+  )
+    throw scheduleConflict();
+  const needsResources =
+    (settings.services.find((row) => row.serviceId === input.serviceId)?.requirements
+      .length ?? 0) > 0;
+  const [availability] = needsResources
+    ? await tx.$queryRaw<WorkshopResourceAvailability[]>(
+        workshopResourceAvailabilitySelect(
+          Prisma.sql`${input.branchId}::uuid`,
+          Prisma.sql`${input.startsAt}::timestamp`,
+          Prisma.sql`${input.endsAt}::timestamp`,
+          Prisma.sql`${input.excludeBookingId ?? null}::uuid`,
+        ),
+      )
+    : [{ legacyUnassessed: false, busyResourceIds: [] }];
+  if (
+    !availability ||
+    availability.legacyUnassessed ||
+    !selectWorkshopResources(settings, {
+      serviceId: input.serviceId,
+      staffId: input.staffId,
+      startsAt: input.startsAt,
+      endsAt: input.endsAt,
+      busyResourceIds: new Set(
+        availability.busyResourceIds.map((id) => id.toLowerCase()),
+      ),
+    }).ok
+  )
+    throw scheduleConflict();
 }

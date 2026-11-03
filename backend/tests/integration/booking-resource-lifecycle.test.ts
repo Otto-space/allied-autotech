@@ -1,3 +1,5 @@
+import { bookingPolicy } from "../../src/modules/service-operations/service-operations.service.js";
+import { ServiceOperationsRepository } from "../../src/modules/service-operations/service-operations.repository.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { beforeAll, afterAll, describe, it, expect, vi } from "vitest";
@@ -22,7 +24,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       await testCapability(admin.user.id, "BOOKING_CONFIRM");
     }, 30000);
     afterAll(() => prisma.$disconnect());
-    async function fixture(publish = true) {
+    async function fixture(publishPlan = true) {
       const branch = await prisma.branch.create({
         data: {
           code: `ALLOC-${randomUUID().slice(0, 8)}`,
@@ -143,7 +145,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         policyVersion++;
         return response.body.data;
       }
-      if (publish) await approve();
+      if (publishPlan) await approve();
       const at = new Date(Date.now() + 10 * 86400000);
       at.setUTCHours(9, 0, 0, 0);
       async function book(
@@ -186,6 +188,35 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             expectedVersion,
             reason: "Synthetic customer cancellation; preserve payment and work history",
           });
+      async function publish(
+        serviceId = b.id,
+        staffId = w2.user.staffProfile!.id,
+        time = at,
+      ) {
+        const response = await request(app)
+          .post("/api/v1/staff/booking-slots")
+          .set(admin.headers)
+          .send({
+            branchId: branch.id,
+            serviceId,
+            staffId,
+            startsAt: time.toISOString(),
+          });
+        expect(response.status, JSON.stringify(response.body)).toBe(201);
+        return response.body.data;
+      }
+      const list = (serviceId = b.id, query: Record<string, string | number> = {}) =>
+        request(app)
+          .get(`/api/v1/public/services/${serviceId}/slots`)
+          .query({ branchId: branch.id, ...query });
+      async function claim(slotId: string) {
+        const buyer = await f.account(null, "CUSTOMER");
+        return request(app)
+          .post("/api/v1/customers/bookings")
+          .set(buyer.headers)
+          .set("Idempotency-Key", randomUUID())
+          .send({ slotId, policyVersion: bookingPolicy.version });
+      }
       return {
         branch,
         w1,
@@ -205,8 +236,261 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         status,
         allocations,
         cancel,
+        publish,
+        list,
+        claim,
       };
     }
+    it("withholds unknown resource offers but still accepts an unconfirmed preferred-time request", async () => {
+      const v = await fixture(false),
+        slot = await v.publish();
+      const list = await v.list();
+      expect(list.status).toBe(200);
+      expect(list.body.data.items).toEqual([]);
+      expect((await v.claim(slot.id)).status).toBe(409);
+      const buyer = await f.account(null, "CUSTOMER");
+      const preferred = await request(app)
+        .post("/api/v1/customers/bookings")
+        .set(buyer.headers)
+        .set("Idempotency-Key", randomUUID())
+        .send({
+          serviceId: v.b.id,
+          branchId: v.branch.id,
+          preferredAt: v.at.toISOString(),
+          policyVersion: bookingPolicy.version,
+        });
+      expect(preferred.status, JSON.stringify(preferred.body)).toBe(201);
+      expect(preferred.body.data.booking).toMatchObject({
+        status: "REQUESTED",
+        scheduledAt: v.at.toISOString(),
+        confirmedAt: null,
+        bookingSlotId: null,
+      });
+      expect(
+        await prisma.bookingResourceAllocation.count({
+          where: { branchId: v.branch.id },
+        }),
+      ).toBe(0);
+    });
+    it("filters a shared bay conflict and rechecks stale selections without reserving or exposing resources", async () => {
+      const v = await fixture(),
+        slot = await v.publish();
+      const first = await v.list();
+      expect(first.body.data.items.map((x: { id: string }) => x.id)).toEqual([slot.id]);
+      const existing = await v.book();
+      expect((await v.status(existing.id, 0, "CONFIRMED")).status).toBe(200);
+      const allocations = await v.allocations(existing.id);
+      expect((await v.list()).body.data.items).toEqual([]);
+      const before = await prisma.booking.count({ where: { branchId: v.branch.id } });
+      expect((await v.claim(slot.id)).status).toBe(409);
+      expect(await prisma.booking.count({ where: { branchId: v.branch.id } })).toBe(
+        before,
+      );
+      expect(await v.allocations(existing.id)).toEqual(allocations);
+      expect((await v.cancel(existing, 1)).status).toBe(200);
+      const after = await v.list();
+      expect(after.body.data.items.map((x: { id: string }) => x.id)).toEqual([slot.id]);
+      for (const privateValue of [
+        v.bay,
+        v.machine1,
+        v.w2.user.staffProfile!.id,
+        allocations[0]!.id,
+      ])
+        expect(JSON.stringify(after.body.data)).not.toContain(privateValue);
+      const requested = await v.claim(slot.id);
+      expect(requested.status, JSON.stringify(requested.body)).toBe(201);
+      expect(requested.body.data.booking.status).toBe("REQUESTED");
+      expect(
+        await prisma.bookingResourceAllocation.count({
+          where: { branchId: v.branch.id },
+        }),
+      ).toBe(1);
+      expect(
+        await prisma.payment.count({
+          where: { bookingId: requested.body.data.booking.id },
+        }),
+      ).toBe(0);
+    });
+    it("honours equipment condition, split working periods and technician absences, including explicit no-equipment work", async () => {
+      const v = await fixture();
+      await v.publish();
+      const independent = await v.publish(v.c.id, v.w3.user.staffProfile!.id);
+      v.settings.resources[0]!.status = "UNAVAILABLE";
+      await v.approve();
+      expect((await v.list()).body.data.items).toEqual([]);
+      expect(
+        (await v.list(v.c.id)).body.data.items.map((x: { id: string }) => x.id),
+      ).toEqual([independent.id]);
+      v.settings.resources[0]!.status = "AVAILABLE";
+      v.settings.resources[0]!.workingPeriods = [
+        { weekday: v.at.getUTCDay(), opensAt: "08:00", closesAt: "10:00" },
+        { weekday: v.at.getUTCDay(), opensAt: "11:00", closesAt: "18:00" },
+      ];
+      await v.approve();
+      expect((await v.list()).body.data.items).toEqual([]);
+      v.settings.resources[0]!.workingPeriods = v.settings.resources[1]!.workingPeriods;
+      v.settings.technicians[1]!.unavailablePeriods.push({
+        startsAt: new Date(v.at.getTime() - 15 * 60000).toISOString(),
+        endsAt: new Date(v.at.getTime() + 60000).toISOString(),
+        reason: "Synthetic actual absence",
+      });
+      await v.approve();
+      expect((await v.list()).body.data.items).toEqual([]);
+    });
+    it("removes revoked job duties without treating a policy name or home branch as authority", async () => {
+      const v = await fixture(),
+        slot = await v.publish();
+      expect((await v.list()).body.data.items).toHaveLength(1);
+      await prisma.workforceAssignment.updateMany({
+        where: { userId: v.w2.user.id },
+        data: { revokedAt: new Date(), revokedByUserId: f.owner.id },
+      });
+      expect((await v.list()).body.data.items).toEqual([]);
+      expect((await v.claim(slot.id)).status).toBe(409);
+    });
+    it("does not advertise resources occupied by unknown legacy work", async () => {
+      const v = await fixture();
+      await v.publish();
+      const legacy = await v.book();
+      await prisma.booking.update({
+        where: { id: legacy.id },
+        data: { status: "CONFIRMED", confirmedAt: new Date() },
+      });
+      expect((await v.list()).body.data.items).toEqual([]);
+      expect(await v.allocations(legacy.id)).toEqual([]);
+    });
+    it("keeps genuinely overdue work unavailable until explicit completion without altering its allocation history", async () => {
+      const v = await fixture(),
+        past = new Date();
+      past.setUTCDate(past.getUTCDate() - 1);
+      past.setUTCHours(9, 0, 0, 0);
+      const existing = await v.book(v.a.id, v.w1.user.staffProfile!.id, past);
+      expect((await v.status(existing.id, 0, "CONFIRMED")).status).toBe(200);
+      const slot = await v.publish(),
+        before = await v.allocations(existing.id);
+      await prisma.booking.update({
+        where: { id: existing.id },
+        data: { status: "IN_PROGRESS", startedAt: past },
+      });
+      expect((await v.list()).body.data.items).toEqual([]);
+      await prisma.booking.update({
+        where: { id: existing.id },
+        data: { status: "COMPLETED", completedAt: new Date() },
+      });
+      expect((await v.list()).body.data.items.map((x: { id: string }) => x.id)).toEqual([
+        slot.id,
+      ]);
+      expect(await v.allocations(existing.id)).toEqual(before);
+    });
+    it("uses recorded completion cleanup at the exact occupied boundary", async () => {
+      const v = await fixture();
+      await prisma.service.update({
+        where: { id: v.a.id },
+        data: { cleanupMinutes: 180 },
+      });
+      const existing = await v.book();
+      expect((await v.status(existing.id, 0, "CONFIRMED")).status).toBe(200);
+      const later = new Date(v.at.getTime() + 240 * 60000),
+        slot = await v.publish(v.b.id, v.w2.user.staffProfile!.id, later);
+      const before = await v.allocations(existing.id);
+      // Explicit synthetic completion records, not evidence of physical work.
+      {
+        await prisma.booking.update({
+          where: { id: existing.id },
+          data: {
+            status: "COMPLETED",
+            startedAt: v.at,
+            completedAt: new Date(v.at.getTime() + 90 * 60000),
+          },
+        });
+        expect((await v.list()).body.data.items).toEqual([]);
+        await prisma.booking.update({
+          where: { id: existing.id },
+          data: { completedAt: new Date(v.at.getTime() + 45 * 60000) },
+        });
+        expect((await v.list()).body.data.items.map((x: { id: string }) => x.id)).toEqual(
+          [slot.id],
+        );
+        expect(await v.allocations(existing.id)).toEqual(before);
+      }
+    });
+    it("fills public pages after more than one exhausted candidate batch and keeps visible cursors stable", async () => {
+      const v = await fixture();
+      const staffIds = [
+        v.w1.user.staffProfile!.id,
+        v.w2.user.staffProfile!.id,
+        v.w3.user.staffProfile!.id,
+      ];
+      for (const technician of v.settings.technicians)
+        if (!technician.serviceIds.includes(v.b.id)) technician.serviceIds.push(v.b.id);
+      await v.approve();
+      const rows = Array.from({ length: 57 }, (_, index) => {
+        const startsAt = new Date(v.at.getTime() + Math.floor(index / 15) * 86400000);
+        startsAt.setUTCHours(
+          7 + 2 * Math.floor((index % 15) / 3),
+          15 + 5 * (index % 3),
+          0,
+          0,
+        );
+        return {
+          id: randomUUID(),
+          branchId: v.branch.id,
+          serviceId: v.b.id,
+          staffId: staffIds[index % 3]!,
+          startsAt,
+          endsAt: new Date(startsAt.getTime() + 60 * 60000),
+          durationMinutes: 60,
+          preparationMinutes: 15,
+          cleanupMinutes: 20,
+          serviceTimingVersion: 0,
+        };
+      });
+      await prisma.bookingSlot.createMany({ data: rows });
+      const firstAvailable = rows[55]!;
+      v.settings.resources[0]!.unavailablePeriods.push({
+        startsAt: new Date(rows[0]!.startsAt.getTime() - 15 * 60000).toISOString(),
+        endsAt: new Date(firstAvailable.startsAt.getTime() - 15 * 60000).toISOString(),
+        reason: "Synthetic extended maintenance",
+      });
+      await v.approve();
+      const first = await v.list(v.b.id, { limit: 1 });
+      expect(first.status, JSON.stringify(first.body)).toBe(200);
+      expect(first.body.data.items.map((x: { id: string }) => x.id)).toEqual([
+        firstAvailable.id,
+      ]);
+      expect(first.body.data.nextCursor).toBe(firstAvailable.id);
+      const next = await v.list(v.b.id, { limit: 1, cursor: first.body.data.nextCursor });
+      expect(next.body.data.items.map((x: { id: string }) => x.id)).toEqual([
+        rows[56]!.id,
+      ]);
+      expect(next.body.data.nextCursor).toBeUndefined();
+    });
+    it("keeps each listing snapshot consistent and still rejects a subsequently occupied selection", async () => {
+      const v = await fixture(),
+        slot = await v.publish(),
+        existing = await v.book();
+      const original = ServiceOperationsRepository.prototype.publicBookingSlots;
+      const spy = vi
+        .spyOn(ServiceOperationsRepository.prototype, "publicBookingSlots")
+        .mockImplementationOnce(async function (
+          this: ServiceOperationsRepository,
+          ...args: Parameters<typeof original>
+        ) {
+          expect((await v.status(existing.id, 0, "CONFIRMED")).status).toBe(200);
+          return original.apply(this, args);
+        });
+      try {
+        const snapshot = await v.list();
+        expect(snapshot.status, JSON.stringify(snapshot.body)).toBe(200);
+        expect(snapshot.body.data.items.map((x: { id: string }) => x.id)).toEqual([
+          slot.id,
+        ]);
+      } finally {
+        spy.mockRestore();
+      }
+      expect((await v.list()).body.data.items).toEqual([]);
+      expect((await v.claim(slot.id)).status).toBe(409);
+    });
     it("reserves the full saved interval and immutable actual resource identities without creating a payment", async () => {
       const v = await fixture();
       // UUID case is an identity representation, not another physical unit.
