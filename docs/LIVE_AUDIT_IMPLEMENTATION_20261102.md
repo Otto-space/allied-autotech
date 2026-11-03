@@ -1,3 +1,48 @@
+3 November 17:14 UTC carry-through follow-up: recovered guest orders now clear
+only cart lines whose saved vehicle configuration also matches. A changed or cleared
+vehicle choice in another tab is retained even when product/quantity are identical.
+The saved checkout receipt must confirm the requested configuration. Updated cart
+units pass 23/23 (overlap the earlier 50-case run; do not sum them). Guest checkout
+fixtures no longer invent a vehicle choice/approval for an unconfigured cart; the
+payment journey explicitly seeds its synthetic chosen vehicle. The fixture-only
+browser suite is 21 cases. Database/browser results for migration 92 are still pending.
+
+### 3 November 16:33 UTC package: checkout vehicle carry-through
+
+Target 17:33 UTC. Current source carries the explicit Parts-page vehicle/specification
+choice into the account cart or existing browser guest cart, displays it for review,
+preserves it on quantity-only edits and replaces/clears it on a new product add.
+Checkout revalidates the actual selected configuration against current approved
+fitment and reserves real available stock automatically when eligible. Unresolved
+fitment saves the known configuration on the unpaid order for review; it is not
+silently discarded. Clear-cart review now detects a changed vehicle choice.
+Quantities, server pricing, promotions and guest/account ownership stay authoritative.
+
+Forward migration 92 adds only nullable CartItem.vehicleSelection and an object
+constraint. Existing rows remain NULL; no backfill, destructive operation, grant
+change or shared migration was performed. Client generation used a generation-only
+loopback configuration, not an application connection. Canonical OpenAPI/handbook
+and frontend types are regenerated: 438 paths/514 operations still match routes.
+Parts Help advances to v12 without audience or guide-target changes. Removed a
+remaining guest-cart sentence that incorrectly placed suitability checks after pay.
+
+Local backend compiler/lint, eight Help cases and 50 focused frontend cases pass.
+Three added isolated cases verify account quantity/vehicle preservation and single
+stock holding, honest guest unresolved configuration and stale-clear protection.
+Database replay/new database cases remain pending CI. Two new browser cases at
+320/1440 take a selected guest cart to its payment step (21 runtime cases total),
+using explicitly synthetic API data. No provider or real business record is touched.
+
+Previous f1f9acaf backend 41675282098 and secrets 41675281845 passed. Frontend
+41675281937 passed compiler/unit/build, then stopped on quality-register formatting;
+that document is formatted now. Its browser step did not run. The earlier verified
+31c292dd 19/19 evidence must not be represented as a new-source browser pass.
+
+Remaining D04: bind new payment creation to the displayed offer revision, verify
+notification/real-role/provider behaviour and complete affected acceptance. D02/D03/
+D05-D17 remain in the full objective. This package neither publishes nor activates
+new payment/booking capabilities. Current C: about 22.68 GiB; heavy builds use CI.
+
 ### 3 November 16:32 UTC package boundary: review screens verified, final layout polish pending
 
 Source 31c292dd passes frontend 41673219268, backend 41673219659 and secrets

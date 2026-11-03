@@ -610,7 +610,13 @@ export class OrdersService {
           },
           context,
         });
-        await tryAutomaticNewPurchase(transaction, orderId, actorUserId, context);
+        await tryAutomaticNewPurchase(
+          transaction,
+          orderId,
+          actorUserId,
+          context,
+          sourceItems,
+        );
         await this.repository.completeIdempotency(scope, keyHash, orderId, transaction);
         const order = await ownedOrder(orderId);
         if (order === null) throw orderNotFound();

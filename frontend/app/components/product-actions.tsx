@@ -2,6 +2,7 @@
 import { usePublicCapabilities } from "./public-capabilities";
 import { PublicEnquiryActions } from "./public-enquiry-actions";
 import Link from "next/link";
+import { cartVehicleFromSearch } from "@/lib/purchase/cart-vehicle";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Heart, ShoppingBag } from "lucide-react";
@@ -68,6 +69,9 @@ function ProductPurchaseActions({
   enquiryHref?: string;
   returnHref?: string;
 }) {
+  const selection = cartVehicleFromSearch(
+    new URL(returnHref ?? `/parts/${productId}`, "https://allied.invalid").searchParams,
+  );
   const form = useForm<{ quantity: number }>({
     defaultValues: { quantity: 1 },
     mode: "onSubmit",
@@ -189,6 +193,7 @@ function ProductPurchaseActions({
       if (action === "cart") {
         const body: RequestBody<"/customers/cart/items/{productId}", "put"> = {
           quantity,
+          vehicleSelection: selection,
         };
         updatedCart = parseCartUpdate(
           (
@@ -201,6 +206,7 @@ function ProductPurchaseActions({
           ).data,
           productId,
           quantity,
+          body.vehicleSelection,
         );
       } else if (removing) {
         await apiRequest(`/customers/favourites/${productId}`, {
@@ -362,7 +368,11 @@ function ProductPurchaseActions({
             </Link>
           )}
           {access === "anonymous" && !enquiriesOnly && (
-            <PurchaseCartAdd productId={productId} available={available} />
+            <PurchaseCartAdd
+              productId={productId}
+              available={available}
+              vehicleSelection={selection}
+            />
           )}
           {access === "restricted" && (
             <Link className="button secondary" href="/dashboard">

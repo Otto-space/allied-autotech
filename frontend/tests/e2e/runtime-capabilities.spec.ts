@@ -2,13 +2,104 @@ import { test, expect, type APIRequestContext } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { fixture } from "../fixtures/overview-browser";
 import { ordersFixture, orderRecord, orderId } from "../fixtures/customer-orders";
-import { purchaseFixture } from "../fixtures/purchase-guest";
+import { purchaseFixture, guestProduct } from "../fixtures/purchase-guest";
+import { branch } from "../fixtures/public-account-actions";
 import { workOrderDetailFixture } from "../fixtures/work-order-detail";
 
 // This control belongs to a separate loopback, in-memory API fixture, never the application.
 const control = process.env.CAPABILITY_TEST_CONTROL_ORIGIN;
 
 for (const width of [320, 1440]) {
+  test(`chosen cart vehicle reaches an automatically checked guest order at ${width}px`, async ({
+    page,
+    request,
+  }, info) => {
+    await availability(request, "full");
+    await page.setViewportSize({ width, height: 900 });
+    const state = await purchaseFixture(page);
+    const selection = {
+      vehicleModelId: orderId(5000),
+      year: 2026,
+      engineCode: "Synthetic engine",
+    };
+    await page.addInitScript(
+      ({ productId, selection }) =>
+        localStorage.setItem(
+          "aat:purchase-cart:1",
+          JSON.stringify([{ productId, quantity: 2, vehicleSelection: selection }]),
+        ),
+      { productId: guestProduct.id, selection },
+    );
+    await page.route(`**/api/v1/public/fitment/models/${orderId(5000)}`, (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          message: "Synthetic cart model",
+          meta: { requestId: "cart-vehicle-fixture" },
+          data: {
+            id: orderId(5000),
+            makeId: orderId(5001),
+            name: "Synthetic test model",
+            yearFrom: 2020,
+            yearTo: 2030,
+            make: { id: orderId(5001), name: "Synthetic test make" },
+          },
+        },
+      }),
+    );
+    const packets: unknown[] = [];
+    await page.route("**/api/v1/purchase/orders", async (route) => {
+      if (route.request().method() !== "POST") return route.fallback();
+      const body = route.request().postDataJSON();
+      packets.push(body);
+      expect(body.items).toEqual([
+        { productId: guestProduct.id, quantity: 2, vehicleSelection: selection },
+      ]);
+      state.saved = true;
+      Object.assign(state.order.purchaseReviews[0].requirements.lines[0], { selection });
+      return route.fulfill({
+        status: 201,
+        json: {
+          success: true,
+          message: "Synthetic automatic offer",
+          meta: { requestId: "cart-vehicle-fixture" },
+          data: { order: state.order, replayed: false },
+        },
+      });
+    });
+    await page.goto("/cart");
+    await expect(
+      page.getByText("For Synthetic test make Synthetic test model, 2026", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Engine code: Synthetic engine", { exact: true }),
+    ).toBeVisible();
+    await page.getByLabel("Your name", { exact: true }).fill("Synthetic guest cart test");
+    await page.getByLabel("Contact phone", { exact: true }).fill("+2348000000000");
+    await page.getByLabel("Collection branch", { exact: true }).selectOption(branch.id);
+    await page
+      .getByRole("button", { name: "Review collection details", exact: true })
+      .click();
+    await page.screenshot({ path: info.outputPath(`cart-vehicle-before-${width}.png`) });
+    await page.getByRole("button", { name: "Create unpaid order", exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`/purchase/orders/${state.order.id}$`));
+    await expect(
+      page.getByRole("button", { name: "Review payment", exact: true }),
+    ).toBeEnabled();
+    expect(packets).toHaveLength(1);
+    expect(state.order.items[0].quantity).toBe(2);
+    expect(state.order.totalKobo).toBe("21500");
+    expect(state.order.paidAt).toBeNull();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page
+      .getByRole("region", { name: "Suitability and availability" })
+      .scrollIntoViewIfNeeded();
+    await page.screenshot({ path: info.outputPath(`cart-vehicle-after-${width}.png`) });
+  });
   test(`staff exception review supports keyboard and a reasoned decision at ${width}px`, async ({
     page,
     request,

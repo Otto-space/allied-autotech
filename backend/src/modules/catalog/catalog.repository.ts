@@ -5,7 +5,8 @@ import {
 } from "../../common/security/catalogue-search.js";
 import { publishedFitmentSelect } from "../fitment/fitment.projection.js";
 import { fitmentProductWhere, selectionFromQuery } from "../fitment/fitment.engine.js";
-import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
+import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
+import type { FitmentSelection } from "../fitment/fitment.schemas.js";
 import { prisma } from "../../config/database.js";
 import { productImageSelect, projectProductImage } from "./product-media.projection.js";
 import { mediaLimits } from "../media/media.schemas.js";
@@ -526,6 +527,7 @@ export class CatalogRepository {
             quantity: true,
             createdAt: true,
             updatedAt: true,
+            vehicleSelection: true,
             product: { select: productSelect },
           },
           orderBy: { id: "asc" },
@@ -541,6 +543,7 @@ export class CatalogRepository {
     productId: string,
     quantity: number,
     client: DatabaseClient,
+    vehicleSelection?: FitmentSelection | null,
   ) {
     const customer = await client.customerProfile.findUnique({
       where: { userId },
@@ -556,8 +559,21 @@ export class CatalogRepository {
     await this.lockCart(cart.id, client);
     await client.cartItem.upsert({
       where: { cartId_productId: { cartId: cart.id, productId } },
-      create: { cartId: cart.id, productId, quantity },
-      update: { quantity },
+      create: {
+        cartId: cart.id,
+        productId,
+        quantity,
+        vehicleSelection: vehicleSelection == null ? Prisma.DbNull : vehicleSelection,
+      },
+      update: {
+        quantity,
+        ...(vehicleSelection !== undefined
+          ? {
+              vehicleSelection:
+                vehicleSelection === null ? Prisma.DbNull : vehicleSelection,
+            }
+          : {}),
+      },
     });
     return this.cart(userId, client);
   }

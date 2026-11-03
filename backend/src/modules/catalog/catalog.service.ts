@@ -3,7 +3,7 @@ import {
   selectionFromQuery,
   type PublishedRule,
 } from "../fitment/fitment.engine.js";
-import type { FitmentSelection } from "../fitment/fitment.schemas.js";
+import { selectionSchema, type FitmentSelection } from "../fitment/fitment.schemas.js";
 import { FitmentService } from "../fitment/fitment.service.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -840,8 +840,14 @@ export class CatalogService {
     assertCustomer(actor);
     return this.cartView(await this.repository.cart(actor.userId));
   }
-  async setCartItem(actor: AuthenticatedActor, productId: string, quantity: number) {
+  async setCartItem(
+    actor: AuthenticatedActor,
+    productId: string,
+    quantity: number,
+    vehicleSelection?: unknown,
+  ) {
     assertCustomer(actor);
+    const selection = selectionSchema.nullable().optional().parse(vehicleSelection);
     return this.database.$transaction(
       async (transaction) => {
         const product = await this.repository.product(productId, true, transaction);
@@ -857,6 +863,7 @@ export class CatalogService {
           productId,
           quantity,
           transaction,
+          selection,
         );
         if (cart === null) throw catalogResourceNotFound();
         return this.cartView(cart);
@@ -886,8 +893,16 @@ export class CatalogService {
         productId: item.product.id,
         quantity: item.quantity,
         unitPriceKobo: item.product.priceKobo.toString(),
+        vehicleSelection: selectionSchema.nullable().parse(item.vehicleSelection ?? null),
       }));
-      if (JSON.stringify(actual) !== JSON.stringify(input.expectedItems))
+      const expected = input.expectedItems.map((item) => ({
+        id: item.id,
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPriceKobo: item.unitPriceKobo,
+        vehicleSelection: selectionSchema.nullable().parse(item.vehicleSelection ?? null),
+      }));
+      if (JSON.stringify(actual) !== JSON.stringify(expected))
         throw catalogConflict("Your cart changed. Review it again before clearing.");
       await this.repository.clearCart(actor.userId, transaction);
     });
@@ -906,6 +921,7 @@ export class CatalogService {
         updatedAt: item.updatedAt,
         unitPriceKobo: item.product.priceKobo.toString(),
         lineSubtotalKobo: lineSubtotal.toString(),
+        vehicleSelection: item.vehicleSelection,
         product: productView(item.product),
       };
     });

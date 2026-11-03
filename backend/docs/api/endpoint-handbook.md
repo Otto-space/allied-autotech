@@ -4704,7 +4704,11 @@ Synthetic request example:
       "id": "00000000-0000-4000-8000-000000000001",
       "productId": "00000000-0000-4000-8000-000000000001",
       "quantity": 1,
-      "unitPriceKobo": "300000"
+      "unitPriceKobo": "300000",
+      "vehicleSelection": {
+        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+        "year": 1886
+      }
     }
   ]
 }
@@ -4745,12 +4749,17 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `quantity` | integer | Yes | Quantity validated by this operation's strict request contract. |
+| `vehicleSelection` | object / null | No | Vehicle Selection validated by this operation's strict request contract. |
 
 Synthetic request example:
 
 ```json
 {
-  "quantity": 1
+  "quantity": 1,
+  "vehicleSelection": {
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "year": 1886
+  }
 }
 ```
 
@@ -28750,7 +28759,11 @@ Synthetic request example:
   "items": [
     {
       "productId": "00000000-0000-4000-8000-000000000001",
-      "quantity": 1
+      "quantity": 1,
+      "vehicleSelection": {
+        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+        "year": 1886
+      }
     }
   ]
 }

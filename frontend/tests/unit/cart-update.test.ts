@@ -14,6 +14,18 @@ const receipt = () => ({
   ],
 });
 describe("cart update confirmation", () => {
+  it("requires the requested vehicle choice in the saved cart receipt", () => {
+    const selection = { vehicleModelId: id(99), year: 2026 };
+    const r = receipt();
+    expect(() => parseCartUpdate(r, product.id, 2, selection)).toThrow(/vehicle choice/);
+    const selected = { ...r, items: [{ ...r.items[0], vehicleSelection: selection }] };
+    expect(
+      parseCartUpdate(selected, product.id, 2, selection).items[0].vehicleSelection,
+    ).toEqual(selection);
+    expect(() => parseCartUpdate(selected, product.id, 2, null)).toThrow(
+      /vehicle choice/,
+    );
+  });
   it("accepts the exact requested replacement quantity and reconciled amounts", () =>
     expect(parseCartUpdate(receipt(), product.id, 2).subtotalKobo).toBe("2500000"));
   it("preserves integer-kobo values above Number precision", () => {

@@ -1,4 +1,8 @@
-import { qualifiersShape, qualifierKeys } from "../fitment/fitment.schemas.js";
+import {
+  qualifiersShape,
+  qualifierKeys,
+  selectionSchema,
+} from "../fitment/fitment.schemas.js";
 import { z } from "zod";
 import { isDurablePublicImageUrl } from "./image-url.js";
 import {
@@ -324,6 +328,7 @@ export const favouriteListQuerySchema = z.object(pageFields).strict();
 export const cartItemBodySchema = z
   .object({
     quantity: z.number().int().min(1).max(1_000),
+    vehicleSelection: selectionSchema.nullable().optional(),
   })
   .strict();
 export const cartClearBodySchema = z
@@ -336,6 +341,7 @@ export const cartClearBodySchema = z
             productId: z.uuid(),
             quantity: z.number().int().min(1).max(1_000),
             unitPriceKobo: kobo,
+            vehicleSelection: selectionSchema.nullable().optional(),
           })
           .strict(),
       )

@@ -26,6 +26,8 @@ import {
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import { reviewSourceCustomer } from "../helpers/review-sources.js";
 import { testOwner } from "../helpers/owner.js";
+import { purchaseGuest } from "../helpers/purchase-guest.js";
+import { purchaseCookieName } from "../../src/common/security/cookies.js";
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "isolated pre-payment purchase review",
@@ -166,6 +168,180 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       prisma.$transaction((tx) => assertReviewedPurchasePayable(tx, id), {
         isolationLevel: "Serializable",
       });
+    async function chosenVehicle(f: Awaited<ReturnType<typeof fixture>>, approve = true) {
+      await prisma.productCompatibility.update({
+        where: { id: f.rule.id },
+        data: { reviewStatus: "RETIRED", version: { increment: 1 } },
+      });
+      const key = randomUUID();
+      const make = await prisma.vehicleMake.create({
+        data: { key, name: `Synthetic cart make ${key}` },
+      });
+      const model = await prisma.vehicleModel.create({
+        data: {
+          key,
+          makeId: make.id,
+          name: "Synthetic cart model",
+          yearFrom: 2020,
+          yearTo: 2030,
+          sourceReference: "Synthetic isolated vehicle configuration",
+        },
+      });
+      if (approve)
+        await prisma.productCompatibility.create({
+          data: {
+            productId: f.product.id,
+            vehicleModelId: model.id,
+            make: make.name,
+            model: model.name,
+            scope: "MODEL",
+            effect: "INCLUDE",
+            reviewStatus: "APPROVED",
+            allVariantsConfirmed: true,
+            safetyCritical: false,
+            yearFrom: 2020,
+            yearTo: 2030,
+            sourceReference:
+              "Synthetic isolated approved vehicle-specific accessory evidence",
+            createdByUserId: f.rule.createdByUserId,
+            updatedByUserId: f.rule.updatedByUserId,
+            reviewedByUserId: f.rule.reviewedByUserId,
+            reviewedAt: new Date(),
+          },
+        });
+      return { vehicleMakeId: make.id, vehicleModelId: model.id, year: 2026 };
+    }
+    it("carries the account cart vehicle through quantity edits and automatic checkout without repricing or double holding", async () => {
+      const f = await fixture(),
+        selection = await chosenVehicle(f);
+      await prisma.inventory.update({
+        where: { id: f.inventory.id },
+        data: { quantity: 3 },
+      });
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      const put = (body: unknown) =>
+        request(app)
+          .put(`/api/v1/customers/cart/items/${f.product.id}`)
+          .set("Origin", env.FRONTEND_URL)
+          .set("Cookie", f.buyer.cookie)
+          .set("x-csrf-token", f.buyer.csrf)
+          .send(body);
+      const added = await put({ quantity: 1, vehicleSelection: selection });
+      expect(added.status, JSON.stringify(added.body)).toBe(200);
+      const edited = await put({ quantity: 2 });
+      expect(edited.status, JSON.stringify(edited.body)).toBe(200);
+      expect(edited.body.data.items[0].vehicleSelection).toEqual(selection);
+      const key = randomUUID();
+      const checkout = () =>
+        request(app)
+          .post("/api/v1/customers/orders/checkout")
+          .set("Origin", env.FRONTEND_URL)
+          .set("Cookie", f.buyer.cookie)
+          .set("x-csrf-token", f.buyer.csrf)
+          .set("Idempotency-Key", key)
+          .send({ branchId: f.order.branchId, fulfillmentMethod: "COLLECTION" });
+      const result = await checkout();
+      expect(result.status, JSON.stringify(result.body)).toBe(201);
+      const order = result.body.data.order;
+      expect(order.purchaseReviews[0]).toMatchObject({
+        status: "APPROVED",
+        requirements: { lines: [{ orderItemId: order.items[0].id, selection }] },
+      });
+      expect(order.items[0].quantity).toBe(2);
+      expect(order.totalKobo).toBe("21500");
+      expect(order.paidAt).toBeNull();
+      expect((await checkout()).body.data).toMatchObject({
+        replayed: true,
+        order: { id: order.id },
+      });
+      expect(
+        await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }),
+      ).toMatchObject({ quantity: 3, reserved: 3 });
+      expect(
+        await prisma.inventoryReservation.count({
+          where: { referenceId: order.id, status: "ACTIVE" },
+        }),
+      ).toBe(1);
+    });
+    it("retains genuine guest vehicle details for unresolved fitment without a payment deadline or stock hold", async () => {
+      const f = await fixture(),
+        selection = await chosenVehicle(f, false),
+        guest = await purchaseGuest();
+      await prisma.inventory.update({
+        where: { id: f.inventory.id },
+        data: { quantity: 2 },
+      });
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      const users = await prisma.user.count();
+      const result = await request(app)
+        .post("/api/v1/purchase/orders")
+        .set("Origin", env.FRONTEND_URL)
+        .set("Cookie", `${purchaseCookieName}=${guest.sessionToken}`)
+        .set("x-csrf-token", guest.csrfToken)
+        .set("Idempotency-Key", randomUUID())
+        .send({
+          branchId: f.order.branchId,
+          fulfillmentMethod: "COLLECTION",
+          contact: { name: "Synthetic guest cart choice", phone: "+2348000000000" },
+          items: [{ productId: f.product.id, quantity: 1, vehicleSelection: selection }],
+        });
+      expect(result.status, JSON.stringify(result.body)).toBe(201);
+      const order = result.body.data.order;
+      expect(order.purchaseReviews[0]).toMatchObject({
+        status: "REQUESTED",
+        requirements: { lines: [{ orderItemId: order.items[0].id, selection }] },
+      });
+      expect(order.paymentDueAt).toBeNull();
+      expect(order.paidAt).toBeNull();
+      expect(order.totalKobo).toBe("10750");
+      expect(await prisma.user.count()).toBe(users);
+      expect(
+        await prisma.inventoryReservation.count({ where: { referenceId: order.id } }),
+      ).toBe(0);
+      expect(
+        (await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }))
+          .reserved,
+      ).toBe(1);
+    });
+    it("refuses to clear a cart whose vehicle choice changed after the customer reviewed it", async () => {
+      const f = await fixture(),
+        selection = await chosenVehicle(f);
+      await prisma.inventory.update({
+        where: { id: f.inventory.id },
+        data: { quantity: 2 },
+      });
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      const put = (vehicleSelection: unknown) =>
+        request(app)
+          .put(`/api/v1/customers/cart/items/${f.product.id}`)
+          .set("Origin", env.FRONTEND_URL)
+          .set("Cookie", f.buyer.cookie)
+          .set("x-csrf-token", f.buyer.csrf)
+          .send({ quantity: 1, vehicleSelection });
+      const first = await put(selection);
+      expect(first.status).toBe(200);
+      const item = first.body.data.items[0];
+      expect((await put({ ...selection, year: 2027 })).status).toBe(200);
+      const result = await request(app)
+        .delete("/api/v1/customers/cart")
+        .set("Origin", env.FRONTEND_URL)
+        .set("Cookie", f.buyer.cookie)
+        .set("x-csrf-token", f.buyer.csrf)
+        .send({
+          expectedItems: [
+            {
+              id: item.id,
+              productId: f.product.id,
+              quantity: 1,
+              unitPriceKobo: item.unitPriceKobo,
+              vehicleSelection: selection,
+            },
+          ],
+        });
+      expect(result.status).toBe(409);
+      const row = await prisma.cartItem.findUniqueOrThrow({ where: { id: item.id } });
+      expect(row.vehicleSelection).toMatchObject({ year: 2027 });
+    });
     it.each(["verified", "missing-evidence", "no-stock"] as const)(
       "automatically checks %s without attributing a new human approval",
       async (state) => {

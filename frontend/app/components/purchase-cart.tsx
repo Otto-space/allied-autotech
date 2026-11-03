@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import { CartVehicleSummary } from "./cart-vehicle-summary";
+import { cartLineMatchesOrder } from "@/lib/purchase/cart-receipt";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
@@ -65,6 +67,10 @@ function CartLine({
             {product?.name ?? "Product details unavailable"}
           </Link>
         </h3>
+        <CartVehicleSummary
+          selection={line.vehicleSelection}
+          productId={line.productId}
+        />
         {product ? (
           <p>
             {formatKobo(product.priceKobo)} each · SKU: {product.sku}
@@ -404,16 +410,10 @@ function GuestOrderForm({
     sessionStorage.removeItem(pendingStorageKey);
     setPendingKey(undefined);
     setSavedPacket(null);
-    // Preserve additions or quantity edits made in another tab after submission.
+    // Preserve additions, quantities and vehicle edits made after submission.
     try {
       writePurchaseCart(
-        readPurchaseCart().filter(
-          (row) =>
-            !order.items.some(
-              (item) =>
-                item.productId === row.productId && item.quantity === row.quantity,
-            ),
-        ),
+        readPurchaseCart().filter((row) => !cartLineMatchesOrder(order, row)),
       );
     } catch {
       /* The saved order remains recoverable from purchase history. */
@@ -440,11 +440,7 @@ function GuestOrderForm({
       if (
         saved.branch.id !== packet.body.branchId ||
         saved.items.length !== packet.body.items.length ||
-        !packet.body.items.every((row) =>
-          saved.items.some(
-            (item) => item.productId === row.productId && item.quantity === row.quantity,
-          ),
-        )
+        !packet.body.items.every((row) => cartLineMatchesOrder(saved, row))
       )
         throw Error("Order receipt changed");
       await finish(saved);
@@ -686,8 +682,9 @@ function GuestOrderForm({
             </>
           )}
           <p className="purchase-note">
-            After payment, the team checks suitability and final availability. Wait for
-            confirmation that your order is ready before travelling to collect it.
+            Suitability and stock are checked before payment becomes available. Confirmed
+            information is checked automatically; the team reviews any missing details.
+            Wait for collection confirmation before travelling.
           </p>
           <button
             className="button"
@@ -704,7 +701,7 @@ function GuestOrderForm({
             {busy
               ? "Saving order…"
               : review
-                ? "Save unpaid order for review"
+                ? "Create unpaid order"
                 : "Review collection details"}
           </button>
         </form>

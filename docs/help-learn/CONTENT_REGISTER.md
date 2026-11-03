@@ -432,3 +432,5 @@ Nine hosted synthetic workflow checks passed; no production stock action occurre
 3 November customer review package: parts-fitment v11 adds the account/guest order suitability panel, explicit previous-purchase vehicle reuse, fresh checking and order-status refresh. Eligibility, public guide targets and permissions remain unchanged. Source only.
 
 Parts-fitment v11 UI follow-up: supplier arrival estimates are visible before payment, with collection readiness kept separate. Internal sourcing references and technical approval provenance remain private; no eligibility or guide target changes.
+
+3 November cart vehicle carry-through: parts-fitment v12 explains explicit vehicle choice on the cart item, quantity-edit preservation, replacement on a fresh add, current pre-payment checking and honest unresolved review. Source only; no audience, permission, guide-target or activation change.

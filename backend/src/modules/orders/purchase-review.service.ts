@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { selectionSchema } from "../fitment/fitment.schemas.js";
 import { AppError } from "../../common/errors/app-error.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -396,15 +397,25 @@ export async function tryAutomaticNewPurchase(
   orderId: string,
   actorUserId: string | null,
   context: RequestSecurityContext,
+  selections: ReadonlyArray<{ productId: string; vehicleSelection?: unknown }> = [],
 ) {
   const order = await lockPurchaseReviewOrder(tx, orderId);
   const requirements = {
-    lines: order.items.map((item) => ({ orderItemId: item.id, selection: null })),
+    lines: order.items.map((item) => ({
+      orderItemId: item.id,
+      selection: selectionSchema
+        .nullable()
+        .parse(
+          selections.find((line) => line.productId === item.productId)
+            ?.vehicleSelection ?? null,
+        ),
+    })),
   };
   // No vehicle selection is assumed. Only approved genuinely universal accessories
   // qualify here; vehicle-specific parts use the buyer's supplied configuration.
   try {
-    await loadPurchaseFitment(tx, order, requirements);
+    if (!requirements.lines.some((line) => line.selection))
+      await loadPurchaseFitment(tx, order, requirements);
   } catch (error) {
     if (error instanceof AppError && error.statusCode === 409) return false;
     throw error;
@@ -416,7 +427,8 @@ export async function tryAutomaticNewPurchase(
       ...requirements,
       expectedVersion: order.version,
       expectedRevision: 0,
-      reason: "Automatic checkout check against approved universal suitability evidence",
+      reason:
+        "Checkout supplied the chosen vehicle for current suitability and stock checks",
     },
     actorUserId,
     context,

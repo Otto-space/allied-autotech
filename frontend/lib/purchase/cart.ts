@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { purchaseVehicleSelectionSchema } from "../api/purchase-review-schema";
+import type { PurchaseSelection } from "./suitability";
 
 export const PURCHASE_CART_CHANGED = "aat:purchase-cart-changed";
 const storageKey = "aat:purchase-cart:1";
@@ -8,6 +10,7 @@ export const purchaseCartSchema = z
       .object({
         productId: z.uuid().transform((v) => v.toLowerCase()),
         quantity: z.number().int().min(1).max(1000),
+        vehicleSelection: purchaseVehicleSelectionSchema.nullable().optional(),
       })
       .strict(),
   )
@@ -27,11 +30,22 @@ export function writePurchaseCart(rows: PurchaseCart) {
   localStorage.setItem(storageKey, JSON.stringify(checked));
   window.dispatchEvent(new Event(PURCHASE_CART_CHANGED));
 }
-export function setPurchaseCartItem(productId: string, quantity: number) {
+export function setPurchaseCartItem(
+  productId: string,
+  quantity: number,
+  vehicleSelection?: PurchaseSelection | null,
+) {
   const rows = readPurchaseCart().filter(
     (row) => row.productId !== productId.toLowerCase(),
   );
-  writePurchaseCart([...rows, { productId, quantity }]);
+  writePurchaseCart([
+    ...rows,
+    {
+      productId,
+      quantity,
+      ...(vehicleSelection !== undefined ? { vehicleSelection } : {}),
+    },
+  ]);
 }
 export function clearPurchaseCart() {
   localStorage.removeItem(storageKey);

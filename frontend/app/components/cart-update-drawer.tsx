@@ -5,6 +5,7 @@ import { ArrowRight, ShoppingBag, X } from "lucide-react";
 import type { CartUpdate } from "@/lib/api/cart-update";
 import { formatKobo } from "@/lib/format/money";
 import { PublicMedia } from "./public-media";
+import { CartVehicleSummary } from "./cart-vehicle-summary";
 import "./cart-update-drawer.css";
 
 export function CartUpdateDrawer({
@@ -101,6 +102,10 @@ export function CartUpdateDrawer({
           <strong>{updated.product.name}</strong>
           <span>Quantity {updated.quantity}</span>
         </p>
+        <CartVehicleSummary
+          selection={updated.vehicleSelection}
+          productId={updated.product.id}
+        />
         <h3>Items in your cart</h3>
         <ul className="cart-drawer-items">
           {cart.items.map((item) => (

@@ -10,6 +10,17 @@ for (const width of [320, 390, 430, 768, 1024, 1366])
   }, info) => {
     await page.setViewportSize({ width, height: 900 });
     const state = await purchaseFixture(page);
+    await page.addInitScript(
+      ({ productId, selection }) =>
+        localStorage.setItem(
+          "aat:purchase-cart:1",
+          JSON.stringify([{ productId, quantity: 2, vehicleSelection: selection }]),
+        ),
+      {
+        productId: guestProduct.id,
+        selection: state.order.purchaseReviews[0].requirements.lines[0].selection,
+      },
+    );
     await page.goto("/cart");
     await expect(
       page.getByRole("heading", { name: "Collection details", exact: true }),
@@ -33,9 +44,7 @@ for (const width of [320, 390, 430, 768, 1024, 1366])
     await page
       .getByRole("button", { name: "Review collection details", exact: true })
       .click();
-    await page
-      .getByRole("button", { name: "Save unpaid order for review", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Create unpaid order", exact: true }).click();
     await expect(page).toHaveURL(`/purchase/orders/${id(81)}`);
     await expect(page.getByText("₦215.00", { exact: true })).toBeVisible();
     expect(state.writes.filter((v) => v.path === "/purchase/orders")).toHaveLength(1);
@@ -118,16 +127,14 @@ test("a lost checkout response recovers its original receipt after refresh witho
   await page
     .getByRole("button", { name: "Review collection details", exact: true })
     .click();
-  await page
-    .getByRole("button", { name: "Save unpaid order for review", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Create unpaid order", exact: true }).click();
   await expect(page.getByText(/order result is uncertain/)).toBeVisible();
   await page.reload();
   await expect(
     page.getByRole("button", { name: "Check original request", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Save unpaid order for review", exact: true }),
+    page.getByRole("button", { name: "Create unpaid order", exact: true }),
   ).toHaveCount(0);
   await page.getByRole("button", { name: "Check original request", exact: true }).click();
   await expect(page).toHaveURL(`/purchase/orders/${id(81)}`);

@@ -146,7 +146,7 @@ export class OrdersRepository {
           select: {
             id: true,
             items: {
-              select: { productId: true, quantity: true },
+              select: { productId: true, quantity: true, vehicleSelection: true },
               orderBy: { productId: "asc" },
             },
           },

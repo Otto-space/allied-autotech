@@ -1,4 +1,6 @@
 import { parseCart } from "./commerce-schemas";
+import type { PurchaseSelection } from "../purchase/suitability";
+import { purchaseVehicleSelectionSchema } from "./purchase-review-schema";
 export type CartUpdate = ReturnType<typeof parseCart>;
 
 /** Validate the server's replacement-quantity receipt before showing a confirmation. */
@@ -6,6 +8,7 @@ export function parseCartUpdate(
   value: unknown,
   productId: string,
   quantity: number,
+  vehicleSelection?: PurchaseSelection | null,
 ): CartUpdate {
   const cart = parseCart(value);
   const products = new Set<string>(),
@@ -34,5 +37,13 @@ export function parseCartUpdate(
     )
   )
     throw new Error("Unconfirmed cart update");
+  if (
+    vehicleSelection !== undefined &&
+    JSON.stringify(
+      cart.items.find((item) => item.product.id === productId)?.vehicleSelection,
+    ) !==
+      JSON.stringify(purchaseVehicleSelectionSchema.nullable().parse(vehicleSelection))
+  )
+    throw new Error("Unconfirmed cart vehicle choice");
   return cart;
 }

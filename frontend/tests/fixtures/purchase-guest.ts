@@ -182,6 +182,15 @@ export async function purchaseFixture(page: Page, access = true) {
     if (path === `/public/catalog/products/${guestProduct.id}`)
       return state.missingProduct ? fail(503, "DATABASE_UNAVAILABLE") : ok(guestProduct);
     if (path === "/public/branches") return ok({ items: [branch] });
+    if (path === `/public/fitment/models/${id(85)}`)
+      return ok({
+        id: id(85),
+        makeId: id(86),
+        name: "Synthetic guest test model",
+        yearFrom: 2020,
+        yearTo: 2030,
+        make: { id: id(86), name: "Synthetic guest test make" },
+      });
     if (path.startsWith("/public/")) return ok({ items: [] });
     if (!path.startsWith("/purchase/")) return fail(404, "NOT_FOUND");
     if (method !== "GET")
@@ -221,6 +230,22 @@ export async function purchaseFixture(page: Page, access = true) {
     if (path === "/purchase/orders" && method === "GET")
       return ok({ items: state.saved ? [state.order] : [] });
     if (path === "/purchase/orders" && method === "POST") {
+      const body = req.postDataJSON();
+      const lines = state.order.items.map((item) => ({
+        orderItemId: item.id,
+        selection:
+          body.items.find(
+            (line: { productId: string }) => line.productId === item.productId,
+          )?.vehicleSelection ?? null,
+      }));
+      const verified = lines.every((line) => !!line.selection);
+      Object.assign(state.order.purchaseReviews[0], {
+        requirements: { lines },
+        status: verified ? "APPROVED" : "REQUESTED",
+        decidedAt: verified ? new Date().toISOString() : null,
+        expiresAt: verified ? state.order.paymentDueAt : null,
+      });
+      if (!verified) Object.assign(state.order, { paymentDueAt: null });
       state.saved = true;
       if (state.uncertain) return route.abort("failed");
       return ok({ order: state.order, replayed: false }, 201);
