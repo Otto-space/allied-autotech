@@ -1,3 +1,63 @@
+3 November 21:23 UTC D02 implementation checkpoint (not yet a release gate):
+new account and guest orders save versioned integer-kobo line allocations on the
+order, invoice policy and invoice document. Existing ordered quantities and issued
+history are preserved. Saved order-item order resolves equal remainders. Scoped
+financial review displays the requested lines' original full-line amounts and
+checks current request quantities separately; missing legacy evidence uses issued
+records, while invalid saved amounts cannot authorise a financial decision.
+Aftercare freezes the same allocation without consulting later catalogue prices.
+The pure unit-range helper reconciles successive disjoint ranges exactly; it does
+not yet reserve refunded units or implement D17 refund execution/capture/prior-refund
+limits. Those integration requirements remain unfinished, not implicitly accepted.
+
+Local checks: 136/136 backend units across nine focused files; backend types,
+script types and lint pass. Frontend workforce parsing passes 10/10 units and
+scoped lint passes. Canonical response contracts/types were regenerated; purchase
+request bodies and database schema are unchanged. Seven new synthetic browser
+cases cover STAFF/ADMIN at 320/768/1440px and legacy/invalid states; 71 total cases
+are collected, but their execution and new native database journeys are pending
+exact-source hosted CI. No provider, actual-role, physical-device or production
+acceptance is claimed. Guide versions financial-aftercare/financial-policy-work
+are v5 with unchanged eligibility and independent finance authority.
+
+No shared migration, live feature activation, real record mutation or publication
+occurred. Current source adds no migration; the accumulated 97-migration release
+still needs its populated restore, backup, recovery and compatible-runtime gates.
+The resource authoring work is now committed separately as 89719302/08454401 and
+has not been imported. The full audit goal remains active. Last disk preflight:
+20.64 GiB; no substantive local build, installation or cleanup was performed.
+
+3 November 20:43 UTC bounded package result: signed master
+0a61508efc5270f5c5eac0e296ac9144ab2fb30d passes all required exact-source checks:
+frontend 41712651500, backend 41712651521 and secrets 41712651509. GitHub verifies
+the SSH signature as valid. Frontend passes 1,457 units (12 existing isolated-audit
+skips) and 64/64 Chromium cases with no browser skips/flaky cases. Backend passes
+97-migration replay/db:check, 44 early source/money checks, eight reminder concurrency
+cases, 148 combined booking/resource checks (four provisioned-workspace cases not
+run), 82 purchase, 88 guest and final 113 Care/Allie checks, plus every other workflow
+stage. Local broader Allie/provider fixtures pass 99/99; money suites pass 13/13.
+These are isolated/synthetic checks, not real-role/provider/physical acceptance.
+
+Artifact 13268707442 (3,632,943 bytes), SHA-256
+a00768d9b0cb1b923482134c0b206dc2bed4d48e8143caf20fed0a7ca4a952e1,
+was verified before safely extracting selected evidence to runtime-ci-0a61508e.
+Inspected 768px slot records: whole words and the measured 8px action gap are visible.
+Inspected 320px slot review: readable stacked details, visible focus and separated
+controls. The phone calendar has clean copy; .ics download/confirmed-only behaviour
+is checked, while real calendar-app/provider/physical-device acceptance is unperformed.
+The same unobscured 768px records screenshot under runtime-ci-21c633af is the safe
+before-gap comparison. No real customer/financial/stock record was altered.
+
+The package is verified but unpublished. Shared schema rollout still needs the
+fresh backup, populated restore/recovery/package/runtime gates; the earlier schema-89
+rehearsal does not prove 97. Current live capabilities were not activated. Resource
+authoring UI remains uncommitted in the other active worktree and is not imported.
+Next package: complete D02 saved line allocations/partial-refund basis using the
+approved arithmetic, preserving issued history and prior refund/capture limits;
+then continue D03/D11-D17 and the remaining ledger items. Do not ask again for the
+settled rounding decision. The full goal remains active, not whole-site launch-ready.
+Last reserve checks read 20.97 GiB; no cleanup or substantial local build occurred.
+
 3 November 20:25 UTC verification and arithmetic checkpoint: 21c633af frontend
 41708675936 passes 1,457 units (12 existing skips) and 64/64 Chromium cases.
 Retained artifact 13267077668 (3,613,983 bytes) is safely extracted under

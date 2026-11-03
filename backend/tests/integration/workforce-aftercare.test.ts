@@ -1,3 +1,5 @@
+import { testCapability } from "../helpers/owner-policy.js";
+import { createOrderMoneyAllocation } from "../../src/modules/orders/order-money-allocation.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -53,9 +55,23 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         status?: string;
         kind?: "RETURN" | "CANCELLATION";
         confirmed?: boolean;
+        savedMoney?: boolean;
+        corruptMoney?: boolean;
       } = {},
     ) {
       const base = original.order;
+      const orderItems = base.items.map((line) => ({
+        id: randomUUID(),
+        productId: line.productId,
+        productName: line.productName,
+        sku: line.sku,
+        quantity: line.quantity,
+        unitPriceKobo: line.unitPriceKobo,
+        subtotalKobo: line.subtotalKobo,
+      }));
+      const monetaryAllocation = options.savedMoney
+        ? createOrderMoneyAllocation(orderItems, 0n, 0n)
+        : null;
       const order = await prisma.order.create({
         data: {
           orderNumber: `WF-${randomUUID().slice(0, 20)}`,
@@ -71,16 +87,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           completedAt: base.completedAt,
           branchId: options.branchId ?? f.home.id,
           confirmedAt: options.confirmed === false ? null : base.confirmedAt,
-          items: {
-            create: base.items.map((line) => ({
-              productId: line.productId,
-              productName: line.productName,
-              sku: line.sku,
-              quantity: line.quantity,
-              unitPriceKobo: line.unitPriceKobo,
-              subtotalKobo: line.subtotalKobo,
-            })),
-          },
+          policySnapshot: monetaryAllocation ? { monetaryAllocation } : undefined,
+          items: { create: orderItems },
         },
         include: { items: true },
       });
@@ -100,6 +108,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           inspectionNote: status === "INSPECTED" ? "Synthetic inspected condition" : null,
           goodCondition: status === "INSPECTED" ? true : null,
           policySnapshot: {
+            ...(monetaryAllocation
+              ? {
+                  monetaryAllocation: options.corruptMoney
+                    ? { ...monetaryAllocation, totalKobo: "99999" }
+                    : monetaryAllocation,
+                }
+              : {}),
             id: randomUUID(),
             key: "cancellation",
             version: 1,
@@ -130,6 +145,77 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expectedRevision: detail.body.data.reviewRevision,
       };
     }
+    it.each(["STAFF", "ADMIN"] as const)(
+      "shows %s only saved amounts for the requested line within finance scope",
+      async (role) => {
+        const who = await actor({ role }),
+          v = await record({ savedMoney: true });
+        const detail = await get(who, `/${v.row.id}`);
+        expect(detail.status).toBe(200);
+        expect(detail.body.data.monetaryBreakdown).toEqual({
+          status: "SAVED",
+          lines: [
+            {
+              orderItemId: v.order.items[0]!.id,
+              productName: "Synthetic product",
+              quantity: 3,
+              subtotalKobo: "30000",
+              discountKobo: "0",
+              taxKobo: "0",
+              totalKobo: "30000",
+            },
+          ],
+        });
+        expect(
+          workforceResponseSchema("aftercareRequest").safeParse(detail.body.data).success,
+        ).toBe(true);
+        expect(JSON.stringify(detail.body.data)).not.toContain("privateDiagnostic");
+        const denied = await actor({ grant: false });
+        expect((await get(denied, `/${v.row.id}`)).status).toBe(403);
+        expect((await send(who, v.row.id, await body(who, v.row.id))).status).toBe(200);
+      },
+    );
+    it("keeps corrupt saved amounts visible as unresolved and rejects a forged ready decision", async () => {
+      const who = await actor(),
+        v = await record({ savedMoney: true, corruptMoney: true });
+      const detail = await get(who, `/${v.row.id}`);
+      expect(detail.status).toBe(200);
+      expect(detail.body.data).toMatchObject({
+        monetaryBreakdown: { status: "INVALID" },
+        reviewEvidenceReady: false,
+      });
+      const response = await send(who, v.row.id, {
+        stage: "APPROVED",
+        note,
+        approvedFeeKobo: "0",
+        expectedStatus: "INSPECTED",
+        expectedRevision: detail.body.data.reviewRevision,
+      });
+      expect(response.status).toBe(409);
+      await testCapability(original.admin.user.id, "FINANCE_POLICY_APPROVE");
+      const legacy = await request(app)
+        .post(`/api/v1/staff/order-requests/${v.row.id}/review`)
+        .set(original.admin.headers)
+        .send({
+          stage: "APPROVED",
+          note,
+          approvedFeeKobo: "0",
+          expectedStatus: "INSPECTED",
+        });
+      expect(legacy.status).toBe(409);
+      expect(
+        await prisma.auditLog.count({
+          where: { entityId: v.order.id, action: "UPDATE" },
+        }),
+      ).toBe(0);
+      expect(
+        (
+          await prisma.orderAftercareRequest.findUniqueOrThrow({
+            where: { id: v.row.id },
+          })
+        ).status,
+      ).toBe("INSPECTED");
+    });
     it("provides a scoped populated queue and minimal decision evidence without customer or raw policy data", async () => {
       const who = await actor(),
         v = await record();
@@ -408,13 +494,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const who = await actor(),
         v = await record(),
         sent = await body(who, v.row.id);
-      await prisma.userCapability.create({
-        data: {
-          userId: original.admin.user.id,
-          capability: "FINANCE_POLICY_APPROVE",
-          grantedByUserId: f.owner.id,
-        },
-      });
+      await testCapability(original.admin.user.id, "FINANCE_POLICY_APPROVE");
       const results = await Promise.all([
         send(who, v.row.id, sent),
         request(app)

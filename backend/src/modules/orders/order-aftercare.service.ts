@@ -1,3 +1,7 @@
+import {
+  assertOrderMoneyMatches,
+  readOrderMoneyAllocation,
+} from "./order-money-allocation.js";
 import { aftercareReceipt, readAftercareReceipt } from "./order-aftercare-receipt.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
@@ -110,6 +114,15 @@ export async function requestAftercare(
           : elapsed >= 14 * 86_400_000
             ? "BOUNDARY_OR_EXCEPTION_REVIEW_MANDATORY_RIGHTS_PRESERVED"
             : "WITHIN_PROPOSED_WINDOW_CONDITION_INSPECTION_REQUIRED";
+  let monetaryAllocation;
+  try {
+    monetaryAllocation = readOrderMoneyAllocation(order.policySnapshot);
+    if (monetaryAllocation) assertOrderMoneyMatches(monetaryAllocation, order);
+  } catch {
+    throw orderConflict(
+      "The saved order breakdown needs financial review before this request can continue",
+    );
+  }
   const record = await tx.orderAftercareRequest.create({
     data: {
       orderId,
@@ -119,7 +132,10 @@ export async function requestAftercare(
       reason,
       reviewReason,
       items,
-      policySnapshot: policySnapshot(policy),
+      policySnapshot: {
+        ...policySnapshot(policy),
+        ...(monetaryAllocation ? { monetaryAllocation } : {}),
+      },
     },
   });
   await appendAuditEvent(tx, {
@@ -680,6 +696,27 @@ export class OrderAftercareService {
       };
     } else {
       await assertCapability(tx, actor, "FINANCE_POLICY_APPROVE");
+      if (input.stage === "APPROVED") {
+        try {
+          const allocation = readOrderMoneyAllocation(record.policySnapshot);
+          if (allocation) {
+            const items = await tx.orderItem.findMany({
+              where: { orderId: order.id },
+              select: {
+                id: true,
+                quantity: true,
+                subtotalKobo: true,
+                unitPriceKobo: true,
+              },
+            });
+            assertOrderMoneyMatches(allocation, { ...order, items });
+          }
+        } catch {
+          throw orderConflict(
+            "Resolve the saved monetary breakdown before approving this financial decision",
+          );
+        }
+      }
       if (input.stage === "APPROVED" && record.kind === "RETURN" && !record.inspectedAt)
         throw orderConflict("Inspect a received return before approval");
       if (

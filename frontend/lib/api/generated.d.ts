@@ -142609,6 +142609,46 @@ export interface operations {
                                  */
                                 effectiveAt: string;
                             } | null;
+                            /** @description Monetary Breakdown validated by this operation's strict request contract. */
+                            monetaryBreakdown?: {
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "LEGACY";
+                            } | {
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "INVALID";
+                            } | {
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "SAVED";
+                                /** @description Lines validated by this operation's strict request contract. */
+                                lines: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the order item resource; ownership is resolved server-side.
+                                     */
+                                    orderItemId: string;
+                                    /** @description Product Name validated by this operation's strict request contract. */
+                                    productName: string;
+                                    /** @description Quantity validated by this operation's strict request contract. */
+                                    quantity: number;
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Discount Kobo validated by this operation's strict request contract. */
+                                    discountKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                }[];
+                            };
                             /** @description Review Evidence Ready validated by this operation's strict request contract. */
                             reviewEvidenceReady: boolean;
                             /** @description Review Revision validated by this operation's strict request contract. */
