@@ -2,6 +2,10 @@ import type { PublishPolicyInput } from "./policies.schemas.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { env } from "../../config/env.js";
+import {
+  bookingRequestsEnabled,
+  productPurchasesEnabled,
+} from "../../common/contracts/public-release.js";
 import { prisma } from "../../config/database.js";
 import type { BusinessPolicyVersion, Prisma } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
@@ -99,8 +103,8 @@ export async function safeCapabilities(
       mode: env.PUBLIC_LAUNCH_MODE,
       customerAccountsEnabled: env.PUBLIC_LAUNCH_MODE !== "catalogue",
       enquiriesEnabled: env.PUBLIC_LAUNCH_MODE !== "catalogue",
-      bookingRequestsEnabled: env.PUBLIC_LAUNCH_MODE === "full",
-      inspectionRequestsEnabled: env.PUBLIC_LAUNCH_MODE === "full",
+      bookingRequestsEnabled: bookingRequestsEnabled(env),
+      inspectionRequestsEnabled: bookingRequestsEnabled(env),
     },
     checkoutEnabled: fulfillment.checkoutEnabled,
     collection: fulfillment.collection,
@@ -150,7 +154,7 @@ function fulfillmentAvailability(
   now: Date,
 ) {
   const checkoutEnabled =
-    env.PUBLIC_LAUNCH_MODE === "full" &&
+    productPurchasesEnabled(env) &&
     !!finance &&
     (env.DEPLOYMENT_ENV !== "production" || finance.approvalStatus === "APPROVED");
   return {

@@ -109,7 +109,12 @@ import { createDisputesRouter } from "../modules/payments/disputes.routes.js";
 
 export function createApiRouter(options: ApiRouterOptions): Router {
   const apiRouter = Router();
-  apiRouter.use(publicLaunch(env.PUBLIC_LAUNCH_MODE));
+  apiRouter.use(
+    publicLaunch(env.PUBLIC_LAUNCH_MODE, {
+      bookingRequestsEnabled: env.BOOKING_REQUESTS_ENABLED,
+      productPurchasesEnabled: env.PRODUCT_PURCHASES_ENABLED,
+    }),
+  );
   apiRouter.use("/purchase", createPurchaseRouter());
   apiRouter.use(createLearningRouter());
   apiRouter.use(createWorkforceRouter());

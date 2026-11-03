@@ -536,6 +536,18 @@
           "type": "GENERAL"
         },
         {
+          "key": "PRODUCT_PURCHASES_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "BOOKING_REQUESTS_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
           "key": "CLIENT_IP_SOURCE",
           "value": "digitalocean",
           "scope": "RUN_TIME",
@@ -715,6 +727,18 @@
         {
           "key": "PUBLIC_LAUNCH_MODE",
           "value": "browse_enquiries",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PRODUCT_PURCHASES_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "BOOKING_REQUESTS_ENABLED",
+          "value": "false",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         }
@@ -1093,6 +1117,18 @@
           "value": "browse_enquiries",
           "scope": "RUN_TIME",
           "type": "GENERAL"
+        },
+        {
+          "key": "PRODUCT_PURCHASES_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "BOOKING_REQUESTS_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
         }
       ],
       "termination": {
@@ -1212,6 +1248,18 @@
         {
           "key": "PUBLIC_LAUNCH_MODE",
           "value": "browse_enquiries",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PRODUCT_PURCHASES_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "BOOKING_REQUESTS_ENABLED",
+          "value": "false",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         }

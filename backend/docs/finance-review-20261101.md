@@ -1,3 +1,15 @@
+## 3 November: current owner decision update
+
+Section7 of the self-contained2November brief supersedes conflicting proposals
+below: VAT-exclusive7.5%after discounts and nearest-kobo are approved; workmanship
+is due after completed work/before collection, with materials paid separately first;
+parts payment follows final compatibility/availability checks. Exact tie/order-line/
+refund allocation rules, verified invoice identity and controlled publication remain
+unresolved. Preserve historical invoices and this dated proposal; do not treat its
+older pay-first/service-timing-unknown text as the current instruction. See the
+current public-launch-policy-decisions.md entry for definite versus delegated and
+unspecified decisions. No financial policy was published by this document update.
+
 ﻿# Finance review packet — 1 November 2026
 
 Status: proposal for owner/accountant review only. Not an issued invoice, tax advice,

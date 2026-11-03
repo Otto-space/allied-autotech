@@ -17,6 +17,44 @@ async function availability(
   expect(response.ok()).toBe(true);
 }
 for (const width of [320, 768, 1440]) {
+  test(`independent module switches retain truthful journeys at ${width}px`, async ({
+    page,
+    request,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await availability(request, "full", {
+      checkoutApproved: true,
+      bookingRequestsEnabled: false,
+      productPurchasesEnabled: true,
+    });
+    await page.goto("/services?categoryId=37ec8bcf-7edc-4ec7-a185-ec849d71c5de");
+    await expect(
+      page.getByRole("link", { name: "Ask about a workshop visit", exact: true }),
+    ).toBeVisible();
+    await page.goto("/help/pending-payments");
+    await expect(page.locator("main")).toContainText(
+      "Returning from checkout does not confirm payment",
+    );
+    await availability(request, "full", {
+      checkoutApproved: true,
+      bookingRequestsEnabled: true,
+      productPurchasesEnabled: false,
+    });
+    await page.goto("/services?categoryId=37ec8bcf-7edc-4ec7-a185-ec849d71c5de");
+    await expect(
+      page.getByRole("link", { name: "Request a visit", exact: true }),
+    ).toBeVisible();
+    await page.goto("/help/pending-payments");
+    await expect(page.locator("main")).toContainText(
+      "Online checkout and payments are not available yet",
+    );
+    expect(new URL((await page.request.get("/checkout")).url()).pathname).toBe(
+      "/contact",
+    );
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  });
   test(`runtime availability overrides deployment-time copy and guards direct checkout at ${width}px`, async ({
     page,
     request,

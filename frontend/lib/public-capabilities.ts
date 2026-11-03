@@ -23,8 +23,9 @@ export function parsePublicCapabilities(value: unknown): PublicCapabilities {
   if (
     parsed.release.customerAccountsEnabled !== (mode !== "catalogue") ||
     parsed.release.enquiriesEnabled !== (mode !== "catalogue") ||
-    parsed.release.bookingRequestsEnabled !== (mode === "full") ||
-    parsed.release.inspectionRequestsEnabled !== (mode === "full") ||
+    (mode !== "full" &&
+      (parsed.release.bookingRequestsEnabled ||
+        parsed.release.inspectionRequestsEnabled)) ||
     (mode !== "full" && (parsed.checkoutEnabled || parsed.vehicleDeposits.enabled)) ||
     (parsed.vehicleDeposits.enabled && !parsed.checkoutEnabled)
   )

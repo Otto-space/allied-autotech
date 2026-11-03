@@ -511,7 +511,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         },
       };
       const router = Router();
-      router.use(publicLaunch("full"));
+      router.use(
+        publicLaunch("full", {
+          bookingRequestsEnabled: true,
+          productPurchasesEnabled: true,
+        }),
+      );
       router.use(
         "/purchase",
         createPurchaseRouter(

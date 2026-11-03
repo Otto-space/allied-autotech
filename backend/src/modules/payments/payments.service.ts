@@ -30,6 +30,7 @@ import {
 } from "../../common/security/payment-checkout-state.js";
 import { prisma } from "../../config/database.js";
 import { env } from "../../config/env.js";
+import { productPurchasesEnabled } from "../../common/contracts/public-release.js";
 import { PurchaseGuestAccessService } from "../orders/purchase-guest-access.service.js";
 import { trustedPurchaseOrigin } from "../../common/security/purchase-origin.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
@@ -2574,7 +2575,7 @@ export class PaymentsService {
   }
 
   private assertGuestPurchasing() {
-    if (env.PUBLIC_LAUNCH_MODE !== "full")
+    if (!productPurchasesEnabled(env))
       throw paymentConflict(
         "Online purchasing is not available. Contact the team about an enquiry.",
       );

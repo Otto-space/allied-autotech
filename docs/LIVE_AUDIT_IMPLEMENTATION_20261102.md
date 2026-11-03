@@ -1,5 +1,55 @@
 # Complete live audit implementation - 2 November 2026
 
+Additional first-package evidence: the final release-boundary suite passes 71/71
+(including fail-closed omitted controls), and separate process/address checks pass
+26/26. These runs overlap the initial 103 cases and are not a summed unique total.
+Backend/Frontend TypeScript, backend script types, repository backend lint, scoped
+frontend lint, formatting and diff checks pass. Review-only production template
+adds only eight disabled module controls across four components; existing settings
+are preserved and no live configuration changed. Source checkpoint awaits exact
+CI and rendered acceptance; full D01-D17 objective remains active.
+
+
+## Active self-contained brief implementation - D01-D17, 3 November 2026
+
+The 611-line self-contained brief includes newer owner decisions absent from the
+previous audit release. The published checkpoint below is retained as historical
+evidence, not completion of this expanded objective. Payment AFTER final checks
+supersedes pay-first. Source scope approval is definite; controlled publication
+and technical/provider/actual-role acceptance remain distinct.
+
+| ID | Current instruction | Current implementation evidence/status |
+| --- | --- | --- |
+| D01 | Appointment requests and parts purchases approved independently | Independent switches/HTTP guards/capability/parser implemented in this working batch;103backend/20frontend units and backend types pass. Browser verification incomplete; no activation. |
+| D02 | VAT-exclusive7.5%after discounts; nearest-kobo | Existing integer snapshots/VAT; percentage-discount truncation and exact rule publication need reconciliation. Tie/allocation remains unspecified. |
+| D03 | Materials first; workmanship after work/before collection | Current workflows require payment before order confirmation; service staged money/balance handling needs implementation. |
+| D04 | Final suitability and availability before full parts payment | Current published pay-first confirmation guard conflicts; new pre-payment review/payment-boundary checks, UI/Help/tests required. |
+| D05 | Normal workshopMon-Sat08:00-18:00 | Reconcile actual capacity configuration; do not infer Sunday/holidays. |
+| D06 | Three actual specialists; two machines; one alignment specialist | Existing capacity structures need actual resource/qualification reconciliation and collision tests; no fake Staff. |
+| D07 | Editable duration, buffers/resources and booking override | Existing nullable duration is partial; remaining authoring/snapshots/capacity integration required. |
+| D08 | Newworld interim operations | Named decision recorded; actual account/scope mapping unverified; no new grant. |
+| D09 | Reasoned eligible cancellation without approval; release slot | Existing lifecycle requires reconciliation against latest rule/capacity/notifications. No charge/refund inferred. |
+| D10 | Reasoned available-time reschedule requiring approval | Existing proposal flow is partial; preserve old slot and verify atomic approval/conflicts. |
+| D11 | Late arrivals wait or leave | Actual arrival/wait/alternative/left actions need reconciliation and tests. |
+| D12 | Five business days for ready in-stock collection | Calendar counting details unresolved; deadline/overdue/extension support required, no automatic paid-stock release. |
+| D13 | Per-product sourcing/preparation time | Authoring/order estimates/status updates need implementation. No universal one-day promise. |
+| D14 | Private unique third-party pickup code | Order-specific secret storage/reissue/verification/rate limits/transactional partial handover need implementation. |
+| D15 | Reminders and calendar actions | Existing invitation/inbox/calendar/countdown preserved; .ics/Google option and configurable reminders/delivery acceptance required. |
+| D16 | Delegated non-punitive no-show | Configurable attendance review/staff-confirmed missed action/capacity release and notifications required.15minutes is a proposed delegated default. |
+| D17 | Delegated supply-exception handling | Existing independent aftercare/refund kernel preserved; explicit accepted alternative/affected tax-aware portion and revised pre-payment path need reconciliation. Broader returns/warranty deferred. |
+
+Actual remaining inputs are the precise unresolved items in decision-register
+section at top of backend/docs/public-launch-policy-decisions.md. Do not ask again
+for already approved VAT, service due timing, normal hours, scope or revised parts
+sequence. Finish independently testable implementation before operational acceptance.
+
+First package verification:103backend units across4suites,20frontend units across2,
+backend TypeScript pass. Local browser run13cases was stopped during compilation
+following a failed disk preflight and supplies no completed acceptance. Only owned
+preview/browser processes stopped. Preserve source; reserve readings12.8then21.19GiB.
+No schema/production/role/policy/data write or payment/email occurred in this batch.
+
+
 ## Final implementation and publication - 3 November 2026, 11:20 UTC
 
 The audit engineering implementation is published. This closes the source and

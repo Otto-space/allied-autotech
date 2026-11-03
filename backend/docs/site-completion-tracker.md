@@ -1,3 +1,48 @@
+Additional first-package evidence: the final release-boundary suite passes 71/71
+(including fail-closed omitted controls), and separate process/address checks pass
+26/26. These runs overlap the initial 103 cases and are not a summed unique total.
+Backend/Frontend TypeScript, backend script types, repository backend lint, scoped
+frontend lint, formatting and diff checks pass. Review-only production template
+adds only eight disabled module controls across four components; existing settings
+are preserved and no live configuration changed. Source checkpoint awaits exact
+CI and rendered acceptance; full D01-D17 objective remains active.
+
+### 3 November 2026: Self-contained owner-decision brief - active implementation
+
+Controlling brief read completely (611 lines):
+C:/Users/PC/Downloads/Allied_AutoTech_Self_Contained_Codex_Implementation_Brief_2026-11-02.md.
+This includes new D01-D17 instructions. The earlier engineering-complete checkpoint
+below applies to the previous audit and does not prove this expanded objective.
+Do not ask for another audit attachment. Preserve the published F01-F10 repairs,
+separate-photo Home, fonts, prices, records and existing permission/financial gates.
+
+Superseding facts: payment follows final parts compatibility/availability review;
+materials paid separately first, workmanship after completion/before collection;
+nearest-kobo VAT/discounts, Mon-Sat08:00-18:00 normal workshop hours, actual people
+and equipment capacity, immediate reasoned eligible cancellation, approval-based
+rescheduling, five-business-day in-stock hold, per-product timing, secure one-time
+third-party collection and explicit calendar actions. Older pay-first text is
+historical, not the current instruction. Scope approval is recorded; provider,
+verified invoice identity, precise unresolved policies and actual-role acceptance
+are separate prerequisites, not reasons to stop independent implementation.
+
+First bounded package started11:52UTC, target12:52UTC: independent booking/purchase
+release controls and matching capability/Help validation. Source adds independent
+server controls, shared checkout guard, explicit production full-mode choices and
+frontend parser support; no actual production setting changed. Focused backend
+103/103 and frontend20/20 pass, backend TypeScript passes. Rendered local check was
+stopped incomplete after a reserve failure: C:12.8GiB, later21.19GiB after stopping
+only this task's preview/browser tree. The chained PowerShell command failed to
+halt after the failed preflight; future chained work explicitly exits on nonzero.
+No browser pass claimed; no source/cache/database deletion. Avoid an unbounded
+Next development server; source/CI and bounded rendered acceptance still required.
+
+Full D01-D17 status matrix and actual remaining inputs are maintained at the top
+of docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md. Goal stays active; next critical
+engineering work is D04 revised pre-payment review and D03 service money stages,
+then scheduling/cancellation/reminders/calendar and timing/pickup. Do not shrink
+this goal to the already published visual work or activate unfinished transactions.
+
 ### 3 November 2026, 11:20 UTC: Audit implementation published; operational acceptance remains gated
 
 Current item: engineering implementation and bounded publication verification

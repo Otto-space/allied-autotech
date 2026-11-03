@@ -8,6 +8,8 @@ import {
 } from "../../src/config/env.js";
 
 const configuredApiVariables = {
+  BOOKING_REQUESTS_ENABLED: "true",
+  PRODUCT_PURCHASES_ENABLED: "false",
   FRONTEND_URL: "configured",
   TOKEN_HASH_KEY: "configured",
   MFA_ENCRYPTION_KEY: "configured",
@@ -89,6 +91,8 @@ describe("process-specific production environment validation", () => {
 });
 
 const configuredGeneralWorker = {
+  BOOKING_REQUESTS_ENABLED: "true",
+  PRODUCT_PURCHASES_ENABLED: "false",
   FRONTEND_URL: "configured",
   OUTBOX_ENCRYPTION_KEY: "configured",
   TOKEN_HASH_KEY: "configured",

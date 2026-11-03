@@ -5,9 +5,15 @@ import { describe, expect, it } from "vitest";
 import { publicLaunch } from "../../src/common/middleware/public-launch.js";
 import { errorHandler } from "../../src/common/middleware/error-handler.js";
 
-function fixture(mode: "full" | "browse_enquiries" | "catalogue") {
+function fixture(
+  mode: "full" | "browse_enquiries" | "catalogue",
+  controls: Parameters<typeof publicLaunch>[1] = {
+    bookingRequestsEnabled: true,
+    productPurchasesEnabled: true,
+  },
+) {
   const app = express();
-  app.use("/api/v1", publicLaunch(mode));
+  app.use("/api/v1", publicLaunch(mode, controls));
   app.use((_req, res) => res.status(204).end());
   app.use(errorHandler);
   return app;
@@ -79,6 +85,93 @@ describe("public browsing/enquiries launch boundary", () => {
       (await request(fixture("browse_enquiries")).post("/api/v1/customers/orders-help"))
         .status,
     ).toBe(204);
+  });
+});
+
+describe("independent appointment and purchasing release controls", () => {
+  it("fails closed if a full-mode router omits explicit module controls", async () => {
+    const app = express();
+    app.use("/api/v1", publicLaunch("full"));
+    app.use((_req, res) => res.status(204).end());
+    app.use(errorHandler);
+    expect((await request(app).post("/api/v1/customers/bookings")).status).toBe(403);
+    expect((await request(app).post("/api/v1/purchase/orders")).status).toBe(403);
+    expect((await request(app).get("/api/v1/public/services")).status).toBe(204);
+  });
+  const appointmentPaths = [
+    "/customers/bookings",
+    "/customers/vehicle-inspections",
+    "/public/booking-response/confirm",
+  ];
+  const purchasePaths = [
+    "/customers/cart/items",
+    "/customers/orders/checkout",
+    "/customers/parts-quotes/record/accept",
+    "/customers/payments",
+    "/customers/vehicle-transactions/record/reserve",
+    "/purchase/orders",
+    "/purchase/payments/record/checkout",
+    "/purchase/parts-quotes/record/accept",
+  ];
+  it.each([true, false])(
+    "keeps unpaid appointment requests separate when booking is %s",
+    async (bookingRequestsEnabled) => {
+      const app = fixture("full", {
+        bookingRequestsEnabled,
+        productPurchasesEnabled: false,
+      });
+      for (const path of appointmentPaths)
+        expect((await request(app).post(`/api/v1${path}`)).status).toBe(
+          bookingRequestsEnabled ? 204 : 403,
+        );
+      for (const path of purchasePaths)
+        for (const method of ["post", "put", "patch", "delete"] as const)
+          expect((await request(app)[method](`/api/v1${path}`)).status).toBe(403);
+      for (const path of ["/customers/orders", "/customers/bookings"])
+        expect((await request(app).get(`/api/v1${path}`)).status).toBe(204);
+      for (const path of ["/staff/bookings", "/admin/services", "/webhooks/paystack"])
+        expect((await request(app).post(`/api/v1${path}`)).status).toBe(204);
+    },
+  );
+  it("does not make appointments available by enabling purchasing", async () => {
+    const app = fixture("full", {
+      bookingRequestsEnabled: false,
+      productPurchasesEnabled: true,
+    });
+    for (const path of appointmentPaths)
+      expect((await request(app).post(`/api/v1${path}`)).status).toBe(403);
+    for (const path of purchasePaths)
+      expect((await request(app).post(`/api/v1${path}`)).status).toBe(204);
+  });
+  it("does not let enabled switches override a restricted mode", async () => {
+    const app = fixture("browse_enquiries", {
+      bookingRequestsEnabled: true,
+      productPurchasesEnabled: true,
+    });
+    for (const path of [...appointmentPaths, ...purchasePaths])
+      expect((await request(app).post(`/api/v1${path}`)).status).toBe(403);
+  });
+  it("requires explicit independent choices before production full-mode startup", () => {
+    const runtime = {
+      ...env,
+      NODE_ENV: "production" as const,
+      DEPLOYMENT_ENV: "production" as const,
+      PUBLIC_LAUNCH_MODE: "full" as const,
+    };
+    expect(() => assertPublicLaunchEnvironment(runtime, {})).toThrow(
+      /BOOKING_REQUESTS_ENABLED/,
+    );
+    expect(() =>
+      assertPublicLaunchEnvironment(runtime, {
+        BOOKING_REQUESTS_ENABLED: "true",
+      }),
+    ).toThrow(/PRODUCT_PURCHASES_ENABLED/);
+    expect(() =>
+      assertPublicLaunchEnvironment(runtime, {
+        BOOKING_REQUESTS_ENABLED: "true",
+        PRODUCT_PURCHASES_ENABLED: "false",
+      }),
+    ).not.toThrow();
   });
 });
 

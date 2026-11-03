@@ -10,9 +10,12 @@ import {
   publicFulfillmentOptions,
 } from "../../src/modules/policies/policies.service.js";
 import { publicCapabilitiesSchema } from "../../src/modules/policies/policies.schemas.js";
+import { OrdersService } from "../../src/modules/orders/orders.service.js";
 
 const originalEnvironment = env.DEPLOYMENT_ENV;
 const originalMode = env.PUBLIC_LAUNCH_MODE;
+const originalBookings = env.BOOKING_REQUESTS_ENABLED;
+const originalPurchases = env.PRODUCT_PURCHASES_ENABLED;
 const now = new Date("2026-09-24T12:00:00Z");
 const address =
   "133 Stadium Road, beside Kilimanjaro Pizza Jungle Restaurant, Port Harcourt, Rivers State, Nigeria";
@@ -52,10 +55,85 @@ function policy(
 afterEach(() => {
   env.DEPLOYMENT_ENV = originalEnvironment;
   env.PUBLIC_LAUNCH_MODE = originalMode;
+  env.BOOKING_REQUESTS_ENABLED = originalBookings;
+  env.PRODUCT_PURCHASES_ENABLED = originalPurchases;
   vi.restoreAllMocks();
 });
 
 describe("public policy availability summary", () => {
+  it("blocks both checkout engines before data writes when purchasing is closed", async () => {
+    env.PUBLIC_LAUNCH_MODE = "full";
+    env.BOOKING_REQUESTS_ENABLED = true;
+    env.PRODUCT_PURCHASES_ENABLED = false;
+    const transaction = vi.spyOn(prisma, "$transaction");
+    const service = new OrdersService(prisma);
+    const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
+    const branchId = randomUUID();
+    await expect(
+      service.checkout(
+        {
+          userId: randomUUID(),
+          sessionId: randomUUID(),
+          role: "CUSTOMER",
+          email: "synthetic@example.test",
+          mfaRequired: false,
+          mfaVerifiedAt: null,
+        },
+        { branchId, fulfillmentMethod: "COLLECTION" },
+        "synthetic-independent-gates",
+        context,
+      ),
+    ).rejects.toThrow("Online purchasing is not available");
+    await expect(
+      service.guestCheckout(
+        { sessionToken: "synthetic", csrfToken: "synthetic" },
+        {
+          branchId,
+          fulfillmentMethod: "COLLECTION",
+          contact: { name: "Synthetic buyer", phone: "+2348000000000" },
+          items: [{ productId: randomUUID(), quantity: 1 }],
+        },
+        "synthetic-independent-gates",
+        context,
+      ),
+    ).rejects.toThrow("Online purchasing is not available");
+    expect(transaction).not.toHaveBeenCalled();
+  });
+  it.each([
+    [true, false],
+    [false, true],
+    [false, false],
+    [true, true],
+  ])(
+    "reports independent booking=%s purchasing=%s with approved finance",
+    async (bookings, purchases) => {
+      env.PUBLIC_LAUNCH_MODE = "full";
+      env.DEPLOYMENT_ENV = "production";
+      env.BOOKING_REQUESTS_ENABLED = bookings;
+      env.PRODUCT_PURCHASES_ENABLED = purchases;
+      vi.spyOn(prisma.businessPolicyVersion, "findFirst").mockResolvedValue(
+        policy("finance", "APPROVED"),
+      );
+      const summary = publicCapabilitiesSchema.parse(await safeCapabilities(prisma, now));
+      expect(summary.release.bookingRequestsEnabled).toBe(bookings);
+      expect(summary.release.inspectionRequestsEnabled).toBe(bookings);
+      expect(summary.checkoutEnabled).toBe(purchases);
+      expect((await publicFulfillmentOptions(prisma, now)).checkoutEnabled).toBe(
+        purchases,
+      );
+    },
+  );
+  it("does not require invoice identity or finance approval for unpaid requests", async () => {
+    env.PUBLIC_LAUNCH_MODE = "full";
+    env.DEPLOYMENT_ENV = "production";
+    env.BOOKING_REQUESTS_ENABLED = true;
+    env.PRODUCT_PURCHASES_ENABLED = false;
+    vi.spyOn(prisma.businessPolicyVersion, "findFirst").mockResolvedValue(null);
+    const summary = await safeCapabilities(prisma, now);
+    expect(summary.release.bookingRequestsEnabled).toBe(true);
+    expect(summary.checkoutEnabled).toBe(false);
+    expect(summary.finance.approvalStatus).toBeNull();
+  });
   it.each([
     {
       name: "missing finance",

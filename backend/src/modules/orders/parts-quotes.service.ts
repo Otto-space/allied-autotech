@@ -21,6 +21,7 @@ import { lockAccessActor } from "../organization/team-access-security.js";
 import { enqueueSupportCustomerUpdate } from "../support/customer-email.js";
 import { PurchaseGuestAccessService } from "./purchase-guest-access.service.js";
 import { env } from "../../config/env.js";
+import { productPurchasesEnabled } from "../../common/contracts/public-release.js";
 import { purchaseQuoteListSchema } from "./purchase.schemas.js";
 import { jsonSafe, orderFingerprint } from "./orders.types.js";
 
@@ -333,7 +334,7 @@ export class PartsQuotesService {
     revision: number,
     context: RequestSecurityContext,
   ) {
-    if (env.PUBLIC_LAUNCH_MODE !== "full")
+    if (!productPurchasesEnabled(env))
       throw supportConflict("Quotation changes are currently unavailable");
     const accessService = new PurchaseGuestAccessService(this.database);
     return withTransactionRetry(this.database, async (tx) => {

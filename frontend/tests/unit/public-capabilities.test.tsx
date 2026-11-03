@@ -37,6 +37,41 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe("authoritative availability", () => {
+  it.each([
+    [true, false],
+    [false, true],
+    [false, false],
+    [true, true],
+  ])("accepts independent full-mode booking=%s purchasing=%s", (bookings, purchases) => {
+    const snapshot = publicCapabilitiesFixture("full", purchases);
+    snapshot.release.bookingRequestsEnabled = bookings;
+    snapshot.release.inspectionRequestsEnabled = bookings;
+    const view = capabilityView(parsePublicCapabilities(snapshot));
+    expect(view.bookingRequestsEnabled).toBe(bookings);
+    expect(view.checkoutEnabled).toBe(purchases);
+    expect(view.restrictedLaunchPage("/checkout")).toBe(!purchases);
+  });
+  it("updates independent switches in the same mode without losing a draft", async () => {
+    const next = publicCapabilitiesFixture("full", false);
+    next.release.bookingRequestsEnabled = false;
+    next.release.inspectionRequestsEnabled = false;
+    mocks.request.mockResolvedValueOnce({ data: next });
+    render(
+      <PublicCapabilitiesProvider initial={publicCapabilitiesFixture("full")}>
+        <Probe />
+      </PublicCapabilitiesProvider>,
+    );
+    fireEvent.change(screen.getByLabelText("Draft"), {
+      target: { value: "Keep the pending request" },
+    });
+    await act(async () => fireEvent(window, new Event("focus")));
+    expect((screen.getByText("Checkout") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByText("Book") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByLabelText("Draft") as HTMLInputElement).value).toBe(
+      "Keep the pending request",
+    );
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+  });
   it("separates financial approval from full-mode appointment requests and rejects contradictory summaries", () => {
     const current = capabilityView(
       parsePublicCapabilities(publicCapabilitiesFixture("full", false)),

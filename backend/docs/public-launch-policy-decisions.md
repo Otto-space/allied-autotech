@@ -1,3 +1,46 @@
+## Superseding owner decisions - received 2 November 2026, recorded 3 November
+
+Source: section7 of the user-supplied self-contained implementation brief,
+Allied_AutoTech_Self_Contained_Codex_Implementation_Brief_2026-11-02.md. The user
+instructed implementation using this document. It explicitly records Mike relaying
+the owner's answers. This is decision evidence, not a fabricated publisher identity,
+controlled policy publication, a real workforce assignment or provider acceptance.
+Preserve the dated historical decisions below; conflicting older directions no
+longer control new work.
+
+Owner approved: appointment requests and online parts purchases in principle;
+VAT-exclusive prices/7.5%after discounts/nearest-kobo; materials paid separately
+first and workmanship after work before collection; final parts compatibility and
+availability BEFORE full payment; normal workshop Mon-Sat08:00-18:00 Nigeria time;
+one alignment specialist, mechanic and auto electrician with two alignment machines
+(not two alignment-technician slots); editable real service estimates/buffers;
+Newworld Orlu as interim operations coordinator, subject to actual-account mapping;
+reasoned eligible customer cancellation without approval, freeing capacity;
+approval-based reasoned rescheduling; late arrivals wait for an available turn or
+leave; five-business-day standard in-stock hold; per-product sourcing/preparation
+times; private order-specific pickup code for third-party collection; reminders
+and explicit .ics/Google Calendar actions. Account-optional purchasing, seven-day
+quotes, collection-only and separate financial approval are preserved.
+
+Owner delegated: non-punitive staff-verified no-show handling and bounded handling
+of unavailable/unsuitable supply. Proposed defaults under that delegation are not
+verbatim owner choices: attendance review after15minutes; configurable future
+24h/2h/30min reminders. Record provenance correctly. No fines, blanket return
+exclusions, unapproved storage fees, silent substitutes or automatic paid-stock
+release follow from this instruction.
+
+Still unresolved/deferred: verified invoice name/address/TaxID/CAC; broader returns/
+refunds/warranty; exact30/60/120-minute cancellation cutoff (60minutes is proposed);
+which weekdays/closures/start-day count for the five-day hold and custom-order hold;
+exact rounding tie/aggregate/allocation rules; genuine service/resource values and
+shared bays/lift/break/holiday/Sunday constraints; materials procurement boundary;
+actual Paystack setup/acceptance; verified Newworld account/backup and distinct
+financial approver. Missing finance identity must not block an unpaid request.
+
+Translate decisions into controlled configuration with actual authorised publisher,
+source/effective time/approval evidence; never impersonate/backdate approvals.
+Independent implementation and tests continue while those precise inputs remain.
+
 # Public launch decisions — updated 22 October 2026
 
 Authority: Mike's explicit answers in this conversation, relaying the business's

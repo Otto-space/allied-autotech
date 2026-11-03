@@ -1,3 +1,24 @@
+Additional first-package evidence: the final release-boundary suite passes 71/71
+(including fail-closed omitted controls), and separate process/address checks pass
+26/26. These runs overlap the initial 103 cases and are not a summed unique total.
+Backend/Frontend TypeScript, backend script types, repository backend lint, scoped
+frontend lint, formatting and diff checks pass. Review-only production template
+adds only eight disabled module controls across four components; existing settings
+are preserved and no live configuration changed. Source checkpoint awaits exact
+CI and rendered acceptance; full D01-D17 objective remains active.
+
+### 3 November: independent appointment/purchase controls - active source
+
+The self-contained brief D01-D17 supersedes the earlier audit-complete scope.
+D01 adds independent server controls, guarded route availability and client
+validation of independently closed full-mode modules. Restricted modes and draft
+recovery remain. Focused backend 103/103 and frontend 20/20 tests, both compilers
+and backend lint pass. The thirteen-case rendered run was stopped incomplete
+following a disk-reserve failure; no browser acceptance is claimed. Current
+production remains browse_enquiries; no actual flag, policy or permission changed.
+Continue pre-payment parts review, staged service charges and remaining D05-D17
+operations using the existing tracker/report ledger.
+
 ### 3 November 2026: Final integrated audit publication and coverage boundary
 
 Application fabbe7a6 is published on both custom domains and backend adc7be72

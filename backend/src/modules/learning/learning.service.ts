@@ -326,7 +326,15 @@ export function learningCatalogue(
     });
   return {
     accessKey: createHash("sha256")
-      .update(access.key + ":v1:" + env.PUBLIC_LAUNCH_MODE)
+      .update(
+        JSON.stringify([
+          access.key,
+          "v2",
+          env.PUBLIC_LAUNCH_MODE,
+          env.BOOKING_REQUESTS_ENABLED,
+          env.PRODUCT_PURCHASES_ENABLED,
+        ]),
+      )
       .digest("hex"),
     audience:
       access.role === "PUBLIC"

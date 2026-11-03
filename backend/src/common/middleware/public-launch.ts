@@ -3,11 +3,21 @@ import { AppError } from "../errors/app-error.js";
 import { errorCodes } from "../errors/error-codes.js";
 
 export type PublicLaunchMode = "full" | "browse_enquiries" | "catalogue";
+export interface PublicTransactionControls {
+  bookingRequestsEnabled: boolean;
+  productPurchasesEnabled: boolean;
+}
 const transactionPath =
   /^\/customers\/(?:parts-quotes|cart|orders|bookings|payments|vehicle-transactions|vehicle-inspections)(?:\/|$)/i;
 
 /** Mounted at /api/v1 before domain routers. Staff/admin authentication is unchanged. */
-export function publicLaunch(mode: PublicLaunchMode): RequestHandler {
+export function publicLaunch(
+  mode: PublicLaunchMode,
+  controls: PublicTransactionControls = {
+    bookingRequestsEnabled: false,
+    productPurchasesEnabled: false,
+  },
+): RequestHandler {
   return (request, _response, next) => {
     const isWrite = !["GET", "HEAD", "OPTIONS"].includes(request.method);
     if (
@@ -44,6 +54,30 @@ export function publicLaunch(mode: PublicLaunchMode): RequestHandler {
         }),
       );
       return;
+    }
+    if (mode === "full" && isWrite) {
+      const bookingWrite =
+        /^\/customers\/(?:bookings|vehicle-inspections)(?:\/|$)/i.test(request.path) ||
+        /^\/public\/booking-response(?:\/|$)/i.test(request.path);
+      const purchasingWrite =
+        /^\/customers\/(?:parts-quotes|cart|orders|payments|vehicle-transactions)(?:\/|$)/i.test(
+          request.path,
+        ) || /^\/purchase\/(?:orders|payments|parts-quotes)(?:\/|$)/i.test(request.path);
+      if (
+        (bookingWrite && !controls.bookingRequestsEnabled) ||
+        (purchasingWrite && !controls.productPurchasesEnabled)
+      ) {
+        next(
+          new AppError({
+            code: errorCodes.forbidden,
+            statusCode: 403,
+            message: bookingWrite
+              ? "Online appointment requests are unavailable. Contact the team about a visit."
+              : "Online purchasing is unavailable. Contact the team about an enquiry.",
+          }),
+        );
+        return;
+      }
     }
     next();
   };

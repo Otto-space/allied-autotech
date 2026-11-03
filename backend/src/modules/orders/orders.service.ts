@@ -16,6 +16,7 @@ import type { RequestSecurityContext } from "../../common/contracts/request-secu
 import { hashToken } from "../../common/security/session-tokens.js";
 import { prisma } from "../../config/database.js";
 import { env } from "../../config/env.js";
+import { productPurchasesEnabled } from "../../common/contracts/public-release.js";
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import {
@@ -246,7 +247,7 @@ export class OrdersService {
     context: RequestSecurityContext,
     partsQuote?: { id: string; revision: number },
   ) {
-    if (buyer.kind === "guest" && env.PUBLIC_LAUNCH_MODE !== "full")
+    if (!productPurchasesEnabled(env))
       throw orderConflict(
         "Online purchasing is not available. Contact the team about an enquiry.",
       );

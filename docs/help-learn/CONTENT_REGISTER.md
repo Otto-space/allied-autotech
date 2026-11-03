@@ -1,3 +1,12 @@
+## 3 November: independent booking/purchase controls - source
+
+Home-next-stepv6 and service-requestv18 explain independent appointment and checkout
+availability. Eligibility, semantic targets, practice/AI settings and real grants
+remain unchanged. Catalogue access keys include both switches so retrieved guidance
+is invalidated on an independent change.103backend/20frontend focused units pass;
+local rendered verification interrupted by a disk-reserve failure. D04revised
+pre-payment parts wording must be completed with its actual enforcement next.
+
 ## 3 November 2026: Guest aftercare and operator refund guidance (source)
 
 The final held aftercare/account/operator/overview browser run passes 87/87.
