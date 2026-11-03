@@ -115,6 +115,11 @@ export function ServiceList({
                     service.description ??
                     "View this service for booking and quotation details."}
                 </p>
+                {service.durationMinutes !== null && (
+                  <p className="muted">
+                    Estimated job time: {service.durationMinutes} min
+                  </p>
+                )}
                 <div className="service-discovery__actions">
                   <div>
                     <strong>

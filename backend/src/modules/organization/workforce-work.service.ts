@@ -1,3 +1,10 @@
+import {
+  bookedJobMinutes,
+  assignmentTimingWindow,
+  assertPublishedSlotAssignment,
+  captureAssessedTimingIfMissing,
+} from "../service-operations/booking-timing.js";
+import { bookingSelect } from "../service-operations/service-operations.repository.js";
 import { ServiceOperationsRepository } from "../service-operations/service-operations.repository.js";
 import {
   workforceCareContactSelect,
@@ -31,6 +38,7 @@ import { lockWorkforce } from "./workforce-access.service.js";
 import { assignmentAllows, supportedAssignmentPolicies } from "./workforce-catalogue.js";
 import {
   bookingScope,
+  bookingSnapshotAllowed,
   branchesFor,
   workforceSnapshot,
   workforceConflict,
@@ -375,9 +383,32 @@ export class WorkforceWorkService {
           requestedServiceCategoryId: true,
           requestedServiceCategoryName: true,
           customerConcern: true,
+          scheduleVersion: true,
+          timingSnapshots: bookingSelect.timingSnapshots,
           alternativeStartsAt: true,
           alternativeReason: true,
           alternativeVersion: true,
+          rescheduleRequests: {
+            select: {
+              id: true,
+              status: true,
+              source: true,
+              branchId: true,
+              slotId: true,
+              startsAt: true,
+              reason: true,
+              createdAt: true,
+              decidedAt: true,
+              decisionReason: true,
+              slot: {
+                select: {
+                  staff: { select: { id: true, firstName: true, lastName: true } },
+                },
+              },
+            },
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            take: 10,
+          },
           service: { select: { name: true, durationMinutes: true } },
           assignedStaff: { select: { id: true, firstName: true, lastName: true } },
           confirmedAt: true,
@@ -398,7 +429,28 @@ export class WorkforceWorkService {
         { workforceAction: "BOOKING_DETAIL" },
         true,
       );
-      return { ...row, access, generatedAt: new Date().toISOString() };
+      return {
+        ...row,
+        service: row.service
+          ? {
+              ...row.service,
+              durationMinutes: bookedJobMinutes(row),
+            }
+          : null,
+        rescheduleRequests: row.rescheduleRequests.map(({ slot, ...request }) => ({
+          ...request,
+          proposedStaff:
+            slot?.staff &&
+            bookingSnapshotAllowed(access, "BOOKINGS_READ", {
+              branchId: request.branchId,
+              assignedStaffId: slot.staff.id,
+            })
+              ? slot.staff
+              : null,
+        })),
+        access,
+        generatedAt: new Date().toISOString(),
+      };
     });
   }
   job(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
@@ -426,6 +478,8 @@ export class WorkforceWorkService {
     context: RequestSecurityContext,
     kind: "jobs" | "enquiries",
     query?: z.infer<typeof workforceJobAssigneesQuerySchema>,
+    rescheduleRequestId?: string,
+    selectedStaffId?: string,
   ) {
     if (kind === "enquiries")
       return this.careAssignees(actor, id, context, "ENQUIRY", query);
@@ -437,6 +491,23 @@ export class WorkforceWorkService {
         select: { branchId: true, version: true },
       });
       if (!record?.branchId) workforceNotFound();
+      const originalBranchId = record.branchId;
+      if (rescheduleRequestId) {
+        if (
+          !(await tx.booking.findFirst({
+            where: { AND: [{ id }, bookingScope(access, "BOOKINGS_READ")] },
+            select: { id: true },
+          }))
+        )
+          workforceNotFound();
+        const request = await tx.bookingRescheduleRequest.findFirst({
+          where: { id: rescheduleRequestId, bookingId: id, status: "PENDING" },
+          select: { branchId: true },
+        });
+        if (!request || !branches.includes(request.branchId)) workforceNotFound();
+        record.branchId = request.branchId;
+      }
+
       const paginated = query && Object.keys(query).length > 0;
       const limit = query?.limit ?? 25;
       const nameTerms = paginated
@@ -451,6 +522,7 @@ export class WorkforceWorkService {
       );
       const items = await tx.staffProfile.findMany({
         where: {
+          ...(rescheduleRequestId && selectedStaffId ? { id: selectedStaffId } : {}),
           ...(paginated
             ? {
                 AND: [
@@ -500,14 +572,39 @@ export class WorkforceWorkService {
         },
         true,
       );
+      const receiptAccess = rescheduleRequestId
+        ? await workforceSnapshot(tx, actor)
+        : access;
+      if (rescheduleRequestId) {
+        const branches = branchesFor(receiptAccess, "JOBS_ASSIGN");
+        if (
+          !branches.includes(originalBranchId) ||
+          !branches.includes(record.branchId) ||
+          !(await tx.booking.findFirst({
+            where: { AND: [{ id }, bookingScope(receiptAccess, "BOOKINGS_READ")] },
+            select: { id: true },
+          })) ||
+          !(await tx.bookingRescheduleRequest.findFirst({
+            where: {
+              id: rescheduleRequestId,
+              bookingId: id,
+              status: "PENDING",
+              branchId: record.branchId,
+            },
+            select: { id: true },
+          }))
+        )
+          workforceNotFound();
+      }
       return paginated
         ? {
             ...page(items, limit),
-            access,
+            access: receiptAccess,
             generatedAt: new Date().toISOString(),
             jobId: id,
             jobVersion: record.version,
             branchId: record.branchId,
+            ...(rescheduleRequestId ? { requestId: rescheduleRequestId } : {}),
           }
         : { items };
     });
@@ -646,7 +743,6 @@ export class WorkforceWorkService {
         workforceConflict();
       let classification:
         { serviceId: string; quotedPriceKobo: bigint | null } | undefined;
-      let duration: number | undefined;
       if (!booking.service) {
         if (booking.status !== "REQUESTED" || !input.serviceId)
           workforceConflict(
@@ -659,7 +755,6 @@ export class WorkforceWorkService {
         });
         if (!service || !service.durationMinutes)
           workforceConflict("Choose a published service with a configured duration");
-        duration = service.durationMinutes;
         classification = {
           serviceId: service.id,
           quotedPriceKobo: service.pricingType === "FIXED" ? service.priceKobo : null,
@@ -689,19 +784,36 @@ export class WorkforceWorkService {
         !branchesFor(technicianAccess, "JOBS_UPDATE").includes(booking.branchId)
       )
         workforceDenied("Select an active technician with work access in this branch");
-      if (duration !== undefined) {
-        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${input.staffId}`}, 0))`;
-        if (
-          await new ServiceOperationsRepository().hasScheduleConflict(
-            input.staffId,
-            booking.scheduledAt,
-            new Date(booking.scheduledAt.getTime() + duration * 60000),
-            id,
-            tx,
-          )
+      const schedule = await tx.booking.findUniqueOrThrow({
+        where: { id },
+        select: {
+          id: true,
+          serviceId: true,
+          scheduleVersion: true,
+          scheduledAt: true,
+          status: true,
+          bookingSlotId: true,
+          assignedStaffId: true,
+        },
+      });
+      assertPublishedSlotAssignment(schedule, input.staffId);
+      const occupied = await assignmentTimingWindow(
+        tx,
+        schedule,
+        actor.userId,
+        classification?.serviceId,
+      );
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${input.staffId}`},0))`;
+      if (
+        await new ServiceOperationsRepository().hasScheduleConflict(
+          input.staffId,
+          occupied.startsAt,
+          occupied.endsAt,
+          id,
+          tx,
         )
-          workforceConflict("This technician has another appointment at that time");
-      }
+      )
+        workforceConflict("This technician has another appointment at that time");
       const current = await workforceSnapshot(tx, actor);
       if (
         !(await tx.booking.findFirst({
@@ -725,6 +837,11 @@ export class WorkforceWorkService {
           version: { increment: 1 },
         },
       });
+      await captureAssessedTimingIfMissing(
+        tx,
+        { ...schedule, serviceId: classification?.serviceId ?? schedule.serviceId },
+        actor.userId,
+      );
       await audit(tx, actor, context, "BOOKING", id, {
         workforceAction: "JOB_ASSIGNED",
         staffId: input.staffId,

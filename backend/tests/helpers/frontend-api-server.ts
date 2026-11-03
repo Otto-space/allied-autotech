@@ -73,14 +73,41 @@ async function createFixture() {
       pricingType: "FIXED",
       priceKobo: 1005n,
       durationMinutes: 60,
+      preparationMinutes: 0,
+      cleanupMinutes: 0,
+    },
+  });
+  // Explicit synthetic calendar/zero buffers, never production defaults or owner approval.
+  await prisma.businessPolicyVersion.create({
+    data: {
+      key: `booking-capacity:${branch.id}`,
+      version: 1,
+      approvalStatus: "APPROVED",
+      approvedByUserId: staff.id,
+      source: "Synthetic isolated browser calendar assumption; not owner approval",
+      sourceQuestion: "Browser fixture",
+      effectiveAt: new Date(Date.now() - 1000),
+      settings: {
+        dailyLimit: 20,
+        openingDays: [0, 1, 2, 3, 4, 5, 6],
+        opensAt: "08:00",
+        closesAt: "18:00",
+        holidays: [],
+        timezone: "Africa/Lagos",
+      },
     },
   });
   const startsAt = new Date(Date.now() + 8 * 24 * 3_600_000);
+  startsAt.setUTCHours(9, 0, 0, 0);
   await prisma.bookingSlot.create({
     data: {
       branchId: branch.id,
       serviceId: service.id,
       staffId: staff.staffProfile.id,
+      durationMinutes: 60,
+      preparationMinutes: 0,
+      cleanupMinutes: 0,
+      serviceTimingVersion: 0,
       startsAt,
       endsAt: new Date(startsAt.getTime() + 3_600_000),
     },

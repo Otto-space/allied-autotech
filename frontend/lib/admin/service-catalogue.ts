@@ -30,6 +30,8 @@ export const adminServiceSchema = z
       .regex(/^(?:0|[1-9][0-9]{0,15})$/)
       .nullable(),
     currency: z.literal("NGN"),
+    preparationMinutes: z.number().int().min(0).max(1440).nullable().optional(),
+    cleanupMinutes: z.number().int().min(0).max(1440).nullable().optional(),
     durationMinutes: z.number().int().min(15).max(1440).nullable(),
     isActive: z.boolean(),
     version: z.number().int().nonnegative().max(2147483647),
@@ -168,6 +170,22 @@ export const serviceFormSchema = z
           return false;
         }
       }, "Enter a valid amount with up to two decimal places, within the service price limit."),
+    preparationMinutes: z
+      .string()
+      .trim()
+      .refine(
+        (v) => v === "" || (/^\d+$/.test(v) && Number(v) <= 1440),
+        "Leave blank when unassessed, or enter 0 to 1440 whole minutes.",
+      )
+      .default(""),
+    cleanupMinutes: z
+      .string()
+      .trim()
+      .refine(
+        (v) => v === "" || (/^\d+$/.test(v) && Number(v) <= 1440),
+        "Leave blank when unassessed, or enter 0 to 1440 whole minutes.",
+      )
+      .default(""),
     duration: z
       .string()
       .trim()

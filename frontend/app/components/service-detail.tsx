@@ -547,8 +547,8 @@ export function ServiceDetail({
                     <p className="sd-duration">
                       <Clock3 size={20} aria-hidden="true" />
                       {current.durationMinutes !== null && current.durationMinutes > 0
-                        ? `Listed duration: ${current.durationMinutes} ${current.durationMinutes === 1 ? "minute" : "minutes"}`
-                        : "Duration not listed"}
+                        ? `Estimated job time: ${current.durationMinutes} ${current.durationMinutes === 1 ? "minute" : "minutes"}`
+                        : "Job time needs assessment"}
                     </p>
                   </div>
                   <div className="sd-actions">
@@ -1305,8 +1305,8 @@ export function ServiceDetail({
                       <ChevronDown size={18} aria-hidden="true" />
                     </summary>
                     <p>
-                      The listed duration describes the service. Confirm collection
-                      arrangements with the workshop.
+                      The estimate may change after assessment of the work. Confirm
+                      collection arrangements with the workshop.
                     </p>
                   </details>
                 </div>

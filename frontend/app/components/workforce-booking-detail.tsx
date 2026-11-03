@@ -1,5 +1,7 @@
 "use client";
+import { BookingTimingReview } from "./booking-timing-review";
 import Link from "next/link";
+import { workforceAccessKey } from "@/lib/workforce-registry";
 import { AppointmentTiming } from "./appointment-timing";
 import { useCallback, useState } from "react";
 import { useResource } from "@/lib/api/use-resource";
@@ -12,6 +14,8 @@ import { sameWorkforceScope } from "@/lib/admin/workforce-overview";
 import { formatBusinessDate } from "@/lib/format/date";
 import { NotificationRecordContext } from "./notification-record-context";
 import { Feedback } from "./feedback";
+import { WorkforceBookingReschedule } from "./workforce-booking-reschedule";
+import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { WorkforceBookingAlternative } from "./workforce-booking-alternative";
 import { WorkforceBookingConfirmation } from "./workforce-booking-confirmation";
 import "./workforce-bookings.css";
@@ -135,6 +139,39 @@ export function WorkforceBookingDetail({
               </p>
             </section>
           )}
+          <BookingRescheduleHistory requests={row.rescheduleRequests} />
+          <BookingTimingReview
+            key={`timing:${access.userId}:${row.id}:${row.version}:${workforceAccessKey(access)}`}
+            booking={row}
+            owner={access.userId}
+            access={access}
+            onSaved={(version) => {
+              if (version !== undefined) {
+                setMinimumVersion(version);
+                setMessage(
+                  "Appointment estimate updated. The start time and status are unchanged.",
+                );
+              }
+              record.refresh();
+              refreshAccess();
+            }}
+          />
+          <WorkforceBookingReschedule
+            key={`reschedule:${access.userId}:${row.id}:${row.version}:${workforceAccessKey(access)}`}
+            row={row}
+            access={access}
+            onRefresh={() => {
+              record.refresh();
+              refreshAccess();
+            }}
+            onSaved={(version) => {
+              setMinimumVersion(version);
+              setMessage(
+                "Reschedule decision recorded. Review the confirmed appointment and history.",
+              );
+              record.refresh();
+            }}
+          />
           <WorkforceBookingAlternative
             key={`${access.userId}:${row.id}:${row.version}`}
             row={row}

@@ -12,7 +12,12 @@ export const slotRecord = (n = 1) => {
     endsAt: `2027-01-01T${String(9 + n).padStart(2, "0")}:00:00Z`,
     version: 1,
     status: n === 3 ? "CLOSED" : "OPEN",
-    service: booking.service,
+    timingReviewRequired: false,
+    service: {
+      ...booking.service,
+      preparationMinutes: 0 as number | null,
+      cleanupMinutes: 0 as number | null,
+    },
     branch: booking.branch!,
     staff: booking.assignedStaff,
   };
@@ -52,6 +57,20 @@ export async function workSlotsFixture(page: Page, role = "ADMIN") {
       });
     const fail = (status: number, code: string) =>
       route.fulfill({ status, json: { success: false, error: { code } } });
+    if (path === "/public/capabilities")
+      return ok({
+        scope: "POLICY_SUMMARY",
+        serverTime: new Date().toISOString(),
+        release: {
+          mode: "full",
+          customerAccountsEnabled: true,
+          enquiriesEnabled: true,
+          bookingRequestsEnabled: true,
+          inspectionRequestsEnabled: true,
+        },
+        checkoutEnabled: false,
+        vehicleDeposits: { enabled: false },
+      });
     if (path === "/auth/csrf") return ok({ csrfToken: "slot-qa-csrf-token-".repeat(3) });
     if (path === "/staff/profile" && state.profileMode === "denied")
       return fail(403, "FORBIDDEN");
@@ -126,6 +145,19 @@ export async function workSlotsFixture(page: Page, role = "ADMIN") {
       } else {
         const item = state.records.find((item) => path.endsWith(item.id));
         if (item) {
+          if (
+            body.status === "OPEN" &&
+            body.expectedServiceVersion !== undefined &&
+            body.expectedServiceVersion !== item.service.version
+          )
+            return fail(409, "STALE_SERVICE_OPERATION");
+          if (body.status === "OPEN") {
+            item.timingReviewRequired = false;
+            if (item.service.durationMinutes !== null)
+              item.endsAt = new Date(
+                Date.parse(item.startsAt) + item.service.durationMinutes * 60000,
+              ).toISOString();
+          }
           item.status = body.status;
           item.version++;
         }

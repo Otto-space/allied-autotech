@@ -130,8 +130,10 @@ for (const role of ["ADMIN", "SUPER_ADMIN"])
     await page
       .getByLabel("Service category (optional)", { exact: true })
       .selectOption(categoryId);
-    // Some legacy fixtures have null duration; service edits require a valid duration.
-    await page.getByLabel("Duration in minutes", { exact: true }).fill("45");
+    // Record an explicit synthetic estimate; an unknown duration may remain blank.
+    await page
+      .getByLabel("Estimated job time in minutes (optional)", { exact: true })
+      .fill("45");
     await page.getByRole("button", { name: "Review changes", exact: true }).click();
     const assignment = page.waitForResponse(
       (r) =>
@@ -166,7 +168,9 @@ for (const role of ["ADMIN", "SUPER_ADMIN"])
       .first()
       .getByRole("button", { name: "View & edit", exact: true })
       .click();
-    await page.getByLabel("Duration in minutes", { exact: true }).fill("60");
+    await page
+      .getByLabel("Estimated job time in minutes (optional)", { exact: true })
+      .fill("60");
     await page.getByRole("button", { name: "Review changes", exact: true }).click();
     const edit = page.waitForResponse(
       (r) =>

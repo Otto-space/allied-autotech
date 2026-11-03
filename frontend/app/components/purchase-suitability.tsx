@@ -156,12 +156,14 @@ export function PurchaseSuitability({
   order,
   guest = false,
   disabled = false,
+  offerUnavailable = false,
   onSaved,
   onBusyChange,
 }: {
   order: CustomerOrder;
   guest?: boolean;
   disabled?: boolean;
+  offerUnavailable?: boolean;
   onSaved: () => void;
   onBusyChange?: (busy: boolean) => void;
 }) {
@@ -359,6 +361,7 @@ export function PurchaseSuitability({
       <Feedback message="Your access changed. Refresh the page before continuing." />
     );
   const locked = disabled || busy || uncertain;
+  const approved = order.purchaseReviews[0]?.status === "APPROVED" && !offerUnavailable;
   return (
     <section className={styles.panel} aria-labelledby={`${id}-title`} aria-busy={busy}>
       <h2 id={`${id}-title`}>Suitability and availability</h2>
@@ -366,7 +369,7 @@ export function PurchaseSuitability({
         Known suitability and available stock are checked automatically. We’ll ask the
         team only when more information is needed.
       </p>
-      {order.purchaseReviews[0]?.status === "APPROVED" && (
+      {approved && (
         <div className={styles.approved}>
           <p>
             Checks completed. Review the payment section for the current payment window.
@@ -379,19 +382,30 @@ export function PurchaseSuitability({
           </a>
         </div>
       )}
-      {order.purchaseReviews[0]?.availability
-        ?.filter((line) => line.kind === "SUPPLIER")
-        .map((line) => (
-          <p key={line.orderItemId}>
-            {order.items.find((item) => item.id === line.orderItemId)?.productName ??
-              "Part"}
-            : supplier arrival estimate {formatBusinessDate(line.expectedFrom)} to{" "}
-            {formatBusinessDate(line.expectedTo)}. We’ll confirm readiness for collection
-            separately.
-          </p>
-        ))}
+      {!offerUnavailable &&
+        order.purchaseReviews[0]?.availability
+          ?.filter((line) => line.kind === "SUPPLIER")
+          .map((line) => (
+            <p key={line.orderItemId}>
+              {order.items.find((item) => item.id === line.orderItemId)?.productName ??
+                "Part"}
+              : supplier arrival estimate {formatBusinessDate(line.expectedFrom)} to{" "}
+              {formatBusinessDate(line.expectedTo)}. We’ll confirm readiness for
+              collection separately.
+            </p>
+          ))}
       <Feedback message={message} scrollToMessage />
-      <Feedback message={success} tone="success" scrollToMessage />
+      <Feedback
+        message={offerUnavailable ? undefined : success}
+        tone="success"
+        scrollToMessage
+      />
+      {offerUnavailable && (
+        <p>
+          This offer needs a new check. Review the details below and check availability
+          again.
+        </p>
+      )}
       <button
         type="button"
         className="button secondary"
@@ -400,11 +414,9 @@ export function PurchaseSuitability({
       >
         Refresh order status
       </button>
-      <details open={order.purchaseReviews[0]?.status !== "APPROVED" || uncertain}>
+      <details open={!approved || uncertain}>
         <summary>
-          {order.purchaseReviews[0]?.status === "APPROVED"
-            ? "Change vehicle or part details"
-            : "Enter or reuse vehicle details"}
+          {approved ? "Change vehicle or part details" : "Enter or reuse vehicle details"}
         </summary>
         {uncertain ? (
           <div className={styles.actions}>

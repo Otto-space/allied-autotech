@@ -195,7 +195,9 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
     await page
       .getByLabel("Service price (NGN) (optional)", { exact: true })
       .fill("15000");
-    await page.getByLabel("Duration in minutes", { exact: true }).fill("60");
+    await page
+      .getByLabel("Estimated job time in minutes (optional)", { exact: true })
+      .fill("60");
     const description = page.getByLabel("Full description (optional)", { exact: true });
     await description.fill(
       "Inspect the brakes.\nExplain any recommended repairs before starting work.",

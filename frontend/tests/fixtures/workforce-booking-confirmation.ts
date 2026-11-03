@@ -1,3 +1,6 @@
+import type { z } from "zod";
+import type { bookingTimingSnapshotSchema } from "../../lib/api/booking-timing-schemas";
+import type { BookingRescheduleRequest } from "../../lib/api/booking-schemas";
 import type { Page } from "@playwright/test";
 import { workforceNotificationsFixture } from "./workforce-notifications";
 import { bookingFixtureId as id } from "./workforce-bookings";
@@ -42,8 +45,11 @@ export async function workforceBookingConfirmationFixture(
       } | null,
       status: "REQUESTED",
       version: 0,
+      scheduleVersion: 0,
+      timingSnapshots: [] as z.infer<typeof bookingTimingSnapshotSchema>[],
       scheduledAt: "2040-01-02T09:00:00.000Z",
       confirmedAt: null as string | null,
+      rescheduleRequests: [] as BookingRescheduleRequest[],
       alternativeStartsAt: null as string | null,
       alternativeReason: null as string | null,
       alternativeVersion: null as number | null,
@@ -75,6 +81,23 @@ export async function workforceBookingConfirmationFixture(
       meta: { requestId: "booking-confirmation-fixture" },
     },
   });
+  await page.route("**/api/v1/public/capabilities", (route) =>
+    route.fulfill(
+      ok({
+        scope: "POLICY_SUMMARY",
+        serverTime: new Date().toISOString(),
+        release: {
+          mode: "full",
+          customerAccountsEnabled: true,
+          enquiriesEnabled: true,
+          bookingRequestsEnabled: true,
+          inspectionRequestsEnabled: true,
+        },
+        checkoutEnabled: false,
+        vehicleDeposits: { enabled: false },
+      }),
+    ),
+  );
   await page.route("**/api/v1/staff/workforce/access", (route) =>
     route.fulfill(ok(snapshot())),
   );
@@ -180,5 +203,5 @@ export async function workforceBookingConfirmationFixture(
       }),
     );
   });
-  return state;
+  return Object.assign(state, { snapshot });
 }

@@ -1,4 +1,7 @@
 "use client";
+import { BookingTimingReview } from "./booking-timing-review";
+import { BookingRescheduleHistory } from "./booking-reschedule-history";
+import { BookingRescheduleReview } from "./booking-reschedule-review";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import { BookingReference } from "./booking-reference";
@@ -421,6 +424,22 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
               </div>
             </dl>
           </section>
+          <BookingTimingReview
+            key={`timing:${session.user.id}:${current.id}:${current.version}`}
+            booking={{ ...current, branchId: current.branch?.id ?? null }}
+            owner={session.user.id}
+            canReview={canConfirm}
+            disabled={disabled}
+            onSaved={booking.refresh}
+          />
+          <BookingRescheduleReview
+            key={`${current.id}:${current.version}`}
+            booking={current}
+            canReview={canConfirm}
+            disabled={disabled}
+            onSaved={booking.refresh}
+          />
+          <BookingRescheduleHistory requests={current.rescheduleRequests} />
           {(current.customerNotes || current.staffNotes) && (
             <dl className="booking-detail-notes">
               {current.customerNotes && (

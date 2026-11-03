@@ -204,6 +204,8 @@ function ServiceForm({
       pricingType: record?.pricingType ?? "",
       price: record?.priceKobo != null ? koboToInput(record.priceKobo) : "",
       duration: record?.durationMinutes?.toString() ?? "",
+      preparationMinutes: record?.preparationMinutes?.toString() ?? "",
+      cleanupMinutes: record?.cleanupMinutes?.toString() ?? "",
       isActive: record?.isActive ?? true,
     },
   });
@@ -217,6 +219,8 @@ function ServiceForm({
     "pricingType",
     "price",
     "duration",
+    "preparationMinutes",
+    "cleanupMinutes",
     "isActive",
   ];
   const disabled = blocked || uncertain || !!proposal;
@@ -233,6 +237,10 @@ function ServiceForm({
       pricingType: values.pricingType,
       priceKobo: values.price ? nairaToKobo(values.price) : null,
       durationMinutes: values.duration ? Number(values.duration) : null,
+      preparationMinutes: values.preparationMinutes
+        ? Number(values.preparationMinutes)
+        : null,
+      cleanupMinutes: values.cleanupMinutes ? Number(values.cleanupMinutes) : null,
       isActive: values.isActive,
       ...(record ? { expectedVersion: record.version } : {}),
     };
@@ -261,8 +269,27 @@ function ServiceForm({
           label: "Duration",
           value:
             body.durationMinutes === null
-              ? "Not confirmed; appointment slots unavailable"
+              ? "Not assessed; appointment slots unavailable"
               : `${body.durationMinutes} minutes`,
+        },
+        {
+          label: "Preparation before arrival",
+          value:
+            body.preparationMinutes === null
+              ? "Not assessed"
+              : `${body.preparationMinutes} minutes`,
+        },
+        {
+          label: "Cleanup after work",
+          value:
+            body.cleanupMinutes === null
+              ? "Not assessed"
+              : `${body.cleanupMinutes} minutes`,
+        },
+        {
+          label: "Existing appointments",
+          value:
+            "Their saved timing remains unchanged; individual changes require a reason and capacity review.",
         },
         { label: "Active", value: body.isActive ? "Yes" : "No" },
       ],
@@ -379,6 +406,8 @@ function ServiceForm({
                   pricingType: "",
                   price: "",
                   duration: "",
+                  preparationMinutes: "",
+                  cleanupMinutes: "",
                   isActive: true,
                 });
                 pending(false);
@@ -491,10 +520,10 @@ function ServiceForm({
             </div>
             <div className="field">
               <label htmlFor="admin-durationMinutes">
-                Duration in minutes (optional)
+                Estimated job time in minutes (optional)
               </label>
               <p className="field-hint">
-                Leave blank until confirmed. A service without a duration cannot offer
+                Leave blank until assessed. A service without a duration cannot offer
                 appointment slots.
               </p>
               <input
@@ -505,6 +534,26 @@ function ServiceForm({
               />
               {error("duration")}
             </div>
+            {(["preparationMinutes", "cleanupMinutes"] as const).map((name) => (
+              <div className="field" key={name}>
+                <label htmlFor={`admin-${name}`}>
+                  {name === "preparationMinutes"
+                    ? "Preparation before arrival (minutes, optional)"
+                    : "Cleanup after work (minutes, optional)"}
+                </label>
+                <p className="field-hint">
+                  Leave blank until assessed. Enter 0 only if no time is required. This
+                  internal buffer reserves staff time around the customer&apos;s visit.
+                </p>
+                <input
+                  {...form.register(name)}
+                  {...common(name)}
+                  inputMode="numeric"
+                  maxLength={4}
+                />
+                {error(name)}
+              </div>
+            ))}
           </div>
           <label className="check-label">
             <input type="checkbox" {...form.register("isActive")} /> Active

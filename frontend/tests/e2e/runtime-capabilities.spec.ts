@@ -129,6 +129,70 @@ for (const width of [320, 1440]) {
     await expect(page).toHaveURL(new RegExp(`/purchase/payments/${state.payment.id}$`));
     expect(state.order.paidAt).toBeNull();
   });
+  test(`guest refreshes a rejected offer without retaining stale payment approval at ${width}px`, async ({
+    page,
+    request,
+  }) => {
+    await availability(request, "full");
+    await page.setViewportSize({ width, height: 900 });
+    const state = await purchaseFixture(page);
+    let paymentRequests = 0;
+    await page.route("**/api/v1/purchase/payments", (route) => {
+      paymentRequests++;
+      return route.fulfill({
+        status: 409,
+        json: {
+          success: false,
+          message: "Untrusted synthetic offer details",
+          error: { code: "PURCHASE_OFFER_CHANGED" },
+          meta: { requestId: "guest-recheck" },
+        },
+      });
+    });
+    await page.route(
+      `**/api/v1/purchase/orders/${state.order.id}/purchase-review`,
+      (route) => {
+        const body = route.request().postDataJSON();
+        expect(body.expectedRevision).toBe(state.order.purchaseReviews[0].revision);
+        state.order.version += 2;
+        state.order.purchaseReviews = [
+          {
+            ...state.order.purchaseReviews[0],
+            id: orderId(9100),
+            revision: body.expectedRevision + 1,
+            requirements: { lines: body.lines },
+          },
+        ];
+        return route.fulfill({
+          json: {
+            success: true,
+            message: "Synthetic fresh automatic check",
+            meta: { requestId: "guest-recheck" },
+            data: state.order,
+          },
+        });
+      },
+    );
+    await page.goto(`/purchase/orders/${state.order.id}`);
+    await page.getByRole("button", { name: "Review payment", exact: true }).click();
+    await expect(
+      page.getByRole("link", { name: "View payment options", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Review payment", exact: true }),
+    ).toHaveCount(0);
+    await page
+      .getByRole("button", { name: "Check details and availability", exact: true })
+      .click();
+    await expect(
+      page.getByRole("button", { name: "Review payment", exact: true }),
+    ).toBeEnabled();
+    await expect(
+      page.getByRole("link", { name: "View payment options", exact: true }),
+    ).toBeVisible();
+    expect(paymentRequests).toBe(1);
+    expect(state.order.paidAt).toBeNull();
+  });
   test(`staff exception review supports keyboard and a reasoned decision at ${width}px`, async ({
     page,
     request,
@@ -362,6 +426,17 @@ for (const width of [320, 1440]) {
           "The offer changed. Refresh the order and review its current details before continuing.",
       }),
     ).toBeInViewport({ ratio: 1 });
+    await expect(
+      page.getByRole("link", { name: "View payment options", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByText("Suitability and stock confirmed. You can continue to payment.", {
+        exact: true,
+      }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Check details and availability", exact: true }),
+    ).toBeEnabled();
     expect(paymentBodies).toEqual([
       {
         targetType: "ORDER",

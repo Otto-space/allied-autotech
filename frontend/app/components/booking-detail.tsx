@@ -1,4 +1,5 @@
 "use client";
+import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { usePublicCapabilities } from "./public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
@@ -50,6 +51,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
   const [preferredTime, setPreferredTime] = useState("");
   const [slotTrail, setSlotTrail] = useState<string[]>([]);
   const [reason, setReason] = useState("");
+  const [rescheduleReason, setRescheduleReason] = useState("");
   const [reasonError, setReasonError] = useState<string>();
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
@@ -62,6 +64,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
     setPreferredTime("");
     setSlotTrail([]);
     setReason("");
+    setRescheduleReason("");
     setReasonError(undefined);
     setMessage(undefined);
   }, []);
@@ -97,7 +100,11 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
     !!current.disruptionRequestedAt &&
     current.disruptionResolution === "PENDING";
   const hasDeposit = !!current?.depositPayment && !!current.depositPaidAt;
+  const pendingReschedule = current?.rescheduleRequests?.find(
+    (request) => request.status === "PENDING",
+  );
   const canReschedule =
+    !pendingReschedule &&
     current?.status === "CONFIRMED" &&
     !!current.branch &&
     !!verifiedPolicy &&
@@ -334,7 +341,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                                   : "Decline the proposed time?",
                               description:
                                 decision === "ACCEPT"
-                                  ? "Your booking will await staff confirmation at the proposed time. This is not a confirmed appointment and does not use your customer reschedule allowance."
+                                  ? "The proposed replacement needs staff approval. Your original appointment stays unchanged until approval; this request does not use your customer reschedule allowance."
                                   : "Your current appointment time and status will stay unchanged.",
                               path: `${path}/alternative-response`,
                               method: "POST",
@@ -438,6 +445,59 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                 </div>
               </div>
             )}
+            {pendingReschedule && (
+              <section
+                className="booking-detail-notice"
+                aria-labelledby="pending-reschedule-title"
+              >
+                <h3 id="pending-reschedule-title">Reschedule awaiting approval</h3>
+                <p>Requested time: {formatBusinessDate(pendingReschedule.startsAt)}</p>
+                <p>Reason: {pendingReschedule.reason}</p>
+                <p>
+                  Your original appointment remains {current.status.toLowerCase()} at{" "}
+                  {formatBusinessDate(current.scheduledAt)}. This request does not reserve
+                  the replacement time.
+                </p>
+                <label htmlFor="reschedule-withdraw-reason">
+                  Reason for withdrawing this request
+                </label>
+                <textarea
+                  id="reschedule-withdraw-reason"
+                  value={rescheduleReason}
+                  maxLength={500}
+                  disabled={disabled}
+                  onChange={(event) => setRescheduleReason(event.target.value)}
+                />
+                <button
+                  type="button"
+                  className="button secondary"
+                  disabled={disabled || !rescheduleReason.trim()}
+                  onClick={() =>
+                    ask({
+                      title: "Withdraw the reschedule request?",
+                      description: "Your original appointment stays unchanged.",
+                      path: `${path}/reschedule-withdraw`,
+                      method: "POST",
+                      body: {
+                        requestId: pendingReschedule.id,
+                        expectedVersion: current.version,
+                        reason: rescheduleReason.trim(),
+                      },
+                      facts: [
+                        {
+                          label: "Requested time",
+                          value: formatBusinessDate(pendingReschedule.startsAt),
+                        },
+                        { label: "Withdrawal reason", value: rescheduleReason.trim() },
+                      ],
+                    })
+                  }
+                >
+                  Review withdrawal
+                </button>
+              </section>
+            )}
+            <BookingRescheduleHistory requests={current.rescheduleRequests} />
             {canReschedule && !disruption && (
               <button
                 className="button secondary"
@@ -452,7 +512,8 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
             {!disruption &&
               current.status === "CONFIRMED" &&
               verifiedPolicy &&
-              !canReschedule && (
+              !canReschedule &&
+              !pendingReschedule && (
                 <p>
                   Online rescheduling is unavailable for this booking. Contact customer
                   care if you need help with the appointment.
@@ -523,9 +584,22 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                       }}
                     />
                     <p>
-                      This uses your permitted reschedule and returns the booking to
-                      workshop review. Availability is not confirmed.
+                      Your original appointment stays confirmed until staff approves the
+                      replacement. The requested time is not reserved by this request.
                     </p>
+                  </div>
+                )}
+                {!disruption && (
+                  <div className="field">
+                    <label htmlFor="reschedule-reason">Reason for rescheduling</label>
+                    <textarea
+                      id="reschedule-reason"
+                      value={rescheduleReason}
+                      required
+                      maxLength={500}
+                      disabled={disabled}
+                      onChange={(event) => setRescheduleReason(event.target.value)}
+                    />
                   </div>
                 )}
                 <div className="actions">
@@ -557,13 +631,17 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                   )}
                   <button
                     className="button"
-                    disabled={disabled || !replacementAt}
+                    disabled={
+                      disabled ||
+                      !replacementAt ||
+                      (!disruption && !rescheduleReason.trim())
+                    }
                     onClick={() => {
                       if (!replacementAt) return;
                       ask({
                         title: "Request the new appointment time?",
                         description:
-                          "The new requested time needs workshop confirmation.",
+                          "Your original appointment stays confirmed until staff approves the replacement. The requested time is not reserved.",
                         path: `${path}/${disruption ? "disruption-resolution" : "schedule"}`,
                         method: disruption ? "POST" : "PATCH",
                         body: {
@@ -571,7 +649,9 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                             ? { slotId: selectedSlot.id }
                             : { preferredAt }),
                           expectedVersion: current.version,
-                          ...(disruption ? { resolution: "TRANSFER" } : {}),
+                          ...(disruption
+                            ? { resolution: "TRANSFER" }
+                            : { reason: rescheduleReason.trim() }),
                         },
                         idempotent: true,
                         facts: [
@@ -584,6 +664,9 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                             value: formatBusinessDate(replacementAt),
                           },
                           { label: "Workshop", value: current.branch!.name },
+                          ...(!disruption
+                            ? [{ label: "Reason", value: rescheduleReason.trim() }]
+                            : []),
                         ],
                       });
                     }}
@@ -685,6 +768,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
             setSlot("");
             setPreferredTime("");
             setReason("");
+            setRescheduleReason("");
           }}
         />
       )}

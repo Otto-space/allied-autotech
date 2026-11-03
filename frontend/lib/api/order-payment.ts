@@ -4,6 +4,10 @@ import { parseOrder } from "./commerce-schemas";
 import { parsePayments, paymentSchema, type PaymentRecord } from "./payment-schemas";
 
 export type CustomerOrder = ReturnType<typeof parseOrder>;
+export function orderPaymentReviewKey(order: CustomerOrder) {
+  const review = order.purchaseReviews?.[0];
+  return review ? `${review.id}:${review.revision}` : undefined;
+}
 
 export function orderPaymentAcceptedReview(order: CustomerOrder) {
   const review = order.purchaseReviews?.[0];

@@ -159,6 +159,8 @@ export async function workforceFixture() {
       slug: `wf-${randomUUID()}`,
       pricingType: "QUOTE_REQUIRED",
       durationMinutes: 60,
+      preparationMinutes: 0,
+      cleanupMinutes: 0,
     },
   });
   async function job(staffId: string, branchId = home.id) {

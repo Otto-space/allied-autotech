@@ -326,6 +326,11 @@ export function ServicesCatalogue({
                       service.description ||
                       "View this service for booking and quotation details."}
                   </p>
+                  {service.durationMinutes !== null && (
+                    <p className="muted">
+                      Estimated job time: {service.durationMinutes} min
+                    </p>
+                  )}
                 </div>
                 <div className="services-row-actions">
                   <div className="services-row-price">

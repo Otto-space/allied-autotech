@@ -256,6 +256,46 @@ jobs:
             -e HELP_LEARN_ENABLED=true -e HELP_LEARN_GUIDES_ENABLED=true -e HELP_LEARN_PRACTICE_ENABLED=true \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/integration/learning.test.ts tests/integration/booking-calendar.test.ts tests/integration/runtime-capabilities.test.ts --maxWorkers=1
+      - name: Verify booking reschedules and timing with isolated runtime privileges
+        env:
+          DB_NAME: allied_booking_acceptance_ci
+          TEST_DB_NAME: allied_booking_acceptance_ci
+        run: |
+          docker exec "${{ job.services.postgres.id }}" createdb --username=postgres allied_booking_acceptance_ci
+          npm run test:migrations
+          npm run db:check
+          docker exec -i "${{ job.services.postgres.id }}" psql --username=postgres --dbname=allied_booking_acceptance_ci -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE allied_booking_runtime_ci LOGIN PASSWORD 'isolated-ci-only-password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;
+          GRANT CONNECT ON DATABASE allied_booking_acceptance_ci TO allied_booking_runtime_ci;
+          GRANT USAGE ON SCHEMA public TO allied_booking_runtime_ci;
+          GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO allied_booking_runtime_ci;
+          GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO allied_booking_runtime_ci;
+          REVOKE ALL ON TABLE "_prisma_migrations" FROM allied_booking_runtime_ci;
+          DO $$ BEGIN
+            IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'allied_booking_runtime_ci' AND (rolsuper OR rolcreatedb OR rolcreaterole))
+              OR has_schema_privilege('allied_booking_runtime_ci', 'public', 'CREATE')
+              OR has_database_privilege('allied_booking_runtime_ci', 'allied_booking_acceptance_ci', 'CREATE')
+              OR has_table_privilege('allied_booking_runtime_ci', 'public."Booking"', 'TRUNCATE')
+              OR has_table_privilege('allied_booking_runtime_ci', 'public."_prisma_migrations"', 'SELECT')
+            THEN RAISE EXCEPTION 'Booking CI runtime privileges exceed the allowed scope'; END IF;
+          END $$;
+          SQL
+          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+            --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
+            -e DB_NAME=allied_booking_acceptance_ci -e TEST_DB_NAME=allied_booking_acceptance_ci \
+            -e DB_USER=allied_booking_runtime_ci -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
+            -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/unit/booking-timing.test.ts tests/unit/booking-slot-timing.test.ts \
+            tests/unit/booking-reschedule-notifications.test.ts tests/unit/booking-reschedule-learning.test.ts \
+            tests/unit/catalogue-learning.test.ts tests/integration/booking-reschedule-approval.test.ts \
+            tests/integration/workforce-booking-reschedule.test.ts tests/integration/booking-timing.test.ts \
+            tests/integration/booking-slot-timing.test.ts tests/integration/owner-booking-policy.test.ts \
+            tests/integration/workforce-booking-confirmation.test.ts tests/integration/workforce-bookings.test.ts \
+            tests/integration/booking-response.test.ts tests/integration/booking-reminder-concurrency.test.ts \
+            tests/integration/booking-settlement-race.test.ts tests/integration/concern-booking-journey.test.ts --maxWorkers=1
       - name: Verify shared Care availability, lifecycle and durable recovery
         # Native loopback checks remain strict inside the disposable DB namespace.
         # Provider replies are injected fixtures; no external delivery is enabled.

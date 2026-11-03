@@ -9,7 +9,9 @@ async function fillService(page: import("@playwright/test").Page) {
   await page
     .getByLabel("Service price (NGN) (optional)", { exact: true })
     .fill("1234.56");
-  await page.getByLabel("Duration in minutes", { exact: true }).fill("45");
+  await page
+    .getByLabel("Estimated job time in minutes (optional)", { exact: true })
+    .fill("45");
   await expect(
     page.getByRole("button", { name: "Review changes", exact: true }),
   ).toBeEnabled();
@@ -93,7 +95,7 @@ test("edits read directly and retain an unchanged inactive category", async ({
   await expect(
     page.getByLabel("Service category (optional)", { exact: true }),
   ).toHaveValue(bookingId(802));
-  await page.getByLabel("Duration in minutes").fill("75");
+  await page.getByLabel("Estimated job time in minutes (optional)").fill("75");
   await page.getByRole("button", { name: "Review changes", exact: true }).click();
   await page.getByRole("button", { name: "Confirm save", exact: true }).click();
   await expect(page.getByText("Service saved.", { exact: true }).first()).toBeVisible();

@@ -138,6 +138,27 @@ export const workforceRouteDefinitions = [
   ],
   [
     "post",
+    "/staff/workforce/bookings/:id/timing",
+    "bookingTiming",
+    schemas.workforceBookingTimingSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
+    "/staff/workforce/bookings/:id/reschedule-decision",
+    "bookingReschedule",
+    schemas.workforceBookingRescheduleSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "get",
+    "/staff/workforce/bookings/:id/reschedule-assignees",
+    "bookingRescheduleAssignees",
+    schemas.workforceBookingRescheduleAssigneesSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
     "/staff/workforce/bookings/:id/confirmation",
     "bookingConfirmation",
     schemas.workforceBookingConfirmationSchema,
@@ -294,6 +315,7 @@ export function createWorkforceRouter(): Router {
             ? schemas.workforceJobsQuerySchema.parse(req.query)
             : [
                   "jobAssignees",
+                  "bookingRescheduleAssignees",
                   "enquiryAssignees",
                   "complaintAssignees",
                   "bookings",
@@ -435,6 +457,38 @@ export function createWorkforceRouter(): Router {
             ctx,
           );
           break;
+        case "bookingTiming":
+          data = await new ServiceOperationsService().overrideWorkforceBookingTiming(
+            actor,
+            id,
+            schemas.workforceBookingTimingSchema.parse(body),
+            ctx,
+          );
+          break;
+        case "bookingReschedule":
+          data = await new ServiceOperationsService().decideWorkforceBookingReschedule(
+            actor,
+            id,
+            schemas.workforceBookingRescheduleSchema.parse(body),
+            ctx,
+          );
+          break;
+        case "bookingRescheduleAssignees": {
+          const options = schemas.workforceBookingRescheduleAssigneesSchema.parse(
+            req.query,
+          );
+          const { requestId, staffId, ...paging } = options;
+          data = await work.assignees(
+            actor,
+            id,
+            ctx,
+            "jobs",
+            { ...paging, limit: paging.limit ?? 25 },
+            requestId,
+            staffId,
+          );
+          break;
+        }
         case "bookingConfirmation":
           data = await new ServiceOperationsService().confirmWorkforceBooking(
             actor,

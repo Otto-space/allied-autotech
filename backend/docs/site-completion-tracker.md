@@ -1,3 +1,50 @@
+### 3 November 18:44 UTC package: booking/calendar integration candidate
+
+Target 19:44 UTC. Working source integrates the committed calendar portion of
+71e185d3 and booking commits e3d627ae, e9a588cd, f32ae2bd and add274bf into master
+7384abf8. It preserves the approved automatic purchase engine, current purchase
+history, dashboard/learning repairs and independent runtime gates. The alternative
+purchase-review implementation/migration is not imported. Current database
+isolation guards remain unchanged; native acceptance will run in hosted loopback.
+
+Customer reschedules retain the existing appointment until an authorised scoped
+decision switches it atomically. Reasons, withdrawal, decline, stale/conflict and
+uncertain-result handling are integrated. Customer cancellation is limited to
+eligible unstarted visits. Saved estimates, reasoned pre-start overrides, versioned
+offers and historical timing through approved replacements are integrated.
+Confirmed-arrival .ics and Google Calendar actions avoid invented completion times,
+private notes, forced OAuth or promised alarms. D06 equipment/resource allocations,
+in-progress overrun handling and configurable reminder delivery remain unfinished.
+
+Four booking migrations match their original committed bytes unchanged; the full
+source has 96 migrations. Schema validation/client generation, backend compiler/
+script checks/lint pass. Thirty backend timing/Help units pass; the later ten-case
+Help rerun overlaps that total. Frontend booking/calendar units pass 24/24 and
+payment/recheck units pass 23/23; scoped lint passes. Canonical contracts validate
+444 paths/520 operations. Four existing account/guest checkout/payment request
+contracts are identical after resolving OpenAPI references.
+
+A screenshot-confirmed stale confirmation is also corrected: a rejected offer no
+longer retains its old green payment approval or shortcut. Account/guest forms
+reopen known details for a fresh check; normal automatic purchases gain no step.
+Successful new checks clear the earlier failure message. Parts Help is v14,
+public service guidance v21 and restricted confirmation guidance v7.
+
+CI is prepared for fresh isolated booking acceptance using a distinct non-owner
+runtime role, no schema modification/TRUNCATE/migration-history access and no
+external notification/provider calls. Production-browser discovery collects 54
+cases in seven files, covering phone/laptop rescheduling, estimate review, calendar,
+runtime gates and purchase regressions. These expanded database/browser executions
+and the new source's full production checks remain pending.
+
+Baseline 7384abf8 passes all required workflows: frontend 41695288681 (1,440 units,
+12 existing skips, 21/21 browser cases), backend 41695288523 and secrets 41695288500.
+Inspected its final 320/1440 changed-offer alert screenshots after the whole alert
+reached the viewport; artifact 13261006663 is retained under runtime-ci-7384abf8.
+That baseline does not prove this integration. No shared migration, real record
+write, production publication or booking/payment activation occurred. The full
+D01-D17 goal remains active; owner-deferred financial/calendar inputs stay separate.
+
 ## 3 November 2026: consolidated audit implementation checkpoint
 
 Audit branch `codex/consolidated-audit-fixes-20261103` contains signed implementation
@@ -15,6 +62,47 @@ no retry. Real product media/fitment evidence, service duration and new workforc
 duties remain business inputs. Existing purchase/release work below is preserved.
 Full finding dispositions and evidence: `frontend/docs/CONSOLIDATED_AUDIT_20261103.md`.
 Publication is pending compatible backend/candidate checks and exact-master CI.
+
+### 3 November: payment-offer implementation verified; final viewport evidence running
+
+Application source 88ed8694c5292f20c3996e92c643635637219e56 passes all three
+required workflows: frontend 41692215321, backend 41692215106 and secrets 41692215043. Frontend production checks pass 1,399 unit cases with 12 existing
+skips. Chromium runtime passes 21/21 with no skips or flaky cases. Backend
+migration replay/db:check, types/lint and all workflow stages pass, including
+82 focused purchase checks and 88 guest-flow cases. This is isolated/synthetic
+evidence; no real provider, role or physical-device acceptance is implied.
+
+Artifact 13258915500 (2,149,767 bytes) is preserved locally under
+C:/Users/PC/AppData/Local/Temp/aat-full-audit-20261102/runtime-ci-88ed8694/.
+Inspected 320/1440 guest-order screenshots: the corrected pre-payment wording,
+readable controls and payment/refresh spacing are visible. Earlier 079ca9ee
+screenshots provide the safe same-fixture visual baseline. Account error screenshots
+were captured before smooth scrolling completed; test-only d52c8cb9590f205d7697d6e4ab1a3a26950c1c34
+now requires the entire alert to reach the viewport before capture. Its frontend
+workflow 41694435584 was cancelled after the consolidated audit merge superseded it.
+Current master 7384abf8 includes d52c8cb9. It was fast-forwarded without losing either
+implementation, and both sets of verification notes were retained. Combined frontend
+41695288681 and backend 41695288523 remain running; secrets 41695288500 pass.
+Earlier 88ed8694 results do not prove the entire newly combined source.
+Follow-up: combined backend 41695288523 completed successfully; frontend
+41695288681 remains active. The final alert-viewport evidence is still pending.
+
+Read-only production checks at approximately 18:04 UTC confirm browse_enquiries,
+checkout/new booking requests disabled and finance Draft. Four public service
+records return no workbook/development-provenance wording. At 18:23 UTC the complete
+public product list has one Engine Oil Filter (89fd9258-c580-43e9-9040-c7e52623e82d):
+description, photos, brand and manufacturer part number are absent, and no public
+compatibility records are returned. Family REPLACEMENT_PART, condition NEW and
+type OIL_FILTER are present. These are precise operator follow-ups, not licence to
+invent facts or suitability. No real product, stock, price or financial data changed.
+
+Next package: integrate committed calendar/reschedule/timing work through add274bf
+while retaining the current automatic purchase implementation and immutable history.
+Do not import the alternative unshipped D04 table-creation migration as a duplicate.
+D02/D03/D05-D17 and real operational/provider acceptance remain in full scope.
+No production publication, shared migration or capability activation occurred.
+Postflight C: 21.34 GiB at 18:41 UTC. Verification notes remain local for the next source batch.
+
 3 November changed-offer feedback follow-up: f6329e33 passes the full backend
 workflow 41689948148, including 82 focused purchase checks, 88 guest-flow cases and
 the affected payment concurrency/provider-port/expiry regressions. Frontend

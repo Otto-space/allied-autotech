@@ -1,3 +1,4 @@
+import type { BookingRescheduleRequest } from "@/lib/api/booking-schemas";
 import type { Page } from "@playwright/test";
 import { bookingId, bookingRecord } from "./customer-bookings";
 export const detailId = bookingId(1);
@@ -7,6 +8,7 @@ export function detailRecord() {
   return {
     ...bookingRecord(1, "CONFIRMED"),
     bookingSlotId: bookingId(500) as string | null,
+    rescheduleRequests: [] as BookingRescheduleRequest[],
     scheduledAt: future(72),
     requestedAt: new Date(Date.now() - 86400000).toISOString(),
     confirmedAt: new Date().toISOString(),
@@ -145,9 +147,29 @@ export async function bookingDetailFixture(page: Page, role = "CUSTOMER") {
         state.record.version++;
       }
       if (endpoint.endsWith("/schedule")) {
-        state.record.status = "REQUESTED";
+        const body = route.request().postDataJSON();
+        state.record.rescheduleRequests.push({
+          id: bookingId(650),
+          status: "PENDING",
+          source: "CUSTOMER",
+          branchId: state.record.branch!.id,
+          slotId: body.slotId ?? null,
+          startsAt: body.preferredAt ?? future(96),
+          reason: body.reason,
+          createdAt: new Date().toISOString(),
+          decidedAt: null,
+          decisionReason: null,
+        });
         state.record.version++;
-        state.record.customerRescheduleCount++;
+      }
+      if (endpoint.endsWith("/reschedule-withdraw")) {
+        const pending = state.record.rescheduleRequests.find(
+          (request) => request.status === "PENDING",
+        )!;
+        pending.status = "WITHDRAWN";
+        pending.decidedAt = new Date().toISOString();
+        pending.decisionReason = route.request().postDataJSON().reason;
+        state.record.version++;
       }
       if (endpoint.endsWith("/accept") || endpoint.endsWith("/reject"))
         state.record.quotes[0].status = endpoint.endsWith("/accept")
