@@ -51,7 +51,7 @@ for (const [route, kind, bodyClass] of [
         await panel.evaluate((el) => el.scrollHeight - el.clientHeight),
       ).toBeLessThanOrEqual(1);
       expect(await body.evaluate((el) => getComputedStyle(el).scrollbarWidth)).toBe(
-        "none",
+        width < 1024 ? "thin" : "none",
       );
       if (kind === "product") {
         await panel.getByText("More product details", { exact: true }).click();

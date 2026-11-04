@@ -289,7 +289,9 @@ export function RoleOverview({
         <div>
           <h1>
             {customer
-              ? "Your vehicle care, connected."
+              ? visible?.care?.firstName
+                ? `Welcome, ${visible.care.firstName}.`
+                : "Your vehicle care, connected."
               : workDesign
                 ? "Workshop overview"
                 : "Welcome back."}

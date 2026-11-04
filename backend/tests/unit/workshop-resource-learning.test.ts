@@ -42,7 +42,7 @@ it("keeps resource-authoring instructions server-side, owner-only and draft pend
 it("versions appointment guidance without granting resource approval to ordinary bookers", () => {
   const article = learningArticles.find((a) => a.id === "booking-confirmation")!;
   expect(article).toMatchObject({
-    version: 11,
+    version: 12,
     gate: "booking-confirmation",
     href: "/admin/workforce/bookings",
   });
@@ -52,4 +52,11 @@ it("versions appointment guidance without granting resource approval to ordinary
   expect(article.steps.join(" ")).toContain(
     "does not reserve equipment or grant anyone work permission",
   );
+});
+
+it("keeps recorded-work guidance restricted without claiming estimate expiry releases capacity", () => {
+  const a = learningArticles.find((a) => a.id === "booking-confirmation")!;
+  expect(a.steps.join(" ")).toContain("older booking still says Confirmed");
+  expect(a.steps.join(" ")).toContain("record the actual outcome");
+  expect(a.gate).toBe("booking-confirmation");
 });

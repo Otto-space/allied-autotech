@@ -159354,6 +159354,134 @@
                         "care": {
                           "type": "object",
                           "properties": {
+                            "firstName": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "First Name validated by this operation's strict request contract."
+                            },
+                            "enquiry": {
+                              "type": [
+                                "object",
+                                "null"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "subject": {
+                                  "type": "string",
+                                  "description": "Subject validated by this operation's strict request contract."
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "OPEN",
+                                    "IN_PROGRESS"
+                                  ],
+                                  "description": "Requested or filtered lifecycle state from the documented enum."
+                                },
+                                "updatedAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "subject",
+                                "status",
+                                "updatedAt"
+                              ],
+                              "description": "Enquiry validated by this operation's strict request contract."
+                            },
+                            "invoice": {
+                              "type": [
+                                "object",
+                                "null"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "invoiceNumber": {
+                                  "type": "string",
+                                  "description": "Invoice Number validated by this operation's strict request contract."
+                                },
+                                "currency": {
+                                  "type": "string",
+                                  "pattern": "^[A-Z]{3}$",
+                                  "description": "Currency validated by this operation's strict request contract."
+                                },
+                                "totalKobo": {
+                                  "type": "string",
+                                  "pattern": "^\\d+$",
+                                  "description": "Total Kobo validated by this operation's strict request contract."
+                                },
+                                "issuedAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "invoiceNumber",
+                                "currency",
+                                "totalKobo",
+                                "issuedAt"
+                              ],
+                              "description": "Invoice validated by this operation's strict request contract."
+                            },
+                            "collectionOrder": {
+                              "type": [
+                                "object",
+                                "null"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "orderNumber": {
+                                  "type": "string",
+                                  "description": "Order Number validated by this operation's strict request contract."
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "READY"
+                                  ],
+                                  "description": "Requested or filtered lifecycle state from the documented enum."
+                                },
+                                "fulfillmentMethod": {
+                                  "type": "string",
+                                  "enum": [
+                                    "COLLECTION"
+                                  ],
+                                  "description": "Fulfillment Method validated by this operation's strict request contract."
+                                },
+                                "createdAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "orderNumber",
+                                "status",
+                                "fulfillmentMethod",
+                                "createdAt"
+                              ],
+                              "description": "Collection Order validated by this operation's strict request contract."
+                            },
                             "vehicle": {
                               "type": [
                                 "object",
@@ -160557,6 +160685,134 @@
                         "care": {
                           "type": "object",
                           "properties": {
+                            "firstName": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "First Name validated by this operation's strict request contract."
+                            },
+                            "enquiry": {
+                              "type": [
+                                "object",
+                                "null"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "subject": {
+                                  "type": "string",
+                                  "description": "Subject validated by this operation's strict request contract."
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "OPEN",
+                                    "IN_PROGRESS"
+                                  ],
+                                  "description": "Requested or filtered lifecycle state from the documented enum."
+                                },
+                                "updatedAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "subject",
+                                "status",
+                                "updatedAt"
+                              ],
+                              "description": "Enquiry validated by this operation's strict request contract."
+                            },
+                            "invoice": {
+                              "type": [
+                                "object",
+                                "null"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "invoiceNumber": {
+                                  "type": "string",
+                                  "description": "Invoice Number validated by this operation's strict request contract."
+                                },
+                                "currency": {
+                                  "type": "string",
+                                  "pattern": "^[A-Z]{3}$",
+                                  "description": "Currency validated by this operation's strict request contract."
+                                },
+                                "totalKobo": {
+                                  "type": "string",
+                                  "pattern": "^\\d+$",
+                                  "description": "Total Kobo validated by this operation's strict request contract."
+                                },
+                                "issuedAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "invoiceNumber",
+                                "currency",
+                                "totalKobo",
+                                "issuedAt"
+                              ],
+                              "description": "Invoice validated by this operation's strict request contract."
+                            },
+                            "collectionOrder": {
+                              "type": [
+                                "object",
+                                "null"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "orderNumber": {
+                                  "type": "string",
+                                  "description": "Order Number validated by this operation's strict request contract."
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "READY"
+                                  ],
+                                  "description": "Requested or filtered lifecycle state from the documented enum."
+                                },
+                                "fulfillmentMethod": {
+                                  "type": "string",
+                                  "enum": [
+                                    "COLLECTION"
+                                  ],
+                                  "description": "Fulfillment Method validated by this operation's strict request contract."
+                                },
+                                "createdAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "orderNumber",
+                                "status",
+                                "fulfillmentMethod",
+                                "createdAt"
+                              ],
+                              "description": "Collection Order validated by this operation's strict request contract."
+                            },
                             "vehicle": {
                               "type": [
                                 "object",

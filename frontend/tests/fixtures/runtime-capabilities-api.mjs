@@ -1,7 +1,22 @@
 // Loopback-only browser fixture. No database, credentials, delivery or provider calls.
 import http from "node:http";
+import { product, listing, id } from "./public-account-actions.ts";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+// Synthetic records are served only by this loopback test process.
+const modalImages = (kind) =>
+  [70, 71].map((n, index) => ({
+    id: id(n),
+    url: `/api/v1/public/${kind}/images/${id(n)}`,
+    altText: `Synthetic gallery image ${index + 1}`,
+    isPrimary: index === 0,
+  }));
+const modalProduct = { ...product, images: modalImages("catalog/products") };
+const modalListing = {
+  ...listing,
+  vehicle: { ...listing.vehicle, images: modalImages("vehicles") },
+};
 
 const group = {
   id: "37ec8bcf-7edc-4ec7-a185-ec849d71c5de",
@@ -115,6 +130,32 @@ export function createRuntimeCapabilityApi() {
           settings.productPurchasesEnabled,
         vehicleDeposits: { enabled: false },
       });
+      return;
+    }
+    if (url.pathname.startsWith("/api/v1/public/catalog/")) {
+      const route = url.pathname;
+      success(
+        route === `/api/v1/public/catalog/products/${product.id}`
+          ? modalProduct
+          : route === "/api/v1/public/catalog/products/discovery"
+            ? { items: [modalProduct], totalMatches: 1 }
+            : route === "/api/v1/public/catalog/products"
+              ? { items: [modalProduct] }
+              : { items: [] },
+      );
+      return;
+    }
+    if (url.pathname.startsWith("/api/v1/public/vehicles")) {
+      const route = url.pathname;
+      success(
+        route === `/api/v1/public/vehicles/${listing.id}`
+          ? modalListing
+          : route === "/api/v1/public/vehicles/discovery"
+            ? { items: [modalListing], totalMatches: 1 }
+            : route === "/api/v1/public/vehicles"
+              ? { items: [modalListing] }
+              : { items: [] },
+      );
       return;
     }
     if (url.pathname === "/api/v1/public/services/categories") {

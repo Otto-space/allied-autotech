@@ -64,6 +64,20 @@ its source/lint is updated, but that full dashboard test has not run locally.
 The component browser fixture evidence above does not substitute for that test.
 
 
+Integration checkpoint: reconciled current master 9fbf3732 (recorded-work capacity,
+responsive calendar/modals and customer overview) without replacing its repairs.
+Combined guidance advances booking-confirmation to v12 and service-request to v29;
+assigned-findings is v4. Initial combined guide checks exposed a 13-step article
+against the established 12-step client bound. Related calendar/attendance guidance
+is now grouped, preserving all conditions and the bound. All 38 focused guide/Allie
+unit checks pass after correction. The broader isolated run passed 77 of 81 cases
+before the guide fix; its four failures were the same step-bound defect, so it is
+not reported as a passing full run. Targeted authenticated learning HTTP checks are
+running on the same task-owned isolated target. Attendance/resource/inspection
+source from that run remains independently recorded. Required hosted gates and
+production migration/recovery acceptance still remain. No production publication.
+
+
 ---
 
 4 November release completed at 2026-11-04T00:01:50.690361+00:00 (UTC)
@@ -312,6 +326,176 @@ payment/booking/marketing/destructive-retention flags remain unchanged.
 
 Additional integrated source (separate from the published release above):
 
+
+Additional current-master source, preserved separately:
+
+4 November final regression follow-up: corrected tablet source 796d2044 passed
+all calendar/shared-modal geometry checks, both tablet filters, backend safety,
+production build and 223/224 browser cases. The About test raced the existing
+two-frame hash-target focus transition by focusing its summary immediately after
+URL change. Trace shows the keyboard event only 23ms after the anchor click.
+It now explicitly asserts destination focus before exercising Enter/Space; no
+application behavior or disclosure assertion was removed. Final rerun is pending.
+Task-owned inactive .next/dev output (626,484,716 bytes) was removed after confirming
+no running consumer or links; measured C: free space rose 21.355 to 21.939 GiB.
+Source, dependencies, production caches and all release/recovery resources remain.
+
+4 November expanded verification: source ae0f9262 passed backend safety and
+secrets, frontend production checks and 222/224 rendered cases. Both remaining
+failures reproduced off-centre Parts/Vehicle filter dialogs at 768px. Their older,
+more-specific drawer rules overrode shared inset/margin values; those modal-only
+rules now center the panels and retain safe vertical space. Desktop nonmodal
+filters, all public galleries, cart confirmation, Allie, practice, order guards,
+private document sharing and the seven-size calendar/invoice/notification/garage
+cases passed in that run. Final corrected-source verification remains required.
+
+4 November modal follow-up: initial source 5c938a05 passed hosted frontend
+production checks (1,486 units, 12 existing skips; 187/187 browser cases). Backend
+41747735572 passed native calendar/learning integration but found that the longer
+service-request passage exceeded the existing 8,000-character retrieval budget.
+Redundant wording was shortened; no safety limit was widened. All 24 focused
+learning/retrieval tests now pass for public, customer, worker, admin and owner.
+
+Review also found that open desktop catalogue filters are nonmodal dialog regions.
+Shared styling now uses :modal, preserving their sticky placement and page scroll.
+Regression coverage includes that distinction, public galleries and cart confirmation
+using the existing loopback-only synthetic API. Adjacent modal fixtures now provide
+valid explicit capability responses; production settings remain untouched.
+
+Local final calendar/document run passed 20/23; all three retained loading failures
+passed unchanged on the subsequent warm run. Equipment photo checks passed at four
+widths, both administrator account actions passed, and the garage short-screen and
+pending-save safeguards passed. All fourteen new garage/notification cases passed
+at the seven required sizes. The run was stopped when disk reserve failed at 12.06
+GiB; after stopping task processes, C: returned to 21.56 GiB. Cause of the transient
+drop is not established. Evidence is 30 MB and retained. Learning, order, gallery
+and remaining adjacent cases are now selected in remote production-build CI; do
+not count the interrupted local cases as passes. No local preview remains running.
+
+## 4 November 2026 — calendar and shared modal batch (verification in progress)
+
+Owner direction: improve the booking calendar with familiar calendar navigation;
+center modal dialogs at every size, use full safe-area width on phones, and retain
+usable, deliberately styled scrolling. This is a bounded UI batch on top of
+customer-attention PR #17 (master 1b4e5d15; all three exact-master gates pass).
+Production was independently advanced to frontend 27e41b75; this batch is not yet
+published. No launch capability, permission, business record or schema is changed.
+
+The baseline appointment calendar rendered off-centre at 320px. A separate
+seven-size invoice journey reproduced backward Tab leaving the sharing dialog.
+The calendar now offers Month/Schedule, Today, readable date counts and selected
+appointment details, with restrained Allied colours and a sticky close header.
+Recorded requests and proposals remain distinct from confirmed appointments;
+missing, offline, partial and failed requests are not presented as empty inventory
+or bookable availability. Schedule omits the repeated date block within each day.
+The service-request learning definition advances v27 to v28 without enabling it.
+
+Shared native-dialog geometry covers 18 owners: booking calendar, dashboard mobile
+navigation, notification preview, garage form, customer account action, mutation
+review, document share, order cancellation, product image preview, product and
+vehicle public galleries, equipment photo, cart update, product and vehicle
+filters, Quick help, Allie companion and practice replacement. The existing
+full-screen public navigation remains separate; nonmodal anchored category pickers
+remain anchored. All shared consumers need representative rendered regression
+checks; source coverage alone is not a pass for every workflow.
+
+Evidence: %TEMP%/allied-calendar-modal-20261104. Existing dedicated Playwright Edge,
+synthetic intercepted accounts/documents; phone contexts use mobile/touch emulation.
+The required sizes are 1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800,
+320x720. Earlier invoice 320px timed out during local navigation; its unchanged
+warm rerun passed. Final rerun and adjacent modal checks remain in progress.
+No production writes, live messages, private records or real document exports.
+Physical devices, mobile virtual keyboards, screen-reader acceptance and genuine
+200% zoom are not certified by these emulated checks.
+
+### 4 November 2026: D06/D07 recorded-work capacity follow-up
+
+Base is exact-master 8dd5e22e, retaining the newer shared UI, overview, financial and
+resource changes. That master passes all three required hosted checks. Its release
+remains held: the cached-build assumption failed and the 2 GiB allowance requires
+22 GiB free; last observed space is about 21.8 GiB. The owned build was stopped,
+old receipts archived without deletion, and production was not changed by this batch.
+
+The next regression audit covers actual early/late starts and overdue work whose
+legacy status still says Confirmed. Candidate resource/technician availability must
+respect recorded work and explicit completion/cleanup, preserve allocation history
+and leave independent work available. First local attempt stopped at the isolated
+target proof because a new task namespace was not supported; no fixtures ran and
+the owned tmpfs container was removed. The unchanged approved resource namespace
+is now being used. The corrected red run reproduces seven real regressions,
+with one existing late-start case passing and 25 unrelated cases skipped. The
+owned tmpfs target was removed. Log: %TEMP%/aat-recorded-work-red-approved.log.
+
+The source fix respects actual starts in technician and equipment occupancy and
+keeps recorded completion/cancellation cleanup and allocation history. Its green
+run was blocked before starting: C: abruptly fell to about 12.1 GiB. Docker VHDX
+remains 30.16 GiB; pagefile.sys is now 27.86 GiB and changed during the interval,
+making Windows paging a strong suspect without an earlier size snapshot. No
+system paging setting/file or other task was modified. Verification remains
+pending and will use the existing hosted exact-source safety workflow.
+
+Staff booking-confirmation guidance is v11; its gate/target are unchanged and the
+owner resource-plan guide remains draft. This is not completion of D06/D07: actual
+resource facts/owner configuration, running-job estimate/resource review and legacy
+operational assessment remain separate work. No financial activation, migration,
+real staff assignment or physical attendance is inferred.
+
+4 November integration checkpoint: c80b4080 passed all exact-source gates:
+Frontend 41741100952 (1,486 units, 12 existing skips; 150 browser cases), Backend
+41741100977 (including all five overview cases), Secrets 41741100951. Master then
+advanced to 8dd5e22e with reviewed resource-aware offers. Both content histories
+and implementations are retained; the combined service-request guide is v27,
+with its existing twelve steps and unchanged eligibility. Exact combined-source
+checks must pass again before merge/publication. No schema or launch flag changed.
+
+4 November CI follow-up: native run 41740199625 passed migration replay,
+db:check and preceding integration stages, then rejected the new closed-enquiry
+fixture because its required resolvedAt timestamp was missing. The fixture now
+records resolution before closure; database guards and all ownership/terminal
+state assertions remain unchanged. The new attention case is not accepted until
+its rerun passes. Frontend production checks pass; rendered CI is still running.
+
+## 4 November: customer attention summaries — local verification
+
+Current batch: owned customer attention at /dashboard. The source baseline had no
+open-enquiry or issued-invoice preview and selected only the newest order, which
+could hide an older collection-ready order. The focused baseline test passed its
+12 existing cases and failed on the missing Open enquiry heading.
+
+The additive API projects one own open/in-progress enquiry, one own issued invoice,
+and the oldest ready collection order independently of historical date filters.
+It also validates the recorded first name through the existing profile-name schema.
+No email-derived identity, message bodies, billing contact data or staff notes are
+returned. Old clients and servers remain compatible. No schema/migration, permissions,
+consent, payment or launch flags changed. Current/rollback releases remain retained.
+
+The UI places the genuine next steps above current care/history, avoids repeating
+the same collection order in Latest order, and links to existing owned records.
+Invoice totals are labelled totals, not balances; credits and confirmed payment
+remain on the invoice detail. Open enquiry does not assert who must reply.
+Missing data omits cards; refresh and account invalidation clear former summaries.
+Service-request v26 keeps its twelve existing steps, eligibility and targets.
+
+Checks so far: 25 frontend units, 17 learning units, frontend/backend types, static
+446-path OpenAPI validation, frontend ESLint and backend Oxlint/format pass. Final
+Edge and Chrome each pass seven exact viewport cases with mobile/touch contexts.
+The first cold Edge desktop attempt failed during a 37.7-second dev compilation
+with Router action dispatched before initialization; its trace is retained and the
+unchanged warm run passes. Local Next 16.3.8 is not locked Next 16.4.3 acceptance.
+Native new-record ownership/terminal-state tests and exact-source CI are pending.
+No production record, real customer submission or delivery was touched.
+
+Evidence: Temp/allied-attention-20261104/{edge,edge-final,chrome,focus-check}.
+Desktop and phone captures reviewed. All seven Edge focused-link header/dock
+overlap checks pass; full-page screenshots are retained. Physical devices, genuine 200% zoom, broader route/state
+and real role acceptance remain open. This batch is not whole-site completion.
+
+Previous default/photo batch is merged in PR #15 as 92f3f9fc after branch frontend
+41736291656, backend 41736282971/41736291647 and secret checks passed. Its native
+ownership/default/private-cover cases pass. Exact-master backend 41737877996 and
+secret 41737878157 and frontend 41737877997 pass for exact master.
+Neither renewed batch has been published by this task. Retain compatible release,
+recoverability, both-domain and exact-source gates.
 4 November final D06 source checkpoint: master 92f3f9fc's customer-overview,
 private booked/default/recent vehicle selection and acceptance changes are retained
 in bc911880. Independent service-request v25 edits are combined as v26, reviewed

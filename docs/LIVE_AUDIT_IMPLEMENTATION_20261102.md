@@ -64,6 +64,20 @@ its source/lint is updated, but that full dashboard test has not run locally.
 The component browser fixture evidence above does not substitute for that test.
 
 
+Integration checkpoint: reconciled current master 9fbf3732 (recorded-work capacity,
+responsive calendar/modals and customer overview) without replacing its repairs.
+Combined guidance advances booking-confirmation to v12 and service-request to v29;
+assigned-findings is v4. Initial combined guide checks exposed a 13-step article
+against the established 12-step client bound. Related calendar/attendance guidance
+is now grouped, preserving all conditions and the bound. All 38 focused guide/Allie
+unit checks pass after correction. The broader isolated run passed 77 of 81 cases
+before the guide fix; its four failures were the same step-bound defect, so it is
+not reported as a passing full run. Targeted authenticated learning HTTP checks are
+running on the same task-owned isolated target. Attendance/resource/inspection
+source from that run remains independently recorded. Required hosted gates and
+production migration/recovery acceptance still remain. No production publication.
+
+
 ---
 
 4 November release completed at 2026-11-04T00:01:50.690361+00:00 (UTC)

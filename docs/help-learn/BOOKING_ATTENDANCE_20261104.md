@@ -1,7 +1,7 @@
 # Arrival and attendance checkpoint — 4 November 2026
 
 Source implementation; publication and real-role acceptance remain pending.
-Booking-confirmation v11, assigned-findings v4 and public service-request v27
+Booking-confirmation v12, assigned-findings v4 and public service-request v29
 explain factual arrival/wait/left history, staff-verified absence, no automatic
 penalty, existing responsibility limits and uncertain-response recovery.
 Existing eligibility gates are retained: booking confirmation, assigned job
@@ -23,3 +23,5 @@ therefore not operationally compatible with that transition after migration,
 even if schema-only startup probes pass. Publication requires a reviewed writer
 transition and compatible recovery API; no production migration was applied by
 this attendance batch. Retain current production and recovery resources.
+
+Integration preserves master recorded-work guidance and the current customer and staff calendar instructions. The combined article versions advance rather than overwriting the independently prepared versions.

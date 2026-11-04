@@ -169,6 +169,13 @@ test("download is version-bound and sharing uses a private staff link", async ({
     new RegExp(`/admin/invoices/${id(190000)}$`),
   );
   await expect(page.getByRole("dialog")).toContainText("does not grant access");
+  await button(page, "Close sharing").focus();
+  await page.keyboard.press("Shift+Tab");
+  expect(
+    await page.getByRole("dialog").evaluate((e) => e.contains(document.activeElement)),
+  ).toBe(true);
+  await page.keyboard.press("Tab");
+  await expect(button(page, "Close sharing")).toBeFocused();
   await button(page, "Close sharing").click();
   await expect(button(page, "Share invoice")).toBeFocused();
   expect(f.writes).toHaveLength(0);

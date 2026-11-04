@@ -1,3 +1,8 @@
+4 November recorded-work capacity checkpoint: booking-confirmation v11 explains
+actual-start protection for older Confirmed records. Gate and semantic target stay
+unchanged; owner resource-plan v1 remains draft. Native regression verification is
+pending for this follow-up; no new guide publication or permission is granted.
+
 3 November integrated resource editor checkpoint: booking-confirmation v10 now
 points authorised owners to the real Workshop resources authoring/review/recovery
 flow while preserving separate booking duties. New workshop-resource-plan v1 stays
@@ -274,7 +279,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | ----------------------- | -------------------- | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | privacy-and-allie       | public               | 1 / 2026-11-01   | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff                                         |
 | financial-aftercare     | financial-aftercare  | 5 / 2026-11-03   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
-| booking-confirmation    | booking-confirmation | 10 / 2026-11-03   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
+| booking-confirmation    | booking-confirmation | 11 / 2026-11-04   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
 | workshop-resource-plan | owner | 1 / 2026-11-03, draft | /admin/booking-resources | Owner-only lookup, current record, versioned approval and uncertain-result recovery; not published |
 | refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
 | dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
@@ -282,7 +287,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | financial-policy-work   | financial-policy     | 5 / 2026-11-03   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
 | parts-fitment           | public               | 14 / 2026-11-03  | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
-| service-request         | public               | 26 / 2026-11-04  | /services                    | Public launch mode and Services page                                                                                                        |
+| service-request         | public               | 28 / 2026-11-04  | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
 | no-live-lookup          | public               | 2 / 2026-10-26   | /help                        | Launch restrictions and existing status contracts                                                                                           |
 | own-conversation        | customer             | 4 / 2026-10-27   | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |
@@ -488,3 +493,5 @@ D06 resource-aware offer checkpoint (4 November): service-request v26 explains f
 3 November renewed overview: service-request v25 explains booked/default/recent vehicle priority, private cover photos and unchanged bookings. Eligibility, semantic targets, practice permissions and production flags are unchanged. Added response fields are optional for older clients/servers; publication remains gated.
 
 Combined service-request v26 retains both the v25 overview vehicle-selection clarification and the resource-aware offer guidance; gates, targets and practice permissions are unchanged.
+
+4 November calendar presentation: service-request v28 adds Month/Schedule navigation and Today in Lagos time, preserving own-record access and the rule that the calendar never offers or reserves new times. Eligibility, practice permissions, guide destinations and live flags are unchanged. The styling/focus changes do not grant new modal actions.
