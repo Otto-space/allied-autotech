@@ -1,3 +1,14 @@
+4 November final regression follow-up: corrected tablet source 796d2044 passed
+all calendar/shared-modal geometry checks, both tablet filters, backend safety,
+production build and 223/224 browser cases. The About test raced the existing
+two-frame hash-target focus transition by focusing its summary immediately after
+URL change. Trace shows the keyboard event only 23ms after the anchor click.
+It now explicitly asserts destination focus before exercising Enter/Space; no
+application behavior or disclosure assertion was removed. Final rerun is pending.
+Task-owned inactive .next/dev output (626,484,716 bytes) was removed after confirming
+no running consumer or links; measured C: free space rose 21.355 to 21.939 GiB.
+Source, dependencies, production caches and all release/recovery resources remain.
+
 4 November expanded verification: source ae0f9262 passed backend safety and
 secrets, frontend production checks and 222/224 rendered cases. Both remaining
 failures reproduced off-centre Parts/Vehicle filter dialogs at 768px. Their older,
