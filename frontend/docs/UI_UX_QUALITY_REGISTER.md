@@ -1,3 +1,93 @@
+4 November exact-master gate: 9fbf3732 passed backend safety, secrets,
+production checks and 223/224 browser cases. All modal, tablet-filter and About
+checks passed. A customer-reschedule case correctly failed closed because its
+capability request followed the production build's api.example.com placeholder
+rewrite (three HTTP 500/DNS failures in the trace), while only the server-side
+fixture had been pointed at loopback. The shared booking test setup now routes
+browser capability reads to that same explicit loopback API; all eight callers
+use it. Production capability guards and assertions are unchanged. Publication is
+held for the corrected exact-master checks. Images built for 9fbf3732 are retained
+as unpublished candidate evidence, not described as a production release.
+
+4 November final regression follow-up: corrected tablet source 796d2044 passed
+all calendar/shared-modal geometry checks, both tablet filters, backend safety,
+production build and 223/224 browser cases. The About test raced the existing
+two-frame hash-target focus transition by focusing its summary immediately after
+URL change. Trace shows the keyboard event only 23ms after the anchor click.
+It now explicitly asserts destination focus before exercising Enter/Space; no
+application behavior or disclosure assertion was removed. Final rerun is pending.
+Task-owned inactive .next/dev output (626,484,716 bytes) was removed after confirming
+no running consumer or links; measured C: free space rose 21.355 to 21.939 GiB.
+Source, dependencies, production caches and all release/recovery resources remain.
+
+4 November expanded verification: source ae0f9262 passed backend safety and
+secrets, frontend production checks and 222/224 rendered cases. Both remaining
+failures reproduced off-centre Parts/Vehicle filter dialogs at 768px. Their older,
+more-specific drawer rules overrode shared inset/margin values; those modal-only
+rules now center the panels and retain safe vertical space. Desktop nonmodal
+filters, all public galleries, cart confirmation, Allie, practice, order guards,
+private document sharing and the seven-size calendar/invoice/notification/garage
+cases passed in that run. Final corrected-source verification remains required.
+
+4 November modal follow-up: initial source 5c938a05 passed hosted frontend
+production checks (1,486 units, 12 existing skips; 187/187 browser cases). Backend
+41747735572 passed native calendar/learning integration but found that the longer
+service-request passage exceeded the existing 8,000-character retrieval budget.
+Redundant wording was shortened; no safety limit was widened. All 24 focused
+learning/retrieval tests now pass for public, customer, worker, admin and owner.
+
+Review also found that open desktop catalogue filters are nonmodal dialog regions.
+Shared styling now uses :modal, preserving their sticky placement and page scroll.
+Regression coverage includes that distinction, public galleries and cart confirmation
+using the existing loopback-only synthetic API. Adjacent modal fixtures now provide
+valid explicit capability responses; production settings remain untouched.
+
+Local final calendar/document run passed 20/23; all three retained loading failures
+passed unchanged on the subsequent warm run. Equipment photo checks passed at four
+widths, both administrator account actions passed, and the garage short-screen and
+pending-save safeguards passed. All fourteen new garage/notification cases passed
+at the seven required sizes. The run was stopped when disk reserve failed at 12.06
+GiB; after stopping task processes, C: returned to 21.56 GiB. Cause of the transient
+drop is not established. Evidence is 30 MB and retained. Learning, order, gallery
+and remaining adjacent cases are now selected in remote production-build CI; do
+not count the interrupted local cases as passes. No local preview remains running.
+
+## 4 November 2026 — calendar and shared modal batch (verification in progress)
+
+Owner direction: improve the booking calendar with familiar calendar navigation;
+center modal dialogs at every size, use full safe-area width on phones, and retain
+usable, deliberately styled scrolling. This is a bounded UI batch on top of
+customer-attention PR #17 (master 1b4e5d15; all three exact-master gates pass).
+Production was independently advanced to frontend 27e41b75; this batch is not yet
+published. No launch capability, permission, business record or schema is changed.
+
+The baseline appointment calendar rendered off-centre at 320px. A separate
+seven-size invoice journey reproduced backward Tab leaving the sharing dialog.
+The calendar now offers Month/Schedule, Today, readable date counts and selected
+appointment details, with restrained Allied colours and a sticky close header.
+Recorded requests and proposals remain distinct from confirmed appointments;
+missing, offline, partial and failed requests are not presented as empty inventory
+or bookable availability. Schedule omits the repeated date block within each day.
+The service-request learning definition advances v27 to v28 without enabling it.
+
+Shared native-dialog geometry covers 18 owners: booking calendar, dashboard mobile
+navigation, notification preview, garage form, customer account action, mutation
+review, document share, order cancellation, product image preview, product and
+vehicle public galleries, equipment photo, cart update, product and vehicle
+filters, Quick help, Allie companion and practice replacement. The existing
+full-screen public navigation remains separate; nonmodal anchored category pickers
+remain anchored. All shared consumers need representative rendered regression
+checks; source coverage alone is not a pass for every workflow.
+
+Evidence: %TEMP%/allied-calendar-modal-20261104. Existing dedicated Playwright Edge,
+synthetic intercepted accounts/documents; phone contexts use mobile/touch emulation.
+The required sizes are 1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800,
+320x720. Earlier invoice 320px timed out during local navigation; its unchanged
+warm rerun passed. Final rerun and adjacent modal checks remain in progress.
+No production writes, live messages, private records or real document exports.
+Physical devices, mobile virtual keyboards, screen-reader acceptance and genuine
+200% zoom are not certified by these emulated checks.
+
 ### 4 November 2026: D06/D07 recorded-work capacity follow-up
 
 Base is exact-master 8dd5e22e, retaining the newer shared UI, overview, financial and

@@ -1,4 +1,5 @@
 "use client";
+import { containDialogFocus } from "@/lib/dialog-focus";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Bell, X } from "lucide-react";
@@ -105,6 +106,7 @@ export function NotificationPreview({
         <NotificationBadge count={count} />
       </button>
       <dialog
+        onKeyDown={containDialogFocus}
         ref={dialog}
         className="notification-preview-dialog"
         aria-labelledby="notification-preview-title"

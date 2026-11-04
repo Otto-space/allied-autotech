@@ -1,4 +1,5 @@
 "use client";
+import { containDialogFocus } from "@/lib/dialog-focus";
 import { useEffect, useId, useRef, useState } from "react";
 import { Download, Share2, X } from "lucide-react";
 import { ApiError, SESSION_CHANGED } from "@/lib/api/client";
@@ -246,6 +247,7 @@ function DocumentShare({
   }
   return (
     <dialog
+      onKeyDown={containDialogFocus}
       ref={modal}
       className="support-dialog document-share"
       aria-labelledby={`${id}-title`}

@@ -1,124 +1,383 @@
 .dialog {
-  width: min(620px, calc(100vw - 20px));
-  max-height: calc(100dvh - 32px);
+  width: min(1080px, calc(100vw - 32px));
   padding: 0;
   border: 1px solid var(--line);
-  border-radius: var(--radius-control);
+  border-radius: 18px;
   color: var(--ink);
-  background: white;
+  background: #fff;
+  box-shadow: 0 24px 80px rgb(1 18 26 / 24%);
+  overflow-y: auto;
 }
 .dialog::backdrop {
-  background: rgb(0 0 0 / 0.55);
+  background: rgb(1 18 26 / 58%);
 }
 .content {
-  padding: 20px;
+  padding: 24px;
 }
 .content header,
-.content nav {
+.content nav,
+.toolbar,
+.views,
+.entryHeading {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 .content header {
   justify-content: space-between;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: -24px -24px 0;
+  padding: 20px 24px;
+  background: #fff;
 }
 .content header h2 {
-  font-size: 22px;
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.3;
+}
+.content header > button {
+  flex: 0 0 44px;
+  border: 0;
+  background: #f1f4f6;
+}
+.explanation {
+  margin: 8px 0 20px;
+  color: #52616b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.toolbar {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  border-block: 1px solid var(--line);
+  padding-block: 12px;
 }
 .content nav {
-  flex-wrap: wrap;
+  flex: 1 1 320px;
 }
 .content nav h3 {
+  margin: 0;
+  min-width: 0;
   flex: 1;
   text-align: center;
   font-size: 18px;
+  line-height: 1.3;
 }
 .content button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   min-height: 44px;
   min-width: 44px;
+  padding: 8px 12px;
   border: 1px solid var(--line);
   background: white;
   color: var(--ink);
-  border-radius: var(--radius-control);
+  border-radius: 8px;
   cursor: pointer;
+  font: inherit;
+  font-weight: 600;
 }
-.content button:focus-visible {
-  outline: 3px solid var(--brand-red);
+.content nav button:has(svg) {
+  padding: 10px;
+  flex: 0 0 44px;
+  border-color: transparent;
+}
+.content nav svg {
+  width: 20px;
+  height: 20px;
+}
+.content button:hover {
+  background: #eef2f5;
+}
+.content button:focus-visible,
+.content a:focus-visible {
+  outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 .content button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+.views {
+  gap: 3px;
+  padding: 3px;
+  background: #eef2f5;
+  border-radius: 10px;
+}
+.views button {
+  border: 0;
+  background: transparent;
+}
+.views button[aria-pressed="true"] {
+  background: white;
+  color: var(--brand-red-dark);
+  box-shadow: 0 1px 4px #01121a20;
+}
+.monthSummary {
+  font-size: 12px;
+  color: #52616b;
+  margin: 14px 0;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.monthPanel,
+.agenda {
+  min-width: 0;
+}
 .month {
   width: 100%;
   table-layout: fixed;
   border-collapse: separate;
-  border-spacing: 3px;
-  margin-block: 16px;
-}
-.month th {
-  font-size: 12px;
-  padding: 8px 0;
-  text-align: center;
-  width: calc(100% / 7);
-  border: 0;
-}
-.month td {
-  padding: 0;
-  text-align: center;
-  min-width: 0;
-  border: 0;
-}
-.month button {
-  width: 100%;
-  min-width: 0;
-  min-height: 48px;
-  font: inherit;
-  position: relative;
-}
-.month button[aria-pressed="true"] {
-  color: white;
-  background: var(--brand-red);
-  border-color: var(--brand-red);
-}
-.month button[aria-current="date"] {
-  border: 2px solid var(--ink);
-}
-.month small {
-  display: block;
-  font-size: 12px;
-  color: inherit;
-}
-.content article {
-  padding-block: 16px;
-  border-top: 1px solid var(--line);
-}
-.content article h4 {
+  border-spacing: 0;
   margin: 0;
 }
-.content article a {
+.month th {
+  width: calc(100% / 7);
+  border: 0;
+  background: transparent;
+  color: #52616b;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px 0;
+  text-align: center;
+}
+.month td {
+  border-bottom: 1px solid #edf1f4;
+  vertical-align: top;
+  padding: 2px;
+  text-align: center;
+  min-width: 0;
+  border-inline-end: 1px solid #edf1f4;
+}
+.month button {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+  min-height: 84px;
+  padding: 6px 2px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  position: relative;
+  font-size: 14px;
+  font-weight: 500;
+}
+.dayNumber {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+}
+.month button[aria-current="date"] .dayNumber {
+  background: var(--brand-red);
+  color: white;
+  font-weight: 700;
+}
+.month button[aria-pressed="true"] {
+  background: #fff0f1;
+  border-color: var(--brand-red-dark);
+}
+.month button[aria-pressed="true"] .dayNumber {
+  font-weight: 800;
+}
+.dayCount {
+  display: block;
+  min-width: 18px;
+  padding: 1px 5px;
+  color: #344954;
+  background: #e7edf1;
+  border-radius: 5px;
+  font-size: 11px;
+  line-height: 16px;
+}
+.dayPreview {
+  max-width: 100%;
+  padding-inline: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #52616b;
+  font-size: 11px;
+  line-height: 16px;
+  background: #edf3f6;
+  border-inline-start: 2px solid var(--brand-red-dark);
+  border-radius: 3px;
+}
+.legend {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #52616b;
+  margin: 16px 0 0;
+}
+.agenda {
+  border-left: 1px solid var(--line);
+  padding-left: 24px;
+}
+.agenda h3 {
+  margin: 0 0 16px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.agenda > section > p {
+  color: #52616b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.entry {
+  border: 1px solid var(--line);
+  border-left: 3px solid #a95d09;
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+  background: white;
+}
+.entry[data-status="CONFIRMED"],
+.entry[data-status="IN_PROGRESS"] {
+  border-left-color: #147044;
+}
+.entry[data-status="CANCELLED"],
+.entry[data-status="COMPLETED"] {
+  border-left-color: #71808b;
+}
+.entry[data-status="PROPOSED"] {
+  border-left-color: #385e80;
+}
+.entryHeading {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+.eventTime {
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  font-weight: 700;
+}
+.status {
+  background: #eef2f5;
+  color: #344954;
+  border-radius: 5px;
+  padding: 3px 6px;
+  font-weight: 700;
+}
+.entry h4 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.entry p {
+  margin: 6px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #52616b;
+}
+.entry a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  font-size: 14px;
   font-weight: 700;
+  text-underline-offset: 3px;
 }
-@media (max-width: 400px) {
-  .content {
-    padding: 12px;
+.scheduleLayout .agenda {
+  border: 0;
+  padding: 0;
+}
+.scheduleDay {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.5fr) minmax(0, 1fr);
+  gap: 24px;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+.scheduleDay > h4 {
+  margin: 12px 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
   }
-  .content header h2 {
-    font-size: 20px;
+  .agenda {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 20px 0 0;
+  }
+  .dayPreview {
+    display: none;
+  }
+  .month button {
+    min-height: 52px;
+    padding-block: 4px;
+  }
+  .dayNumber {
+    width: 26px;
+    height: 26px;
+  }
+  .dayCount {
+    font-size: 10px;
+    line-height: 12px;
+    padding-block: 1px;
   }
   .content nav {
-    gap: 6px;
+    flex-basis: 100%;
   }
-  .month {
-    border-spacing: 2px;
+  .views {
+    width: 100%;
+  }
+  .views button {
+    flex: 1;
+  }
+}
+@media (max-width: 600px) {
+  .content {
+    padding: 16px;
+  }
+  .content header {
+    margin: -16px -16px 0;
+    padding: 16px;
+  }
+  .content header h2 {
+    font-size: 21px;
+  }
+  .content nav {
+    gap: 4px;
+  }
+  .content nav h3 {
+    font-size: 16px;
+  }
+  .content nav > button:last-child {
+    padding-inline: 8px;
+  }
+  .month td {
+    padding: 1px;
+  }
+  .month button {
+    border-radius: 7px;
+  }
+  .scheduleDay {
+    display: block;
   }
 }
 @media (forced-colors: active) {
-  .month button[aria-pressed="true"] {
+  .month button[aria-pressed="true"],
+  .views button[aria-pressed="true"] {
     outline: 2px solid Highlight;
+  }
+  .month button[aria-current="date"] .dayNumber {
+    outline: 1px solid CanvasText;
   }
 }

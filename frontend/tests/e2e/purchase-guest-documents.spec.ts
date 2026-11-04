@@ -105,6 +105,11 @@ for (const width of [320, 768, 1366]) {
       new RegExp(`/purchase/invoices/${f.paper.id}$`),
     );
     await expect(dialog).toContainText("does not grant access");
+    await dialog.getByRole("button", { name: "Close sharing" }).focus();
+    await page.keyboard.press("Shift+Tab");
+    expect(await dialog.evaluate((e) => e.contains(document.activeElement))).toBe(true);
+    await page.keyboard.press("Tab");
+    await expect(dialog.getByRole("button", { name: "Close sharing" })).toBeFocused();
     expect(
       (await new AxeBuilder({ page }).include(".document-share").analyze()).violations,
     ).toEqual([]);

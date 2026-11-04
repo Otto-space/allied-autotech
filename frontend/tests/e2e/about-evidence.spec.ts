@@ -28,10 +28,12 @@ for (const width of [360, 390, 768, 1440]) {
       .click();
     await expect(page).toHaveURL(/#principles$/);
     const principles = page.locator("#principles");
+    // Hash navigation deliberately focuses its destination on the next frames.
+    // Let that transition finish before moving to the disclosure.
+    await expect(principles).toBeFocused();
     await expect(principles.locator(".principles-list > li:visible")).toHaveCount(4);
     const more = principles.locator("summary");
-    await more.focus();
-    await page.keyboard.press("Enter");
+    await more.press("Enter");
     await expect(principles.locator(".principles-list > li:visible")).toHaveCount(11);
     for (const [title, copy] of operatingPrinciples) {
       await expect(
@@ -48,6 +50,7 @@ for (const width of [360, 390, 768, 1440]) {
       .getByRole("link", { name: "Workshop equipment" })
       .click();
     await expect(page).toHaveURL(/#equipment$/);
+    await expect(page.locator("#equipment")).toBeFocused();
     const trigger = page.getByRole("link", {
       name: "View photo of 3D alignment machine",
       exact: true,

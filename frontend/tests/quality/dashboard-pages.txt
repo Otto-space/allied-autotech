@@ -205,3 +205,9 @@ customer-overview-attention.spec.ts > customer attention 430x932 > owned next st
 customer-overview-attention.spec.ts > customer attention 390x844 > owned next steps, settled refresh and account change remain distinct from history
 customer-overview-attention.spec.ts > customer attention 360x800 > owned next steps, settled refresh and account change remain distinct from history
 customer-overview-attention.spec.ts > customer attention 320x720 > owned next steps, settled refresh and account change remain distinct from history
+
+# Centered, full-width phone calendar, document, form and preview modal regression matrix.
+booking-calendar.spec.ts
+invoice-modal-responsive.spec.ts
+modal-layout.spec.ts
+catalogue-modal-layout.spec.ts

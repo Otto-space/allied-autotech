@@ -1,5 +1,6 @@
-﻿import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 
 const article = {
   id: "parts-fitment",
@@ -109,6 +110,14 @@ async function fixture(page: Page) {
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname;
     if (route.request().method() !== "GET") throw new Error("Unexpected API write");
+    if (endpoint === "/api/v1/public/capabilities")
+      return route.fulfill({
+        json: {
+          success: true,
+          data: publicCapabilitiesFixture(),
+          meta: { requestId: "learning-fixture" },
+        },
+      });
     if (endpoint.endsWith("/auth/session"))
       return route.fulfill({
         status: 401,

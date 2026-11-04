@@ -4,8 +4,8 @@ import { resourceEditorFixture } from "../fixtures/workshop-resource-editor";
 import { resourceId as id, resourceRow } from "../fixtures/workshop-resources";
 import { verifyConsole } from "../fixtures/preview-console";
 import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
-test.beforeEach(async ({ request }) => {
-  await bookingRuntimeCapabilities(request);
+test.beforeEach(async ({ request, page }) => {
+  await bookingRuntimeCapabilities(request, page);
 });
 const root = `/admin/booking-resources?branch=${id(1)}`;
 async function approval(page: Page) {
