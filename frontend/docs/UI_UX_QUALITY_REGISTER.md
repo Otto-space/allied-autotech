@@ -1,3 +1,54 @@
+### 4 November 2026: D07 assessed remaining-work review — integrated candidate
+
+Integrated source retains master 804eb4fc's Month/Schedule calendar, responsive
+modal geometry, nonmodal filters, focus containment and complete browser coverage.
+Those application files are unchanged by this batch. Combined service-request v29
+preserves calendar guidance and adds the remaining-work clarification; restricted
+booking-confirmation is v12. Eligibility, semantic guide targets and live flags
+are unchanged; the owner resource-plan guide remains draft.
+
+The privileged, branch-scoped Review remaining work journey records the actual
+remaining minutes, cleanup, selected approved physical units and an internal reason.
+It requires an actual recorded start, current qualified technician and service,
+current policy, independent BOOKING_CONFIRM and scoped BOOKING_READ for managed
+access. All minimum requirements and any additional units must fit the full
+technician/resource/calendar/capacity window. Conflicts do not displace appointments.
+The original visit, schedule version, actual start, status, money and historical
+estimates/allocations remain unchanged. Legacy unknown original timing stays unknown.
+An overdue unfinished review continues to block overlapping work until assessed or
+explicitly completed. Completion/cancellation uses the reviewed cleanup allowance.
+
+Customers receive only a dated remaining-work estimate, explicitly separate from
+collection readiness. Private reasons, unit/actor IDs and allocation history are
+not exposed. Recorded-start bookings no longer offer customer rescheduling,
+disruption replacement or stale workshop alternatives even with legacy Confirmed
+status. Uncertain writes retain only an owner-bound local recovery reference;
+refresh and current saved-receipt inspection are required before clearing it.
+
+Local evidence: native pass 118/118 across seven files, all 98 forward migrations
+replayed and db:check succeeded on a newly owned tmpfs _test database using a
+restricted CRUD runtime role. The owned container was removed; no application DB
+was contacted. A rerun verifies the later integration and sequential option reads.
+Frontend typecheck and 21 focused units passed after correcting the new component
+test's DOM environment. Earlier native fixture failures and cross-case limiter
+interference were corrected without changing permissions or production limits;
+a within-journey limiter test proves the existing limit remains enforced.
+
+Rendered acceptance is pending: the candidate adds 12 production-build browser
+cases covering 320/768/1440px staff/admin reviews, lost/malformed receipts, revoked
+grants/changed plans, draft preservation and the customer estimate/started-work
+boundary. Browser plugin not available; use the existing isolated Playwright
+workflow. No synthetic result establishes real-role or physical workshop acceptance.
+
+Migration 20261104010000_booking_work_reviews is additive and not applied to a
+shared target. Production publication remains gated by exact combined-source CI,
+matching image build evidence, fresh target backup and separate populated restore,
+managed backup/PITR and privilege proof, compatible backend readiness and held
+frontend verification. C: last passed the 1.5 GiB check at 21.61 GiB; four-image
+builds still require the justified 2 GiB allowance. Production is unchanged by
+this candidate. D01-D17 remains active; actual branch/resource facts, real role
+acceptance and the separate finance/provider decisions are not fabricated.
+
 4 November exact-master gate: 9fbf3732 passed backend safety, secrets,
 production checks and 223/224 browser cases. All modal, tablet-filter and About
 checks passed. A customer-reschedule case correctly failed closed because its

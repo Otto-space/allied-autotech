@@ -98,6 +98,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
       : undefined;
   const disruption =
     current?.status === "CONFIRMED" &&
+    !current.startedAt &&
     !!current.disruptionRequestedAt &&
     current.disruptionResolution === "PENDING";
   const hasDeposit = !!current?.depositPayment && !!current.depositPaidAt;
@@ -106,6 +107,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
   );
   const canReschedule =
     !pendingReschedule &&
+    !current?.startedAt &&
     current?.status === "CONFIRMED" &&
     !!current.branch &&
     !!verifiedPolicy &&
@@ -311,6 +313,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
           <section className="booking-changes" aria-labelledby="booking-changes-title">
             <h2 id="booking-changes-title">Appointment changes</h2>
             {current.alternativeStartsAt &&
+              !current.startedAt &&
               ["REQUESTED", "CONFIRMED"].includes(current.status) && (
                 <section
                   className="booking-detail-notice"
