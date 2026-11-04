@@ -1,7 +1,8 @@
 ### 4 November 2026: D06/D07 recorded-work capacity follow-up
 
 Base is exact-master 8dd5e22e, retaining the newer shared UI, overview, financial and
-resource changes. That master passes all three required hosted checks. Its release
+resource changes. The follow-up also merges master 1b4e5d15 customer-attention and
+collection-readiness changes without modifying their application or API files. That master passes all three required hosted checks. Its release
 remains held: the cached-build assumption failed and the 2 GiB allowance requires
 22 GiB free; last observed space is about 21.8 GiB. The owned build was stopped,
 old receipts archived without deletion, and production was not changed by this batch.
@@ -21,8 +22,16 @@ keeps recorded completion/cancellation cleanup and allocation history. Its green
 run was blocked before starting: C: abruptly fell to about 12.1 GiB. Docker VHDX
 remains 30.16 GiB; pagefile.sys is now 27.86 GiB and changed during the interval,
 making Windows paging a strong suspect without an earlier size snapshot. No
-system paging setting/file or other task was modified. Verification remains
-pending and will use the existing hosted exact-source safety workflow.
+system paging setting/file or other task was modified. Paging later shrank from
+27.86 to 18.35 GiB as host free space recovered by about 9.4 GiB. The 22 GiB
+image-build allowance still does not pass at about 21.5 GiB free.
+
+Hosted source e0d9ad33 passes all 33 resource-lifecycle, 10 slot-timing and nine
+booking-timing cases inside the restricted-runtime acceptance stage. Its later
+learning stage finds one stale Allie guide-version assertion (10 instead of 11),
+now corrected without dropping role/target/behavior checks. All 24 focused Allie,
+resource-guide and reschedule-guide units pass locally with a 512 MiB Node heap
+cap and passing disk preflight. Final complete exact-source checks remain pending.
 
 Staff booking-confirmation guidance is v11; its gate/target are unchanged and the
 owner resource-plan guide remains draft. This is not completion of D06/D07: actual
