@@ -4,8 +4,8 @@ import { workServicesFixture, bookingId } from "../fixtures/work-services";
 import { verifyConsole } from "../fixtures/preview-console";
 import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
 
-test.beforeEach(async ({ request }) => {
-  await bookingRuntimeCapabilities(request);
+test.beforeEach(async ({ request, page }) => {
+  await bookingRuntimeCapabilities(request, page);
 });
 
 for (const width of [320, 768, 1440])
