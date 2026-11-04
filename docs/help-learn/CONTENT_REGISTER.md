@@ -1,3 +1,9 @@
+4 November D07 operational review source checkpoint: booking-confirmation v12 and
+service-request v28 explain remaining-work estimates, actual approved physical-unit
+choices and uncertain-result inspection. Eligibility and existing guide targets
+stay unchanged; owner resource-plan v1 remains draft. Guide/practice flags are not
+activated. Native and rendered verification of this new workflow remains pending.
+
 4 November recorded-work capacity checkpoint: booking-confirmation v11 explains
 actual-start protection for older Confirmed records. Gate and semantic target stay
 unchanged; owner resource-plan v1 remains draft. Native regression verification is
@@ -279,7 +285,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | ----------------------- | -------------------- | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | privacy-and-allie       | public               | 1 / 2026-11-01   | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff                                         |
 | financial-aftercare     | financial-aftercare  | 5 / 2026-11-03   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
-| booking-confirmation    | booking-confirmation | 11 / 2026-11-04   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
+| booking-confirmation    | booking-confirmation | 12 / 2026-11-04   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
 | workshop-resource-plan | owner | 1 / 2026-11-03, draft | /admin/booking-resources | Owner-only lookup, current record, versioned approval and uncertain-result recovery; not published |
 | refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
 | dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
@@ -287,7 +293,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | financial-policy-work   | financial-policy     | 5 / 2026-11-03   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
 | parts-fitment           | public               | 14 / 2026-11-03  | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
-| service-request         | public               | 27 / 2026-11-04  | /services                    | Public launch mode and Services page                                                                                                        |
+| service-request         | public               | 28 / 2026-11-04  | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
 | no-live-lookup          | public               | 2 / 2026-10-26   | /help                        | Launch restrictions and existing status contracts                                                                                           |
 | own-conversation        | customer             | 4 / 2026-10-27   | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |

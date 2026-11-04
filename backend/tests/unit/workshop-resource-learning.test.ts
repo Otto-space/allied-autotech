@@ -42,7 +42,7 @@ it("keeps resource-authoring instructions server-side, owner-only and draft pend
 it("versions appointment guidance without granting resource approval to ordinary bookers", () => {
   const article = learningArticles.find((a) => a.id === "booking-confirmation")!;
   expect(article).toMatchObject({
-    version: 11,
+    version: 12,
     gate: "booking-confirmation",
     href: "/admin/workforce/bookings",
   });
@@ -59,4 +59,22 @@ it("keeps recorded-work guidance restricted without claiming estimate expiry rel
   expect(a.steps.join(" ")).toContain("older booking still says Confirmed");
   expect(a.steps.join(" ")).toContain("record the actual outcome");
   expect(a.gate).toBe("booking-confirmation");
+});
+
+it("grounds running-work reviews in explicit scope, physical units and truthful estimates", () => {
+  const a = learningArticles.find((a) => a.id === "booking-confirmation")!;
+  expect(a.gate).toBe("booking-confirmation");
+  for (const text of [
+    "Review remaining work",
+    "booking-reading responsibility",
+    "additional units genuinely needed",
+    "never displaced",
+    "physical-unit names",
+    "financial records remain unchanged",
+  ])
+    expect(a.steps.join(" ")).toContain(text);
+  const customer = learningArticles.find((a) => a.id === "service-request")!;
+  expect(customer.steps.join(" ")).toContain(
+    "remaining-work estimate with its review time",
+  );
 });

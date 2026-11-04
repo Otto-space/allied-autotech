@@ -1,3 +1,8 @@
+import {
+  bookingWorkReviewBodySchema,
+  bookingWorkReviewOptionsResponseSchema,
+  bookingWorkReviewReceiptSchema,
+} from "./service-operations.schemas.js";
 import { bookingTimingOverrideBodySchema } from "./service-operations.schemas.js";
 import {
   bookingRescheduleDecisionBodySchema,
@@ -235,6 +240,26 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       body: bookingRescheduleWithdrawBodySchema,
       secured: true,
       csrf: true,
+    },
+    {
+      method: "get",
+      path: "/staff/bookings/{bookingId}/work-review",
+      summary: "Read current permitted equipment choices and latest work review",
+      params: bookingParamsSchema,
+      secured: true,
+      response: responseSchema.extend({ data: bookingWorkReviewOptionsResponseSchema }),
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/work-review",
+      summary: "Review remaining work and actual physical units without moving the visit",
+      description:
+        "Requires current booking scope and independent BOOKING_CONFIRM authority. Does not start or complete work, charge money or promise collection. Rechecks the actual remaining occupied period and appends immutable review provenance.",
+      params: bookingParamsSchema,
+      body: bookingWorkReviewBodySchema,
+      secured: true,
+      csrf: true,
+      response: responseSchema.extend({ data: bookingWorkReviewReceiptSchema }),
     },
     {
       method: "post",

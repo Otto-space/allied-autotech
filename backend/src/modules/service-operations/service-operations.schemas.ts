@@ -441,3 +441,86 @@ export const bookingTimingOverrideBodySchema = z
   })
   .strict();
 export type BookingTimingOverrideInput = z.infer<typeof bookingTimingOverrideBodySchema>;
+
+export const bookingWorkReviewBodySchema = z
+  .object({
+    expectedVersion: version,
+    resourcePolicyVersionId: uuid,
+    remainingMinutes: z.number().int().min(1).max(1440),
+    cleanupMinutes: z.number().int().min(0).max(1440),
+    resourceIds: z
+      .array(uuid)
+      .max(40)
+      .refine((ids) => new Set(ids.map((id) => id.toLowerCase())).size === ids.length, {
+        message: "Choose each physical unit once",
+      }),
+    reason: cleanText(1000).min(10),
+  })
+  .strict();
+export type BookingWorkReviewInput = z.infer<typeof bookingWorkReviewBodySchema>;
+
+export const bookingWorkEstimateSchema = z
+  .object({
+    reviewedAt: z.iso.datetime({ offset: true }),
+    remainingMinutes: z.number().int().min(1).max(1440),
+    estimatedWorkEndsAt: z.iso.datetime({ offset: true }),
+  })
+  .strict();
+export const bookingWorkReviewRecordSchema = z
+  .object({
+    id: uuid,
+    bookingVersion: version,
+    resourcePolicyVersionId: uuid,
+    reviewedAt: z.iso.datetime({ offset: true }),
+    remainingMinutes: z.number().int().min(1).max(1440),
+    cleanupMinutes: z.number().int().min(0).max(1440),
+    expectedWorkEndsAt: z.iso.datetime({ offset: true }),
+    resourceIds: z.array(uuid).max(40),
+    resourceNames: z.array(z.string()).max(40).optional(),
+    reason: z.string().max(1000),
+    performedByUserId: uuid,
+  })
+  .strict();
+export const bookingWorkReviewOptionsResponseSchema = z
+  .object({
+    bookingId: uuid,
+    version,
+    scheduleVersion: version,
+    status: z.string(),
+    branchId: uuid.nullable(),
+    serviceId: uuid.nullable(),
+    staffId: uuid.nullable(),
+    startedAt: z.iso.datetime({ offset: true }).nullable(),
+    canReview: z.boolean(),
+    resourcePolicyVersionId: uuid.nullable(),
+    cleanupMinutes: z.number().int().min(0).max(1440).nullable(),
+    requirements: z.array(
+      z.object({ pool: z.string(), quantity: z.number().int().positive() }),
+    ),
+    resources: z.array(
+      z.object({
+        id: uuid,
+        name: z.string(),
+        kind: z.string(),
+        status: z.string(),
+        pools: z.array(z.string()),
+      }),
+    ),
+    current: bookingWorkReviewRecordSchema.nullable(),
+  })
+  .strict();
+export const bookingWorkReviewReceiptSchema = z
+  .object({
+    id: uuid,
+    branchId: uuid,
+    serviceId: uuid,
+    staffId: uuid,
+    version,
+    scheduleVersion: version,
+    status: z.string(),
+    scheduledAt: z.iso.datetime({ offset: true }),
+    startedAt: z.iso.datetime({ offset: true }),
+    performedByUserId: uuid,
+    review: bookingWorkReviewRecordSchema,
+  })
+  .strict();

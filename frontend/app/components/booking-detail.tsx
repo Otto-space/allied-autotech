@@ -1,4 +1,5 @@
 "use client";
+import { BookingWorkEstimate } from "./booking-work-estimate";
 import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { usePublicCapabilities } from "./public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
@@ -299,6 +300,10 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
           <div className="booking-detail-grid">
             <div className="booking-detail-primary">
               <BookingAppointment booking={current} now={now} current={fresh} />
+              <BookingWorkEstimate
+                estimate={current.workEstimate}
+                status={current.status}
+              />
               <BookingDeposit booking={current} />
             </div>
             <BookingProgress booking={current} />

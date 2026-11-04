@@ -3363,29 +3363,35 @@ model BookingTimingSnapshot {
 // Append-only allocation decisions; cancellation/status and the latest matching
 // booking revision determine occupancy without deleting earlier reservations.
 model BookingResourceAllocation {
-  id               String                @id @default(uuid()) @db.Uuid
-  bookingId        String                @db.Uuid
-  bookingVersion   Int
-  scheduleVersion  Int
-  branchId         String                @db.Uuid
-  serviceId        String                @db.Uuid
-  staffId          String                @db.Uuid
-  scheduledAt      DateTime
-  startsAt         DateTime
-  endsAt           DateTime
-  resourceIds      String[]              @db.Uuid
-  timingSnapshotId String                @db.Uuid
-  policyVersionId  String                @db.Uuid
-  reason           String                @db.VarChar(1000)
-  createdByUserId  String                @db.Uuid
-  createdAt        DateTime              @default(now())
-  booking          Booking               @relation(fields: [bookingId], references: [id], onDelete: Restrict)
-  branch           Branch                @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  service          Service               @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  staff            StaffProfile          @relation(fields: [staffId], references: [id], onDelete: Restrict)
-  timingSnapshot   BookingTimingSnapshot @relation(fields: [timingSnapshotId], references: [id], onDelete: Restrict)
-  policyVersion    BusinessPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
-  createdBy        User                  @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  id                 String                @id @default(uuid()) @db.Uuid
+  bookingId          String                @db.Uuid
+  bookingVersion     Int
+  scheduleVersion    Int
+  branchId           String                @db.Uuid
+  serviceId          String                @db.Uuid
+  staffId            String                @db.Uuid
+  scheduledAt        DateTime
+  startsAt           DateTime
+  endsAt             DateTime
+  resourceIds        String[]              @db.Uuid
+  timingSnapshotId   String                @db.Uuid
+  policyVersionId    String                @db.Uuid
+  // Optional, append-only review of remaining work; legacy decisions stay null.
+  workReviewedAt     DateTime?
+  workStartedAt      DateTime?
+  remainingMinutes   Int?
+  cleanupMinutes     Int?
+  expectedWorkEndsAt DateTime?
+  reason             String                @db.VarChar(1000)
+  createdByUserId    String                @db.Uuid
+  createdAt          DateTime              @default(now())
+  booking            Booking               @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  branch             Branch                @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  service            Service               @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  staff              StaffProfile          @relation(fields: [staffId], references: [id], onDelete: Restrict)
+  timingSnapshot     BookingTimingSnapshot @relation(fields: [timingSnapshotId], references: [id], onDelete: Restrict)
+  policyVersion      BusinessPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
+  createdBy          User                  @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
 
   @@unique([bookingId, bookingVersion])
   @@index([startsAt, endsAt])
