@@ -1,4 +1,5 @@
 "use client";
+import { containDialogFocus } from "@/lib/dialog-focus";
 import { useEffect, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/client";
 import { Feedback } from "./feedback";
@@ -117,6 +118,7 @@ export function MutationReview({
   }
   return (
     <dialog
+      onKeyDown={containDialogFocus}
       ref={dialog}
       className={`support-dialog mutation-review${proposal.presentation === "quotation" ? " quotation-review" : proposal.presentation === "agreement" ? " agreement-review" : ""}`}
       aria-labelledby="mutation-title"

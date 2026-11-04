@@ -69,7 +69,9 @@ it("explains resource allocation, rollback, cleanup and unknown legacy work with
   ])
     expect(work).toContain(phrase);
   const customer = learningArticles.find((row) => row.id === "service-request")!;
-  expect(customer.version).toBe(27);
+  expect(customer.version).toBe(28);
+  expect(customer.steps.join(" ")).toContain("Switch between Month");
+  expect(customer.steps.join(" ")).toContain("does not offer or reserve new times");
 
   expect(customer.steps.join(" ")).toContain("a booked vehicle takes priority");
   expect(customer.steps.join(" ")).toContain("does not change a booking");

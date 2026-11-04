@@ -1,4 +1,5 @@
 "use client";
+import { containDialogFocus } from "@/lib/dialog-focus";
 import { useEffect, useId, useRef } from "react";
 import type { ProductImage } from "@/lib/api/product-extras-schemas";
 import { PublicMedia } from "./public-media";
@@ -25,6 +26,7 @@ export function ProductImagePreview({
   }, []);
   return (
     <dialog
+      onKeyDown={containDialogFocus}
       ref={dialog}
       className="product-photo-dialog"
       aria-labelledby={titleId}

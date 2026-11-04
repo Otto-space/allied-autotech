@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Route } from "@playwright/test";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 import AxeBuilder from "@axe-core/playwright";
 import type { CustomerOrder } from "../../lib/api/order-payment";
 import type { PaymentRecord } from "../../lib/api/payment-schemas";
@@ -107,6 +108,8 @@ async function fixture(page: Page) {
           },
         },
       });
+    if (endpoint === "/public/capabilities")
+      return reply(route, publicCapabilitiesFixture("full"));
     if (endpoint === "/auth/session")
       return state.signedIn
         ? reply(route, {
