@@ -424,6 +424,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         const pending = await v.book(v.b.id, v.w2.user.staffProfile!.id, later);
         expect((await v.status(pending.id, 0, "CONFIRMED")).status).toBe(409);
         expect(await v.allocations(pending.id)).toEqual([]);
+        expect((await prisma.booking.findUniqueOrThrow({where:{id:pending.id}})).status).toBe("REQUESTED");
+        // This separate pending request still occupies its technician until cancelled.
+        expect((await v.cancel(pending, 0)).status).toBe(200);
         expect(await v.allocations(existing.id)).toEqual(before);
         await prisma.booking.update({
           where: { id: existing.id },
