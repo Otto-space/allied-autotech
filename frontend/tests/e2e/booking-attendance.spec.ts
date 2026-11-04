@@ -6,7 +6,7 @@ import { workforceJobDetailFixture } from "../fixtures/workforce-job-detail";
 import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
 import { verifyConsole } from "../fixtures/preview-console";
 
-test.beforeEach(async ({ request }) => bookingRuntimeCapabilities(request));
+test.beforeEach(async ({ request, page }) => bookingRuntimeCapabilities(request, page));
 
 async function start(page: Page, width: number, mode = "normal") {
   const fixture = await workforceBookingConfirmationFixture(page);

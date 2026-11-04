@@ -372,6 +372,19 @@ Additional integrated source (separate from the published release above):
 
 Additional current-master source, preserved separately:
 
+Additional integrated browser-fixture correction:
+
+4 November exact-master gate: 9fbf3732 passed backend safety, secrets,
+production checks and 223/224 browser cases. All modal, tablet-filter and About
+checks passed. A customer-reschedule case correctly failed closed because its
+capability request followed the production build's api.example.com placeholder
+rewrite (three HTTP 500/DNS failures in the trace), while only the server-side
+fixture had been pointed at loopback. The shared booking test setup now routes
+browser capability reads to that same explicit loopback API; all eight callers
+use it. Production capability guards and assertions are unchanged. Publication is
+held for the corrected exact-master checks. Images built for 9fbf3732 are retained
+as unpublished candidate evidence, not described as a production release.
+
 4 November final regression follow-up: corrected tablet source 796d2044 passed
 all calendar/shared-modal geometry checks, both tablet filters, backend safety,
 production build and 223/224 browser cases. The About test raced the existing

@@ -3,8 +3,8 @@ import AxeBuilder from "@axe-core/playwright";
 import { workforceAftercareFixture } from "../fixtures/workforce-aftercare";
 import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
 
-test.beforeEach(async ({ request }) => {
-  await bookingRuntimeCapabilities(request);
+test.beforeEach(async ({ request, page }) => {
+  await bookingRuntimeCapabilities(request, page);
 });
 for (const role of ["STAFF", "ADMIN"] as const)
   for (const width of [320, 768, 1440]) {

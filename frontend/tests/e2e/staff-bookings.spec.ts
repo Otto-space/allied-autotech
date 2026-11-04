@@ -3,6 +3,9 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import type { StaffBooking } from "@/lib/api/staff-booking-schemas";
+import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
+
+test.beforeEach(async ({ request, page }) => bookingRuntimeCapabilities(request, page));
 const id = (n: number) => `20000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const record = () => ({
   id: id(1),
