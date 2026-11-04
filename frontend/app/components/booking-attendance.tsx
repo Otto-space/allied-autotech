@@ -48,7 +48,7 @@ export function BookingAttendance({
   bookingId: string;
   managed?: boolean;
   blocked?: boolean;
-  onUpdated: () => void;
+  onUpdated: (message: string) => void;
 }) {
   const session = useAccountSession();
   if (!session || !["ADMIN", "SUPER_ADMIN", "STAFF"].includes(session.user.role))
@@ -75,7 +75,7 @@ function AttendanceEditor({
   bookingId: string;
   managed: boolean;
   blocked: boolean;
-  onUpdated: () => void;
+  onUpdated: (message: string) => void;
 }) {
   const key = `aat-attendance:${actorId}:${bookingId}`;
   const [pending, setPending] = useState<string | null>(() => {
@@ -192,7 +192,7 @@ function AttendanceEditor({
       setVerified(false);
       setMessage("Attendance update saved.");
       refresh();
-      onUpdated();
+      onUpdated("Attendance update saved.");
     } catch (cause) {
       if (!live.current) return;
       setError(
@@ -251,12 +251,11 @@ function AttendanceEditor({
                 disabled={saving}
                 onClick={() => {
                   clearPending();
-                  setMessage(
-                    receiptResolved
-                      ? "Saved update verified."
-                      : "Latest attendance reviewed. Any older request must still pass the server's version check.",
-                  );
-                  onUpdated();
+                  const notice = receiptResolved
+                    ? "Saved update verified."
+                    : "Latest attendance reviewed. Any older request must still pass the server's version check.";
+                  setMessage(notice);
+                  onUpdated(notice);
                 }}
               >
                 {" "}

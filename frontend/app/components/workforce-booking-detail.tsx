@@ -153,7 +153,8 @@ export function WorkforceBookingDetail({
               bookingId={row.id}
               managed
               blocked={!!error || record.refreshing}
-              onUpdated={() => {
+              onUpdated={(notice) => {
+                setMessage(notice);
                 record.refresh();
                 refreshAccess();
               }}

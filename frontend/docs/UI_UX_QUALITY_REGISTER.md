@@ -63,7 +63,6 @@ verification and receipt recovery rather than the removed raw status option;
 its source/lint is updated, but that full dashboard test has not run locally.
 The component browser fixture evidence above does not substitute for that test.
 
-
 Integration checkpoint: reconciled current master 9fbf3732 (recorded-work capacity,
 responsive calendar/modals and customer overview) without replacing its repairs.
 Combined guidance advances booking-confirmation to v12 and service-request to v29;
@@ -79,7 +78,6 @@ not a claim that the previously failed 81-case invocation passed. Merged backend
 cryptographically verified SSH signature using the configured signing key. Required hosted gates and
 production migration/recovery acceptance still remain. No production publication.
 
-
 Hosted regression checkpoint: the 7dad16e1 backend run passed its migration,
 booking/resource/financial and earlier learning stages, then failed five audience
 retrieval assertions because the expanded service article exceeded Allie's existing
@@ -92,6 +90,32 @@ Fresh native Edge component reruns on the integrated shared styles pass both
 The signed source remains in draft PR #20, held for updated hosted checks and the
 recorded migration recovery/full-dashboard acceptance requirements.
 
+4 November full-dashboard acceptance follow-up (source, hosted run pending):
+new browser coverage mounts attendance in the real managed booking page and
+assigned-job page, exercises 390/768/1440 layouts and laptop sidebar states, and
+runs the updated legacy missed-appointment regression. Eleven new cases are
+registered in the existing runtime CI and dashboard coverage list. These remain
+synthetic fixtures, not live-role or provider acceptance. They are not marked
+passed merely because discovery/lint succeeds.
+
+Source inspection found that a parent refresh unmounts the attendance editor and
+loses its local confirmation. The shared callback now carries the actual notice
+to the existing persistent page feedback on booking and job screens. A verified
+save and a reviewed-but-unverified record keep distinct wording. Ten attendance
+unit tests and affected lint pass; the unit verifies the callback's saved notice.
+The legacy toast uses the actual authored notice instead of claiming every
+reconciliation changed a booking.
+
+Hosted d6f39798: Backend database safety and secret guard pass. Frontend lint,
+types, unit tests and production build pass; quality-register formatting failed,
+so its browser stage did not run. Formatting is corrected in this follow-up; all
+required checks must run for the resulting source, with full-dashboard evidence
+kept separate from the already passed component fixture. D11's actual alternative
+journey and migration-98 writer/recovery preparation remain unfinished. Inspection
+confirms existing proposals accept a date without checking its actual availability,
+and the shared 7–14-day new-booking window currently blocks a same-day alternative.
+Resolve that late-arrival journey under D11 without weakening ordinary intake,
+resource checks, existing confirmations or physical-attendance history.
 
 ---
 
@@ -340,7 +364,6 @@ where recorded. Rounding is settled; do not ask that owner decision again. Curre
 payment/booking/marketing/destructive-retention flags remain unchanged.
 
 Additional integrated source (separate from the published release above):
-
 
 Additional current-master source, preserved separately:
 

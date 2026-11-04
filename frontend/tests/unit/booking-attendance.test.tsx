@@ -121,6 +121,7 @@ describe("attendance actions and recovery", () => {
       }),
     );
     expect(updated).toHaveBeenCalledTimes(1);
+    expect(updated).toHaveBeenCalledWith("Attendance update saved.");
     expect(sessionStorage.getItem(`aat-attendance:${actor}:${id}`)).toBeNull();
   });
   it("requires an explicit staff absence check", () => {

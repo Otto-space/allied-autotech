@@ -336,7 +336,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
           Refresh booking
         </button>
       </header>
-      <Feedback message={message} tone="success" toast="Booking change recorded." />
+      <Feedback message={message} tone="success" toast={message} />
       {readError && (
         <section className="booking-detail-state">
           <h2>Booking unavailable</h2>
@@ -429,7 +429,10 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
             <BookingAttendance
               bookingId={current.id}
               blocked={disabled}
-              onUpdated={booking.refresh}
+              onUpdated={(notice) => {
+                setMessage(notice);
+                booking.refresh();
+              }}
             />
           ) : (
             <BookingAttendanceHistory events={current.attendanceEvents} />

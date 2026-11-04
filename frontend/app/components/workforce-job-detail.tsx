@@ -531,7 +531,10 @@ export function WorkforceJobDetail({
               bookingId={job.id}
               managed
               blocked={blocked}
-              onUpdated={refresh}
+              onUpdated={(notice) => {
+                setMessage(notice);
+                refresh();
+              }}
             />
           ) : (
             <BookingAttendanceHistory events={job.attendanceEvents} />
