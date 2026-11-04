@@ -397,6 +397,141 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ]);
       expect(await v.allocations(existing.id)).toEqual(before);
     });
+    it.each(["CONFIRMED", "IN_PROGRESS"] as const)(
+      "protects shared equipment after an actual late start in %s without changing allocation history",
+      async (status) => {
+        const v = await fixture(),
+          existing = await v.book();
+        expect((await v.status(existing.id, 0, "CONFIRMED")).status).toBe(200);
+        const later = new Date(v.at.getTime() + 95 * 60000),
+          slot = await v.publish(v.b.id, v.w2.user.staffProfile!.id, later),
+          independent = await v.publish(v.c.id, v.w3.user.staffProfile!.id, later),
+          before = await v.allocations(existing.id);
+        expect((await v.list()).body.data.items).toHaveLength(1);
+        await prisma.booking.update({
+          where: { id: existing.id },
+          data: { status, startedAt: new Date(v.at.getTime() + 30 * 60000) },
+        });
+        expect((await v.list()).body.data.items).toEqual([]);
+        expect(
+          (await v.list(v.c.id)).body.data.items.map((x: { id: string }) => x.id),
+        ).toEqual([independent.id]);
+        const count = await prisma.booking.count({ where: { branchId: v.branch.id } });
+        expect((await v.claim(slot.id)).status).toBe(409);
+        expect(await prisma.booking.count({ where: { branchId: v.branch.id } })).toBe(
+          count,
+        );
+        const pending = await v.book(v.b.id, v.w2.user.staffProfile!.id, later);
+        expect((await v.status(pending.id, 0, "CONFIRMED")).status).toBe(409);
+        expect(await v.allocations(pending.id)).toEqual([]);
+        expect(
+          (await prisma.booking.findUniqueOrThrow({ where: { id: pending.id } })).status,
+        ).toBe("REQUESTED");
+        // This separate pending request still occupies its technician until cancelled.
+        expect((await v.cancel(pending, 0)).status).toBe(200);
+        expect(await v.allocations(existing.id)).toEqual(before);
+        await prisma.booking.update({
+          where: { id: existing.id },
+          data: {
+            status: "COMPLETED",
+            completedAt: new Date(v.at.getTime() + 40 * 60000),
+          },
+        });
+        expect((await v.list()).body.data.items.map((x: { id: string }) => x.id)).toEqual(
+          [slot.id],
+        );
+        expect(await v.allocations(existing.id)).toEqual(before);
+      },
+    );
+    it.each(["allocated", "timed-legacy", "unknown-legacy"] as const)(
+      "holds overdue recorded work with legacy Confirmed status (%s) until completion",
+      async (kind) => {
+        const v = await fixture(),
+          past = new Date();
+        past.setUTCDate(past.getUTCDate() - 1);
+        past.setUTCHours(9, 0, 0, 0);
+        const existing = await v.book(v.a.id, v.w1.user.staffProfile!.id, past);
+        if (kind === "allocated")
+          expect((await v.status(existing.id, 0, "CONFIRMED")).status).toBe(200);
+        if (kind === "timed-legacy")
+          await prisma.bookingTimingSnapshot.create({
+            data: {
+              bookingId: existing.id,
+              serviceId: v.a.id,
+              scheduleVersion: 0,
+              scheduledAt: past,
+              serviceVersion: v.a.version,
+              durationMinutes: 60,
+              preparationMinutes: 15,
+              cleanupMinutes: 20,
+              source: "LEGACY_CAPTURE",
+              reason: "Synthetic recorded timing without a physical resource assessment",
+              createdByUserId: f.owner.id,
+            },
+          });
+        const slot = await v.publish(),
+          before = await v.allocations(existing.id);
+        await prisma.booking.update({
+          where: { id: existing.id },
+          data: { status: "CONFIRMED", confirmedAt: past, startedAt: past },
+        });
+        expect((await v.list()).body.data.items).toEqual([]);
+        expect((await v.claim(slot.id)).status).toBe(409);
+        await prisma.booking.update({
+          where: { id: existing.id },
+          data: { status: "COMPLETED", completedAt: new Date() },
+        });
+        expect((await v.list()).body.data.items.map((x: { id: string }) => x.id)).toEqual(
+          [slot.id],
+        );
+        expect(await v.allocations(existing.id)).toEqual(before);
+      },
+    );
+    it("protects the actual technician for overdue legacy Confirmed work even without required equipment", async () => {
+      const v = await fixture(),
+        past = new Date();
+      past.setUTCDate(past.getUTCDate() - 1);
+      past.setUTCHours(9, 0, 0, 0);
+      const existing = await v.book(v.c.id, v.w3.user.staffProfile!.id, past);
+      expect((await v.status(existing.id, 0, "CONFIRMED")).status).toBe(200);
+      const slot = await v.publish(v.c.id, v.w3.user.staffProfile!.id),
+        independent = await v.publish();
+      await prisma.booking.update({
+        where: { id: existing.id },
+        data: { startedAt: past },
+      });
+      expect((await v.list(v.c.id)).body.data.items).toEqual([]);
+      expect((await v.list()).body.data.items.map((x: { id: string }) => x.id)).toEqual([
+        independent.id,
+      ]);
+      expect((await v.claim(slot.id)).status).toBe(409);
+      await prisma.booking.update({
+        where: { id: existing.id },
+        data: { status: "COMPLETED", completedAt: new Date() },
+      });
+      expect(
+        (await v.list(v.c.id)).body.data.items.map((x: { id: string }) => x.id),
+      ).toEqual([slot.id]);
+    });
+    it("protects shared resources from an actual early start before the stored allocation begins", async () => {
+      const v = await fixture(),
+        existing = await v.book(
+          v.a.id,
+          v.w1.user.staffProfile!.id,
+          new Date(v.at.getTime() + 180 * 60000),
+        );
+      expect((await v.status(existing.id, 0, "CONFIRMED")).status).toBe(200);
+      const slot = await v.publish(),
+        before = await v.allocations(existing.id);
+      expect((await v.list()).body.data.items).toHaveLength(1);
+      await prisma.booking.update({
+        where: { id: existing.id },
+        data: { startedAt: v.at },
+      });
+      expect((await v.list()).body.data.items).toEqual([]);
+      expect((await v.claim(slot.id)).status).toBe(409);
+      expect(await v.allocations(existing.id)).toEqual(before);
+    });
     it("uses recorded completion cleanup at the exact occupied boundary", async () => {
       const v = await fixture();
       await prisma.service.update({

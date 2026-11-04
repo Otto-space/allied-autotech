@@ -77,6 +77,39 @@ No production writes, live messages, private records or real document exports.
 Physical devices, mobile virtual keyboards, screen-reader acceptance and genuine
 200% zoom are not certified by these emulated checks.
 
+### 4 November 2026: D06/D07 recorded-work capacity follow-up
+
+Base is exact-master 8dd5e22e, retaining the newer shared UI, overview, financial and
+resource changes. That master passes all three required hosted checks. Its release
+remains held: the cached-build assumption failed and the 2 GiB allowance requires
+22 GiB free; last observed space is about 21.8 GiB. The owned build was stopped,
+old receipts archived without deletion, and production was not changed by this batch.
+
+The next regression audit covers actual early/late starts and overdue work whose
+legacy status still says Confirmed. Candidate resource/technician availability must
+respect recorded work and explicit completion/cleanup, preserve allocation history
+and leave independent work available. First local attempt stopped at the isolated
+target proof because a new task namespace was not supported; no fixtures ran and
+the owned tmpfs container was removed. The unchanged approved resource namespace
+is now being used. The corrected red run reproduces seven real regressions,
+with one existing late-start case passing and 25 unrelated cases skipped. The
+owned tmpfs target was removed. Log: %TEMP%/aat-recorded-work-red-approved.log.
+
+The source fix respects actual starts in technician and equipment occupancy and
+keeps recorded completion/cancellation cleanup and allocation history. Its green
+run was blocked before starting: C: abruptly fell to about 12.1 GiB. Docker VHDX
+remains 30.16 GiB; pagefile.sys is now 27.86 GiB and changed during the interval,
+making Windows paging a strong suspect without an earlier size snapshot. No
+system paging setting/file or other task was modified. Verification remains
+pending and will use the existing hosted exact-source safety workflow.
+
+Staff booking-confirmation guidance is v11; its gate/target are unchanged and the
+owner resource-plan guide remains draft. This is not completion of D06/D07: actual
+resource facts/owner configuration, running-job estimate/resource review and legacy
+operational assessment remain separate work. No financial activation, migration,
+real staff assignment or physical attendance is inferred.
+
+
 4 November integration checkpoint: c80b4080 passed all exact-source gates:
 Frontend 41741100952 (1,486 units, 12 existing skips; 150 browser cases), Backend
 41741100977 (including all five overview cases), Secrets 41741100951. Master then
