@@ -210,3 +210,4 @@ customer-overview-attention.spec.ts > customer attention 320x720 > owned next st
 booking-calendar.spec.ts
 invoice-modal-responsive.spec.ts
 modal-layout.spec.ts
+catalogue-modal-layout.spec.ts

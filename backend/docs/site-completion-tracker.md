@@ -1,3 +1,26 @@
+4 November modal follow-up: initial source 5c938a05 passed hosted frontend
+production checks (1,486 units, 12 existing skips; 187/187 browser cases). Backend
+41747735572 passed native calendar/learning integration but found that the longer
+service-request passage exceeded the existing 8,000-character retrieval budget.
+Redundant wording was shortened; no safety limit was widened. All 24 focused
+learning/retrieval tests now pass for public, customer, worker, admin and owner.
+
+Review also found that open desktop catalogue filters are nonmodal dialog regions.
+Shared styling now uses :modal, preserving their sticky placement and page scroll.
+Regression coverage includes that distinction, public galleries and cart confirmation
+using the existing loopback-only synthetic API. Adjacent modal fixtures now provide
+valid explicit capability responses; production settings remain untouched.
+
+Local final calendar/document run passed 20/23; all three retained loading failures
+passed unchanged on the subsequent warm run. Equipment photo checks passed at four
+widths, both administrator account actions passed, and the garage short-screen and
+pending-save safeguards passed. All fourteen new garage/notification cases passed
+at the seven required sizes. The run was stopped when disk reserve failed at 12.06
+GiB; after stopping task processes, C: returned to 21.56 GiB. Cause of the transient
+drop is not established. Evidence is 30 MB and retained. Learning, order, gallery
+and remaining adjacent cases are now selected in remote production-build CI; do
+not count the interrupted local cases as passes. No local preview remains running.
+
 ## 4 November 2026 — calendar and shared modal batch (verification in progress)
 
 Owner direction: improve the booking calendar with familiar calendar navigation;
