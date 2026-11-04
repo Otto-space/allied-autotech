@@ -123907,6 +123907,72 @@ export interface operations {
                             };
                             /** @description Care validated by this operation's strict request contract. */
                             care?: {
+                                /** @description First Name validated by this operation's strict request contract. */
+                                firstName?: string | null;
+                                /** @description Enquiry validated by this operation's strict request contract. */
+                                enquiry?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Subject validated by this operation's strict request contract. */
+                                    subject: string;
+                                    /**
+                                     * @description Requested or filtered lifecycle state from the documented enum.
+                                     * @enum {string}
+                                     */
+                                    status: "OPEN" | "IN_PROGRESS";
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    updatedAt: string;
+                                } | null;
+                                /** @description Invoice validated by this operation's strict request contract. */
+                                invoice?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Invoice Number validated by this operation's strict request contract. */
+                                    invoiceNumber: string;
+                                    /** @description Currency validated by this operation's strict request contract. */
+                                    currency: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    issuedAt: string;
+                                } | null;
+                                /** @description Collection Order validated by this operation's strict request contract. */
+                                collectionOrder?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Order Number validated by this operation's strict request contract. */
+                                    orderNumber: string;
+                                    /**
+                                     * @description Requested or filtered lifecycle state from the documented enum.
+                                     * @enum {string}
+                                     */
+                                    status: "READY";
+                                    /**
+                                     * @description Fulfillment Method validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    fulfillmentMethod: "COLLECTION";
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    createdAt: string;
+                                } | null;
                                 /** @description Vehicle validated by this operation's strict request contract. */
                                 vehicle: {
                                     /**
@@ -124569,6 +124635,72 @@ export interface operations {
                             };
                             /** @description Care validated by this operation's strict request contract. */
                             care?: {
+                                /** @description First Name validated by this operation's strict request contract. */
+                                firstName?: string | null;
+                                /** @description Enquiry validated by this operation's strict request contract. */
+                                enquiry?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Subject validated by this operation's strict request contract. */
+                                    subject: string;
+                                    /**
+                                     * @description Requested or filtered lifecycle state from the documented enum.
+                                     * @enum {string}
+                                     */
+                                    status: "OPEN" | "IN_PROGRESS";
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    updatedAt: string;
+                                } | null;
+                                /** @description Invoice validated by this operation's strict request contract. */
+                                invoice?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Invoice Number validated by this operation's strict request contract. */
+                                    invoiceNumber: string;
+                                    /** @description Currency validated by this operation's strict request contract. */
+                                    currency: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    issuedAt: string;
+                                } | null;
+                                /** @description Collection Order validated by this operation's strict request contract. */
+                                collectionOrder?: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Order Number validated by this operation's strict request contract. */
+                                    orderNumber: string;
+                                    /**
+                                     * @description Requested or filtered lifecycle state from the documented enum.
+                                     * @enum {string}
+                                     */
+                                    status: "READY";
+                                    /**
+                                     * @description Fulfillment Method validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    fulfillmentMethod: "COLLECTION";
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    createdAt: string;
+                                } | null;
                                 /** @description Vehicle validated by this operation's strict request contract. */
                                 vehicle: {
                                     /**

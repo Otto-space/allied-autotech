@@ -1,3 +1,59 @@
+4 November integration checkpoint: c80b4080 passed all exact-source gates:
+Frontend 41741100952 (1,486 units, 12 existing skips; 150 browser cases), Backend
+41741100977 (including all five overview cases), Secrets 41741100951. Master then
+advanced to 8dd5e22e with reviewed resource-aware offers. Both content histories
+and implementations are retained; the combined service-request guide is v27,
+with its existing twelve steps and unchanged eligibility. Exact combined-source
+checks must pass again before merge/publication. No schema or launch flag changed.
+
+4 November CI follow-up: native run 41740199625 passed migration replay,
+db:check and preceding integration stages, then rejected the new closed-enquiry
+fixture because its required resolvedAt timestamp was missing. The fixture now
+records resolution before closure; database guards and all ownership/terminal
+state assertions remain unchanged. The new attention case is not accepted until
+its rerun passes. Frontend production checks pass; rendered CI is still running.
+
+## 4 November: customer attention summaries — local verification
+
+Current batch: owned customer attention at /dashboard. The source baseline had no
+open-enquiry or issued-invoice preview and selected only the newest order, which
+could hide an older collection-ready order. The focused baseline test passed its
+12 existing cases and failed on the missing Open enquiry heading.
+
+The additive API projects one own open/in-progress enquiry, one own issued invoice,
+and the oldest ready collection order independently of historical date filters.
+It also validates the recorded first name through the existing profile-name schema.
+No email-derived identity, message bodies, billing contact data or staff notes are
+returned. Old clients and servers remain compatible. No schema/migration, permissions,
+consent, payment or launch flags changed. Current/rollback releases remain retained.
+
+The UI places the genuine next steps above current care/history, avoids repeating
+the same collection order in Latest order, and links to existing owned records.
+Invoice totals are labelled totals, not balances; credits and confirmed payment
+remain on the invoice detail. Open enquiry does not assert who must reply.
+Missing data omits cards; refresh and account invalidation clear former summaries.
+Service-request v26 keeps its twelve existing steps, eligibility and targets.
+
+Checks so far: 25 frontend units, 17 learning units, frontend/backend types, static
+446-path OpenAPI validation, frontend ESLint and backend Oxlint/format pass. Final
+Edge and Chrome each pass seven exact viewport cases with mobile/touch contexts.
+The first cold Edge desktop attempt failed during a 37.7-second dev compilation
+with Router action dispatched before initialization; its trace is retained and the
+unchanged warm run passes. Local Next 16.3.8 is not locked Next 16.4.3 acceptance.
+Native new-record ownership/terminal-state tests and exact-source CI are pending.
+No production record, real customer submission or delivery was touched.
+
+Evidence: Temp/allied-attention-20261104/{edge,edge-final,chrome,focus-check}.
+Desktop and phone captures reviewed. All seven Edge focused-link header/dock
+overlap checks pass; full-page screenshots are retained. Physical devices, genuine 200% zoom, broader route/state
+and real role acceptance remain open. This batch is not whole-site completion.
+
+Previous default/photo batch is merged in PR #15 as 92f3f9fc after branch frontend
+41736291656, backend 41736282971/41736291647 and secret checks passed. Its native
+ownership/default/private-cover cases pass. Exact-master backend 41737877996 and
+secret 41737878157 and frontend 41737877997 pass for exact master.
+Neither renewed batch has been published by this task. Retain compatible release,
+recoverability, both-domain and exact-source gates.
 4 November final D06 source checkpoint: master 92f3f9fc's customer-overview,
 private booked/default/recent vehicle selection and acceptance changes are retained
 in bc911880. Independent service-request v25 edits are combined as v26, reviewed

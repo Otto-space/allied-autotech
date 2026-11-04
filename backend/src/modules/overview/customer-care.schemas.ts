@@ -21,6 +21,37 @@ const vehicle = z.object({
   photo: mediaImageSchema.nullable().optional(),
 });
 export const customerCareSchema = z.object({
+  firstName: z.string().nullable().optional(),
+  enquiry: z
+    .object({
+      id: z.uuid(),
+      subject: z.string(),
+      status: z.enum(["OPEN", "IN_PROGRESS"]),
+      updatedAt: date,
+    })
+    .nullable()
+    .optional(),
+  invoice: z
+    .object({
+      id: z.uuid(),
+      invoiceNumber: z.string(),
+      currency,
+      totalKobo: amount,
+      issuedAt: date,
+    })
+    .nullable()
+    .optional(),
+  collectionOrder: z
+    .object({
+      id: z.uuid(),
+      orderNumber: z.string(),
+      status: z.literal("READY"),
+      fulfillmentMethod: z.literal("COLLECTION"),
+      createdAt: date,
+    })
+    .nullable()
+    .optional(),
+
   vehicle: vehicle.nullable(),
   // Additive for rolling releases: older servers omit the explicitly chosen default.
   defaultVehicle: vehicle.nullable().optional(),

@@ -496,3 +496,30 @@
     height: 150px;
   }
 }
+
+.customer-overview .overview-welcome h1 {
+  overflow-wrap: anywhere;
+}
+.care-attention {
+  margin-bottom: 24px;
+}
+.care-attention-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
+}
+.care-attention-grid > section {
+  min-width: 0;
+  padding: 18px;
+  border-block-start: 3px solid var(--brand-red);
+  background: white;
+  border-radius: 6px;
+}
+.care-attention-grid strong {
+  display: block;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.care-attention-grid .care-status {
+  margin-top: 8px;
+}

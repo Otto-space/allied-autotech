@@ -111,3 +111,45 @@ it("keeps the actual booked vehicle ahead of a different garage default", () => 
   expect(screen.getByText("Booked vehicle")).toBeTruthy();
   expect(screen.queryByText(/Other default/)).toBeNull();
 });
+
+it("keeps open enquiries, issued invoice records and collection readiness ahead of history", () => {
+  const care = {
+    ...empty,
+    enquiry: {
+      id: "b9000000-0000-4000-8000-000000000501",
+      subject: "My repair question",
+      status: "IN_PROGRESS" as const,
+      updatedAt: "2026-11-03T12:00:00Z",
+    },
+    invoice: {
+      id: "b9000000-0000-4000-8000-000000000502",
+      invoiceNumber: "INV-OWN-1",
+      currency: "NGN",
+      totalKobo: "9007199254740993",
+      issuedAt: "2026-11-03T12:00:00Z",
+    },
+    collectionOrder: {
+      ...full.order!,
+      status: "READY" as const,
+      fulfillmentMethod: "COLLECTION" as const,
+    },
+    order: {
+      ...full.order!,
+      status: "READY" as const,
+      fulfillmentMethod: "COLLECTION" as const,
+    },
+  };
+  const { container } = render(<CustomerCareSummary care={care} />);
+  expect(screen.getByRole("heading", { name: "Open enquiry" })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Issued invoice" })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Ready for collection" })).toBeTruthy();
+  expect(screen.getByRole("link", { name: "View enquiry" }).getAttribute("href")).toBe(
+    `/dashboard/support/enquiries/${care.enquiry.id}`,
+  );
+  expect(screen.getByRole("link", { name: "View invoice" }).getAttribute("href")).toBe(
+    `/dashboard/invoices/${care.invoice.id}`,
+  );
+  expect(screen.queryByRole("heading", { name: "Latest order" })).toBeNull();
+  expect(container.textContent).not.toMatch(/overdue|pay now|balance due/i);
+  expect(screen.queryByText("No service in progress")).toBeNull();
+});

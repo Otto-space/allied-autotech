@@ -198,3 +198,10 @@ workshop-resources.spec.ts > managed ADMIN retains the correct resource authorin
 
 # Own default/cover, older server fallback, booked priority and auth invalidation at seven exact sizes.
 customer-overview-selection.spec.ts
+customer-overview-attention.spec.ts > customer attention 1280x720 > owned next steps, settled refresh and account change remain distinct from history
+customer-overview-attention.spec.ts > customer attention 1024x768 > owned next steps, settled refresh and account change remain distinct from history
+customer-overview-attention.spec.ts > customer attention 768x1024 > owned next steps, settled refresh and account change remain distinct from history
+customer-overview-attention.spec.ts > customer attention 430x932 > owned next steps, settled refresh and account change remain distinct from history
+customer-overview-attention.spec.ts > customer attention 390x844 > owned next steps, settled refresh and account change remain distinct from history
+customer-overview-attention.spec.ts > customer attention 360x800 > owned next steps, settled refresh and account change remain distinct from history
+customer-overview-attention.spec.ts > customer attention 320x720 > owned next steps, settled refresh and account change remain distinct from history
