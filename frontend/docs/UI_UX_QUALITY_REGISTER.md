@@ -1,3 +1,50 @@
+4 November attendance writer compatibility — source prepared, not deployed
+
+Current package: a schema-97 compatibility API before the separately held schema-98
+attendance release. Full feature branch codex/booking-attendance-20261104 remains
+at 26850a6b, draft PR #20. Its full dashboard suite is running; D11's actual available
+alternative and the remaining full audit scope are not declared complete here.
+
+This patch rejects the older direct NO_SHOW status action for every operational
+role before a database write. The now-unreachable old no-show notification branch
+is removed. It does not implement attendance authoring or enable any capability.
+Booking-confirmation v12 and assigned-findings v4 explain the unavailable old
+status action while retaining their existing eligibility gates. Verified physical
+attendance and final missed-visit authoring remain in the separately held feature.
+
+Actual local evidence: fresh canonical 98-migration replay and db:check pass on a
+new task-owned _ci target. The compatibility application uses its genuine older
+97-migration generated client (no attendance model); its real startup scalar probe
+passes against that 98 schema. Authenticated assigned Staff, Admin and Super Admin
+raw missed-status writes each return 409 and leave the appointment/version/time/
+work/reschedule state unchanged. Only synthetic records were used. Source types and full backend lint pass. All 30 focused guide/retrieval
+checks pass after the guidance update. Required hosted checks still need final
+results for this source.
+
+The first attempt correctly stopped on checksum drift against the earlier local
+98 test database: three existing historical files there used different line
+endings from canonical checkout bytes. That database and its evidence are retained;
+no SQL or applied ledger was edited. The fresh canonical replay is independent
+of that earlier worktree-byte evidence.
+
+Release remains held for exact-master gates, matching packaged-image tests and
+fresh backup/populated restore/target/privilege checks. The recovery configuration
+must keep the 98-aware migration component while using the tested compatibility
+API/worker runtime. Never run the older 97 migrator against a 98 ledger. See
+backend/docs/attendance-writer-transition.md. No production database/firewall,
+permissions, prices, policies or capability flags were changed by this rehearsal.
+
+Compatibility UI follow-up: the old missed-status option is removed from the
+legacy staff form, and its temporary unavailability is explicit beside the other
+status choices. The regression now requires no unsupported option or write and
+retains mobile navigation, readable current status and accessibility checks. It is
+registered in the existing hosted runtime suite (225 intended cases). The full
+feature in draft #20 replaces this temporary notice/case with verified attendance;
+remove the compatibility-only project on that integration, preserving the complete
+new workflow's assertions. Source lint/discovery is not a browser pass.
+
+---
+
 4 November exact-master gate: 9fbf3732 passed backend safety, secrets,
 production checks and 223/224 browser cases. All modal, tablet-filter and About
 checks passed. A customer-reschedule case correctly failed closed because its

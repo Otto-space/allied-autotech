@@ -211,3 +211,6 @@ booking-calendar.spec.ts
 invoice-modal-responsive.spec.ts
 modal-layout.spec.ts
 catalogue-modal-layout.spec.ts
+
+# Transitional writer compatibility; replace with verified attendance acceptance in the full feature.
+staff-bookings.spec.ts > staff old missed-status action is unavailable until verified attendance controls
