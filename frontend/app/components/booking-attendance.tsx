@@ -43,11 +43,13 @@ export function BookingAttendance({
   bookingId,
   managed = false,
   blocked = false,
+  showInlineNotice = true,
   onUpdated,
 }: {
   bookingId: string;
   managed?: boolean;
   blocked?: boolean;
+  showInlineNotice?: boolean;
   onUpdated: (message: string) => void;
 }) {
   const session = useAccountSession();
@@ -60,6 +62,7 @@ export function BookingAttendance({
       bookingId={bookingId}
       managed={managed}
       blocked={blocked}
+      showInlineNotice={showInlineNotice}
       onUpdated={onUpdated}
     />
   );
@@ -69,12 +72,14 @@ function AttendanceEditor({
   bookingId,
   managed,
   blocked,
+  showInlineNotice,
   onUpdated,
 }: {
   actorId: string;
   bookingId: string;
   managed: boolean;
   blocked: boolean;
+  showInlineNotice: boolean;
   onUpdated: (message: string) => void;
 }) {
   const key = `aat-attendance:${actorId}:${bookingId}`;
@@ -219,7 +224,7 @@ function AttendanceEditor({
       <h2>Arrival and attendance</h2>
       <p>A customer’s planned-attendance reply does not record physical arrival.</p>
       <Feedback message={error || record.error || record.refreshError} />
-      <Feedback message={message} tone="success" />
+      {showInlineNotice && <Feedback message={message} tone="success" />}
       <button
         type="button"
         className="button secondary"

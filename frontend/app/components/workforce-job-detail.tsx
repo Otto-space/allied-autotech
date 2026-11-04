@@ -530,6 +530,7 @@ export function WorkforceJobDetail({
             <BookingAttendance
               bookingId={job.id}
               managed
+              showInlineNotice={false}
               blocked={blocked}
               onUpdated={(notice) => {
                 setMessage(notice);

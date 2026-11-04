@@ -140,6 +140,27 @@ describe("attendance actions and recovery", () => {
     ).not.toBeDisabled();
     expect(state.request).not.toHaveBeenCalled();
   });
+  it("lets the persistent page own the save notice without a duplicate inline announcement", async () => {
+    state.request.mockResolvedValue({
+      data: {
+        event: event(),
+        performedByUserId: actor,
+        attendance: {
+          ...snapshot(),
+          bookingVersion: 5,
+          current: event(),
+          events: [event()],
+        },
+      },
+    });
+    const updated = vi.fn();
+    render(
+      <BookingAttendance bookingId={id} showInlineNotice={false} onUpdated={updated} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Save attendance update" }));
+    await waitFor(() => expect(updated).toHaveBeenCalledWith("Attendance update saved."));
+    expect(screen.queryByText("Attendance update saved.")).toBeNull();
+  });
   it("does not offer a missed action before the server's check time", () => {
     state.row = { ...snapshot(), checkAttendance: false };
     render(<BookingAttendance bookingId={id} onUpdated={vi.fn()} />);

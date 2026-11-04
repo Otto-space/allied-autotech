@@ -121,6 +121,24 @@ Resolve that late-arrival journey under D11 without weakening ordinary intake,
 resource checks, existing confirmations or physical-attendance history.
 
 
+4 November full-dashboard run: source 26850a6b passed backend safety, secret
+checks and frontend production checks. The expanded production-build browser run
+passed 232/235 cases. All three failures exposed two simultaneous Attendance
+update saved notices (page plus editor), not a reason to weaken strict locators.
+Managed booking and assigned-job screens now give the persistent page sole notice
+ownership; standalone usage keeps its inline notice. Eleven focused attendance
+unit cases and affected lint pass, including the notice-owner contract. Re-run
+the unchanged full-page uniqueness assertions on the corrected source.
+
+Recovery preparation is saved separately in codex/attendance-writer-compat-20261104,
+commit 954712c8, draft PR #22. Its genuine migration-97 generated client passed
+startup and Staff/Admin/Super Admin raw missed-write refusal against a fresh,
+canonically replayed migration-98 isolated database. Its 30 guidance checks pass;
+required hosted and packaged release checks remain pending. No production change.
+Keep the full attendance feature here separate until that writer transition and
+98-aware migration/recovery composition have been reviewed and verified.
+
+
 ---
 
 4 November release completed at 2026-11-04T00:01:50.690361+00:00 (UTC)

@@ -428,6 +428,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
           {canOperate ? (
             <BookingAttendance
               bookingId={current.id}
+              showInlineNotice={false}
               blocked={disabled}
               onUpdated={(notice) => {
                 setMessage(notice);

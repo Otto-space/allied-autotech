@@ -152,6 +152,7 @@ export function WorkforceBookingDetail({
             <BookingAttendance
               bookingId={row.id}
               managed
+              showInlineNotice={false}
               blocked={!!error || record.refreshing}
               onUpdated={(notice) => {
                 setMessage(notice);
