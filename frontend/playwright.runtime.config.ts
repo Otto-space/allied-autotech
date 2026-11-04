@@ -72,8 +72,8 @@ export default defineConfig({
       reuseExistingServer: false,
       timeout: 90_000,
       env: {
-        // Reuse the exact production-check build. Browser API calls are sent to
-        // the same loopback fixture because the built rewrite retains CI's origin.
+        // Reuse the exact production-check build. Its rewrite keeps the CI
+        // placeholder, so browser fixtures explicitly route API calls to loopback.
         BACKEND_ORIGIN: "http://127.0.0.1:5024",
         VERCEL: "",
         VERCEL_ENV: "development",

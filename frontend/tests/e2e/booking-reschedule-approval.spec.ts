@@ -9,8 +9,8 @@ import { workBookingDetailFixture, bookingId } from "../fixtures/work-booking-de
 import type { BookingRescheduleRequest } from "@/lib/api/booking-schemas";
 import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
 
-test.beforeEach(async ({ request }) => {
-  await bookingRuntimeCapabilities(request);
+test.beforeEach(async ({ request, page }) => {
+  await bookingRuntimeCapabilities(request, page);
 });
 
 const pending = (): BookingRescheduleRequest => ({
