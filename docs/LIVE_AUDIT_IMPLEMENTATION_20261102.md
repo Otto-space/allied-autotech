@@ -72,9 +72,11 @@ against the established 12-step client bound. Related calendar/attendance guidan
 is now grouped, preserving all conditions and the bound. All 38 focused guide/Allie
 unit checks pass after correction. The broader isolated run passed 77 of 81 cases
 before the guide fix; its four failures were the same step-bound defect, so it is
-not reported as a passing full run. Targeted authenticated learning HTTP checks are
-running on the same task-owned isolated target. Attendance/resource/inspection
-source from that run remains independently recorded. Required hosted gates and
+not reported as a passing full run. The focused authenticated learning HTTP rerun passes all 11 cases on the same
+task-owned isolated target after correction. The other 70 attendance/resource/
+inspection cases passed in the combined run; this is separately sequenced evidence,
+not a claim that the previously failed 81-case invocation passed. Merged backend source typecheck and full lint pass; merge a18541f6 has a
+cryptographically verified SSH signature using the configured signing key. Required hosted gates and
 production migration/recovery acceptance still remain. No production publication.
 
 
