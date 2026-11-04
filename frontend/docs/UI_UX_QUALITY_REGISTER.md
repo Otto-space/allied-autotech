@@ -1,3 +1,12 @@
+4 November expanded verification: source ae0f9262 passed backend safety and
+secrets, frontend production checks and 222/224 rendered cases. Both remaining
+failures reproduced off-centre Parts/Vehicle filter dialogs at 768px. Their older,
+more-specific drawer rules overrode shared inset/margin values; those modal-only
+rules now center the panels and retain safe vertical space. Desktop nonmodal
+filters, all public galleries, cart confirmation, Allie, practice, order guards,
+private document sharing and the seven-size calendar/invoice/notification/garage
+cases passed in that run. Final corrected-source verification remains required.
+
 4 November modal follow-up: initial source 5c938a05 passed hosted frontend
 production checks (1,486 units, 12 existing skips; 187/187 browser cases). Backend
 41747735572 passed native calendar/learning integration but found that the longer
