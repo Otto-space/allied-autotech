@@ -25,3 +25,5 @@ transition and compatible recovery API; no production migration was applied by
 this attendance batch. Retain current production and recovery resources.
 
 Integration preserves master recorded-work guidance and the current customer and staff calendar instructions. The combined article versions advance rather than overwriting the independently prepared versions.
+
+Retrieval acceptance: customer service guidance remains within the existing 12-step and 8,000-character passage limits. The existing five-audience retrieval coverage is retained; no restricted catalogue is widened to make content discoverable.

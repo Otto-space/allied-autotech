@@ -80,6 +80,19 @@ cryptographically verified SSH signature using the configured signing key. Requi
 production migration/recovery acceptance still remain. No production publication.
 
 
+Hosted regression checkpoint: the 7dad16e1 backend run passed its migration,
+booking/resource/financial and earlier learning stages, then failed five audience
+retrieval assertions because the expanded service article exceeded Allie's existing
+8,000-character passage budget. Do not report that required gate as passed. The
+article now uses shorter wording while preserving calendar, attendance and penalty
+conditions; neither the 12-step nor passage limits, access gates or assertions were
+relaxed. All 44 focused guide/Allie/retrieval unit cases pass after correction.
+Fresh native Edge component reruns on the integrated shared styles pass both
+390/1440 arrival/wait cases and all seven responsive/loading/error/recovery states.
+The signed source remains in draft PR #20, held for updated hosted checks and the
+recorded migration recovery/full-dashboard acceptance requirements.
+
+
 ---
 
 4 November release completed at 2026-11-04T00:01:50.690361+00:00 (UTC)
