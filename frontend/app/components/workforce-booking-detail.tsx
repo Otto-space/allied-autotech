@@ -1,4 +1,6 @@
 "use client";
+import { BookingWorkReview } from "./booking-work-review";
+import { BookingWorkEstimate } from "./booking-work-estimate";
 import { BookingTimingReview } from "./booking-timing-review";
 import Link from "next/link";
 import { workforceAccessKey } from "@/lib/workforce-registry";
@@ -140,6 +142,32 @@ export function WorkforceBookingDetail({
             </section>
           )}
           <BookingRescheduleHistory requests={row.rescheduleRequests} />
+          <BookingWorkEstimate estimate={row.workEstimate} status={row.status} />
+          <BookingWorkReview
+            key={
+              "work:" +
+              access.userId +
+              ":" +
+              row.id +
+              ":" +
+              row.version +
+              ":" +
+              workforceAccessKey(access)
+            }
+            booking={row}
+            owner={access.userId}
+            access={access}
+            onSaved={(version) => {
+              if (version !== undefined) {
+                setMinimumVersion(version);
+                setMessage(
+                  "Remaining work estimate reviewed. The original visit and recorded start are unchanged.",
+                );
+              }
+              record.refresh();
+              refreshAccess();
+            }}
+          />
           <BookingTimingReview
             key={`timing:${access.userId}:${row.id}:${row.version}:${workforceAccessKey(access)}`}
             booking={row}

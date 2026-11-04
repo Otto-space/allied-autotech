@@ -1,3 +1,4 @@
+import { currentWorkEstimate } from "../service-operations/booking-work-estimate.js";
 import { allocateBookingResources } from "../service-operations/booking-resources.js";
 import {
   bookedJobMinutes,
@@ -386,6 +387,10 @@ export class WorkforceWorkService {
           customerConcern: true,
           scheduleVersion: true,
           timingSnapshots: bookingSelect.timingSnapshots,
+          resourceAllocations: bookingSelect.resourceAllocations,
+          serviceId: true,
+          assignedStaffId: true,
+          startedAt: true,
           alternativeStartsAt: true,
           alternativeReason: true,
           alternativeVersion: true,
@@ -430,8 +435,15 @@ export class WorkforceWorkService {
         { workforceAction: "BOOKING_DETAIL" },
         true,
       );
+      const {
+        resourceAllocations,
+        serviceId: _serviceId,
+        assignedStaffId: _staffId,
+        ...safe
+      } = row;
       return {
-        ...row,
+        ...safe,
+        workEstimate: currentWorkEstimate(row, resourceAllocations),
         service: row.service
           ? {
               ...row.service,
@@ -620,7 +632,11 @@ export class WorkforceWorkService {
       await tx.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const booking = await tx.booking.findFirst({
         where: { AND: [{ id }, bookingScope(access, "JOBS_UPDATE")] },
-        select: jobSelect,
+        select: {
+          ...jobSelect,
+          startedAt: true,
+          workOrder: { select: { ...jobSelect.workOrder.select, startedAt: true } },
+        },
       });
       if (!booking?.workOrder) workforceNotFound();
       const work = booking.workOrder;
@@ -648,7 +664,7 @@ export class WorkforceWorkService {
             ? {}
             : { internalNotes: input.internalNotes }),
           ...(input.status ? { status: input.status } : {}),
-          ...(input.status === "IN_PROGRESS" ? { startedAt: now } : {}),
+          ...(input.status === "IN_PROGRESS" ? { startedAt: work.startedAt ?? now } : {}),
           workedByUserIds: [...new Set([...work.workedByUserIds, actor.userId])],
           version: { increment: 1 },
         },
@@ -657,7 +673,11 @@ export class WorkforceWorkService {
       if (input.status === "IN_PROGRESS" && booking.status === "CONFIRMED")
         await tx.booking.update({
           where: { id },
-          data: { status: "IN_PROGRESS", startedAt: now, version: { increment: 1 } },
+          data: {
+            status: "IN_PROGRESS",
+            startedAt: booking.startedAt ?? now,
+            version: { increment: 1 },
+          },
         });
       if (input.status === "IN_PROGRESS")
         await allocateBookingResources(

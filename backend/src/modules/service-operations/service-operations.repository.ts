@@ -1,4 +1,8 @@
 import {
+  bookingWorkEstimateSelect,
+  bookingWithWorkEstimate,
+} from "./booking-work-estimate.js";
+import {
   workshopResourceAvailabilitySelect,
   type WorkshopResourceAvailability,
 } from "./booking-resource-availability.js";
@@ -186,6 +190,11 @@ const publicBookingSlotSelect = {
 } satisfies Prisma.BookingSlotSelect;
 
 export const bookingSelect = {
+  resourceAllocations: {
+    select: bookingWorkEstimateSelect,
+    orderBy: { bookingVersion: "desc" as const },
+    take: 1,
+  },
   timingSnapshots: {
     select: {
       scheduleVersion: true,
@@ -688,7 +697,7 @@ export class ServiceOperationsRepository {
     });
     return row
       ? {
-          ...row,
+          ...bookingWithWorkEstimate(row),
           service: row.service
             ? { ...row.service, durationMinutes: bookedJobMinutes(row) }
             : null,

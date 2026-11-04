@@ -9647,6 +9647,161 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/bookings/{bookingId}/work-review`
+
+- Operation ID: `getStaffBookingsByBookingIdWorkReview`
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Read current permitted equipment choices and latest work review. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read current permitted equipment choices and latest work review",
+  "data": {
+    "bookingId": "00000000-0000-4000-8000-000000000001",
+    "version": 0,
+    "scheduleVersion": 0,
+    "status": "synthetic-status",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "serviceId": "00000000-0000-4000-8000-000000000001",
+    "staffId": "00000000-0000-4000-8000-000000000001",
+    "startedAt": "2030-01-15T10:00:00.000Z",
+    "canReview": true,
+    "resourcePolicyVersionId": "00000000-0000-4000-8000-000000000001",
+    "cleanupMinutes": "synthetic-cleanupminutes",
+    "requirements": [
+      {
+        "pool": "synthetic-pool",
+        "quantity": 1
+      }
+    ],
+    "resources": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "kind": "synthetic-kind",
+        "status": "synthetic-status",
+        "pools": [
+          "synthetic-pools-item"
+        ]
+      }
+    ],
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "bookingVersion": 0,
+      "resourcePolicyVersionId": "00000000-0000-4000-8000-000000000001",
+      "reviewedAt": "2030-01-15T10:00:00.000Z",
+      "remainingMinutes": 1,
+      "cleanupMinutes": 0,
+      "expectedWorkEndsAt": "2030-01-15T10:00:00.000Z",
+      "resourceIds": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "reason": "synthetic-reason",
+      "performedByUserId": "00000000-0000-4000-8000-000000000001"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/bookings/{bookingId}/work-review`
+
+- Operation ID: `postStaffBookingsByBookingIdWorkReview`
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Review remaining work and actual physical units without moving the visit. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `resourcePolicyVersionId` | string (uuid) | Yes | Identifier of the resource policy version resource; ownership is resolved server-side. |
+| `remainingMinutes` | integer | Yes | Remaining Minutes validated by this operation's strict request contract. |
+| `cleanupMinutes` | integer | Yes | Cleanup Minutes validated by this operation's strict request contract. |
+| `resourceIds` | array<string (uuid)> | Yes | Resource Ids validated by this operation's strict request contract. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "resourcePolicyVersionId": "00000000-0000-4000-8000-000000000001",
+  "remainingMinutes": 1,
+  "cleanupMinutes": 0,
+  "resourceIds": [
+    "00000000-0000-4000-8000-000000000001"
+  ],
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Review remaining work and actual physical units without moving the visit",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "serviceId": "00000000-0000-4000-8000-000000000001",
+    "staffId": "00000000-0000-4000-8000-000000000001",
+    "version": 0,
+    "scheduleVersion": 0,
+    "status": "synthetic-status",
+    "scheduledAt": "2030-01-15T10:00:00.000Z",
+    "startedAt": "2030-01-15T10:00:00.000Z",
+    "performedByUserId": "00000000-0000-4000-8000-000000000001",
+    "review": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "bookingVersion": 0,
+      "resourcePolicyVersionId": "00000000-0000-4000-8000-000000000001",
+      "reviewedAt": "2030-01-15T10:00:00.000Z",
+      "remainingMinutes": 1,
+      "cleanupMinutes": 0,
+      "expectedWorkEndsAt": "2030-01-15T10:00:00.000Z",
+      "resourceIds": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "reason": "synthetic-reason",
+      "performedByUserId": "00000000-0000-4000-8000-000000000001"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/staff/bookings/{bookingId}/timing`
 
 - Operation ID: `postStaffBookingsByBookingIdTiming`
@@ -19171,6 +19326,161 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/workforce/bookings/{id}/work-review`
+
+- Operation ID: `getStaffWorkforceBookingsByIdWorkReview`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingWorkReviewOptions. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: bookingWorkReviewOptions",
+  "data": {
+    "bookingId": "00000000-0000-4000-8000-000000000001",
+    "version": 0,
+    "scheduleVersion": 0,
+    "status": "synthetic-status",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "serviceId": "00000000-0000-4000-8000-000000000001",
+    "staffId": "00000000-0000-4000-8000-000000000001",
+    "startedAt": "2030-01-15T10:00:00.000Z",
+    "canReview": true,
+    "resourcePolicyVersionId": "00000000-0000-4000-8000-000000000001",
+    "cleanupMinutes": "synthetic-cleanupminutes",
+    "requirements": [
+      {
+        "pool": "synthetic-pool",
+        "quantity": 1
+      }
+    ],
+    "resources": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "kind": "synthetic-kind",
+        "status": "synthetic-status",
+        "pools": [
+          "synthetic-pools-item"
+        ]
+      }
+    ],
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "bookingVersion": 0,
+      "resourcePolicyVersionId": "00000000-0000-4000-8000-000000000001",
+      "reviewedAt": "2030-01-15T10:00:00.000Z",
+      "remainingMinutes": 1,
+      "cleanupMinutes": 0,
+      "expectedWorkEndsAt": "2030-01-15T10:00:00.000Z",
+      "resourceIds": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "reason": "synthetic-reason",
+      "performedByUserId": "00000000-0000-4000-8000-000000000001"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/workforce/bookings/{id}/work-review`
+
+- Operation ID: `postStaffWorkforceBookingsByIdWorkReview`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingWorkReview. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `resourcePolicyVersionId` | string (uuid) | Yes | Identifier of the resource policy version resource; ownership is resolved server-side. |
+| `remainingMinutes` | integer | Yes | Remaining Minutes validated by this operation's strict request contract. |
+| `cleanupMinutes` | integer | Yes | Cleanup Minutes validated by this operation's strict request contract. |
+| `resourceIds` | array<string (uuid)> | Yes | Resource Ids validated by this operation's strict request contract. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "resourcePolicyVersionId": "00000000-0000-4000-8000-000000000001",
+  "remainingMinutes": 1,
+  "cleanupMinutes": 0,
+  "resourceIds": [
+    "00000000-0000-4000-8000-000000000001"
+  ],
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: bookingWorkReview",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "serviceId": "00000000-0000-4000-8000-000000000001",
+    "staffId": "00000000-0000-4000-8000-000000000001",
+    "version": 0,
+    "scheduleVersion": 0,
+    "status": "synthetic-status",
+    "scheduledAt": "2030-01-15T10:00:00.000Z",
+    "startedAt": "2030-01-15T10:00:00.000Z",
+    "performedByUserId": "00000000-0000-4000-8000-000000000001",
+    "review": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "bookingVersion": 0,
+      "resourcePolicyVersionId": "00000000-0000-4000-8000-000000000001",
+      "reviewedAt": "2030-01-15T10:00:00.000Z",
+      "remainingMinutes": 1,
+      "cleanupMinutes": 0,
+      "expectedWorkEndsAt": "2030-01-15T10:00:00.000Z",
+      "resourceIds": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "reason": "synthetic-reason",
+      "performedByUserId": "00000000-0000-4000-8000-000000000001"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/staff/workforce/bookings/{id}/timing`
 
 - Operation ID: `postStaffWorkforceBookingsByIdTiming`
@@ -19540,6 +19850,12 @@ Success: HTTP 200.
         "createdAt": "2030-01-15T10:00:00.000Z"
       }
     ],
+    "startedAt": "2030-01-15T10:00:00.000Z",
+    "workEstimate": {
+      "reviewedAt": "2030-01-15T10:00:00.000Z",
+      "remainingMinutes": 1,
+      "estimatedWorkEndsAt": "2030-01-15T10:00:00.000Z"
+    },
     "alternativeStartsAt": "2030-01-15T10:00:00.000Z",
     "alternativeReason": "synthetic-alternativereason",
     "alternativeVersion": "synthetic-alternativeversion",

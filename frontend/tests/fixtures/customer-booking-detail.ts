@@ -1,3 +1,4 @@
+import type { BookingWorkEstimate } from "../../lib/api/booking-work-review-schemas";
 import type { BookingRescheduleRequest } from "@/lib/api/booking-schemas";
 import type { Page } from "@playwright/test";
 import { bookingId, bookingRecord } from "./customer-bookings";
@@ -13,6 +14,7 @@ export function detailRecord() {
     requestedAt: new Date(Date.now() - 86400000).toISOString(),
     confirmedAt: new Date().toISOString(),
     startedAt: null as string | null,
+    workEstimate: null as BookingWorkEstimate | null,
     completedAt: null,
     cancelledAt: null,
     customerNotes: "Please check the warning light and the brakes.",

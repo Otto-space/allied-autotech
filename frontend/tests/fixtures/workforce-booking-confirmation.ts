@@ -1,3 +1,4 @@
+import type { BookingWorkEstimate } from "../../lib/api/booking-work-review-schemas";
 import type { z } from "zod";
 import type { bookingTimingSnapshotSchema } from "../../lib/api/booking-timing-schemas";
 import type { BookingRescheduleRequest } from "../../lib/api/booking-schemas";
@@ -49,6 +50,8 @@ export async function workforceBookingConfirmationFixture(
       timingSnapshots: [] as z.infer<typeof bookingTimingSnapshotSchema>[],
       scheduledAt: "2040-01-02T09:00:00.000Z",
       confirmedAt: null as string | null,
+      startedAt: null as string | null,
+      workEstimate: null as BookingWorkEstimate | null,
       rescheduleRequests: [] as BookingRescheduleRequest[],
       alternativeStartsAt: null as string | null,
       alternativeReason: null as string | null,
