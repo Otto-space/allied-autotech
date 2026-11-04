@@ -30,7 +30,6 @@ resource facts/owner configuration, running-job estimate/resource review and leg
 operational assessment remain separate work. No financial activation, migration,
 real staff assignment or physical attendance is inferred.
 
-
 4 November integration checkpoint: c80b4080 passed all exact-source gates:
 Frontend 41741100952 (1,486 units, 12 existing skips; 150 browser cases), Backend
 41741100977 (including all five overview cases), Secrets 41741100951. Master then
