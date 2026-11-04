@@ -34,6 +34,16 @@ API/worker runtime. Never run the older 97 migrator against a 98 ledger. See
 backend/docs/attendance-writer-transition.md. No production database/firewall,
 permissions, prices, policies or capability flags were changed by this rehearsal.
 
+Compatibility UI follow-up: the old missed-status option is removed from the
+legacy staff form, and its temporary unavailability is explicit beside the other
+status choices. The regression now requires no unsupported option or write and
+retains mobile navigation, readable current status and accessibility checks. It is
+registered in the existing hosted runtime suite (225 intended cases). The full
+feature in draft #20 replaces this temporary notice/case with verified attendance;
+remove the compatibility-only project on that integration, preserving the complete
+new workflow's assertions. Source lint/discovery is not a browser pass.
+
+
 ---
 
 4 November exact-master gate: 9fbf3732 passed backend safety, secrets,

@@ -48,3 +48,5 @@ Approved operator network access remains scoped to the current computer for the
 remaining bounded backup, restore and verified-release work. Add a rule only when
 needed; record and remove only its UUID, then freshly verify removal. Stop on
 target, source, privilege, migration, backup, recovery or concurrent-release drift.
+
+The compatibility UI removes the unavailable raw missed-status option and labels the temporary limitation. When integrating the full feature, remove that temporary sentence and compatibility-only browser case/project; retain the raw-option removal and replace coverage with the complete verified-attendance workflow.
