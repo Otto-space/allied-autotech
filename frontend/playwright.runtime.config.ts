@@ -10,6 +10,7 @@ export default defineConfig({
       name: "runtime",
       testMatch: [
         "runtime-capabilities.spec.ts",
+        "public-search-recovery.spec.ts",
         "appointment-export.spec.ts",
         "booking-reschedule-approval.spec.ts",
         "workforce-booking-reschedule.spec.ts",

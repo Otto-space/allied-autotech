@@ -112,7 +112,7 @@ export async function SearchResults({
                       : null,
                   ]
                     .filter(Boolean)
-                    .join(" ? ") || undefined,
+                    .join(" · ") || undefined,
                 href: `/parts/${row.id}`,
               })),
           },
