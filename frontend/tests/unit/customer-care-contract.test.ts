@@ -44,3 +44,31 @@ it.each([
     }).success,
   ).toBe(false);
 });
+
+it("keeps legacy attention fields absent and rejects terminal enquiry or non-collection readiness", () => {
+  const care = customerCareSchema.parse(legacy);
+  expect(care.enquiry).toBeUndefined();
+  expect(care.invoice).toBeUndefined();
+  expect(care.collectionOrder).toBeUndefined();
+  expect(
+    customerCareSchema.safeParse({
+      ...legacy,
+      enquiry: {
+        id: photo.id,
+        subject: "closed",
+        status: "CLOSED",
+        updatedAt: "2026-11-03T12:00:00Z",
+      },
+    }).success,
+  ).toBe(false);
+  expect(
+    customerCareSchema.safeParse({
+      ...legacy,
+      collectionOrder: {
+        ...legacy.order,
+        status: "COMPLETED",
+        fulfillmentMethod: "COLLECTION",
+      },
+    }).success,
+  ).toBe(false);
+});
