@@ -7,6 +7,7 @@ import { serviceOperationConflict } from "./service-operations.errors.js";
 export const capacitySettingsSchema = z
   .object({
     dailyLimit: z.number().int().min(1).max(1000),
+    noShowGraceMinutes: z.number().int().min(0).max(1440).optional(),
     openingDays: z.array(z.number().int().min(0).max(6)).min(1).max(7),
     opensAt: z.literal("08:00"),
     closesAt: z.literal("18:00"),
@@ -62,7 +63,7 @@ export async function assertBookingCapacity(
       branchId: booking.branchId,
       id: { not: booking.id },
       scheduledAt: { gte: start, lt: end },
-      status: { in: ["CONFIRMED", "IN_PROGRESS", "COMPLETED", "NO_SHOW"] },
+      status: { in: ["CONFIRMED", "IN_PROGRESS", "COMPLETED"] },
     },
   });
   if (confirmed >= settings.dailyLimit)

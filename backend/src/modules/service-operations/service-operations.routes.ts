@@ -1,3 +1,7 @@
+import {
+  bookingAttendanceBodySchema,
+  bookingAttendanceQuerySchema,
+} from "./booking-attendance.js";
 import { bookingTimingOverrideBodySchema } from "./service-operations.schemas.js";
 import {
   bookingRescheduleDecisionBodySchema,
@@ -272,6 +276,22 @@ export function createStaffServiceOperationsRouter(): Router {
       query: serviceOperationsEmptyQuerySchema,
     }),
     controller.assignBooking,
+  );
+  router.get(
+    "/bookings/:bookingId/attendance",
+    validate({ params: bookingParamsSchema, query: bookingAttendanceQuerySchema }),
+    controller.readBookingAttendance,
+  );
+  router.post(
+    "/bookings/:bookingId/attendance",
+    requireCsrf,
+    createSensitiveRateLimit(30),
+    validate({
+      params: bookingParamsSchema,
+      body: bookingAttendanceBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.recordBookingAttendance,
   );
   router.post(
     "/bookings/:bookingId/status",

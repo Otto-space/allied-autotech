@@ -1,3 +1,9 @@
+import {
+  bookingAttendanceBodySchema,
+  bookingAttendanceQuerySchema,
+  bookingAttendanceSnapshotSchema,
+  bookingAttendanceReceiptSchema,
+} from "./booking-attendance.js";
 import { bookingTimingOverrideBodySchema } from "./service-operations.schemas.js";
 import {
   bookingRescheduleDecisionBodySchema,
@@ -358,6 +364,27 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       body: bookingDisruptionBodySchema,
       secured: true,
       csrf: true,
+    },
+    {
+      method: "get",
+      path: "/staff/bookings/{bookingId}/attendance",
+      summary:
+        "Read actual staff-recorded attendance and delegated grace; RSVP is not arrival",
+      params: bookingParamsSchema,
+      query: bookingAttendanceQuerySchema,
+      secured: true,
+      response: responseSchema.extend({ data: bookingAttendanceSnapshotSchema }),
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/attendance",
+      summary:
+        "Record arrival, waiting, leaving or a verified missed appointment; version-bound and idempotent",
+      params: bookingParamsSchema,
+      body: bookingAttendanceBodySchema,
+      secured: true,
+      csrf: true,
+      response: responseSchema.extend({ data: bookingAttendanceReceiptSchema }),
     },
     {
       method: "post",

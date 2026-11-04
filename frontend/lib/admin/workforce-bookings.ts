@@ -1,3 +1,4 @@
+import { attendanceEventSchema } from "../api/booking-attendance";
 import { bookingTimingSnapshotSchema } from "../api/booking-timing-schemas";
 import { rescheduleRequestSchema } from "../api/booking-schemas";
 import { z } from "zod";
@@ -10,10 +11,11 @@ export const bookingStatusLabels = {
   IN_PROGRESS: "In progress",
   COMPLETED: "Completed",
   CANCELLED: "Cancelled",
-  NO_SHOW: "No show",
+  NO_SHOW: "Missed appointment",
   EXPIRED: "Expired",
 } as const;
 const workforceBookingSchema = z.object({
+  attendanceEvents: z.array(attendanceEventSchema).max(30).optional(),
   scheduleVersion: z.number().int().nonnegative().optional(),
   timingSnapshots: z.array(bookingTimingSnapshotSchema).max(10).optional(),
   rescheduleRequests: z.array(rescheduleRequestSchema).max(10).optional(),

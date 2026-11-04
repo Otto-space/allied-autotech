@@ -1,4 +1,12 @@
 import {
+  attendanceSnapshot,
+  attendancePolicy,
+  assertAttendanceAction,
+  attendanceDigest,
+  attendanceEventSelect,
+  type BookingAttendanceInput,
+} from "./booking-attendance.js";
+import {
   allocateBookingResources,
   findApprovedWorkshopResources,
   assertOfferedWorkshopResources,
@@ -2444,13 +2452,244 @@ export class ServiceOperationsService {
     });
   }
 
+  private async lockAttendanceBooking(
+    actor: AuthenticatedActor,
+    id: string,
+    tx: Prisma.TransactionClient,
+    managed: boolean,
+  ) {
+    await lockWorkforce(tx);
+    await lockAccessActor(tx, actor);
+    if (!managed || actor.role === "ADMIN" || actor.role === "SUPER_ADMIN")
+      return {
+        booking: await this.lockAuthorizedStaffBooking(actor, id, tx),
+        recheck: async () => {},
+      };
+    const permitted = async () => {
+      const access = await workforceSnapshot(tx, actor);
+      if (!access.managed) workforceDenied();
+      const scopes: Prisma.BookingWhereInput[] = [];
+      if (
+        access.independentCapabilities.includes("BOOKING_CONFIRM") &&
+        access.permissions.includes("BOOKINGS_READ")
+      )
+        scopes.push(bookingScope(access, "BOOKINGS_READ"));
+      if (access.permissions.includes("JOBS_UPDATE"))
+        scopes.push(bookingScope(access, "JOBS_UPDATE"));
+      if (!scopes.length) workforceDenied();
+      return tx.booking.findFirst({
+        where: { AND: [{ id }, { OR: scopes }] },
+        select: { id: true },
+      });
+    };
+    if (!(await permitted())) workforceNotFound();
+    const booking = await this.repository.lockBooking(id, tx);
+    if (!booking || !(await permitted())) workforceNotFound();
+    return {
+      booking,
+      recheck: async () => {
+        if (!(await permitted())) workforceNotFound();
+      },
+    };
+  }
+
+  async readBookingAttendance(
+    actor: AuthenticatedActor,
+    id: string,
+    context: RequestSecurityContext,
+    managed = false,
+    receiptId?: string,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      const { booking, recheck } = await this.lockAttendanceBooking(
+        actor,
+        id,
+        tx,
+        managed,
+      );
+      const result = {
+        ...(await attendanceSnapshot(tx, booking)),
+        receipt: receiptId
+          ? await tx.bookingAttendanceEvent.findFirst({
+              where: { id: receiptId, bookingId: id, recordedByUserId: actor.userId },
+              select: attendanceEventSelect,
+            })
+          : null,
+      };
+      await recheck();
+      await appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: "BOOKING",
+        entityId: id,
+        newValues: { attendanceRead: true },
+        context,
+      });
+      return jsonSafe(result);
+    });
+  }
+
+  async recordBookingAttendance(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingAttendanceInput,
+    context: RequestSecurityContext,
+    managed = false,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      const { booking, recheck } = await this.lockAttendanceBooking(
+        actor,
+        id,
+        tx,
+        managed,
+      );
+      const digest = attendanceDigest(actor.userId, id, input);
+      const existing = await tx.bookingAttendanceEvent.findUnique({
+        where: { id: input.operationId },
+      });
+      if (existing) {
+        if (
+          existing.bookingId !== id ||
+          existing.recordedByUserId !== actor.userId ||
+          existing.operationDigest !== digest
+        )
+          throw serviceOperationConflict(
+            "This update reference was already used for another action",
+          );
+        const event = await tx.bookingAttendanceEvent.findUniqueOrThrow({
+          where: { id: existing.id },
+          select: attendanceEventSelect,
+        });
+        const attendance = await attendanceSnapshot(tx, booking);
+        await recheck();
+        return jsonSafe({ event, performedByUserId: actor.userId, attendance });
+      }
+      if (booking.version !== input.expectedVersion) throw staleServiceOperation();
+      const now = new Date(),
+        policy = await attendancePolicy(tx, booking.branchId, now);
+      const previous = await tx.bookingAttendanceEvent.findFirst({
+        where: { bookingId: id, scheduleVersion: booking.scheduleVersion },
+        orderBy: { bookingVersion: "desc" },
+        select: { kind: true },
+      });
+      const arrived = await tx.bookingAttendanceEvent.findFirst({
+        where: {
+          bookingId: id,
+          scheduleVersion: booking.scheduleVersion,
+          kind: { in: ["ARRIVED", "WAITING", "LEFT"] },
+        },
+        select: { id: true },
+      });
+      assertAttendanceAction(
+        booking,
+        input.kind,
+        previous?.kind ?? null,
+        !!arrived,
+        policy.graceMinutes,
+        now,
+      );
+      if (input.kind === "ABSENCE_CONFIRMED") {
+        await this.transitionLockedBooking(
+          tx,
+          actor,
+          booking,
+          {
+            status: "NO_SHOW",
+            expectedVersion: input.expectedVersion,
+            reason: input.reason!,
+          },
+          context,
+          true,
+        );
+      } else {
+        const result = await this.repository.updateBooking(
+          id,
+          input.expectedVersion,
+          {},
+          tx,
+        );
+        if (result.count !== 1) throw staleServiceOperation();
+      }
+      const event = await tx.bookingAttendanceEvent.create({
+        data: {
+          id: input.operationId,
+          bookingId: id,
+          recordedByUserId: actor.userId,
+          bookingVersion: booking.version + 1,
+          scheduleVersion: booking.scheduleVersion,
+          kind: input.kind,
+          reason: input.reason ?? "Arrival recorded by the workshop",
+          operationDigest: digest,
+          ...(input.kind === "ABSENCE_CONFIRMED"
+            ? {
+                graceMinutes: policy.graceMinutes,
+                graceSource: policy.source,
+                gracePolicyVersionId: policy.policyVersionId,
+              }
+            : {}),
+        },
+        select: attendanceEventSelect,
+      });
+      if (input.kind !== "ABSENCE_CONFIRMED") {
+        const customer = await tx.customerProfile.findUniqueOrThrow({
+          where: { id: booking.customerId },
+          select: { userId: true },
+        });
+        await enqueueNotification(tx, {
+          userId: customer.userId,
+          type: "BOOKING",
+          category: "TRANSACTIONAL",
+          title: "Appointment attendance updated",
+          message:
+            input.kind === "ARRIVED"
+              ? "The workshop has recorded your arrival."
+              : input.kind === "WAITING"
+                ? "You are waiting for an available turn. A new appointment time still needs confirmation."
+                : "The workshop has recorded that you left. Contact the team or request another appointment time if needed.",
+          resourceType: "BOOKING",
+          resourceId: id,
+          deduplicationKey: `booking:${id}:attendance:${input.operationId}`,
+          channels: ["EMAIL"],
+        });
+      }
+      await appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "UPDATE",
+        entityType: "BOOKING",
+        entityId: id,
+        newValues: {
+          attendanceEventId: event.id,
+          kind: event.kind,
+          reason: event.reason,
+          scheduleVersion: event.scheduleVersion,
+          bookingVersion: event.bookingVersion,
+          graceMinutes: event.graceMinutes,
+          graceSource: event.graceSource,
+        },
+        context,
+      });
+      const current = await this.repository.lockBooking(id, tx);
+      if (!current) throw serviceOperationNotFound();
+      const attendance = await attendanceSnapshot(tx, current);
+      await recheck();
+      return jsonSafe({ event, performedByUserId: actor.userId, attendance });
+    });
+  }
+
   private async transitionLockedBooking(
     transaction: Prisma.TransactionClient,
     actor: AuthenticatedActor,
     booking: NonNullable<Awaited<ReturnType<ServiceOperationsRepository["lockBooking"]>>>,
     input: BookingTransitionInput,
     context: RequestSecurityContext,
+    verifiedAbsence = false,
   ) {
+    if (input.status === "NO_SHOW" && !verifiedAbsence)
+      throw serviceOperationConflict(
+        "Use Check attendance to record a staff absence verification",
+      );
     const id = booking.id;
     if (!bookingTransitions[booking.status].includes(input.status))
       throw invalidServiceTransition();
@@ -2552,12 +2791,12 @@ export class ServiceOperationsService {
         userId: customer.userId,
         type: "BOOKING",
         category: "TRANSACTIONAL",
-        title: "Booking marked as no-show",
+        title: "Missed appointment",
         message:
-          "Staff marked this appointment as a no-show. No automatic fee or deposit forfeiture has been applied.",
+          "The workshop checked attendance and recorded this appointment as missed. You can request another appointment. No automatic fee or forfeiture has been applied.",
         resourceType: "BOOKING",
         resourceId: id,
-        deduplicationKey: `booking:${id}:no-show`,
+        deduplicationKey: `booking:${id}:schedule:${booking.scheduleVersion}:missed`,
         channels: ["EMAIL"],
       });
     }

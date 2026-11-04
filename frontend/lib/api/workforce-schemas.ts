@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { attendanceEventSchema } from "./booking-attendance";
 import { workforceEffectiveAccessSchema } from "./workforce-effective-access";
 import { capabilitySchema } from "./capability-schemas";
 export const parseWorkforceAssignees = (value: unknown) =>
@@ -198,6 +199,7 @@ const work = z.object({
   qualityApprovedAt: z.iso.datetime().nullable(),
 });
 export const workforceJobSchema = z.object({
+  attendanceEvents: z.array(attendanceEventSchema).max(30).optional(),
   id: z.uuid(),
   branchId: z.uuid().nullable(),
   scheduledAt: z.iso.datetime(),

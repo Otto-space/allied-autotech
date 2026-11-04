@@ -1,4 +1,6 @@
 "use client";
+import { BookingAttendance, BookingAttendanceHistory } from "./booking-attendance";
+import { workforceAllows, workforceActionPredicates } from "@/lib/workforce-registry";
 import { BookingTimingReview } from "./booking-timing-review";
 import Link from "next/link";
 import { workforceAccessKey } from "@/lib/workforce-registry";
@@ -140,6 +142,28 @@ export function WorkforceBookingDetail({
             </section>
           )}
           <BookingRescheduleHistory requests={row.rescheduleRequests} />
+          {workforceAllows(access, workforceActionPredicates.bookingConfirm, {
+            branchId: row.branchId,
+          }) ||
+          workforceAllows(access, workforceActionPredicates.jobWork, {
+            branchId: row.branchId,
+            assignedStaffId: row.assignedStaff?.id ?? null,
+          }) ? (
+            <BookingAttendance
+              bookingId={row.id}
+              managed
+              showInlineNotice={false}
+              blocked={!!error || record.refreshing}
+              onUpdated={(notice) => {
+                setMessage(notice);
+                record.refresh();
+                refreshAccess();
+              }}
+            />
+          ) : (
+            <BookingAttendanceHistory events={row.attendanceEvents} />
+          )}
+
           <BookingTimingReview
             key={`timing:${access.userId}:${row.id}:${row.version}:${workforceAccessKey(access)}`}
             booking={row}
