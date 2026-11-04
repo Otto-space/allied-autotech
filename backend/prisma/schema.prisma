@@ -573,6 +573,7 @@ enum OutboxStatus {
 }
 
 model User {
+  bookingAttendanceEvents      BookingAttendanceEvent[]
   createdResourceAllocations   BookingResourceAllocation[]
   bookingTimingSnapshots       BookingTimingSnapshot[]
   purchaseReviews              OrderPurchaseReview[]
@@ -1070,6 +1071,7 @@ model BookingSlot {
 }
 
 model Booking {
+  attendanceEvents             BookingAttendanceEvent[]
   resourceAllocations          BookingResourceAllocation[]
   timingSnapshots              BookingTimingSnapshot[]
   rescheduleRequests           BookingRescheduleRequest[]
@@ -2839,6 +2841,7 @@ model SupportDeliveryNoticeDismissal {
 }
 
 model BusinessPolicyVersion {
+  bookingAttendanceEvents               BookingAttendanceEvent[]
   resourceAllocations                   BookingResourceAllocation[]
   vehicleReservations                   VehicleTransaction[]        @relation("VehicleReservationTerms")
   id                                    String                      @id @default(uuid()) @db.Uuid
@@ -3390,4 +3393,25 @@ model BookingResourceAllocation {
   @@unique([bookingId, bookingVersion])
   @@index([startsAt, endsAt])
   @@index([resourceIds], type: Gin)
+}
+
+model BookingAttendanceEvent {
+  id                   String                 @id @db.Uuid
+  bookingId            String                 @db.Uuid
+  recordedByUserId     String                 @db.Uuid
+  bookingVersion       Int
+  scheduleVersion      Int
+  kind                 String                 @db.VarChar(32)
+  reason               String                 @db.VarChar(1000)
+  operationDigest      String                 @db.Char(64)
+  createdAt            DateTime               @default(now())
+  graceMinutes         Int?
+  graceSource          String?                @db.VarChar(40)
+  gracePolicyVersionId String?                @db.Uuid
+  booking              Booking                @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  recordedByUser       User                   @relation(fields: [recordedByUserId], references: [id], onDelete: Restrict)
+  gracePolicyVersion   BusinessPolicyVersion? @relation(fields: [gracePolicyVersionId], references: [id], onDelete: Restrict)
+
+  @@unique([bookingId, bookingVersion])
+  @@index([bookingId, scheduleVersion, bookingVersion], map: "BookingAttendanceEvent_schedule_history_idx")
 }

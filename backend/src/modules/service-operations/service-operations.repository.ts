@@ -1,3 +1,4 @@
+import { attendanceEventSelect } from "./booking-attendance.js";
 import {
   workshopResourceAvailabilitySelect,
   type WorkshopResourceAvailability,
@@ -186,6 +187,11 @@ const publicBookingSlotSelect = {
 } satisfies Prisma.BookingSlotSelect;
 
 export const bookingSelect = {
+  attendanceEvents: {
+    select: attendanceEventSelect,
+    orderBy: { bookingVersion: "desc" as const },
+    take: 30,
+  },
   timingSnapshots: {
     select: {
       scheduleVersion: true,
@@ -463,7 +469,7 @@ export class ServiceOperationsRepository {
       AND (${starts}+interval '1 hour')::date::text<>ALL(${calendar.holidays}::text[])
       AND (${starts}+interval '1 hour')::date=(${ends}+interval '1 hour')::date
       AND (${starts}+interval '1 hour')::time >= TIME '08:00' AND (${ends}+interval '1 hour')::time<=TIME '18:00'
-      AND (SELECT count(*) FROM "Booking" used WHERE used."branchId"=slot."branchId" AND used."status" IN ('CONFIRMED','IN_PROGRESS','COMPLETED','NO_SHOW')
+      AND (SELECT count(*) FROM "Booking" used WHERE used."branchId"=slot."branchId" AND used."status" IN ('CONFIRMED','IN_PROGRESS','COMPLETED')
        AND (used."scheduledAt"+interval '1 hour')::date=(slot."startsAt"+interval '1 hour')::date)<${calendar.dailyLimit}
       ORDER BY slot."startsAt",slot."id" LIMIT ${batchSize}
     `);

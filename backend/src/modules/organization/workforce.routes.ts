@@ -1,3 +1,7 @@
+import {
+  bookingAttendanceBodySchema,
+  bookingAttendanceQuerySchema,
+} from "../service-operations/booking-attendance.js";
 import { Router, type Request, type Response } from "express";
 import { workforceSupportLiveRouter } from "../support/support-live.routes.js";
 import { z } from "zod";
@@ -155,6 +159,20 @@ export const workforceRouteDefinitions = [
     "/staff/workforce/bookings/:id/reschedule-assignees",
     "bookingRescheduleAssignees",
     schemas.workforceBookingRescheduleAssigneesSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "get",
+    "/staff/workforce/bookings/:id/attendance",
+    "bookingAttendanceRead",
+    bookingAttendanceQuerySchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
+    "/staff/workforce/bookings/:id/attendance",
+    "bookingAttendance",
+    bookingAttendanceBodySchema,
     schemas.workforceRecordParams,
   ],
   [
@@ -489,6 +507,24 @@ export function createWorkforceRouter(): Router {
           );
           break;
         }
+        case "bookingAttendanceRead":
+          data = await new ServiceOperationsService().readBookingAttendance(
+            actor,
+            id,
+            ctx,
+            true,
+            bookingAttendanceQuerySchema.parse(req.query).receiptId,
+          );
+          break;
+        case "bookingAttendance":
+          data = await new ServiceOperationsService().recordBookingAttendance(
+            actor,
+            id,
+            bookingAttendanceBodySchema.parse(body),
+            ctx,
+            true,
+          );
+          break;
         case "bookingConfirmation":
           data = await new ServiceOperationsService().confirmWorkforceBooking(
             actor,

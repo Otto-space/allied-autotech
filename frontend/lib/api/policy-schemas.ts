@@ -62,6 +62,7 @@ export const parseFinanceHistory = (value: unknown) => {
 };
 export const capacitySettingsSchema = z.object({
   dailyLimit: z.number().int().min(1).max(1000),
+  noShowGraceMinutes: z.number().int().min(0).max(1440).optional(),
   openingDays: z.array(z.number().int().min(0).max(6)).min(1).max(7),
   opensAt: z.literal("08:00"),
   closesAt: z.literal("18:00"),

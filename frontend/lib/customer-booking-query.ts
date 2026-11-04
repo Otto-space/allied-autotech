@@ -10,10 +10,12 @@ export const bookingStatuses = [
   "EXPIRED",
 ] as const;
 export const bookingLabel = (value: string) =>
-  value
-    .toLowerCase()
-    .replaceAll("_", " ")
-    .replace(/^./, (character) => character.toUpperCase());
+  value === "NO_SHOW"
+    ? "Missed appointment"
+    : value
+        .toLowerCase()
+        .replaceAll("_", " ")
+        .replace(/^./, (character) => character.toUpperCase());
 export function customerBookingQuery(input: URLSearchParams) {
   const params = new URLSearchParams();
   let invalid = false;

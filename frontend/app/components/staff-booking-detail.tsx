@@ -1,4 +1,5 @@
 "use client";
+import { BookingAttendance, BookingAttendanceHistory } from "./booking-attendance";
 import { BookingTimingReview } from "./booking-timing-review";
 import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { BookingRescheduleReview } from "./booking-reschedule-review";
@@ -29,7 +30,7 @@ type NextStatus = RequestBody<"/staff/bookings/{bookingId}/status", "post">["sta
 const transitions: Record<string, readonly NextStatus[]> = {
   REQUESTED: ["CONFIRMED", "CANCELLED"],
   AWAITING_DEPOSIT: ["CANCELLED"],
-  CONFIRMED: ["IN_PROGRESS", "CANCELLED", "NO_SHOW"],
+  CONFIRMED: ["IN_PROGRESS", "CANCELLED"],
   IN_PROGRESS: ["COMPLETED", "CANCELLED"],
 };
 const textField = (max: number) =>
@@ -424,6 +425,15 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
               </div>
             </dl>
           </section>
+          {canOperate ? (
+            <BookingAttendance
+              bookingId={current.id}
+              blocked={disabled}
+              onUpdated={booking.refresh}
+            />
+          ) : (
+            <BookingAttendanceHistory events={current.attendanceEvents} />
+          )}
           <BookingTimingReview
             key={`timing:${session.user.id}:${current.id}:${current.version}`}
             booking={{ ...current, branchId: current.branch?.id ?? null }}
