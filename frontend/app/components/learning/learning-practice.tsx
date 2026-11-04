@@ -1,4 +1,5 @@
 "use client";
+import { containDialogFocus } from "@/lib/dialog-focus";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -205,6 +206,7 @@ export function PracticeSession({
         </div>
       )}
       <dialog
+        onKeyDown={containDialogFocus}
         ref={confirm}
         className="learning-dialog"
         aria-labelledby="practice-replace-title"

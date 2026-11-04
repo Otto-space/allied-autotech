@@ -1,4 +1,5 @@
 "use client";
+import { containDialogFocus } from "@/lib/dialog-focus";
 import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
@@ -806,6 +807,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
         </>
       )}
       <dialog
+        onKeyDown={containDialogFocus}
         ref={dialog}
         className="support-dialog order-cancel-dialog"
         aria-labelledby="cancel-order-title"

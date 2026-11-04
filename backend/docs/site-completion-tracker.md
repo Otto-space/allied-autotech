@@ -1,3 +1,39 @@
+## 4 November 2026 — calendar and shared modal batch (verification in progress)
+
+Owner direction: improve the booking calendar with familiar calendar navigation;
+center modal dialogs at every size, use full safe-area width on phones, and retain
+usable, deliberately styled scrolling. This is a bounded UI batch on top of
+customer-attention PR #17 (master 1b4e5d15; all three exact-master gates pass).
+Production was independently advanced to frontend 27e41b75; this batch is not yet
+published. No launch capability, permission, business record or schema is changed.
+
+The baseline appointment calendar rendered off-centre at 320px. A separate
+seven-size invoice journey reproduced backward Tab leaving the sharing dialog.
+The calendar now offers Month/Schedule, Today, readable date counts and selected
+appointment details, with restrained Allied colours and a sticky close header.
+Recorded requests and proposals remain distinct from confirmed appointments;
+missing, offline, partial and failed requests are not presented as empty inventory
+or bookable availability. Schedule omits the repeated date block within each day.
+The service-request learning definition advances v27 to v28 without enabling it.
+
+Shared native-dialog geometry covers 18 owners: booking calendar, dashboard mobile
+navigation, notification preview, garage form, customer account action, mutation
+review, document share, order cancellation, product image preview, product and
+vehicle public galleries, equipment photo, cart update, product and vehicle
+filters, Quick help, Allie companion and practice replacement. The existing
+full-screen public navigation remains separate; nonmodal anchored category pickers
+remain anchored. All shared consumers need representative rendered regression
+checks; source coverage alone is not a pass for every workflow.
+
+Evidence: %TEMP%/allied-calendar-modal-20261104. Existing dedicated Playwright Edge,
+synthetic intercepted accounts/documents; phone contexts use mobile/touch emulation.
+The required sizes are 1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800,
+320x720. Earlier invoice 320px timed out during local navigation; its unchanged
+warm rerun passed. Final rerun and adjacent modal checks remain in progress.
+No production writes, live messages, private records or real document exports.
+Physical devices, mobile virtual keyboards, screen-reader acceptance and genuine
+200% zoom are not certified by these emulated checks.
+
 4 November integration checkpoint: c80b4080 passed all exact-source gates:
 Frontend 41741100952 (1,486 units, 12 existing skips; 150 browser cases), Backend
 41741100977 (including all five overview cases), Secrets 41741100951. Master then

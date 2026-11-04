@@ -3708,3 +3708,45 @@ html {
   font-family: var(--font-body);
   font-variant-numeric: tabular-nums;
 }
+
+/* One modal geometry across page-owned dialogs. Inner scroll regions keep their
+   layout; native modal semantics, review guards and close handlers remain local. */
+:root dialog[open] {
+  --modal-vertical-inset: max(
+    12px,
+    env(safe-area-inset-top),
+    env(safe-area-inset-bottom)
+  );
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  max-inline-size: calc(100vw - 32px);
+  max-block-size: calc(100dvh - 2 * var(--modal-vertical-inset));
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #8999a4 transparent;
+}
+:root dialog[open] :where(*) {
+  scrollbar-width: thin;
+  scrollbar-color: #8999a4 transparent;
+}
+:root dialog[open] :where(input, select, textarea) {
+  max-inline-size: 100%;
+}
+:root dialog[open] :where(h2, h3, p) {
+  overflow-wrap: anywhere;
+}
+body:has(dialog[open]) {
+  overflow: hidden;
+}
+:root:has(dialog[open]) .support-controls {
+  visibility: hidden;
+}
+@media (max-width: 600px) {
+  :root dialog[open] {
+    inline-size: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
+    max-inline-size: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
+    border-radius: 12px;
+  }
+}

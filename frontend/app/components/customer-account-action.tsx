@@ -1,4 +1,5 @@
 "use client";
+import { containDialogFocus } from "@/lib/dialog-focus";
 import { useEffect, useRef, useState } from "react";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import type { WorkCustomer } from "@/lib/admin/work-customers";
@@ -158,6 +159,7 @@ function AccountDialog({
   }
   return (
     <dialog
+      onKeyDown={containDialogFocus}
       ref={dialog}
       className="support-dialog mutation-review customer-account-dialog"
       aria-labelledby="customer-account-title"

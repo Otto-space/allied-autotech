@@ -10,7 +10,10 @@ export function containDialogFocus(event: KeyboardEvent<HTMLDialogElement>) {
   ).filter((element) => element.tabIndex >= 0 && element.getClientRects().length);
   const first = controls[0];
   const last = controls.at(-1);
-  if (event.shiftKey && document.activeElement === first) {
+  if (!controls.includes(document.activeElement as HTMLElement)) {
+    event.preventDefault();
+    (event.shiftKey ? last : first)?.focus();
+  } else if (event.shiftKey && document.activeElement === first) {
     event.preventDefault();
     last?.focus();
   } else if (!event.shiftKey && document.activeElement === last) {
