@@ -2451,6 +2451,10 @@ export class ServiceOperationsService {
     input: BookingTransitionInput,
     context: RequestSecurityContext,
   ) {
+    if (input.status === "NO_SHOW")
+      throw serviceOperationConflict(
+        "Use Check attendance to record a staff absence verification",
+      );
     const id = booking.id;
     if (!bookingTransitions[booking.status].includes(input.status))
       throw invalidServiceTransition();
@@ -2543,24 +2547,7 @@ export class ServiceOperationsService {
     if (input.status === "CONFIRMED") await scheduleReminders(transaction, updated);
     if (["COMPLETED", "CANCELLED", "NO_SHOW"].includes(input.status))
       await cancelPendingReminders(transaction, id);
-    if (input.status === "NO_SHOW") {
-      const customer = await transaction.customerProfile.findUniqueOrThrow({
-        where: { id: booking.customerId },
-        select: { userId: true },
-      });
-      await enqueueNotification(transaction, {
-        userId: customer.userId,
-        type: "BOOKING",
-        category: "TRANSACTIONAL",
-        title: "Booking marked as no-show",
-        message:
-          "Staff marked this appointment as a no-show. No automatic fee or deposit forfeiture has been applied.",
-        resourceType: "BOOKING",
-        resourceId: id,
-        deduplicationKey: `booking:${id}:no-show`,
-        channels: ["EMAIL"],
-      });
-    }
+
     await this.auditBooking(transaction, actor, booking, updated, context);
     return updated;
   }

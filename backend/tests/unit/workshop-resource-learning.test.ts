@@ -42,7 +42,7 @@ it("keeps resource-authoring instructions server-side, owner-only and draft pend
 it("versions appointment guidance without granting resource approval to ordinary bookers", () => {
   const article = learningArticles.find((a) => a.id === "booking-confirmation")!;
   expect(article).toMatchObject({
-    version: 11,
+    version: 12,
     gate: "booking-confirmation",
     href: "/admin/workforce/bookings",
   });

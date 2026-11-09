@@ -3,6 +3,9 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import type { StaffBooking } from "@/lib/api/staff-booking-schemas";
+import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
+
+test.beforeEach(async ({ request, page }) => bookingRuntimeCapabilities(request, page));
 const id = (n: number) => `20000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const record = () => ({
   id: id(1),
@@ -202,7 +205,7 @@ for (const paid of [false, true])
       paid ? 0 : 1,
     );
   });
-test("staff no-show requires explicit review, sends the version and cannot replay an uncertain result", async ({
+test("staff old missed-status action is unavailable until verified attendance controls", async ({
   page,
 }) => {
   let mutations = 0;
@@ -256,6 +259,7 @@ test("staff no-show requires explicit review, sends the version and cannot repla
       });
       return route.abort("failed");
     }
+    if (path === "/public/capabilities") return route.fallback();
     return route.fulfill({
       status: 404,
       json: { success: false, error: { code: "NOT_FOUND" } },
@@ -275,24 +279,21 @@ test("staff no-show requires explicit review, sends the version and cannot repla
     page.getByRole("link", { name: "Workshop bookings", exact: true }).first(),
   ).toBeVisible();
   await page.getByRole("button", { name: "Close dashboard navigation" }).click();
-  await page.getByLabel("Next status").selectOption("NO_SHOW");
-  await page.getByRole("button", { name: "Review status change" }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog.getByText(/no automatic fee or deposit forfeiture/)).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Go back" })).toBeFocused();
+  await expect(
+    page.getByLabel("Next status").locator("option[value=NO_SHOW]"),
+  ).toHaveCount(0);
+  await expect(
+    page.getByText("Missed-appointment updates are temporarily unavailable.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.locator(".booking-detail-status")).toHaveText("Confirmed");
   expect(mutations).toBe(0);
   const accessibility = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
     .analyze();
   expect(accessibility.violations).toEqual([]);
-  await dialog.getByRole("button", { name: "Confirm change" }).click();
-  await expect(dialog.getByText(/outcome could not be confirmed/)).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Confirm change" })).toBeDisabled();
-  await dialog.getByRole("button", { name: "Close & review record" }).click();
-  await expect(page.locator(".booking-detail-status")).toHaveText("No show");
-  await expect(page.getByLabel("Next status")).toHaveCount(0);
-  expect(reads).toBeGreaterThan(1);
-  expect(mutations).toBe(1);
+  expect(reads).toBeGreaterThan(0);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
   ).toBe(true);
