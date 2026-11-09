@@ -321,6 +321,7 @@ test("touch date selection opens the owned booking details", async ({
 }, info) => {
   const context = await browser.newContext({
     baseURL: info.project.use.baseURL,
+    ignoreHTTPSErrors: info.project.use.ignoreHTTPSErrors,
     hasTouch: true,
     isMobile: browserName !== "firefox",
     viewport: { width: 390, height: 844 },
