@@ -1,3 +1,23 @@
+### 9 November 2026: latest Saved-vehicles fix retained; D03 remains held
+
+Merge 3fc9ad6b incorporates master d553a349's saved-collection navigation/reload
+fix and Firefox/WebKit coverage without replacing the earlier workforce or
+alternative-time repairs. The inspected imported files match master exactly;
+all seven backend/quotation acceptance scopes still match tested e91e4a82.
+The actual 235/235 native result remains applicable. Final frontend types and
+scoped lint pass; secrets pass for 3,905 files. Additional-quote units pass 2/2;
+the saving suite passes 10/10 on an unchanged focused rerun after one 5-second
+product-case timeout in the combined attempt. Nine merged browser cases pass.
+Final capture history retains a fallback-stylesheet verification timeout followed
+by an unchanged passing staff-mobile rerun. No timeout/assertion was relaxed.
+See docs/help-learn/ADDITIONAL_SERVICE_QUOTES_20261109.md for exact evidence,
+safe artifacts and the distinction between local and imported acceptance.
+All task previews/fixtures and isolated DB containers are stopped/removed; the
+fourteen pre-existing containers, images/caches and owner work remain preserved.
+Final C: reserve is 21.33 GiB. Full D03 supplemental charging, actual materials
+issue/use, durable cleared-balance release and exact-source production safeguards
+remain. No production publication, migration, provider call or flag activation.
+
 ### 9 November 2026: newer master 9c219bc8 preserved and combined D03 checked
 
 Checkpoint 5ea9b64b adds explicit additional quotations; merge e91e4a82 preserves

@@ -118,7 +118,7 @@ Reused the existing worktree, dependency junction, warm Next cache and installed
 Edge; no dependency/browser install, worktree, image pull or build was created.
 Operation-specific preflights reserved 0.15 GiB for browser logs/screenshots,
 0.25 GiB for tmpfs-test tooling/logs and 0.3-0.6 GiB for the reused preview.
-The mandatory 20 GiB reserve was unchanged. Both previews and synthetic read-only
+The mandatory 20 GiB reserve was unchanged. All task previews and synthetic read-only
 capability fixtures are stopped after verification; only Next's verified generated
 heading mutation in frontend/AGENTS.md is restored. All owner instructions remain.
 No source branch, shared cache, image, volume, application database, recovery
@@ -139,3 +139,39 @@ Final customer 320/1440 and staff 1440 viewport captures plus the focused staff
 Whatsapp dock remain present; screenshots do not hide or restyle them. A visible
 Version field is asserted in customer review. Runtime CI discovery selects the
 five new agreement cases; discovery alone is not hosted browser execution.
+
+## Second concurrent integration
+
+A final remote check found master d553a349 (PR28) after 9c219bc8. Its saved-vehicle
+collection survives detail navigation and refresh; the source also retains browser
+history review binding and Firefox/WebKit navigation coverage. Reviewed the
+SavedItems/vehicle-action changes and merged them in 3fc9ad6b after evidence
+checkpoint 7e526c36. Both top-of-register histories were preserved again. The nine
+inspected imported source/test/evidence files match d553a349 byte for byte. No
+backend source, schema or native-test content changed from e91e4a82, so the actual
+235/235 result remains applicable without a duplicate database run. These imported
+Saved-items browser cases were not rerun locally by this task; their upstream
+acceptance evidence is retained, not represented as new local browser execution.
+
+Completion Docker inspection: 14 original containers, 151 images/13.82 GB,
+451 build-cache records/14.05 GB and 15 volumes/2.892 GB retained. No pruning was
+performed. Latest measured host reserve before final review: 21.36 GiB. Counts and
+logical Docker sizes are point-in-time observations, not a physical-space guarantee.
+
+Final integration checks: frontend nonincremental type checking passes after
+3fc9ad6b. Scoped browser-test lint and the 3,905-file secrets guard pass. The
+post-merge two-file unit run passes 11/12: its product-saving case exceeds the
+unchanged 5-second limit (5.957 seconds); the additional-quote units pass 2/2.
+The affected saving suite is rerun unchanged and recorded separately after its
+terminal result. No passing gate is inferred from the failed combined attempt.
+
+The unchanged focused saving-suite rerun passes 10/10 (23.19 seconds overall,
+2.03 seconds in tests), retaining its 5-second per-test limit. The final check
+set is therefore 235 native cases, nine merged-source rendered cases, four
+inspected viewport scenarios (three passing capture cases plus the unchanged
+staff-mobile 1/1 rerun), 32 guide regressions and the separately passing 2+10
+frontend units. Failure histories remain explicit. Seven acceptance source scopes
+have matching Git hashes after the latest integration; the receipt is
+`integrated-additional-quote-evidence.json`. Final measured C: reserve: 21.33 GiB.
+No new application code followed these checks. Source is a signed, unpublished
+working-branch checkpoint; no claim of exact-master CI or production acceptance.
