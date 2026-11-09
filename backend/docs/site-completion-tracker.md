@@ -1,3 +1,58 @@
+## 9 November 17:59 UTC - production-build product coverage added
+
+Exact fac525a3 backend safety 42667391915 and secrets 42667391815 pass. Frontend
+42667391841 passed its production build/types/lint/units/audit and repeated WebKit
+transport diagnostics, but its full browser matrix is still running at this note.
+Do not count its final workflow as passed. Canonical migration replay and db:check
+passed in its isolated backend run; this is not production migration or recovery.
+
+The existing production-build browser configuration now includes six operator
+estimate/uncertain-save cases, four public timing/unknown-data cases and a separate
+320px emulated-touch repeat using actual tap actions. These reuse the existing
+single build, loopback API and artifact collection. Dedicated synthetic product IDs
+leave all existing fixture products unchanged. The two new loopback responses pass
+the actual public product parser; source types, scoped ESLint and formatting pass.
+Eleven cases are collected, not yet executed on this new source. Existing 60-second
+case/15-second expectation limits are preserved for these added projects. Pushing
+this actual coverage change will supersede the older in-progress frontend run.
+
+Local dev/browser combinations twice coincided with about 9.5 GiB less free space.
+Causality is unproven. Until diagnosed, budget 10 GiB growth for that path rather
+than repeating its earlier 0.25 GiB estimate; use the official reserve check and
+prefer production-build CI. No checker/quota, application deadline or assertion
+was weakened. No local preview/browser remains. Other meaningful source/CI work
+continues. This is not a whole-goal blocker or approval request.
+
+Current source remains unpublished; full D13/order timing and the remaining audit
+scope below are retained. No production record, financial flag or permission changed.
+
+---
+
+## 9 November 17:47 UTC - PR 32 current-master merge; acceptance still pending
+
+Draft PR https://github.com/Otto-space/allied-autotech/pull/32 has signed head
+fac525a346c48d15d56aa81e670f84e93f9b433e, incorporating current master 160d3b7b's
+navigation/header repair and workforce fixture hours. Product/backend code is
+unchanged by that merge. Both evidence histories are preserved. The earlier
+43/15/26 and 10-browser evidence below is explicitly the product candidate before
+this current-master merge, not full rendered acceptance of fac525a3.
+
+Merged local rerun: public 768/1440 and unknown media/stock/timing pass; 320 times
+out, and the three operator cases were interrupted/unverified. The reserve failed
+again at 11.56 GiB, so this task stopped its own preview/test immediately. Space
+returned to about 21.07 GiB without deletion; exact cause remains unproven.
+No timeout or assertion was relaxed. Prefer exact-source CI/build artifacts or
+held-fixture acceptance and inspect the retained trace before another local run.
+
+Exact-head CI is confirmed running: frontend 42667391841 and backend 42667391915;
+secret guard 42667391815 passed. No merge to master, migration, production record,
+firewall rule or capability activation was performed. Local preview/test are stopped.
+These final continuity notes await the next evidence commit so ongoing CI keeps its
+exact source. Resume from TEMP/aat-attendance-20261104/source-handoff-product-timing-
+20261109.json. Goal remains active; D13 defaults are not yet released.
+
+---
+
 ## 9 November 17:37 UTC - D13 product-default verification completed; CI/release pending
 
 Ten unique native Edge fixture cases passed: three estimate edit/review/save/details

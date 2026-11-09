@@ -16,6 +16,10 @@ for (const width of [320, 768, 1440])
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 });
+    const activate = async (button: ReturnType<Page["getByRole"]>) => {
+      if (test.info().project.use.hasTouch) await button.tap();
+      else await button.click();
+    };
     const { state } = await workProductsFixture(page);
     await page.goto(`${path}?edit=${bookingId(1000)}`);
     await expect(page.getByLabel("Minimum sourcing days (optional)")).toHaveValue("");
@@ -26,7 +30,7 @@ for (const width of [320, 768, 1440])
       ).toBeVisible();
     }
     await page.getByLabel("Minimum sourcing days (optional)").fill("3");
-    await review(page).click();
+    await activate(review(page));
     await expect(page.getByLabel("Maximum sourcing days (optional)")).toBeFocused();
     await expect(
       page.getByText(
@@ -44,14 +48,14 @@ for (const width of [320, 768, 1440])
           .analyze()
       ).violations,
     ).toEqual([]);
-    await review(page).click();
+    await activate(review(page));
     await expect(page.getByRole("dialog")).toContainText("3–7 calendar days");
     await expect(page.getByRole("dialog")).toContainText("60 minutes");
-    await page.getByRole("button", { name: "Go back", exact: true }).click();
+    await activate(page.getByRole("button", { name: "Go back", exact: true }));
     await expect(review(page)).toBeFocused();
     await expect(page.getByLabel("Maximum sourcing days (optional)")).toHaveValue("7");
-    await review(page).click();
-    await confirm(page).click();
+    await activate(review(page));
+    await activate(confirm(page));
     await expect(page.getByText("Product saved.", { exact: true }).first()).toBeVisible();
     expect(state.writes).toHaveLength(1);
     expect(state.writes[0].body).toMatchObject({

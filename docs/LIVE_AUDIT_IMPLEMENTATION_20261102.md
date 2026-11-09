@@ -1,3 +1,25 @@
+## 9 November 17:59 UTC - exact-build product coverage queued
+
+Backend/secrets gates pass on fac525a3. Eleven product operator/public/touch cases
+are now collected in the existing production-build browser configuration, reusing
+its one build and loopback fixture. They are not yet execution evidence. Types,
+lint, formatting and two actual fixture HTTP/parser checks pass. Default case and
+expectation deadlines are unchanged. The canonical tracker records source/run IDs,
+local reserve constraints and retained unverified acceptance; no release occurred.
+
+---
+
+## 9 November 17:47 UTC - current-head acceptance pending
+
+PR 32 head fac525a3 preserves current master 160d3b7b. Merged public 768/1440 and
+unknown-state checks pass; 320 timed out and operator cases were interrupted when
+the disk reserve failed. Do not apply the pre-merge browser totals below to the
+whole current head. Exact-source frontend/backend CI is running; secrets passed.
+See backend/docs/site-completion-tracker.md for the canonical current evidence,
+constraints and handoff. No production publication or activation occurred.
+
+---
+
 ## 9 November 17:40 UTC - D13 product defaults implemented; held for gates
 
 Per-product sourcing/preparation estimates have optional observed-version authoring,
