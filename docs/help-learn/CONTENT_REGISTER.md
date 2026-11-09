@@ -1,3 +1,13 @@
+### 9 November: combined collection and product guidance retained
+
+Service-request v34, admin-only service-vehicle-collection v1 and product-timing v1
+coexist with existing eligibility/targets and the unchanged retrieval/step budgets.
+The combined 308-case isolated acceptance includes authenticated Help and all-audience
+retrieval checks. Product defaults remain distinct from per-order readiness/holding,
+and vehicle collection is not D14 private parts pickup. No grant, practice/tutorial
+or transaction flag is enabled. See SERVICE_VEHICLE_COLLECTION_20261109.md for failed
+attempts, exact evidence and remaining hosted/real-role/provider/release scope.
+
 ### 9 November: separate collection facts and current clearance (unpublished)
 
 Service-request v34 adds the separate collection/balance boundary while retaining

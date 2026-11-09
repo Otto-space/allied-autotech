@@ -1,3 +1,26 @@
+### 9 November: collection, product estimates and latest hosted-image repair combined
+
+Current item: verify the combined candidate before protected publication. Source
+f8116f73/0f52a15c/1290b3f5 implements current-access, agreed-balance collection
+recording and the supplemental-payment precheck fix, while preserving product
+estimate master b362e9f8. Merge 6985b4d7 additionally preserves f7bfbf52's canonical
+image URLs, private-profile acceptance and evidence-retaining CI. Image/fixture/
+frontend-workflow imports match master; the backend workflow also retains D03 tests.
+Backend runtime/schema/learning are unchanged from the actual 308-case/five-skip
+schema-106 acceptance, including real isolated Staff permission denial. Owned DBs
+are removed. Frontend types, 40 serial units, scoped lint, backend types/lint and
+3,923-file secrets pass. A prior unit worker-start failure and the earlier browser
+581-pass/two-failure result remain explicit. No assertion/deadline is relaxed.
+
+See docs/help-learn/SERVICE_VEHICLE_COLLECTION_20261109.md for exact source/evidence
+and the finite synthetic deployment-marker handling in strict console verification.
+Updated full browser acceptance and guarded release are pending. No local preview,
+production migration/promotion, real collection, provider call, flag or grant change.
+Inventory issue/use is an optional extension, not a section-7.2 launch requirement;
+materials-before-work, genuine historical credits and all financial safeguards stay.
+The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work remain.
+The owner's separate 79-line Desktop hero edit is preserved.
+
 ## 9 November 18:45 UTC - reconcile current product-timing master
 
 Remote master advanced to b362e9f8 (PR32 product sourcing/preparation estimates)

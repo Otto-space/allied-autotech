@@ -109,3 +109,46 @@ CAC and tax applicability still need genuine owner/accountant verification; purc
 activation stays gated. Booking readiness remains separate. Per-order sourcing,
 holding clock/calendar details, private one-time parts pickup and bounded exceptions
 remain in the full goal; this vehicle recording path does not substitute for D14.
+
+## Combined acceptance and subsequent media reconciliation
+
+Checkpoint f8116f73, merge 0f52a15c and test checkpoint 1290b3f5 preserve master
+b362e9f8's product estimates, validators, nullable migration, editor/public display,
+help and all eleven browser cases. Inspected imported catalogue/UI/fixture/test
+files match master. `native-collection-product-integrated.log` passes 308 cases
+with five provisioned-workspace skips across 24 files (23 pass/one skipped file),
+201.46 seconds. All 106 migrations replay; diff/db:check/restricted runtime pass,
+and the owned tmpfs container is removed. This includes actual isolated Staff
+booking reads followed by forbidden collection-clearance/release attempts, plus
+missing/changed review-fingerprint refusal. Canonical contracts validate 454 paths/
+534 mounted operations; schema/client/types are regenerated without migration edits.
+
+Merged frontend nonincremental types pass. The first four-file unit run has 34
+passes and one worker-start timeout, not a passing gate. Its unchanged serial rerun
+passes 40/40 in four files (28.71s); assertions and timeouts are unchanged. Scoped
+frontend lint, backend types/lint and 3,923-file secret checks pass. Browser discovery
+collects 603 cases in 39 files at that source, not execution. Earlier 581-pass/two-
+failure hosted acceptance remains a failed gate, with its source bug fixed here.
+
+Master then advances to f7bfbf52 with canonical hosted-image URLs and private-profile
+acceptance. Merge 6985b4d7 retains the exact imported image renderers, profile tests,
+fixture validation and frontend workflow, alongside all product/collection projects.
+Backend application/schema/learning paths are unchanged from the 308-case source;
+that native evidence remains applicable. New imported profile test execution still
+needs the hosted gate. The backend workflow differs from master only by the five
+retained D03 financial/workflow test scopes. Both evidence histories remain.
+
+The media workflow intentionally sets NEXT_DEPLOYMENT_ID to the exact synthetic
+isolated-media-acceptance marker. The strict preview-console helper accepts that
+marker alongside real Vercel deployment IDs while still requiring the same origin,
+actual successful font/CSS response and matching brand-font/fallback declaration.
+No warning category is broadly ignored. A form-overflow assertion is retained
+before the collection form screenshot, as well as after collection/reload.
+
+No local browser is restarted: the inherited current-master runbook budgets 10 GiB
+growth for that path after unexplained roughly 9.5 GiB drops. All own listeners and
+DB containers remain stopped/removed; no source, cache, history, shared resource,
+permission or real record is deleted. The separate Desktop hero remains untouched.
+Full combined hosted acceptance, artifact review and protected release remain pending;
+none of this is a production migration, real provider/role/device acceptance or
+purchasing activation. The complete D01-D17 goal remains active.
