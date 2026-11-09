@@ -9863,3 +9863,9 @@ checks at nine widths, true portrait proportions, combined filters/detail/Back/
 reload, FAQ, scoped1440/390 Axe and doubled320px text pass with no business writes.
 Category-only entry has a verified contrast/overlap defect at the first link;
 remove the catalogue overlap in that state before staging this combined candidate.
+
+The final enquiry fixture follows the existing anonymous public transport:
+its response is the validated publicSupportResult, and the write assertions cover
+service/branch/contact/subject/message plus review/cancel/receipt. Authenticated
+booking CSRF/idempotency expectations were incorrectly copied into this new test
+and are removed; no runtime authentication, CSRF or submission behaviour changed.

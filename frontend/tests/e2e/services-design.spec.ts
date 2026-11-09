@@ -304,10 +304,14 @@ for (const width of [390, 1440]) {
       page.getByRole("heading", { name: "Enquiry received", exact: true }),
     ).toBeFocused();
     expect(state.writes).toHaveLength(1);
-    expect(state.writes[0].body.serviceId).toBe(serviceDesignId);
-    expect(state.writes[0].body.branchId).toBe(testBranch.id);
-    expect(state.writes[0].csrf).toBe("s".repeat(64));
-    expect(state.writes[0].key).toBeTruthy();
+    expect(state.writes[0].body).toMatchObject({
+      serviceId: serviceDesignId,
+      branchId: testBranch.id,
+      name: "Synthetic Services Customer",
+      email: "services@example.test",
+      subject: "Synthetic service question",
+      message: "Please discuss this service for my synthetic vehicle.",
+    });
     expect(state.unexpectedWrites).toEqual([]);
   });
 }
