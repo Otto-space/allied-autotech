@@ -36,3 +36,11 @@ remain; combined-source checks must pass before publication.
 both physical attendance and current remaining-work review guidance. The combined
 candidate has 99 migrations. New source/client/contracts and both workflows need
 fresh verification; earlier 237 attendance cases do not certify this merge.
+
+9 November D11 source checkpoint: booking-confirmation v15 explains checked dates
+and available times, qualified technicians and actual resources, repeated checks at
+proposal/acceptance/approval, unchanged original appointment until approval and a
+same-day/same-branch continuation link to actual presence. A departed or later-day
+customer needs a fresh observed arrival. No tutorial grants permission, no deadline
+or fee is invented and no feature flag is activated. Retrieval/eligibility units pass;
+production operational acceptance and the guarded schema-100 release remain pending.

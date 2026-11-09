@@ -1,3 +1,4 @@
+import { alternativeOptionsQuerySchema } from "../service-operations/booking-alternatives.js";
 import {
   bookingAttendanceBodySchema,
   bookingAttendanceQuerySchema,
@@ -133,6 +134,13 @@ export const workforceRouteDefinitions = [
     empty,
   ],
   ["get", "/staff/workforce/jobs/:id", "job", empty, schemas.workforceRecordParams],
+  [
+    "get",
+    "/staff/workforce/bookings/:id/alternative-options",
+    "bookingAlternativeOptions",
+    alternativeOptionsQuerySchema,
+    schemas.workforceRecordParams,
+  ],
   [
     "post",
     "/staff/workforce/bookings/:id/alternative",
@@ -480,6 +488,15 @@ export function createWorkforceRouter(): Router {
           break;
         case "booking":
           data = await work.booking(actor, id, ctx);
+          break;
+        case "bookingAlternativeOptions":
+          res.set("Cache-Control", "private, no-store");
+          data = await new ServiceOperationsService().bookingAlternativeOptions(
+            actor,
+            id,
+            alternativeOptionsQuerySchema.parse(query).day,
+            true,
+          );
           break;
         case "bookingAlternative":
           data = await new ServiceOperationsService().proposeWorkforceBookingAlternative(

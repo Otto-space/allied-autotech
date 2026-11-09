@@ -1,3 +1,4 @@
+import { alternativeOptionsQuerySchema } from "./booking-alternatives.js";
 import {
   bookingAttendanceBodySchema,
   bookingAttendanceQuerySchema,
@@ -234,6 +235,11 @@ export function createStaffServiceOperationsRouter(): Router {
     "/bookings/:bookingId",
     validate({ params: bookingParamsSchema, query: serviceOperationsEmptyQuerySchema }),
     controller.staffBooking,
+  );
+  router.get(
+    "/bookings/:bookingId/alternative-options",
+    validate({ params: bookingParamsSchema, query: alternativeOptionsQuerySchema }),
+    controller.bookingAlternativeOptions,
   );
   router.post(
     "/bookings/:bookingId/alternative",

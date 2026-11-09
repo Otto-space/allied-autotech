@@ -270,6 +270,12 @@ function AttendanceEditor({
               </button>
             </div>
           )}
+          {row.current && row.current.scheduleVersion !== row.scheduleVersion && (
+            <p>
+              Earlier recorded presence applies to this continued visit. The original
+              event time is kept in history.
+            </p>
+          )}
           {row.workReviewRequired && (
             <p>Review the existing work order before marking this appointment missed.</p>
           )}

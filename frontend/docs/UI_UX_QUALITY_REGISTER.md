@@ -175,6 +175,111 @@ documentation checkpoints do not imply another runtime deployment.
 
 ---
 
+## 9 November 13:57 UTC - D11 source and populated restore checkpoint
+
+Prepared application candidate: `aff7d2fcaa3835cd3d4b8c2010d3c821f3397745`, PR #26.
+The final native run passes 51/51 cases across attendance, reschedule approval,
+managed rescheduling and the complete concern-booking HTTP journey. All 39 affected
+attendance/learning units pass; backend types/lint, frontend types/scoped lint and
+formatting pass. Canonical OpenAPI validates 452 paths and all 532 mounted operations.
+The earlier fixture failures were corrected: genuine workshop configuration precedes
+an available offer, and an unassigned preferred request has no published-slot binding.
+No database guard or assertion was weakened to accept those fixtures.
+
+The picker uses qualified technicians without requiring an original assignment on
+an assessed request. Approval rechecks a previously accepted time without imposing
+a new seven-day notice. Proposal captures known current timing before saving its
+suggestion; later defaults do not silently change that saved estimate. Same-visit
+approval refuses missing/mismatched original allocation evidence and retains arrival.
+
+Rendered evidence: four picker state cases at 320/390/768/1440px, uncertain-save and
+permission recheck cases, and the obsolete slow-response case pass. Safe synthetic
+before captures use actual released frontend dpl_22d3ubrHm6At1DnxuFFuR9h4SN5A;
+after captures use the local candidate at 390/1440px. API reads are intercepted and
+all writes blocked: zero production API requests or application writes. The clean
+390px after capture includes heading, date, available time, reason and review action.
+These are installed Windows Edge fixtures, not real-role or physical-device acceptance.
+Two local strict-console failures remain specifically attributed to injected Console
+Ninja loopback WebSocket CSP errors; production-build CI retains its strict assertions.
+
+Fresh backup: 911,779 bytes, repeatable-read exported snapshot, guarded receipt
+verified. A separate populated 99-to-100 restore and guarded forward migration pass,
+preserving original-column counts/hashes and prior migration/rolled-back history;
+final db:check passes. All original 99 source checksums, strict TLS, runtime least
+privilege and existing default grants were checked. Automated managed backups were
+freshly listed; managed restore evidence is historical, distinct from this fresh
+populated local rehearsal. Production was not migrated. Scoped temporary access was
+removed and freshly verified without changing other rules.
+
+Exact candidate runs are active: Frontend 42628881939 and Backend 42628881934;
+Secrets 42628881952 passed. Re-poll these actual handles; do not restart on an
+observation timeout. Master exact-source gates are required after integration.
+Docker's two existing builder endpoints returned worker-list deadline errors during
+read-only inspection. No image build, builder reset, pruning or resource deletion
+was attempted; preserve all current/recovery images and shared test resources.
+
+Evidence: TEMP/aat-attendance-20261104/release-late-aff7d2fc-20261109,
+canonical-late-aff7d2fc, late-alternatives-visual and
+native-1794232052351-alternative-integration.log. The task preview/fixture were stopped;
+last disk preflight was 22.09 GiB free. This is a point-in-time check.
+
+D11 remains unreleased pending exact-master CI, packaged Linux/candidate/recovery
+verification and guarded backend/frontend publication. Runtime remains e947a205,
+schema 99, browse/enquiries with checkout/new booking requests disabled. The full
+original audit/D01-D17 goal remains active; no new owner decision is needed for this
+batch. Continue staged payments, collection/sourcing, reminders, durable refunds and
+remaining operational/provider/role/device acceptance after the D11 release gates.
+
+---
+
+## 9 November 13:35 UTC - available late-visit alternatives implemented; release pending
+
+Current item: D11. Source now searches actual same-branch alternatives using the
+saved duration/buffers, qualified technicians, approved calendar, physical resources
+and customer conflicts. Both operational booking screens select checked times.
+Proposal, customer acceptance and independent staff approval recheck availability;
+only successful approval changes the appointment/resources/reminders. No customer
+reschedule allowance or fee is added for workshop-originated changes. Ordinary
+requests retain their 7-14-day window; recorded late visits can use short notice.
+
+A new forward migration (100) adds immutable same-visit continuation evidence.
+Same-day, same-branch approval links prior observed presence instead of inventing
+another arrival. Leaving or a different visit day requires fresh arrival; continued
+presence prevents a missed update. Unknown original allocation is not fabricated:
+a same-visit approval without that evidence is refused with the original intact.
+
+Verification so far: empty isolated 100-migration replay and schema drift check,
+final db:check, 46/46 isolated attendance/reschedule cases and 39/39 affected learning/
+attendance units pass. Four rendered 320/390/768/1440px picker cases pass retry,
+empty, stale version, keyboard selection, axe and overflow checks; uncertain-save,
+permission recheck and obsolete slow-response cases also pass locally. Two normal
+proposal cases completed their interaction assertions but failed the strict console
+check on injected Console Ninja loopback WebSocket CSP errors. These are retained
+as local failures; clean production-build CI remains required, with no weakening of
+its assertions. Initial cold development compilation and a fixture selector error
+were corrected/rechecked; they are not reported as application acceptance.
+
+Integrated current master 4bfd12d6's cross-browser work without changing application
+security headers or dropping its cases. Canonical API contracts add two scoped,
+private/no-store read endpoints. Restricted booking-confirmation advances to v15,
+within the existing retrieval budget; permissions, eligibility and flags stay fixed.
+The legacy browser fixture now also keeps the original time after customer acceptance.
+
+This source is not deployed. Production remains application e947a205/schema 99;
+checkout and new booking requests remain disabled. Required exact-source CI,
+packaged Linux/recovery checks, fresh production backup, separate populated 99-to-100
+restore rehearsal and guarded release remain outstanding. Real-role, provider and
+physical-device acceptance are not inferred from synthetic tests. Continue the full
+D01-D17/audit ledger, including staged payments, sourcing/collection, reminders and
+refund execution; deferred general returns/warranty policy remains separate.
+
+Evidence: TEMP/aat-attendance-20261104/native-1794229686201-100-migration-replay.log;
+latest native alternatives receipts in the same directory; safe rendered captures in
+late-alternatives-browser-recheck and late-alternatives-slow-recheck. No real record
+was changed, no production address rule added and no credentials requested.
+
+---
+
 ## 9 November - calendar/modal acceptance passed; search fixture follow-up
 
 Run 42618283436 completed on 8d6b91c0: 426/428 passed, zero skipped/flaky.
