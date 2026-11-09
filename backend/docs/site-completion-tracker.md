@@ -1,3 +1,15 @@
+## 9 November 20:08 UTC - Home fixture envelope correction
+
+The combined e72c4017 preview completed 14 Edge/Chrome layout and navigation
+journeys, but its captures exposed an availability warning. Inspection established
+that the Home test's capabilities fixture omitted message/meta.requestId, which the
+shared API client requires. Those earlier receipts therefore cover the unavailable
+state, not healthy capabilities. Supply the complete canonical envelope and assert
+that the availability notice is absent in both normal and failed-image cases.
+Application capability validation and launch restrictions remain unchanged.
+Healthy-state rendered reruns and final-source CI remain pending at this checkpoint.
+Preserve the original captures at TEMP/allied-home-combined-e72c4017; corrected
+fixture evidence uses a separate directory with the -canonical suffix.
 ## 9 November 20:00 UTC - reconcile Home and authentication acceptance
 
 Merge current master bc88d970 into the authentication batch, retaining the approved

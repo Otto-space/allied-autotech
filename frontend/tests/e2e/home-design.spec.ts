@@ -20,7 +20,12 @@ test.beforeEach(async ({ page }) => {
     const path = new URL(route.request().url()).pathname;
     if (path === "/api/v1/public/capabilities")
       return route.fulfill({
-        json: { success: true, data: publicCapabilitiesFixture("browse_enquiries") },
+        json: {
+          success: true,
+          message: "Isolated public capabilities",
+          data: publicCapabilitiesFixture("browse_enquiries"),
+          meta: { requestId: "home-design-fixture" },
+        },
       });
     if (path.startsWith("/api/v1/public/")) {
       const url = new URL(route.request().url());
@@ -49,6 +54,9 @@ for (const [width, height] of viewports) {
     });
     await page.goto("/");
     await expect(page).toHaveTitle(/Allied AutoTech/);
+    await expect(
+      page.getByRole("complementary", { name: "Online availability" }),
+    ).toHaveCount(0);
     await page.evaluate(() => document.fonts.ready);
     expect(
       await page.evaluate(() => ({ width: innerWidth, height: innerHeight })),
@@ -157,6 +165,9 @@ test("all editorial images failing retains the task and stops rotation", async (
       : route.continue();
   });
   await page.goto("/");
+  await expect(
+    page.getByRole("complementary", { name: "Online availability" }),
+  ).toHaveCount(0);
   const hero = page.getByRole("region", { name: "Workshop highlights" });
   await expect(hero.getByText("Editorial image unavailable")).toBeVisible();
   await expect(hero).toHaveAttribute("data-rotating", "false");
