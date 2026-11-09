@@ -8601,3 +8601,11 @@ branch choice, and loopback capabilities must be restored after this project.
 These fixture repairs and the combined full exact-master gates remain required.
 Category-only introduction overlaps the photograph at All services; correct
 that state and verify its contrast/focus before publication. Groups3-10 remain open.
+
+## 10 November - Publication held for isolated clock-boundary repair
+
+Mobile implementation is merged at130556a1 but remains unpublished. Required
+backend safety exposed four fixtures freezing JavaScript at tomorrow's noon
+while PostgreSQL uses its real clock. The fixture now uses the most recent past
+UTC noon; allocation guards and all application behavior stay unchanged. All
+three gates must pass the resulting exact master commit before publication.
