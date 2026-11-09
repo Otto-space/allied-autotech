@@ -1,3 +1,19 @@
+### 9 November 2026: D03 accepted-work checkpoint, not owner activation
+
+Staged work-order authorization now preserves accepted prices/quantities and
+refuses unaccepted extras. The verified-materials-before-part-work boundary is
+an engineering timing choice under the brief, distinct from the owner's approved
+materials-first/workmanship-after-completion rule. Agreed labour proceeds separately.
+The shared guard covers direct booking, legacy work orders and managed quality;
+156 isolated cases pass with existing permissions, 99-migration replay and actual
+learning HTTP eligibility. See docs/help-learn/SERVICE_WORK_SCOPE_20261109.md for
+the exact evidence, failed attempts, separate credit refinement and remaining scope.
+No live capability or financial approval was created. New deposits stay disabled;
+historical records remain intact. Full amendment acceptance, physical material
+issue/use and durable cleared-balance vehicle release remain implementation work.
+Verified invoice identities, actual policy publication and provider/role acceptance
+retain their separate gates; the general returns/warranty policy is still deferred.
+
 ### 9 November 2026: D03 invoice presentation verified; full journey still held
 
 This source adds the minimal public stage summary, customer and authorised

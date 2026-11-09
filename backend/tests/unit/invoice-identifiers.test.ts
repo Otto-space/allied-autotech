@@ -84,7 +84,7 @@ describe("verified invoice identifiers", () => {
       (entry) => entry.id === "financial-policy-work",
     )!;
     expect(article.gate).toBe("financial-policy");
-    expect(article.version).toBe(6);
+    expect(article.version).toBe(7);
     expect(article.steps.join(" ")).toContain("never substitute placeholders");
   });
 });

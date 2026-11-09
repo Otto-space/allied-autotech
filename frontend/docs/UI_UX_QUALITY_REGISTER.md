@@ -1,3 +1,22 @@
+### 9 November 2026: D03 accepted-work server boundary, no new visual claim
+
+Legacy and managed workflow actions now share accepted-scope and verified-materials
+checks. Existing action error handling receives a specific conflict for unaccepted
+extras, unpaid/held materials, incomplete agreed work or busy verification, without
+exposing payment details to technical staff. Saved quotation prices survive later
+catalogue changes. Labour-only work remains separate; completion is not release.
+Existing branch/assignment/MFA/version/independent-review/resource checks remain.
+Guides advance to service-request v31, financial-policy-work v7, assigned-findings
+v6 and job-assignment v3 without changing eligibility or semantic destinations.
+
+156 combined isolated cases pass, including managed operations and authenticated
+Help/Learn access. Source types, backend lint, scoped formatting and API contracts
+pass. This phase changes no UI components and claims no new screenshot, physical
+device, real-role or provider acceptance. Separate legacy-credit evidence and
+remaining full amendment/material-use/vehicle-release work are recorded in
+docs/help-learn/SERVICE_WORK_SCOPE_20261109.md. The newer responsive fixes and
+separate Desktop hero edit are preserved. Nothing in this checkpoint is deployed.
+
 ### 9 November 2026: integration preserves newer responsive acceptance
 
 Merge 3da72b60 incorporates master 4bfd12d6 without replacing its calendar, modal,

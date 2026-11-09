@@ -548,3 +548,12 @@ clarifies one saved tax allocation, historical preservation and financial review
 Semantic targets and feature flags are unchanged. No tutorial grants permissions.
 See [the D03 checkpoint](SERVICE_PAYMENT_STAGES_20261109.md) for actual evidence,
 the synthetic draft and the remaining materials/amendment/vehicle-release work.
+
+### 9 November: accepted service-work source, not published
+
+Service-request v31, financial-policy-work v7, assigned-findings v6 and
+job-assignment v3 explain accepted scope, verified materials, separate labour,
+busy/held financial proof and completion versus vehicle release. Existing gates,
+semantic targets and the twelve-step public bound are preserved. See
+[the work-scope checkpoint](SERVICE_WORK_SCOPE_20261109.md) for the engineering
+timing choice, exact synthetic evidence and the remaining complete journeys.

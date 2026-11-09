@@ -9725,7 +9725,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/bookings/{bookingId}/work-review`
 
 - Operation ID: `postStaffBookingsByBookingIdWorkReview`
-- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Review remaining work and actual physical units without moving the visit. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Requires current booking scope and independent BOOKING_CONFIRM authority. Does not start or complete work, charge money or promise collection. Rechecks the actual remaining occupied period and appends immutable review provenance. Review remaining work and actual physical units without moving the visit. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10495,7 +10495,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/bookings/{bookingId}/status`
 
 - Operation ID: `postStaffBookingsByBookingIdStatus`
-- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Transition a booking. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Staged service invoices require accepted work scope and verified materials for work containing quoted parts, including direct booking start/completion. Completion does not release the vehicle. Transition a booking. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10823,7 +10823,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/bookings/{bookingId}/work-orders`
 
 - Operation ID: `postStaffBookingsByBookingIdWorkOrders`
-- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Create a work order. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. For staged invoices, item identity, quantities and prices must match the saved accepted quotation. Current catalogue changes cannot reprice agreed work. Additional scope needs customer agreement and a reviewed change; issued invoices are not rewritten. Create a work order. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10884,7 +10884,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PUT `/staff/bookings/{bookingId}/work-orders/{workOrderId}`
 
 - Operation ID: `putStaffBookingsByBookingIdWorkOrdersByWorkOrderId`
-- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Update work details and append items. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Staged-invoice additions must stay within the accepted quotation. Adding quoted materials to already started work requires verified materials settlement. Diagnosis-only updates remain available within existing scope. Update work details and append items. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10946,7 +10946,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/bookings/{bookingId}/work-orders/{workOrderId}/status`
 
 - Operation ID: `postStaffBookingsByBookingIdWorkOrdersByWorkOrderIdStatus`
-- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Transition a work order. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. For staged invoices, active work must match accepted scope; work containing quoted materials requires verified materials settlement. Completion requires the whole agreed scope. Labour-only work can proceed without collecting workmanship early. Financial holds or busy proof require rechecking. Completion is not vehicle release. Staged service invoices require accepted work scope and verified materials for work containing quoted parts, including direct booking start/completion. Completion does not release the vehicle. Transition a work order. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -20437,7 +20437,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/staff/workforce/jobs/{id}/work`
 
 - Operation ID: `patchStaffWorkforceJobsByIdWork`
-- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: work. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. For staged service invoices, active work must match accepted scope and quoted materials must have verified settlement. Quality completion requires all agreed work, retains independent review, and does not confer vehicle-release authority. Financial holds or busy proof require rechecking; no financial details are exposed to technicians. Responsibility-based workspace: work. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -20574,7 +20574,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/workforce/jobs/{id}/quality`
 
 - Operation ID: `postStaffWorkforceJobsByIdQuality`
-- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: quality. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. For staged service invoices, active work must match accepted scope and quoted materials must have verified settlement. Quality completion requires all agreed work, retains independent review, and does not confer vehicle-release authority. Financial holds or busy proof require rechecking; no financial details are exposed to technicians. Responsibility-based workspace: quality. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`

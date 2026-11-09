@@ -470,6 +470,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "post",
       path: "/staff/bookings/{bookingId}/work-orders",
       summary: "Create a work order",
+      description:
+        "For staged invoices, item identity, quantities and prices must match the saved accepted quotation. Current catalogue changes cannot reprice agreed work. Additional scope needs customer agreement and a reviewed change; issued invoices are not rewritten.",
       params: bookingParamsSchema,
       body: workOrderCreateBodySchema,
       secured: true,
@@ -480,6 +482,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "put",
       path: "/staff/bookings/{bookingId}/work-orders/{workOrderId}",
       summary: "Update work details and append items",
+      description:
+        "Staged-invoice additions must stay within the accepted quotation. Adding quoted materials to already started work requires verified materials settlement. Diagnosis-only updates remain available within existing scope.",
       params: workOrderParamsSchema,
       body: workOrderUpdateBodySchema,
       secured: true,
@@ -489,6 +493,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "post",
       path: "/staff/bookings/{bookingId}/work-orders/{workOrderId}/status",
       summary: "Transition a work order",
+      description:
+        "For staged invoices, active work must match accepted scope; work containing quoted materials requires verified materials settlement. Completion requires the whole agreed scope. Labour-only work can proceed without collecting workmanship early. Financial holds or busy proof require rechecking. Completion is not vehicle release.",
       params: workOrderParamsSchema,
       body: workOrderTransitionBodySchema,
       secured: true,
@@ -505,7 +511,11 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       ...(route.path.startsWith("/staff/bookings")
         ? {
             description:
-              "Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied.",
+              "Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied." +
+              (route.description ? ` ${route.description}` : "") +
+              (route.path.endsWith("/status")
+                ? " Staged service invoices require accepted work scope and verified materials for work containing quoted parts, including direct booking start/completion. Completion does not release the vehicle."
+                : ""),
           }
         : {}),
       tags: ["Service operations"],

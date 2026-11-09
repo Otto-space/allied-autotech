@@ -1,3 +1,33 @@
+### 9 November 2026: D03 accepted work and materials guard, unpublished
+
+Shared server checks now bind staged-invoice work to the saved accepted quotation,
+including aggregate quantities and original prices. Quoted materials require
+verified settlement before work containing them starts; agreed labour can proceed
+separately. Direct booking, legacy work-order and managed technical/quality paths
+use the same check. Completion requires all agreed work, remains distinct from
+vehicle release and preserves independent managed review. No technician gains
+financial access. Busy proof is refused without a Booking/Attempt wait cycle.
+Materials-before-this-work is a documented engineering timing choice, not a new
+owner procurement approval. Existing historical invoices are not retrofitted.
+
+Combined isolated acceptance passed 156/156 across ten files with all 99 migrations,
+schema diff/db:check and restricted runtime. This includes actual authenticated
+learning access, managed refusal and independent completion enabling the remaining
+workmanship request. The owned tmpfs target was removed. Source types, full backend
+lint, scoped formatting, 450-path/530-operation contracts and 3,894-file secrets
+passed; ten existing security/HTTP-boundary cases also passed. Canonical contracts
+and frontend types were regenerated. Earlier failures and the separate legacy-credit
+refinement are documented in docs/help-learn/SERVICE_WORK_SCOPE_20261109.md.
+
+Service-request v31, financial-policy-work v7, assigned-findings v6 and job-assignment
+v3 retain existing eligibility/semantic targets and the public twelve-step bound.
+No new rendered evidence is claimed for this backend-only guard phase. No migration,
+production write, flag, price or permission change. The newer master fixes remain
+integrated. Remaining D03: full accepted amendment/supplement journey, actual
+material issue/use checkpoints, authorised durable vehicle release, complete
+role/rendered acceptance and all exact-source release/financial/provider gates.
+The wider D01-D17 goal remains active.
+
 ### 9 November 2026: newer fixes reconciled before publication
 
 Owner requested inspection and integration without overwriting newer fixes.

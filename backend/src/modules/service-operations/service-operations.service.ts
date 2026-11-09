@@ -1,4 +1,11 @@
 import {
+  agreedServiceWork,
+  assertAgreedMaterialsReady,
+  assertAgreedWorkCanProceed,
+  assertAgreedWorkScope,
+  priceAgreedWorkInputs,
+} from "./agreed-service-work.js";
+import {
   attendanceSnapshot,
   attendancePolicy,
   assertAttendanceAction,
@@ -2858,6 +2865,8 @@ export class ServiceOperationsService {
     }
     if (input.status === "CANCELLED" && input.reason === undefined)
       throw serviceOperationConflict("A cancellation reason is required");
+    if (input.status === "IN_PROGRESS" || input.status === "COMPLETED")
+      await assertAgreedWorkCanProceed(transaction, id, input.status === "COMPLETED");
     const now = new Date();
     const timestamps: Prisma.BookingUncheckedUpdateManyInput = {
       status: input.status,
@@ -3423,7 +3432,11 @@ export class ServiceOperationsService {
       if (booking.status !== "CONFIRMED" || booking.workOrder !== null)
         throw invalidServiceTransition();
       if (booking.version !== input.expectedBookingVersion) throw staleServiceOperation();
-      const lines = await this.priceLines(input.items, transaction);
+      const agreement = await agreedServiceWork(transaction, bookingId);
+      const lines = agreement
+        ? priceAgreedWorkInputs(agreement.lines, input.items)
+        : await this.priceLines(input.items, transaction);
+      if (agreement && lines.length) assertAgreedWorkScope(agreement.lines, lines);
       const workOrder = await this.repository.createWorkOrder(
         bookingId,
         reference("WO"),
@@ -3468,10 +3481,21 @@ export class ServiceOperationsService {
       if (existing === null) throw serviceOperationNotFound();
       if (existing.status === "COMPLETED" || existing.status === "CANCELLED")
         throw invalidServiceTransition();
+      const agreement = input.addItems
+        ? await agreedServiceWork(transaction, bookingId)
+        : null;
       const lines =
         input.addItems === undefined
           ? undefined
-          : await this.priceLines(input.addItems, transaction);
+          : agreement
+            ? priceAgreedWorkInputs(agreement.lines, input.addItems)
+            : await this.priceLines(input.addItems, transaction);
+      if (agreement && lines) {
+        const proposed = [...existing.items, ...lines];
+        assertAgreedWorkScope(agreement.lines, proposed);
+        if (existing.startedAt !== null)
+          await assertAgreedMaterialsReady(transaction, agreement, proposed);
+      }
       const updated = await this.repository.updateWorkOrder(
         workOrderId,
         input.expectedVersion,
@@ -3521,6 +3545,12 @@ export class ServiceOperationsService {
         throw invalidServiceTransition();
       if (input.status === "APPROVED" && booking.status !== "CONFIRMED")
         throw invalidServiceTransition();
+      if (["IN_PROGRESS", "QUALITY_CHECK", "COMPLETED"].includes(input.status))
+        await assertAgreedWorkCanProceed(
+          transaction,
+          bookingId,
+          input.status === "COMPLETED",
+        );
       const now = new Date();
       const result = await this.repository.transitionWorkOrder(
         workOrderId,
