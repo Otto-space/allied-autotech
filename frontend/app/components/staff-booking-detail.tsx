@@ -1,4 +1,5 @@
 "use client";
+import { BookingAlternativeTimes } from "./booking-alternative-times";
 import { BookingAttendance, BookingAttendanceHistory } from "./booking-attendance";
 import { BookingWorkReview } from "./booking-work-review";
 import { BookingWorkEstimate } from "./booking-work-estimate";
@@ -559,18 +560,15 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
                     review("alternative", new FormData(event.currentTarget));
                   }}
                 >
-                  <div className="field">
-                    <label htmlFor="booking-alternative-time">
-                      Proposed time (Lagos)
-                    </label>
-                    <input
-                      id="booking-alternative-time"
-                      name="preferredAt"
-                      type="datetime-local"
-                      required
-                      {...fieldError("booking-alternative-time")}
-                    />
-                  </div>
+                  <BookingAlternativeTimes
+                    key={`${bookingId}:${current.version}`}
+                    path={`/staff/bookings/${bookingId}`}
+                    bookingId={bookingId}
+                    version={current.version}
+                    scheduledAt={current.scheduledAt}
+                    inputId="booking-alternative-time"
+                    disabled={disabled}
+                  />
                   <div className="field">
                     <label htmlFor="booking-alternative-reason">
                       Reason shown to customer

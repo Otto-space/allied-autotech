@@ -224,3 +224,6 @@ booking-attendance.spec.ts > handles slow attendance without exposing an unsafe 
 booking-attendance.spec.ts > assigned technician records arrival from the job without a booking-confirmation grant at 390px
 booking-attendance.spec.ts > assigned technician records arrival from the job without a booking-confirmation grant at 1440px
 staff-bookings.spec.ts > staff verifies missed attendance after grace and reconciles an uncertain save without replay
+
+workforce-booking-confirmation.spec.ts > available alternatives preserve loading, retry, empty and keyboard states
+workforce-booking-confirmation.spec.ts > workforce proposes a reviewed time

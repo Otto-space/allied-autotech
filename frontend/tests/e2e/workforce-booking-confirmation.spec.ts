@@ -403,9 +403,13 @@ for (const width of [390, 1440])
   test(`workforce proposes a reviewed time at ${width}px`, async ({ page }, testInfo) => {
     const { f, check } = await start(page, "STAFF", width);
     const original = f.booking.scheduledAt;
+    await page.getByLabel("Date to check (Nigeria time)").fill("2040-01-03");
     await page
-      .getByLabel("Proposed time (Lagos)", { exact: true })
-      .fill("2040-01-03T11:00");
+      .getByRole("button", { name: "Check available times", exact: true })
+      .click();
+    await page
+      .getByLabel("Available time (Nigeria time)", { exact: true })
+      .selectOption("2040-01-03T11:00");
     await page
       .getByLabel("Reason shown to customer", { exact: true })
       .fill("Allow more time for the diagnostic inspection.");
@@ -439,9 +443,11 @@ test("uncertain workforce proposal survives reload without automatic resend", as
 }) => {
   const { f } = await start(page);
   f.actionMode = "lost";
+  await page.getByLabel("Date to check (Nigeria time)").fill("2040-01-03");
+  await page.getByRole("button", { name: "Check available times", exact: true }).click();
   await page
-    .getByLabel("Proposed time (Lagos)", { exact: true })
-    .fill("2040-01-03T11:00");
+    .getByLabel("Available time (Nigeria time)", { exact: true })
+    .selectOption("2040-01-03T11:00");
   await page
     .getByLabel("Reason shown to customer", { exact: true })
     .fill("Allow more time for the diagnostic inspection.");
@@ -477,9 +483,11 @@ test("uncertain workforce proposal survives reload without automatic resend", as
 
 test("workforce proposal rechecks permission before sending", async ({ page }) => {
   const { f } = await start(page);
+  await page.getByLabel("Date to check (Nigeria time)").fill("2040-01-03");
+  await page.getByRole("button", { name: "Check available times", exact: true }).click();
   await page
-    .getByLabel("Proposed time (Lagos)", { exact: true })
-    .fill("2040-01-03T11:00");
+    .getByLabel("Available time (Nigeria time)", { exact: true })
+    .selectOption("2040-01-03T11:00");
   await page
     .getByLabel("Reason shown to customer", { exact: true })
     .fill("Allow more time for the diagnostic inspection.");
@@ -487,5 +495,127 @@ test("workforce proposal rechecks permission before sending", async ({ page }) =
   f.base.access.independentCapabilities = [];
   await page.getByRole("button", { name: "Send proposed time", exact: true }).click();
   await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+  expect(f.writes).toHaveLength(0);
+});
+
+for (const width of [320, 390, 768, 1440])
+  test(`available alternatives preserve loading, retry, empty and keyboard states at ${width}px`, async ({
+    page,
+  }, info) => {
+    const { f } = await start(page, "STAFF", width);
+    const panel = page.getByRole("region", { name: "Propose another time", exact: true });
+    let mode: "error" | "empty" | "ready" | "stale" = "error";
+    await page.route(
+      `**/api/v1/staff/workforce/bookings/${f.booking.id}/alternative-options?**`,
+      async (route) => {
+        const day = new URL(route.request().url()).searchParams.get("day")!;
+        if (mode === "error")
+          return route.fulfill({
+            status: 409,
+            json: {
+              success: false,
+              error: {
+                code: "CONFLICT",
+                message: "Synthetic availability changed; try again",
+              },
+            },
+          });
+        return route.fulfill({
+          json: {
+            success: true,
+            data: {
+              bookingId: f.booking.id,
+              bookingVersion: f.booking.version + (mode === "stale" ? 1 : 0),
+              day,
+              items: mode === "empty" ? [] : [{ startsAt: `${day}T10:00:00.000Z` }],
+            },
+            message: "Synthetic availability",
+            meta: { requestId: "synthetic-options" },
+          },
+        });
+      },
+    );
+    const date = page.getByLabel("Date to check (Nigeria time)");
+    await date.fill("2040-01-03");
+    const button = page.getByRole("button", {
+      name: "Check available times",
+      exact: true,
+    });
+    await button.focus();
+    await page.keyboard.press("Enter");
+    await expect(panel.getByRole("alert")).toContainText("This record has changed");
+    expect(f.writes).toHaveLength(0);
+    mode = "empty";
+    await page.getByRole("button", { name: "Retry availability check" }).click();
+    await expect(panel.getByRole("status")).toContainText(
+      "No available times on this date",
+    );
+    mode = "ready";
+    await button.click();
+    const select = page.getByLabel("Available time (Nigeria time)", { exact: true });
+    await select.focus();
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    await expect(select).toHaveValue("2040-01-03T11:00");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include('section[aria-labelledby="workforce-alternative-heading"]')
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: info.outputPath(`available-alternative-${width}.png`),
+    });
+    await date.fill("2040-01-04");
+    await expect(select).toHaveValue("");
+    mode = "stale";
+    await button.click();
+    await expect(panel.getByRole("alert")).toContainText("Refresh the booking");
+    expect(f.writes).toHaveLength(0);
+    // Expected HTTP error above is asserted, independently of unexpected page errors.
+  });
+
+test("late alternative ignores an obsolete slow date response", async ({ page }) => {
+  const { f } = await start(page);
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route(
+    `**/api/v1/staff/workforce/bookings/${f.booking.id}/alternative-options?**`,
+    async (route) => {
+      const day = new URL(route.request().url()).searchParams.get("day")!;
+      if (day === "2040-01-03") await held;
+      await route.fulfill({
+        json: {
+          success: true,
+          data: {
+            bookingId: f.booking.id,
+            bookingVersion: f.booking.version,
+            day,
+            items: [{ startsAt: `${day}T10:00:00.000Z` }],
+          },
+          message: "Synthetic availability",
+          meta: { requestId: "synthetic-slow" },
+        },
+      });
+    },
+  );
+  const date = page.getByLabel("Date to check (Nigeria time)");
+  await date.fill("2040-01-03");
+  await page.getByRole("button", { name: "Check available times", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: /Checking availability/ }),
+  ).toBeDisabled();
+  await date.fill("2040-01-04");
+  await page.getByRole("button", { name: "Check available times", exact: true }).click();
+  const select = page.getByLabel("Available time (Nigeria time)", { exact: true });
+  await select.selectOption("2040-01-04T11:00");
+  release();
+  await expect(select).toHaveValue("2040-01-04T11:00");
   expect(f.writes).toHaveLength(0);
 });

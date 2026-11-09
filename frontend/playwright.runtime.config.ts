@@ -33,9 +33,14 @@ export default defineConfig({
       ],
     },
     {
+      name: "late-alternatives",
+      testMatch: ["workforce-booking-confirmation.spec.ts"],
+      grep: /proposes a reviewed|uncertain workforce proposal|proposal rechecks|available alternatives|late alternative ignores/,
+    },
+    {
       name: "legacy-attendance",
       testMatch: ["staff-bookings.spec.ts"],
-      grep: /staff verifies missed attendance/,
+      grep: /staff verifies missed attendance|alternative appointment/,
     },
     {
       name: "modal-consumers",

@@ -194,6 +194,29 @@ export function attendanceDigest(
     .digest("hex");
 }
 
+/** Resolve observed presence through immutable same-visit links, never fabricate an event. */
+export async function effectiveAttendance(
+  tx: Prisma.TransactionClient,
+  booking: Pick<AttendanceBooking, "id" | "scheduleVersion">,
+) {
+  const current = await tx.bookingAttendanceEvent.findFirst({
+    where: { bookingId: booking.id, scheduleVersion: booking.scheduleVersion },
+    orderBy: { bookingVersion: "desc" },
+    select: attendanceEventSelect,
+  });
+  if (current) return current;
+  const link = await tx.bookingVisitContinuation.findUnique({
+    where: {
+      bookingId_scheduleVersion: {
+        bookingId: booking.id,
+        scheduleVersion: booking.scheduleVersion,
+      },
+    },
+    select: { event: { select: attendanceEventSelect } },
+  });
+  return link?.event ?? null;
+}
+
 export async function attendanceSnapshot(
   tx: Prisma.TransactionClient,
   booking: AttendanceBooking,
@@ -206,8 +229,7 @@ export async function attendanceSnapshot(
     orderBy: { bookingVersion: "desc" },
     take: 30,
   });
-  const current =
-    events.find((e) => e.scheduleVersion === booking.scheduleVersion) ?? null;
+  const current = await effectiveAttendance(tx, booking);
   const arrived = await tx.bookingAttendanceEvent.findFirst({
     where: {
       bookingId: booking.id,
@@ -232,6 +254,7 @@ export async function attendanceSnapshot(
       booking.status === "CONFIRMED" &&
       !booking.startedAt &&
       !arrived &&
+      !current &&
       !attendanceWorkReviewRequired(booking) &&
       now >= checkAt,
     current,

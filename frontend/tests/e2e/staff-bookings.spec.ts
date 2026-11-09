@@ -1001,6 +1001,15 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
             depositPaidAt: null,
             depositPayment: null,
           });
+        if (endpoint.endsWith("/alternative-options")) {
+          const day = new URL(req.url()).searchParams.get("day")!;
+          return reply(route, {
+            bookingId: id(1),
+            bookingVersion: version,
+            day,
+            items: [{ startsAt: `${day}T10:00:00.000Z` }],
+          });
+        }
         if (endpoint.endsWith("/alternative")) {
           const body = req.postDataJSON();
           writes.push({ endpoint, body });
@@ -1013,7 +1022,7 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
         if (endpoint.endsWith("/alternative-response")) {
           const body = req.postDataJSON();
           writes.push({ endpoint, body });
-          if (body.decision === "ACCEPT") scheduledAt = alternativeStartsAt!;
+          // Acceptance requests independent approval; it does not move the appointment.
           alternativeStartsAt = null;
           alternativeReason = null;
           alternativeVersion = null;
@@ -1024,7 +1033,13 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
       });
       await page.goto(`/admin/bookings/${id(1)}`);
       const preferred = new Date(Date.now() + 10 * 86400000).toISOString().slice(0, 16);
-      await page.getByLabel("Proposed time (Lagos)", { exact: true }).fill(preferred);
+      await page.getByLabel("Date to check (Nigeria time)").fill(preferred.slice(0, 10));
+      await page
+        .getByRole("button", { name: "Check available times", exact: true })
+        .click();
+      await page
+        .getByLabel("Available time (Nigeria time)", { exact: true })
+        .selectOption(`${preferred.slice(0, 10)}T11:00`);
       await page
         .getByLabel("Reason shown to customer", { exact: true })
         .fill("Please review this alternative workshop time.");
@@ -1042,7 +1057,6 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
       await expect(page.getByText(/Current proposal:/)).toBeVisible();
       expect(scheduledAt).toBe(originalTime);
       expect(writes[0].body.expectedVersion).toBe(7);
-      const proposedTime = alternativeStartsAt;
       role = "CUSTOMER";
       await page.goto(`/dashboard/bookings/${id(1)}`);
       await expect(
@@ -1073,7 +1087,7 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
         page.getByRole("heading", { name: "The workshop proposed another time" }),
       ).toHaveCount(0);
       expect(writes[1].body).toEqual({ decision, expectedVersion: 8 });
-      expect(scheduledAt).toBe(decision === "ACCEPT" ? proposedTime : originalTime);
+      expect(scheduledAt).toBe(originalTime);
       await expect(
         page.locator(".booking-appointment .booking-detail-status"),
       ).toHaveText(/Requested/);

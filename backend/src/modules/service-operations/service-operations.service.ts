@@ -1,5 +1,11 @@
 import {
+  bookingAlternativeOptions,
+  reviewBookingAlternative,
+  nigeriaDay,
+} from "./booking-alternatives.js";
+import {
   attendanceSnapshot,
+  effectiveAttendance,
   attendancePolicy,
   assertAttendanceAction,
   attendanceDigest,
@@ -1255,6 +1261,7 @@ export class ServiceOperationsService {
   ) {
     const id = booking.id;
     await assertCapability(tx, actor, "BOOKING_CONFIRM");
+    if (booking.version !== input.expectedVersion) throw staleServiceOperation();
     if (!["REQUESTED", "CONFIRMED"].includes(booking.status) || !booking.branchId)
       throw invalidServiceTransition();
     if (booking.rescheduleRequests.some((request) => request.status === "PENDING"))
@@ -1262,7 +1269,7 @@ export class ServiceOperationsService {
         "Review the pending reschedule request before proposing another time",
       );
     const startsAt = new Date(input.preferredAt);
-    assertWithinBookingWindow(startsAt);
+    await reviewBookingAlternative(tx, booking, startsAt);
     if (startsAt.getTime() === booking.scheduledAt.getTime())
       throw serviceOperationConflict("Choose a different appointment time");
     if (!(await this.repository.branch(booking.branchId, tx)))
@@ -1322,7 +1329,7 @@ export class ServiceOperationsService {
         throw invalidServiceTransition();
       const startsAt = booking.alternativeStartsAt;
       if (input.decision === "ACCEPT") {
-        assertWithinBookingWindow(startsAt);
+        await reviewBookingAlternative(tx, booking, startsAt);
         await tx.$queryRaw`SELECT "id" FROM "Branch" WHERE "id" = ${booking.branchId}::uuid FOR SHARE`;
         if (!(await this.repository.branch(booking.branchId, tx)))
           throw serviceOperationNotFound();
@@ -1748,6 +1755,11 @@ export class ServiceOperationsService {
     scope?: (assignmentChanged: boolean) => Promise<void>,
   ) {
     const id = booking.id;
+    const priorVisit = await effectiveAttendance(tx, booking);
+    const priorAllocation = await tx.bookingResourceAllocation.findFirst({
+      where: { bookingId: id, scheduleVersion: booking.scheduleVersion },
+      orderBy: { bookingVersion: "desc" },
+    });
     let assignmentChanged = false;
     let verifyTechnician: (() => Promise<void>) | undefined;
     await assertCapability(tx, actor, "BOOKING_CONFIRM");
@@ -1758,6 +1770,19 @@ export class ServiceOperationsService {
     if (!request) throw serviceOperationNotFound();
     if (input.decision === "APPROVE") {
       assertOriginalAppointment(request.originalSchedule, booking);
+      if (
+        request.source === "WORKSHOP_ALTERNATIVE" &&
+        booking.status === "CONFIRMED" &&
+        priorVisit &&
+        ["ARRIVED", "WAITING"].includes(priorVisit.kind) &&
+        booking.branchId === request.branchId &&
+        nigeriaDay(priorVisit.createdAt) === nigeriaDay(request.startsAt) &&
+        nigeriaDay(priorVisit.createdAt) === nigeriaDay(new Date()) &&
+        !priorAllocation
+      )
+        throw serviceOperationConflict(
+          "Review the original visit's resource allocation before approving a same-day replacement. Its recorded arrival and original appointment are unchanged",
+        );
       if (request.startsAt <= new Date())
         throw serviceOperationConflict("The requested replacement time has passed");
       if (booking.serviceId)
@@ -1846,6 +1871,8 @@ export class ServiceOperationsService {
       assignmentChanged =
         staff.id !== booking.assignedStaffId || request.branchId !== booking.branchId;
       if (scope) await scope(assignmentChanged);
+      if (request.source === "WORKSHOP_ALTERNATIVE")
+        await reviewBookingAlternative(tx, booking, request.startsAt, staff.id);
       // Preserve the workforce permission boundary before reporting availability.
       if (slot) await this.reviewOfferedSlot(tx, slot, booking.id);
       const originalTiming = await captureBookingTiming(tx, booking, actor.userId, true);
@@ -1934,6 +1961,29 @@ export class ServiceOperationsService {
     });
     const updated = await this.repository.staffBooking(id, actor.role !== "STAFF", tx);
     if (!updated) throw serviceOperationNotFound();
+    if (
+      input.decision === "APPROVE" &&
+      request.source === "WORKSHOP_ALTERNATIVE" &&
+      booking.status === "CONFIRMED" &&
+      priorVisit &&
+      priorAllocation &&
+      ["ARRIVED", "WAITING"].includes(priorVisit.kind) &&
+      priorAllocation.branchId === updated.branchId &&
+      booking.branchId === updated.branchId &&
+      nigeriaDay(priorVisit.createdAt) === nigeriaDay(updated.scheduledAt) &&
+      nigeriaDay(priorVisit.createdAt) === nigeriaDay(new Date())
+    ) {
+      await tx.bookingVisitContinuation.create({
+        data: {
+          bookingId: id,
+          scheduleVersion: updated.scheduleVersion,
+          previousScheduleVersion: booking.scheduleVersion,
+          eventId: priorVisit.id,
+          allocationId: priorAllocation.id,
+          requestId: request.id,
+        },
+      });
+    }
     const customer = await tx.customerProfile.findUniqueOrThrow({
       where: { id: booking.customerId },
       select: { userId: true },
@@ -1976,6 +2026,31 @@ export class ServiceOperationsService {
       }))
     )
       workforceNotFound();
+  }
+  async bookingAlternativeOptions(
+    actor: AuthenticatedActor,
+    id: string,
+    day: string,
+    managed = false,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(
+      async (tx) => {
+        await lockWorkforce(tx);
+        await lockAccessActor(tx, actor);
+        if (managed) await this.assertWorkReviewScope(tx, actor, id, true);
+        else await this.lockAuthorizedStaffBooking(actor, id, tx, false);
+        await assertCapability(tx, actor, "BOOKING_CONFIRM");
+        const booking = await this.repository.lockBooking(id, tx);
+        if (!booking) throw serviceOperationNotFound();
+        const result = await bookingAlternativeOptions(tx, booking, day);
+        if (managed) await this.assertWorkReviewScope(tx, actor, id, true);
+        else await this.lockAuthorizedStaffBooking(actor, id, tx, false);
+        await assertCapability(tx, actor, "BOOKING_CONFIRM");
+        return jsonSafe(result);
+      },
+      { timeout: 15000 },
+    );
   }
   async bookingWorkReviewOptions(actor: AuthenticatedActor, id: string, managed = false) {
     assertPrivilegedActor(actor);
@@ -2697,11 +2772,7 @@ export class ServiceOperationsService {
       if (booking.version !== input.expectedVersion) throw staleServiceOperation();
       const now = new Date(),
         policy = await attendancePolicy(tx, booking.branchId, now);
-      const previous = await tx.bookingAttendanceEvent.findFirst({
-        where: { bookingId: id, scheduleVersion: booking.scheduleVersion },
-        orderBy: { bookingVersion: "desc" },
-        select: { kind: true },
-      });
+      const previous = await effectiveAttendance(tx, booking);
       const arrived = await tx.bookingAttendanceEvent.findFirst({
         where: {
           bookingId: id,
@@ -2714,7 +2785,7 @@ export class ServiceOperationsService {
         booking,
         input.kind,
         previous?.kind ?? null,
-        !!arrived,
+        !!arrived || !!previous,
         policy.graceMinutes,
         now,
       );

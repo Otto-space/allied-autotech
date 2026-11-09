@@ -1,4 +1,8 @@
 import {
+  alternativeOptionsQuerySchema,
+  alternativeOptionsSchema,
+} from "./booking-alternatives.js";
+import {
   bookingAttendanceBodySchema,
   bookingAttendanceQuerySchema,
   bookingAttendanceSnapshotSchema,
@@ -246,6 +250,16 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       body: bookingRescheduleWithdrawBodySchema,
       secured: true,
       csrf: true,
+    },
+    {
+      method: "get",
+      path: "/staff/bookings/{bookingId}/alternative-options",
+      summary:
+        "Check actual alternative times using saved booking timing and current workshop capacity",
+      params: bookingParamsSchema,
+      query: alternativeOptionsQuerySchema,
+      secured: true,
+      response: responseSchema.extend({ data: alternativeOptionsSchema }),
     },
     {
       method: "get",

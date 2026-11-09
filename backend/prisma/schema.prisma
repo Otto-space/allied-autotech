@@ -1071,6 +1071,7 @@ model BookingSlot {
 }
 
 model Booking {
+  visitContinuations           BookingVisitContinuation[]
   attendanceEvents             BookingAttendanceEvent[]
   resourceAllocations          BookingResourceAllocation[]
   timingSnapshots              BookingTimingSnapshot[]
@@ -3315,25 +3316,26 @@ enum BookingRescheduleSource {
 }
 
 model BookingRescheduleRequest {
-  id                String                  @id @default(uuid()) @db.Uuid
-  bookingId         String                  @db.Uuid
-  requestedByUserId String                  @db.Uuid
-  decidedByUserId   String?                 @db.Uuid
-  branchId          String                  @db.Uuid
-  slotId            String?                 @db.Uuid
+  visitContinuation BookingVisitContinuation?
+  id                String                    @id @default(uuid()) @db.Uuid
+  bookingId         String                    @db.Uuid
+  requestedByUserId String                    @db.Uuid
+  decidedByUserId   String?                   @db.Uuid
+  branchId          String                    @db.Uuid
+  slotId            String?                   @db.Uuid
   startsAt          DateTime
-  reason            String                  @db.VarChar(1000)
+  reason            String                    @db.VarChar(1000)
   source            BookingRescheduleSource
   originalSchedule  Json
-  status            BookingRescheduleStatus @default(PENDING)
-  createdAt         DateTime                @default(now())
+  status            BookingRescheduleStatus   @default(PENDING)
+  createdAt         DateTime                  @default(now())
   decidedAt         DateTime?
-  decisionReason    String?                 @db.VarChar(500)
-  booking           Booking                 @relation(fields: [bookingId], references: [id], onDelete: Restrict)
-  requester         User                    @relation("RescheduleRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
-  decider           User?                   @relation("RescheduleDecider", fields: [decidedByUserId], references: [id], onDelete: Restrict)
-  branch            Branch                  @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  slot              BookingSlot?            @relation(fields: [slotId], references: [id], onDelete: Restrict)
+  decisionReason    String?                   @db.VarChar(500)
+  booking           Booking                   @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  requester         User                      @relation("RescheduleRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+  decider           User?                     @relation("RescheduleDecider", fields: [decidedByUserId], references: [id], onDelete: Restrict)
+  branch            Branch                    @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  slot              BookingSlot?              @relation(fields: [slotId], references: [id], onDelete: Restrict)
 
   @@index([bookingId, createdAt])
   @@index([branchId, status, createdAt])
@@ -3366,35 +3368,36 @@ model BookingTimingSnapshot {
 // Append-only allocation decisions; cancellation/status and the latest matching
 // booking revision determine occupancy without deleting earlier reservations.
 model BookingResourceAllocation {
-  id                 String                @id @default(uuid()) @db.Uuid
-  bookingId          String                @db.Uuid
+  visitContinuations BookingVisitContinuation[]
+  id                 String                     @id @default(uuid()) @db.Uuid
+  bookingId          String                     @db.Uuid
   bookingVersion     Int
   scheduleVersion    Int
-  branchId           String                @db.Uuid
-  serviceId          String                @db.Uuid
-  staffId            String                @db.Uuid
+  branchId           String                     @db.Uuid
+  serviceId          String                     @db.Uuid
+  staffId            String                     @db.Uuid
   scheduledAt        DateTime
   startsAt           DateTime
   endsAt             DateTime
-  resourceIds        String[]              @db.Uuid
-  timingSnapshotId   String                @db.Uuid
-  policyVersionId    String                @db.Uuid
+  resourceIds        String[]                   @db.Uuid
+  timingSnapshotId   String                     @db.Uuid
+  policyVersionId    String                     @db.Uuid
   // Optional, append-only review of remaining work; legacy decisions stay null.
   workReviewedAt     DateTime?
   workStartedAt      DateTime?
   remainingMinutes   Int?
   cleanupMinutes     Int?
   expectedWorkEndsAt DateTime?
-  reason             String                @db.VarChar(1000)
-  createdByUserId    String                @db.Uuid
-  createdAt          DateTime              @default(now())
-  booking            Booking               @relation(fields: [bookingId], references: [id], onDelete: Restrict)
-  branch             Branch                @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  service            Service               @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  staff              StaffProfile          @relation(fields: [staffId], references: [id], onDelete: Restrict)
-  timingSnapshot     BookingTimingSnapshot @relation(fields: [timingSnapshotId], references: [id], onDelete: Restrict)
-  policyVersion      BusinessPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
-  createdBy          User                  @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  reason             String                     @db.VarChar(1000)
+  createdByUserId    String                     @db.Uuid
+  createdAt          DateTime                   @default(now())
+  booking            Booking                    @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  branch             Branch                     @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  service            Service                    @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  staff              StaffProfile               @relation(fields: [staffId], references: [id], onDelete: Restrict)
+  timingSnapshot     BookingTimingSnapshot      @relation(fields: [timingSnapshotId], references: [id], onDelete: Restrict)
+  policyVersion      BusinessPolicyVersion      @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
+  createdBy          User                       @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
 
   @@unique([bookingId, bookingVersion])
   @@index([startsAt, endsAt])
@@ -3402,22 +3405,41 @@ model BookingResourceAllocation {
 }
 
 model BookingAttendanceEvent {
-  id                   String                 @id @db.Uuid
-  bookingId            String                 @db.Uuid
-  recordedByUserId     String                 @db.Uuid
+  visitContinuations   BookingVisitContinuation[]
+  id                   String                     @id @db.Uuid
+  bookingId            String                     @db.Uuid
+  recordedByUserId     String                     @db.Uuid
   bookingVersion       Int
   scheduleVersion      Int
-  kind                 String                 @db.VarChar(32)
-  reason               String                 @db.VarChar(1000)
-  operationDigest      String                 @db.Char(64)
-  createdAt            DateTime               @default(now())
+  kind                 String                     @db.VarChar(32)
+  reason               String                     @db.VarChar(1000)
+  operationDigest      String                     @db.Char(64)
+  createdAt            DateTime                   @default(now())
   graceMinutes         Int?
-  graceSource          String?                @db.VarChar(40)
-  gracePolicyVersionId String?                @db.Uuid
-  booking              Booking                @relation(fields: [bookingId], references: [id], onDelete: Restrict)
-  recordedByUser       User                   @relation(fields: [recordedByUserId], references: [id], onDelete: Restrict)
-  gracePolicyVersion   BusinessPolicyVersion? @relation(fields: [gracePolicyVersionId], references: [id], onDelete: Restrict)
+  graceSource          String?                    @db.VarChar(40)
+  gracePolicyVersionId String?                    @db.Uuid
+  booking              Booking                    @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  recordedByUser       User                       @relation(fields: [recordedByUserId], references: [id], onDelete: Restrict)
+  gracePolicyVersion   BusinessPolicyVersion?     @relation(fields: [gracePolicyVersionId], references: [id], onDelete: Restrict)
 
   @@unique([bookingId, bookingVersion])
   @@index([bookingId, scheduleVersion, bookingVersion], map: "BookingAttendanceEvent_schedule_history_idx")
+}
+
+// Same physical visit after an approved same-day replacement. No new arrival is invented.
+model BookingVisitContinuation {
+  id                      String                    @id @default(uuid()) @db.Uuid
+  bookingId               String                    @db.Uuid
+  scheduleVersion         Int
+  previousScheduleVersion Int
+  eventId                 String                    @db.Uuid
+  allocationId            String                    @db.Uuid
+  requestId               String                    @unique @db.Uuid
+  createdAt               DateTime                  @default(now())
+  booking                 Booking                   @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  event                   BookingAttendanceEvent    @relation(fields: [eventId], references: [id], onDelete: Restrict)
+  allocation              BookingResourceAllocation @relation(fields: [allocationId], references: [id], onDelete: Restrict)
+  request                 BookingRescheduleRequest  @relation(fields: [requestId], references: [id], onDelete: Restrict)
+
+  @@unique([bookingId, scheduleVersion])
 }

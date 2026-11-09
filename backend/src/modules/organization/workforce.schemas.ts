@@ -1,3 +1,4 @@
+import { alternativeOptionsSchema } from "../service-operations/booking-alternatives.js";
 import {
   bookingAttendanceSnapshotSchema,
   bookingAttendanceReceiptSchema,
@@ -671,6 +672,8 @@ export function workforceResponseSchema(action: string): z.ZodType {
         generatedAt: timestamp,
         access: workforceOwnResponseSchema,
       });
+    case "bookingAlternativeOptions":
+      return alternativeOptionsSchema;
     case "bookingWorkReviewOptions":
       return bookingWorkReviewOptionsResponseSchema;
     case "bookingWorkReview":
