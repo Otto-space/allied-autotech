@@ -553,6 +553,7 @@ for (const width of [320, 390, 768, 1440])
     mode = "ready";
     await button.click();
     const select = page.getByLabel("Available time (Nigeria time)", { exact: true });
+    await expect(select.locator('option[value="2040-01-03T11:00"]')).toHaveCount(1);
     await select.focus();
     await page.keyboard.press("ArrowDown");
     await page.keyboard.press("Enter");

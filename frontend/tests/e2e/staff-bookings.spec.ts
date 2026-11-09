@@ -1077,8 +1077,16 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
         .click();
       expect(writes).toHaveLength(1);
       await expect(page.getByRole("dialog")).toContainText(
-        decision === "ACCEPT" ? "not a confirmed appointment" : "stay unchanged",
+        decision === "ACCEPT" ? "needs staff approval" : "stay unchanged",
       );
+      if (decision === "ACCEPT") {
+        await expect(page.getByRole("dialog")).toContainText(
+          "original appointment stays unchanged until approval",
+        );
+        await expect(page.getByRole("dialog")).toContainText(
+          "does not use your customer reschedule allowance",
+        );
+      }
       await page
         .getByRole("dialog")
         .getByRole("button", { name: "Confirm change" })

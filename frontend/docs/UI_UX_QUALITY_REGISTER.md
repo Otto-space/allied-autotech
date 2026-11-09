@@ -1,3 +1,63 @@
+## 9 November 14:27 UTC - combined gate outcome and next verified finding
+
+Combined source 6c8abe99 passed backend safety, secrets, the production build,
+1,518 units (12 existing explicit skips) and the early WebKit diagnostic. Full
+browser run 42631178602 passed 449/451, including all ten workforce directory
+cases. Two legacy booking acceptance cases failed because they required superseded
+wording. The other session committed f6a63f9a with assertions for the current staff-
+approval, unchanged original appointment and unchanged reschedule-allowance contract,
+plus an explicit wait for asynchronous available options. Integrate that exact fix;
+do not duplicate it or weaken the booking safeguards. Fresh combined gates remain
+required. Only shared evidence conflicted; both histories are retained.
+
+Hosted preview dpl_2r716wiZD9mWz1XQQj2yhfMnepeQ matches 6c8abe99. Its authenticated
+HTTP-bridge probe passed desktop record geometry and collapsed sidebar checks, but
+keyboard detail navigation repeatedly returned to the directory and timed out.
+That is a failed hosted check, not a pass or proof of an application defect. Preserve
+TEMP/allied-workforce-release-6c8abe99 and investigate the transport/navigation before
+promotion. Local Edge and hosted CI detail-navigation cases passed independently.
+Production remains held behind the compatible D11 backend release and all gates.
+
+Next bounded finding: /dashboard/saved loses Saved vehicles selection after opening
+a published vehicle and using Back, and after reload. Reproduced at actual 390x844
+(mobile/touch emulation) and 1280x720 in Edge 157 on live frontend dpl_22d3ubrHm6At1DnxuFFuR9h4SN5A,
+using only isolated Customer/saved fixtures and public listing reads. Both returned
+to Favourite products with zero page errors or writes. P2 comparison-context loss;
+SavedCollections defaults to local parts state. Add validated URL collection state
+with Back/Forward, reload, keyboard, removal-guard and account-change regressions in
+a separate package. Evidence: TEMP/allied-saved-return-20261109/finding.md and results.json.
+No saved-items application change belongs to this batch. The owner-unconfirmed
+business facts, physical-device/real-role limits and full two-brief backlog remain.
+
+## 9 November 14:24 UTC - cross-browser gate follow-up; publication held
+
+Exact master 885010a6 passed backend database safety and secrets, production build,
+lint/types/unit checks and the WebKit transport diagnostic. The full browser matrix
+passed 438/441; all Firefox/WebKit cases passed. Three new Chromium fixtures failed:
+one selected an option before its asynchronous response arrived; two required old
+modal wording despite the current explicit pending-approval message. The fixture
+now waits for the exact available option before its unchanged keyboard interaction,
+and checks staff approval, unchanged original time and unchanged customer allowance.
+No application guard or assertion of those outcomes is removed. Fresh CI is required.
+
+All four 885010a6 Linux images are built. Ten packaged safety/media/font/import/
+separate-database restore checks and seven populated-schema candidate/recovery probes
+pass. A staged production frontend exists with public aliases unchanged; it is not
+approved for promotion. A first Linux HTTP attempt stopped on a synthetic migration
+byte mismatch; the release's exact filtered files were replayed into a new isolated
+fixture target without changing any existing history. All 22 compiled attendance
+cases then passed; five new late-visit cases exposed that their shared technician was
+already doing other fixture work. They are being rerun with a dedicated qualified
+synthetic technician, retaining the real occupancy guard. No real records changed.
+
+Production remains e947a205/schema 99. Retain the fresh backup and 99-to-100 populated
+restore proof. The full D11 release and original D01-D17 goal remain active, with all
+financial/security/capability boundaries unchanged. Existing Docker inspection has
+recovered without a reset, pruning or deletion. The new CI failure is a failed gate,
+not a claim that a green build makes this feature or the whole site launch-ready.
+
+---
+
 ## 9 November 14:04 UTC - preserve concurrent late-alternative implementation
 
 Master advanced to 885010a6 while workforce directory acceptance was running.
