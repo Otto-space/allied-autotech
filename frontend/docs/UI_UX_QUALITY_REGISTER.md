@@ -1,3 +1,17 @@
+## 9 November 15:39 UTC - published D11 and workforce acceptance checkpoint
+
+Application 9c219bc8 is live with matching schema-100 backend and both frontend
+aliases. Exact-source CI: 451 browser cases, nine repeated WebKit diagnostics,
+1,518 units and 12 existing explicit unit skips. Five held native Edge fixtures
+and three published 320/390/1440 captures pass with zero production writes; phone
+touch/keyboard review, Escape and focus return are exercised. Synthetic records
+and engine emulation are distinct from real roles, physical devices and delivery.
+The PR 27 directory repair is preserved. Current release and remaining D01-D17/
+original-audit scope: backend/docs/site-completion-tracker.md, latest checkpoint.
+Older pending-source entries below are dated evidence, not the current deployment.
+
+---
+
 ## 9 November 14:43 UTC - preserve managed alternative dispatcher fix
 
 Integrate master 323dabca's dedicated alternative-day query parser and authenticated

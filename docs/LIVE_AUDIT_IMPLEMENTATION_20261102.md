@@ -1,3 +1,15 @@
+## 9 November 15:39 UTC - current publication and requirement ledger
+
+Application 9c219bc8, schema 100, publishes checked late-arrival alternatives and
+preserves the concurrent workforce-table repair. Both domains and matching backend
+are verified. The current requirement/status/evidence ledger is the latest entry
+in backend/docs/site-completion-tracker.md; D03, D12-D15/D17 and original operational/
+provider/role/device acceptance remain active. No payment/booking activation occurred.
+The older entries below are retained historical evidence and must not cause a
+repeat of published attendance, rescheduling, resource or permission work.
+
+---
+
 4 November attendance batch — source verified locally; not deployed
 
 Current item: D11 physical arrival/wait/left and D16 staff-verified missed visits.
