@@ -45,6 +45,7 @@ export default defineConfig({
         "booking-work-review.spec.ts",
         "service-payment-stages.spec.ts",
         "order-timing.spec.ts",
+        "order-pickup.spec.ts",
         "booking-calendar.spec.ts",
         "invoice-modal-responsive.spec.ts",
         "modal-layout.spec.ts",

@@ -48,7 +48,47 @@ export async function verifyConsole(page: Page, errors: string[], warnings: stri
     const css = await page.request.get(url.href);
     expect(css.ok()).toBe(true);
     expect(css.headers()["content-type"]).toContain("text/css");
-    expect(await css.text()).toMatch(/\.missing-page\s*\{/);
+    const stylesheet = await css.text();
+    if (!/\.missing-page\s*\{/.test(stylesheet)) {
+      // Next can preload the shared footer chunk during route transitions. Do not
+      // allow arbitrary operational CSS: require the known footer selectors, an
+      // constrained selectors and actual dock clearance where rendered.
+      expect(stylesheet).toMatch(/\.site-footer\.site-footer--editorial\s*\{/);
+      const selectors = await page.evaluate((text) => {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(text);
+        const collect = (rules: CSSRuleList): string[] =>
+          [...rules].flatMap((rule) =>
+            rule instanceof CSSStyleRule
+              ? rule.selectorText.split(",").map((value) => value.trim())
+              : "cssRules" in rule
+                ? collect((rule as CSSGroupingRule).cssRules)
+                : ["UNEXPECTED_RULE"],
+          );
+        return collect(sheet.cssRules);
+      }, stylesheet);
+      expect(selectors.length).toBeGreaterThan(0);
+      expect(
+        selectors.every((selector) =>
+          /^\.site-footer(?:[._:# >\[]|$)|^\.part-fitment-summary_/.test(selector),
+        ),
+        warning,
+      ).toBe(true);
+      const footer = page.locator("footer.site-footer--editorial");
+      if (await footer.count()) {
+        expect(
+          await footer.evaluate((node) =>
+            Number.parseFloat(getComputedStyle(node).paddingBottom),
+          ),
+        ).toBeGreaterThanOrEqual(104);
+      }
+      test.info().annotations.push({
+        type: "verified-shared-footer-preload-warning",
+        description:
+          "Same-origin shared footer CSS response and every selector verified; rendered dock clearance checked where the footer exists. Unused preload remains a performance limitation.",
+      });
+      continue;
+    }
     test.info().annotations.push({
       type: "verified-fallback-preload-warning",
       description:

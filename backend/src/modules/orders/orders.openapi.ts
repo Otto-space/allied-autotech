@@ -1,3 +1,4 @@
+import { registerPickupOpenApi } from "./order-pickup.openapi.js";
 import { orderTimingBodySchema } from "./order-timing.schemas.js";
 import {
   issuePartsQuoteSchema,
@@ -40,6 +41,7 @@ interface Path {
   created?: boolean;
 }
 export function registerOrdersOpenApi(registry: OpenAPIRegistry): void {
+  registerPickupOpenApi(registry);
   const paths: Path[] = [
     {
       method: "post",

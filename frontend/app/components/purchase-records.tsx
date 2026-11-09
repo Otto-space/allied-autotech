@@ -1,4 +1,5 @@
 "use client";
+import { OrderPickup } from "./order-pickup";
 import { OrderTimingSummary } from "./order-timing";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -291,6 +292,13 @@ function OrderDetail({ orderId }: { orderId: string }) {
       {resource.data && (
         <>
           <OrderSummary order={resource.data} />
+          <OrderPickup
+            order={resource.data}
+            audience="guest"
+            disabled={busy || resource.loading}
+            onSaved={resource.refresh}
+            onBusyChange={setBusy}
+          />
           <OrderTimingSummary
             updates={resource.data.timingUpdates}
             items={resource.data.items}

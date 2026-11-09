@@ -1,3 +1,37 @@
+### 9 November: durable private parts pickup source and owner collection calendar
+
+D14 now has forward migrations 108/109, private buyer/guest routes, current branch/
+MFA Staff routes, exclusive session-bound physical review, exact partial quantities,
+financial rechecks and immutable one-time handover. Native 67/67 in four suites
+passed with 109-migration replay, empty schema diff, db:check and restricted runtime;
+owned tmpfs DB removed. Source UI and version-1 restricted learning are connected.
+Browser/real-role/physical acceptance and exact combined-source release gates are
+still open. Token lifetime is engineering security, never business hold policy.
+
+D12 calendar decisions are now settled in the owner decision register: Mon-Sat,
+public holidays count, after both readiness and notification, imported/custom same.
+Date calculator and pending-notification logic are tested; durable hold/extension
+journey remains open. Do not reask these settled values. No new payment activation,
+production migration, real transaction, grant or publication is claimed.
+See docs/help-learn/PARTS_PICKUP_20261109.md for exact evidence and remaining scope.
+
+### 9 November: owner resolves the collection-hold calendar
+
+Owner reply in this conversation: count Monday-Saturday; public holidays are not
+excluded; begin after both actual readiness and customer notification; apply the
+same five-day rule to imported/custom parts. Sunday does not count. This supersedes
+older unresolved-calendar entries below. It does not change banking/refund or
+appointment-capacity calendars, approve storage fees or release paid stock.
+
+The date calculator has explicit pending-readiness/pending-notification states and
+uses the later event's Nigeria date, excluding that date. Queuing/attempting a
+notification is not successful customer notification. It returns a Collect by date,
+with overdue beginning on the next Nigeria date; this date-only engineering
+boundary does not invent an owner-approved closing-hour penalty. Durable evidence,
+reasoned extension, customer/staff rendering and notification-failure acceptance
+remain to be connected before D12 is complete. Do not request these settled values
+again. No production policy publication or backfill is claimed.
+
 ### 9 November: D14 private pickup core (not a completed handover workflow)
 
 Prepared the reusable cryptographic and quantity rules for the remaining D14

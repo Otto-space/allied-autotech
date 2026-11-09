@@ -1,3 +1,4 @@
+import { registerBuyerPickupRoutes } from "./order-pickup.routes.js";
 import { Router, type Request, type Response } from "express";
 import { AppError } from "../../common/errors/app-error.js";
 import { successResponse } from "../../common/http/api-response.js";
@@ -558,5 +559,6 @@ export function createPurchaseRouter(
       },
     );
   }
+  registerBuyerPickupRoutes(router, true);
   return router;
 }

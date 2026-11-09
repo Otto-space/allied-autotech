@@ -1,4 +1,5 @@
 "use client";
+import { OrderPickup } from "./order-pickup";
 import { OrderTimingSummary } from "./order-timing";
 import { containDialogFocus } from "@/lib/dialog-focus";
 import { usePublicCapabilities } from "@/app/components/public-capabilities";
@@ -661,6 +662,12 @@ export function OrderDetail({ orderId }: { orderId: string }) {
             </div>
             <div className="order-main">
               <OrderTimingSummary updates={current.timingUpdates} items={current.items} />
+              <OrderPickup
+                order={current}
+                audience="customer"
+                disabled={busy}
+                onSaved={order.revalidate}
+              />
               <section
                 className="order-card order-items"
                 aria-labelledby="order-items-title"

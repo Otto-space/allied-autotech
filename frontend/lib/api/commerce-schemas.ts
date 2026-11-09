@@ -129,6 +129,7 @@ export const cartSchema = z.object({
 });
 export const parseCart = (value: unknown) => cartSchema.parse(value);
 export const orderSchema = z.object({
+  pickupCapabilityVersion: z.literal(1).optional(),
   timingUpdates: timingUpdatesSchema,
   purchaseReviews: z.array(purchaseReviewSummarySchema).max(1).optional().default([]),
   partsQuote: z

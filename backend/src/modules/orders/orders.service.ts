@@ -201,6 +201,7 @@ export class OrdersService {
       });
       return jsonSafe({
         ...customerOrderView(order),
+        pickupCapabilityVersion: 1,
         purchaseReviews: await purchaseOfferReviews(transaction, order.purchaseReviews),
         paymentId: payment?.id ?? null,
       });
@@ -811,6 +812,7 @@ export class OrdersService {
     if (order === null) throw orderNotFound();
     return jsonSafe({
       ...customerOrderView(order),
+      pickupCapabilityVersion: 1,
       purchaseReviews: await purchaseOfferReviews(this.database, order.purchaseReviews),
     });
   }
@@ -852,6 +854,7 @@ export class OrdersService {
     );
     return jsonSafe({
       ...order,
+      pickupCapabilityVersion: 1,
       purchaseReviews: await purchaseOfferReviews(this.database, order.purchaseReviews),
       allowedTransitions: await this.allowedTransitions(order),
       ...(actor.role === "ADMIN" || actor.role === "SUPER_ADMIN"
@@ -994,6 +997,10 @@ export class OrdersService {
     context: RequestSecurityContext,
   ) {
     assertOrderOperator(actor);
+    if (input.status === "COMPLETED")
+      throw orderConflict(
+        "Record physical collection through the verified private pickup handover workflow.",
+      );
     await withTransactionRetry(
       this.database,
       async (transaction) => {
@@ -1146,7 +1153,6 @@ export class OrdersService {
             ...(input.status === "CONFIRMED" ? { confirmedAt: now } : {}),
             ...(input.status === "PROCESSING" ? { processingAt: now } : {}),
             ...(input.status === "READY" ? { readyAt: now } : {}),
-            ...(input.status === "COMPLETED" ? { completedAt: now } : {}),
           },
           transaction,
         );
@@ -1187,10 +1193,12 @@ export class OrdersService {
           select: { id: true },
         })) !== null);
     return (transitions[order.status] as readonly string[]).filter((status) =>
-      status === "CANCELLED"
-        ? cancellationAllowed
-        : order.paidAt !== null &&
-          !hasUnavailableSourcing(order.timingUpdates?.[0]?.lines),
+      status === "COMPLETED"
+        ? false
+        : status === "CANCELLED"
+          ? cancellationAllowed
+          : order.paidAt !== null &&
+            !hasUnavailableSourcing(order.timingUpdates?.[0]?.lines),
     );
   }
   async expireDue(

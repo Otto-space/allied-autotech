@@ -19,6 +19,8 @@ const destinations = new Set([
   "/contact",
   "/forgot-password",
   "/dashboard/support",
+  "/dashboard/orders",
+  "/staff/orders",
   "/admin",
   "/admin/vehicles",
   "/admin/workforce/enquiries",
