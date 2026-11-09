@@ -356,6 +356,7 @@ export function createWorkforceRouter(): Router {
             : [
                   "jobAssignees",
                   "bookingRescheduleAssignees",
+                  "bookingAlternativeOptions",
                   "enquiryAssignees",
                   "complaintAssignees",
                   "bookings",
@@ -494,7 +495,7 @@ export function createWorkforceRouter(): Router {
           data = await new ServiceOperationsService().bookingAlternativeOptions(
             actor,
             id,
-            alternativeOptionsQuerySchema.parse(query).day,
+            alternativeOptionsQuerySchema.parse(req.query).day,
             true,
           );
           break;

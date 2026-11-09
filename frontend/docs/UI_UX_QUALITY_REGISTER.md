@@ -1,3 +1,13 @@
+## 9 November 14:43 UTC - preserve managed alternative dispatcher fix
+
+Integrate master 323dabca's dedicated alternative-day query parser and authenticated
+HTTP regression, without changing the workforce layout or private fixture contract.
+Only shared evidence conflicts; retain both histories. The directory source remains
+identical to the native-preview pass. Search-fixture request-settling changes pass
+local nonincremental TypeScript, scoped lint and formatting; runtime acceptance is
+pending fresh combined CI, including the repeated WebKit diagnostic. No production
+publication or database mutation was performed by this integration.
+
 ## 9 November 14:42 UTC - native preview pass and traced WebKit fixture race
 
 Exact-head preview dpl_D4D59noJTk7YHzg3GrUpDozbQxN3 (0878feb0) passes native Edge
@@ -54,6 +64,26 @@ with Back/Forward, reload, keyboard, removal-guard and account-change regression
 a separate package. Evidence: TEMP/allied-saved-return-20261109/finding.md and results.json.
 No saved-items application change belongs to this batch. The owner-unconfirmed
 business facts, physical-device/real-role limits and full two-brief backlog remain.
+
+## 9 November 14:38 UTC - managed alternatives HTTP regression repaired
+
+The compiled Linux test exposed a genuine dispatcher defect before release: the
+managed alternatives GET query was reparsed as a generic list and returned 500.
+The dedicated day query now follows the existing specialised-query pattern and
+reads the validated request fields. A full authenticated HTTP regression verifies
+200/private-no-store, actual available times, no capacity/private-field leakage,
+422 malformed/extra query fields, customer rejection and foreign-branch 404.
+All 52 affected native PostgreSQL workflow cases pass; backend types/lint pass.
+
+No permission, pricing, rate-limit, migration or public-capability rule changed.
+The new Linux workflow group will run in its own disposable API process so the
+preceding 22 attendance cases do not exhaust its legitimate per-IP burst budget;
+limits stay enabled. A dedicated qualified synthetic technician avoids conflicting
+with earlier fixture work. Current production remains unchanged. Required fresh
+exact-master checks and final packaged/Linux/protected release evidence remain
+pending; retain the full original audit and D01-D17 requirements.
+
+---
 
 ## 9 November 14:24 UTC - cross-browser gate follow-up; publication held
 
