@@ -1,4 +1,5 @@
 "use client";
+import { BookingAttendance, BookingAttendanceHistory } from "./booking-attendance";
 import { BookingWorkReview } from "./booking-work-review";
 import { BookingWorkEstimate } from "./booking-work-estimate";
 import { BookingTimingReview } from "./booking-timing-review";
@@ -337,7 +338,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
           Refresh booking
         </button>
       </header>
-      <Feedback message={message} tone="success" toast="Booking change recorded." />
+      <Feedback message={message} tone="success" toast={message} />
       {readError && (
         <section className="booking-detail-state">
           <h2>Booking unavailable</h2>
@@ -426,6 +427,19 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
               </div>
             </dl>
           </section>
+          {canOperate ? (
+            <BookingAttendance
+              bookingId={current.id}
+              showInlineNotice={false}
+              blocked={disabled}
+              onUpdated={(notice) => {
+                setMessage(notice);
+                booking.refresh();
+              }}
+            />
+          ) : (
+            <BookingAttendanceHistory events={current.attendanceEvents} />
+          )}
           <BookingWorkEstimate estimate={current.workEstimate} status={current.status} />
           <BookingWorkReview
             key={"work:" + session.user.id + ":" + current.id + ":" + current.version}
@@ -659,11 +673,6 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
                         </option>
                       ))}
                     </select>
-                    {current.status === "CONFIRMED" && (
-                      <p className="field-hint">
-                        Missed-appointment updates are temporarily unavailable.
-                      </p>
-                    )}
                   </div>
                   {choices.includes("CONFIRMED") && (
                     <div className="field">

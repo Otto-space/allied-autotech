@@ -1,4 +1,9 @@
 import {
+  bookingAttendanceSnapshotSchema,
+  bookingAttendanceReceiptSchema,
+  bookingAttendanceEventSchema,
+} from "../service-operations/booking-attendance.js";
+import {
   bookingWorkEstimateSchema,
   bookingWorkReviewOptionsResponseSchema,
   bookingWorkReviewReceiptSchema,
@@ -402,6 +407,7 @@ export const workforceJobResponseSchema = z.object({
   version,
   assignedStaffId: z.uuid().nullable(),
   customerNotes: z.string().nullable(),
+  attendanceEvents: z.array(bookingAttendanceEventSchema).max(30).optional(),
   requestedServiceCategoryId: z.uuid().nullable().optional(),
   requestedServiceCategoryName: z.string().nullable().optional(),
   customerConcern: z.string().nullable().optional(),
@@ -706,6 +712,10 @@ export function workforceResponseSchema(action: string): z.ZodType {
         branchId: z.uuid(),
         requestId: z.uuid(),
       });
+    case "bookingAttendanceRead":
+      return bookingAttendanceSnapshotSchema;
+    case "bookingAttendance":
+      return bookingAttendanceReceiptSchema;
     case "bookingConfirmation":
       return z.object({
         id: z.uuid(),
@@ -736,6 +746,7 @@ export function workforceResponseSchema(action: string): z.ZodType {
         rescheduleRequests: z.array(bookingRescheduleProjectionSchema).max(10),
         scheduleVersion: version,
         timingSnapshots: z.array(bookingTimingProjectionSchema).max(10),
+        attendanceEvents: z.array(bookingAttendanceEventSchema).max(30).optional(),
         startedAt: timestamp.nullable(),
         workEstimate: bookingWorkEstimateSchema.nullable(),
         alternativeStartsAt: timestamp.nullable(),

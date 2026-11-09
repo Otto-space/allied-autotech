@@ -1,4 +1,5 @@
 "use client";
+import { BookingAttendanceHistory } from "./booking-attendance";
 import { BookingWorkEstimate } from "./booking-work-estimate";
 import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { usePublicCapabilities } from "./public-capabilities";
@@ -506,6 +507,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
               </section>
             )}
             <BookingRescheduleHistory requests={current.rescheduleRequests} />
+            <BookingAttendanceHistory events={current.attendanceEvents} />
             {canReschedule && !disruption && (
               <button
                 className="button secondary"

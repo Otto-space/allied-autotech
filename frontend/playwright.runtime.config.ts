@@ -15,6 +15,7 @@ export default defineConfig({
         "booking-reschedule-approval.spec.ts",
         "workforce-booking-reschedule.spec.ts",
         "booking-timing.spec.ts",
+        "booking-attendance.spec.ts",
         "booking-work-review.spec.ts",
         "booking-calendar.spec.ts",
         "invoice-modal-responsive.spec.ts",
@@ -32,9 +33,9 @@ export default defineConfig({
       ],
     },
     {
-      name: "legacy-attendance-compatibility",
+      name: "legacy-attendance",
       testMatch: ["staff-bookings.spec.ts"],
-      grep: /staff old missed-status action/,
+      grep: /staff verifies missed attendance/,
     },
     {
       name: "modal-consumers",
