@@ -471,7 +471,7 @@ function VehicleCustomerActions({
       feedbackResult.action === "inspect"
         ? "/dashboard/inspections"
         : feedbackResult.action === "save"
-          ? "/dashboard/saved"
+          ? "/dashboard/saved?collection=vehicles"
           : feedbackResult.reference
             ? `/dashboard/vehicle-transactions/${feedbackResult.reference}`
             : "/dashboard/vehicle-transactions";

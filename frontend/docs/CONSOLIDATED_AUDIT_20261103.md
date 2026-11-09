@@ -1,5 +1,37 @@
 # Allied AutoTech consolidated audit — implementation and acceptance
 
+## 9 November follow-up: Saved items collection return context
+
+- **Finding / severity:** P2, comparison-context loss. `/dashboard/saved`, Customer;
+  reproduced on the live frontend with isolated private fixtures at 390x844 mobile/
+  touch emulation and 1280x720 desktop, without application writes.
+- **Reproduction:** select Saved vehicles, open a published vehicle, use Back, then
+  reload. The previous implementation returned to Favourite products. The successful
+  Save vehicle receipt also linked to that product-default page.
+- **Impact / component:** customers lose their selected shortlist context while
+  comparing vehicles. `saved-items.tsx` kept selection only in local state;
+  `vehicle-actions.tsx` omitted collection context from the receipt destination.
+- **Implemented correction:** validated URL selection, stable Back/Forward/reload,
+  contextual receipt, keyboard tab history replacement and collection-bound removal
+  review. Existing permissions, private cursor isolation, CSRF and recovery remain.
+- **Verification:** 55 distinct local Edge fixture cases have passing outcomes,
+  including all seven requested exact viewports, 20 decoded-image layout cases,
+  three automated accessibility scans and failure/account/cursor/review behaviour.
+  One 60-second tablet timeout is retained; its unchanged case passed in 24.7 seconds
+  when rerun with the existing CI 90-second allowance. Eight affected media/layout
+  cases passed after correcting the modern image fixture route. Seventeen focused
+  units passed. Runtime configuration collects 530 cases; its new hosted matrix is
+  pending, not a pass. Native production Saved acceptance is also pending.
+- **Evidence:** `TEMP/allied-saved-return-20261109` (before) and
+  `TEMP/allied-saved-context-20261109/{final,tablet-recheck,image-recheck}` (after).
+  Desktop/mobile full-page captures are in image-recheck. Data is synthetic and
+  isolated; physical phones, manual screen readers and real-account writes were
+  not tested. Owner-unconfirmed product identity/media and Diagnostics duration
+  remain business-data dependencies, not invented stock or code-completion claims.
+
+The older release below remains historical; it does not certify this follow-up or
+completion of the renewed two-brief audit.
+
 ## Final production release — 3 November 2026
 
 All safely actionable audit code is released at **7384abf8d23ad24fe8e9b0b66e144dd023f273bf**, merged through [PR #12](https://github.com/Otto-space/allied-autotech/pull/12). The historical implementation checkpoints below retain failed attempts and earlier pending states; this section supersedes their release status. Later booking/calendar/Allie work on master is preserved and is **not claimed as part of this 92-migration release**.

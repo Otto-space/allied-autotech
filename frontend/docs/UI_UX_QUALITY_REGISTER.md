@@ -228,6 +228,106 @@ documentation checkpoints do not imply another runtime deployment.
 ---
 
 
+
+## 9 November 15:47 UTC - Saved items gates passed; integrate release evidence
+
+Current item: publish the Saved items collection-context fix after exact-master gates.
+This package started 15:40 UTC; target checkpoint 16:40 UTC. Previous turn made
+progress: workforce source 9c219bc8 is deployed on apex/www as
+dpl_4dvsQv6n4PVDw5BQ344p5221SPZx, with compatible ACTIVE backend
+c3c54414-0f19-4b21-bf23-b44184e6f43a. Native production workforce fixtures pass
+1280x720 and 320x720 with zero writes/errors. GitHub GH013 prevents remote branch
+deletion; protection is unchanged and the completed local branch was retired.
+
+Saved source 1831a758 passes Frontend 42644205597: 1,518 units (12 existing skips),
+9/9 repeated WebKit diagnostics and all 530 production-build browser cases.
+Backend 42644205583 and Secrets 42644205571 also pass. Native protected preview
+dpl_3k7Ef687w1di8YqUY7pEP1dDxDrF passes all seven exact requested viewports,
+including actual public listing navigation, Back/reload, keyboard and decoded
+fixture images, with zero page errors or application writes. Evidence:
+TEMP/allied-saved-release-1831a758/native-preview.json and additional-viewports/.
+These are synthetic private records and desktop-engine mobile/touch emulation.
+
+Master 6b801af7 adds only the other owner's release evidence. Resolve shared-document
+conflicts preserving both histories; application/test source remains identical to
+the checked Saved candidate. Fresh exact-master checks remain required before its
+publication. The newer auth acceptance package is investigation only at this point.
+
+Local dependency audit found the old worktree junction used Next 16.3.8/Zod 4.6.2,
+not locked 16.4.3/4.6.6. Earlier local results are therefore development diagnostics;
+exact-lock acceptance comes from CI and the hosted build. Repoint only this stopped
+worktree's junction to the existing audit-copy installation: every installed package
+version/integrity in its installation lock matches the requested lock, with no missing
+required package. No install, shared-file mutation or duplicate dependency copy.
+Continue authentication lifecycle/state checks with that matching installation.
+Business-data, real-role/persistence, physical-device, full route/state, screen-reader,
+zoom and measured-performance requirements remain open. Do not activate gated features.
+
+## 9 November 15:22 UTC - Saved items return context acceptance
+
+Bounded package started 14:45 UTC; target checkpoint 15:45 UTC. The owner confirmed
+Diagnostics duration and Engine Oil Filter brand, manufacturer part number and
+approved image location are still unknown. Preserve their missing-data states.
+
+The next verified P2 defect is corrected: `/dashboard/saved?collection=vehicles`
+retains Saved vehicles through the real public listing, Back/Forward and reload.
+The save-vehicle receipt now opens that collection directly. Only one supported
+URL value selects vehicles; missing, unknown and duplicate values default safely
+to products. Tabs replace history while preserving other query fields/hash and
+independent in-memory cursors. URLs contain no private records or cursor values.
+An open removal review remains bound to its original collection across URL changes;
+closing it restores focus to the requested tab. Identity-keyed reset, session abort,
+CSRF, failed/uncertain removal guards and disabled-commerce capabilities remain.
+
+Local Edge 157 acceptance uses only isolated Customer/API fixtures and the existing
+loopback public-listing server. All 55 distinct cases have passing results: the
+final suite passed 54/55; the 768x1024 case exceeded the default 60-second total
+budget while loading/reloading under local contention, then passed in 24.7 seconds
+with the existing CI 90-second budget and no application change. Seven exact
+viewports cover 1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800 and 320x720;
+phone contexts use mobile/touch emulation. Twenty existing populated-layout cases
+now require decoded images. The fixture serves the current catalogue-image route
+with the matching parts/vehicle photograph. Eight affected image/layout/return
+cases passed after that fixture correction. Three automated accessibility scans,
+keyboard tabs/review, invalid query, pagination, session/account changes and failure
+recovery passed. The earlier cancelled-remount request is retained in the account
+assertion: every new-account read must use the first page, never the old cursor.
+Seventeen focused units, nonincremental TypeScript, scoped lint and formatting passed.
+Hosted CI remains pending.
+
+Evidence: TEMP/allied-saved-return-20261109/{finding.md,results.json,back-*.png}
+records the original live-frontend reproduction with private fixtures; TEMP/allied-
+saved-context-20261109/{final,tablet-recheck,image-recheck} retains passing captures
+and the failed timeout trace. The runtime matrix now collects 530 tests; collection
+is not execution. Firefox/WebKit, production-build and native hosted acceptance for
+this Saved batch are not yet complete. Physical devices/manual screen readers and
+real-role persistence remain separate. No fictional inventory, real saved-record
+mutation, backend/schema change or publication was performed by this batch.
+
+Workforce PR #27 merged as master 9c219bc8 after d4a16ef9 passed 1,518 units
+(12 existing skips), 9/9 repeated WebKit diagnostics and 451/451 browser cases,
+plus backend and secret checks. Exact-master frontend run 42640751854 is pending;
+backend 42640751890 and secrets 42640751930 passed. The other release owner has
+verified production migration 100, removed its temporary access and is handling
+the compatible backend rollout from the same master. Its 15:08 source-handoff
+receipt is TEMP/aat-attendance-20261104/source-handoff-late-20261109.json. Preserve
+that ownership; do not independently repeat migrations or promote before readiness.
+The complete two-brief route/role/auth/device/performance backlog remains active.
+
+## 9 November 15:39 UTC - published D11 and workforce acceptance checkpoint
+
+Application 9c219bc8 is live with matching schema-100 backend and both frontend
+aliases. Exact-source CI: 451 browser cases, nine repeated WebKit diagnostics,
+1,518 units and 12 existing explicit unit skips. Five held native Edge fixtures
+and three published 320/390/1440 captures pass with zero production writes; phone
+touch/keyboard review, Escape and focus return are exercised. Synthetic records
+and engine emulation are distinct from real roles, physical devices and delivery.
+The PR 27 directory repair is preserved. Current release and remaining D01-D17/
+original-audit scope: backend/docs/site-completion-tracker.md, latest checkpoint.
+Older pending-source entries below are dated evidence, not the current deployment.
+
+---
+
 ## 9 November 14:43 UTC - preserve managed alternative dispatcher fix
 
 Integrate master 323dabca's dedicated alternative-day query parser and authenticated
