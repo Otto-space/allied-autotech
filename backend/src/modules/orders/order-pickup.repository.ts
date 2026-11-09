@@ -1,3 +1,4 @@
+import { assertNoSupplyExceptionHold } from "./order-supply-exception-hold.js";
 import { orderCollectionHold } from "./order-collection-hold.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { confirmedReceipt, receiptPaymentSelect } from "../billing/documents.service.js";
@@ -104,6 +105,7 @@ export async function pickupFinancialProof(
       "The actual paid order must be ready at an active collection branch before pickup.",
     );
   await assertReviewedPurchaseFulfilment(tx, order.id);
+  await assertNoSupplyExceptionHold(tx, order.id);
   const holds = await tx.orderAftercareRequest.findFirst({
     where: { orderId: order.id, status: { not: "REJECTED" } },
     select: { id: true },

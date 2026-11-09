@@ -5442,6 +5442,39 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/customers/orders/{orderId}/supply-exceptions`
+
+- Operation ID: `getCustomersOrdersByOrderIdSupplyExceptions`
+- Purpose: Private/no-store. Actual current account/guest ownership or staff MFA and branch access is rechecked. Raw administrator notes, request hashes, replay keys and operator/session identities are omitted from buyer projections. A concern and monetary basis are review evidence, not technical approval, refund approval or successful settlement. A used/installed/diagnosis report requires technical assessment; general returns and warranty remain unresolved. Read current owned/scoped supply concerns and safe Care references. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read current owned/scoped supply concerns and safe Care references",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/customers/orders/{orderId}/purchase-review`
 
 - Operation ID: `postCustomersOrdersByOrderIdPurchaseReview`
@@ -11606,6 +11639,105 @@ Success: HTTP 200.
 {
   "success": true,
   "message": "Consume private authorisation and record confirmed physical handover transactionally",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/orders/{orderId}/supply-exceptions`
+
+- Operation ID: `getStaffOrdersByOrderIdSupplyExceptions`
+- Purpose: Private/no-store. Actual current account/guest ownership or staff MFA and branch access is rechecked. Raw administrator notes, request hashes, replay keys and operator/session identities are omitted from buyer projections. A concern and monetary basis are review evidence, not technical approval, refund approval or successful settlement. A used/installed/diagnosis report requires technical assessment; general returns and warranty remain unresolved. Read current owned/scoped supply concerns and safe Care references. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read current owned/scoped supply concerns and safe Care references",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/orders/{orderId}/supply-exceptions`
+
+- Operation ID: `postStaffOrdersByOrderIdSupplyExceptions`
+- Purpose: Current Admin/Super Admin, verified MFA and CSRF. Locks actual order/version and current identity; validates disjoint owned unit ranges and refuses overlap with existing concerns. Replays the same body UUID without a duplicate Care case or alert. Immutable original allocation is retained where available, otherwise financial reconciliation is required; never reprice a historical invoice or deduct a handling fee. Existing Care notifications and opt-in department delivery are reused. A queued message is not successful delivery. This does not grant refund/credit authority, customer consent or settlement. Record actual affected quantities and alert existing Customer Care without moving money. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `idempotencyKey` | string (uuid) | Yes | Retry key that must be reused only with an identical logical request. |
+| `kind` | UNAVAILABLE / WRONG_OR_UNSUITABLE_SUPPLY / USED_INSTALLED_OR_DIAGNOSIS_DISPUTE | Yes | Kind validated by this operation's strict request contract. |
+| `affectedLines` | array<object> | Yes | Affected Lines validated by this operation's strict request contract. |
+| `customerNote` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `actualConcernConfirmed` | true | Yes | Actual Concern Confirmed validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+  "kind": "UNAVAILABLE",
+  "affectedLines": [
+    {
+      "orderItemId": "00000000-0000-4000-8000-000000000001",
+      "offset": 0,
+      "quantity": 1
+    }
+  ],
+  "customerNote": "synthetic-customernote",
+  "reason": "synthetic-reason",
+  "actualConcernConfirmed": true
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Record actual affected quantities and alert existing Customer Care without moving money",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -30135,6 +30267,39 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/purchase/orders/{orderId}/supply-exceptions`
+
+- Operation ID: `getPurchaseOrdersByOrderIdSupplyExceptions`
+- Purpose: Private/no-store. Actual current account/guest ownership or staff MFA and branch access is rechecked. Raw administrator notes, request hashes, replay keys and operator/session identities are omitted from buyer projections. A concern and monetary basis are review evidence, not technical approval, refund approval or successful settlement. A used/installed/diagnosis report requires technical assessment; general returns and warranty remain unresolved. Read current owned/scoped supply concerns and safe Care references. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PURCHASE_GUEST
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read current owned/scoped supply concerns and safe Care references",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/purchase/orders/{orderId}/purchase-review`
 

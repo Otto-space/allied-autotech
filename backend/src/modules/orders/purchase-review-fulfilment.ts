@@ -1,3 +1,4 @@
+import { assertNoSupplyExceptionHold } from "./order-supply-exception-hold.js";
 import { assertOrderSourcingAvailable } from "./order-sourcing-availability.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { orderConflict } from "./orders.errors.js";
@@ -23,6 +24,7 @@ export async function assertReviewedPurchaseFulfilment(
   id: string,
 ) {
   const order = await lockPurchaseReviewOrder(tx, id);
+  await assertNoSupplyExceptionHold(tx, id);
   await assertOrderSourcingAvailable(tx, id);
   const review = await tx.orderPurchaseReview.findFirst({
     where: { orderId: id },

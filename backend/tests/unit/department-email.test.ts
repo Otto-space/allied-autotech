@@ -56,6 +56,7 @@ describe("department email routing and delivery", () => {
     ["SERVICE", "support"],
     ["BOOKING", "support"],
     ["COMPLAINT", "support"],
+    ["ORDER_SUPPLY", "support"],
   ])("routes %s to %s", (type, department) => {
     expect(departmentRecipient(type!, settings)).toBe(`${department}@example.test`);
   });

@@ -1,3 +1,4 @@
+import { ensureUnavailableSupplyCase } from "./order-supply-exception.service.js";
 import { hasUnavailableSourcing } from "./order-sourcing-availability.js";
 import { orderTimingBodySchema } from "./order-timing.schemas.js";
 import { createOrderMoneyAllocation } from "./order-money-allocation.js";
@@ -761,6 +762,18 @@ export class OrdersService {
             reason: input.reason,
           },
         });
+        await ensureUnavailableSupplyCase(
+          tx,
+          actor,
+          id,
+          {
+            id: update.id,
+            lines: input.lines,
+            customerNote: input.customerNote,
+            reason: input.reason,
+          },
+          context,
+        );
         const changed = await tx.order.updateMany({
           where: { id, version: order.version },
           data: { version: { increment: 1 } },

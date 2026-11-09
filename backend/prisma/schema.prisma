@@ -674,6 +674,7 @@ model User {
 
   owner_UserCapability_userId UserCapability[]       @relation("Owner_UserCapability_userId")
   orderCollectionEvents       OrderCollectionEvent[]
+  raisedSupplyExceptions      OrderSupplyException[]
 
   @@index([role])
   @@index([status])
@@ -700,9 +701,10 @@ model Session {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
 
-  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mfaChallenges         MfaChallenge[]
-  orderCollectionEvents OrderCollectionEvent[]
+  user                   User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mfaChallenges          MfaChallenge[]
+  orderCollectionEvents  OrderCollectionEvent[]
+  raisedSupplyExceptions OrderSupplyException[]
 
   @@index([userId])
   @@index([expiresAt])
@@ -1650,6 +1652,7 @@ model Order {
   complaints                          Complaint[]
   owner_OrderAftercareRequest_orderId OrderAftercareRequest[] @relation("Owner_OrderAftercareRequest_orderId")
   collectionEvents                    OrderCollectionEvent[]
+  supplyExceptions                    OrderSupplyException[]
 
   @@index([guestId, createdAt])
   @@index([guestId, id], map: "Order_guest_directory_idx")
@@ -2482,17 +2485,18 @@ model Enquiry {
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
 
-  customer             CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  branch               Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  product              Product?            @relation(fields: [productId], references: [id], onDelete: SetNull)
-  serviceCategory      ServiceCategory?    @relation(fields: [serviceCategoryId], references: [id], onDelete: Restrict)
-  service              Service?            @relation(fields: [serviceId], references: [id], onDelete: SetNull)
-  booking              Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  quote                ServiceQuote?       @relation(fields: [quoteId], references: [id], onDelete: SetNull)
-  vehicleListing       VehicleListing?     @relation(fields: [vehicleListingId], references: [id], onDelete: SetNull)
-  assignedStaff        StaffProfile?       @relation("AssignedEnquiries", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  customer             CustomerProfile?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  branch               Branch?               @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  product              Product?              @relation(fields: [productId], references: [id], onDelete: SetNull)
+  serviceCategory      ServiceCategory?      @relation(fields: [serviceCategoryId], references: [id], onDelete: Restrict)
+  service              Service?              @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  booking              Booking?              @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  quote                ServiceQuote?         @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  vehicleListing       VehicleListing?       @relation(fields: [vehicleListingId], references: [id], onDelete: SetNull)
+  assignedStaff        StaffProfile?         @relation("AssignedEnquiries", fields: [assignedStaffId], references: [id], onDelete: SetNull)
   convertedTransaction VehicleTransaction?
   messages             SupportMessage[]
+  supplyException      OrderSupplyException?
 
   @@index([serviceCategoryId])
   @@index([customerId])
@@ -3492,18 +3496,19 @@ model ServiceVehicleRelease {
 
 // Immutable operator estimates, distinct from payment, allocation and actual readyAt.
 model OrderTimingUpdate {
-  id                String   @id @default(uuid()) @db.Uuid
-  orderId           String   @db.Uuid
-  performedByUserId String   @db.Uuid
+  id                String                @id @default(uuid()) @db.Uuid
+  orderId           String                @db.Uuid
+  performedByUserId String                @db.Uuid
   orderVersion      Int
-  idempotencyKey    String   @unique @db.Uuid
-  requestHash       String   @db.Char(64)
+  idempotencyKey    String                @unique @db.Uuid
+  requestHash       String                @db.Char(64)
   lines             Json
-  customerNote      String   @db.VarChar(1000)
-  reason            String   @db.VarChar(1000)
-  createdAt         DateTime @default(now())
-  order             Order    @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  performedBy       User     @relation(fields: [performedByUserId], references: [id], onDelete: Restrict)
+  customerNote      String                @db.VarChar(1000)
+  reason            String                @db.VarChar(1000)
+  createdAt         DateTime              @default(now())
+  order             Order                 @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  performedBy       User                  @relation(fields: [performedByUserId], references: [id], onDelete: Restrict)
+  supplyException   OrderSupplyException?
 
   @@unique([orderId, orderVersion])
   @@index([orderId, createdAt])
@@ -3608,4 +3613,29 @@ model OrderCollectionEvent {
   extensions            OrderCollectionEvent[] @relation("CollectionNoticeExtensions")
 
   @@index([orderId, readyAt, kind, createdAt])
+}
+
+model OrderSupplyException {
+  id                   String             @id @default(uuid()) @db.Uuid
+  orderId              String             @db.Uuid
+  enquiryId            String             @unique @db.Uuid
+  sourceTimingUpdateId String?            @unique @db.Uuid
+  raisedByUserId       String             @db.Uuid
+  sessionId            String             @db.Uuid
+  orderVersion         Int
+  kind                 String             @db.VarChar(48)
+  affectedLines        Json
+  monetaryBasis        Json
+  customerNote         String             @db.VarChar(1000)
+  reason               String             @db.VarChar(1000)
+  idempotencyKey       String             @unique @db.Uuid
+  requestHash          String             @db.Char(64)
+  createdAt            DateTime           @default(now())
+  order                Order              @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  enquiry              Enquiry            @relation(fields: [enquiryId], references: [id], onDelete: Restrict)
+  sourceTimingUpdate   OrderTimingUpdate? @relation(fields: [sourceTimingUpdateId], references: [id], onDelete: Restrict)
+  raisedBy             User               @relation(fields: [raisedByUserId], references: [id], onDelete: Restrict)
+  session              Session            @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, createdAt])
 }
