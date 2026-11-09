@@ -1,3 +1,4 @@
+import { timingUpdatesSchema } from "@/lib/order-timing";
 import { productTimingFields } from "@/lib/product-timing";
 import { fitmentDecisionSchema, fitmentQualifierKeys } from "../parts-fitment";
 import { z } from "zod";
@@ -128,6 +129,7 @@ export const cartSchema = z.object({
 });
 export const parseCart = (value: unknown) => cartSchema.parse(value);
 export const orderSchema = z.object({
+  timingUpdates: timingUpdatesSchema,
   purchaseReviews: z.array(purchaseReviewSummarySchema).max(1).optional().default([]),
   partsQuote: z
     .object({

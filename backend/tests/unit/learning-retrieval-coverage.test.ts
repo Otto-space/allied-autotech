@@ -134,3 +134,16 @@ it("keeps collection instructions administrative without granting release permis
     expect(catalogue.articles.some((a) => a.id === guide.id)).toBe(false);
   }
 });
+
+it("keeps order sourcing authoring instructions out of public, customer and staff catalogues", () => {
+  const guide = learningArticles.find((article) => article.id === "order-sourcing")!;
+  expect([guide.gate, guide.version]).toEqual(["admin", 1]);
+  for (const role of ["PUBLIC", "CUSTOMER", "STAFF"] as const) {
+    const catalogue = learningCatalogue({
+      ...publicLearningAccess,
+      role,
+      verified: true,
+    });
+    expect(catalogue.articles.some((article) => article.id === guide.id)).toBe(false);
+  }
+});

@@ -1,3 +1,4 @@
+import { assertOrderSourcingAvailable } from "./order-sourcing-availability.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { orderConflict } from "./orders.errors.js";
 import { orderFingerprint } from "./orders.types.js";
@@ -24,6 +25,7 @@ export async function assertReviewedPurchasePayable(
   now = new Date(),
 ) {
   const order = await lockPurchaseReviewOrder(tx, id);
+  await assertOrderSourcingAvailable(tx, id);
   if (
     order.status !== "PENDING" ||
     order.paidAt ||

@@ -1,4 +1,5 @@
 "use client";
+import { OrderTimingSummary } from "./order-timing";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -290,6 +291,10 @@ function OrderDetail({ orderId }: { orderId: string }) {
       {resource.data && (
         <>
           <OrderSummary order={resource.data} />
+          <OrderTimingSummary
+            updates={resource.data.timingUpdates}
+            items={resource.data.items}
+          />
           <PurchaseSuitability
             order={resource.data}
             offerUnavailable={offerUnavailable}

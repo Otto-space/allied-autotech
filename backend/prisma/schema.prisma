@@ -573,6 +573,7 @@ enum OutboxStatus {
 }
 
 model User {
+  orderTimingUpdates           OrderTimingUpdate[]
   serviceVehicleReleases       ServiceVehicleRelease[]
   bookingAttendanceEvents      BookingAttendanceEvent[]
   createdResourceAllocations   BookingResourceAllocation[]
@@ -1587,6 +1588,7 @@ model CartItem {
 }
 
 model Order {
+  timingUpdates                OrderTimingUpdate[]
   purchaseReviews              OrderPurchaseReview[]
   partsQuote                   PartsQuote?
   fulfillmentEvidenceAt        DateTime?
@@ -3474,4 +3476,23 @@ model ServiceVehicleRelease {
   performedBy       User     @relation(fields: [performedByUserId], references: [id], onDelete: Restrict)
 
   @@index([performedByUserId, releasedAt])
+}
+
+// Immutable operator estimates, distinct from payment, allocation and actual readyAt.
+model OrderTimingUpdate {
+  id                String   @id @default(uuid()) @db.Uuid
+  orderId           String   @db.Uuid
+  performedByUserId String   @db.Uuid
+  orderVersion      Int
+  idempotencyKey    String   @unique @db.Uuid
+  requestHash       String   @db.Char(64)
+  lines             Json
+  customerNote      String   @db.VarChar(1000)
+  reason            String   @db.VarChar(1000)
+  createdAt         DateTime @default(now())
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  performedBy       User     @relation(fields: [performedByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, orderVersion])
+  @@index([orderId, createdAt])
 }

@@ -1,3 +1,4 @@
+import { orderTimingBodySchema } from "./order-timing.schemas.js";
 import { Router } from "express";
 import { authenticate } from "../../common/middleware/authenticate.js";
 import {
@@ -96,6 +97,16 @@ export function createAdminOrderOperationsRouter(): Router {
   const router = Router();
   const controller = new OrdersController();
   router.use(authenticate(), requireAdministrator);
+  router.post(
+    "/:orderId/timing",
+    requireCsrf,
+    validate({
+      params: orderParamsSchema,
+      body: orderTimingBodySchema,
+      query: ordersEmptyQuerySchema,
+    }),
+    controller.updateTiming,
+  );
   router.post(
     "/:orderId/purchase-review/decision",
     requireCsrf,

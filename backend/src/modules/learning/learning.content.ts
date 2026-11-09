@@ -618,6 +618,27 @@ export const learningArticles: LearningArticle[] = [
     version: 1,
     reviewedAt: "2026-11-09",
   },
+  {
+    ...article(
+      "order-sourcing",
+      "admin",
+      "work",
+      "Update an order's sourcing estimate",
+      "Record actual supplier or import progress for this order without changing payment, stock or collection readiness.",
+      [
+        "Open the actual order. Review its current items and sourcing update before editing.",
+        "Under Update this order's sourcing, record each item's actual progress. Enter both ends of a known arrival estimate in Nigeria time, or leave both blank. Preparation minutes begin after arrival; leave unknown preparation blank, and use zero only for no additional preparation.",
+        "Write a short customer update and an internal reason. The reason and operator identity are not returned in customer views. Review the order, all item estimates and both notes before saving.",
+        "Read the saved update after confirmation. For an uncertain outcome, close the review and refresh before trying again. The saved history is retained; stale or changed order details require a fresh review.",
+        "An unavailable item stops fulfilment for Customer Care review. Do not silently substitute, take another payment or promise a refund. Sourcing updates cannot mark goods ready, set a holding deadline or authorise collection. Ready and closed orders retain their existing estimates.",
+      ],
+      "/admin",
+      "OrdersService.updateTiming current-access and OrderTimingUpdate immutable history",
+      "order sourcing supplier import arrival preparation estimate unavailable",
+    ),
+    version: 1,
+    reviewedAt: "2026-11-09",
+  },
   article(
     "product-photos",
     "admin",

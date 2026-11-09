@@ -1,3 +1,5 @@
+import { hasUnavailableSourcing } from "./order-sourcing-availability.js";
+import { orderTimingBodySchema } from "./order-timing.schemas.js";
 import { createOrderMoneyAllocation } from "./order-money-allocation.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { buildInvoiceSnapshot } from "../billing/document-snapshot.js";
@@ -709,6 +711,77 @@ export class OrdersService {
     );
     return this.guestOrder(credentials.sessionToken, id);
   }
+  async updateTiming(
+    actor: AuthenticatedActor,
+    id: string,
+    raw: unknown,
+    context: RequestSecurityContext,
+  ) {
+    assertOrderOperator(actor);
+    if (actor.role !== "ADMIN" && actor.role !== "SUPER_ADMIN") throw orderForbidden();
+    const input = orderTimingBodySchema.parse(raw);
+    const requestHash = orderFingerprint({ orderId: id, ...input });
+    await withTransactionRetry(
+      this.database,
+      async (tx) => {
+        await lockAccessActor(tx, actor);
+        const order = await lockPurchaseReviewOrder(tx, id);
+        await this.assertBranch(actor, order.branchId, tx);
+        const previous = await tx.orderTimingUpdate.findUnique({
+          where: { idempotencyKey: input.idempotencyKey },
+        });
+        if (previous) {
+          if (previous.orderId !== id || previous.requestHash !== requestHash)
+            throw orderConflict(
+              "This update reference was already used for different details.",
+            );
+          return;
+        }
+        if (order.version !== input.expectedVersion) throw orderStale();
+        if (["READY", "COMPLETED", "CANCELLED"].includes(order.status))
+          throw orderConflict(
+            "Sourcing estimates can only change before an order is ready or closed.",
+          );
+        const actual = new Set(order.items.map((item) => item.id));
+        if (
+          actual.size !== input.lines.length ||
+          input.lines.some((line) => !actual.has(line.orderItemId))
+        )
+          throw orderConflict("Include every current order item exactly once.");
+        const update = await tx.orderTimingUpdate.create({
+          data: {
+            orderId: id,
+            performedByUserId: actor.userId,
+            orderVersion: order.version,
+            idempotencyKey: input.idempotencyKey,
+            requestHash,
+            lines: input.lines,
+            customerNote: input.customerNote,
+            reason: input.reason,
+          },
+        });
+        const changed = await tx.order.updateMany({
+          where: { id, version: order.version },
+          data: { version: { increment: 1 } },
+        });
+        if (changed.count !== 1) throw orderStale();
+        await appendAuditEvent(tx, {
+          actorUserId: actor.userId,
+          action: "UPDATE",
+          entityType: "ORDER",
+          entityId: id,
+          newValues: {
+            timingUpdateId: update.id,
+            orderVersion: order.version,
+            reason: input.reason,
+          },
+          context,
+        });
+      },
+      { isolationLevel: "Serializable" },
+    );
+    return this.staffOrder(actor, id, context);
+  }
   async decidePurchaseReview(
     actor: AuthenticatedActor,
     id: string,
@@ -1102,6 +1175,7 @@ export class OrdersService {
   }
   private async allowedTransitions(order: {
     id: string;
+    timingUpdates?: { lines: Prisma.JsonValue }[];
     status: keyof typeof transitions;
     paidAt: Date | null;
   }) {
@@ -1113,7 +1187,10 @@ export class OrdersService {
           select: { id: true },
         })) !== null);
     return (transitions[order.status] as readonly string[]).filter((status) =>
-      status === "CANCELLED" ? cancellationAllowed : order.paidAt !== null,
+      status === "CANCELLED"
+        ? cancellationAllowed
+        : order.paidAt !== null &&
+          !hasUnavailableSourcing(order.timingUpdates?.[0]?.lines),
     );
   }
   async expireDue(

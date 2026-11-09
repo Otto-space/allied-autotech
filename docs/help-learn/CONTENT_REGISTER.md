@@ -1,3 +1,12 @@
+### 9 November: per-order sourcing guide (unpublished)
+
+Administrative order-sourcing v1 explains actual order/item estimates, Nigeria-time
+arrival ranges, unknown versus zero preparation, separate internal/customer notes,
+review, stale/uncertain recovery and unavailable-item holds. Eligibility checks keep
+it out of public, customer and Staff catalogues. It grants no authority and changes
+no tutorial/practice/AI/commerce flag. Product-timing v1 and service-request v34 are
+preserved. See ORDER_SOURCING_20261109.md for exact acceptance and remaining scope.
+
 ### 9 November: combined collection and product guidance retained
 
 Service-request v34, admin-only service-vehicle-collection v1 and product-timing v1

@@ -1,3 +1,30 @@
+### 9 November: order-specific sourcing and preparation implementation (held)
+
+D13 now has per-order, per-item sourcing progress, nullable arrival ranges in
+Nigeria time and separate nullable preparation minutes. Updates are immutable,
+versioned, idempotent and audited. Existing Admin/Super Admin authority with current
+MFA is reused as a bounded engineering choice; no new Staff/delegation grant is
+invented. Customer/account and private guest reads expose the update and customer
+note, never the internal reason, operator ID, hash or replay key. Estimates do not
+approve compatibility, reserve stock, take money, mark ready or create a deadline.
+A latest unavailable item blocks new payment preparation and fulfilment while
+preserving captures, balances and existing allocations for authorised review.
+
+Migration 20261109230000_order_timing_updates adds history without backfilling old
+orders. Actual isolated evidence: 107 migrations replayed, empty diff and db:check
+passed with restricted runtime credentials; 80/80 tests in six suites passed. An
+initial missing explicit Vitest-import failure is retained; it was corrected without
+weakening assertions. A final lint-only control-character predicate rewrite is
+covered by 17/17 follow-up unit/learning tests. Frontend 32/32 focused units and
+scoped lint passed before final hosted checks; browser discovery is not execution.
+
+The owner-approved five-day hold is unchanged. D12 calendar/day counting and
+imported/custom holds remain unresolved; D14 private one-time parts pickup and the
+full bounded D17 exception journey remain independent work. The existing D03 vehicle
+collection is distinct. No production migration/publication, payment, real order
+write, message delivery, capability flag or permission change is claimed. The full
+D01-D17 goal remains active. See docs/help-learn/ORDER_SOURCING_20261109.md.
+
 ### 9 November: preserve concurrent Home, support and security fixes
 
 Reconciled candidate e7e2d1f6 with master bc88d970 before publication, as the owner

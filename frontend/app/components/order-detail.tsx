@@ -1,4 +1,5 @@
 "use client";
+import { OrderTimingSummary } from "./order-timing";
 import { containDialogFocus } from "@/lib/dialog-focus";
 import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
@@ -659,6 +660,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
               </section>
             </div>
             <div className="order-main">
+              <OrderTimingSummary updates={current.timingUpdates} items={current.items} />
               <section
                 className="order-card order-items"
                 aria-labelledby="order-items-title"
