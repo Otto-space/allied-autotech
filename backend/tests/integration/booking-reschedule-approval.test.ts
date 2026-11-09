@@ -457,10 +457,20 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     beforeAll(() => assertIsolatedLoopbackDatabase());
     afterEach(() => vi.useRealTimers());
     async function lateVisit(kind: "ARRIVED" | "LEFT" = "ARRIVED") {
-      const today = new Date(Date.now() + 3_600_000).toISOString().slice(0, 10);
+      // Policies must precede both PostgreSQL's real clock and the simulated
+      // visit clock; continuation still requires the current Lagos date.
+      const realNow = Date.now();
+      const today = new Date(realNow + 3_600_000).toISOString().slice(0, 10);
+      const visitTime = new Date(`${today}T12:00:00Z`);
       vi.useFakeTimers({ toFake: ["Date"] });
-      vi.setSystemTime(new Date(`${today}T12:00:00Z`));
+      vi.setSystemTime(Math.min(realNow, visitTime.getTime()));
       const f = await fixture();
+      vi.setSystemTime(visitTime);
+      // Keep isolated actors authenticated at the simulated visit time without
+      // extending or bypassing the application's session checks.
+      f.actor.sessionId = await paymentTestSession(f.actor.userId, f.actor.role);
+      f.actor.mfaVerifiedAt = new Date();
+      f.buyer.actor.sessionId = await paymentTestSession(f.buyer.actor.userId);
       const original = new Date(Date.now() - 20 * 60000),
         replacement = new Date(Date.now() + 120 * 60000);
       await prisma.booking.update({
