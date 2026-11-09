@@ -3,6 +3,14 @@ import {
   holdUnallocatableProviderResult,
   recordConflictingProviderFacts,
 } from "./provider-observation.js";
+import {
+  servicePaymentBinding,
+  servicePaymentPlanFromSnapshot,
+  serviceStagePaid,
+  serviceStagePayable,
+  hasServiceFinancialHold,
+  type ServicePaymentBinding,
+} from "../billing/service-payment-plan.js";
 import { snapshotRefundClock } from "../policies/refund-clock.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { assertReviewedPurchasePayable } from "../orders/purchase-review-payable.js";
@@ -163,6 +171,7 @@ type PaymentSource = {
   amountKobo: bigint;
   expiresAt: Date | null;
   purchaseReview?: z.infer<typeof purchaseReviewPaymentBindingSchema>;
+  servicePayment?: ServicePaymentBinding;
 };
 
 export class PaymentsService {
@@ -332,6 +341,23 @@ export class PaymentsService {
             existing.vehicleTransactionId ===
               (input.targetType === "VEHICLE_TRANSACTION" ? input.targetId : null);
           if (!same) throw paymentIdempotencyConflict();
+          if (input.targetType === "INVOICE") {
+            const saved = await tx.payment.findUniqueOrThrow({
+              where: { id: existing.id },
+              select: { policySnapshot: true },
+            });
+            const binding = servicePaymentBinding(saved.policySnapshot);
+            const accepted = input.acceptedServiceStage;
+            if (
+              Boolean(binding) !== Boolean(accepted) ||
+              (binding &&
+                accepted &&
+                (binding.stage !== accepted.stage ||
+                  binding.invoiceVersion !== accepted.invoiceVersion ||
+                  binding.amountKobo !== accepted.amountKobo))
+            )
+              throw paymentIdempotencyConflict();
+          }
           if (input.targetType === "ORDER" && input.acceptedReview) {
             const saved = await tx.payment.findUniqueOrThrow({
               where: { id: existing.id },
@@ -365,7 +391,12 @@ export class PaymentsService {
             input.acceptedReview.revision !== source.purchaseReview.revision)
         )
           throw paymentOfferChanged();
-        await assertNoCompetingPayment(tx, input);
+        await assertNoCompetingPayment(
+          tx,
+          input,
+          undefined,
+          Boolean(source.servicePayment),
+        );
         const expiresAt =
           source.expiresAt ??
           new Date(Date.now() + env.PAYMENT_INTENT_TTL_SECONDS * 1_000);
@@ -383,6 +414,7 @@ export class PaymentsService {
             policySnapshot: {
               ...policySnapshot(finance),
               ...(source.purchaseReview ? { purchaseReview: source.purchaseReview } : {}),
+              ...(source.servicePayment ? { servicePayment: source.servicePayment } : {}),
             },
             ...(input.targetType === "ORDER" ? { orderId: input.targetId } : {}),
             ...(input.targetType === "INVOICE" ? { invoiceId: input.targetId } : {}),
@@ -2444,9 +2476,29 @@ export class PaymentsService {
         });
     }
     if (payment.invoiceId) {
+      const source = await tx.invoice.findUniqueOrThrow({
+        where: { id: payment.invoiceId },
+        select: {
+          documentSnapshot: true,
+          subtotalKobo: true,
+          taxKobo: true,
+          depositCreditKobo: true,
+          totalKobo: true,
+          payments: { select: { status: true, amountKobo: true, policySnapshot: true } },
+        },
+      });
+      const plan = servicePaymentPlanFromSnapshot(source.documentSnapshot, source);
+      const paid = plan ? serviceStagePaid(plan, source.payments) : null;
+      const fullyPaid =
+        !plan ||
+        (paid!.MATERIALS === BigInt(plan.materials.totalKobo) &&
+          paid!.WORKMANSHIP === BigInt(plan.workmanship.totalKobo));
       const updated = await tx.invoice.updateMany({
         where: { id: payment.invoiceId, status: "ISSUED" },
-        data: { status: "PAID", paidAt: occurredAt, version: { increment: 1 } },
+        data: {
+          ...(fullyPaid ? { status: "PAID", paidAt: occurredAt } : {}),
+          version: { increment: 1 },
+        },
       });
       if (updated.count === 0) {
         const invoice = await tx.invoice.findUniqueOrThrow({
@@ -2571,6 +2623,7 @@ export class PaymentsService {
       invoiceId: string | null;
       vehicleTransactionId: string | null;
       amountKobo: bigint;
+      policySnapshot?: unknown;
     },
   ) {
     if (payment.orderId) {
@@ -2594,8 +2647,49 @@ export class PaymentsService {
       await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${payment.invoiceId}::uuid FOR UPDATE`;
       const invoice = await tx.invoice.findUniqueOrThrow({
         where: { id: payment.invoiceId },
-        select: { status: true },
+        select: {
+          status: true,
+          documentSnapshot: true,
+          subtotalKobo: true,
+          taxKobo: true,
+          depositCreditKobo: true,
+          totalKobo: true,
+          booking: { select: { status: true, completedAt: true } },
+          payments: {
+            where: { id: { not: payment.id } },
+            select: { status: true, amountKobo: true, policySnapshot: true },
+          },
+        },
       });
+      // A verified capture remains real money even if a stage was revoked or
+      // already settled. Hold it for reconciliation instead of throwing and
+      // rolling back the capture ledger, or marking workmanship paid early.
+      try {
+        const plan = servicePaymentPlanFromSnapshot(invoice.documentSnapshot, invoice);
+        if (plan) {
+          if (invoice.status !== "ISSUED" || invoice.booking?.status === "CANCELLED")
+            return true;
+          const binding = servicePaymentBinding(payment.policySnapshot);
+          if (
+            !binding ||
+            binding.quoteId !== plan.quoteId ||
+            binding.quoteVersion !== plan.quoteVersion ||
+            BigInt(binding.amountKobo) !== payment.amountKobo
+          )
+            return true;
+          return (
+            serviceStagePayable(
+              plan,
+              serviceStagePaid(plan, invoice.payments),
+              binding.stage,
+              invoice.booking?.status === "COMPLETED" &&
+                invoice.booking.completedAt !== null,
+            ) !== payment.amountKobo
+          );
+        }
+      } catch {
+        return true;
+      }
       return invoice.status === "PAID";
     }
     if (payment.vehicleTransactionId) {
@@ -2755,12 +2849,32 @@ export class PaymentsService {
   ) {
     const target = paymentTarget(payment);
     if (!target) throw paymentNotFound();
+    const savedService =
+      target.targetType === "INVOICE"
+        ? servicePaymentBinding(
+            (
+              await tx.payment.findUniqueOrThrow({
+                where: { id: payment.id },
+                select: { policySnapshot: true },
+              })
+            ).policySnapshot,
+          )
+        : null;
     const input = paymentCreateBodySchema.safeParse({
       ...target,
       purpose: payment.purpose,
+      ...(savedService
+        ? {
+            acceptedServiceStage: {
+              stage: savedService.stage,
+              invoiceVersion: savedService.invoiceVersion,
+              amountKobo: savedService.amountKobo,
+            },
+          }
+        : {}),
     });
     if (!input.success) throw paymentConflict();
-    await assertNoCompetingPayment(tx, target, payment.id);
+    await assertNoCompetingPayment(tx, target, payment.id, Boolean(savedService));
     const guestOrder =
       !payment.customerId && payment.orderId
         ? await tx.order.findUnique({
@@ -2798,6 +2912,14 @@ export class PaymentsService {
     if (source.amountKobo !== payment.amountKobo || payment.currency !== "NGN")
       throw paymentConflict(
         "The amount due changed. Review the existing payment before continuing.",
+      );
+    if (
+      savedService &&
+      (!source.servicePayment ||
+        JSON.stringify(savedService) !== JSON.stringify(source.servicePayment))
+    )
+      throw paymentConflict(
+        "The service payment stage changed. Review the existing request before continuing.",
       );
     if (source.expiresAt && source.expiresAt <= new Date())
       throw paymentConflict("The payable has expired");
@@ -2924,7 +3046,44 @@ export class PaymentsService {
         source.bookingId === null
       )
         throw paymentNotFound();
-      return { amountKobo: source.totalKobo, expiresAt: source.dueAt };
+      const plan = servicePaymentPlanFromSnapshot(source.documentSnapshot, source);
+      if (!plan) {
+        if (input.acceptedServiceStage)
+          throw paymentConflict(
+            "This historical invoice does not have a staged payment plan",
+          );
+        return { amountKobo: source.totalKobo, expiresAt: source.dueAt };
+      }
+      const accepted = input.acceptedServiceStage;
+      if (hasServiceFinancialHold(source.payments))
+        throw paymentConflict(
+          "A service payment adjustment needs staff review before another payment",
+        );
+      if (
+        !accepted ||
+        accepted.invoiceVersion !== source.version ||
+        source.booking?.status === "CANCELLED"
+      )
+        throw paymentConflict(
+          "Refresh the invoice and review the current service payment stage",
+        );
+      const amountKobo = serviceStagePayable(
+        plan,
+        serviceStagePaid(plan, source.payments),
+        accepted.stage,
+        source.booking?.status === "COMPLETED" && source.booking.completedAt !== null,
+      );
+      if (amountKobo.toString() !== accepted.amountKobo)
+        throw paymentConflict("The service amount due changed. Refresh the invoice.");
+      return {
+        amountKobo,
+        expiresAt: source.dueAt,
+        servicePayment: {
+          ...accepted,
+          quoteId: plan.quoteId,
+          quoteVersion: plan.quoteVersion,
+        },
+      };
     }
     await tx.$queryRaw`SELECT "id" FROM "VehicleTransaction" WHERE "id" = ${input.targetId}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`;
     const source = await this.repository.vehicleTransaction(

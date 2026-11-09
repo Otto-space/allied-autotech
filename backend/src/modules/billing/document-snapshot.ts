@@ -1,6 +1,10 @@
 import type { Prisma } from "../../generated/prisma/client.js";
 import { invoiceConflict } from "./billing.errors.js";
 import { invoiceSnapshotSchema, type InvoiceSnapshot } from "./document.schemas.js";
+import {
+  assertServicePaymentPlanTotals,
+  buildServicePaymentPlan,
+} from "./service-payment-plan.js";
 
 export const approvedIssuer = {
   name: "Allied AutoTech",
@@ -65,6 +69,25 @@ export function assertDocumentTotals(
       BigInt(invoice.totalKobo)
   )
     throw invoiceConflict("Invoice document totals are inconsistent");
+  if (snapshot.servicePaymentPlan) {
+    if (
+      !invoice.bookingId ||
+      snapshot.source.type !== "BOOKING" ||
+      snapshot.servicePaymentPlan.lines.length !== snapshot.lines.length ||
+      snapshot.lines.some(
+        (line, index) =>
+          line.subtotalKobo !== snapshot.servicePaymentPlan!.lines[index]!.subtotalKobo,
+      )
+    ) {
+      throw invoiceConflict("Service payment stages do not match the invoice lines");
+    }
+    assertServicePaymentPlanTotals(snapshot.servicePaymentPlan, {
+      subtotalKobo: BigInt(invoice.subtotalKobo),
+      taxKobo: BigInt(invoice.taxKobo),
+      depositCreditKobo: BigInt(invoice.depositCreditKobo ?? 0),
+      totalKobo: BigInt(invoice.totalKobo),
+    });
+  }
 }
 
 /** Called inside invoice creation's existing transaction; never accepts client prices. */
@@ -178,11 +201,15 @@ export async function buildInvoiceSnapshot(
       },
       orderBy: { version: "desc" },
       select: {
+        id: true,
+        version: true,
         quoteNumber: true,
         items: {
           take: 201,
           orderBy: [{ createdAt: "asc" }, { id: "asc" }],
           select: {
+            id: true,
+            type: true,
             description: true,
             quantity: true,
             unitPriceKobo: true,
@@ -195,10 +222,18 @@ export async function buildInvoiceSnapshot(
     if (quote) {
       snapshot.source.reference = quote.quoteNumber;
       snapshot.lines = quote.items.map((item) => ({
-        ...item,
+        description: item.description,
+        quantity: item.quantity,
         unitPriceKobo: item.unitPriceKobo.toString(),
         subtotalKobo: item.subtotalKobo.toString(),
       }));
+      if (!legacy)
+        snapshot.servicePaymentPlan = buildServicePaymentPlan(quote, {
+          subtotalKobo: BigInt(invoice.subtotalKobo),
+          taxKobo: BigInt(invoice.taxKobo),
+          depositCreditKobo: BigInt(invoice.depositCreditKobo ?? 0),
+          totalKobo: BigInt(invoice.totalKobo),
+        });
     }
   } else {
     const purchase = await database.vehicleTransaction.findUnique({

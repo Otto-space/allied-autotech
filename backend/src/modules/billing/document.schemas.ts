@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { servicePaymentPlanSchema } from "./service-payment-plan.js";
 
 const money = z.string().regex(/^\d{1,19}$/);
 const text = (max: number) => z.string().min(1).max(max);
@@ -32,6 +33,7 @@ export const invoiceSnapshotSchema = z.object({
   discountKobo: money,
   deliveryKobo: money,
   detailBasis: z.enum(["SNAPSHOT", "SOURCE_RECORDS", "LEGACY_SUMMARY"]),
+  servicePaymentPlan: servicePaymentPlanSchema.optional(),
 });
 export const receiptSummarySchema = z.object({
   paymentId: z.uuid(),

@@ -146,6 +146,25 @@ export class PaymentsRepository {
         currency: true,
         dueAt: true,
         bookingId: true,
+        version: true,
+        documentSnapshot: true,
+        subtotalKobo: true,
+        taxKobo: true,
+        depositCreditKobo: true,
+        booking: { select: { status: true, completedAt: true } },
+        payments: {
+          select: {
+            status: true,
+            amountKobo: true,
+            policySnapshot: true,
+            settledAttempt: {
+              select: {
+                refunds: { select: { status: true } },
+                disputes: { select: { status: true } },
+              },
+            },
+          },
+        },
       },
     });
   }

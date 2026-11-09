@@ -22,6 +22,18 @@ export function paymentTarget(payment: StoredTarget): Target | null {
 export async function lockTarget(tx: Prisma.TransactionClient, target: Target) {
   const key = `payment-target:${target.targetType}:${target.targetId}`;
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`;
+  if (target.targetType === "INVOICE") {
+    const invoice = await tx.invoice.findUnique({
+      where: { id: target.targetId },
+      select: { bookingId: true },
+    });
+    // The actual completion/cancellation fact must remain stable through attempt
+    // creation and allocation. Match booking operations' order: booking, invoice,
+    // then Payment. The existing target lock still serializes all stage intents.
+    if (invoice?.bookingId)
+      await tx.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${invoice.bookingId}::uuid FOR UPDATE`;
+    await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${target.targetId}::uuid FOR UPDATE`;
+  }
 }
 
 export async function lockStoredTarget(tx: Prisma.TransactionClient, id: string) {
@@ -37,6 +49,7 @@ export async function assertNoCompetingPayment(
   tx: Prisma.TransactionClient,
   target: Target,
   currentPaymentId?: string,
+  allowSettledServiceStages = false,
 ) {
   const where: Prisma.PaymentWhereInput =
     target.targetType === "ORDER"
@@ -66,7 +79,8 @@ export async function assertNoCompetingPayment(
           },
         },
         { status: { not: "SUCCEEDED" }, attempts: { some: { status: "SUCCESSFUL" } } },
-        ...(target.targetType !== "VEHICLE_TRANSACTION"
+        ...(target.targetType !== "VEHICLE_TRANSACTION" &&
+        !(target.targetType === "INVOICE" && allowSettledServiceStages)
           ? [{ status: "SUCCEEDED" as const }]
           : []),
       ],

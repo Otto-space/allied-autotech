@@ -1,3 +1,51 @@
+### 9 November 2026: D03 staged-payment backend checkpoint, unpublished
+
+Current worktree integrates master e947a205's complete attendance source and
+preserves both attendance and published D07 evidence. Documentation conflicts
+were resolved by retaining both histories; no application fix was replaced.
+Production status in the dated release records remains historical evidence.
+
+New booking invoices save one accepted quote's immutable materials/workmanship
+allocation in their document snapshot. Existing issued invoices are not rewritten.
+PART lines are materials; labour and fees are deferred to completion as an
+implementation choice, not a newly approved finance policy. Saved VAT and genuine
+legacy deposit credits use integer largest-remainder allocations in saved item
+order and reconcile to the original invoice. VAT is not recomputed per stage.
+
+The customer must accept the exact stage, invoice version and amount. Intent
+replay is bound to that choice. Materials settlement leaves the invoice issued
+with workmanship outstanding. Workmanship requires actual recorded completion
+and prior materials settlement. Creation/initialization/settlement share booking,
+invoice and payment locks. Invalid/surplus/late stage captures retain the capture
+ledger and require reconciliation; they cannot silently mark workmanship paid.
+Refund/dispute adjustments block new stage requests rather than authorise a
+second charge. Original full-invoice behavior remains for historical unplanned
+invoices. Finance gates, invoice identities, approvals and provider settings stay
+unchanged; this checkpoint does not activate purchasing or service payments.
+
+Actual checks: current client generated from the integrated 99-migration schema
+without a DB connection; source typecheck and full backend Oxlint passed.
+Focused money/document units passed 56/56 before the financial-hold addition.
+A fresh owned tmpfs _test target replayed all 99 migrations and passed db:check,
+Prisma diff and restricted-runtime verification; the final run passed 98/98
+across five files, including seven new real-service stage cases, existing target
+concurrency/capture accounting and money/document units. The fixture's missing
+product category and attempted insertion of items into an already accepted quote
+were corrected without weakening immutable quote guards. Both failed runs and
+final evidence remain in TEMP/aat-d03-service-payments-20261109. The owned
+container was removed; application/shared/production databases were not used.
+The repository uses Oxlint; a mistaken direct ESLint invocation found no config
+and was replaced by the existing lint command, which passed.
+
+Remaining D03 before publication: safe public stage summary, customer/staff UI
+and receipts/PDF clarity; materials-before-installation and vehicle-release
+controls; amendments/financial-exception/cancellation coverage; versioned Help,
+Learn and Allie guidance; canonical contracts; HTTP/permissions and rendered
+end-to-end acceptance, final exact-source checks and release safeguards. Do not
+publish this partial journey or mark D03 complete from these backend tests.
+D01-D17 remains active, including D11 actual alternatives, D12 calendar values,
+D13 lead times, D14 private pickup and bounded D17 exception handling.
+
 ### 9 November 2026: integrated D07 release published after preservation checks
 
 Runtime source efebfa38239b5eff3b490d3d776c91a2152c0c92 is now published.
