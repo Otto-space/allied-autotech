@@ -7,7 +7,7 @@ import {
   HERO_IMAGE_TIMEOUT_MS,
   HERO_INTERVAL_MS,
   heroReducer,
-  initialHeroState,
+  createHeroState,
 } from "@/lib/hero-carousel";
 import styles from "./home-hero.module.css";
 
@@ -17,33 +17,37 @@ const serverSnapshot = () => false;
 
 const slides = [
   {
-    image: "diagnostics-at-work",
-    alt: "Allied technician inspecting a vehicle with its bonnet open",
+    image: "workshop-editorial",
     title: "Understand your vehicle’s condition.",
     copy: "Comprehensive diagnostics, with scan results explained by our team.",
     action: "View diagnostics",
     href: "/services?search=diagnostics",
   },
   {
-    image: "alignment-at-work",
-    alt: "Allied technician beside the workshop’s 3D wheel alignment equipment",
-    title: "Keep your wheels in line.",
-    copy: "Four-wheel alignment and tyre maintenance for your vehicle.",
-    action: "View wheel care",
-    href: "/services?search=alignment",
+    image: "family-editorial",
+    title: "Care for everyday journeys.",
+    copy: "Find maintenance and repairs, or tell our team what you have noticed about your vehicle.",
+    action: "Explore services",
+    href: "/services",
   },
   {
-    image: "tyre-care-at-work",
-    alt: "A team member working beside tyre-changing equipment in the Allied workshop",
-    title: "See where the work happens.",
-    copy: "Meet our technicians and see the equipment at our Port Harcourt workshop.",
-    action: "Meet the team",
-    href: "/about#team",
+    image: "parts-editorial",
+    title: "Find parts for your vehicle.",
+    copy: "Browse parts and oils. Ask our team to confirm specifications, suitability and collection.",
+    action: "Browse the Shop",
+    href: "/parts",
+  },
+  {
+    image: "showroom-neutral-editorial",
+    title: "Explore your next vehicle.",
+    copy: "See current listings, compare the details and ask our team about a vehicle or inspection.",
+    action: "View vehicles",
+    href: "/vehicles",
   },
 ] as const;
 
 export function HomeHero() {
-  const [state, dispatch] = useReducer(heroReducer, initialHeroState);
+  const [state, dispatch] = useReducer(heroReducer, slides.length, createHeroState);
   const enhanced = useSyncExternalStore(
     subscribeHydration,
     clientSnapshot,
@@ -172,9 +176,14 @@ export function HomeHero() {
                   {slide.title}
                 </Title>
                 <p className={styles.copy}>{slide.copy}</p>
-                <Link className="button" href={slide.href}>
-                  {slide.action} <ArrowUpRight size={17} aria-hidden="true" />
-                </Link>
+                <div className={styles.actions}>
+                  <Link className="button" href={slide.href} data-hero-primary>
+                    {slide.action} <ArrowUpRight size={17} aria-hidden="true" />
+                  </Link>
+                  <Link className={styles.contactLink} href="/contact">
+                    Talk to our team <ArrowUpRight size={17} aria-hidden="true" />
+                  </Link>
+                </div>
               </div>
             );
           })}
@@ -186,10 +195,10 @@ export function HomeHero() {
                 (index === 0 || enhanced) && (
                   <Image
                     key={slide.image}
-                    src={`/images/workshop/owner/${slide.image}.webp`}
-                    alt={slide.alt}
+                    src={`/images/allied-autotech/${slide.image}.webp`}
+                    alt=""
                     fill
-                    sizes="(max-width: 879px) calc(100vw - 32px), (max-width: 1247px) calc(57.5vw - 50.6px), 667px"
+                    sizes="100vw"
                     preload={index === 0}
                     loading={index === 0 ? undefined : "eager"}
                     className={styles.photo}
@@ -209,7 +218,7 @@ export function HomeHero() {
                 ),
             )}
             {state.failed[state.current] && (
-              <span className={styles.unavailable}>Workshop photograph unavailable</span>
+              <span className={styles.unavailable}>Editorial image unavailable</span>
             )}
           </div>
           <div className={styles.controls}>
@@ -275,7 +284,7 @@ export function HomeHero() {
         </div>
         <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
           {state.announcement !== null
-            ? `Slide ${state.announcement + 1} of 3: ${slides[state.announcement].title}`
+            ? `Slide ${state.announcement + 1} of ${slides.length}: ${slides[state.announcement].title}`
             : ""}
         </span>
       </div>

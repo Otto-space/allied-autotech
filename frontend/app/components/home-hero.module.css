@@ -1,79 +1,99 @@
-.hero {
+﻿.hero {
   position: relative;
-  background: var(--white, #fff);
-  color: var(--ink);
+  isolation: isolate;
+  background: var(--surface-inverse);
+  color: var(--text-inverse);
   touch-action: pan-y pinch-zoom;
 }
-.hero::after {
-  content: "";
-  display: block;
-  width: min(1200px, calc(100% - 48px));
-  height: 2px;
-  margin-inline: auto;
-  background: linear-gradient(
-    90deg,
-    #111416 0 10%,
-    var(--brand-red) 10% 18%,
-    var(--line) 18% 100%
-  );
-}
 .layout {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  align-items: center;
-  gap: 40px;
   width: min(1200px, calc(100% - 48px));
+  min-height: 720px;
   margin-inline: auto;
-  padding-block: 48px;
+  padding-block: 104px 144px;
+  display: grid;
+  align-items: center;
 }
 .content {
   display: grid;
   min-width: 0;
+  max-width: 730px;
+  position: relative;
+  z-index: 1;
 }
 .slide {
   grid-area: 1 / 1;
   min-width: 0;
-  align-self: start;
+  align-self: center;
   visibility: hidden;
 }
 .slide[data-active="true"] {
   visibility: visible;
 }
 .hero .title {
-  color: var(--ink);
+  color: var(--text-inverse);
   font-family: var(--font-heading);
-  font-weight: 500;
-  font-size: clamp(36px, 3.85vw, 54px);
+  font-weight: 600;
+  font-size: clamp(40px, 4.2vw, 60px);
   line-height: 1.1;
   letter-spacing: -0.035em;
   margin: 0;
+  max-width: 18ch;
   text-wrap: balance;
   overflow-wrap: break-word;
 }
 .hero .copy {
+  color: var(--text-inverse-muted);
   font-family: var(--font-body);
-  color: var(--muted);
   font-size: 18px;
-  line-height: 1.6;
-  margin: 20px 0 26px;
-  max-width: 43ch;
+  font-weight: 500;
+  line-height: 1.65;
+  margin: 24px 0 32px;
+  max-width: 48ch;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+.actions a {
+  min-height: 48px;
+}
+.contactLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border: 1px solid #ffffff80;
+  border-radius: var(--radius-control);
+  background: #080c0fb3;
+  color: var(--text-inverse);
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+}
+.contactLink:hover {
+  background: var(--surface-inverse);
 }
 .visual {
-  min-width: 0;
+  display: contents;
 }
 .media {
-  position: relative;
-  aspect-ratio: 3 / 2;
-  width: 100%;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control, 6px);
-  background: #eef0f1;
-  box-shadow: var(--elevation-low);
+  z-index: -1;
+}
+.media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #080c0ff2 0%, #080c0fe0 45%, #080c0f66 100%);
 }
 .photo {
   object-fit: cover;
-  object-position: center;
+  object-position: 65% center;
   opacity: 0;
   transition: opacity 500ms ease;
 }
@@ -81,13 +101,21 @@
   opacity: 1;
 }
 .controls {
-  min-height: 44px;
+  position: absolute;
+  right: max(24px, calc((100% - 1200px) / 2));
+  bottom: 32px;
+  z-index: 2;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
   gap: 4px;
-  margin-top: 12px;
+  padding: 6px;
+  border: 1px solid #ffffff59;
+  border-radius: 10px;
+  background: #080c0fe6;
+  color: var(--text-inverse);
+}
+.controls:empty {
+  display: none;
 }
 .controls button {
   display: inline-flex;
@@ -96,73 +124,98 @@
   width: 44px;
   height: 44px;
   background: transparent;
-  color: var(--ink);
-  border: 1px solid transparent;
-  border-radius: var(--radius-control, 6px);
+  color: inherit;
+  border: 0;
+  border-radius: 6px;
   cursor: pointer;
   font-family: var(--font-body);
   font-size: 13px;
-}
-.controls > button:first-child {
-  border-color: var(--line);
-  margin-right: 8px;
+  flex-shrink: 0;
 }
 .controls button:hover:not(:disabled) {
-  background: var(--surface);
+  background: #ffffff26;
 }
 .controls button:disabled {
   opacity: 0.45;
   cursor: default;
 }
 .hero :is(button, a):focus-visible {
-  outline: 3px solid var(--focus-ring);
+  outline: 3px solid var(--text-inverse);
   outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--surface-inverse);
 }
 .pickers {
   display: flex;
 }
+.pickers button {
+  width: 44px;
+}
 .pickers span {
   width: 7px;
   height: 7px;
-  border: 1px solid #68747a;
   border-radius: 6px;
-  background: #68747a;
+  background: #fff;
 }
 .pickers [aria-current] span {
-  width: 19px;
-  border-color: var(--brand-red);
-  background: var(--brand-red);
+  width: 24px;
+  background: var(--action-primary);
+  border: 1px solid #ff7378;
 }
 .unavailable {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  color: var(--ink);
-  font-size: 14px;
-  text-align: center;
+  bottom: 20px;
+  left: 24px;
+  z-index: 1;
+  color: var(--text-inverse-muted);
+  font-size: 13px;
 }
-@media (max-width: 879px) {
+@media (max-width: 767px) {
   .layout {
-    grid-template-columns: minmax(0, 1fr);
     width: calc(100% - 32px);
-    gap: 26px;
-    padding-block: 32px;
-  }
-  .hero::after {
-    width: calc(100% - 32px);
+    min-height: 650px;
+    padding-block: 64px 144px;
   }
   .hero .title {
-    font-size: clamp(30px, 6.3vw, 44px);
-    max-width: 23ch;
+    font-size: clamp(36px, 7.5vw, 50px);
+    max-width: 18ch;
   }
   .hero .copy {
     font-size: 16px;
-    margin-block: 16px 22px;
+    margin-block: 20px 28px;
+  }
+  .media::after {
+    background: linear-gradient(90deg, #080c0ff2, #080c0fd9);
   }
   .controls {
+    right: 16px;
+    bottom: 28px;
     gap: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+  }
+  .controls button {
+    width: 44px;
+    min-height: 44px;
+  }
+  .pickers button {
+    width: 44px;
+  }
+  .pickers {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .actions {
+    align-items: stretch;
+    gap: 12px;
+  }
+  .actions a {
+    padding-inline: 16px;
+  }
+  .unavailable {
+    left: 16px;
+    bottom: 6px;
+    font-size: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1011,3 +1011,225 @@
     aspect-ratio: 4 / 3;
   }
 }
+
+/* Stitch Home reference: editorial hero, three discovery cards and workshop photo grid.
+   Content remains source-backed; reference statistics and sample inventory are omitted. */
+.home-page .home-discovery {
+  background: var(--surface);
+}
+.home-page .home-discovery .partner-intro {
+  margin-bottom: 32px;
+}
+.home-page .home-discovery .partner-links {
+  gap: 24px;
+}
+.home-page .home-discovery .partner-links > a {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: flex-start;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  gap: 24px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+.home-page .home-discovery .partner-links > a:hover {
+  border-color: var(--border-control);
+  box-shadow: var(--elevation-low);
+}
+.home-page .home-discovery .partner-links > a > svg:first-child {
+  box-sizing: content-box;
+  width: 24px;
+  height: 24px;
+  padding: 14px;
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--action-primary);
+}
+.home-page .home-discovery .partner-links > a > svg:last-child {
+  position: absolute;
+  right: 28px;
+  top: 40px;
+}
+.home-page .home-discovery .partner-links h3 {
+  font-size: 22px;
+  line-height: 1.35;
+}
+.home-page .home-discovery .partner-links p {
+  font-size: 15px;
+  margin: 12px 0 0;
+}
+.home-page .home-services {
+  background: var(--surface-raised);
+}
+.home-page .home-workshop {
+  background: var(--surface-inverse);
+  color: var(--text-inverse);
+}
+.home-page .home-workshop h2,
+.home-page .home-workshop h3 {
+  color: var(--text-inverse);
+}
+.home-page .home-workshop p {
+  color: var(--text-inverse-muted);
+}
+.home-workshop__heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+.home-workshop__heading > div {
+  max-width: 680px;
+}
+.home-workshop__heading p {
+  margin: 16px 0 0;
+}
+.home-page .home-workshop .text-link {
+  color: var(--text-inverse);
+  min-height: 44px;
+}
+.home-page .home-workshop .text-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.home-workshop__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 24px;
+}
+.home-workshop__grid figure {
+  margin: 0;
+  min-width: 0;
+  border: 1px solid #ffffff40;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--palette-charcoal);
+}
+.home-workshop__grid .home-workshop__team {
+  grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+}
+.home-workshop__media {
+  position: relative;
+  min-height: 180px;
+}
+.home-workshop__team .home-workshop__media {
+  flex: none;
+  min-height: 0;
+  aspect-ratio: 3 / 2;
+}
+.home-workshop__media img {
+  object-fit: cover;
+  object-position: center;
+  border-radius: 0;
+}
+.home-workshop__grid figcaption {
+  padding: 20px 24px;
+}
+.home-page .home-workshop__grid h3 {
+  font-size: 22px;
+  line-height: 1.35;
+  margin: 0;
+}
+.home-workshop__grid p {
+  margin: 8px 0 0;
+}
+.home-workshop__team .text-link {
+  margin-top: 8px;
+}
+.home-page .home-workshop .home-bay {
+  display: block;
+}
+.home-workshop__bay .home-workshop__media {
+  max-height: 220px;
+}
+.home-workshop__bay img {
+  object-position: center 43%;
+}
+.home-workshop__equipment-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  background: var(--palette-charcoal);
+  padding: 20px 24px;
+  margin-top: 24px;
+  border-radius: 6px;
+}
+.home-workshop__equipment-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-inverse);
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.home-workshop__equipment-links svg {
+  flex-shrink: 0;
+}
+.home-workshop a:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 4px;
+}
+@media (max-width: 1000px) {
+  .home-page .home-discovery .partner-links {
+    gap: 16px;
+  }
+  .home-page .home-discovery .partner-links > a {
+    padding: 20px;
+  }
+  .home-page .home-discovery .partner-links > a > svg:last-child {
+    top: 32px;
+    right: 20px;
+  }
+  .home-page .home-discovery .partner-links h3 {
+    font-size: 20px;
+  }
+}
+@media (max-width: 767px) {
+  .home-page .public-section {
+    padding-block: 40px;
+  }
+  .home-page .home-discovery .partner-links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-workshop__heading {
+    display: block;
+  }
+  .home-workshop__heading > .text-link {
+    margin-top: 16px;
+  }
+  .home-workshop__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .home-workshop__grid .home-workshop__team {
+    grid-row: auto;
+  }
+  .home-workshop__team .home-workshop__media {
+    min-height: 0;
+    aspect-ratio: 3 / 2;
+  }
+  .home-workshop__grid figcaption {
+    padding: 20px;
+  }
+  .home-workshop__equipment-links {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px 20px;
+    gap: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-page .home-discovery .partner-links > a {
+    transition: none;
+  }
+}

@@ -28,95 +28,85 @@ export function HomeSectionHeading({
 
 export function HomeWorkshop() {
   return (
-    <>
-      <section className="public-section">
-        <div className="public-wrap">
-          <HomeSectionHeading
-            title="Our workshop equipment"
-            href="/about#equipment"
-            action="View all equipment"
-          />
-          <div className="home-feature-grid home-equipment-grid">
-            {[
-              {
-                image: "/images/equipment/injector-tester-cleaner.jpg",
-                title: "Fuel injector tester & cleaner",
-                copy: "Testing and cleaning to investigate injector performance.",
-                contain: true,
-                alt: "Fuel injector tester and cleaner with graduated testing cylinders",
-              },
-              {
-                image: "/images/workshop/owner/diagnostic-tablet.webp",
-                title: "Vehicle-system diagnostics",
-                copy: "A closer look at scan results helps guide the next checks.",
-                alt: "Hands operating a diagnostic tablet beside a vehicle",
-              },
-              {
-                image: "/images/equipment/3d-alignment.jpg",
-                title: "3D wheel alignment",
-                copy: "Alignment equipment supports checks and correction of wheel geometry.",
-                alt: "Workshop 3D wheel alignment equipment",
-              },
-            ].map((item) => (
-              <figure className="home-feature-card" key={item.title}>
-                <div className="home-feature-media" data-contain={item.contain}>
-                  <Image
-                    src={item.image}
-                    alt={item.alt}
-                    fill
-                    sizes="(max-width: 700px) 90vw, 380px"
-                  />
-                </div>
-                <figcaption className="home-feature-body">
-                  <h3>{item.title}</h3>
-                  <p>{item.copy}</p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
-      <section className="public-section public-surface">
-        <div className="public-wrap home-bay">
-          <div className="home-bay-photo">
-            <Image
-              src="/images/workshop/owner/service-bay.webp"
-              alt="The red two-post vehicle lift inside Allied’s workshop service bay"
-              width={1067}
-              height={1600}
-              sizes="(max-width: 700px) 90vw, 430px"
-            />
-          </div>
+    <section
+      className="public-section home-workshop"
+      aria-labelledby="home-workshop-title"
+    >
+      <div className="public-wrap">
+        <div className="home-workshop__heading">
           <div>
-            <h2>Underneath the vehicle</h2>
+            <h2 id="home-workshop-title">Inside the Allied workshop</h2>
             <p>
-              Our two-post lift gives the team access beneath your vehicle for checks and
+              Meet the team and see the equipment we use for vehicle checks and
               maintenance.
             </p>
-            <Link className="text-link" href="/about#principles">
-              Our workshop principles <ArrowUpRight size={17} aria-hidden="true" />
-            </Link>
           </div>
+          <Link className="text-link" href="/about#equipment">
+            Explore our workshop <ArrowUpRight size={17} aria-hidden="true" />
+          </Link>
         </div>
-      </section>
-      <section className="public-section">
-        <div className="public-wrap">
-          <HomeSectionHeading
-            title="Meet the Allied team"
-            href="/about#team"
-            action="Meet the team"
-          />
-          <figure className="home-team-photo">
-            <Image
-              src="/images/workshop/owner/allied-team.webp"
-              alt="Seven members of the Allied AutoTech team standing together outside the workshop"
-              width={1920}
-              height={1280}
-              sizes="(max-width: 700px) 90vw, 1100px"
-            />
+        <div className="home-workshop__grid">
+          <figure className="home-workshop__team home-team-photo">
+            <div className="home-workshop__media">
+              <Image
+                src="/images/workshop/owner/allied-team.webp"
+                alt="Allied AutoTech team members standing together outside the workshop"
+                fill
+                sizes="(max-width: 767px) calc(100vw - 32px), 700px"
+              />
+            </div>
+            <figcaption>
+              <h3>Meet the Allied team</h3>
+              <Link className="text-link" href="/about#team">
+                Meet the team <ArrowUpRight size={17} aria-hidden="true" />
+              </Link>
+            </figcaption>
+          </figure>
+          <figure className="home-workshop__equipment">
+            <div className="home-workshop__media">
+              <Image
+                src="/images/workshop/owner/diagnostic-tablet.webp"
+                alt="Hands operating a diagnostic tablet beside a vehicle"
+                fill
+                sizes="(max-width: 767px) calc(100vw - 32px), 460px"
+              />
+            </div>
+            <figcaption>
+              <h3>Vehicle-system diagnostics</h3>
+              <p>A closer look at scan results helps guide the next checks.</p>
+            </figcaption>
+          </figure>
+          <figure className="home-workshop__bay home-bay">
+            <div className="home-workshop__media">
+              <Image
+                src="/images/workshop/owner/service-bay.webp"
+                alt="The red two-post vehicle lift inside Allied’s workshop service bay"
+                fill
+                sizes="(max-width: 767px) calc(100vw - 32px), 460px"
+              />
+            </div>
+            <figcaption>
+              <h3>Underneath the vehicle</h3>
+              <p>Our two-post lift gives the team access beneath your vehicle.</p>
+            </figcaption>
           </figure>
         </div>
-      </section>
-    </>
+        <nav
+          className="home-workshop__equipment-links"
+          aria-label="Workshop equipment and approach"
+        >
+          <Link href="/about#equipment">
+            Fuel injector tester &amp; cleaner{" "}
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
+          <Link href="/about#equipment">
+            3D wheel alignment <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
+          <Link href="/about#principles">
+            Our workshop principles <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
+        </nav>
+      </div>
+    </section>
   );
 }

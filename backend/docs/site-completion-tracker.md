@@ -1,3 +1,73 @@
+## 9 November 2026 - Stitch implementation, group 1 in progress
+
+Owner instruction: implement the supplied 14 HTML exports/13 screenshots in the
+existing app and publish coherent verified groups. The separate design.md's older
+mockup-only directions are reference context; no new Stitch project is required.
+Worktree: allied-stitch-design-20261109; branch codex/stitch-home-20261109, based on
+remote master f7bfbf528. A concurrent reminder-worker task in the original worktree
+is preserved on its prior branch, with its evidence restored and named stash kept.
+
+Current public deployment was read live on both aliases: dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb,
+source 160d3b7b. Keep this compatible recovery option. Master also contains product
+timing and profile/media acceptance work; its frontend gate is still running.
+Do not deploy a backend/migration or imply the separately held backend batch is live.
+
+The current source still has 119 page templates. The existing route/role/state
+inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
+this implementation adds the following ordered status overlay, not a second backlog:
+
+| Group | Scope | Implementation / release status |
+| --- | --- | --- |
+| 1 | Shared brand/header/footer/support and Home | Home/editorial footer implemented; header/support behaviour preserved. Focused units 8/8, affected lint and TypeScript pass; cloud browser/fidelity and release pending. |
+| 2 | Services, detail, existing request | Pending reference inspection and implementation. |
+| 3 | Shop, filters, product, fitment | Pending; retain optional sourcing/preparation estimates and uncertainty. |
+| 4 | Vehicles, filters, detail, enquiries/inspection | Pending; no paid reservations. |
+| 5 | Auth, recovery, verification, MFA, invitations | Pending; only real existing auth methods. |
+| 6 | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility. |
+| 7 | Customer shell, overview, vehicles/bookings/orders and details | Pending; real per-account data, isolated write fixtures. |
+| 8 | Customer documents/payments/saved/support/notifications/profile/security | Pending; independent grants and gated transactions preserved. |
+| 9 | Workforce/Admin pages and nested records | Pending; use existing per-page/permission index and distinct task layouts. |
+| 10 | Final platform consistency, missing sizes/states | Pending; 119 templates alone are 1,071 baseline viewport entries. |
+
+Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
+The approved editorial workshop/family/parts/showroom family replaces the old
+split-photo hero. Carousel retains bounded image recovery, manual/focus/reduced-motion
+pause, visibility suspension and no-JavaScript first slide. Four-state initialization
+now derives from slide count. Real workshop team/equipment photos form a compact grid.
+Services/catalogue/reviews keep current validated public reads and all data states.
+
+Reference fidelity ledger: full-width 720px desktop hero and high-contrast scrim;
+three padded discovery cards; white services region; dark workshop photo grid;
+off-white semantic footer. Intentional departures: approved fonts/logo/images,
+plain truthful copy, no fabricated live-open badge/stats/certification/stock/delivery
+or phone numbers, real listing warnings/prices, existing FAQ/reviews recovery,
+black workshop instead of general navy, 44px controls in two rows on narrow screens.
+The 363x1600 Home PNG is a reduced full-page preview; the matching HTML specifies
+the desktop composition. A native 1440px PNG comparison is therefore unavailable.
+Browser-rendered comparison and meaningful state checks remain PENDING.
+
+Browser path: in-app browser returned "browser access host is unavailable";
+installed Microsoft Edge 157.0.4341.42 inspected live Home at 1440x900/390x844,
+with no page errors or overflow at 1440. This was a read-only baseline, not acceptance.
+New home-design.spec.ts is in the existing exact-build CI browser configuration:
+all nine requested viewport pairs, four slide destinations, keyboard/wrap, FAQ,
+menu Escape/focus, footer/dock, scoped Axe, image failure and no writes. Execution
+is pending. Updated legacy carousel checks retain image/focus/timing assertions.
+
+Disk: default preflight failed at20.71GiB/25GiB. Isolated checkout was necessary to
+protect concurrent edits, with0.3GiB budget; shared dependency junction reused.
+No local build/install/Docker write. The owner requested safe cleanup. Read-only
+review found242MiB temporary browser cache; automatic review rejected deletion
+with "blocked by policy", so no deletion was performed. Native npm cache verify
+is running. Do not delete unknown resources or weaken the20GiB reserve.
+
+Next: complete cloud checks, inspect the held rendered candidate against reference
+and fix mismatches, integrate to master, require all three exact-master gates,
+verify compatibility with the unchanged backend, publish and check both aliases.
+No group or full-platform completion/release claim yet.
+
+---
+
 ## 9 November 18:45 UTC - reconcile current product-timing master
 
 Remote master advanced to b362e9f8 (PR32 product sourcing/preparation estimates)

@@ -76,7 +76,7 @@ test("touch swipes retain vertical scrolling and rapid selection stays stable af
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
-  await expect(hero(page).getByRole("link", { name: "Meet the team" })).toBeVisible();
+  await expect(hero(page).getByRole("link", { name: "Browse the Shop" })).toBeVisible();
   await context.close();
 });
 
@@ -123,7 +123,7 @@ test("a stalled hero photo is skipped after the bounded wait", async ({ page }) 
   let requested = 0;
   await page.route("**/_next/image?*", async (route) => {
     const asset = new URL(route.request().url()).searchParams.get("url") ?? "";
-    if (asset.includes("alignment-at-work")) {
+    if (asset.includes("family-editorial")) {
       requested++;
       await new Promise((r) => setTimeout(r, 21000));
     }
@@ -132,13 +132,13 @@ test("a stalled hero photo is skipped after the bounded wait", async ({ page }) 
   const completedRequest = page.waitForResponse(
     (response) =>
       (new URL(response.url()).searchParams.get("url") ?? "").includes(
-        "alignment-at-work",
+        "family-editorial",
       ),
     { timeout: 30000 },
   );
   await open(page);
   await expect(hero(page)).toHaveAttribute("data-slide", "3", { timeout: 19000 });
-  await expect(hero(page).getByRole("link", { name: "Meet the team" })).toBeVisible();
+  await expect(hero(page).getByRole("link", { name: "Browse the Shop" })).toBeVisible();
   expect(requested).toBeLessThanOrEqual(2);
   // Finish the deliberately delayed request before this page/context is disposed.
   await completedRequest;
@@ -148,12 +148,14 @@ test("all failed hero photos retain readable content and a working discovery lin
 }) => {
   await page.route("**/_next/image?*", (route) => {
     const asset = new URL(route.request().url()).searchParams.get("url") ?? "";
-    return /diagnostics-at-work|alignment-at-work|tyre-care-at-work/.test(asset)
+    return /workshop-editorial|family-editorial|parts-editorial|showroom-neutral-editorial/.test(
+      asset,
+    )
       ? route.fulfill({ status: 404, body: "" })
       : route.continue();
   });
   await open(page);
-  await expect(hero(page).getByText("Workshop photograph unavailable")).toBeVisible();
+  await expect(hero(page).getByText("Editorial image unavailable")).toBeVisible();
   await expect(hero(page)).toHaveAttribute("data-rotating", "false");
   await expect(hero(page).getByRole("button", { name: "Next slide" })).toBeDisabled();
   await expect(hero(page).getByRole("heading", { level: 1 })).toContainText(
@@ -197,7 +199,7 @@ test("doubled text reflows without losing controls or service context", async ({
 test("three complete real-time autoplay loops keep images, copy and actions in sync", async ({
   page,
 }, info) => {
-  test.setTimeout(85000);
+  test.setTimeout(105000);
   await page.setViewportSize({ width: 1440, height: 1000 });
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
@@ -205,8 +207,8 @@ test("three complete real-time autoplay loops keep images, copy and actions in s
   await decoded(page);
   const changes: { slide: number; elapsed: number }[] = [];
   let previous = Date.now();
-  for (let step = 1; step <= 9; step++) {
-    const slide = (step % 3) + 1;
+  for (let step = 1; step <= 12; step++) {
+    const slide = (step % 4) + 1;
     await expect(hero(page)).toHaveAttribute("data-slide", String(slide), {
       timeout: 10000,
     });
@@ -216,13 +218,11 @@ test("three complete real-time autoplay loops keep images, copy and actions in s
     if (step > 1) expect(changes.at(-1)!.elapsed).toBeGreaterThan(HERO_INTERVAL_MS - 600);
     await expect(hero(page).locator('img[data-current="true"]')).toHaveCount(1);
     await expect(
-      hero(page).getByRole("group", { name: `${slide} of 3`, exact: true }),
+      hero(page).getByRole("group", { name: `${slide} of 4`, exact: true }),
     ).toBeVisible();
-    await expect(hero(page).getByRole("link")).toHaveAttribute(
+    await expect(hero(page).locator("a[data-hero-primary]:visible")).toHaveAttribute(
       "href",
-      ["/services?search=diagnostics", "/services?search=alignment", "/about#team"][
-        slide - 1
-      ],
+      ["/services?search=diagnostics", "/services", "/parts", "/vehicles"][slide - 1],
     );
   }
   expect(errors).toEqual([]);
@@ -254,7 +254,7 @@ test("laptop hover keeps rotating while manual pause and keyboard focus remain p
   await hero(page).getByRole("button", { name: "Play slideshow" }).click();
   await page.mouse.move(1, 1);
   await expect(hero(page)).not.toHaveAttribute("data-slide", paused!, { timeout: 8000 });
-  await hero(page).getByRole("link").focus();
+  await hero(page).locator("a[data-hero-primary]:visible").focus();
   const focused = await hero(page).getAttribute("data-slide");
   await page
     .getByRole("link", { name: "Allied AutoTech home", exact: true })
@@ -320,7 +320,7 @@ test("slow and failed slide requests retain a usable current slide with bounded 
   });
   await page.route("**/_next/image?*", async (route) => {
     const asset = new URL(route.request().url()).searchParams.get("url") ?? "";
-    if (asset.includes("alignment-at-work")) {
+    if (asset.includes("family-editorial")) {
       requests++;
       await delayedImage;
     }
@@ -344,17 +344,17 @@ test("slow and failed slide requests retain a usable current slide with bounded 
   await page.unroute("**/_next/image?*");
   await page.route("**/_next/image?*", (route) => {
     const asset = new URL(route.request().url()).searchParams.get("url") ?? "";
-    return asset.includes("alignment-at-work")
+    return asset.includes("family-editorial")
       ? route.fulfill({ status: 404, body: "" })
       : route.continue();
   });
   await open(page);
   await expect(hero(page)).toHaveAttribute("data-slide", "3", { timeout: 10000 });
-  await expect(hero(page).getByRole("link", { name: "Meet the team" })).toBeVisible();
+  await expect(hero(page).getByRole("link", { name: "Browse the Shop" })).toBeVisible();
 });
 
 for (const width of [320, 360, 390, 430, 768, 1024, 1280, 1366, 1440]) {
-  test(`authentic images, accessible controls and responsive layout at ${width}px`, async ({
+  test(`editorial backgrounds, genuine workshop images, accessible controls and responsive layout at ${width}px`, async ({
     page,
   }, info) => {
     await page.setViewportSize({ width, height: 1000 });
@@ -384,19 +384,16 @@ for (const width of [320, 360, 390, 430, 768, 1024, 1280, 1366, 1440]) {
     expect(composition.copyFont.toLowerCase()).toContain("quicksand");
     expect(composition.actionFont.toLowerCase()).toContain("quicksand");
     expect(composition.background).toBe("none");
-    // The 1px frame border is excluded from the image's containing block.
-    expect(
-      Math.abs(composition.image.width / composition.image.height - 1.5),
-    ).toBeLessThan(0.01);
-    if (width < 880) {
-      expect(composition.action.bottom).toBeLessThan(composition.image.top);
-    } else {
-      expect(composition.heading.right).toBeLessThan(composition.image.left);
-    }
+    // Editorial backgrounds sit behind the copy and fill the carousel rather than
+    // becoming a separate photo column. Hit testing below verifies usable controls.
+    expect(composition.image.left).toBeLessThanOrEqual(composition.heading.left);
+    expect(composition.image.right).toBeGreaterThanOrEqual(composition.heading.right);
+    expect(composition.image.top).toBeLessThanOrEqual(composition.heading.top);
+    expect(composition.image.bottom).toBeGreaterThanOrEqual(composition.action.bottom);
     const first = await hero(page).boundingBox();
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 8; i++) {
       await hero(page).getByRole("button", { name: "Next slide" }).click();
-      await expect(hero(page)).toHaveAttribute("data-slide", String(((i + 1) % 3) + 1));
+      await expect(hero(page)).toHaveAttribute("data-slide", String(((i + 1) % 4) + 1));
       expect((await hero(page).boundingBox())!.height).toBeCloseTo(first!.height, 0);
     }
     await expect(hero(page)).toHaveAttribute("data-slide", "1");
@@ -408,7 +405,7 @@ for (const width of [320, 360, 390, 430, 768, 1024, 1280, 1366, 1440]) {
     }
     for (const selector of [
       ".home-services",
-      ".home-equipment-grid",
+      ".home-workshop__grid",
       ".home-bay",
       ".home-team-photo",
       ".home-shop",
@@ -463,7 +460,7 @@ for (const width of [320, 390])
     });
     expect((await support.boundingBox())!.width).toBe(44);
     for (const action of [
-      hero(page).getByRole("link"),
+      hero(page).locator("a[data-hero-primary]:visible"),
       ...(await hero(page).getByRole("button").all()),
     ]) {
       await action.scrollIntoViewIfNeeded();

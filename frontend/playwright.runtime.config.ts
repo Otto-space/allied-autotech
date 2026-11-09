@@ -7,6 +7,10 @@ export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
     {
+      name: "home-design",
+      testMatch: ["home-design.spec.ts"],
+    },
+    {
       name: "product-authoring",
       testMatch: ["work-products.spec.ts"],
       grep: /product estimates validate|edit stays locked/,
