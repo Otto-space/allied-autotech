@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import type { StaffBooking } from "@/lib/api/staff-booking-schemas";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
 
 test.beforeEach(async ({ request, page }) => bookingRuntimeCapabilities(request, page));
@@ -60,6 +61,10 @@ test("booking confirmation requires an active grant and a resource review, then 
   const writes: unknown[] = [];
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/public/capabilities")
+      return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+        ? route.fallback()
+        : reply(route, publicCapabilitiesFixture("full", false));
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(8),
@@ -157,6 +162,10 @@ for (const paid of [false, true])
   }) => {
     await page.route("**/api/v1/**", async (route) => {
       const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+      if (endpoint === "/public/capabilities")
+        return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+          ? route.fallback()
+          : reply(route, publicCapabilitiesFixture("full", false));
       if (endpoint === "/auth/session")
         return reply(route, {
           id: id(8),
@@ -400,6 +409,10 @@ test("quotation issue and work-order milestones use revisions and refresh the pa
   let internalNotes: string | null = null;
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/public/capabilities")
+      return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+        ? route.fallback()
+        : reply(route, publicCapabilitiesFixture("full", false));
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(8),
@@ -608,6 +621,10 @@ for (const lostOperation of ["none", "create", "replace"] as const) {
       };
       await page.route("**/api/v1/**", async (route) => {
         const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+        if (endpoint === "/public/capabilities")
+          return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+            ? route.fallback()
+            : reply(route, publicCapabilitiesFixture("full", false));
         if (endpoint === "/auth/session")
           return reply(route, {
             id: id(8),
@@ -842,6 +859,10 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.route("**/api/v1/**", async (route) => {
       const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+      if (endpoint === "/public/capabilities")
+        return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+          ? route.fallback()
+          : reply(route, publicCapabilitiesFixture("full", false));
       if (endpoint === "/auth/session")
         return reply(route, {
           id: id(8),
@@ -949,6 +970,10 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
       await page.route("**/api/v1/**", async (route) => {
         const req = route.request();
         const endpoint = new URL(req.url()).pathname.replace("/api/v1", "");
+        if (endpoint === "/public/capabilities")
+          return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+            ? route.fallback()
+            : reply(route, publicCapabilitiesFixture("full", false));
         if (endpoint === "/auth/session")
           return reply(route, {
             id: id(8),
@@ -1069,6 +1094,12 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
         (await new AxeBuilder({ page }).include(".booking-changes").analyze()).violations,
       ).toEqual([]);
       await page.screenshot({ path: info.outputPath("alternative-proposal.png") });
+      // A real focus refresh must retain the isolated capabilities contract.
+      const capabilityRead = page.waitForResponse(
+        (response) => new URL(response.url()).pathname === "/api/v1/public/capabilities",
+      );
+      await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+      expect((await (await capabilityRead).json()).data.release.mode).toBe("full");
       await page
         .getByRole("button", {
           name: decision === "ACCEPT" ? "Review proposed time" : "Decline proposed time",

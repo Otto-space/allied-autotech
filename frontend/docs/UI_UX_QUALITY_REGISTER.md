@@ -1,3 +1,28 @@
+## 9 November 19:48 UTC - authentication layout and fixture correction
+
+PR33 passed all three gates and merged as 28bf13bf. Source a31678ef's isolated
+backend gate also passed: 20 MFA-enrollment, four MFA-challenge and two password-
+change atomicity cases, alongside the 37 existing profile cases. Edge and Chrome
+MFA challenge/recovery flows pass seven exact sizes each (14 total), with synthetic
+writes only. Application files at that checkpoint match the ebe6e075 preview.
+
+The screenshots exposed adjacent Choose another method / Set up authenticator
+again actions touching at 1280px. Group these secondary actions with a wrapping
+16px horizontal / 4px vertical gap, preserving every handler, eligibility condition
+and 44px target. Add seven responsive keyboard/navigation cases in all three
+engines. Compiled acceptance for this new layout is pending, not inferred from
+those pre-change captures.
+
+Master f7bfbf52's frontend run 42681706626 failed one legacy booking alternative
+case: 723 passed, one timed out on a disabled Review proposed time control. Its
+retained error context shows the online-availability outage. The later generic
+booking route shadows the earlier capabilities route and returns {items: []} on
+refresh. Route those reads to the isolated capability server (or a canonical local
+fixture) and explicitly refresh/verify the contract before reviewing the proposal.
+No real booking policy or fail-closed control is relaxed. Evidence: TEMP/allied-
+master-failure-f7bfbf52, artifact13705245394 with verified SHA256. Revised-source
+CI and exact-master gates remain required; do not publish the failed old master.
+
 ## 9 November - isolated authentication acceptance follow-up
 
 Current follow-up: codex/auth-lifecycle-20261109, based on PR33 head ebe6e075.
