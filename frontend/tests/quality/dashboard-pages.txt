@@ -232,3 +232,6 @@ workforce-directory.spec.ts > workforce directory 430x932 > directory at 430px k
 workforce-directory.spec.ts > workforce directory 390x844 > directory at 390px keeps filters, table and actions accessible
 workforce-directory.spec.ts > workforce directory 360x800 > directory at 360px keeps filters, table and actions accessible
 workforce-directory.spec.ts > workforce directory 320x720 > directory at 320px keeps filters, table and actions accessible
+
+workforce-booking-confirmation.spec.ts > available alternatives preserve loading, retry, empty and keyboard states
+workforce-booking-confirmation.spec.ts > workforce proposes a reviewed time

@@ -302,6 +302,21 @@ export class ServiceOperationsController {
           ),
         ),
       );
+  bookingAlternativeOptions = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Available appointment alternatives",
+          req.id,
+          await this.service.bookingAlternativeOptions(
+            actor(req),
+            ids(res).bookingId,
+            validated<{ day: string }>(res, "query").day,
+          ),
+        ),
+      );
   bookingWorkReviewOptions = async (req: Request, res: Response) =>
     res
       .set("Cache-Control", "private, no-store")

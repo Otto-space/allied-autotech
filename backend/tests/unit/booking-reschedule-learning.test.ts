@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { learningArticles } from "../../src/modules/learning/learning.content.js";
 it("preserves the appointment pending approval and describes independent managed responsibilities", () => {
   const article = learningArticles.find((row) => row.id === "booking-confirmation")!;
-  expect(article.version).toBe(14);
+  expect(article.version).toBe(15);
   expect(article.gate).toBe("booking-confirmation");
   expect(article.href).toBe("/admin/workforce/bookings");
   const text = article.steps.join(" ");
@@ -76,4 +76,18 @@ it("explains resource allocation, rollback, cleanup and unknown legacy work with
   expect(customer.steps.join(" ")).toContain("a booked vehicle takes priority");
   expect(customer.steps.join(" ")).toContain("does not change a booking");
   expect(customer.steps.join(" ")).toContain("does not create a payment");
+});
+
+it("explains available late alternatives and preserves actual arrival facts", () => {
+  const article = learningArticles.find((row) => row.id === "booking-confirmation")!;
+  expect(article.version).toBe(15);
+  const text = article.steps.join(" ");
+  for (const phrase of [
+    "select an available Nigeria time",
+    "customer acceptance and final approval",
+    "does not hold capacity",
+    "immutable link retains earlier observed presence",
+    "without inventing another arrival",
+  ])
+    expect(text).toContain(phrase);
 });

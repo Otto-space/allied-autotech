@@ -212,6 +212,32 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           grantedByUserId: f.owner.id,
         },
       });
+      // A checked suggestion needs factual workshop configuration before it is offered.
+      await prisma.businessPolicyVersion.create({
+        data: {
+          key: `booking-capacity:${f.home.id}`,
+          version: 1,
+          approvalStatus: "APPROVED",
+          source: "Isolated HTTP journey fixture",
+          sourceQuestion: "Synthetic capacity only",
+          approvedByUserId: f.owner.id,
+          effectiveAt: new Date(Date.now() - 1000),
+          settings: {
+            dailyLimit: 20,
+            openingDays: [0, 1, 2, 3, 4, 5, 6],
+            opensAt: "08:00",
+            closesAt: "18:00",
+            holidays: [],
+            timezone: "Africa/Lagos",
+          },
+        },
+      });
+      await testBranchResources(
+        f.home.id,
+        f.owner.id,
+        [service.id],
+        [f.mechanical1.user.staffProfile!.id],
+      );
       const alternative = new Date(preferred.getTime() + 86400000).toISOString();
       const proposal = await request(app)
         .post(`/api/v1/staff/workforce/bookings/${id}/alternative`)
@@ -264,31 +290,6 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         await prisma.bookingResourceAllocation.count({ where: { bookingId: id } }),
       ).toBe(0);
       expect(await prisma.bookingReminder.count({ where: { bookingId: id } })).toBe(0);
-      await prisma.businessPolicyVersion.create({
-        data: {
-          key: `booking-capacity:${f.home.id}`,
-          version: 1,
-          approvalStatus: "APPROVED",
-          source: "Isolated HTTP journey fixture",
-          sourceQuestion: "Synthetic capacity only",
-          approvedByUserId: f.owner.id,
-          effectiveAt: new Date(Date.now() - 1000),
-          settings: {
-            dailyLimit: 20,
-            openingDays: [0, 1, 2, 3, 4, 5, 6],
-            opensAt: "08:00",
-            closesAt: "18:00",
-            holidays: [],
-            timezone: "Africa/Lagos",
-          },
-        },
-      });
-      await testBranchResources(
-        f.home.id,
-        f.owner.id,
-        [service.id],
-        [f.mechanical1.user.staffProfile!.id],
-      );
       const decision = {
         requestId,
         expectedVersion: 3,

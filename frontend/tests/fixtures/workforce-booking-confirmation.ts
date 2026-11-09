@@ -128,6 +128,17 @@ export async function workforceBookingConfirmationFixture(
   await page.route("**/api/v1/staff/workforce/bookings/**", async (route) => {
     const request = route.request(),
       pathname = new URL(request.url()).pathname;
+    if (request.method() === "GET" && pathname.endsWith("/alternative-options")) {
+      const day = new URL(request.url()).searchParams.get("day")!;
+      return route.fulfill(
+        ok({
+          bookingId: state.booking.id,
+          bookingVersion: state.booking.version,
+          day,
+          items: [{ startsAt: `${day}T10:00:00.000Z` }],
+        }),
+      );
+    }
     if (request.method() === "GET") {
       if (state.readMode === "error")
         return route.fulfill({
