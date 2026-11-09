@@ -73,8 +73,10 @@ jobs:
         timeout-minutes: 5
         run: npx --no-install playwright test --config playwright.runtime.config.ts --project=media-contract-chromium --project=media-contract-firefox --project=media-contract-webkit --max-failures=1
       - name: Verify independent runtime availability in the production build
+        # The verified 881-case matrix took 24.3 minutes. Account focus adds
+        # 42 cases; retain every assertion and leave bounded execution headroom.
         # A step timeout leaves the job alive to upload its synthetic evidence.
-        timeout-minutes: 25
+        timeout-minutes: 30
         run: npx --no-install playwright test --config playwright.runtime.config.ts --max-failures=5
       - name: Preserve synthetic browser evidence
         if: ${{ always() }}

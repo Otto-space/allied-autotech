@@ -45,14 +45,23 @@ test("accepted request is generic, clears email and supports explicit restart", 
   page,
 }) => {
   const state = await recoveryFixture(page);
+  await page.route("**/api/v1/public/capabilities", (route) =>
+    route.fulfill({ status: 503, json: { success: false } }),
+  );
   await page.goto("/forgot-password");
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await expect(
+    page.getByRole("complementary", { name: "Online availability" }),
+  ).toBeVisible();
   await page.getByLabel("Email address").fill("private@example.test");
   expect(
     await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage })),
   ).not.toContain("private@example.test");
   await page.getByRole("button", { name: "Send recovery link" }).click();
   await expect(page.getByRole("heading", { name: "Check your email" })).toBeFocused();
-  await expect(page.getByRole("status")).toHaveText(
+  await expect(
+    page.getByRole("region", { name: "Check your email" }).getByRole("status"),
+  ).toHaveText(
     "If your account is eligible, a recovery link will be sent. Check your email for the next step.",
   );
   await expect(page.locator("#recovery-email")).toHaveValue("");
