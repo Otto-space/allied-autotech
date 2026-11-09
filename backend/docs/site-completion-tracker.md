@@ -1,3 +1,22 @@
+## 9 November 20:10 UTC - preserve current catalogue compatibility
+
+Merge master9f9ee2f8 into the authentication batch. Its product editor now omits
+unsupported timing fields when the actual older catalogue contract lacks them;
+newer explicit-null/zero estimates remain supported. Preserve its two legacy
+create/edit regressions and all Home/authentication projects. No application merge
+conflict occurred. This removes the identified frontend request incompatibility
+with the currently published backend, subject to final combined-source checks.
+Do not treat the earlier product-timing backend packaging hold as automatically
+blocking an independently verified compatible frontend. The timing backend/migration
+and full timing feature still remain separate unfinished work with their safeguards.
+
+Corrected Home fixtures passed14 Edge/Chrome journeys on the e72c4017 compiled
+application, seven exact sizes per browser, healthy capability notice absent,
+loaded slide images, reachable controls, mobile menu focus return, fixed support
+bounds through seven sections, FAQ and diagnostics navigation. Four scoped Axe
+scans passed; zero real writes, page errors or page overflow. Evidence:
+TEMP/allied-home-combined-e72c4017-canonical. This merge's product compatibility
+has not been exercised by those Home captures. Current-source CI remains required.
 ## 9 November 20:08 UTC - Home fixture envelope correction
 
 The combined e72c4017 preview completed 14 Edge/Chrome layout and navigation
@@ -9398,3 +9417,37 @@ No group or full-platform completion/release claim yet.
 
 ---
 
+
+## 9 November - frontend compatibility before Home publication
+
+PR36 merged to master bc88d970; signature and merged tree were verified. All
+three exact-master gates are running. The live aliases remain160d3b7b, with the
+compatible old backend9c219bc8 / deploymentc3c54414 unchanged by this task.
+
+Release comparison found a concrete compatibility blocker inherited from PR32:
+productBody always sends three timing keys, including nulls, while the published
+backend's product create/update schemas are strict and predate those keys. Do not
+publish this combination or trigger the unrelated product-timing backend rollout.
+
+The frontend follow-up recognizes a timing-capable catalogue only when its actual
+response includes all three timing keys; explicit null and zero still count as
+supported. Existing-record editing uses that record. New-record editing makes one
+small authorized catalogue read; absent, partial, empty or failed data leaves the
+optional controls hidden and omits the unsupported keys from save/review. Ordinary
+product creation/editing remains available. A newly empty upgraded catalogue can
+create its first product without estimates, then add them after the new contract
+is visible. No backend API/schema, flags, permissions, prices or records changed.
+
+Known newer-contract estimate validation, zero/unknown distinction and explicit
+clearing remain covered. The shared product fixture now represents the current
+new contract with explicit nulls and has an older strict-server mode that omits
+and rejects timing keys. Two focused390/1440 create/edit cases join the existing
+production-build matrix. Twenty-seven product units, affected lint/formatting and
+TypeScript pass locally; final hosted fixture and exact-source checks pending.
+
+The corrected Home/support preview passes all nine Edge size/interaction/hit-test
+samples,390/1440 scoped Axe and manual reference/render comparison. This remains
+preview fallback evidence, not production-data, actual-role or physical-device
+acceptance. Complete the compatibility check and merged-master gates, then stage
+and verify a production-environment frontend without assigning domains, and only
+then publish/check both aliases. The119-template design inventory remains open.

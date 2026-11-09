@@ -1,5 +1,5 @@
 "use client";
-import { productTimingLabels } from "@/lib/product-timing";
+import { productTimingLabels, supportsProductTiming } from "@/lib/product-timing";
 
 import { statusLabel } from "@/lib/status-progress";
 import { useRef, useState } from "react";
@@ -10,6 +10,7 @@ import { ApiError, apiRequest } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
 import {
   parseAdminProduct,
+  parseAdminProducts,
   productFormSchema,
   productBody,
   type AdminProduct,
@@ -40,6 +41,12 @@ export function WorkProductEditor({
   const resource = useResource(
     id ? `/admin/catalog/products/${id}` : null,
     parseAdminProduct,
+    undefined,
+    { refreshKey },
+  );
+  const timingProbe = useResource(
+    id ? null : "/admin/catalog/products?limit=1",
+    parseAdminProducts,
     undefined,
     { refreshKey },
   );
@@ -109,6 +116,15 @@ export function WorkProductEditor({
         <ProductForm
           key={revision}
           record={id ? snapshot : null}
+          timingSupported={
+            id
+              ? supportsProductTiming(snapshot)
+              : !timingProbe.loading &&
+                !timingProbe.refreshing &&
+                !timingProbe.error &&
+                !timingProbe.refreshError &&
+                !!timingProbe.data?.items.some(supportsProductTiming)
+          }
           owner={owner}
           blocked={
             blocked ||
@@ -144,6 +160,7 @@ export function WorkProductEditor({
 
 function ProductForm({
   record,
+  timingSupported,
   owner,
   blocked,
   refresh,
@@ -152,6 +169,7 @@ function ProductForm({
   onClose,
 }: {
   record: AdminProduct | null;
+  timingSupported: boolean;
   owner: string;
   blocked: boolean;
   refresh: () => void;
@@ -240,7 +258,7 @@ function ProductForm({
   const disabled = blocked || uncertain || !!proposal;
   function review(values: ProductFormValues) {
     if (disabled || choicesBlocked || !categoryLabel) return;
-    const body = productBody(values, record);
+    const body = productBody(values, record, timingSupported);
     setProposal({
       title: "Save this product?",
       description: "These changes affect the live catalogue.",
@@ -274,14 +292,18 @@ function ProductForm({
           value: body.manufacturerPartNumber || "Not provided",
         },
         { label: "Description", value: body.description || "Not provided" },
-        {
-          label: "Sourcing estimate",
-          value: productTimingLabels(body).sourcing || "Not recorded",
-        },
-        {
-          label: "Preparation estimate",
-          value: productTimingLabels(body).preparation || "Not recorded",
-        },
+        ...(timingSupported
+          ? [
+              {
+                label: "Sourcing estimate",
+                value: productTimingLabels(body).sourcing || "Not recorded",
+              },
+              {
+                label: "Preparation estimate",
+                value: productTimingLabels(body).preparation || "Not recorded",
+              },
+            ]
+          : []),
         { label: "Selling price", value: formatKobo(body.priceKobo) },
         {
           label: "Comparison price",
@@ -684,34 +706,38 @@ function ProductForm({
               />
               {error("description")}
             </div>
-            <div className="product-field-wide">
-              <h3>Sourcing & preparation estimates</h3>
-              <p id="product-timing-help">
-                Optional estimates only. Use calendar days for sourcing and minutes for
-                preparation once the item is available. Leave unknown times blank;
-                collection readiness is confirmed on the order.
-              </p>
-            </div>
-            {(
-              [
-                ["sourcingDaysMin", "Minimum sourcing days"],
-                ["sourcingDaysMax", "Maximum sourcing days"],
-                ["preparationMinutes", "Preparation minutes"],
-              ] as const
-            ).map(([name, label]) => (
-              <div className="field" key={name}>
-                <label htmlFor={`admin-${name}`}>{label} (optional)</label>
-                <input
-                  {...form.register(name)}
-                  {...common(name)}
-                  type="text"
-                  inputMode="numeric"
-                  aria-describedby={`product-timing-help ${errors[name] ? `product-error-${name}` : ""}`}
-                  maxLength={6}
-                />
-                {error(name)}
-              </div>
-            ))}
+            {timingSupported && (
+              <>
+                <div className="product-field-wide">
+                  <h3>Sourcing & preparation estimates</h3>
+                  <p id="product-timing-help">
+                    Optional estimates only. Use calendar days for sourcing and minutes
+                    for preparation once the item is available. Leave unknown times blank;
+                    collection readiness is confirmed on the order.
+                  </p>
+                </div>
+                {(
+                  [
+                    ["sourcingDaysMin", "Minimum sourcing days"],
+                    ["sourcingDaysMax", "Maximum sourcing days"],
+                    ["preparationMinutes", "Preparation minutes"],
+                  ] as const
+                ).map(([name, label]) => (
+                  <div className="field" key={name}>
+                    <label htmlFor={`admin-${name}`}>{label} (optional)</label>
+                    <input
+                      {...form.register(name)}
+                      {...common(name)}
+                      type="text"
+                      inputMode="numeric"
+                      aria-describedby={`product-timing-help ${errors[name] ? `product-error-${name}` : ""}`}
+                      maxLength={6}
+                    />
+                    {error(name)}
+                  </div>
+                ))}
+              </>
+            )}
           </div>
           <section className="product-form-group" aria-labelledby="product-pricing-title">
             <h3 id="product-pricing-title">Pricing</h3>
