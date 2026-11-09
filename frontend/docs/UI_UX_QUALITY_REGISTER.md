@@ -1,3 +1,113 @@
+## 9 November 16:36 UTC - navigation outage overlay repair; publication checkpoint
+
+Current item: finish PR30 integration and exact-master publication after its gates.
+Visual review of the hosted preview caught a second P2 on anonymous /help at 320x720:
+the availability warning pushes the sticky header downward, while the drawer starts
+at a fixed 72px below the viewport. Header z-index 50 covers drawer z-index 45, so the
+Home link is visible in the DOM but cannot receive pointer input. The native hit-test
+returned site-header__inner instead of the link (TEMP/allied-navigation-release-592214bf/
+overlay-before.json); the screenshot confirms the obstruction. Earlier nine-case
+interaction acceptance did not detect this visual defect and is not full UI acceptance.
+
+The drawer now starts at viewport top above the header, with its backdrop also above
+background navigation. Its existing explicit Close menu control, focus recovery,
+Escape trap, scrolling, phone width and tablet width remain; top/bottom safe areas are
+respected. All 11 local Edge cases pass together in 1.5m, including all seven exact
+viewports, JavaScript-off mobile/desktop native navigation and outage overlays at
+320/1024. New hit-tests require Home and Close to receive pointer input, not merely
+have visible boxes. Scoped ESLint, formatting and diff checks pass. The earlier
+nonincremental TypeScript pass covers the unchanged application TypeScript; the new
+test is also collected/executed. Expanded hosted matrix is now expected to be 563.
+Evidence/screenshots: TEMP/allied-public-navigation-readiness-20261109/overlay-final.
+
+The e200dbfc backend run 42655339070 has passed the previously failing financial/
+booking stage after the fixed-hour fixture correction; remaining stages and final
+exact-source checks are pending. Do not count that in-progress workflow as a pass.
+PR30 is not merged or deployed yet. Saved items d553a349 remains the verified release
+on both public aliases with seven native public-domain fixture passes. Keep the
+checked release live until the new exact-master gates and rendered checks succeed.
+
+Disk review: C: had 21.33 GiB free before the last bounded 0.3 GiB dev preflight.
+Reused the exact-lock installation and existing warm cache; no dependency install,
+local production build, Docker build, database or archive was created. Docker reports
+151 images/13.82GB, 451 cache entries/14.05GB and 15 volumes/2.892GB. Other active
+backend work and historical database containers exist; reclaimable labels alone are
+not cleanup authority. Retain those resources, release receipts, source and history.
+Full two-brief real-role/persistence, physical-device, per-route/state, accessibility/
+performance and unconfirmed-business-data requirements remain active.
+
+## 9 November 16:29 UTC - navigation preview and time-dependent CI fixture
+
+PR30 source 592214bf has a READY preview dpl_6eb6rcRcQNmwfLH18RKsBWnBoMdZ.
+Native Edge first-ready-activation, focus/Escape, scroll locking and overflow pass
+all seven requested viewports, zero application writes/errors. JavaScript-disabled
+mobile navigation reaches Parts, but an immediate post-navigation viewport check
+observed 405x912 instead of 320x720; a separate direct load measures 320x720 without
+overflow. Waiting for the native document load completes both 320/1280 fallback
+checks with exact viewports and no overflow, errors or writes. Retain the earlier
+failed observation; this is a load-completion harness correction, not a Parts CSS fix.
+Evidence: TEMP/allied-navigation-release-592214bf/fallback-recheck/native-preview.json.
+All nine native preview cases now have passing evidence.
+
+Backend CI 42654083490 failed four existing workforce alternative-proposal cases.
+The fixture proposes Date.now()+8 days, retaining current time. At 16:24 UTC this is
+17:24 Lagos; the required 60-minute service extends beyond the fixture's 18:00 close,
+so valid availability enforcement returns 409 before the cases' intended assertions.
+Pin only the synthetic proposal time to 09:00 UTC (10:00 Lagos), retaining future
+date, duration, capacity, scope and atomicity assertions. Application/backend code
+and business hours stay unchanged. Isolated CI rerun is required; no local/shared
+application database is used. Other backend owner's D03 work is preserved.
+
+## 9 November 16:21 UTC - Saved items published; mobile navigation readiness
+
+Current bounded item: integrate the verified public-navigation hydration repair.
+Saved items is merged as d553a349 and published on apex/www as
+`dpl_9Mhxm6vmMKj8zncDJFLzEdXmkn9J`. Exact-master Frontend 42648346393,
+Backend 42648346424 and Secrets 42648346736 passed. Frontend includes the 530-case
+production-build matrix. Backend application source is unchanged from the compatible
+9c219bc8 release; ACTIVE backend c3c54414-0f19-4b21-bf23-b44184e6f43a and managed
+backup state were rechecked. No database write, security-setting change or capability
+activation occurred. Retain dpl_4dvsQv6n4PVDw5BQ344p5221SPZx for compatible recovery.
+
+The held production URL returned 403 to the short-lived browser OIDC credential;
+authorised Vercel CLI GET returned 200 and the Saved items application. This is an
+access limitation, not a native held-candidate pass. The application/test-equivalent
+1831a758 preview passed all seven exact viewports. After promotion, native Edge on
+the public domain passes populated Saved vehicles, decoded fixture images, public
+listing navigation, Back/reload, keyboard collection recovery and overflow at
+all seven exact requested viewports, with zero page errors or application writes.
+Native Edge production acceptance is complete for this isolated Saved journey. Receipts: TEMP/allied-saved-release-d553a349/public.
+An initial test-helper invocation used the repository root and failed to resolve a
+fixture photograph; rerunning from frontend corrected that harness error.
+
+Reproduced P2 on live `/help`, anonymous 320x720: both ordinary early activation and
+deliberately delayed scripts lose the first menu tap; a second tap opens it. Source
+renders the opener enabled before hydration. Reuse the established useHydrated hook
+to disable/mark busy until handlers are ready; preserve drawer focus, Escape and
+scroll locking. A native-link fallback exposes the same seven destinations when
+JavaScript is disabled. No destination, permission, guide semantic target, business
+policy or public capability changes; versioned learning definitions are unaffected.
+
+Nine new Edge cases cover the seven exact requested viewports plus JavaScript-off
+320/1280. All have passing results: final group 8/9, with 390 timing out waiting for
+scripts under local contention, then passing unchanged in 10.4s. The initial assertion
+incorrectly retained the opener's old accessible name after opening; corrected to
+inspect the same button's expanded state. Touch fallback targets remain 44px; desktop
+retains existing 40px links (WCAG AA 24px minimum). Mobile/touch is emulated, not physical.
+TypeScript (nonincremental), scoped ESLint, formatting and diff checks pass. Add these
+nine cases to Chromium/Firefox/WebKit runtime CI; that new 557-case matrix is pending.
+Evidence: TEMP/allied-public-navigation-readiness-20261109 and
+TEMP/allied-auth-acceptance-20261109/focused.
+
+Existing auth coverage: 125/127 local login/registration/MFA/reset cases passed in
+25.2m. Failed mobile-menu recovery is fixed and passes the unchanged test. Customer
+MFA handoff exceeded its 15s expectation once, then passed unchanged in 13.2s; other
+three roles passed initially. No auth application code changed. These are isolated
+API fixtures, not actual delivery, persisted authentication or real-role acceptance.
+The full page/state, real role/branch, physical-device, screen-reader, browser zoom,
+measured-performance and business-data requirements remain open. Diagnostics duration
+and Engine Oil Filter brand/MPN/approved image remain unconfirmed by the owner.
+
 ## 9 November 15:47 UTC - Saved items gates passed; integrate release evidence
 
 Current item: publish the Saved items collection-context fix after exact-master gates.

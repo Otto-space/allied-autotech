@@ -11,6 +11,7 @@ export default defineConfig({
       testMatch: [
         "runtime-capabilities.spec.ts",
         "public-search-recovery.spec.ts",
+        "public-navigation-readiness.spec.ts",
         "appointment-export.spec.ts",
         "booking-reschedule-approval.spec.ts",
         "workforce-booking-reschedule.spec.ts",
@@ -80,6 +81,7 @@ export default defineConfig({
         "modal-layout.spec.ts",
         "catalogue-modal-layout.spec.ts",
         "public-search-recovery.spec.ts",
+        "public-navigation-readiness.spec.ts",
         "saved-items-navigation.spec.ts",
       ],
     })),
