@@ -9890,3 +9890,10 @@ allocation triggers, runtime source, privileges and migrations unchanged. No
 production/application database is written, reset, repaired or migrated. The
 isolated GitHub safety job must pass for the resulting exact master source,
 alongside frontend and secret gates, before the combined public mobile release.
+
+Follow-up d5d1ad22 safety42719066777 passed281 with one failure: the allocation
+fix succeeded, but freezing a past day correctly failed the independent visit-
+continuation guard requiring PostgreSQL's current Lagos date. The final fixture
+creates its policies/resources on the real clock before freezing noon of the
+current Lagos date. This preserves both guards and the full same-day assertion;
+no runtime, migration, privilege or data policy changes. Re-run isolated CI.

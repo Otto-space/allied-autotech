@@ -457,16 +457,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     beforeAll(() => assertIsolatedLoopbackDatabase());
     afterEach(() => vi.useRealTimers());
     async function lateVisit(kind: "ARRIVED" | "LEFT" = "ARRIVED") {
-      // PostgreSQL checks policy eligibility against its real clock. Freeze at
-      // the most recent past noon so fixture policies are never future-dated,
-      // including near midnight in Lagos or before noon UTC.
-      const realNow = Date.now();
-      const noon = new Date(realNow);
-      noon.setUTCHours(12, 0, 0, 0);
-      if (noon.getTime() > realNow) noon.setUTCDate(noon.getUTCDate() - 1);
-      vi.useFakeTimers({ toFake: ["Date"] });
-      vi.setSystemTime(noon);
+      // Policy eligibility uses PostgreSQL's real clock; visit continuation
+      // requires today's Lagos date. Create policies before freezing that day
+      // at noon, which may still be in the future around Lagos midnight.
       const f = await fixture();
+      const today = new Date(Date.now() + 3_600_000).toISOString().slice(0, 10);
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date(`${today}T12:00:00Z`));
       const original = new Date(Date.now() - 20 * 60000),
         replacement = new Date(Date.now() + 120 * 60000);
       await prisma.booking.update({
