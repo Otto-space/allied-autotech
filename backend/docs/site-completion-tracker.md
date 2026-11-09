@@ -1,4 +1,4 @@
-## 9 November ? full attendance integration in progress
+## 9 November - full attendance integration in progress
 
 Reconciled the complete attendance candidate with current master 80e95a38 and
 the compatible recovery writer. The verified route retains its private absence
@@ -13,6 +13,10 @@ Local combined-source evidence: 37/37 attendance and affected learning unit
 checks pass; backend typecheck and full repository lint pass. Frontend changed
 files pass formatting; runtime collection includes 237 cases in 28 files.
 Collection is not rendered acceptance. Fresh hosted execution remains required.
+
+The first combined frontend gate stopped at a missing Markdown blank line in
+the merged register before browser execution. The register is corrected and its
+format check now passes; no interaction assertion or application guard changed.
 
 Earlier source results (235 full-feature and 225 compatibility browser passes)
 are historical; this combined source requires fresh gates. No production change
@@ -160,7 +164,7 @@ canonically replayed migration-98 isolated database. Its 30 guidance checks pass
 required hosted and packaged release checks remain pending. No production change.
 Keep the full attendance feature here separate until that writer transition and
 98-aware migration/recovery composition have been reviewed and verified.
-## 9 November ? attendance recovery source reconciliation
+## 9 November - attendance recovery source reconciliation
 
 Merged current master 80e95a38 into the held compatibility candidate, preserving
 public-search recovery coverage, corrected product identity wording and the
