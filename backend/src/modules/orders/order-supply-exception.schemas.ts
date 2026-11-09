@@ -27,3 +27,15 @@ export const supplyExceptionRaiseSchema = z
     actualConcernConfirmed: z.literal(true),
   })
   .strict();
+
+export const supplyRemedyChoiceSchema = z
+  .object({
+    expectedVersion: z.number().int().min(0).max(2147483647),
+    idempotencyKey: z.uuid(),
+    supplyExceptionId: z.uuid(),
+    choice: z.enum(["REFUND_REVIEW", "SUITABLE_ALTERNATIVE_REVIEW", "TECHNICAL_REVIEW"]),
+    customerNote: paragraph.optional(),
+    statementVersion: z.literal("SUPPLY_CHOICE_20261110_V1"),
+    choiceConfirmed: z.literal(true),
+  })
+  .strict();

@@ -28,7 +28,10 @@ import {
   uncoveredSupplyRanges,
 } from "./order-supply-exception.engine.js";
 import { collectedPickupTotals } from "./order-pickup.repository.js";
-import { supplyExceptionRaiseSchema } from "./order-supply-exception.schemas.js";
+import {
+  supplyExceptionRaiseSchema,
+  supplyRemedyChoiceSchema,
+} from "./order-supply-exception.schemas.js";
 const select = {
   id: true,
   orderNumber: true,
@@ -95,13 +98,36 @@ export async function supplyExceptionSummary(
       customerNote: true,
       reason: administrator,
       createdAt: true,
+      supplyRemedyChoices: {
+        orderBy: { orderVersion: "desc" },
+        take: 11,
+        select: {
+          id: true,
+          choice: true,
+          statementVersion: true,
+          customerNote: true,
+          createdAt: true,
+          orderVersion: true,
+        },
+      },
     },
   });
+  const order = await tx.order.findUniqueOrThrow({
+    where: { id },
+    select: { version: true },
+  });
   return {
+    orderVersion: order.version,
+    choiceStatementVersion: "SUPPLY_CHOICE_20261110_V1" as const,
     items: records.slice(0, 25).map((record) => ({
       ...record,
       affectedLines: affectedUnitRangesSchema.parse(record.affectedLines),
       state: "CUSTOMER_CARE_REVIEW_REQUIRED" as const,
+      supplyRemedyChoices: record.supplyRemedyChoices.slice(0, 10),
+      hasMoreChoices: record.supplyRemedyChoices.length > 10,
+      // Intent never means a substitute was accepted, finance approved, or paid.
+      alternativeAccepted: false as const,
+      financialApproval: false as const,
     })),
     hasMore: records.length > 25,
   };
@@ -299,25 +325,119 @@ export class OrderSupplyExceptionService {
   constructor(private readonly database: PrismaClient = prisma) {
     this.guests = new PurchaseGuestAccessService(database);
   }
+  private async buyerOrder(
+    tx: Prisma.TransactionClient,
+    buyer: Buyer,
+    id: string,
+    write: boolean,
+  ) {
+    const guest =
+      buyer.kind === "guest"
+        ? env.PUBLIC_LAUNCH_MODE === "catalogue"
+          ? null
+          : await this.guests.lockAccess(
+              tx,
+              buyer.sessionToken,
+              write
+                ? { kind: "write", csrfToken: buyer.csrfToken ?? "" }
+                : { kind: "read" },
+            )
+        : null;
+    if (buyer.kind === "account") await lockCurrentPaymentCustomer(tx, buyer.actor);
+    else if (!guest) throw orderForbidden();
+    const order = await lockSupplyOrder(tx, id);
+    if (
+      buyer.kind === "account"
+        ? order.customer?.userId !== buyer.actor.userId || order.guestId !== null
+        : order.guestId !== guest!.guestId || order.customerId !== null
+    )
+      throw orderNotFound();
+    return { order, guest };
+  }
   read(buyer: Buyer, id: string) {
     return withTransactionRetry(
       this.database,
       async (tx) => {
-        const guest =
-          buyer.kind === "guest"
-            ? env.PUBLIC_LAUNCH_MODE === "catalogue"
-              ? null
-              : await this.guests.lockAccess(tx, buyer.sessionToken, { kind: "read" })
-            : null;
-        if (buyer.kind === "account") await lockCurrentPaymentCustomer(tx, buyer.actor);
-        else if (!guest) throw orderForbidden();
-        const order = await lockSupplyOrder(tx, id);
+        await this.buyerOrder(tx, buyer, id, false);
+        return supplyExceptionSummary(tx, id);
+      },
+      { isolationLevel: "Serializable" },
+    );
+  }
+  choose(buyer: Buyer, id: string, raw: unknown, context: RequestSecurityContext) {
+    const input = supplyRemedyChoiceSchema.parse(raw);
+    return withTransactionRetry(
+      this.database,
+      async (tx) => {
+        const { order, guest } = await this.buyerOrder(tx, buyer, id, true);
+        const requestHash = orderFingerprint({ orderId: id, ...input });
+        const prior = await tx.orderSupplyRemedyChoice.findUnique({
+          where: { idempotencyKey: input.idempotencyKey },
+          include: { guestSession: { select: { guestId: true } } },
+        });
+        if (prior) {
+          if (
+            prior.orderId !== id ||
+            prior.requestHash !== requestHash ||
+            (buyer.kind === "account"
+              ? prior.customerUserId !== buyer.actor.userId
+              : prior.guestSession?.guestId !== guest!.guestId)
+          )
+            throw orderConflict(
+              "This remedy request reference was used for different details.",
+            );
+          return supplyExceptionSummary(tx, id);
+        }
+        if (input.expectedVersion !== order.version) throw orderStale();
+        const concern = await tx.orderSupplyException.findFirst({
+          where: { id: input.supplyExceptionId, orderId: id },
+          select: { id: true, kind: true, enquiryId: true },
+        });
+        if (!concern) throw orderNotFound();
         if (
-          buyer.kind === "account"
-            ? order.customer?.userId !== buyer.actor.userId || order.guestId !== null
-            : order.guestId !== guest!.guestId || order.customerId !== null
+          (concern.kind === "USED_INSTALLED_OR_DIAGNOSIS_DISPUTE") !==
+          (input.choice === "TECHNICAL_REVIEW")
         )
-          throw orderNotFound();
+          throw orderConflict(
+            "Used, installed or disputed goods need technical assessment. This request cannot approve a general return.",
+          );
+        const choice = await tx.orderSupplyRemedyChoice.create({
+          data: {
+            orderId: id,
+            supplyExceptionId: concern.id,
+            orderVersion: order.version,
+            customerUserId: buyer.kind === "account" ? buyer.actor.userId : null,
+            sessionId: buyer.kind === "account" ? buyer.actor.sessionId : null,
+            guestSessionId: guest?.sessionId ?? null,
+            choice: input.choice,
+            statementVersion: input.statementVersion,
+            customerNote: input.customerNote ?? "",
+            idempotencyKey: input.idempotencyKey,
+            requestHash,
+          },
+        });
+        await tx.order.update({ where: { id }, data: { version: { increment: 1 } } });
+        await notifySupportTeam(tx, {
+          kind: "ENQUIRY",
+          id: concern.enquiryId,
+          event: `supply-remedy-choice:${choice.id}`,
+          title: "Customer updated an order supply remedy request",
+          ...(buyer.kind === "account" ? { actorUserId: buyer.actor.userId } : {}),
+        });
+        await appendAuditEvent(tx, {
+          actorUserId: buyer.kind === "account" ? buyer.actor.userId : null,
+          action: "CREATE",
+          entityType: "ORDER",
+          entityId: id,
+          newValues: {
+            supplyExceptionId: concern.id,
+            remedyChoiceId: choice.id,
+            choice: input.choice,
+            financialApproval: false,
+            alternativeAccepted: false,
+          },
+          context,
+        });
         return supplyExceptionSummary(tx, id);
       },
       { isolationLevel: "Serializable" },

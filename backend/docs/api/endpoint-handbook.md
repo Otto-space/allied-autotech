@@ -5475,6 +5475,66 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### POST `/customers/orders/{orderId}/supply-exceptions/choice`
+
+- Operation ID: `postCustomersOrdersByOrderIdSupplyExceptionsChoice`
+- Purpose: Current owned account/guest session, CSRF and exact order version are independently rechecked under locks. Immutable history and UUID replay; changed choices retain earlier entries. Refund review is not refund approval or money returned. Asking for an alternative is not accepting a product, price, credit or new payment. Used/installed/disputed goods require technical assessment. Existing Care recipients are alerted; collection/payment holds remain. No general return policy or new financial permission is approved. Record the actual customer's remedy preference without approving money or a substitute. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `idempotencyKey` | string (uuid) | Yes | Retry key that must be reused only with an identical logical request. |
+| `supplyExceptionId` | string (uuid) | Yes | Identifier of the supply exception resource; ownership is resolved server-side. |
+| `choice` | REFUND_REVIEW / SUITABLE_ALTERNATIVE_REVIEW / TECHNICAL_REVIEW | Yes | Choice validated by this operation's strict request contract. |
+| `customerNote` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `statementVersion` | SUPPLY_CHOICE_20261110_V1 | Yes | Statement Version validated by this operation's strict request contract. |
+| `choiceConfirmed` | true | Yes | Choice Confirmed validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+  "supplyExceptionId": "00000000-0000-4000-8000-000000000001",
+  "choice": "REFUND_REVIEW",
+  "customerNote": "synthetic-customernote",
+  "statementVersion": "SUPPLY_CHOICE_20261110_V1",
+  "choiceConfirmed": true
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Record the actual customer's remedy preference without approving money or a substitute",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/customers/orders/{orderId}/purchase-review`
 
 - Operation ID: `postCustomersOrdersByOrderIdPurchaseReview`
@@ -30300,6 +30360,66 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/purchase/orders/{orderId}/supply-exceptions/choice`
+
+- Operation ID: `postPurchaseOrdersByOrderIdSupplyExceptionsChoice`
+- Purpose: Current owned account/guest session, CSRF and exact order version are independently rechecked under locks. Immutable history and UUID replay; changed choices retain earlier entries. Refund review is not refund approval or money returned. Asking for an alternative is not accepting a product, price, credit or new payment. Used/installed/disputed goods require technical assessment. Existing Care recipients are alerted; collection/payment holds remain. No general return policy or new financial permission is approved. Record the actual customer's remedy preference without approving money or a substitute. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: PURCHASE_GUEST
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `x-csrf-token` | header | string | Yes | Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `idempotencyKey` | string (uuid) | Yes | Retry key that must be reused only with an identical logical request. |
+| `supplyExceptionId` | string (uuid) | Yes | Identifier of the supply exception resource; ownership is resolved server-side. |
+| `choice` | REFUND_REVIEW / SUITABLE_ALTERNATIVE_REVIEW / TECHNICAL_REVIEW | Yes | Choice validated by this operation's strict request contract. |
+| `customerNote` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `statementVersion` | SUPPLY_CHOICE_20261110_V1 | Yes | Statement Version validated by this operation's strict request contract. |
+| `choiceConfirmed` | true | Yes | Choice Confirmed validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+  "supplyExceptionId": "00000000-0000-4000-8000-000000000001",
+  "choice": "REFUND_REVIEW",
+  "customerNote": "synthetic-customernote",
+  "statementVersion": "SUPPLY_CHOICE_20261110_V1",
+  "choiceConfirmed": true
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Record the actual customer's remedy preference without approving money or a substitute",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/purchase/orders/{orderId}/purchase-review`
 

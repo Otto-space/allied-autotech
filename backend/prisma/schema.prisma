@@ -573,6 +573,7 @@ enum OutboxStatus {
 }
 
 model User {
+  supplyRemedyChoices          OrderSupplyRemedyChoice[]
   pickupClaims                 OrderPickupClaim[]               @relation("PickupClaimant")
   pickupClaimCancellations     OrderPickupClaim[]               @relation("PickupClaimCanceller")
   pickupAuthorisations         OrderPickupAuthorisation[]
@@ -682,24 +683,25 @@ model User {
 }
 
 model Session {
+  supplyRemedyChoices OrderSupplyRemedyChoice[]
   pickupClaims        OrderPickupClaim[]
   supportLivePresence SupportLivePresence[]
   pushSubscriptions   PushSubscription[]
-  id                  String                @id @default(uuid()) @db.Uuid
-  userId              String                @db.Uuid
-  tokenHash           String                @unique @db.VarChar(128)
-  csrfTokenHash       String?               @db.Char(64)
+  id                  String                    @id @default(uuid()) @db.Uuid
+  userId              String                    @db.Uuid
+  tokenHash           String                    @unique @db.VarChar(128)
+  csrfTokenHash       String?                   @db.Char(64)
   expiresAt           DateTime
-  idleExpiresAt       DateTime              @default(now())
+  idleExpiresAt       DateTime                  @default(now())
   lastUsedAt          DateTime?
-  lastRotatedAt       DateTime              @default(now())
+  lastRotatedAt       DateTime                  @default(now())
   revokedAt           DateTime?
-  mfaRequired         Boolean               @default(false)
+  mfaRequired         Boolean                   @default(false)
   mfaVerifiedAt       DateTime?
-  ipAddress           String?               @db.Inet
-  userAgent           String?               @db.Text
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
+  ipAddress           String?                   @db.Inet
+  userAgent           String?                   @db.Text
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
 
   user                   User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   mfaChallenges          MfaChallenge[]
@@ -1557,15 +1559,16 @@ model PurchaseGuestChallenge {
 }
 
 model PurchaseGuestSession {
-  id            String        @id @default(uuid()) @db.Uuid
-  guestId       String        @db.Uuid
-  tokenHash     String        @unique @db.Char(64)
-  csrfTokenHash String        @db.Char(64)
-  expiresAt     DateTime
-  idleExpiresAt DateTime
-  revokedAt     DateTime?
-  createdAt     DateTime      @default(now())
-  guest         PurchaseGuest @relation(fields: [guestId], references: [id], onDelete: Restrict)
+  supplyRemedyChoices OrderSupplyRemedyChoice[]
+  id                  String                    @id @default(uuid()) @db.Uuid
+  guestId             String                    @db.Uuid
+  tokenHash           String                    @unique @db.Char(64)
+  csrfTokenHash       String                    @db.Char(64)
+  expiresAt           DateTime
+  idleExpiresAt       DateTime
+  revokedAt           DateTime?
+  createdAt           DateTime                  @default(now())
+  guest               PurchaseGuest             @relation(fields: [guestId], references: [id], onDelete: Restrict)
 
   @@index([guestId, revokedAt])
   @@index([expiresAt])
@@ -1598,6 +1601,7 @@ model CartItem {
 }
 
 model Order {
+  supplyRemedyChoices          OrderSupplyRemedyChoice[]
   pickupClaims                 OrderPickupClaim[]
   pickupAuthorisations         OrderPickupAuthorisation[]
   pickupHandovers              OrderPickupHandover[]
@@ -3616,26 +3620,52 @@ model OrderCollectionEvent {
 }
 
 model OrderSupplyException {
-  id                   String             @id @default(uuid()) @db.Uuid
-  orderId              String             @db.Uuid
-  enquiryId            String             @unique @db.Uuid
-  sourceTimingUpdateId String?            @unique @db.Uuid
-  raisedByUserId       String             @db.Uuid
-  sessionId            String             @db.Uuid
+  supplyRemedyChoices  OrderSupplyRemedyChoice[]
+  id                   String                    @id @default(uuid()) @db.Uuid
+  orderId              String                    @db.Uuid
+  enquiryId            String                    @unique @db.Uuid
+  sourceTimingUpdateId String?                   @unique @db.Uuid
+  raisedByUserId       String                    @db.Uuid
+  sessionId            String                    @db.Uuid
   orderVersion         Int
-  kind                 String             @db.VarChar(48)
+  kind                 String                    @db.VarChar(48)
   affectedLines        Json
   monetaryBasis        Json
-  customerNote         String             @db.VarChar(1000)
-  reason               String             @db.VarChar(1000)
-  idempotencyKey       String             @unique @db.Uuid
-  requestHash          String             @db.Char(64)
-  createdAt            DateTime           @default(now())
-  order                Order              @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  enquiry              Enquiry            @relation(fields: [enquiryId], references: [id], onDelete: Restrict)
-  sourceTimingUpdate   OrderTimingUpdate? @relation(fields: [sourceTimingUpdateId], references: [id], onDelete: Restrict)
-  raisedBy             User               @relation(fields: [raisedByUserId], references: [id], onDelete: Restrict)
-  session              Session            @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  customerNote         String                    @db.VarChar(1000)
+  reason               String                    @db.VarChar(1000)
+  idempotencyKey       String                    @unique @db.Uuid
+  requestHash          String                    @db.Char(64)
+  createdAt            DateTime                  @default(now())
+  order                Order                     @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  enquiry              Enquiry                   @relation(fields: [enquiryId], references: [id], onDelete: Restrict)
+  sourceTimingUpdate   OrderTimingUpdate?        @relation(fields: [sourceTimingUpdateId], references: [id], onDelete: Restrict)
+  raisedBy             User                      @relation(fields: [raisedByUserId], references: [id], onDelete: Restrict)
+  session              Session                   @relation(fields: [sessionId], references: [id], onDelete: Restrict)
 
   @@index([orderId, createdAt])
+}
+
+// An owned customer's preference, not financial approval or alternative acceptance.
+model OrderSupplyRemedyChoice {
+  id                String                @id @default(uuid()) @db.Uuid
+  orderId           String                @db.Uuid
+  supplyExceptionId String                @db.Uuid
+  customerUserId    String?               @db.Uuid
+  sessionId         String?               @db.Uuid
+  guestSessionId    String?               @db.Uuid
+  orderVersion      Int
+  choice            String                @db.VarChar(48)
+  statementVersion  String                @db.VarChar(48)
+  customerNote      String                @db.VarChar(1000)
+  idempotencyKey    String                @unique @db.Uuid
+  requestHash       String                @db.Char(64)
+  createdAt         DateTime              @default(now())
+  order             Order                 @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  supplyException   OrderSupplyException  @relation(fields: [supplyExceptionId], references: [id], onDelete: Restrict)
+  customerUser      User?                 @relation(fields: [customerUserId], references: [id], onDelete: Restrict)
+  session           Session?              @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  guestSession      PurchaseGuestSession? @relation(fields: [guestSessionId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, orderVersion])
+  @@index([supplyExceptionId, orderVersion])
 }

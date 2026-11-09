@@ -98,3 +98,29 @@ describe("bounded supply concern evidence", () => {
     expect(() => uncoveredSupplyRanges(item, 4, [])).toThrow();
   });
 });
+
+it("rejects invented financial outcomes and unconfirmed substitute acceptance at customer choice", async () => {
+  const { supplyRemedyChoiceSchema } =
+    await import("../../src/modules/orders/order-supply-exception.schemas.js");
+  const body = {
+    expectedVersion: 1,
+    idempotencyKey: "00000000-0000-4000-8000-000000000001",
+    supplyExceptionId: "00000000-0000-4000-8000-000000000002",
+    choice: "REFUND_REVIEW",
+    statementVersion: "SUPPLY_CHOICE_20261110_V1",
+    choiceConfirmed: true,
+  };
+  expect(supplyRemedyChoiceSchema.safeParse(body).success).toBe(true);
+  for (const change of [
+    { choiceConfirmed: false },
+    { statementVersion: "unreviewed" },
+    { choice: "ALTERNATIVE_ACCEPTED" },
+    { refundApproved: true },
+    { amountKobo: "100" },
+    { customerUserId: body.idempotencyKey },
+    { customerNote: "first\nsecond" },
+  ])
+    expect(supplyRemedyChoiceSchema.safeParse({ ...body, ...change }).success).toBe(
+      false,
+    );
+});

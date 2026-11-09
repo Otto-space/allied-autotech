@@ -67,6 +67,6 @@ it("requires exact unique items, a fresh version, an idempotency key and separat
 });
 it("keeps order-sourcing instructions admin-only without granting payment or collection authority", () => {
   const guide = learningArticles.find((article) => article.id === "order-sourcing")!;
-  expect([guide.gate, guide.version]).toEqual(["admin", 2]);
+  expect([guide.gate, guide.version]).toEqual(["admin", 3]);
   expect(guide.steps.join(" ")).toContain("cannot mark goods ready");
 });

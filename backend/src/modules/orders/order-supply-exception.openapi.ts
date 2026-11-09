@@ -1,7 +1,10 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 import { orderParamsSchema, ordersEmptyQuerySchema } from "./orders.schemas.js";
-import { supplyExceptionRaiseSchema } from "./order-supply-exception.schemas.js";
+import {
+  supplyExceptionRaiseSchema,
+  supplyRemedyChoiceSchema,
+} from "./order-supply-exception.schemas.js";
 export function registerSupplyExceptionOpenApi(registry: OpenAPIRegistry) {
   const response = z.object({
     success: z.boolean(),
@@ -30,6 +33,32 @@ export function registerSupplyExceptionOpenApi(registry: OpenAPIRegistry) {
         },
       },
     });
+    if (!staff)
+      registry.registerPath({
+        method: "post",
+        path: `${prefix}/{orderId}/supply-exceptions/choice`,
+        summary:
+          "Record the actual customer's remedy preference without approving money or a substitute",
+        description:
+          "Current owned account/guest session, CSRF and exact order version are independently rechecked under locks. Immutable history and UUID replay; changed choices retain earlier entries. Refund review is not refund approval or money returned. Asking for an alternative is not accepting a product, price, credit or new payment. Used/installed/disputed goods require technical assessment. Existing Care recipients are alerted; collection/payment holds remain. No general return policy or new financial permission is approved.",
+        security: [guest ? { purchaseGuestCookie: [] } : { sessionCookie: [] }],
+        request: {
+          params: orderParamsSchema,
+          query: ordersEmptyQuerySchema.removeDefault(),
+          headers: z.looseObject({ "x-csrf-token": z.string().min(32) }),
+          body: {
+            required: true,
+            content: { "application/json": { schema: supplyRemedyChoiceSchema } },
+          },
+        },
+        responses: {
+          200: {
+            description:
+              "Current customer's immutable preference and safe history; no money moved",
+            content: { "application/json": { schema: response } },
+          },
+        },
+      });
     if (staff)
       registry.registerPath({
         method: "post",

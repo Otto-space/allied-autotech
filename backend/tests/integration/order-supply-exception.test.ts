@@ -1,5 +1,8 @@
 import { hashToken } from "../../src/common/security/session-tokens.js";
-import { sessionCookieName } from "../../src/common/security/cookies.js";
+import {
+  purchaseCookieName,
+  sessionCookieName,
+} from "../../src/common/security/cookies.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
@@ -127,6 +130,277 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         access,
       };
     }
+    const choiceInput = (supplyExceptionId: string, expectedVersion = 1) => ({
+      expectedVersion,
+      supplyExceptionId,
+      idempotencyKey: randomUUID(),
+      choice: "REFUND_REVIEW",
+      statementVersion: "SUPPLY_CHOICE_20261110_V1",
+      choiceConfirmed: true,
+      customerNote: "Please review the affected original portion for a refund.",
+    });
+    it("retains real customer choice and changed-choice history without moving money or releasing the hold", async () => {
+      const f = await fixture();
+      const concern = (await f.service.raise(f.actor, f.order.id, f.body, context))
+        .items[0]!;
+      const input = choiceInput(concern.id);
+      const saved = await f.service.choose(f.principal, f.order.id, input, context);
+      expect(saved.orderVersion).toBe(2);
+      expect(saved.items[0]!.supplyRemedyChoices).toHaveLength(1);
+      expect(saved.items[0]).toMatchObject({
+        financialApproval: false,
+        alternativeAccepted: false,
+        supplyRemedyChoices: [
+          { choice: "REFUND_REVIEW", customerNote: input.customerNote },
+        ],
+      });
+      const replay = await f.service.choose(f.principal, f.order.id, input, context);
+      expect(replay.orderVersion).toBe(2);
+      expect(replay.items[0]!.supplyRemedyChoices[0]!.id).toBe(
+        saved.items[0]!.supplyRemedyChoices[0]!.id,
+      );
+      await expect(
+        f.service.choose(
+          f.principal,
+          f.order.id,
+          { ...input, choice: "SUITABLE_ALTERNATIVE_REVIEW" },
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const changed = await f.service.choose(
+        f.principal,
+        f.order.id,
+        {
+          ...input,
+          expectedVersion: 2,
+          idempotencyKey: randomUUID(),
+          choice: "SUITABLE_ALTERNATIVE_REVIEW",
+        },
+        context,
+      );
+      expect(changed.items[0]!.supplyRemedyChoices.map((row) => row.choice)).toEqual([
+        "SUITABLE_ALTERNATIVE_REVIEW",
+        "REFUND_REVIEW",
+      ]);
+      expect(changed.orderVersion).toBe(3);
+      const safe = JSON.stringify(changed);
+      for (const secret of [
+        f.body.reason,
+        "customerUserId",
+        "guestSessionId",
+        "sessionId",
+        "requestHash",
+        "idempotencyKey",
+      ])
+        expect(safe).not.toContain(secret);
+      const stored = await prisma.orderSupplyRemedyChoice.findFirstOrThrow({
+        where: { orderId: f.order.id },
+      });
+      await expect(
+        prisma.orderSupplyRemedyChoice.update({
+          where: { id: stored.id },
+          data: { choice: "TECHNICAL_REVIEW" },
+        }),
+      ).rejects.toThrow(/immutable/);
+      await expect(
+        prisma.orderSupplyRemedyChoice.delete({ where: { id: stored.id } }),
+      ).rejects.toThrow(/immutable/);
+      expect(await prisma.payment.count({ where: { orderId: f.order.id } })).toBe(0);
+      expect(
+        await prisma.refund.count({
+          where: { paymentAttempt: { payment: { orderId: f.order.id } } },
+        }),
+      ).toBe(0);
+      await expect(
+        prisma.$transaction((tx) => assertReviewedPurchasePayable(tx, f.order.id)),
+      ).rejects.toMatchObject({ statusCode: 409 });
+    });
+    it("serializes distinct customer choices and refuses stale or foreign concerns", async () => {
+      const f = await fixture(),
+        other = await fixture();
+      const concern = (await f.service.raise(f.actor, f.order.id, f.body, context))
+        .items[0]!;
+      const input = choiceInput(concern.id);
+      await expect(
+        f.service.choose(other.principal, f.order.id, input, context),
+      ).rejects.toMatchObject({ statusCode: 404 });
+      await expect(
+        f.service.choose({ kind: "account", actor: f.actor }, f.order.id, input, context),
+      ).rejects.toMatchObject({ statusCode: 403 });
+      await expect(
+        f.service.choose(
+          f.principal,
+          f.order.id,
+          { ...input, supplyExceptionId: randomUUID() },
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 404 });
+      const results = await Promise.allSettled([
+        f.service.choose(f.principal, f.order.id, input, context),
+        f.service.choose(
+          f.principal,
+          f.order.id,
+          {
+            ...input,
+            idempotencyKey: randomUUID(),
+            choice: "SUITABLE_ALTERNATIVE_REVIEW",
+          },
+          context,
+        ),
+      ]);
+      expect(results.filter((row) => row.status === "fulfilled")).toHaveLength(1);
+      expect(
+        await prisma.orderSupplyRemedyChoice.count({ where: { orderId: f.order.id } }),
+      ).toBe(1);
+      await expect(
+        f.service.choose(
+          f.principal,
+          f.order.id,
+          { ...input, idempotencyKey: randomUUID() },
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const stored = await prisma.orderSupplyRemedyChoice.findFirstOrThrow({
+        where: { orderId: f.order.id },
+      });
+      await expect(
+        prisma.orderSupplyRemedyChoice.create({
+          data: {
+            ...stored,
+            id: randomUUID(),
+            orderVersion: 2,
+            customerUserId: other.customerActor.userId,
+            sessionId: other.customerActor.sessionId,
+            idempotencyKey: randomUUID(),
+          },
+        }),
+      ).rejects.toThrow(/actual customer/);
+      await prisma.session.update({
+        where: { id: f.customerActor.sessionId },
+        data: { revokedAt: new Date() },
+      });
+      await expect(
+        f.service.choose(f.principal, f.order.id, input, context),
+      ).rejects.toMatchObject({ statusCode: 403 });
+    });
+    it("requires current guest proof and CSRF for a choice without borrowing account access", async () => {
+      const f = await fixture(true),
+        other = await fixture(true);
+      const concern = (await f.service.raise(f.actor, f.order.id, f.body, context))
+        .items[0]!;
+      const input = choiceInput(concern.id);
+      await expect(
+        f.service.choose(f.principal, f.order.id, input, context),
+      ).rejects.toMatchObject({ statusCode: 403 });
+      await expect(
+        f.service.choose(
+          {
+            kind: "guest",
+            sessionToken: other.access!.sessionToken,
+            csrfToken: other.access!.csrfToken,
+          },
+          f.order.id,
+          input,
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 404 });
+      const principal = { ...f.principal, csrfToken: f.access!.csrfToken };
+      const saved = await f.service.choose(principal, f.order.id, input, context);
+      expect(saved.items[0]!.supplyRemedyChoices[0]!.choice).toBe("REFUND_REVIEW");
+      await prisma.purchaseGuestSession.update({
+        where: { id: f.access!.access.sessionId },
+        data: { revokedAt: new Date() },
+      });
+      await expect(
+        f.service.choose(principal, f.order.id, input, context),
+      ).rejects.toMatchObject({ statusCode: 401 });
+    });
+    it("keeps installed/used/diagnosis choices in technical assessment without a general return entitlement", async () => {
+      const f = await fixture();
+      const concern = (
+        await f.service.raise(
+          f.actor,
+          f.order.id,
+          { ...f.body, kind: "USED_INSTALLED_OR_DIAGNOSIS_DISPUTE" },
+          context,
+        )
+      ).items[0]!;
+      const input = choiceInput(concern.id);
+      await expect(
+        f.service.choose(f.principal, f.order.id, input, context),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const saved = await f.service.choose(
+        f.principal,
+        f.order.id,
+        { ...input, choice: "TECHNICAL_REVIEW" },
+        context,
+      );
+      expect(saved.items[0]).toMatchObject({
+        monetaryBasis: { amounts: null, feeKobo: null },
+        financialApproval: false,
+        supplyRemedyChoices: [{ choice: "TECHNICAL_REVIEW" }],
+      });
+      const stored = await prisma.orderSupplyRemedyChoice.findFirstOrThrow({
+        where: { orderId: f.order.id },
+      });
+      await expect(
+        prisma.orderSupplyRemedyChoice.create({
+          data: {
+            ...stored,
+            id: randomUUID(),
+            orderVersion: 2,
+            choice: "REFUND_REVIEW",
+            idempotencyKey: randomUUID(),
+          },
+        }),
+      ).rejects.toThrow(/technical assessment/);
+    });
+    it("requires account and guest HTTP origin/CSRF, rejects mixed cookies and returns a safe no-store choice receipt", async () => {
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      for (const guest of [false, true]) {
+        const f = await fixture(guest);
+        const concern = (await f.service.raise(f.actor, f.order.id, f.body, context))
+          .items[0]!;
+        const input = choiceInput(concern.id);
+        const path = `/api/v1/${guest ? "purchase" : "customers"}/orders/${f.order.id}/supply-exceptions/choice`;
+        const cookie = guest
+          ? `${purchaseCookieName}=${f.access!.sessionToken}`
+          : f.buyer.cookie;
+        expect(
+          (
+            await request(app)
+              .post(path)
+              .set("Cookie", cookie)
+              .set("Origin", env.FRONTEND_URL[0]!)
+              .set("x-csrf-token", "x".repeat(43))
+              .send(input)
+          ).status,
+        ).toBe(403);
+        if (guest)
+          expect(
+            (
+              await request(app)
+                .post(path)
+                .set("Cookie", `${cookie}; ${f.buyer.cookie}`)
+                .set("Origin", env.FRONTEND_URL[0]!)
+                .set("x-csrf-token", f.access!.csrfToken)
+                .send(input)
+            ).status,
+          ).toBe(409);
+        const result = await request(app)
+          .post(path)
+          .set("Cookie", cookie)
+          .set("Origin", env.FRONTEND_URL[0]!)
+          .set("x-csrf-token", guest ? f.access!.csrfToken : f.buyer.csrf)
+          .send(input);
+        expect(result.status, JSON.stringify(result.body)).toBe(200);
+        expect(result.headers["cache-control"]).toContain("no-store");
+        expect(result.body.data.items[0].supplyRemedyChoices[0].choice).toBe(
+          "REFUND_REVIEW",
+        );
+        expect(JSON.stringify(result.body)).not.toContain("sessionId");
+      }
+    });
     it("binds exact affected quantities, creates a durable owned Care case and replays without duplicates", async () => {
       const f = await fixture();
       const first = await f.service.raise(f.actor, f.order.id, f.body, context);

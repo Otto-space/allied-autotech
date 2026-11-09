@@ -1,3 +1,34 @@
+### 10 November: actual customer remedy choices verified; resolution remains held
+
+D17 now retains an append-only choice from the actual owned customer or private
+purchase guest: refund review, suitable-alternative review, or technical review for
+used/installed/disputed goods. These are requests, not financial approval, substitute
+acceptance, credit consent, payment or settlement. No staff member can impersonate
+this customer choice. Both service locks and SQL guards verify the actual current
+principal, order and concern. Guest writes require their own CSRF; account/guest
+mixed cookies are rejected. Replay rechecks current access before returning history.
+
+Current order versions serialize competing choices. Changed choices append rather
+than overwrite, and duplicate UUID/body replay cannot duplicate an alert or entry.
+The safe projection omits private operator notes and actor/session/replay identities.
+Existing scoped Care alerts are reused; the original financial/collection hold stays.
+Technical requests do not infer a general returns period or financial entitlement.
+
+Actual evidence:84/84 across six native suites;113 migrations replayed into a new
+isolated loopback tmpfs test DB, empty schema diff, db:check and restricted runtime
+passed. Task DB/container removed. Applied113 is now immutable. Separate four-file
+units/learning/routing:38/38 after updating the order-sourcing v3 expectation. Receipt:
+TEMP/aat-d03-service-payments-20261109/native-supply-choice.log. Canonical OpenAPI
+adds only two owned choice paths; no existing path changed/removed. Backend/frontend types and scoped lint pass; secret guard3975 files, OpenAPI470
+paths and mounted-route coverage553 operations plus4 infrastructure routes pass.
+
+The actual interface, acceptance of a suitable offered alternative, linkage to the
+independent refund workflow, verified settlement and resolved unit fulfilment remain
+to implement. D17 is incomplete and held locally; do not publish this source or enable
+purchasing to demonstrate it. Schema110 release candidate dab976c7 is unchanged.
+Its backend42721896518 and secret42721896435 passed; frontend42721896492 remains
+running in the full matrix. No production database, transaction or flag was changed.
+
 ### 10 November: settled collection calendar and current integrated verification
 
 Owner calendar remains five Monday-Saturday days, with public holidays counted,
