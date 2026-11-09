@@ -1,3 +1,19 @@
+## 9 November 21:45 UTC - payment/quotation gate passed and integrated
+
+PR38 source58f55aed passes all881 browser cases in24.3 minutes, plus production,
+backend and secret gates. It is merged as6538f4b5, retaining the intervening Home
+release receipts. Final source native payment20, equipment18 and product-photo14
+cases pass; quotation28 native cases retain their unchanged-application scope.
+See TEMP/allied-modal-verification-58f55aed.md for screenshots and limitations.
+Exact-master checks and held-candidate publication remain separate requirements.
+
+Customer account follow-up9f4e64a5 is now reconciled with that master. Full types,
+scoped lint/formatting and the existing account-action unit pass;42 new engine
+cases collect. The923-case combined matrix receives30 minutes instead of25 based
+on the measured881-case runtime; job timeout remains45 minutes and no test or
+assertion is removed. Compiled account-focus acceptance remains pending.
+
+
 ## 9 November 21:40 UTC - customer account review focus follow-up
 
 Authentication PR35 is merged as f1176eff after all818 browser cases, production,
@@ -8349,18 +8365,18 @@ The current source still has 119 page templates. The existing route/role/state
 inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
 this implementation adds the following ordered status overlay, not a second backlog:
 
-| Group | Scope                                                                          | Implementation / release status                                                                                                                                          |
-| ----- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1     | Shared brand/header/footer/support and Home                                    | Home/editorial footer implemented; header/support behaviour preserved. Focused units 8/8, affected lint and TypeScript pass; cloud browser/fidelity and release pending. |
-| 2     | Services, detail, existing request                                             | Pending reference inspection and implementation.                                                                                                                         |
-| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                                                                                 |
-| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                                                                           |
-| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                                                                                |
-| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                                                                              |
-| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                                                                                 |
-| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                                                                                            |
-| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                                                                               |
-| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                                                                                        |
+| Group | Scope                                                                          | Implementation / release status                                                                           |
+| ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
+| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                         |
+| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                  |
+| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
+| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
+| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
+| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                  |
+| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                             |
+| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                |
+| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                         |
 
 Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
 The approved editorial workshop/family/parts/showroom family replaces the old
@@ -8465,3 +8481,21 @@ permission, capability, database or policy changes were made for these repairs.
 C: preflight21.18GiB with0.1GiB browser allowance passed. No local build/install or
 Docker resources were created. Existing recovery deployments/resources retained.
 Do not publish9f9ee2f8 or count this as full119-template completion.
+
+## 9 November 21:19 UTC - Home group published and checked
+
+Group 1 is live at https://alliedautotech.com/, source 5464e402 and deployment
+dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV, verified on both aliases. All three exact-source
+gates pass; 757 browser cases pass. The live Edge journey and footer clearance
+pass at all nine requested viewport pairs; scoped Axe at 1440/390 reports zero
+violations. Five candidate carousel behavior cases and doubled-text reflow pass.
+
+Approved fonts, logo, photographs and actual business facts replace the reference's
+sample claims. Actual zoom, full screen reader, physical devices/Safari and real
+signed-in role persistence remain unverified. Private writes use synthetic fixtures.
+See the [release receipt](../../backend/docs/site-completion-tracker.md) for exact
+checks, engine versions, backups, retained recovery, evidence and disk/cleanup limits.
+
+Next: Services catalogue, service detail and the existing request journey.
+References/server behavior and live 1440/390 baselines have been inspected.
+Groups 2-10 and the full 119-template checklist remain open.
