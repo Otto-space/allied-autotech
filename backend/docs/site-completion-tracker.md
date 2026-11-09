@@ -1,3 +1,31 @@
+## 10 November 00:00 UTC - hosted pickup preflight passes; guide assertion aligned
+
+Combined sourceb330dda0 frontend42723705205 passes production checks, repeated
+WebKit calendar/search transport, three-engine media decoding and the pickup/
+sourcing preflight. Both390px synthetic customer/guest captures show the issued code
+remaining visible with readable wrapped text and no horizontal clipping. The full
+1,018-case matrix was active, not completed. Its early artifact13720159521 was
+downloaded and SHA256-verified; the older failure capture shows only the footer
+and is unsuitable as a before/after visual pair. No real authorisations are shown.
+
+Backend42723705168 passes schema replay/db:check/types/lint,292 domain cases
+(4 existing skipped),15 reminder cases,63 profile cases and32 authoring cases,
+then fails one stale collection-guide version expectation. Align that expected
+customer/staff pair with the intentional v3/v2 definitions; all54 affected local
+calendar/learning/pickup unit cases pass. No production behavior changes in this
+assertion fix. New exact-source CI remains required.
+
+The six-file legacy read overlay9b928339 passes TypeScript and read-only native
+probes on the synthetic111 database: four booking projections, original and
+supplemental invoice documents, preserved lineage/stage allocation/totals, two PDFs,
+and old/new reminder policies. Its temporary SELECT-only role is removed. This is
+not packaged or accepted financial recovery: the legacy payment settlement still
+marks an invoice paid without checking stage totals. Preserve the release hold.
+No deployment, real record, permission or feature flag changed. Packaging remains
+held below its21.5GiB preflight requirement; the full original goal remains active.
+
+---
+
 ## 9 November 23:55 UTC - preserve newer Home and Services repairs
 
 Reconcile current master1fc86e65, including the compact mobile carousel controls,
