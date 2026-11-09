@@ -1,3 +1,20 @@
+## 9 November 20:15 UTC - compiled compatibility acceptance and CI formatting fix
+
+Final combined application f7d1fd1b passes eight native catalogue compatibility
+journeys: Edge157/Chrome156,390x844 mobile/touch and1280x720 desktop, both legacy
+and current timing contracts. Each edits and creates a synthetic product, verifies
+review content, optimistic version, CSRF and the exact omitted/null/numeric timing
+payload. Phone reviews fill390px and are centered; desktop reviews are centered.
+All16 writes were intercepted; zero real writes, page errors or overflow. Receipts
+and captures: TEMP/allied-product-compatibility-f7d1fd1b/{msedge,chrome}.
+
+Frontend run42690331496 passed lint, types,1526 units (12 existing skips) and its
+production build, then failed formatting of this quality-register update. Its
+browser matrix was skipped and is not a pass. Format the affected documentation
+and rerun the complete gate; do not publish or merge on this failed result.
+The current818-case collection remains collection-only. Full goal, exact-master
+release, physical-device/real-role and backend timing rollout limits remain open.
+
 ## 9 November 20:10 UTC - preserve current catalogue compatibility
 
 Merge master9f9ee2f8 into the authentication batch. Its product editor now omits
@@ -17,6 +34,7 @@ bounds through seven sections, FAQ and diagnostics navigation. Four scoped Axe
 scans passed; zero real writes, page errors or page overflow. Evidence:
 TEMP/allied-home-combined-e72c4017-canonical. This merge's product compatibility
 has not been exercised by those Home captures. Current-source CI remains required.
+
 ## 9 November 20:08 UTC - Home fixture envelope correction
 
 The combined e72c4017 preview completed 14 Edge/Chrome layout and navigation
@@ -29,6 +47,7 @@ Application capability validation and launch restrictions remain unchanged.
 Healthy-state rendered reruns and final-source CI remain pending at this checkpoint.
 Preserve the original captures at TEMP/allied-home-combined-e72c4017; corrected
 fixture evidence uses a separate directory with the -canonical suffix.
+
 ## 9 November 20:00 UTC - reconcile Home and authentication acceptance
 
 Merge current master bc88d970 into the authentication batch, retaining the approved
@@ -52,6 +71,7 @@ Production remains held pending compatible product-timing backend packaging,
 renewed safe release preflight and exact-master checks. C: has about21.1GiB free;
 21.5GiB is required for the backend packaging allowance. The full page/state/role,
 real-device, screen-reader and unknown business-data requirements remain open.
+
 ## 9 November 19:48 UTC - authentication layout and fixture correction
 
 PR33 passed all three gates and merged as 28bf13bf. Source a31678ef's isolated
