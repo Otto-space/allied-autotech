@@ -283,13 +283,14 @@ export function BookingWorkReview({
       clear(owner, pending && pending !== "unknown" ? pending.token : undefined, action);
       setPending(undefined);
       setInspection(undefined);
+      setProposal(null);
       onSaved();
     } catch (e) {
       setError(errorText(e));
     }
   }
   if (!ready) return null;
-  if (pending)
+  if (pending && !saving)
     return (
       <section className="card" aria-labelledby={title}>
         <h2 id={title}>Check the earlier work review</h2>
@@ -516,7 +517,10 @@ export function BookingWorkReview({
           confirmLabel="Confirm work review"
           proposal={proposal}
           onClose={() => setProposal(null)}
-          onSuccess={() => onSaved(savedVersion.current)}
+          onSuccess={() => {
+            setProposal(null);
+            onSaved(savedVersion.current);
+          }}
         />
       )}
     </section>

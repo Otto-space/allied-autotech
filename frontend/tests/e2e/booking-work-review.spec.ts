@@ -11,8 +11,8 @@ import { verifyConsole } from "../fixtures/preview-console";
 import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
 import type { WorkReviewOptions } from "../../lib/api/booking-work-review-schemas";
 
-test.beforeEach(async ({ request }) => {
-  await bookingRuntimeCapabilities(request);
+test.beforeEach(async ({ request, page }) => {
+  await bookingRuntimeCapabilities(request, page);
 });
 async function start(
   page: Page,
@@ -54,10 +54,18 @@ async function start(
     external: string[] = [];
   await page.route("**/api/v1/staff/workforce/bookings/*/work-review", async (route) => {
     if (route.request().method() === "GET")
-      return route.fulfill({ json: { success: true, data: options } });
+      return route.fulfill({
+        json: {
+          success: true,
+          message: "Synthetic work-review options",
+          meta: { requestId: "work-review-options" },
+          data: options,
+        },
+      });
     const body = route.request().postDataJSON();
     writes.push({ body, csrf: route.request().headers()["x-csrf-token"] });
     expect(body.expectedVersion).toBe(f.booking.version);
+    if (mode === "not-saved") return route.abort("failed");
     f.booking.version++;
     const review = {
       id: id(1043),
@@ -83,6 +91,8 @@ async function start(
     return route.fulfill({
       json: {
         success: true,
+        message: "Synthetic work-review receipt",
+        meta: { requestId: "work-review-receipt" },
         data: {
           id: f.booking.id,
           branchId: options.branchId,
@@ -102,7 +112,7 @@ async function start(
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (m) => {
     const expected =
-      mode === "lost" &&
+      ["lost", "not-saved"].includes(mode) &&
       m.location().url.includes("/work-review") &&
       /^Failed to load resource:/.test(m.text());
     if (m.type() === "error" && !expected) errors.push(m.text());
@@ -208,7 +218,7 @@ for (const role of ["STAFF", "ADMIN"] as const)
       expect(writes).toHaveLength(1);
       await check();
     });
-for (const mode of ["lost", "malformed"])
+for (const mode of ["lost", "malformed", "not-saved"])
   test(`${mode} work-review result is inspected after refresh without replay`, async ({
     page,
   }) => {
@@ -229,7 +239,11 @@ for (const mode of ["lost", "malformed"])
       .getByRole("button", { name: "Check current work review", exact: true })
       .click();
     await expect(
-      page.getByText(/Recorded equipment or space: Synthetic inspection bay/),
+      page.getByText(
+        mode === "not-saved"
+          ? /No current work review is recorded/
+          : /Recorded equipment or space: Synthetic inspection bay/,
+      ),
     ).toBeVisible();
     await page.getByLabel(/I have inspected the current job/).check();
     await page
@@ -239,6 +253,7 @@ for (const mode of ["lost", "malformed"])
       page.getByRole("heading", { name: "Check the earlier work review" }),
     ).toHaveCount(0);
     expect(writes).toHaveLength(1);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
     await check();
   });
 for (const change of ["grant", "plan"])
