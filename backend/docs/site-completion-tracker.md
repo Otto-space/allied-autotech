@@ -9678,3 +9678,44 @@ all four slides, action/control clearance and first-screen discovery on phones.
 Rendered checks, exact-source gates and publication are pending. Services work is
 preserved separately on codex/stitch-services-20261109 / draft PR45; no unverified
 Services changes are included in this correction. No backend/database rollout.
+
+## 9 November - Services design group in progress
+
+Group 2 now starts from master aba95de1, preserving Home compact layout and
+the intervening authentication, payment and quotation layout/test fixes. Public Home remains the verified 5464e402 release;
+no Services publication has occurred. The 1440/390 live baseline had eight work-area
+cards above search, four real service records and restricted booking requests.
+
+The catalogue now follows the supplied photographic introduction, overlapping
+white filter panel and four-column desktop/single-column phone result cards.
+Search precedes work-area cards. Actual names, prices, quotations, durations,
+category links, URL/history and permissions retain their existing sources.
+The service detail uses larger typography and a framed real photograph; natural
+portrait/landscape proportions take precedence over the export's full-width crop.
+The existing request page explains the currently available contact route in
+customer language. No booking, support, authentication or transaction logic changed.
+
+Fourteen focused cases join the existing production-build matrix: all nine exact
+viewport pairs, combined filters/detail/back/reload, pagination focus, loading/
+empty/server/rate-limit/network recovery, zero price versus quotation, missing
+images, long facts, doubled-text reflow, and two enquiry review/cancel/receipt
+fixtures. Server reads use the existing loopback in-memory API; application writes
+are intercepted. Collection passes; execution and rendered reference comparison
+remain pending. Affected formatting/lint and an initial TypeScript check passed;
+final source and all three exact-master gates are required before publication.
+
+Reuse the shared dependency junction. No local build/install or Docker work.
+C: latest preflight 21.10 GiB with 0.05 GiB allowance passed; use a justified small
+upload/browser budget and stop if the 20 GiB reserve cannot be verified.
+
+Owner follow-up covers both Home and Services hero height. Services now reduces
+its desktop minimum to460px and phone spacing, removes the redundant phone
+eyebrow and keeps essential visit-arrangement guidance. Search should be fully
+visible within the first phone viewport. Tablet image contrast is strengthened.
+Initial Services CI42706653635 stopped on five instances of the same fixture
+interaction: checking a visually hidden controlled radio immediately after sort.
+The test now waits for the sort value, clicks the visible label and waits for the
+checked state; combined query and reload assertions are retained. No application
+filter logic changed. Re-run all14 cases and full exact-master gates before release.
+PR45/its source branch remain preserved; the reconciled branch is
+codex/stitch-services-compact-20261109. Public aliases remain the Home release.
