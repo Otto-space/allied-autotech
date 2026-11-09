@@ -1,3 +1,16 @@
+## 9 November 16:21 UTC - Saved items production and navigation checkpoint
+
+Saved collection context is now released as d553a349 on apex/www deployment
+`dpl_9Mhxm6vmMKj8zncDJFLzEdXmkn9J`, after all exact-master checks passed. Native
+public-domain fixture acceptance passes desktop/mobile; full source, hosted-preview,
+OIDC access limitation and remaining five live viewports are recorded in the latest
+site-completion tracker and UI quality register. The new public-navigation readiness
+repair is locally verified and awaiting integration/CI; it is not yet deployed.
+Full two-brief completion and the separate backend owner's remaining requirements
+remain active. No gated feature or unknown business fact was invented or enabled.
+
+---
+
 ## 9 November 15:39 UTC - current publication and requirement ledger
 
 Application 9c219bc8, schema 100, publishes checked late-arrival alternatives and

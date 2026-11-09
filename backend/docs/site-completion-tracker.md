@@ -1,3 +1,53 @@
+## 9 November 16:21 UTC - Saved items published; mobile navigation readiness
+
+Current bounded item: integrate the verified public-navigation hydration repair.
+Saved items is merged as d553a349 and published on apex/www as
+`dpl_9Mhxm6vmMKj8zncDJFLzEdXmkn9J`. Exact-master Frontend 42648346393,
+Backend 42648346424 and Secrets 42648346736 passed. Frontend includes the 530-case
+production-build matrix. Backend application source is unchanged from the compatible
+9c219bc8 release; ACTIVE backend c3c54414-0f19-4b21-bf23-b44184e6f43a and managed
+backup state were rechecked. No database write, security-setting change or capability
+activation occurred. Retain dpl_4dvsQv6n4PVDw5BQ344p5221SPZx for compatible recovery.
+
+The held production URL returned 403 to the short-lived browser OIDC credential;
+authorised Vercel CLI GET returned 200 and the Saved items application. This is an
+access limitation, not a native held-candidate pass. The application/test-equivalent
+1831a758 preview passed all seven exact viewports. After promotion, native Edge on
+the public domain passes populated Saved vehicles, decoded fixture images, public
+listing navigation, Back/reload, keyboard collection recovery and overflow at
+1280x720 and 320x720, with zero page errors or application writes. Remaining five
+public-domain checks are running. Receipts: TEMP/allied-saved-release-d553a349/public.
+An initial test-helper invocation used the repository root and failed to resolve a
+fixture photograph; rerunning from frontend corrected that harness error.
+
+Reproduced P2 on live `/help`, anonymous 320x720: both ordinary early activation and
+deliberately delayed scripts lose the first menu tap; a second tap opens it. Source
+renders the opener enabled before hydration. Reuse the established useHydrated hook
+to disable/mark busy until handlers are ready; preserve drawer focus, Escape and
+scroll locking. A native-link fallback exposes the same seven destinations when
+JavaScript is disabled. No destination, permission, guide semantic target, business
+policy or public capability changes; versioned learning definitions are unaffected.
+
+Nine new Edge cases cover the seven exact requested viewports plus JavaScript-off
+320/1280. All have passing results: final group 8/9, with 390 timing out waiting for
+scripts under local contention, then passing unchanged in 10.4s. The initial assertion
+incorrectly retained the opener's old accessible name after opening; corrected to
+inspect the same button's expanded state. Touch fallback targets remain 44px; desktop
+retains existing 40px links (WCAG AA 24px minimum). Mobile/touch is emulated, not physical.
+TypeScript (nonincremental), scoped ESLint, formatting and diff checks pass. Add these
+nine cases to Chromium/Firefox/WebKit runtime CI; that new 557-case matrix is pending.
+Evidence: TEMP/allied-public-navigation-readiness-20261109 and
+TEMP/allied-auth-acceptance-20261109/focused.
+
+Existing auth coverage: 125/127 local login/registration/MFA/reset cases passed in
+25.2m. Failed mobile-menu recovery is fixed and passes the unchanged test. Customer
+MFA handoff exceeded its 15s expectation once, then passed unchanged in 13.2s; other
+three roles passed initially. No auth application code changed. These are isolated
+API fixtures, not actual delivery, persisted authentication or real-role acceptance.
+The full page/state, real role/branch, physical-device, screen-reader, browser zoom,
+measured-performance and business-data requirements remain open. Diagnostics duration
+and Engine Oil Filter brand/MPN/approved image remain unconfirmed by the owner.
+
 ## 9 November 15:47 UTC - Saved items gates passed; integrate release evidence
 
 Current item: publish the Saved items collection-context fix after exact-master gates.
