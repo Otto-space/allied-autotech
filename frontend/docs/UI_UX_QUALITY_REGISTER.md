@@ -1,3 +1,20 @@
+### 9 November 2026: newer master 9c219bc8 preserved and combined D03 checked
+
+Checkpoint 5ea9b64b adds explicit additional quotations; merge e91e4a82 preserves
+master 9c219bc8's workforce layout, managed alternative query dispatcher repair,
+current search recovery and booking assertions. The ten inspected imported
+workflow/UI/routing/test files match master exactly. Both evidence histories and
+both runtime project families remain. No original migration was edited.
+Combined native acceptance passes 235/235 across sixteen files on fresh isolated
+schema 102, with replay, diff/db:check, restricted runtime and owned-container
+cleanup. The merged frontend/backend types and backend lint pass; the same nine
+synthetic Edge cases pass serially at 320px/1440px with unchanged assertions and
+timeouts. See docs/help-learn/ADDITIONAL_SERVICE_QUOTES_20261109.md for exact
+artifacts, scope, prior failures and remaining work. The owner's separate dirty
+Desktop hero is untouched. Source remains held for full D03 supplemental charges,
+actual materials issue/use, durable authorised vehicle release and all release,
+financial and provider safeguards. No production migration/write/flag activation.
+
 ### 9 November 2026: explicit additional-work quotation source, unpublished
 
 D03 staff author/revise/issue and customer separate review/accept/reject now retain

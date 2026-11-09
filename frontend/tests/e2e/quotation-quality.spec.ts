@@ -307,8 +307,16 @@ for (const width of [320, 1440])
       ).violations,
     ).toEqual([]);
     await verifyConsole(page, errors, warnings);
-    await saved.scrollIntoViewIfNeeded();
-    await saved.screenshot({
+    await saved.evaluate((element) =>
+      window.scrollTo({
+        top:
+          window.scrollY +
+          element.getBoundingClientRect().top -
+          (window.innerWidth < 768 ? 160 : 96),
+        behavior: "instant",
+      }),
+    );
+    await page.screenshot({
       path: info.outputPath(`additional-quotation-staff-${width}.png`),
     });
   });

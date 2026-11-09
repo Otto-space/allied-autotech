@@ -48,6 +48,7 @@ for (const width of [320, 1440])
       "does not replace previous work, make a payment or release the vehicle",
     );
     await expect(dialog).toContainText("INV-ORIGINAL-QA");
+    await expect(dialog.getByText("Version", { exact: true })).toBeVisible();
     await dialog.getByRole("button", { name: "Go back", exact: true }).click();
     expect(state.writes).toHaveLength(0);
     await quotation
@@ -85,8 +86,16 @@ for (const width of [320, 1440])
           .analyze()
       ).violations,
     ).toEqual([]);
-    await quotation.scrollIntoViewIfNeeded();
-    await quotation.screenshot({
+    await quotation.evaluate((element) =>
+      window.scrollTo({
+        top:
+          window.scrollY +
+          element.getBoundingClientRect().top -
+          (window.innerWidth < 768 ? 160 : 96),
+        behavior: "instant",
+      }),
+    );
+    await page.screenshot({
       path: info.outputPath(`additional-quotation-customer-${width}.png`),
     });
     await verifyConsole(page, errors, warnings);

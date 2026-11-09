@@ -82,9 +82,27 @@ Artifacts are under `%TEMP%/aat-d03-service-payments-20261109/`.
 
 Fresh remote inspection found master 9c219bc8 beyond the previously integrated
 885010a6: workforce narrow-screen improvements, managed alternative-time query
-contract repair and current browser recovery assertions. Integrate those changes
-without replacing the new fixes, retaining both evidence histories and runtime
-projects. Do not touch the owner's separate dirty Desktop home-hero.tsx.
+contract repair and current browser recovery assertions. Merge e91e4a82 integrates
+that source after checkpoint 5ea9b64b. Only the two evidence registers conflicted;
+both complete histories were retained. All ten imported workflow/routing/UI/test
+files checked against 9c219bc8 match byte for byte. Runtime configuration retains
+both workforce coverage and the D03 stage/additional-quotation projects. The
+owner's separate dirty Desktop home-hero.tsx is untouched (79 added lines remain).
+
+The merged source passes frontend nonincremental/backend types and full backend
+lint. `browser-additional-quotes-integrated-results.json` passes the same 9/9,
+90 seconds, with unchanged assertions/timeouts. Element screenshots revealed
+fixed-overlay capture artifacts; final evidence uses the actual viewport with
+an explicit header offset rather than styling away the real dock/navigation.
+`native-integrated-additional-quotes.log` passes 235/235 in sixteen files on
+merged e91e4a82 (281.15 seconds), including the newer managed day-query HTTP
+acceptance, payment capture/accounting and concurrency, booking attendance,
+reschedule/concern journeys and the D03 obligations/consent. All 102 migrations
+replay, schema diff/db:check and restricted-runtime checks pass. The exact owned
+tmpfs target was removed. This is isolated synthetic acceptance, not a production
+migration, live staff acceptance, provider acceptance or backup/restore rehearsal.
+The original 100 migration files match master exactly; the two new forward
+migrations are the sole migration diff.
 
 Still required for full D03: accepted additions through separately reviewed
 supplemental charges with no duplicate sale/credit, actual materials issue/use,
@@ -93,3 +111,31 @@ exact-master CI and all migration/backup/recovery/financial/provider gates.
 Verified Tax ID/CAC and accountant tax applicability remain actual-owner inputs;
 no fictitious identifier or approval is supplied. General returns/warranty policy
 remains deferred. The wider D01-D17 implementation goal remains active.
+
+## Local resource boundaries
+
+Reused the existing worktree, dependency junction, warm Next cache and installed
+Edge; no dependency/browser install, worktree, image pull or build was created.
+Operation-specific preflights reserved 0.15 GiB for browser logs/screenshots,
+0.25 GiB for tmpfs-test tooling/logs and 0.3-0.6 GiB for the reused preview.
+The mandatory 20 GiB reserve was unchanged. Both previews and synthetic read-only
+capability fixtures are stopped after verification; only Next's verified generated
+heading mutation in frontend/AGENTS.md is restored. All owner instructions remain.
+No source branch, shared cache, image, volume, application database, recovery
+resource, secret or session/history store was deleted. All fourteen pre-existing
+containers and useful current/rollback/other-task images/caches are retained.
+Docker logical sizes are not Windows physical bytes reclaimed. The owner's reserve
+is a preflight rule, not a machine-wide quota over other applications.
+
+Final viewport capture run (`browser-additional-quotes-viewport-results.json`):
+three cases pass; the staff 320px case completes the business assertions/reload but
+times out in preview-console.ts:46 while re-fetching the preloaded same-origin
+not-found stylesheet. The unchanged focused rerun
+`browser-additional-quotes-mobile-rerun-results.json` passes 1/1 (55.1 seconds,
+same 60-second deadline, strict console verification retained). Do not count the
+failed four-case attempt as 4/4. The earlier merged nine-case run remains 9/9.
+Final customer 320/1440 and staff 1440 viewport captures plus the focused staff
+320 capture were inspected. All are synthetic. Fixed navigation and the help/
+Whatsapp dock remain present; screenshots do not hide or restyle them. A visible
+Version field is asserted in customer review. Runtime CI discovery selects the
+five new agreement cases; discovery alone is not hosted browser execution.
