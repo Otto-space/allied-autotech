@@ -1,3 +1,20 @@
+## 9 November 22:17 UTC - recovery status regression and held-release transport
+
+Exact-master 6538f4b5 frontend run42705393145 completed with879 passes and two
+failures. Both assertions ambiguously matched the global availability notice and
+the recovery result. Scope each status to its named result region; deliberately
+show a503 availability notice so the collision stays covered. All eight compiled
+Edge/Chrome desktop and320px mobile/touch cases pass with unchanged application
+code. Evidence: TEMP/allied-auth-status-recheck-20261109/report.json. Secret
+clearing, generic copy, focus, session events and accessibility assertions remain.
+
+The held6538 candidate remains unpublished. Authenticated CLI reads return the
+application and JavaScript with200 responses. Browser transport attempts timed out
+or remained at session verification; these are failed checks, not acceptance.
+Deployment protection and public aliases are unchanged. PR44 account focus retains
+40 compiled native passes; its final combined GitHub gate remains pending. The
+complete original goal and active backend dependencies are still open.
+
 ## 9 November 21:55 UTC - customer account focus verified in compiled browsers
 
 PR #44's compiled application, bd1d75d7, passes all 40 native Edge/Chrome cases:
