@@ -9869,3 +9869,9 @@ its response is the validated publicSupportResult, and the write assertions cove
 service/branch/contact/subject/message plus review/cancel/receipt. Authenticated
 booking CSRF/idempotency expectations were incorrectly copied into this new test
 and are removed; no runtime authentication, CSRF or submission behaviour changed.
+
+The short-phone screenshot also exposed the support dock covering the discovery
+heading's final word. The Home introduction now leaves a56px side lane on phones,
+with a rendered disjoint-rectangle assertion in the five touch cases. Services
+sort/category selects stack below375px so their selected text has useful width.
+Both are scoped responsive repairs; final compiled screenshots remain required.

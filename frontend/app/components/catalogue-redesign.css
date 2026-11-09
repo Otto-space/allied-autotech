@@ -1128,3 +1128,8 @@
     justify-content: center;
   }
 }
+@media (max-width: 374px) {
+  .services-page .services-discovery-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

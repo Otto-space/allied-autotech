@@ -218,6 +218,13 @@ test.describe("compact phone carousel controls", () => {
       );
       await expect(carousel).toHaveAttribute("data-rotating", "false");
       await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
+      const heading = await page.locator(".home-discovery h2").boundingBox();
+      const dock = await page.locator(".support-controls").boundingBox();
+      expect(
+        heading!.x + heading!.width <= dock!.x ||
+          heading!.y + heading!.height <= dock!.y ||
+          heading!.y >= dock!.y + dock!.height,
+      ).toBe(true);
     });
   }
 });
