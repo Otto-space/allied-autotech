@@ -1,3 +1,19 @@
+### 10 November: preserve private pickup while returning from sharing
+
+Customer pickup now mounts outside the parent order's background-refresh boundary.
+The guest order opts into retaining only its same-path record while refreshing;
+other purchase readers retain their existing clearing behavior. Actions are disabled
+during refresh, failed reads clear data, path changes never retain another order,
+and existing access-change handling clears secrets. Normal parent reconciliation
+is restored after issuance. No browser storage is introduced. Browser regression
+now dispatches visibility/focus revalidation while the code is visible and requires
+it to survive the actual owned-order read before testing hide/reload privacy.
+
+Five focused pickup/resource units pass, including failed-access clearing and the
+default refresh behavior; scoped lint and focused e2e TypeScript pass. New rendered
+acceptance remains required. D17 intake has separate backend evidence and is held
+until actual remedy consent, financial linkage and resolved fulfilment are connected.
+
 ### 10 November: pickup evidence review and complete CSRF fixture
 
 Source90feb4e1 hosted42711745848 again passed production/calendar/media and the

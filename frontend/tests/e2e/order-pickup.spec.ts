@@ -234,6 +234,7 @@ for (const audience of ["customer", "guest"] as const)
       hasMoreHistory: false,
     };
     const writes: unknown[] = [];
+    let ownedReads = 0;
     await page.route(`**/api/v1/${prefix}/orders/${record.id}**`, async (route) => {
       const req = route.request(),
         url = new URL(req.url());
@@ -246,7 +247,10 @@ for (const audience of ["customer", "guest"] as const)
             meta: { requestId: "synthetic-pickup" },
           },
         });
-      if (!url.pathname.includes("/pickup")) return ok(record);
+      if (!url.pathname.includes("/pickup")) {
+        ownedReads++;
+        return ok(record);
+      }
       if (req.method() === "GET") return ok(summary);
       const body = req.postDataJSON();
       writes.push(body);
@@ -294,6 +298,13 @@ for (const audience of ["customer", "guest"] as const)
     await modal.getByRole("button", { name: "Confirm", exact: true }).click();
     await expect(panel.locator("code")).toHaveText("x".repeat(43));
     expect(writes).toHaveLength(1);
+    const readsBeforeSharing = ownedReads;
+    await page.evaluate(() => {
+      document.dispatchEvent(new Event("visibilitychange"));
+      window.dispatchEvent(new Event("focus"));
+    });
+    await expect.poll(() => ownedReads).toBeGreaterThan(readsBeforeSharing);
+    await expect(panel.locator("code")).toHaveText("x".repeat(43));
     expect(
       await page.evaluate(
         () =>
