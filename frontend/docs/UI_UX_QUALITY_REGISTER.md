@@ -1,3 +1,37 @@
+## 9 November 15:47 UTC - Saved items gates passed; integrate release evidence
+
+Current item: publish the Saved items collection-context fix after exact-master gates.
+This package started 15:40 UTC; target checkpoint 16:40 UTC. Previous turn made
+progress: workforce source 9c219bc8 is deployed on apex/www as
+dpl_4dvsQv6n4PVDw5BQ344p5221SPZx, with compatible ACTIVE backend
+c3c54414-0f19-4b21-bf23-b44184e6f43a. Native production workforce fixtures pass
+1280x720 and 320x720 with zero writes/errors. GitHub GH013 prevents remote branch
+deletion; protection is unchanged and the completed local branch was retired.
+
+Saved source 1831a758 passes Frontend 42644205597: 1,518 units (12 existing skips),
+9/9 repeated WebKit diagnostics and all 530 production-build browser cases.
+Backend 42644205583 and Secrets 42644205571 also pass. Native protected preview
+dpl_3k7Ef687w1di8YqUY7pEP1dDxDrF passes all seven exact requested viewports,
+including actual public listing navigation, Back/reload, keyboard and decoded
+fixture images, with zero page errors or application writes. Evidence:
+TEMP/allied-saved-release-1831a758/native-preview.json and additional-viewports/.
+These are synthetic private records and desktop-engine mobile/touch emulation.
+
+Master 6b801af7 adds only the other owner's release evidence. Resolve shared-document
+conflicts preserving both histories; application/test source remains identical to
+the checked Saved candidate. Fresh exact-master checks remain required before its
+publication. The newer auth acceptance package is investigation only at this point.
+
+Local dependency audit found the old worktree junction used Next 16.3.8/Zod 4.6.2,
+not locked 16.4.3/4.6.6. Earlier local results are therefore development diagnostics;
+exact-lock acceptance comes from CI and the hosted build. Repoint only this stopped
+worktree's junction to the existing audit-copy installation: every installed package
+version/integrity in its installation lock matches the requested lock, with no missing
+required package. No install, shared-file mutation or duplicate dependency copy.
+Continue authentication lifecycle/state checks with that matching installation.
+Business-data, real-role/persistence, physical-device, full route/state, screen-reader,
+zoom and measured-performance requirements remain open. Do not activate gated features.
+
 ## 9 November 15:22 UTC - Saved items return context acceptance
 
 Bounded package started 14:45 UTC; target checkpoint 15:45 UTC. The owner confirmed
@@ -48,6 +82,20 @@ the compatible backend rollout from the same master. Its 15:08 source-handoff
 receipt is TEMP/aat-attendance-20261104/source-handoff-late-20261109.json. Preserve
 that ownership; do not independently repeat migrations or promote before readiness.
 The complete two-brief route/role/auth/device/performance backlog remains active.
+
+## 9 November 15:39 UTC - published D11 and workforce acceptance checkpoint
+
+Application 9c219bc8 is live with matching schema-100 backend and both frontend
+aliases. Exact-source CI: 451 browser cases, nine repeated WebKit diagnostics,
+1,518 units and 12 existing explicit unit skips. Five held native Edge fixtures
+and three published 320/390/1440 captures pass with zero production writes; phone
+touch/keyboard review, Escape and focus return are exercised. Synthetic records
+and engine emulation are distinct from real roles, physical devices and delivery.
+The PR 27 directory repair is preserved. Current release and remaining D01-D17/
+original-audit scope: backend/docs/site-completion-tracker.md, latest checkpoint.
+Older pending-source entries below are dated evidence, not the current deployment.
+
+---
 
 ## 9 November 14:43 UTC - preserve managed alternative dispatcher fix
 

@@ -1,3 +1,37 @@
+## 9 November 15:47 UTC - Saved items gates passed; integrate release evidence
+
+Current item: publish the Saved items collection-context fix after exact-master gates.
+This package started 15:40 UTC; target checkpoint 16:40 UTC. Previous turn made
+progress: workforce source 9c219bc8 is deployed on apex/www as
+dpl_4dvsQv6n4PVDw5BQ344p5221SPZx, with compatible ACTIVE backend
+c3c54414-0f19-4b21-bf23-b44184e6f43a. Native production workforce fixtures pass
+1280x720 and 320x720 with zero writes/errors. GitHub GH013 prevents remote branch
+deletion; protection is unchanged and the completed local branch was retired.
+
+Saved source 1831a758 passes Frontend 42644205597: 1,518 units (12 existing skips),
+9/9 repeated WebKit diagnostics and all 530 production-build browser cases.
+Backend 42644205583 and Secrets 42644205571 also pass. Native protected preview
+dpl_3k7Ef687w1di8YqUY7pEP1dDxDrF passes all seven exact requested viewports,
+including actual public listing navigation, Back/reload, keyboard and decoded
+fixture images, with zero page errors or application writes. Evidence:
+TEMP/allied-saved-release-1831a758/native-preview.json and additional-viewports/.
+These are synthetic private records and desktop-engine mobile/touch emulation.
+
+Master 6b801af7 adds only the other owner's release evidence. Resolve shared-document
+conflicts preserving both histories; application/test source remains identical to
+the checked Saved candidate. Fresh exact-master checks remain required before its
+publication. The newer auth acceptance package is investigation only at this point.
+
+Local dependency audit found the old worktree junction used Next 16.3.8/Zod 4.6.2,
+not locked 16.4.3/4.6.6. Earlier local results are therefore development diagnostics;
+exact-lock acceptance comes from CI and the hosted build. Repoint only this stopped
+worktree's junction to the existing audit-copy installation: every installed package
+version/integrity in its installation lock matches the requested lock, with no missing
+required package. No install, shared-file mutation or duplicate dependency copy.
+Continue authentication lifecycle/state checks with that matching installation.
+Business-data, real-role/persistence, physical-device, full route/state, screen-reader,
+zoom and measured-performance requirements remain open. Do not activate gated features.
+
 ## 9 November 15:22 UTC - Saved items return context acceptance
 
 Bounded package started 14:45 UTC; target checkpoint 15:45 UTC. The owner confirmed
@@ -48,6 +82,131 @@ the compatible backend rollout from the same master. Its 15:08 source-handoff
 receipt is TEMP/aat-attendance-20261104/source-handoff-late-20261109.json. Preserve
 that ownership; do not independently repeat migrations or promote before readiness.
 The complete two-brief route/role/auth/device/performance backlog remains active.
+
+## 9 November 15:39 UTC - late-arrival alternatives and workforce table released
+
+Current published application: master 9c219bc809ee639bcae7275ddb2a92ffec28400f.
+Backend c3c54414-0f19-4b21-bf23-b44184e6f43a is ACTIVE, 16/16 steps, four exact
+registry digests and readiness 200. Frontend dpl_4dvsQv6n4PVDw5BQ344p5221SPZx
+is verified on apex and www; both return 200 and www redirects to apex normally.
+The concurrent PR 27 workforce-table repair is preserved. No permission or price
+change, repeated migration or public capability activation was made.
+
+D11 now offers checked available alternatives using actual eligible technicians,
+approved timing/calendar and physical resources. A late recorded visit can receive
+a short-notice offer; ordinary requests retain their existing notice rules. The
+original appointment remains until approval, capacity is rechecked at each boundary,
+and append-only continuation preserves an observed same-day/same-branch visit.
+Super Admin, Admin without a Staff profile and scoped Staff journeys pass on the
+compiled Linux API. This is synthetic role evidence, not real signed-in acceptance.
+
+Exact master gates passed: frontend 42640751854 (451/451 browser cases, 9/9 repeated
+WebKit diagnostics, 1,518 units with 12 existing explicit skips, build/types/lint
+and zero production dependency-audit findings), backend 42640751890 and secrets
+42640751930. Installation audit retained 11 development-inclusive findings; that
+is not a claim of zero findings across development dependencies. Affected native
+integration 52/52 passed on source 323dabca; all backend code except docs is Git-
+verified identical in 9c219bc8. Final compiled candidate HTTP 5/5 and baseline
+recovery attendance 22/22 pass against isolated schema 100. Seven candidate/recovery
+schema probes pass. Ten packaged checks are covered: nine image cases passed in
+the first run; isolated PostgreSQL readiness failed there, then its unchanged
+standalone database case passed. Earlier Linux startup attempts failed; the final
+diagnostic run passed without changing application code, guards or deadlines.
+All attempts and cleanup evidence are retained; no universal startup-time claim.
+
+The reviewed migration 100 was applied from then-checked master 323dabca before
+master advanced concurrently. Production final schema/history and new-table grants
+pass, preserving all prior applied/rolled-back history. 9c219bc8 has identical SQL
+and backend implementation: migration was not repeated. A fresh exported-snapshot
+backup and separate populated 99-to-100 rehearsal preserve original-column hashes,
+counts and history. Managed backups were freshly listed; provider restore evidence
+remains historical, distinct from this fresh local logical restore. Runtime least
+privilege, default grants and strict TLS pass. Thirteen fresh healthy worker tasks
+pass; this does not prove provider delivery. Every added operator firewall rule
+was removed and freshly verified without changing original/concurrent rules.
+
+Held frontend native Edge fixtures pass 5/5: 320/390/1440 rendering plus touch and
+keyboard review/Escape/focus restoration on phones. After promotion, three actual
+public-domain fixture captures pass at 320/390/1440, with actual deployment markers,
+zero page errors/overflow, zero production API requests and zero application writes.
+Safe before images are in late-alternatives-visual; published after images are in
+release-late-9c219bc8-20261109/held-visual/released-*-stable.png. These use synthetic
+records; screenshots do not claim physical devices, real-role or provider acceptance.
+
+Launch status: D11 and workforce-table engineering are published with the evidence
+above. Browsing/enquiries remains enabled; actual public capability fields match
+the pre-release snapshot, with checkout/new booking/inspection requests disabled.
+The whole goal remains active. Next: D03 staged materials/workmanship payments,
+then retained D12-D14 sourcing/holding/private collection, D15 reminders/delivery,
+D17 durable tax-aware refund execution and the full original audit/role/provider/
+device acceptance. Respect the existing decision register; do not re-ask settled
+rounding or scope approvals. General returns/warranty remains expressly deferred.
+No new owner decision was needed for this release. Recovery retains schema 100;
+its older runtime does not support the new continuation workflow or all continued-
+visit displays/actions. Never revert migrations or restore over production data.
+
+Evidence: TEMP/aat-attendance-20261104/release-late-9c219bc8-20261109 and the original
+migration/backup/rehearsal receipts in release-late-323dabca-20261109. Current and
+recovery images, native PostgreSQL, isolated data and other tasks remain preserved.
+
+---
+
+## 9 November 14:56 UTC - D11 final release artifacts verified; publication pending
+
+Current prepared runtime is master 323dabca94a83267ecf9695c97858cf9ebc33f3b.
+The managed alternatives dispatcher fix passes all 52 affected native integration
+cases. The actual compiled Linux API now passes all five additional synthetic HTTP
+journeys: Super Admin, Admin without a Staff profile, scoped Staff, occupied-time
+refusal preserving the original visit, and permission/CSRF refusal. The earlier
+five-case attempt stopped at its overly conservative daytime fixture guard; the
+corrected guard checks the 30-minute appointment against the fixture's existing
+18:00 closing time. No application calendar, rate limit or guard was relaxed.
+
+All four final-source images are built and pushed with immutable registry digests.
+Ten packaged image/database/restore checks pass, with zero failures or skips.
+Seven candidate/recovery schema probes pass against a separate populated restore.
+A fresh 911,875-byte exported-snapshot backup and guarded 99-to-100 restore passed:
+original-column counts/hashes and prior rolled-back migration history are preserved,
+and final schema/history/drift verification passes. Production was not migrated.
+Scoped temporary access was removed and freshly verified, preserving other rules.
+The compatible recovery composition retains the canonical migration-100 checker
+with current e947a205 runtimes; provider spec validation passed without deployment.
+
+Held frontend dpl_BTLKhPLw4oEAweXDbQYaCwQ9uqpT is READY, exact-source verified;
+authenticated Vercel curl returned 200 with its actual deployment marker. Both
+custom aliases still point to dpl_22d3ubrHm6At1DnxuFFuR9h4SN5A. Production backend
+remains e947a205, deployment f6bdcc48-3933-435f-a3ef-ece5edb182a7, schema 99.
+Browse/enquiries and existing capability restrictions are unchanged.
+
+Exact-master backend run 42636768797 and secrets run 42636768841 passed. Frontend
+42636768763 passed its production checks, engine checks and WebKit diagnostic;
+the full Chromium/Firefox/WebKit matrix is still running. Re-poll that same run.
+Do not claim the earlier source's 438/441 result as final-source success.
+
+Next package: reconcile this tracker-only working edit before the clean-source
+release guard; obtain the terminal result of the existing frontend run; prepare
+and review the guarded migration-100/app image-only rollout against the current
+production state, refreshing read-only preflight/backup age as required. Complete
+backend readiness/worker checks before promoting the held frontend and verifying
+both aliases. No repeat owner decision or access approval is needed. No production
+migration, app update or frontend promotion was submitted in this package.
+
+Safe before/after rendered fixture evidence remains in late-alternatives-visual:
+before-390.png, after-390-stable.png and matching 1440px captures. Frontend runtime
+is unchanged since those captures. API interception and blocked writes distinguish
+these from real-role acceptance. No physical device, real-role, delivery-provider
+or payment-provider acceptance is claimed. Retain all original D01-D17/audit scope,
+including D03 staged payments, D12-D14 sourcing/holding/private collection, D15
+reminders/delivery, D17 durable tax-aware refund execution and broader acceptance.
+The whole goal remains active; D11 is implemented and awaiting publication.
+
+Private evidence: TEMP/aat-attendance-20261104/release-late-323dabca-20261109,
+native-1794235610759 (failed fixture cutoff), native-1794235863588 (verified source-323 Linux receipt), and the retained actual logs. Do not reset
+or delete either isolated restored data or synthetic targets. Shared PostgreSQL,
+current/recovery images, useful caches and unrelated work remain preserved.
+
+
+---
 
 ## 9 November 14:43 UTC - preserve managed alternative dispatcher fix
 
