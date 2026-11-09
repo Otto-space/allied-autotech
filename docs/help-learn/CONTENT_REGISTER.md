@@ -1,3 +1,11 @@
+### 9 November: preserve service-request retrieval and original restrictions
+
+Unpublished service-request v33 now fits the existing 8,000-character Allie budget
+at 7,823 characters without changing its twelve-step bound. All-audience retrieval,
+eligibility and related resource/payment/booking guide units pass 67/67; the earlier
+hosted failure is retained in SUPPLEMENTAL_SERVICE_INVOICES_20261109.md. No widened
+audience, guide target, provider access, publication flag or financial approval.
+
 ### 9 November: separate accepted additional-work obligations (unpublished)
 
 Service-request v33 and restricted financial-policy-work v9 explain a separately

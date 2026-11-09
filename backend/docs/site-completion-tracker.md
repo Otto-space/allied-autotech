@@ -1,3 +1,15 @@
+### 9 November: correct supplemental guidance retrieval before release
+
+Hosted 91c80c8f backend acceptance passes operational/financial/learning database
+stages but fails the last all-audience Allie retrieval check: service-request is
+9,659 characters and is correctly refused by the unchanged 8,000-character budget.
+The unpublished v33 text is now 7,823 characters, preserves twelve steps and all
+conditional booking/payment/privacy/calendar/attendance boundaries. Focused guide
+and retrieval checks pass 67/67 in eight files; no permission, retrieval budget,
+assertion, flag or owner approval changes. See the supplemental evidence record
+for the failed attempt and exact remaining scope. Full hosted acceptance remains
+pending; navigation source still matches master 160d3b7b and Desktop work remains.
+
 ### 9 November 2026: supplemental invoice source and latest navigation integrated
 
 Checkpoint c3cfcc05 and merge 28b4bc80 add separately billed accepted additional

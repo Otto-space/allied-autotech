@@ -179,3 +179,19 @@ history or application code. This failed run never reaches browser execution.
 The corrected source needs a new hosted frontend gate; the earlier build is not
 represented as complete release/browser acceptance. Secret run 42668296250 passes;
 backend run 42668296194 remains in progress at this checkpoint.
+
+Backend hosted run 42668296194 passes replay, schema/runtime/finance/booking,
+authoring, pre-payment, guest, refunds, reconciliation and learning database stages,
+then fails its final Care/Allie batch: 108 pass/five fail. All five failures are
+existing all-audience retrieval coverage refusing service-request because its full
+passage is 9,659 characters, above the unchanged 8,000-character budget. This is a
+real help regression, not a successful backend gate. The unpublished v33 guidance
+is shortened to 7,823 characters and retains twelve steps, original conditional
+booking, privacy, payment, amendment, calendar and attendance restrictions. No
+retrieval budget, permission, test assertion or publication flag changes. An initial
+focused run passes 60/63 and identifies three retained exact-boundary phrases lost
+during editing; the final wording restores these conditions. Final focused guide/
+retrieval acceptance passes 67/67 across eight files (`guide-retrieval-final.log`),
+including all public/customer/worker/Admin/owner catalogue coverage and the workshop
+resource guide. Current hosted backend acceptance must be rerun for this correction.
+Frontend formatting correction is fe210127; run 42669406067 is in progress.
