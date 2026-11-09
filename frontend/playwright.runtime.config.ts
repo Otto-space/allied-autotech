@@ -28,6 +28,7 @@ export default defineConfig({
         "customer-overview-selection.spec.ts",
         "customer-overview-attention.spec.ts",
         "shared-shell-dock.spec.ts",
+        "workforce-directory.spec.ts",
 
         "order-money-breakdown.spec.ts",
         "workshop-resources.spec.ts",
