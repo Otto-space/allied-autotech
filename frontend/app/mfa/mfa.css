@@ -66,6 +66,15 @@
   opacity: 0.65;
   cursor: wait;
 }
+.mfa-secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+}
+.mfa-secondary-actions .mfa-first-factor {
+  flex-basis: 100%;
+}
 .mfa-form .mfa-text-button {
   display: inline-flex;
   align-items: center;

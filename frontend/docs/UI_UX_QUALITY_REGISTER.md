@@ -1,3 +1,143 @@
+## 9 November 20:52 UTC - authentication release reconciled with Home repair
+
+PR35 source now includes master5464e402's footer clearance and attendance fixture
+settlement. Previous frontend42691319691 is terminal with676 browser passes,
+five real footer-overlap failures and137 unrun cases; backend and secret gates
+passed on ed85193e. Preserve all assertions and rerun the merged source gates.
+Native Edge independently reproduced the footer overlap before integration.
+Quotation/payment follow-up remains separate on PR38; this merge preserves the
+other session's Home implementation. No production publication is claimed.
+
+## 9 November 20:15 UTC - compiled compatibility acceptance and CI formatting fix
+
+Final combined application f7d1fd1b passes eight native catalogue compatibility
+journeys: Edge157/Chrome156,390x844 mobile/touch and1280x720 desktop, both legacy
+and current timing contracts. Each edits and creates a synthetic product, verifies
+review content, optimistic version, CSRF and the exact omitted/null/numeric timing
+payload. Phone reviews fill390px and are centered; desktop reviews are centered.
+All16 writes were intercepted; zero real writes, page errors or overflow. Receipts
+and captures: TEMP/allied-product-compatibility-f7d1fd1b/{msedge,chrome}.
+
+Frontend run42690331496 passed lint, types,1526 units (12 existing skips) and its
+production build, then failed formatting of this quality-register update. Its
+browser matrix was skipped and is not a pass. Format the affected documentation
+and rerun the complete gate; do not publish or merge on this failed result.
+The current818-case collection remains collection-only. Full goal, exact-master
+release, physical-device/real-role and backend timing rollout limits remain open.
+
+## 9 November 20:10 UTC - preserve current catalogue compatibility
+
+Merge master9f9ee2f8 into the authentication batch. Its product editor now omits
+unsupported timing fields when the actual older catalogue contract lacks them;
+newer explicit-null/zero estimates remain supported. Preserve its two legacy
+create/edit regressions and all Home/authentication projects. No application merge
+conflict occurred. This removes the identified frontend request incompatibility
+with the currently published backend, subject to final combined-source checks.
+Do not treat the earlier product-timing backend packaging hold as automatically
+blocking an independently verified compatible frontend. The timing backend/migration
+and full timing feature still remain separate unfinished work with their safeguards.
+
+Corrected Home fixtures passed14 Edge/Chrome journeys on the e72c4017 compiled
+application, seven exact sizes per browser, healthy capability notice absent,
+loaded slide images, reachable controls, mobile menu focus return, fixed support
+bounds through seven sections, FAQ and diagnostics navigation. Four scoped Axe
+scans passed; zero real writes, page errors or page overflow. Evidence:
+TEMP/allied-home-combined-e72c4017-canonical. This merge's product compatibility
+has not been exercised by those Home captures. Current-source CI remains required.
+
+## 9 November 20:08 UTC - Home fixture envelope correction
+
+The combined e72c4017 preview completed 14 Edge/Chrome layout and navigation
+journeys, but its captures exposed an availability warning. Inspection established
+that the Home test's capabilities fixture omitted message/meta.requestId, which the
+shared API client requires. Those earlier receipts therefore cover the unavailable
+state, not healthy capabilities. Supply the complete canonical envelope and assert
+that the availability notice is absent in both normal and failed-image cases.
+Application capability validation and launch restrictions remain unchanged.
+Healthy-state rendered reruns and final-source CI remain pending at this checkpoint.
+Preserve the original captures at TEMP/allied-home-combined-e72c4017; corrected
+fixture evidence uses a separate directory with the -canonical suffix.
+
+## 9 November 20:00 UTC - reconcile Home and authentication acceptance
+
+Merge current master bc88d970 into the authentication batch, retaining the approved
+Home composition, support placement, all ten Home browser cases and the 40-case
+authentication project. Resolve the overlapping booking fixture fixes as one
+canonical capability response; verify the focus-refresh response and the enabled
+review action without weakening either review or production capability rules.
+Scoped lint, formatting and collection pass (50 Home/authentication cases).
+
+Compiled source b44d69f0 passed 14 dedicated Edge/Chrome MFA journeys at all seven
+requested viewport pairs. Secondary actions have a 16px horizontal gap or 4px
+wrapped gap; invalid-code recovery, safe masked recovery entry, role destinations,
+keyboard controls and no-overflow checks pass. All 70 simulated writes were
+intercepted; no real authentication or account mutation occurred. Receipts and
+captures: TEMP/allied-auth-lifecycle-b44d69f0/{msedge,chrome}. Backend and secret
+gates passed on b44d69f0; its frontend run42686825109 was still active when the
+combined source was prepared. These passes do not certify this new Home merge;
+new exact-source gates and combined rendered acceptance remain required.
+
+Production remains held pending compatible product-timing backend packaging,
+renewed safe release preflight and exact-master checks. C: has about21.1GiB free;
+21.5GiB is required for the backend packaging allowance. The full page/state/role,
+real-device, screen-reader and unknown business-data requirements remain open.
+
+## 9 November 19:48 UTC - authentication layout and fixture correction
+
+PR33 passed all three gates and merged as 28bf13bf. Source a31678ef's isolated
+backend gate also passed: 20 MFA-enrollment, four MFA-challenge and two password-
+change atomicity cases, alongside the 37 existing profile cases. Edge and Chrome
+MFA challenge/recovery flows pass seven exact sizes each (14 total), with synthetic
+writes only. Application files at that checkpoint match the ebe6e075 preview.
+
+The screenshots exposed adjacent Choose another method / Set up authenticator
+again actions touching at 1280px. Group these secondary actions with a wrapping
+16px horizontal / 4px vertical gap, preserving every handler, eligibility condition
+and 44px target. Add seven responsive keyboard/navigation cases in all three
+engines. Compiled acceptance for this new layout is pending, not inferred from
+those pre-change captures.
+
+Master f7bfbf52's frontend run 42681706626 failed one legacy booking alternative
+case: 723 passed, one timed out on a disabled Review proposed time control. Its
+retained error context shows the online-availability outage. The later generic
+booking route shadows the earlier capabilities route and returns {items: []} on
+refresh. Route those reads to the isolated capability server (or a canonical local
+fixture) and explicitly refresh/verify the contract before reviewing the proposal.
+No real booking policy or fail-closed control is relaxed. Evidence: TEMP/allied-
+master-failure-f7bfbf52, artifact13705245394 with verified SHA256. Revised-source
+CI and exact-master gates remain required; do not publish the failed old master.
+
+## 9 November - isolated authentication acceptance follow-up
+
+Current follow-up: codex/auth-lifecycle-20261109, based on PR33 head ebe6e075.
+PR31 merged as f7bfbf52. PR33's compiled preview passes 28 Edge 157 and 28 Chrome
+156 security-review journeys: four roles at all seven exact requested sizes,
+phone/touch emulation, centered full-width phone dialog, focus containment/return,
+password remasking, cancellation, rejected-password recovery and simulated success.
+Sixteen scoped Axe scans pass. All 112 password attempts were intercepted fixtures;
+zero real network writes occurred. Evidence: TEMP/allied-security-review-ebe6e075.
+PR33 frontend 42682304551 and master frontend 42681706626 remain active at this
+checkpoint; backend and secret gates passed. No production promotion is inferred.
+
+The next acceptance gap is the full authentication lifecycle. Add 40 existing
+registration/login/recovery/reset/MFA/replacement browser cases to runtime CI,
+reusing its single production build. Use localhost for the synthetic WebAuthn RP;
+no real RP or origin policy changes. MFA fixtures now answer canonical public
+capabilities and keep unrelated GETs out of their write ledger. Add password-change,
+MFA-challenge and MFA-enrollment atomicity suites to the existing isolated profile
+CI database with its restricted runtime role; enrollment verifies the actual
+isolated loopback target before creating fixtures. These cases are not yet run or
+passed on this source. No local database tests, delivery or cloud uploads run.
+
+Collection and focused lint/format checks are the local evidence, not authentication
+acceptance. Complete exact-source CI before integration/publication. Product-timing
+backend packaging is still owned by its existing release session and held by disk
+headroom. A possible customer-payment modal width override remains source-only:
+the browser reproduction was stopped by the 20 GiB reserve. Automatic approval
+review rejected cleanup of this task's obsolete .next/dev/server and static output;
+no files were deleted. Real-device, password-manager, screen-reader, remaining
+page/state/role and unconfirmed business-data requirements remain open.
+
 ## 9 November - security review modal follow-up
 
 Current follow-up: codex/security-modal-20261109, based on PR31 head 74f20a2b.
