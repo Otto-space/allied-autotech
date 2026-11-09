@@ -64,7 +64,7 @@ jobs:
           }
           NODE
       - name: Diagnose WebKit calendar before the full engine matrix
-        run: npx --no-install playwright test --config playwright.runtime.config.ts --project responsive-webkit booking-calendar.spec.ts --grep "calendar 320x720" --max-failures=1
+        run: npx --no-install playwright test booking-calendar.spec.ts --config playwright.runtime.config.ts --project=responsive-webkit --grep "calendar 320x720" --max-failures=1
       - name: Verify independent runtime availability in the production build
         run: npx --no-install playwright test --config playwright.runtime.config.ts --max-failures=5
       - name: Preserve synthetic browser evidence
