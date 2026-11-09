@@ -1,3 +1,13 @@
+### 9 November: pickup candidate preserves newer Home/authentication release
+
+Merged master 1eef9aff, retaining its verified Home/footer release, authentication
+recovery layout, MFA atomicity tests and attendance/capability fixtures. Both hosted
+project/test sets remain. Only evidence-history appends and two stale Home status
+rows conflicted: retained both histories and the newer verified Home status. No
+current Home/security implementation was replaced with the pickup branch's older
+version. Desktop's uncommitted hero edit remains untouched. Combined-source gates
+remain required; this merge is not a production publication.
+
 ### 9 November: durable private parts pickup source and owner collection calendar
 
 D14 now has forward migrations 108/109, private buyer/guest routes, current branch/
@@ -148,6 +158,146 @@ Inventory issue/use is an optional extension, not a section-7.2 launch requireme
 materials-before-work, genuine historical credits and all financial safeguards stay.
 The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work remain.
 The owner's separate 79-line Desktop hero edit is preserved.
+
+## 9 November 20:52 UTC - authentication release reconciled with Home repair
+
+PR35 source now includes master5464e402's footer clearance and attendance fixture
+settlement. Previous frontend42691319691 is terminal with676 browser passes,
+five real footer-overlap failures and137 unrun cases; backend and secret gates
+passed on ed85193e. Preserve all assertions and rerun the merged source gates.
+Native Edge independently reproduced the footer overlap before integration.
+Quotation/payment follow-up remains separate on PR38; this merge preserves the
+other session's Home implementation. No production publication is claimed.
+
+## 9 November 20:15 UTC - compiled compatibility acceptance and CI formatting fix
+
+Final combined application f7d1fd1b passes eight native catalogue compatibility
+journeys: Edge157/Chrome156,390x844 mobile/touch and1280x720 desktop, both legacy
+and current timing contracts. Each edits and creates a synthetic product, verifies
+review content, optimistic version, CSRF and the exact omitted/null/numeric timing
+payload. Phone reviews fill390px and are centered; desktop reviews are centered.
+All16 writes were intercepted; zero real writes, page errors or overflow. Receipts
+and captures: TEMP/allied-product-compatibility-f7d1fd1b/{msedge,chrome}.
+
+Frontend run42690331496 passed lint, types,1526 units (12 existing skips) and its
+production build, then failed formatting of this quality-register update. Its
+browser matrix was skipped and is not a pass. Format the affected documentation
+and rerun the complete gate; do not publish or merge on this failed result.
+The current818-case collection remains collection-only. Full goal, exact-master
+release, physical-device/real-role and backend timing rollout limits remain open.
+
+## 9 November 20:10 UTC - preserve current catalogue compatibility
+
+Merge master9f9ee2f8 into the authentication batch. Its product editor now omits
+unsupported timing fields when the actual older catalogue contract lacks them;
+newer explicit-null/zero estimates remain supported. Preserve its two legacy
+create/edit regressions and all Home/authentication projects. No application merge
+conflict occurred. This removes the identified frontend request incompatibility
+with the currently published backend, subject to final combined-source checks.
+Do not treat the earlier product-timing backend packaging hold as automatically
+blocking an independently verified compatible frontend. The timing backend/migration
+and full timing feature still remain separate unfinished work with their safeguards.
+
+Corrected Home fixtures passed14 Edge/Chrome journeys on the e72c4017 compiled
+application, seven exact sizes per browser, healthy capability notice absent,
+loaded slide images, reachable controls, mobile menu focus return, fixed support
+bounds through seven sections, FAQ and diagnostics navigation. Four scoped Axe
+scans passed; zero real writes, page errors or page overflow. Evidence:
+TEMP/allied-home-combined-e72c4017-canonical. This merge's product compatibility
+has not been exercised by those Home captures. Current-source CI remains required.
+
+## 9 November 20:08 UTC - Home fixture envelope correction
+
+The combined e72c4017 preview completed 14 Edge/Chrome layout and navigation
+journeys, but its captures exposed an availability warning. Inspection established
+that the Home test's capabilities fixture omitted message/meta.requestId, which the
+shared API client requires. Those earlier receipts therefore cover the unavailable
+state, not healthy capabilities. Supply the complete canonical envelope and assert
+that the availability notice is absent in both normal and failed-image cases.
+Application capability validation and launch restrictions remain unchanged.
+Healthy-state rendered reruns and final-source CI remain pending at this checkpoint.
+Preserve the original captures at TEMP/allied-home-combined-e72c4017; corrected
+fixture evidence uses a separate directory with the -canonical suffix.
+
+## 9 November 20:00 UTC - reconcile Home and authentication acceptance
+
+Merge current master bc88d970 into the authentication batch, retaining the approved
+Home composition, support placement, all ten Home browser cases and the 40-case
+authentication project. Resolve the overlapping booking fixture fixes as one
+canonical capability response; verify the focus-refresh response and the enabled
+review action without weakening either review or production capability rules.
+Scoped lint, formatting and collection pass (50 Home/authentication cases).
+
+Compiled source b44d69f0 passed 14 dedicated Edge/Chrome MFA journeys at all seven
+requested viewport pairs. Secondary actions have a 16px horizontal gap or 4px
+wrapped gap; invalid-code recovery, safe masked recovery entry, role destinations,
+keyboard controls and no-overflow checks pass. All 70 simulated writes were
+intercepted; no real authentication or account mutation occurred. Receipts and
+captures: TEMP/allied-auth-lifecycle-b44d69f0/{msedge,chrome}. Backend and secret
+gates passed on b44d69f0; its frontend run42686825109 was still active when the
+combined source was prepared. These passes do not certify this new Home merge;
+new exact-source gates and combined rendered acceptance remain required.
+
+Production remains held pending compatible product-timing backend packaging,
+renewed safe release preflight and exact-master checks. C: has about21.1GiB free;
+21.5GiB is required for the backend packaging allowance. The full page/state/role,
+real-device, screen-reader and unknown business-data requirements remain open.
+
+## 9 November 19:48 UTC - authentication layout and fixture correction
+
+PR33 passed all three gates and merged as 28bf13bf. Source a31678ef's isolated
+backend gate also passed: 20 MFA-enrollment, four MFA-challenge and two password-
+change atomicity cases, alongside the 37 existing profile cases. Edge and Chrome
+MFA challenge/recovery flows pass seven exact sizes each (14 total), with synthetic
+writes only. Application files at that checkpoint match the ebe6e075 preview.
+
+The screenshots exposed adjacent Choose another method / Set up authenticator
+again actions touching at 1280px. Group these secondary actions with a wrapping
+16px horizontal / 4px vertical gap, preserving every handler, eligibility condition
+and 44px target. Add seven responsive keyboard/navigation cases in all three
+engines. Compiled acceptance for this new layout is pending, not inferred from
+those pre-change captures.
+
+Master f7bfbf52's frontend run 42681706626 failed one legacy booking alternative
+case: 723 passed, one timed out on a disabled Review proposed time control. Its
+retained error context shows the online-availability outage. The later generic
+booking route shadows the earlier capabilities route and returns {items: []} on
+refresh. Route those reads to the isolated capability server (or a canonical local
+fixture) and explicitly refresh/verify the contract before reviewing the proposal.
+No real booking policy or fail-closed control is relaxed. Evidence: TEMP/allied-
+master-failure-f7bfbf52, artifact13705245394 with verified SHA256. Revised-source
+CI and exact-master gates remain required; do not publish the failed old master.
+
+## 9 November - isolated authentication acceptance follow-up
+
+Current follow-up: codex/auth-lifecycle-20261109, based on PR33 head ebe6e075.
+PR31 merged as f7bfbf52. PR33's compiled preview passes 28 Edge 157 and 28 Chrome
+156 security-review journeys: four roles at all seven exact requested sizes,
+phone/touch emulation, centered full-width phone dialog, focus containment/return,
+password remasking, cancellation, rejected-password recovery and simulated success.
+Sixteen scoped Axe scans pass. All 112 password attempts were intercepted fixtures;
+zero real network writes occurred. Evidence: TEMP/allied-security-review-ebe6e075.
+PR33 frontend 42682304551 and master frontend 42681706626 remain active at this
+checkpoint; backend and secret gates passed. No production promotion is inferred.
+
+The next acceptance gap is the full authentication lifecycle. Add 40 existing
+registration/login/recovery/reset/MFA/replacement browser cases to runtime CI,
+reusing its single production build. Use localhost for the synthetic WebAuthn RP;
+no real RP or origin policy changes. MFA fixtures now answer canonical public
+capabilities and keep unrelated GETs out of their write ledger. Add password-change,
+MFA-challenge and MFA-enrollment atomicity suites to the existing isolated profile
+CI database with its restricted runtime role; enrollment verifies the actual
+isolated loopback target before creating fixtures. These cases are not yet run or
+passed on this source. No local database tests, delivery or cloud uploads run.
+
+Collection and focused lint/format checks are the local evidence, not authentication
+acceptance. Complete exact-source CI before integration/publication. Product-timing
+backend packaging is still owned by its existing release session and held by disk
+headroom. A possible customer-payment modal width override remains source-only:
+the browser reproduction was stopped by the 20 GiB reserve. Automatic approval
+review rejected cleanup of this task's obsolete .next/dev/server and static output;
+no files were deleted. Real-device, password-manager, screen-reader, remaining
+page/state/role and unconfirmed business-data requirements remain open.
 
 ## 9 November - security review modal follow-up
 
@@ -9739,8 +9889,8 @@ this implementation adds the following ordered status overlay, not a second back
 
 | Group | Scope                                                                          | Implementation / release status                                                                                                                                          |
 | ----- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1     | Shared brand/header/footer/support and Home                                    | Home/editorial footer implemented; header/support behaviour preserved. Focused units 8/8, affected lint and TypeScript pass; cloud browser/fidelity and release pending. |
-| 2     | Services, detail, existing request                                             | Pending reference inspection and implementation.                                                                                                                         |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
+| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                                                                                                                         |
 | 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                                                                                 |
 | 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                                                                           |
 | 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                                                                                |
@@ -9822,3 +9972,92 @@ preview fallback evidence, not production-data, actual-role or physical-device
 acceptance. Complete the compatibility check and merged-master gates, then stage
 and verify a production-environment frontend without assigning domains, and only
 then publish/check both aliases. The119-template design inventory remains open.
+
+## 9 November - Home release gate repairs
+
+The first held production candidate is READY but has not been published. Exact
+master9f9ee2f8 passed backend-safety42689898810 and secrets42689898387; frontend
+42689898682 failed. Both public aliases still resolve to source160d3b7b.
+
+Four browser failures exposed a real footer clearance regression at1280x720 and
+1024x768 in Chromium/Firefox: the last focused link overlapped the support dock.
+Footer bottom space now follows the existing measured viewport-support-offset,
+with144px minimum. Existing clearance assertions remain unchanged. Compiled
+candidate and complete exact-master verification remain required before release.
+
+The attendance failure was a fixture race: its text assertion matched an unsaved
+textarea while booking/access refresh remounted the editor. The test now waits
+for the permitted booking refresh, checks the selected status, and confirms each
+saved note inside Recorded appointment attendance. All original write/CSRF/status
+assertions remain. Nine repeated hosted Edge synthetic cases pass across390,
+768 and1440; no real booking was written. Its network guard also recognizes only
+the exact configured hosted origin alongside existing loopback allowances.
+
+Held-production read-only Home checks pass all nine requested viewport pairs,
+four real carousel destinations and Back, FAQ/menu/focus, scoped390/1440 Axe,
+image decoding and adjacent About/Contact/Help pages. This is actual public-data
+coverage; private workflow evidence remains synthetic. Product compatibility's
+27 units and eight hosted authoring/recovery fixture cases pass. No backend,
+permission, capability, database or policy changes were made for these repairs.
+
+C: preflight21.18GiB with0.1GiB browser allowance passed. No local build/install or
+Docker resources were created. Existing recovery deployments/resources retained.
+Do not publish9f9ee2f8 or count this as full119-template completion.
+
+## 9 November 21:19 UTC - Home group published and checked
+
+Group 1 is live at https://alliedautotech.com/ from master
+5464e402f3e81fb55be7bc09def7eb8d312dd59e, deployment
+dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV. Both apex/www deployment identities match;
+apex returns 200 and www redirects 308 to apex. Recovery remains
+dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb / source 160d3b7b.
+
+Exact-source gates passed: frontend 42696079161, backend safety 42696241876,
+secrets 42696079393. Production lint/type/build/format/audit passed.
+Units: 1,526 passed, 12 isolated audit cases skipped. Browser matrix: 757 passed,
+plus 9 repeated WebKit transport and 21 media preflight cases.
+CI engines: Chromium 153.0.8010.12, Firefox 155.0, WebKit 26.6 on Linux.
+Failed earlier runs were repaired and are not counted as passes.
+
+Held candidate and actual public Edge 157.0.4341.42 passed all nine requested
+viewport pairs: four slide states/destinations and Back, FAQ/menu/focus, one
+support dock, no horizontal overflow, scoped Axe at 1440/390 with zero violations,
+and adjacent About/Contact/Help. All nine live footer-clearance checks pass.
+Both real vehicle images decode at 633x475 with no failed media response.
+Five candidate carousel cases pass: swipes/resize, three real-time loops,
+hover/persistent pause/focus, offscreen/revisit recovery and no-JavaScript.
+Existing doubled-text reflow at 320px passes. Actual browser zoom, full screen
+reader, physical devices/Safari and real signed-in role persistence are unverified.
+Product compatibility has eight hosted synthetic cases; no production business
+submission or private record was written.
+
+Approved Nippo/Quicksand, real logo/editorial and workshop photographs, actual
+facts/policies replace sample claims. The reduced Home PNG cannot prove native
+1440px matching; its HTML and rendered comparison guided composition.
+No fabricated statistics, certification, warranty, availability, turnaround,
+prices or phone numbers were imported.
+
+Backend c3c54414-0f19-4b21-bf23-b44184e6f43a remained ACTIVE without a pending
+deployment at 21:19. All public policy fields match before/after publication;
+serverTime is independently validated as a changing current timestamp.
+Eight managed backups rechecked; latest 9 November 05:22 UTC. The verified
+21 October strict-TLS restore rehearsal matches the cluster and records
+sourceWritten=false. No new restore, database write, migration, permission or
+capability change occurred.
+
+Evidence: owner TEMP/aat-stitch-implementation-20261109:
+publication-preflight.json, publication-alias-receipt.json, live-browser-results.json,
+footer-live-compiled-results.json, home-carousel-tests.json, home-reflow-tests.json,
+live-production-photo-results.json and live screenshots. All task-created provider
+share links were revoked, confirmed by empty protectionBypass records.
+C: completion preflight passed at 21.23 GiB with 0.05 GiB allowance. No local
+build/install or Docker resources were created. Automatic approval review rejected
+temporary cache/local access-file deletion as "blocked by policy"; files were
+retained. Local access files retain owner-only permissions. npm cache verify
+completed without a measured reclamation claim. Source, other worktrees and
+recovery resources were retained.
+
+Next: group 2, Services catalogue/detail and the existing request journey.
+Reference/server review and live desktop 1440/phone 390 baselines are complete.
+Bring discovery forward while preserving categories, actual prices, quotations
+and restricted booking. Groups 2-10 and the full 119-template inventory remain open.
