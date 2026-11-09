@@ -1,8 +1,30 @@
 import { expect, it } from "vitest";
 import {
+  learningEligible,
+  publicLearningAccess,
+} from "../../src/modules/learning/learning.service.js";
+import {
   learningArticles,
   learningGuides,
 } from "../../src/modules/learning/learning.content.js";
+
+it("keeps product estimates in the administrator audience without collection authority", () => {
+  const item = learningArticles.find((article) => article.id === "product-timing")!;
+  expect(item.version).toBe(1);
+  expect(item.gate).toBe("admin");
+  expect(item.steps.join(" ")).toContain("calendar days");
+  expect(item.steps.join(" ")).toContain("Leave unknown values blank");
+  expect(item.steps.join(" ")).toContain("not an order promise");
+  expect(item.steps.join(" ")).toContain("For an uncertain save");
+  for (const role of ["PUBLIC", "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"] as const) {
+    expect(
+      learningEligible({ ...publicLearningAccess, role, verified: true }, item.gate),
+    ).toBe(role === "ADMIN" || role === "SUPER_ADMIN");
+    expect(
+      learningEligible({ ...publicLearningAccess, role, verified: false }, item.gate),
+    ).toBe(false);
+  }
+});
 
 it("explains controllable workshop highlights without turning a discovery request into an appointment", () => {
   const home = learningArticles.find((item) => item.id === "home-next-step")!;

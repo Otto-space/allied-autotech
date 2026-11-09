@@ -1,3 +1,23 @@
+## 9 November 18:45 UTC - reconcile current product-timing master
+
+Remote master advanced to b362e9f8 (PR32 product sourcing/preparation estimates)
+while the media fixture correction was being checked. Merge that exact master into
+PR31; preserve both evidence histories and both browser-project sets. Only the two
+prepended tracker histories conflicted. Do not publish an older frontend over this
+new work or claim that the earlier 0251270a preview covers the product-timing batch.
+
+Product timing brings forward migration 20261109180000_product_timing_estimates.
+Its existing release workspace has a fresh backup and populated isolated restore
+receipt from 18:28 UTC, and exact-master backend/secret checks pass; its frontend
+run 42674646758 is still active. Production backend c3c54414 is unchanged and has
+no pending deployment at this observation. Preserve the other session's release
+resources and verify its backend handoff before the combined frontend is promoted.
+No production database or firewall change is made by this reconciliation.
+
+The isolated media/profile correction remains the same application patch. All
+revised-source and exact-master gates still apply to the combined result. Full goal
+and business-data limits remain open; this merge is not publication or completion.
+
 ## 9 November 18:40 UTC - image fixture integrity and CI checkpoint
 
 PR31 is not eligible for publication yet. Frontend run 42670082332 for 0251270a
@@ -170,6 +190,45 @@ WebKit CI; layout cases now use exact requested heights and phone/touch contexts
 with screenshots. All new hosted results are pending, not inferred from source.
 Actual cloud media delivery, real account persistence, all routes/roles and physical
 devices remain separate acceptance requirements. Business details remain unconfirmed.
+
+## 9 November 17:59 UTC - exact-build product coverage queued
+
+Backend/secrets gates pass on fac525a3. Eleven product operator/public/touch cases
+are now collected in the existing production-build browser configuration, reusing
+its one build and loopback fixture. They are not yet execution evidence. Types,
+lint, formatting and two actual fixture HTTP/parser checks pass. Default case and
+expectation deadlines are unchanged. The canonical tracker records source/run IDs,
+local reserve constraints and retained unverified acceptance; no release occurred.
+
+---
+
+## 9 November 17:47 UTC - current-head acceptance pending
+
+PR 32 head fac525a3 preserves current master 160d3b7b. Merged public 768/1440 and
+unknown-state checks pass; 320 timed out and operator cases were interrupted when
+the disk reserve failed. Do not apply the pre-merge browser totals below to the
+whole current head. Exact-source frontend/backend CI is running; secrets passed.
+See backend/docs/site-completion-tracker.md for the canonical current evidence,
+constraints and handoff. No production publication or activation occurred.
+
+---
+
+## 9 November 17:40 UTC - product timing defaults; unpublished
+
+D13 product editing/review and public details now distinguish optional sourcing
+calendar days, preparation minutes and actual readiness. Unknown customer defaults
+stay blank; operator details identify them. Zero is preserved. Ten unique synthetic
+Edge cases pass, plus the final three-case repeat at 320/768/1440 with scoped WCAG
+2.2 AA Axe checks and laptop sidebar expansion/collapse. Coverage includes uncertain
+saves and unknown timing/media/stock. Four safe visual fixtures cover
+320/390/768/1440, review/focus and touch emulation, with zero writes/errors/overflow.
+
+See [the canonical tracker](../../backend/docs/site-completion-tracker.md) for exact
+checks, failures, recovery and artifacts. Source is unpublished. Order-level timing,
+original audit scope, real roles, provider/device acceptance, canonical CI/recovery
+and verified release remain. This is not D13 or overall commerce readiness.
+
+---
 
 ## 9 November 16:36 UTC - navigation outage overlay repair; publication checkpoint
 

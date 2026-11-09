@@ -3,6 +3,7 @@ import {
   publishedCompatibilitySchema,
 } from "../fitment/fitment.schemas.js";
 import { z } from "zod";
+import { productTimingFields } from "./product-timing.js";
 import { recordedProductFields, productFamilySchema } from "./product-family.js";
 import { mediaConfirmSchema } from "../media/media.schemas.js";
 export const productImageConfirmSchema = mediaConfirmSchema
@@ -41,6 +42,7 @@ export const productImageResponseSchema = z.object({
 const timestamp = z.iso.datetime({ offset: true });
 const money = z.string().regex(/^(?:0|[1-9][0-9]*)$/u);
 export const productResponseSchema = z.object({
+  ...productTimingFields,
   ...recordedProductFields,
   fitment: fitmentDecisionSchema.optional(),
   condition: z.enum(["NEW", "USED", "REFURBISHED"]).nullable().optional(),

@@ -13,6 +13,9 @@ const port = Number(process.env.PRODUCT_DETAIL_FIXTURE_PORT ?? 5021);
 const routePath = `/parts/${product.id}`;
 const record = {
   ...product,
+  sourcingDaysMin: 3 as number | null,
+  sourcingDaysMax: 7 as number | null,
+  preparationMinutes: 60 as number | null,
   name: "Premium oil filter",
   brand: "Denso",
   manufacturerPartNumber: "15601-37010",
@@ -57,7 +60,22 @@ test.beforeAll(async () => {
     const respond = () => {
       let data: unknown;
       let status = 200;
-      if (url.pathname === "/api/v1/public/catalog/products") {
+      if (url.pathname === "/api/v1/public/capabilities") {
+        // This loopback-only fixture exercises the full UI; no real flags or APIs.
+        data = {
+          scope: "POLICY_SUMMARY",
+          serverTime: new Date().toISOString(),
+          release: {
+            mode: "full",
+            customerAccountsEnabled: true,
+            enquiriesEnabled: true,
+            bookingRequestsEnabled: false,
+            inspectionRequestsEnabled: false,
+          },
+          checkoutEnabled: true,
+          vehicleDeposits: { enabled: false },
+        };
+      } else if (url.pathname === "/api/v1/public/catalog/products") {
         if (mode === "relatedDown") status = 503;
         else
           data = {
@@ -72,6 +90,9 @@ test.beforeAll(async () => {
       ) {
         const item = structuredClone(record);
         if (mode === "empty") {
+          item.sourcingDaysMin = null;
+          item.sourcingDaysMax = null;
+          item.preparationMinutes = null;
           item.images = [];
           item.compatibilities = [];
           item.availability = [];
@@ -219,6 +240,12 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
     await expect(
       page.getByRole("heading", { name: record.name, exact: true }),
     ).toBeVisible();
+    await expect(
+      page.getByRole("region", { name: "Sourcing and preparation estimates" }),
+    ).toContainText("3–7 calendar days");
+    await expect(
+      page.getByRole("region", { name: "Sourcing and preparation estimates" }),
+    ).toContainText("60 minutes");
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
     ).toBe(false);
@@ -490,9 +517,12 @@ test("missing media, compatibility, stock and related empty states", async ({ pa
   mode = "empty";
   await setup(page);
   await page.goto(routePath);
+  await expect(
+    page.getByRole("region", { name: "Sourcing and preparation estimates" }),
+  ).toHaveCount(0);
   await expect(page.getByText("Photos not available", { exact: true })).toBeVisible();
   await expect(page.getByText(/Compatibility has not been listed/)).toBeVisible();
-  await expect(page.getByText(/Availability has not been listed/)).toBeVisible();
+  await expect(page.getByText(/Availability not listed/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Add to cart" })).toBeDisabled();
   await expect(
     page.getByRole("button", { name: "Save to favourites", exact: true }),
@@ -500,7 +530,7 @@ test("missing media, compatibility, stock and related empty states", async ({ pa
   await axe(page);
   mode = "out";
   await page.reload();
-  await expect(page.getByText(/Currently unavailable/)).toBeVisible();
+  await expect(page.getByText(/Unavailable at listed branches/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Add to cart" })).toBeDisabled();
 });
 test("long records, failed image and reduced motion remain usable", async ({ page }) => {

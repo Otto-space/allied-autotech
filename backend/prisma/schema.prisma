@@ -1297,6 +1297,9 @@ model Category {
 }
 
 model Product {
+  sourcingDaysMin        Int?
+  sourcingDaysMax        Int?
+  preparationMinutes     Int?
   partsQuotes            PartsQuote[]
   brandKey               String?                @db.Text
   searchCore             String                 @default("") @db.Text

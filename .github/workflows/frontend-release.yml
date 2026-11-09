@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     # One production build, followed by the existing Chromium suite and the
     # bounded Firefox/WebKit responsive matrix. The fixture API is serial.
-    # The 713-case matrix takes about 21 minutes after a 14-minute clean build
+    # The expanded matrix takes about 21 minutes after a 14-minute clean build
     # and browser setup. Keep headroom for focused checks and failure artifacts.
     timeout-minutes: 45
     defaults:

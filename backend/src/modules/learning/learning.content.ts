@@ -575,6 +575,26 @@ export const learningArticles: LearningArticle[] = [
     version: 1,
     reviewedAt: "2026-10-29",
   },
+  {
+    ...article(
+      "product-timing",
+      "admin",
+      "work",
+      "Record product sourcing and preparation estimates",
+      "Estimated sourcing and preparation are separate from stock, payment and collection readiness.",
+      [
+        "Open Products, then the actual product's Edit details action.",
+        "Under Sourcing & preparation estimates, enter the known minimum and maximum calendar days to source the item. Enter preparation minutes once available separately. Leave unknown values blank; use zero only when that is the actual estimate.",
+        "Review the estimates before saving. If the product changed, reload its saved details and review your draft again. For an uncertain save, check the saved product before trying again.",
+        "These are product defaults, not an order promise. They do not confirm supplier stock, compatibility, payment, an arrival date, a ready-for-collection time or a holding deadline. Confirm those order facts through the authorised workflow.",
+      ],
+      "/admin",
+      "CatalogService product version precondition, product timing validation and ProductTiming projection",
+      "product timing sourcing lead time preparation estimate import calendar days minutes",
+    ),
+    version: 1,
+    reviewedAt: "2026-11-09",
+  },
   article(
     "product-photos",
     "admin",

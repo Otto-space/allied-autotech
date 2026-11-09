@@ -13,6 +13,17 @@ const modalImages = (kind) =>
     isPrimary: index === 0,
   }));
 const modalProduct = { ...product, images: modalImages("catalog/products") };
+// Dedicated synthetic product-detail records. No existing fixture gains estimates.
+const timingProducts = [true, false].map((known, index) => ({
+  ...product,
+  id: id(90140 + index),
+  name: `Synthetic ${known ? "recorded" : "unknown"} timing part`,
+  priceKobo: "100000",
+  sourcingDaysMin: known ? 3 : null,
+  sourcingDaysMax: known ? 7 : null,
+  preparationMinutes: known ? 60 : null,
+  availability: known ? product.availability : [],
+}));
 const modalListing = {
   ...listing,
   vehicle: { ...listing.vehicle, images: modalImages("vehicles") },
@@ -136,6 +147,13 @@ export function createRuntimeCapabilityApi() {
     }
     if (url.pathname.startsWith("/api/v1/public/catalog/")) {
       const route = url.pathname;
+      const timingProduct = timingProducts.find(
+        (record) => route === `/api/v1/public/catalog/products/${record.id}`,
+      );
+      if (timingProduct) {
+        success(timingProduct);
+        return;
+      }
       if (
         route === "/api/v1/public/catalog/products/discovery" &&
         settings.searchUnavailable
