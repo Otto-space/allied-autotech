@@ -8224,18 +8224,18 @@ The current source still has 119 page templates. The existing route/role/state
 inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
 this implementation adds the following ordered status overlay, not a second backlog:
 
-| Group | Scope                                                                          | Implementation / release status                                                                           |
-| ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
-| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                         |
-| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                  |
-| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
-| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
-| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
-| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                  |
-| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                             |
-| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                |
-| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                         |
+| Group | Scope                                                                          | Implementation / release status                                                                                                         |
+| ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below.                               |
+| 2     | Services, detail, existing request                                             | In progress: catalogue/detail/request presentation implemented; 14 isolated cases collected. Rendered verification and release pending. |
+| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                                                |
+| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                                          |
+| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                                               |
+| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                                             |
+| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                                                |
+| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                                                           |
+| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                                              |
+| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                                                       |
 
 Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
 The approved editorial workshop/family/parts/showroom family replaces the old
@@ -8358,3 +8358,32 @@ checks, engine versions, backups, retained recovery, evidence and disk/cleanup l
 Next: Services catalogue, service detail and the existing request journey.
 References/server behavior and live 1440/390 baselines have been inspected.
 Groups 2-10 and the full 119-template checklist remain open.
+
+## 9 November - Services design group in progress
+
+Group 2 starts from master 1eef9aff, preserving the intervening authentication
+layout/test reconciliation. Public Home remains the verified 5464e402 release;
+no Services publication has occurred. The 1440/390 live baseline had eight work-area
+cards above search, four real service records and restricted booking requests.
+
+The catalogue now follows the supplied photographic introduction, overlapping
+white filter panel and four-column desktop/single-column phone result cards.
+Search precedes work-area cards. Actual names, prices, quotations, durations,
+category links, URL/history and permissions retain their existing sources.
+The service detail uses larger typography and a framed real photograph; natural
+portrait/landscape proportions take precedence over the export's full-width crop.
+The existing request page explains the currently available contact route in
+customer language. No booking, support, authentication or transaction logic changed.
+
+Fourteen focused cases join the existing production-build matrix: all nine exact
+viewport pairs, combined filters/detail/back/reload, pagination focus, loading/
+empty/server/rate-limit/network recovery, zero price versus quotation, missing
+images, long facts, doubled-text reflow, and two enquiry review/cancel/receipt
+fixtures. Server reads use the existing loopback in-memory API; application writes
+are intercepted. Collection passes; execution and rendered reference comparison
+remain pending. Affected formatting/lint and an initial TypeScript check passed;
+final source and all three exact-master gates are required before publication.
+
+Reuse the shared dependency junction. No local build/install or Docker work.
+C: latest preflight 21.10 GiB with 0.05 GiB allowance passed; use a justified small
+upload/browser budget and stop if the 20 GiB reserve cannot be verified.

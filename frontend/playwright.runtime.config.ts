@@ -7,6 +7,10 @@ export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
     {
+      name: "services-design",
+      testMatch: ["services-design.spec.ts"],
+    },
+    {
       name: "authentication-lifecycle",
       testMatch: [
         "auth-forms.spec.ts",

@@ -9397,7 +9397,7 @@ this implementation adds the following ordered status overlay, not a second back
 | Group | Scope                                                                          | Implementation / release status                                                                                                                                          |
 | ----- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
-| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                                                                                                                         |
+| 2     | Services, detail, existing request                                             | In progress: catalogue/detail/request presentation implemented; 14 isolated cases collected. Rendered verification and release pending.                                                                                                                         |
 | 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                                                                                 |
 | 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                                                                           |
 | 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                                                                                |
@@ -9568,3 +9568,32 @@ Next: group 2, Services catalogue/detail and the existing request journey.
 Reference/server review and live desktop 1440/phone 390 baselines are complete.
 Bring discovery forward while preserving categories, actual prices, quotations
 and restricted booking. Groups 2-10 and the full 119-template inventory remain open.
+
+## 9 November - Services design group in progress
+
+Group 2 starts from master 1eef9aff, preserving the intervening authentication
+layout/test reconciliation. Public Home remains the verified 5464e402 release;
+no Services publication has occurred. The 1440/390 live baseline had eight work-area
+cards above search, four real service records and restricted booking requests.
+
+The catalogue now follows the supplied photographic introduction, overlapping
+white filter panel and four-column desktop/single-column phone result cards.
+Search precedes work-area cards. Actual names, prices, quotations, durations,
+category links, URL/history and permissions retain their existing sources.
+The service detail uses larger typography and a framed real photograph; natural
+portrait/landscape proportions take precedence over the export's full-width crop.
+The existing request page explains the currently available contact route in
+customer language. No booking, support, authentication or transaction logic changed.
+
+Fourteen focused cases join the existing production-build matrix: all nine exact
+viewport pairs, combined filters/detail/back/reload, pagination focus, loading/
+empty/server/rate-limit/network recovery, zero price versus quotation, missing
+images, long facts, doubled-text reflow, and two enquiry review/cancel/receipt
+fixtures. Server reads use the existing loopback in-memory API; application writes
+are intercepted. Collection passes; execution and rendered reference comparison
+remain pending. Affected formatting/lint and an initial TypeScript check passed;
+final source and all three exact-master gates are required before publication.
+
+Reuse the shared dependency junction. No local build/install or Docker work.
+C: latest preflight 21.10 GiB with 0.05 GiB allowance passed; use a justified small
+upload/browser budget and stop if the 20 GiB reserve cannot be verified.
