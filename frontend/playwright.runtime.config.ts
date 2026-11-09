@@ -6,6 +6,42 @@ process.env.CAPABILITY_TEST_TRANSPORT = "loopback";
 export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
+    ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
+      name: `quotation-modal-${browserName}`,
+      testMatch: ["staff-quotation-modal.spec.ts"],
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? { baseURL: "https://127.0.0.1:3104", ignoreHTTPSErrors: true }
+          : {}),
+      },
+    })),
+    ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
+      name: `payment-modal-${browserName}`,
+      testMatch: ["payment-detail-quality.spec.ts"],
+      grep: /payment review geometry/,
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? { baseURL: "https://127.0.0.1:3104", ignoreHTTPSErrors: true }
+          : {}),
+      },
+    })),
+    {
+      name: "authentication-lifecycle",
+      testMatch: [
+        "auth-forms.spec.ts",
+        "login-quality.spec.ts",
+        "forgot-password-quality.spec.ts",
+        "reset-password-quality.spec.ts",
+        "mfa.spec.ts",
+        "authenticator-replacement.spec.ts",
+      ],
+      // Match the synthetic WebAuthn RP without changing application policy.
+      // This project uses the same loopback production server and build.
+      use: { baseURL: "http://localhost:3103" },
+      grep: /registration completes|verification token|accepted request is generic|Retry-After blocks|duplicate submission locks|complete reset|invalid link clears|uncertain .* result|pending session selects|invalid codes clear|recovery code uses|first-factor setup requires|discarding authenticator|late enrollment|malformed enrollment|virtual security key|cancelled browser|existing factor blocks|re-register authenticator|password reveal is reversible|pending submission clears|honest .* response|invalid .* response cannot|MFA hands off|safe continuation|session change clears/,
+    },
     {
       name: "home-design",
       testMatch: ["home-design.spec.ts"],
@@ -47,6 +83,7 @@ export default defineConfig({
         "booking-capacity.spec.ts",
         "invoice-modal-responsive.spec.ts",
         "modal-layout.spec.ts",
+        "mfa-action-layout.spec.ts",
         "catalogue-modal-layout.spec.ts",
         "service-timing.spec.ts",
         "slot-timing-review.spec.ts",
@@ -107,6 +144,7 @@ export default defineConfig({
         "booking-calendar.spec.ts",
         "invoice-modal-responsive.spec.ts",
         "modal-layout.spec.ts",
+        "mfa-action-layout.spec.ts",
         "catalogue-modal-layout.spec.ts",
         "public-search-recovery.spec.ts",
         "public-navigation-readiness.spec.ts",

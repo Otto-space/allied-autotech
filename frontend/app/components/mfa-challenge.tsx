@@ -237,58 +237,60 @@ export function MfaChallenge({
           Use security key
         </button>
       )}
-      {options && !operation.uncertain && !operation.requiresMfa && (
-        <button
-          type="button"
-          className="mfa-text-button"
-          disabled={disabled}
-          onClick={() => {
-            setOptions(undefined);
-            setUnavailable(undefined);
-            operation.clearError();
-            requestAnimationFrame(() => firstMethod.current?.focus());
-          }}
-        >
-          Choose another method
-        </button>
-      )}
-      {operation.uncertain || operation.requiresMfa ? (
-        <button className="button secondary" onClick={onCheck}>
-          Check session status
-        </button>
-      ) : !options && !replacement ? (
-        <div className="mfa-first-factor">
+      <div className="mfa-secondary-actions">
+        {options && !operation.uncertain && !operation.requiresMfa && (
           <button
+            type="button"
             className="mfa-text-button"
             disabled={disabled}
-            onClick={() => void checkSetup()}
+            onClick={() => {
+              setOptions(undefined);
+              setUnavailable(undefined);
+              operation.clearError();
+              requestAnimationFrame(() => firstMethod.current?.focus());
+            }}
           >
-            Check first-factor setup
+            Choose another method
           </button>
-          {canSetup && (
-            <button className="button" disabled={disabled} onClick={onSetup}>
-              Set up first MFA factor
+        )}
+        {operation.uncertain || operation.requiresMfa ? (
+          <button className="button secondary" onClick={onCheck}>
+            Check session status
+          </button>
+        ) : !options && !replacement ? (
+          <div className="mfa-first-factor">
+            <button
+              className="mfa-text-button"
+              disabled={disabled}
+              onClick={() => void checkSetup()}
+            >
+              Check first-factor setup
             </button>
-          )}
-        </div>
-      ) : null}
-      {!replacement && (
-        <button
-          type="button"
-          className="mfa-text-button"
-          disabled={disabled}
-          onClick={() => {
-            setOptions(undefined);
-            setUnavailable(undefined);
-            setCanSetup(false);
-            operation.clearError();
-            onReplaceAuthenticator();
-            requestAnimationFrame(() => firstMethod.current?.focus());
-          }}
-        >
-          Set up authenticator again
-        </button>
-      )}
+            {canSetup && (
+              <button className="button" disabled={disabled} onClick={onSetup}>
+                Set up first MFA factor
+              </button>
+            )}
+          </div>
+        ) : null}
+        {!replacement && (
+          <button
+            type="button"
+            className="mfa-text-button"
+            disabled={disabled}
+            onClick={() => {
+              setOptions(undefined);
+              setUnavailable(undefined);
+              setCanSetup(false);
+              operation.clearError();
+              onReplaceAuthenticator();
+              requestAnimationFrame(() => firstMethod.current?.focus());
+            }}
+          >
+            Set up authenticator again
+          </button>
+        )}
+      </div>
       <AuthenticatorHelp />
     </>
   );

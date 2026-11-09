@@ -12,7 +12,7 @@ import { BookingReference } from "./booking-reference";
 import { bookingLabel } from "@/lib/customer-booking-query";
 import Link from "next/link";
 import { AppointmentTiming } from "./appointment-timing";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
@@ -68,6 +68,10 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
   }>();
   const [classificationBlocked, setClassificationBlocked] = useState(true);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
+  const reviewOpener = useRef<HTMLElement | null>(null);
+  const restoreReviewFocus = useRef(false);
+  const reviewClosedAtRevision = useRef<number | null>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
   const [validation, setValidation] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [invalidField, setInvalidField] = useState<string>();
@@ -106,6 +110,41 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
     !verifiedAccess ||
     !!proposal;
   const canChangeQuotes = canOperate;
+  useEffect(() => {
+    if (
+      !restoreReviewFocus.current ||
+      proposal ||
+      booking.settledRevision === reviewClosedAtRevision.current ||
+      booking.loading ||
+      booking.refreshing ||
+      access.loading ||
+      access.refreshing
+    )
+      return;
+    // Closing a review refreshes the booking and temporarily disables its opener.
+    // Restore only after that read settles; never steal focus moved by the user.
+    const frame = requestAnimationFrame(() => {
+      restoreReviewFocus.current = false;
+      const opener = reviewOpener.current;
+      const focused = document.activeElement;
+      if (focused && focused !== document.body && focused !== opener) return;
+      const target =
+        opener?.isConnected &&
+        !opener.matches(":disabled") &&
+        opener.getClientRects().length
+          ? opener
+          : heading.current;
+      target?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [
+    proposal,
+    booking.loading,
+    booking.refreshing,
+    booking.settledRevision,
+    access.loading,
+    access.refreshing,
+  ]);
   const choices = current
     ? (transitions[current.status] ?? []).filter((status) =>
         status === "CONFIRMED" ? canConfirm && !!current.service : canOperate,
@@ -130,6 +169,8 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
   }
   function reviewProposal(next: MutationProposal) {
     if (disabled) return;
+    reviewOpener.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setProposal({ ...next, retryAfterRejection: false });
   }
   function review(
@@ -323,7 +364,9 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
       </nav>
       <header className="booking-detail-heading">
         <div>
-          <h1>Manage workshop booking</h1>
+          <h1 ref={heading} tabIndex={-1}>
+            Manage workshop booking
+          </h1>
           <p>Review the appointment, coordinate the team and record service progress.</p>
         </div>
         <button
@@ -796,6 +839,8 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
         <MutationReview
           proposal={proposal}
           onClose={() => {
+            reviewClosedAtRevision.current = booking.settledRevision;
+            restoreReviewFocus.current = true;
             setProposal(null);
             booking.refresh();
           }}

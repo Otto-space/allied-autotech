@@ -49,6 +49,8 @@ export function ManualPaymentForm({
   payment,
   eligible,
   disabled,
+  refreshPending,
+  settledRevision,
   onActivity,
   onRecorded,
   onRefresh,
@@ -56,6 +58,8 @@ export function ManualPaymentForm({
   payment: PaymentRecord;
   eligible: boolean;
   disabled: boolean;
+  refreshPending: boolean;
+  settledRevision: number | null;
   onActivity: (active: boolean) => void;
   onRecorded: () => void;
   onRefresh: () => void;
@@ -71,6 +75,7 @@ export function ManualPaymentForm({
   const formElement = useRef<HTMLFormElement>(null);
   const reviewButton = useRef<HTMLButtonElement>(null);
   const restoreReviewFocus = useRef(false);
+  const reviewClosedAtRevision = useRef<number | null>(null);
   const current = useRef({ eligible, disabled });
   useEffect(() => {
     current.current = { eligible, disabled };
@@ -110,18 +115,32 @@ export function ManualPaymentForm({
   }, [resetForm]);
   const blocked = disabled || !eligible || locked || receipt || !!proposal;
   useEffect(() => {
-    if (!restoreReviewFocus.current || disabled || proposal) return;
+    if (
+      !restoreReviewFocus.current ||
+      proposal ||
+      refreshPending ||
+      settledRevision === reviewClosedAtRevision.current
+    )
+      return;
     const frame = requestAnimationFrame(() => {
       if (!active.current) return;
       restoreReviewFocus.current = false;
+      const focused = document.activeElement;
+      if (
+        focused &&
+        focused !== document.body &&
+        focused !== document.documentElement &&
+        focused !== reviewButton.current
+      )
+        return;
       const target =
-        eligible && !locked && !receipt
+        !disabled && eligible && !locked && !receipt
           ? reviewButton.current
           : formElement.current?.closest(".customer-payment")?.querySelector("h1");
       if (target instanceof HTMLElement) target.focus();
     });
     return () => cancelAnimationFrame(frame);
-  }, [disabled, eligible, locked, proposal, receipt]);
+  }, [disabled, eligible, locked, proposal, receipt, refreshPending, settledRevision]);
   function review(values: z.infer<typeof schema>, now: number) {
     if (blocked || !active.current || newPaymentAttemptUnavailable(payment, now)) return;
     const prepared = selection?.prepared;
@@ -347,6 +366,7 @@ export function ManualPaymentForm({
         <MutationReview
           proposal={proposal}
           onClose={() => {
+            reviewClosedAtRevision.current = settledRevision;
             restoreReviewFocus.current = true;
             setProposal(null);
             if (!locked) onActivity(false);
