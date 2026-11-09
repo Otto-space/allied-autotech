@@ -1,3 +1,32 @@
+## 9 November 14:24 UTC - cross-browser gate follow-up; publication held
+
+Exact master 885010a6 passed backend database safety and secrets, production build,
+lint/types/unit checks and the WebKit transport diagnostic. The full browser matrix
+passed 438/441; all Firefox/WebKit cases passed. Three new Chromium fixtures failed:
+one selected an option before its asynchronous response arrived; two required old
+modal wording despite the current explicit pending-approval message. The fixture
+now waits for the exact available option before its unchanged keyboard interaction,
+and checks staff approval, unchanged original time and unchanged customer allowance.
+No application guard or assertion of those outcomes is removed. Fresh CI is required.
+
+All four 885010a6 Linux images are built. Ten packaged safety/media/font/import/
+separate-database restore checks and seven populated-schema candidate/recovery probes
+pass. A staged production frontend exists with public aliases unchanged; it is not
+approved for promotion. A first Linux HTTP attempt stopped on a synthetic migration
+byte mismatch; the release's exact filtered files were replayed into a new isolated
+fixture target without changing any existing history. All 22 compiled attendance
+cases then passed; five new late-visit cases exposed that their shared technician was
+already doing other fixture work. They are being rerun with a dedicated qualified
+synthetic technician, retaining the real occupancy guard. No real records changed.
+
+Production remains e947a205/schema 99. Retain the fresh backup and 99-to-100 populated
+restore proof. The full D11 release and original D01-D17 goal remain active, with all
+financial/security/capability boundaries unchanged. Existing Docker inspection has
+recovered without a reset, pruning or deletion. The new CI failure is a failed gate,
+not a claim that a green build makes this feature or the whole site launch-ready.
+
+---
+
 ## 9 November 13:57 UTC - D11 source and populated restore checkpoint
 
 Prepared application candidate: `aff7d2fcaa3835cd3d4b8c2010d3c821f3397745`, PR #26.
