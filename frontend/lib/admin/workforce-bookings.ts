@@ -1,3 +1,4 @@
+import { bookingWorkEstimateSchema } from "../api/booking-work-review-schemas";
 import { bookingTimingSnapshotSchema } from "../api/booking-timing-schemas";
 import { rescheduleRequestSchema } from "../api/booking-schemas";
 import { z } from "zod";
@@ -14,6 +15,8 @@ export const bookingStatusLabels = {
   EXPIRED: "Expired",
 } as const;
 const workforceBookingSchema = z.object({
+  startedAt: z.iso.datetime({ offset: true }).nullable().optional(),
+  workEstimate: bookingWorkEstimateSchema.nullable().optional(),
   scheduleVersion: z.number().int().nonnegative().optional(),
   timingSnapshots: z.array(bookingTimingSnapshotSchema).max(10).optional(),
   rescheduleRequests: z.array(rescheduleRequestSchema).max(10).optional(),

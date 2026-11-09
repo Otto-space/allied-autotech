@@ -1,4 +1,7 @@
-import { unfinishedBookingWork } from "./booking-work-occupancy.js";
+import {
+  unfinishedBookingWork,
+  currentBookingWorkReviewJoin,
+} from "./booking-work-occupancy.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { capacitySettingsSchema } from "./booking-capacity.js";
 import { timingWindow, type TimingValues } from "./booking-timing.js";
@@ -89,16 +92,17 @@ export function technicianConflictSelect(
 ) {
   return Prisma.sql`SELECT 1 FROM "Booking" b
  LEFT JOIN "BookingTimingSnapshot" t ON t."bookingId"=b."id" AND t."scheduleVersion"=b."scheduleVersion"
+ ${currentBookingWorkReviewJoin}
  WHERE b."assignedStaffId"=${staff} AND (b."status" IN ('REQUESTED','AWAITING_DEPOSIT','CONFIRMED','IN_PROGRESS','COMPLETED') OR (b."status"='CANCELLED' AND b."startedAt" IS NOT NULL))
  AND (${exclude} IS NULL OR b."id"<>${exclude}) AND (
- (t."id" IS NOT NULL AND t."durationMinutes" IS NOT NULL AND t."preparationMinutes" IS NOT NULL AND t."cleanupMinutes" IS NOT NULL
+ ((wr."id" IS NOT NULL OR (t."id" IS NOT NULL AND t."durationMinutes" IS NOT NULL AND t."preparationMinutes" IS NOT NULL AND t."cleanupMinutes" IS NOT NULL))
  AND LEAST(b."scheduledAt"-make_interval(mins=>t."preparationMinutes"),COALESCE(b."startedAt",b."scheduledAt")) < ${ends}
  AND (CASE
- WHEN ${unfinishedBookingWork} AND GREATEST(b."scheduledAt"+make_interval(mins=>t."durationMinutes"+t."cleanupMinutes"),COALESCE(b."startedAt",b."scheduledAt")+make_interval(mins=>t."durationMinutes"+t."cleanupMinutes"))<=timezone('UTC',now()) THEN 'infinity'::timestamp
- WHEN b."status"='COMPLETED' AND b."completedAt" IS NOT NULL THEN b."completedAt"+make_interval(mins=>t."cleanupMinutes")
- WHEN b."status"='CANCELLED' AND b."startedAt" IS NOT NULL AND b."cancelledAt" IS NOT NULL THEN b."cancelledAt"+make_interval(mins=>t."cleanupMinutes")
- ELSE GREATEST(b."scheduledAt"+make_interval(mins=>t."durationMinutes"+t."cleanupMinutes"),COALESCE(b."startedAt",b."scheduledAt")+make_interval(mins=>t."durationMinutes"+t."cleanupMinutes")) END) > ${starts})
- OR ((t."id" IS NULL OR t."durationMinutes" IS NULL OR t."preparationMinutes" IS NULL OR t."cleanupMinutes" IS NULL)
+ WHEN ${unfinishedBookingWork} AND COALESCE(wr."endsAt",GREATEST(b."scheduledAt"+make_interval(mins=>t."durationMinutes"+t."cleanupMinutes"),COALESCE(b."startedAt",b."scheduledAt")+make_interval(mins=>t."durationMinutes"+t."cleanupMinutes")))<=timezone('UTC',now()) THEN 'infinity'::timestamp
+ WHEN b."status"='COMPLETED' AND b."completedAt" IS NOT NULL THEN b."completedAt"+make_interval(mins=>COALESCE(wr."cleanupMinutes",t."cleanupMinutes"))
+ WHEN b."status"='CANCELLED' AND b."startedAt" IS NOT NULL AND b."cancelledAt" IS NOT NULL THEN b."cancelledAt"+make_interval(mins=>COALESCE(wr."cleanupMinutes",t."cleanupMinutes"))
+ ELSE COALESCE(wr."endsAt",GREATEST(b."scheduledAt"+make_interval(mins=>t."durationMinutes"+t."cleanupMinutes"),COALESCE(b."startedAt",b."scheduledAt")+make_interval(mins=>t."durationMinutes"+t."cleanupMinutes"))) END) > ${starts})
+ OR (wr."id" IS NULL AND (t."id" IS NULL OR t."durationMinutes" IS NULL OR t."preparationMinutes" IS NULL OR t."cleanupMinutes" IS NULL)
  AND (${unfinishedBookingWork} OR (b."scheduledAt">=date_trunc('day',(${starts})::timestamp+interval '1 hour')-interval '1 hour'
  AND b."scheduledAt"<date_trunc('day',(${ends})::timestamp+interval '1 hour')+interval '23 hours'))))`;
 }

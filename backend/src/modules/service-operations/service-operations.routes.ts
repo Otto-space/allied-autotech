@@ -1,3 +1,4 @@
+import { bookingWorkReviewBodySchema } from "./service-operations.schemas.js";
 import { bookingTimingOverrideBodySchema } from "./service-operations.schemas.js";
 import {
   bookingRescheduleDecisionBodySchema,
@@ -239,6 +240,22 @@ export function createStaffServiceOperationsRouter(): Router {
       query: serviceOperationsEmptyQuerySchema,
     }),
     controller.proposeBookingAlternative,
+  );
+  router.get(
+    "/bookings/:bookingId/work-review",
+    validate({ params: bookingParamsSchema, query: serviceOperationsEmptyQuerySchema }),
+    controller.bookingWorkReviewOptions,
+  );
+  router.post(
+    "/bookings/:bookingId/work-review",
+    requireCsrf,
+    createSensitiveRateLimit(20),
+    validate({
+      params: bookingParamsSchema,
+      query: serviceOperationsEmptyQuerySchema,
+      body: bookingWorkReviewBodySchema,
+    }),
+    controller.reviewBookingWork,
   );
   router.post(
     "/bookings/:bookingId/timing",

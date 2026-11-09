@@ -1,3 +1,4 @@
+import type { BookingWorkReviewInput } from "./service-operations.schemas.js";
 import type { BookingTimingOverrideInput } from "./service-operations.schemas.js";
 import type {
   BookingRescheduleDecisionInput,
@@ -265,6 +266,33 @@ export class ServiceOperationsController {
             actor(req),
             ids(res).bookingId,
             validated<BookingAlternativeResponseInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+  bookingWorkReviewOptions = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Current work review options",
+          req.id,
+          await this.service.bookingWorkReviewOptions(actor(req), ids(res).bookingId),
+        ),
+      );
+  reviewBookingWork = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Remaining work estimate recorded",
+          req.id,
+          await this.service.reviewBookingWork(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingWorkReviewInput>(res, "body"),
             context(req),
           ),
         ),
