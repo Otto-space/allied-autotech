@@ -66,6 +66,7 @@ for (const [width, height] of viewports) {
       "Understand your vehicle’s condition.",
     );
     await expect(hero).toHaveAttribute("data-rotating", "false");
+    const initialHero = await hero.boundingBox();
     for (let i = 0; i < 4; i++) {
       await hero
         .getByRole("button", { name: new RegExp(`Show slide ${i + 1}:`) })
@@ -77,6 +78,18 @@ for (const [width, height] of viewports) {
       );
       await expect(hero.locator('img[data-current="true"]')).toHaveCount(1);
       await expect(hero.getByRole("heading", { level: 1 })).toHaveCount(1);
+      // Changing slides must not move the next section or crowd the controls.
+      expect((await hero.boundingBox())!.height).toBeCloseTo(initialHero!.height, 0);
+      const action = await hero.locator("a[data-hero-primary]:visible").boundingBox();
+      const picker = await hero
+        .getByRole("button", { name: /Show slide 1:/ })
+        .boundingBox();
+      expect(picker!.y).toBeGreaterThanOrEqual(action!.y + action!.height);
+    }
+    if (width <= 430) {
+      await page.evaluate(() => scrollTo(0, 0));
+      const nextHeading = await page.locator(".home-discovery h2").boundingBox();
+      expect(nextHeading!.y + nextHeading!.height).toBeLessThanOrEqual(height);
     }
     await hero.getByRole("button", { name: /Show slide 1:/ }).click();
     for (const control of await hero.getByRole("button").all()) {

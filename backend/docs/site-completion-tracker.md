@@ -1,3 +1,14 @@
+## 9 November 22:53 UTC - retain current Home and account focus repairs
+
+Combined audit source incorporates master3cf5d9cb, preserving the compact Home
+hero, phone spacing, account editor focus and all42 account browser cases. Both
+account-modal and sidebar-breakpoint projects remain. The cumulative matrix budget
+is35 minutes; individual assertions and deadlines are unchanged. The111 backend
+units,20 frontend units, types/lint and contracts apply before this final merge;
+exact combined-source CI and rendered acceptance remain required. No publication.
+
+---
+
 ## 9 November 22:28 UTC - combined audit candidate; no publication
 
 Reconcile committed pickup/holding/staged-service source62815e7c with reminder
@@ -475,6 +486,96 @@ Inventory issue/use is an optional extension, not a section-7.2 launch requireme
 materials-before-work, genuine historical credits and all financial safeguards stay.
 The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work remain.
 The owner's separate 79-line Desktop hero edit is preserved.
+
+---
+
+## 9 November 22:17 UTC - recovery status regression and held-release transport
+
+Exact-master 6538f4b5 frontend run42705393145 completed with879 passes and two
+failures. Both assertions ambiguously matched the global availability notice and
+the recovery result. Scope each status to its named result region; deliberately
+show a503 availability notice so the collision stays covered. All eight compiled
+Edge/Chrome desktop and320px mobile/touch cases pass with unchanged application
+code. Evidence: TEMP/allied-auth-status-recheck-20261109/report.json. Secret
+clearing, generic copy, focus, session events and accessibility assertions remain.
+
+The held6538 candidate remains unpublished. Authenticated CLI reads return the
+application and JavaScript with200 responses. Browser transport attempts timed out
+or remained at session verification; these are failed checks, not acceptance.
+Deployment protection and public aliases are unchanged. PR44 account focus retains
+40 compiled native passes; its final combined GitHub gate remains pending. The
+complete original goal and active backend dependencies are still open.
+
+## 9 November 21:55 UTC - customer account focus verified in compiled browsers
+
+PR #44's compiled application, bd1d75d7, passes all 40 native Edge/Chrome cases:
+seven exact viewport pairs, both administrator roles, delayed refresh, deliberately
+moved focus, failed reads, rejected writes and filtered-row disappearance after
+confirmed or uncertain outcomes. Phone recovery cases additionally use 320x720
+mobile/touch contexts. No failures, retries or real outgoing writes occurred.
+The tests execute the committed regression file against the protected preview;
+trace/video/auth-state recording is disabled. Evidence:
+TEMP/allied-account-preview-bd1d75d7/report.json and its final-state captures.
+
+CI run 42705596768 passed lint, types, unit tests and the production build, then
+failed the quality register's formatting check. The extra blank line is corrected;
+the rerun must complete all 923 engine cases before release. Backend 42705596739
+and secret 42705596971 passed on bd1d75d7. This documentation-only checkpoint
+does not change the browser-verified application.
+
+Merged authentication/payment/quotation source 6538f4b5 has a READY production
+candidate, dpl_BKtDmMnbDf4n8JxznrkBtemRCMVt, held without public domains.
+Master frontend 42705393145 is running; backend 42705393276 and secret
+42705393445 passed. Held-candidate browser verification and publication remain
+pending. Public domains still serve the separate Home release 5464e402.
+The complete two-brief goal, active backend work and real-role/provider/device
+acceptance remain open.
+
+## 9 November 21:45 UTC - payment/quotation gate passed and integrated
+
+PR38 source58f55aed passes all881 browser cases in24.3 minutes, plus production,
+backend and secret gates. It is merged as6538f4b5, retaining the intervening Home
+release receipts. Final source native payment20, equipment18 and product-photo14
+cases pass; quotation28 native cases retain their unchanged-application scope.
+See TEMP/allied-modal-verification-58f55aed.md for screenshots and limitations.
+Exact-master checks and held-candidate publication remain separate requirements.
+
+Customer account follow-up9f4e64a5 is now reconciled with that master. Full types,
+scoped lint/formatting and the existing account-action unit pass;42 new engine
+cases collect. The923-case combined matrix receives30 minutes instead of25 based
+on the measured881-case runtime; job timeout remains45 minutes and no test or
+assertion is removed. Compiled account-focus acceptance remains pending.
+
+## 9 November 21:40 UTC - customer account review focus follow-up
+
+Authentication PR35 is merged as f1176eff after all818 browser cases, production,
+backend and secret checks passed. Master later advanced through Home receipt-only
+commits to1eef9aff; its replacement frontend42702705731 remains active. Preserve
+that source and the existing Home release5464e402/dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV
+on both public domains. Backendc3c54414 remains ACTIVE and unchanged.
+
+Payment/quotation PR38 remains separate at58f55aed with frontend42700053527 active;
+backend and secrets passed. Final payment native checks pass20 Edge/Chrome cases,
+including delayed/failed refresh and deliberate focus movement. Equipment previews
+pass18 native cases, including image-failure recovery; product-image previews pass14,
+including full phone width, centering, image proportions, keyboard and draft retention.
+These are isolated fixtures, not real-account or physical-device acceptance.
+Evidence: TEMP/allied-{payment,equipment,product-photo}-modal-58f55aed.
+
+A new compiled characterization found customer-account confirmation loses focus to
+BODY after an intercepted successful suspension: Admin/Super Admin at1280x720 and
+320x720, four failures. Cancellation and geometry pass. Preserve that failure receipt:
+TEMP/allied-account-modal-characterize-58f55aed/msedge/receipt.json.
+
+The focused follow-up keeps return focus in the customer workspace until its new
+read settles; use the heading if the original control is disabled or a filtered row
+leaves, and preserve deliberate focus movement. Existing permissions, audit reason,
+uncertain-write locking and request contracts are unchanged.42 cases collect across
+three engines, covering all seven exact sizes, both roles, delayed/failed reads,
+rejection and filtered-row disappearance. Scoped lint and the existing account action
+unit and full TypeScript checks pass; compiled/browser execution and publication remain pending.
+No production account or security setting was changed. Full two-brief/D01-D17 scope,
+business facts, provider delivery and physical/real-role acceptance remain open.
 
 ## 9 November 21:10 UTC - cross-browser payment focus follow-up
 
@@ -10472,3 +10573,19 @@ Next: group 2, Services catalogue/detail and the existing request journey.
 Reference/server review and live desktop 1440/phone 390 baselines are complete.
 Bring discovery forward while preserving categories, actual prices, quotations
 and restricted booking. Groups 2-10 and the full 119-template inventory remain open.
+
+## 9 November - Owner correction: compact Home hero (in progress)
+
+The owner reported excessive hero height and empty space, especially on phones.
+Home's carousel now uses content and controls in normal flow instead of large
+reserved bottom padding. The desktop minimum is reduced from 780px to 560px;
+phones use their content height, consistent stacked actions and a single control
+row where it fits, with two rows at 320px. All seven controls retain 44px targets.
+This intentionally tightens the reference proportions following owner feedback.
+Existing carousel, image recovery, links and permissions remain unchanged.
+
+The existing nine-size Home journey regression also checks stable height across
+all four slides, action/control clearance and first-screen discovery on phones.
+Rendered checks, exact-source gates and publication are pending. Services work is
+preserved separately on codex/stitch-services-20261109 / draft PR45; no unverified
+Services changes are included in this correction. No backend/database rollout.
