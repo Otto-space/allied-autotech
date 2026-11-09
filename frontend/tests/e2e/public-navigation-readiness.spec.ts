@@ -152,3 +152,52 @@ for (const width of [320, 1280]) {
     });
   });
 }
+
+for (const width of [320, 1024]) {
+  test.describe(`offline navigation overlay ${width}px`, () => {
+    test.use({ viewport: { width, height: 720 }, reducedMotion: "reduce" });
+    test("availability notice and sticky header cannot cover menu controls", async ({
+      page,
+      context,
+    }, info) => {
+      await page.route("**/api/v1/**", (route) =>
+        route.fulfill({
+          status: 503,
+          json: { success: false, error: { code: "SERVICE_UNAVAILABLE" } },
+        }),
+      );
+      await page.goto("/help");
+      const opener = page.getByRole("button", { name: "Open navigation", exact: true });
+      await expect(opener).toBeEnabled();
+      await context.setOffline(true);
+      await expect(
+        page.getByRole("complementary", { name: "Online availability" }),
+      ).toBeVisible();
+      await opener.click();
+      const menu = page.getByRole("dialog", { name: "Mobile navigation" });
+      await expect(menu).toBeVisible();
+      const home = menu.getByRole("link", { name: "Home", exact: true });
+      const close = menu.getByRole("button", { name: "Close menu", exact: true });
+      for (const control of [home, close]) {
+        await expect(control).toBeVisible();
+        expect(
+          await control.evaluate((element) => {
+            const rect = element.getBoundingClientRect();
+            return element.contains(
+              document.elementFromPoint(
+                rect.x + rect.width / 2,
+                rect.y + rect.height / 2,
+              ),
+            );
+          }),
+        ).toBe(true);
+      }
+      expect((await menu.boundingBox())!.y).toBe(0);
+      await page.screenshot({ path: info.outputPath("offline-navigation.png") });
+      await close.click();
+      await expect(menu).toHaveCount(0);
+      await expect(opener).toBeFocused();
+      await context.setOffline(false);
+    });
+  });
+}

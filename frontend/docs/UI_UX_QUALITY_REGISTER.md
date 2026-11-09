@@ -1,3 +1,41 @@
+## 9 November 16:36 UTC - navigation outage overlay repair; publication checkpoint
+
+Current item: finish PR30 integration and exact-master publication after its gates.
+Visual review of the hosted preview caught a second P2 on anonymous /help at 320x720:
+the availability warning pushes the sticky header downward, while the drawer starts
+at a fixed 72px below the viewport. Header z-index 50 covers drawer z-index 45, so the
+Home link is visible in the DOM but cannot receive pointer input. The native hit-test
+returned site-header__inner instead of the link (TEMP/allied-navigation-release-592214bf/
+overlay-before.json); the screenshot confirms the obstruction. Earlier nine-case
+interaction acceptance did not detect this visual defect and is not full UI acceptance.
+
+The drawer now starts at viewport top above the header, with its backdrop also above
+background navigation. Its existing explicit Close menu control, focus recovery,
+Escape trap, scrolling, phone width and tablet width remain; top/bottom safe areas are
+respected. All 11 local Edge cases pass together in 1.5m, including all seven exact
+viewports, JavaScript-off mobile/desktop native navigation and outage overlays at
+320/1024. New hit-tests require Home and Close to receive pointer input, not merely
+have visible boxes. Scoped ESLint, formatting and diff checks pass. The earlier
+nonincremental TypeScript pass covers the unchanged application TypeScript; the new
+test is also collected/executed. Expanded hosted matrix is now expected to be 563.
+Evidence/screenshots: TEMP/allied-public-navigation-readiness-20261109/overlay-final.
+
+The e200dbfc backend run 42655339070 has passed the previously failing financial/
+booking stage after the fixed-hour fixture correction; remaining stages and final
+exact-source checks are pending. Do not count that in-progress workflow as a pass.
+PR30 is not merged or deployed yet. Saved items d553a349 remains the verified release
+on both public aliases with seven native public-domain fixture passes. Keep the
+checked release live until the new exact-master gates and rendered checks succeed.
+
+Disk review: C: had 21.33 GiB free before the last bounded 0.3 GiB dev preflight.
+Reused the exact-lock installation and existing warm cache; no dependency install,
+local production build, Docker build, database or archive was created. Docker reports
+151 images/13.82GB, 451 cache entries/14.05GB and 15 volumes/2.892GB. Other active
+backend work and historical database containers exist; reclaimable labels alone are
+not cleanup authority. Retain those resources, release receipts, source and history.
+Full two-brief real-role/persistence, physical-device, per-route/state, accessibility/
+performance and unconfirmed-business-data requirements remain active.
+
 ## 9 November 16:29 UTC - navigation preview and time-dependent CI fixture
 
 PR30 source 592214bf has a READY preview dpl_6eb6rcRcQNmwfLH18RKsBWnBoMdZ.

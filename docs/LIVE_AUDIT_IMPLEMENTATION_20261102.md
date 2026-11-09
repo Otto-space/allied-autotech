@@ -1,3 +1,14 @@
+## 9 November 16:36 UTC - navigation release checkpoint
+
+Saved items d553a349 is published and verified across all seven requested viewports.
+PR30 adds first-tap readiness, native fallback links and a verified outage-state drawer
+overlay repair. Its 11 local Edge checks pass together; final hosted 563-case CI,
+integration and exact-master publication remain pending. The current detailed ledger
+is the first entry in site-completion-tracker.md and UI_UX_QUALITY_REGISTER.md.
+Keep the known-good public deployment while these gates run. Full goal remains active.
+
+---
+
 ## 9 November 16:21 UTC - Saved items production and navigation checkpoint
 
 Saved collection context is now released as d553a349 on apex/www deployment
