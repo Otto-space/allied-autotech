@@ -3,7 +3,7 @@
   background: var(--surface);
   color: var(--ink);
   border-top: 1px solid var(--line);
-  padding: 64px 0 max(104px, calc(32px + env(safe-area-inset-bottom)));
+  padding: 64px 0 max(144px, calc(var(--viewport-support-offset, 128px) + 12px));
   font-size: 14px;
   line-height: 1.7;
 }
