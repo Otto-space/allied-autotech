@@ -195,3 +195,32 @@ retrieval acceptance passes 67/67 across eight files (`guide-retrieval-final.log
 including all public/customer/worker/Admin/owner catalogue coverage and the workshop
 resource guide. Current hosted backend acceptance must be rerun for this correction.
 Frontend formatting correction is fe210127; run 42669406067 is in progress.
+
+## Verified integration checkpoint
+
+Backend database-safety run 42670259181 on e1706f0f passes completely, including
+all 104-migration checks and the final 113/113 Care/Allie batch. Secret run
+42670259605 passes. Frontend run 42669406067 on fe210127 passes lint, types,
+1,529 units (twelve existing skips), optimized production build, formatting and
+WebKit transport prechecks; its full production-browser matrix is still running
+at this checkpoint and is not counted as passed. `git diff fe210127 HEAD --
+frontend` is empty: the current frontend is exactly the one under that gate.
+Financial/operational/schema paths are unchanged from native-tested c3cfcc05.
+
+Read-only provider review confirms both apex and www point to production
+dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb, READY, source master 160d3b7b. This is the
+newer navigation publication, not a release by this task. Its navigation/header/
+CSS/test and fixed-hour fixture files match the integrated branch exactly.
+Master is fetched again with no additional missing commits. The owner's Desktop
+hero remains 79 added lines. No domain assignment or provider mutation occurs.
+
+Do not repeat local preview/native builds merely to wait for hosted evidence.
+Both task listeners and browser processes are stopped, the owned tmpfs database
+is removed, shared resources remain and the final observed free space is about
+21.02 GiB. The preflight is not a machine-wide quota. Source remains held: full
+materials issue/use, durable authorised cleared-balance vehicle release, reviewed
+historical/corrective financial handling, final combined journey acceptance and
+exact-master release/backups/restore/provider gates are not complete. Owner Tax ID,
+applicable CAC details and tax applicability remain genuine external inputs;
+this work neither fabricates them nor activates purchasing. The full D01-D17
+requirement audit/status matrix remains outstanding and the goal remains active.
