@@ -47,6 +47,8 @@ async function fixture(page: Page) {
   const state = {
     payment: initialPayment(),
     reads: 0,
+    holdRead: false,
+    releaseRead: undefined as (() => void) | undefined,
     writes: [] as { endpoint: string; key?: string; csrf?: string; body: unknown }[],
     mode: "success",
     readStatus: 200,
@@ -80,6 +82,10 @@ async function fixture(page: Page) {
       route.request().method() === "GET"
     ) {
       state.reads++;
+      if (state.holdRead)
+        await new Promise<void>((resolve) => {
+          state.releaseRead = resolve;
+        });
       if (state.readStatus !== 200)
         return route.fulfill({
           status: state.readStatus,
@@ -230,6 +236,43 @@ for (const [width, height] of [
     });
   });
 }
+for (const mode of ["delayed", "moved focus", "read failure"]) {
+  test(`payment review geometry refresh: ${mode}`, async ({ page }) => {
+    const state = await fixture(page);
+    await visit(page);
+    await expect(page.getByLabel("Payer name", { exact: true })).toBeEnabled();
+    await fillManual(page);
+    state.holdRead = true;
+    if (mode === "read failure") state.readStatus = 503;
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect.poll(() => !!state.releaseRead).toBe(true);
+    const opener = page.getByRole("button", {
+      name: "Review payment details",
+      exact: true,
+    });
+    const heading = page.locator(".customer-payment h1");
+    await expect(opener).toBeDisabled();
+    if (mode === "moved focus") await heading.focus();
+    state.holdRead = false;
+    state.releaseRead!();
+    await expect(mode === "delayed" ? opener : heading).toBeFocused();
+    if (mode === "read failure") await expect(opener).toBeDisabled();
+    else await expect(opener).toBeEnabled();
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        ),
+    );
+    await expect(mode === "delayed" ? opener : heading).toBeFocused();
+    await expect(page.getByLabel("Payer name", { exact: true })).toHaveValue(
+      "Synthetic payer",
+    );
+    expect(state.writes).toEqual([]);
+  });
+}
+
 test("checkout rechecks the payable and sends CSRF and one idempotent request before trusted handoff", async ({
   page,
 }) => {

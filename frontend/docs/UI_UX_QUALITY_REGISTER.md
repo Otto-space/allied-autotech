@@ -1,3 +1,26 @@
+## 9 November 21:10 UTC - cross-browser payment focus follow-up
+
+PR38 ac43bf8a passed1526 units (12 existing skips), production checks, nine WebKit
+transport diagnostics and21 media diagnostics. Its full matrix passed37 cases and
+failed five, leaving830 unrun: three quotation focus-movement tests used an
+ambiguous desktop link locator; two Firefox payment cancellations lost focus.
+Scope the test to the Breadcrumb navigation without weakening its assertion.
+
+Manual payment review now waits for a new settled payment revision before focus
+restoration, matching the verified booking refresh fix. Preserve deliberate focus
+movement, keep failed-read controls disabled and return to the heading when the
+action is unavailable. Add held-refresh, moved-focus and read-failure regressions
+in all three engines. Production payment and permission rules remain unchanged.
+Final compiled/native/engine acceptance for this change is pending.
+
+Earlier exact ac43 quotation acceptance remains valid:24 Admin Edge/Chrome cases
+plus four Staff/SuperAdmin Edge cases, all required sizes within the Admin matrix,
+success/conflict/review cancellation, no real writes or page errors/overflow.
+Payment833 acceptance passed14 Edge/Chrome cases, but did not establish Firefox
+acceptance. Do not equate those results with the incomplete full engine gate.
+Native screenshot/evidence paths are recorded in TEMP/allied-modal-verification-
+ac43bf8a.md. Authentication PR35 frontend42696383965 remains live; do not restart it.
+
 ## 9 November 20:58 UTC - quotation submission focus race
 
 Compiled833bdd0a passes ten initial native Edge quotation cases: all seven exact

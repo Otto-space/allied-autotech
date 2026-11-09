@@ -515,6 +515,8 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
               payment={current}
               eligible={!unavailable && !uncertain}
               disabled={!checkoutEnabled || busy || readBlocked}
+              refreshPending={payment.loading || payment.refreshing}
+              settledRevision={payment.settledRevision}
               onActivity={setManualActive}
               onRefresh={payment.refresh}
               onRecorded={() => {

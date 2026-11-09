@@ -89,7 +89,9 @@ test("keeps the user's new focus while a closed review refreshes", async ({ page
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   await expect.poll(() => !!state.held).toBe(true);
-  const link = page.getByRole("link", { name: "Workshop bookings", exact: true });
+  const link = page
+    .getByRole("navigation", { name: "Breadcrumb", exact: true })
+    .getByRole("link", { name: "Workshop bookings", exact: true });
   await link.focus();
   state.mode = "normal";
   state.held!();
