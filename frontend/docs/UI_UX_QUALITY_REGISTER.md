@@ -76,6 +76,7 @@ release-product-timing-449d0ecc-20261109; handoff is in the parent folder. These
 continuity notes remain uncommitted pending the evidence/release closeout.
 
 ---
+
 ## 9 November 18:45 UTC - reconcile current product-timing master
 
 Remote master advanced to b362e9f8 (PR32 product sourcing/preparation estimates)

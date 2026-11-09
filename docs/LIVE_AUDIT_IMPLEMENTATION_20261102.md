@@ -205,7 +205,6 @@ verification and receipt recovery rather than the removed raw status option;
 its source/lint is updated, but that full dashboard test has not run locally.
 The component browser fixture evidence above does not substitute for that test.
 
-
 Integration checkpoint: reconciled current master 9fbf3732 (recorded-work capacity,
 responsive calendar/modals and customer overview) without replacing its repairs.
 Combined guidance advances booking-confirmation to v12 and service-request to v29;
@@ -221,7 +220,6 @@ not a claim that the previously failed 81-case invocation passed. Merged backend
 cryptographically verified SSH signature using the configured signing key. Required hosted gates and
 production migration/recovery acceptance still remain. No production publication.
 
-
 Hosted regression checkpoint: the 7dad16e1 backend run passed its migration,
 booking/resource/financial and earlier learning stages, then failed five audience
 retrieval assertions because the expanded service article exceeded Allie's existing
@@ -233,7 +231,6 @@ Fresh native Edge component reruns on the integrated shared styles pass both
 390/1440 arrival/wait cases and all seven responsive/loading/error/recovery states.
 The signed source remains in draft PR #20, held for updated hosted checks and the
 recorded migration recovery/full-dashboard acceptance requirements.
-
 
 4 November full-dashboard acceptance follow-up (source, hosted run pending):
 new browser coverage mounts attendance in the real managed booking page and
@@ -262,7 +259,6 @@ and the shared 7–14-day new-booking window currently blocks a same-day alterna
 Resolve that late-arrival journey under D11 without weakening ordinary intake,
 resource checks, existing confirmations or physical-attendance history.
 
-
 4 November full-dashboard run: source 26850a6b passed backend safety, secret
 checks and frontend production checks. The expanded production-build browser run
 passed 232/235 cases. All three failures exposed two simultaneous Attendance
@@ -279,7 +275,6 @@ canonically replayed migration-98 isolated database. Its 30 guidance checks pass
 required hosted and packaged release checks remain pending. No production change.
 Keep the full attendance feature here separate until that writer transition and
 98-aware migration/recovery composition have been reviewed and verified.
-
 
 ---
 
