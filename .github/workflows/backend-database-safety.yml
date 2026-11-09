@@ -111,6 +111,7 @@ jobs:
             tests/integration/workforce-aftercare.test.ts \
             tests/integration/booking-resource-lifecycle.test.ts \
             tests/unit/booking-attendance.test.ts tests/unit/booking-attendance-learning.test.ts tests/integration/booking-attendance.test.ts \
+            tests/integration/missed-writer-compatibility.test.ts \
             tests/unit/booking-reschedule-notifications.test.ts tests/unit/booking-reschedule-learning.test.ts \
             tests/unit/catalogue-learning.test.ts tests/integration/booking-reschedule-approval.test.ts \
             tests/integration/workforce-booking-reschedule.test.ts tests/integration/booking-timing.test.ts \

@@ -1,7 +1,7 @@
 # Arrival and attendance checkpoint — 4 November 2026
 
 Source implementation; publication and real-role acceptance remain pending.
-Booking-confirmation v12, assigned-findings v4 and public service-request v29
+Booking-confirmation v13, assigned-findings v5 and public service-request v29
 explain factual arrival/wait/left history, staff-verified absence, no automatic
 penalty, existing responsibility limits and uncertain-response recovery.
 Existing eligibility gates are retained: booking confirmation, assigned job
@@ -27,3 +27,7 @@ this attendance batch. Retain current production and recovery resources.
 Integration preserves master recorded-work guidance and the current customer and staff calendar instructions. The combined article versions advance rather than overwriting the independently prepared versions.
 
 Retrieval acceptance: customer service guidance remains within the existing 12-step and 8,000-character passage limits. The existing five-audience retrieval coverage is retained; no restricted catalogue is widened to make content discoverable.
+
+9 November reconciliation: full attendance guidance supersedes the transitional
+unavailable wording at v13/v5. Permission gates and the complete recovery behavior
+remain; combined-source checks must pass before publication.

@@ -289,6 +289,7 @@ test("staff verifies missed attendance after grace and reconciles an uncertain s
       };
       return route.abort("failed");
     }
+    if (path === "/public/capabilities") return route.fallback();
     return route.fulfill({
       status: 404,
       json: { success: false, error: { code: "NOT_FOUND" } },

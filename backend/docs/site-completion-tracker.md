@@ -1,3 +1,26 @@
+## 9 November ? full attendance integration in progress
+
+Reconciled the complete attendance candidate with current master 80e95a38 and
+the compatible recovery writer. The verified route retains its private absence
+allowance, immutable evidence and notification transaction. Raw status writes
+remain refused for all roles. The full UI retains arrival/wait/leave and verified
+absence, with its complete browser coverage; the recovery-only unavailable notice
+and browser project are excluded. Public-search fixes and recovery tests remain.
+Booking-confirmation advances to v13 and assigned-findings to v5 without changing
+eligibility or permissions. The recovery candidate remains a separate source.
+
+Local combined-source evidence: 37/37 attendance and affected learning unit
+checks pass; backend typecheck and full repository lint pass. Frontend changed
+files pass formatting; runtime collection includes 237 cases in 28 files.
+Collection is not rendered acceptance. Fresh hosted execution remains required.
+
+Earlier source results (235 full-feature and 225 compatibility browser passes)
+are historical; this combined source requires fresh gates. No production change
+has been made. D11 actual available alternatives, operational acceptance and the
+remaining audit ledger are still outstanding. Release/recovery safeguards apply.
+
+---
+
 4 November attendance batch — source verified locally; not deployed
 
 Current item: D11 physical arrival/wait/left and D16 staff-verified missed visits.
@@ -137,6 +160,116 @@ canonically replayed migration-98 isolated database. Its 30 guidance checks pass
 required hosted and packaged release checks remain pending. No production change.
 Keep the full attendance feature here separate until that writer transition and
 98-aware migration/recovery composition have been reviewed and verified.
+## 9 November ? attendance recovery source reconciliation
+
+Merged current master 80e95a38 into the held compatibility candidate, preserving
+public-search recovery coverage, corrected product identity wording and the
+published calendar/modal changes. This is source integration, not publication.
+The previous compatibility source d619f720 passed all three hosted gates,
+including 225 browser cases; the complete attendance source de9908bf separately
+passed all three gates, including 235 browser cases. Those results do not certify
+this new merge or current master. Required merged-source checks remain pending.
+
+The temporary missed-status limitation belongs only to the recovery candidate.
+The full verified attendance workflow, D11 actual available alternatives and the
+remaining audit requirements remain required. No production records, firewall
+rules, permissions or capability flags changed during this reconciliation.
+
+---
+
+## 4 November 02:40 UTC — public search acceptance package
+
+Target boundary: 03:40 UTC. Full renewed two-brief goal remains active. Current
+release is master 804eb4fc, frontend dpl_Hsm7YfNcZoDp3YjM9tbSragqnkvY on both
+apex/www (fresh provider readback), backend 8a7821b4-9316-40c1-9638-d2953bdebcbc.
+Calendar/shared-modal release is complete: exact-source frontend/backend/secrets
+checks passed, 1,486 units passed (12 existing skips), 224/224 isolated browser
+regressions passed and six native public-delivery checks passed. Calendar, invoice,
+notification and garage geometry cover all seven required sizes; other owners
+have representative checks. Prior failures below remain historical evidence.
+Release receipt: TEMP/allied-calendar-release-804eb4fc/RELEASE.md. Physical devices,
+full screen-reader acceptance and fresh worker heartbeat timestamps remain unverified.
+Completed calendar branch is retained because GitHub GH013 blocks deletion;
+repository protections were not changed.
+
+Current page: /search, anonymous public browsing. Existing implementation already
+puts submitted results inside the first viewport: heading y367-451px across
+1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800 and 320x720. Fourteen Edge
+states (matching service and valid 100-character query at every size) pass actual
+viewport/no-overflow checks. No layout redesign is needed. Edge and installed
+Chrome 156.0.8078.79 pass the ten-step search journey at all seven sizes: header
+entry, Enter and pointer submission, Help scope, Back/Forward, Close/Escape,
+keyboard empty-group disclosure, cleared required input and invalid external scope.
+The initial Edge run passed four sizes; three phone checks exceeded the runner's
+5-second hydration expectation. The bounded rerun explicitly allowed 25 seconds
+and all three passed unchanged application code. Original failures are retained.
+Chrome passed seven of seven in one run. Zero application writes or page exceptions;
+only expected signed-out session HTTP 401s were observed. Dedicated headless browser
+contexts use mobile/touch emulation for phone sizes; this is not physical testing.
+Evidence: TEMP/allied-public-search-20261104/{baseline.json,interactions.json,
+interactions-phone-rerun.json,chrome/interactions.json}, with captured page states.
+
+P3 verified copy defect: product results joined a recorded brand and manufacturer
+part number with a question mark. Existing synthetic unit strengthened to require
+'Synthetic maker · Part no. AB-123' failed before the separator correction and now
+passes; both search unit files pass 9/9. No brand, inventory or fitment facts were
+invented. Two new production-build browser regressions at 320/1280 cover a failed
+Shop source while Services remain available, distinguish failure from no matches,
+then retry without losing query/scope. The loopback-only test API controls pass a
+503-to-200 probe; rendered execution of these two new cases is still pending CI.
+Scoped lint/format and test collection pass. No new backend/schema/flag changes.
+This batch is not yet merged or deployed. Preserve the other worktrees' changes.
+
+Remaining full scope: the page/state and role matrix below still applies; these
+public search checks do not certify every catalogue facet, authenticated dashboard,
+all roles, Firefox/WebKit, physical device, real product evidence or workshop setup.
+
+---
+
+4 November attendance writer compatibility — source prepared, not deployed
+
+Current package: a schema-97 compatibility API before the separately held schema-98
+attendance release. Full feature branch codex/booking-attendance-20261104 remains
+at 26850a6b, draft PR #20. Its full dashboard suite is running; D11's actual available
+alternative and the remaining full audit scope are not declared complete here.
+
+This patch rejects the older direct NO_SHOW status action for every operational
+role before a database write. The now-unreachable old no-show notification branch
+is removed. It does not implement attendance authoring or enable any capability.
+Booking-confirmation v12 and assigned-findings v4 explain the unavailable old
+status action while retaining their existing eligibility gates. Verified physical
+attendance and final missed-visit authoring remain in the separately held feature.
+
+Actual local evidence: fresh canonical 98-migration replay and db:check pass on a
+new task-owned _ci target. The compatibility application uses its genuine older
+97-migration generated client (no attendance model); its real startup scalar probe
+passes against that 98 schema. Authenticated assigned Staff, Admin and Super Admin
+raw missed-status writes each return 409 and leave the appointment/version/time/
+work/reschedule state unchanged. Only synthetic records were used. Source types and full backend lint pass. All 30 focused guide/retrieval
+checks pass after the guidance update. Required hosted checks still need final
+results for this source.
+
+The first attempt correctly stopped on checksum drift against the earlier local
+98 test database: three existing historical files there used different line
+endings from canonical checkout bytes. That database and its evidence are retained;
+no SQL or applied ledger was edited. The fresh canonical replay is independent
+of that earlier worktree-byte evidence.
+
+Release remains held for exact-master gates, matching packaged-image tests and
+fresh backup/populated restore/target/privilege checks. The recovery configuration
+must keep the 98-aware migration component while using the tested compatibility
+API/worker runtime. Never run the older 97 migrator against a 98 ledger. See
+backend/docs/attendance-writer-transition.md. No production database/firewall,
+permissions, prices, policies or capability flags were changed by this rehearsal.
+
+Compatibility UI follow-up: the old missed-status option is removed from the
+legacy staff form, and its temporary unavailability is explicit beside the other
+status choices. The regression now requires no unsupported option or write and
+retains mobile navigation, readable current status and accessibility checks. It is
+registered in the existing hosted runtime suite (225 intended cases). The full
+feature in draft #20 replaces this temporary notice/case with verified attendance;
+remove the compatibility-only project on that integration, preserving the complete
+new workflow's assertions. Source lint/discovery is not a browser pass.
 
 
 ---
@@ -514,7 +647,6 @@ resource facts/owner configuration, running-job estimate/resource review and leg
 operational assessment remain separate work. No financial activation, migration,
 real staff assignment or physical attendance is inferred.
 
-
 4 November integration checkpoint: c80b4080 passed all exact-source gates:
 Frontend 41741100952 (1,486 units, 12 existing skips; 150 browser cases), Backend
 41741100977 (including all five overview cases), Secrets 41741100951. Master then
@@ -657,8 +789,7 @@ rerun passed; 320px is being checked again. Dev-server logs also contain a trans
 Unexpected end of JSON input while serving a route, plus slow chunk responses.
 Do not classify those failures as verified production behavior or silently pass
 them. Exact locked-build browser CI remains decisive for this batch.
-Master 6432da3e passes Frontend 41731942415, Backend 41731942587 and Secrets
-41731942475. The new overview work is draft PR #15, source ff1adafc before this
+Master 6432da3e passes Frontend 41731942415, Backend 41731942587 and Secrets 41731942475. The new overview work is draft PR #15, source ff1adafc before this
 follow-up; neither renewed batch has been promoted by this task.
 
 ## 3 November: owned default vehicle and private overview photo

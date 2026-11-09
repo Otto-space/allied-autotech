@@ -3,8 +3,8 @@ import { learningArticles } from "../../src/modules/learning/learning.content.js
 
 it("keeps physical attendance guidance in existing permission gates without imposing penalties", () => {
   for (const [id, gate, version] of [
-    ["booking-confirmation", "booking-confirmation", 12],
-    ["assigned-findings", "jobs", 4],
+    ["booking-confirmation", "booking-confirmation", 13],
+    ["assigned-findings", "jobs", 5],
     ["service-request", "public", 29],
   ] as const) {
     const article = learningArticles.find((row) => row.id === id)!;

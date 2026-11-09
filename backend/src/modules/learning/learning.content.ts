@@ -266,7 +266,7 @@ export const learningArticles: LearningArticle[] = [
       "Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form",
       "booking appointment confirm calendar capacity equipment people staff schedule resource review requested alternative proposal reschedule suggested time",
     ),
-    version: 12,
+    version: 13,
     reviewedAt: "2026-11-04",
   },
   {
@@ -624,7 +624,7 @@ export const learningArticles: LearningArticle[] = [
       "JOBS_READ/JOBS_UPDATE, assigned scope and work review",
       "electrical diagnostics mechanic technician handover",
     ),
-    version: 4,
+    version: 5,
     reviewedAt: "2026-11-04",
   },
   {

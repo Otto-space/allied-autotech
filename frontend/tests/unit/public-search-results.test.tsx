@@ -127,7 +127,7 @@ it("ranks a genuine manufacturer part number ahead of a title prefix and shows i
     html.indexOf('href="/parts/prefix"'),
   );
   expect(html).toContain("Part no. AB-123");
-  expect(html).toContain("Synthetic maker");
+  expect(html).toContain("Synthetic maker · Part no. AB-123");
 });
 
 it("retains current public FAQs and retry when optional learning cannot be fetched", async () => {
