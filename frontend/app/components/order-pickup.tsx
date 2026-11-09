@@ -253,7 +253,7 @@ function PickupPanel({
         description: descriptions[action],
         retryAfterRejection: false,
         onConfirmed: () => {
-          if (action !== "verify") onSaved();
+          if (action !== "verify" && action !== "issue") onSaved();
         },
         facts: [
           ...(lines ?? review?.lines ?? []).map((line) => ({

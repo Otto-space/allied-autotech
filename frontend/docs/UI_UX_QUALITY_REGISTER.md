@@ -1,3 +1,16 @@
+### 9 November: preserve buyer one-time pickup code after issuance
+
+Hosted62815e7c frontend42708988094 passed production/calendar/media checks and
+three pickup cases: 320/1440 staff review, physical partial handover, persistence,
+keyboard/axe/overflow/console evidence, and older-backend hiding. Customer issuance
+then failed: the successful issue callback refreshed the parent order, whose loading
+boundary unmounted the code before it could be read. Guest refresh used the same
+callback. Issuance now refreshes only its safe pickup summary and keeps the secret
+in private component memory; explicit hide/navigation/access change still clears it.
+Verification also retains its session-bound review. Other completed actions still
+refresh the order. Existing once-only/storage/refresh assertions and deadlines are
+unchanged. New browser acceptance remains required; nine cases did not run.
+
 ### 9 November: pickup browser fixture correction
 
 Hosted frontend42707420739 source1cc72541 passed production checks, repeated
