@@ -9875,3 +9875,18 @@ heading's final word. The Home introduction now leaves a56px side lane on phones
 with a rendered disjoint-rectangle assertion in the five touch cases. Services
 sort/category selects stack below375px so their selected text has useful width.
 Both are scoped responsive repairs; final compiled screenshots remain required.
+
+## 10 November - Release gate clock-boundary fixture repair (pending CI)
+
+Production publication remains held. Branch f5969c84 backend safety42718157628
+failed four late-visit fixture setups (278 passed,4 failed,4 skipped). After23:00UTC,
+its Date.now()+1h day selection froze JavaScript at tomorrow's noon. Synthetic
+resource-policy effectiveAt was consequently in the future relative to PostgreSQL's
+real clock, and the existing allocation trigger correctly rejected it.
+
+Only the test fixture changes: choose the most recent past UTC noon, including
+before noon UTC and near Lagos midnight. Keep all18 reschedule assertions,
+allocation triggers, runtime source, privileges and migrations unchanged. No
+production/application database is written, reset, repaired or migrated. The
+isolated GitHub safety job must pass for the resulting exact master source,
+alongside frontend and secret gates, before the combined public mobile release.
