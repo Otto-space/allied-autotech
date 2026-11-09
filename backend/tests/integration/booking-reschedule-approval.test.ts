@@ -43,7 +43,7 @@ async function customer() {
     } as AuthenticatedActor,
   };
 }
-async function fixture() {
+async function fixture(policyEffectiveAt?: Date) {
   const buyer = await customer(),
     sources = await reviewSourceFixtures(buyer.customerId);
   await prisma.service.update({
@@ -62,7 +62,12 @@ async function fixture() {
     mfaVerifiedAt: new Date(),
   };
   const branchId = sources.listing.branchId;
-  const capacity = await testBranchCapacity(branchId, owner.id);
+  const capacity = await testBranchCapacity(
+    branchId,
+    owner.id,
+    undefined,
+    policyEffectiveAt,
+  );
   const staff = await prisma.staffProfile.create({
     data: {
       firstName: "Synthetic",
@@ -79,7 +84,13 @@ async function fixture() {
       },
     },
   });
-  await testBranchResources(branchId, owner.id, [sources.service.id], [staff.id]);
+  await testBranchResources(
+    branchId,
+    owner.id,
+    [sources.service.id],
+    [staff.id],
+    policyEffectiveAt,
+  );
   const startsAt = new Date(Date.now() + 9 * 86400000);
   startsAt.setUTCHours(8, 0, 0, 0);
   const nextAt = new Date(startsAt.getTime() + 86400000);
@@ -457,10 +468,23 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     beforeAll(() => assertIsolatedLoopbackDatabase());
     afterEach(() => vi.useRealTimers());
     async function lateVisit(kind: "ARRIVED" | "LEFT" = "ARRIVED") {
-      const today = new Date(Date.now() + 3_600_000).toISOString().slice(0, 10);
+      // The application clock is simulated; PostgreSQL CURRENT_TIMESTAMP is not.
+      // Keep only these synthetic policies effective under both clocks. The live
+      // allocation trigger and all appointment/session assertions stay intact.
+      const [clock] = await prisma.$queryRaw<
+        { now: Date }[]
+      >`SELECT CURRENT_TIMESTAMP AS now`;
+      // Always exercise an application date ahead of the SQL clock, so this
+      // fixture catches the policy-activation regression at any CI run time.
+      const today = new Date(clock!.now.getTime() + 25 * 3_600_000)
+        .toISOString()
+        .slice(0, 10);
       vi.useFakeTimers({ toFake: ["Date"] });
       vi.setSystemTime(new Date(`${today}T12:00:00Z`));
-      const f = await fixture();
+      const policyEffectiveAt = new Date(
+        Math.min(Date.now(), clock!.now.getTime()) - 1000,
+      );
+      const f = await fixture(policyEffectiveAt);
       const original = new Date(Date.now() - 20 * 60000),
         replacement = new Date(Date.now() + 120 * 60000);
       await prisma.booking.update({

@@ -1,3 +1,26 @@
+## 10 November 00:32 Lagos - vehicle candidate retains the database time guard
+
+Corrected535912cc passes the102-migration replay/db:check and initial backend unit
+step; secret42720509249 passes. Backend42720509221 then fails four existing
+late-visit fixture cases in booking-reschedule-approval at the resource-allocation
+trigger. The fixture mocks application time to noon on the Lagos date, which can
+be the following day while PostgreSQL CURRENT_TIMESTAMP is still the previous day.
+Its synthetic policy effectiveAt was consequently future-dated to the real SQL
+clock. Preserve the trigger: read the isolated database clock and explicitly date
+only these test policies before both clocks. Helper defaults for other tests stay
+unchanged. The simulated application date is always ahead of SQL time to
+exercise this regression deterministically. Types and scoped lint pass; the
+isolated API run still must prove the correction. This is test-fixture work,
+not a runtime or approved-policy change.
+
+Fresh complete isolated CI proof is pending for that correction; do not call the
+four failures a pass or alter the allocation guard. Frontend42720509475 was verified
+live in production checks; no timeout or lack of output is a terminal state.
+Vehicle API, full application browser, restore/package/live and all Team/media
+requirements remain active. Source worktree and draft PR50 are recorded below.
+
+---
+
 ## 10 November 00:24 Lagos - vehicle source CI follow-up
 
 Draft PR50: https://github.com/Otto-space/allied-autotech/pull/50 . Signed source
