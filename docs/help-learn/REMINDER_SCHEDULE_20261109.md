@@ -61,12 +61,32 @@ worktree/Git-filtered line-ending mismatch was not treated as canonical proof.
 No applied migration was rewritten. A subsequent Nigeria-time message change adds
 a UTC/date-boundary case; final-source verification remains pending.
 
-Exact-source CI, rendered evidence and exact-master gates remain. The pending
-product-timing and reminder migrations still need protected populated restore,
-packaged-image and recovery gates. Deploy and verify the compatible general worker
-before the new API creates NOTICE kinds: an older worker's label map cannot
-interpret them. Retain the compatible worker with any older-API recovery; do not
-use an older all-component rollback blindly or undo enum/data history.
+Final source 31012924 passes canonical 102-migration replay/db:check and all 15
+reminder/concurrency cases, including the Nigeria date rollover. Its backend and
+secret CI gates pass. Frontend CI passes 1,526 units (12 existing skips), nine
+WebKit diagnostics, 21 media preflights and 787 of 788 rendered cases. The sole
+failure is the 1440px reminder case: the sidebar expands during its full-page
+capture, leaving no Expand sidebar control. The capture assertion and actual
+expand action remain required. Saved-items removal and Escape focus cases pass
+in Chromium, Firefox and WebKit. These are synthetic workflows, not live roles.
+
+A protected populated restore of the retained production snapshot passes forward
+migration from 100 to 102, db:check and original-column/row/history preservation.
+Receipt: TEMP/aat-attendance-20261104/release-reminder-schedule-31012924-20261109/
+populated-restore-1794259516961-verified.json. The isolated restored database holds
+protected snapshot data; it is not a fixture test database. Renew the production
+backup and managed backup/PITR checks before any production migration.
+
+Recovery verification found that the unmodified 9c219bc8 API throws Prisma P2023
+when a booking projection reads NOTICE_2 from a synthetic database. A compatible
+worker alone is therefore insufficient. Before creating new NOTICE jobs, deploy
+and verify both a schema-compatible API and the compatible general worker; retain
+that compatible API, worker and migrator for recovery. An older API must not be
+selected just because scalar schema probes pass. A packaged compatibility bridge
+and its real enum-reading proof remain required; the 13 passing composition-helper
+fixture cases do not establish runtime compatibility. No old all-component rollback
+or reversal of enum/data history is authorised. Exact merged-source CI, packaged
+images and full release/recovery gates remain outstanding.
 
 Packaging remains disk-blocked. Actual operational email, optional push delivery,
 calendar-app/device acceptance and the complete original audit remain open.

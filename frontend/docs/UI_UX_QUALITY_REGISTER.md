@@ -1,3 +1,38 @@
+## 9 November 22:00 UTC - reminder acceptance and recovery correction
+
+Candidate 31012924 passes backend42698964950 and secrets42698965156. Frontend
+42698965112 fails one of788 rendered cases (787 pass): the1440px reminder sidebar
+expands during a full-page capture without a user click. All1,526 units pass with
+12 existing skips; nine WebKit diagnostics and21 media preflights pass. Saved-items
+remove/Escape focus regressions pass in Chromium, Firefox and WebKit. These are
+synthetic workflows, not real-role or physical-device acceptance.
+
+The shared shell now retains the desktop collapse choice across mobile breakpoints;
+its independent mobile dialog still renders full navigation. The regression checks
+keyboard focus, mobile Escape, retained collapse and explicit expansion. Full-page
+capture and post-capture state assertions remain. The normal capacity fixture now
+returns canonical public capabilities instead of an unrelated outage. Rendered
+verification of these edits is pending; the native hosted parent diagnostic did
+not reproduce the capture reset in either healthy or unavailable capability state.
+
+A populated isolated restore passes100-to102 migration, db:check and original
+column/row/history preservation. It contains protected snapshot data and is never
+used for synthetic submissions. A separate read-only old-API probe on a synthetic
+database FAILS with Prisma P2023 on NOTICE_2. Previous worker-only recovery guidance
+is superseded: both compatible API and general worker must precede new NOTICE jobs
+and remain in recovery. The packaged compatibility bridge is not yet prepared.
+Its composition helper passes13 fixture cases only. Temporary probe role/container
+were removed. No production database, grant, capability or deployment changed.
+
+Current master6538f4b5 is reconciled, retaining authentication and payment/quotation
+modal repairs. At21:27 UTC both public aliases resolved to frontend5464e402
+(dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV); backend remains9c219bc8/c3c54414. Do not promote
+the older held b362 frontend over the newer published work. C:20.97GiB passes the
+20GiB reserve but fails21.5GiB packaging headroom. No reviewed cleanup was performed.
+Exact-master CI, packaging, safe release and the complete original audit remain open.
+
+---
+
 ## 9 November 21:03 UTC - Saved items focus regression follow-up
 
 Earlier CI42692306583 failed the Firefox collection-change focus assertion and

@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import { overviewFixture } from "../fixtures/overview";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 
 async function session(page: Page, role: string) {
   const reads: string[] = [];
@@ -10,24 +11,26 @@ async function session(page: Page, role: string) {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
     reads.push(endpoint);
     const data =
-      endpoint === "/auth/session"
-        ? {
-            id: "b0000000-0000-4000-8000-000000000001",
-            user: {
-              id: "b0000000-0000-4000-8000-000000000002",
-              email: "dashboard@example.test",
-              role,
-            },
-            mfaRequired: role !== "CUSTOMER",
-            mfaVerifiedAt: role === "CUSTOMER" ? null : "2026-09-17T10:00:00Z",
-            expiresAt: "2027-01-01T00:00:00Z",
-            idleExpiresAt: "2027-01-01T00:00:00Z",
-          }
-        : endpoint.endsWith("/overview")
-          ? overviewFixture(role)
-          : endpoint === "/admin/operations/status"
-            ? { queues: [], openPaymentAnomalies: 0, lastReconciliation: null }
-            : { items: [] };
+      endpoint === "/public/capabilities"
+        ? publicCapabilitiesFixture("browse_enquiries")
+        : endpoint === "/auth/session"
+          ? {
+              id: "b0000000-0000-4000-8000-000000000001",
+              user: {
+                id: "b0000000-0000-4000-8000-000000000002",
+                email: "dashboard@example.test",
+                role,
+              },
+              mfaRequired: role !== "CUSTOMER",
+              mfaVerifiedAt: role === "CUSTOMER" ? null : "2026-09-17T10:00:00Z",
+              expiresAt: "2027-01-01T00:00:00Z",
+              idleExpiresAt: "2027-01-01T00:00:00Z",
+            }
+          : endpoint.endsWith("/overview")
+            ? overviewFixture(role)
+            : endpoint === "/admin/operations/status"
+              ? { queues: [], openPaymentAnomalies: 0, lastReconciliation: null }
+              : { items: [] };
     await route.fulfill({
       json: {
         success: true,
@@ -224,7 +227,7 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
   });
 }
 
-test("sidebar adapts between compact desktop and mobile without stranding keyboard focus", async ({
+test("sidebar preserves the desktop choice across mobile without stranding keyboard focus", async ({
   page,
 }) => {
   await session(page, "ADMIN");
@@ -241,9 +244,14 @@ test("sidebar adapts between compact desktop and mobile without stranding keyboa
   await expect(nav).toBeHidden();
   await page.setViewportSize({ width: 1024, height: 768 });
   await expect(
+    page.getByRole("button", { name: "Expand sidebar", exact: true }),
+  ).toBeFocused();
+  await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
+  await expect(nav).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(
     page.getByRole("button", { name: "Collapse sidebar", exact: true }),
   ).toBeFocused();
-  await expect(nav).toBeVisible();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);

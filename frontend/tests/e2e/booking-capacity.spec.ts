@@ -55,7 +55,14 @@ for (const width of [320, 768, 1440])
         path: info.outputPath("reminder-saved-collapsed-1440.png"),
         fullPage: true,
       });
+      await expect(page.locator(".dashboard")).toHaveAttribute(
+        "data-sidebar-collapsed",
+        "true",
+      );
       await page.getByRole("button", { name: "Expand sidebar", exact: true }).click();
+      await expect(
+        page.getByRole("button", { name: "Collapse sidebar", exact: true }),
+      ).toHaveAttribute("aria-expanded", "true");
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       ).toBe(true);

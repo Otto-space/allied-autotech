@@ -7,6 +7,17 @@ export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
     ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
+      name: `sidebar-breakpoint-${browserName}`,
+      testMatch: ["dashboard-navigation.spec.ts"],
+      grep: /sidebar preserves the desktop choice across mobile/,
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? { baseURL: "https://127.0.0.1:3104", ignoreHTTPSErrors: true }
+          : {}),
+      },
+    })),
+    ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
       name: `quotation-modal-${browserName}`,
       testMatch: ["staff-quotation-modal.spec.ts"],
       use: {
