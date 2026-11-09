@@ -1,3 +1,12 @@
+### 9 November: combine attendance with remaining-work reviews
+
+Booking-confirmation v14 preserves both physical attendance and remaining-work
+review guidance; assigned-findings remains v5 and service-request remains v29.
+Existing eligibility, permission and publication gates are unchanged. The combined
+candidate has 99 migrations and regenerated canonical contracts. Local focused
+checks pass (57 backend and 32 frontend); new combined hosted/browser acceptance
+is still required. Historical single-feature results below remain separate.
+
 ### 9 November: preserve the newly merged missed-writer safeguard
 
 Candidate 7d5ec4eb passed Backend 42606466337, Secrets 42606466356 and Frontend

@@ -35,6 +35,461 @@ other incomplete journeys are not declared finished. Real operational facts,
 authorized role acceptance, invoice identities, tax applicability and provider
 acceptance retain their separate gates. This header records runtime M; subsequent
 documentation checkpoints do not imply another runtime deployment.
+---
+
+## 9 November 11:42 UTC - compatibility release published; combined integration held
+
+Production now serves checked master 80b4c8ac on both apex and www: frontend
+dpl_5gdnYnBjoT5jwuumPPXZZyt4rSJA and backend
+6d88a7ff-230b-4e83-a9bb-e77252a32ea3. Exact master frontend/backend/secrets gates
+pass: 1,486 units passed (12 existing skips), 227 browser cases passed, 10 packaged
+checks passed, a fresh 899,377-byte snapshot restored with all original rows/counts/
+hashes and 97-migration history preserved, seven packaged candidate/recovery
+probes passed, and all 13 checked worker heartbeats were fresh and healthy. The
+scoped operator rule was removed and freshly verified. No production migration,
+permission, price, policy or capability activation occurred. Normal runtime worker
+activity is separate from the read-only release inspection. Provider payment,
+real-role and physical-device acceptance are not claimed.
+
+Full attendance cb46774c separately passed all three branch gates, 1,497 units
+(12 existing skips) and 237 browser cases. Master then advanced to efebfa38 with
+remaining-work reviews. The combined candidate preserves both workflows,
+requires booking-confirmation v14 and contains 99 migrations. The client and
+canonical contracts have been regenerated. Frontend/backend types and lint,
+57 backend and 32 frontend focused units, OpenAPI (450 paths) and mounted-route
+coverage (530 operations) pass. Runtime discovery includes 250 cases in 29 files;
+rendered combined execution and release/recovery evidence are pending. Prior
+single-feature results do not prove this composition. It is not published.
+
+A preflight temporarily failed with C: at 13.64 GiB free; substantial writes
+stopped. Windows subsequently reduced its page-file allocation (29,075 to 18,773
+MiB observed), and the fresh 0.3 GiB operation preflight passed with 23.21 GiB free.
+No project files or databases were deleted and the 20 GiB reserve was not lowered.
+Generation and combined verification have resumed with measured stage checks.
+D11 actual available alternatives, D03/D12-D17 and the original audit/role/provider
+acceptance requirements remain in the full ledger. A passing build is not launch
+approval for the complete site.
+
+Release receipt: TEMP/aat-attendance-20261104/release-compat-80b4c8ac-20261109/final-release-receipt.json.
+
+---
+
+## 9 November - full attendance integration in progress
+
+Reconciled the complete attendance candidate with current master 80e95a38 and
+the compatible recovery writer. The verified route retains its private absence
+allowance, immutable evidence and notification transaction. Raw status writes
+remain refused for all roles. The full UI retains arrival/wait/leave and verified
+absence, with its complete browser coverage; the recovery-only unavailable notice
+and browser project are excluded. Public-search fixes and recovery tests remain.
+Booking-confirmation advances to v13 and assigned-findings to v5 without changing
+eligibility or permissions. The recovery candidate remains a separate source.
+
+Local combined-source evidence: 37/37 attendance and affected learning unit
+checks pass; backend typecheck and full repository lint pass. Frontend changed
+files pass formatting; runtime collection includes 237 cases in 28 files.
+Collection is not rendered acceptance. Fresh hosted execution remains required.
+
+The first combined frontend gate stopped at a missing Markdown blank line in
+the merged register before browser execution. The register is corrected and its
+format check now passes; no interaction assertion or application guard changed.
+
+Earlier source results (235 full-feature and 225 compatibility browser passes)
+are historical; this combined source requires fresh gates. No production change
+has been made. D11 actual available alternatives, operational acceptance and the
+remaining audit ledger are still outstanding. Release/recovery safeguards apply.
+
+---
+
+4 November attendance batch — source verified locally; not deployed
+
+Current item: D11 physical arrival/wait/left and D16 staff-verified missed visits.
+Implemented append-only physical attendance, scoped read/write endpoints, actor-bound
+idempotent receipts, stale-version checks and recovery without storing factual
+notes in browser storage. Existing Admin/Super Admin operations and assigned-job
+responsibilities remain; owner/security/financial duties are unchanged. Customer
+RSVP is not arrival. A timer never marks absence. A factual staff check after the
+configured grace (delegated default 15 minutes) is required; active work or prior
+physical arrival blocks absence. No automatic fee, forfeiture, suspension or
+refund rejection. Eligible remaining capacity is released without deleting history.
+
+Shared staff controls use existing input/focus/disabled styling and responsive
+fields. Customer/booking/job details receive minimal dated history; private actor
+and digest fields stay out of that projection. Existing branch capacity policy
+supports reviewed grace configuration. Versioned Help guidance and CI coverage
+were updated; no publication or capability flag was activated.
+
+Actual checks: native isolated PostgreSQL 18 migration replay through 98 and
+schema/history check pass; latest restricted-runtime run passes 34 attendance
+unit/integration cases (22 integration, 12 unit), including Admin/Super Admin,
+assigned technician, cross-scope denial, idempotency, concurrency, active work and
+minimal projections. Earlier adjacent resource/work-inspection tests passed;
+the final attendance rerun does not re-label those as rerun. Eight focused guide
+checks and 29 affected frontend unit cases pass. Backend source typecheck passes;
+script typecheck and final lint/contract checks are recorded separately below.
+OpenAPI generation and route coverage pass for 448 paths / 526 operations before
+the final minimal job-history projection; canonical regeneration followed.
+
+Rendered component fixture: native Edge 390/1440 arrival/wait, keyboard focus and
+CSRF-bearing synthetic writes pass. Seven further cases at 320/390/768/1440 cover
+initial, early, slow, denied, interrupted-response and confirmed-missed states:
+zero page errors/overflow and zero automated WCAG-tagged axe violations. Interrupted
+transport repeated the same operation; one event/version advance was retained and
+reconciliation sent no new write. Visual inspection found missing shared field
+boundaries; fixed with shared input styling and rechecked. Safe before/after
+fixture PNGs and exact logs are under the task-private Temp/aat-attendance-20261104
+folder. These compare this component's styling/states, not fabricated live records.
+Full dashboard/sidebar layouts, live staff persistence, actual notification delivery,
+physical phones and screen-reader acceptance remain unverified.
+
+Release hold: migration 98's deferred missed-evidence constraint makes the old API's
+raw NO_SHOW write operationally incompatible. A startup/schema-only probe is
+insufficient. Prepare and verify a compatible writer transition/recovery API,
+review the source, pass all required exact-master hosted gates, then perform fresh
+backup/populated restore/target/privilege checks before publication. The scoped
+network approval remains available for bounded release work, but this batch opened
+no production firewall rule and applied no shared/production migration. Current
+published release evidence below is preserved independently of this newer source.
+
+D11 remains partial: recording waiting does not implement or prove the complete
+actual-available-alternative journey. D16 source is implemented, pending full
+rendered and release acceptance. Full D01-D17 goal remains active; existing
+purchasing, sourcing, collection, staged-work and refund requirements are retained.
+No new owner decision is requested by this batch.
+
+Final local checkpoint: backend source and script TypeScript checks, full backend
+lint and affected frontend lint pass; final OpenAPI and route validation pass at
+448 paths / 526 operations after the job-history projection. Generated frontend
+contracts are regenerated with the project generator, not manually formatted.
+The existing staff missed-visit browser regression now uses explicit attendance
+verification and receipt recovery rather than the removed raw status option;
+its source/lint is updated, but that full dashboard test has not run locally.
+The component browser fixture evidence above does not substitute for that test.
+
+Integration checkpoint: reconciled current master 9fbf3732 (recorded-work capacity,
+responsive calendar/modals and customer overview) without replacing its repairs.
+Combined guidance advances booking-confirmation to v12 and service-request to v29;
+assigned-findings is v4. Initial combined guide checks exposed a 13-step article
+against the established 12-step client bound. Related calendar/attendance guidance
+is now grouped, preserving all conditions and the bound. All 38 focused guide/Allie
+unit checks pass after correction. The broader isolated run passed 77 of 81 cases
+before the guide fix; its four failures were the same step-bound defect, so it is
+not reported as a passing full run. The focused authenticated learning HTTP rerun passes all 11 cases on the same
+task-owned isolated target after correction. The other 70 attendance/resource/
+inspection cases passed in the combined run; this is separately sequenced evidence,
+not a claim that the previously failed 81-case invocation passed. Merged backend source typecheck and full lint pass; merge a18541f6 has a
+cryptographically verified SSH signature using the configured signing key. Required hosted gates and
+production migration/recovery acceptance still remain. No production publication.
+
+Hosted regression checkpoint: the 7dad16e1 backend run passed its migration,
+booking/resource/financial and earlier learning stages, then failed five audience
+retrieval assertions because the expanded service article exceeded Allie's existing
+8,000-character passage budget. Do not report that required gate as passed. The
+article now uses shorter wording while preserving calendar, attendance and penalty
+conditions; neither the 12-step nor passage limits, access gates or assertions were
+relaxed. All 44 focused guide/Allie/retrieval unit cases pass after correction.
+Fresh native Edge component reruns on the integrated shared styles pass both
+390/1440 arrival/wait cases and all seven responsive/loading/error/recovery states.
+The signed source remains in draft PR #20, held for updated hosted checks and the
+recorded migration recovery/full-dashboard acceptance requirements.
+
+4 November full-dashboard acceptance follow-up (source, hosted run pending):
+new browser coverage mounts attendance in the real managed booking page and
+assigned-job page, exercises 390/768/1440 layouts and laptop sidebar states, and
+runs the updated legacy missed-appointment regression. Eleven new cases are
+registered in the existing runtime CI and dashboard coverage list. These remain
+synthetic fixtures, not live-role or provider acceptance. They are not marked
+passed merely because discovery/lint succeeds.
+
+Source inspection found that a parent refresh unmounts the attendance editor and
+loses its local confirmation. The shared callback now carries the actual notice
+to the existing persistent page feedback on booking and job screens. A verified
+save and a reviewed-but-unverified record keep distinct wording. Ten attendance
+unit tests and affected lint pass; the unit verifies the callback's saved notice.
+The legacy toast uses the actual authored notice instead of claiming every
+reconciliation changed a booking.
+
+Hosted d6f39798: Backend database safety and secret guard pass. Frontend lint,
+types, unit tests and production build pass; quality-register formatting failed,
+so its browser stage did not run. Formatting is corrected in this follow-up; all
+required checks must run for the resulting source, with full-dashboard evidence
+kept separate from the already passed component fixture. D11's actual alternative
+journey and migration-98 writer/recovery preparation remain unfinished. Inspection
+confirms existing proposals accept a date without checking its actual availability,
+and the shared 7–14-day new-booking window currently blocks a same-day alternative.
+Resolve that late-arrival journey under D11 without weakening ordinary intake,
+resource checks, existing confirmations or physical-attendance history.
+
+4 November full-dashboard run: source 26850a6b passed backend safety, secret
+checks and frontend production checks. The expanded production-build browser run
+passed 232/235 cases. All three failures exposed two simultaneous Attendance
+update saved notices (page plus editor), not a reason to weaken strict locators.
+Managed booking and assigned-job screens now give the persistent page sole notice
+ownership; standalone usage keeps its inline notice. Eleven focused attendance
+unit cases and affected lint pass, including the notice-owner contract. Re-run
+the unchanged full-page uniqueness assertions on the corrected source.
+
+Recovery preparation is saved separately in codex/attendance-writer-compat-20261104,
+commit 954712c8, draft PR #22. Its genuine migration-97 generated client passed
+startup and Staff/Admin/Super Admin raw missed-write refusal against a fresh,
+canonically replayed migration-98 isolated database. Its 30 guidance checks pass;
+required hosted and packaged release checks remain pending. No production change.
+Keep the full attendance feature here separate until that writer transition and
+98-aware migration/recovery composition have been reviewed and verified.
+
+---
+
+4 November release completed at 2026-11-04T00:01:50.690361+00:00 (UTC)
+
+Checked source 27e41b75974c895ec5156d350822cf967f66ddde is now published:
+frontend dpl_6bJPyBABh2rvZxbNmEKoun1DCgtp on apex and www; compatible backend
+b2aedf38-bfc8-4264-9418-9a0180e11571 ACTIVE with all four verified registry
+digests, 16/16 steps and readiness 200. www retains the apex redirect. This bounded
+release is complete; the whole audit/D01-D17 goal remains active.
+
+Implemented/reconciled workshop-resource authoring and real reference lookup,
+reviewed/versioned approvals and uncertain-response recovery, shared branded
+controls, appointment timing/reschedule/resource allocation foundations, started-
+booking cancellation guards, future-only reminders and saved money allocations.
+Admin vehicle operations were preserved, not duplicated. Owner-only controls,
+automatic evidence/stock-based account/guest purchasing, approved prices and issued
+financial history remain protected. Live payment/booking/marketing/retention flags
+were not enabled; the public capability remains browse/enquiries.
+
+Verification for this source: three required GitHub gates pass; 1,476 frontend
+units pass with 12 existing skips, production lint/types/build/format and 94/94
+Chromium cases pass. Backend gate passes all required stages, including isolated
+97-migration replay/check, 184 combined booking/resource/finance cases (four
+separately provisioned-workspace cases unperformed), 82 purchase, 90 guest and 41
+Admin/owner-control cases. All nine packaged safety/media/font/command checks and
+seven actual Linux candidate/recovery schema checks pass. The populated native
+_ci restore matches all 102 original tables/1,391 original columns, preserves all
+original-column counts/hashes through five guarded migrations, and passes final
+history/drift checks. Production reaches 97 through the guarded runner with fresh
+snapshot backup and preserves every prior ledger entry, including the rolled-back
+initial attempt. No production test/customer/stock/price/financial demo records.
+
+Live verification: 16 anonymous HTTP checks across both domains pass, including
+exact deployment, capability gates, clean service descriptions, private guide
+hiding and anonymous booking denial. Native Windows Edge at 390/1440 passes six
+public page/image/layout cases plus two genuine service searches. All 15 homepage
+images and all five service images load at both sizes; no overflow. Manually
+inspected native phone before/after and laptop after: whole team photograph and
+correct card/image proportions remain intact. These before/after images compare
+this release with the already repaired preceding release, not a fabricated broken
+baseline. Full-page captures scroll first; initial deferred-image captures are
+not full-image acceptance proof.
+
+The live phone carousel completes two real wall-clock loops (six transitions),
+pauses across a full reading interval, resumes, and handles keyboard Left/Right.
+Separate browser-injected held-image and all-image-failure cases retain readable
+copy/current photo while waiting, recover when released, and keep copy/CTA plus
+disabled controls when every hero image fails. Pending/fallback screenshots were
+manually inspected. Reduced-motion native captures display Play/paused state.
+This is native desktop-browser evidence at phone dimensions, not a physical phone.
+
+Held build: 14 static rendered page checks at 390/1440 pass with no page errors,
+overflow or mutation requests, aggregated across the same immutable deployment.
+Three authenticated-bridge navigation attempts timed out and remain unpassed;
+redirect and Next navigation-header handling were investigated. No protection or
+Trusted Sources setting was broadened. Native search passed on unchanged preceding
+search/header/styles, then passed twice directly on the exact promoted candidate.
+Do not label the bridge interaction checks green or infer native performance from
+that bridge. Actual owner/Admin/assigned-Staff persistence, provider test-mode,
+notification delivery, private storage, Safari/Firefox, physical devices and full
+screen-reader acceptance remain separately unverified where recorded.
+
+All 13 worker tasks have fresh/error-free heartbeats; this does not prove delivery
+or financial execution. Each approved operator-network use removed only its rule
+by UUID, preserving original/concurrent rules. Final fresh firewall read: two app
+rules and zero IP rules. Existing encrypted settings/resources/permissions are
+unchanged. Last completion disk check: 21.84 GiB free, above the 20 GiB reserve.
+No unknown resources, source, caches, backups or databases were pruned; no dependency
+installation. No task-labelled probe container remains. Restore and backup evidence
+are retained privately. The ordinary dump/comparison rejected for concurrent
+heartbeat/checkpoint activity is preserved; the accepted backup uses a shared
+exported REPEATABLE READ READ ONLY snapshot and the existing receipt verifier.
+
+Current next item: D11 + D16 actual arrival/wait/left history and safely verified,
+non-punitive missed appointments. Customer RSVP is not arrival. Preserve started
+booking checks; never infer absence from a countdown or auto-charge a penalty.
+Other remaining work: D03 staged materials/workmanship payments; D07 ongoing-work
+adjustments; D12-D14 hold/sourcing/private collection; D15 configurable reminders;
+D17 durable tax-aware partial-refund execution. Rounding is settled (aggregate
+HALF_UP, largest remainder, saved-line ties); do not ask again. Operational workshop
+configuration and real-role/provider acceptance remain genuine prerequisites.
+
+Newer concurrent resource-aware availability and customer-overview/vehicle/support
+work has reached origin/master 8dd5e22e after this candidate was pinned. It is
+preserved for its own exact-source checks and next release, not silently included
+in this source's claims. Inspect/reconcile it before further implementation and do
+not duplicate that work. Public browsing/enquiries: deployed and verified in the
+stated scope. Resource authoring: deployed, real-role/configuration acceptance
+pending. Booking/purchasing: implemented foundations remain activation-restricted.
+Collection/advanced refunds and whole-site operational acceptance: incomplete.
+
+Exact receipts/screenshots: Temp/aat-full-audit-20261102/
+release-canonical-27e41b75-20261103T2236/final-release-receipt.json and associated
+native-before/native-after/slow/failure captures. Earlier checkpoints below are
+historical; this section is the current release status.
+
+Release continuation evidence: production migration 92 -> 97 passed the guarded
+runner and independent final db:check; all prior migration entries, including the
+initial rolled-back attempt, remain unchanged. Temporary rule cleanup verified.
+All four images are registry-published at their tested immutable IDs/digests.
+Compatible backend b2aedf38-bfc8-4264-9418-9a0180e11571 is ACTIVE, 16/16 steps,
+all four expected digests and readiness 200. Existing-app proposal and exact
+image-only spec comparison preserve encrypted secrets, resources, roles, all
+settings, read-only PRE_DEPLOY and browse/enquiries/capability flags. Generic
+new-app validation rejected existing encrypted values; this was corrected to
+`apps propose --app` rather than decrypting or changing them. Registry evidence
+uses a scoped helper with unchanged source/image/digest guards, normalized Windows
+private path and protected failure diagnostics; no shared release receipts were
+overwritten. Task-only tracker bytes were saved, projected to the unchanged source
+blob for clean-check validation, and restored exactly in finally. Index refresh
+verified the same HEAD blob; no dirty-source guard was disabled.
+
+Read-only post-release production check passes all 97 applied checksums, strict
+TLS, runtime least privilege/default privileges and 13 fresh/error-free worker
+heartbeats. Delivery/provider acceptance is not inferred from heartbeat health.
+The temporary rule is again removed by UUID with original/concurrent rules intact.
+Both domains remain on the prior frontend until held-browser acceptance succeeds.
+Native old-frontend homepage baseline at 390/1440 loads all 15 rendered images
+and has no page overflow; full scrolled screenshots preserve whole team imagery.
+Initial held screenshots contain deferred lazy placeholders and are not accepted
+as full-page image proof. The authenticated HTTP bridge initially omitted redirect
+headers; its search check timed out and did not pass. The bridge now preserves
+same-origin redirect locations and is being rerun; no source application change
+or protection/trusted-source broadening was used to make it pass.
+
+4 November scoped release continuation (23:20 UTC onward):
+Owner approved the current-operator-only temporary network exception for the
+remaining goal's backup, isolated restore and verified-release uses. No repeated
+approval is required within that scope; every bounded use removes only its added
+rule by UUID and verifies original/concurrent rules remain. The first two completed
+uses have verified cleanup. Live identity, TLS, migration checksums, runtime least
+privilege and default privileges pass: 92 applied migrations plus the preserved
+initial rolled-back record; database size 21,329,599 bytes.
+
+The ordinary guarded dump completed but independent before/after hashes correctly
+caught live RateLimitBucket, WorkerHeartbeat and WorkerScanCheckpoint activity.
+That archive is retained, not accepted as a matched-snapshot rehearsal baseline.
+A reviewed pg_dump --snapshot backup shares an exported REPEATABLE READ READ ONLY
+transaction with the comparison hashes/history and passes the existing guarded
+receipt verifier. The 825,577-byte archive lives outside Git with Windows access
+restricted to owner, System and Administrators. Production remains running.
+
+Populated restore to a newly created isolated native PostgreSQL _ci database
+passes: all 102 original tables and 1,391 original columns match the exported
+source snapshot, all five migrations pass through the guarded runner, db:check
+passes at 97, and all original-column counts/hashes and previous ledger entries
+are preserved. New operational-history tables are empty; no synthetic production
+records were created. Seven actual Linux packaged schema probes pass against this
+isolated copy: candidate API/two workers/new checker plus retained recovery API/
+two workers. Least-privileged probe credentials cannot read the migration ledger,
+create schema, own tables or truncate. Recovery retains the new schema checker.
+No recovery migration reversal is proposed. Existing Docker/DB resources retained.
+
+Exact-source GitHub gates were refreshed and remain green for 27e41b75. The
+production guarded five-migration operation has started after these gates;
+its independent final check and firewall cleanup must pass before publication.
+No payment/booking activation, customer/stock/price or financial demonstration
+record, production grant or domain change is included. This is operational
+release safety evidence, not owner-role/provider-payment or whole-site acceptance.
+
+3 November 23:03 UTC resource/source/package acceptance checkpoint:
+signed master 27e41b75974c895ec5156d350822cf967f66ddde is GitHub-verified and passes
+Frontend 41728515708, Backend 41728515782 and Secrets 41728515641. Frontend passes
+1,476 units (12 existing skips), lint/types/build/format and 94/94 Chromium cases
+with zero skipped, unexpected or flaky browser cases. Backend passes all stages,
+including 97-migration isolated replay/db:check, 60 safety, 65 source/money/API,
+eight reminder concurrency, 184 combined booking/resource/finance cases (four
+separately provisioned-workspace cases not run), 82 purchase, 90 guest, 41 Admin/
+owner-control and final 113 Care/Allie cases. Source/request/security contracts,
+owner-only controls, automatic purchasing and issued monetary history are preserved.
+
+The 21 resource authoring cases cover 320/768/1440, expanded/collapsed laptop,
+real selectable references, explicit assessments/condition/qualifications, split
+working periods, exceptions, reviewed approval, cancellation, stale/denied/failed
+reads, rejected/uncertain receipts, reload recovery, account change, future Nigeria
+time, wrong device clock and precision preservation. Keyboard Tab/Shift+Tab,
+computed shared focus, 44px targets, overflow and whole-page automated Axe checks
+pass. Manually inspected phone overview/review/success, tablet overview, expanded
+laptop review and collapsed-laptop success captures; labels, actions, spacing and
+modal scrolling remain usable. This is synthetic built-app acceptance, not real-role
+persistence, physical-device or full screen-reader proof. Browser plugin unavailable;
+repository Playwright/native Chromium is the recorded test path.
+
+Artifact 13274299378 is 5,134,430 bytes, SHA-256
+fdf1f3fe94fa368ec59719a88702db92556104259d43086c1672b3891a4d477a,
+verified before safe selective extraction to runtime-ci-27e41b75. Overview/review/
+success captures are retained at each size. Earlier slot-action before/after and
+saved-money screenshots remain available; no new visual-before claim is fabricated.
+
+Four canonical Linux/amd64 images now pass 9/9 packaged command/user/TLS-CA/media/
+application/worker/password-hash/font checks (62.97s, no skips or assertion/timeout
+relaxation). All 97 packaged SQL files match committed source after its established
+.gitattributes filters. The canonical build context has 634 committed files,
+4,171,757 bytes and 108 critical byte comparisons. No migration SQL or attributes
+were changed. Three direct-worktree files differed from their established filtered
+bytes: order_purchase_review, cart_vehicle_selection and booking_resource_allocations.
+The first raw-blob comparison also incorrectly ignored established CRLF history;
+a proposed attribute change was stopped by hash assertions before any write. The
+raw set remains rejected under explicit -worktree-rejected aliases for investigation,
+never registry-published. Its earlier runtime suite had eight passes and one cold
+60-second API timeout; the canonical suite ran sequentially and passes all nine.
+A shared release-helper guard against normalized-clean/raw-byte mismatch remains
+a useful follow-up; manual canonical projection and actual packaged-byte verification
+are complete for this candidate. Current and rollback images, data and caches remain.
+
+The unchanged Dockerfile/package/lock hashes match the current packaged release;
+recent dependency layers are warm. A measured 1.25 GiB growth allowance passed
+without lowering the 20 GiB reserve; dependency-install rebuilds would stop the
+helper. Space was checked between every image. Last C: reading is 21.28 GiB; no
+source/cache/database cleanup or dependency installation occurred. No machine-wide guarantee is implied. Task-created
+probe containers used --rm/network none; synthetic certificate cleanup verified its
+resolved Temp target before recursive removal. No application database was reached.
+
+Held production-environment frontend dpl_6bJPyBABh2rvZxbNmEKoun1DCgtp is READY
+for the same source, created from repository root with --prod --skip-domain.
+productionUrl is null; authenticated HTTP home smoke returns 200, the Allied title
+and no framework-error marker. Both live domains still target dpl_GjKGjnPCT8H56HWmikySoyYSjyxP
+(source 7384abf8); www still redirects 308. No domain promotion occurred. Native
+provider-build role/browser acceptance remains separate from the 94 fixture cases.
+
+Fresh provider read: backend fb5f9ef2-8ffc-4233-9e96-4722c43350a2 is ACTIVE with
+its four retained digests and no pending deployment. Database is online, eight
+managed backups are listed (newest 3 November 05:22:10 UTC), and its firewall allows
+two apps only, not this operator. These reads are not a fresh release backup or
+populated restore. Protected credentials/actual target/history/privileges still need
+verification before any write. Expected deployed-source history is 92, not a fresh
+live schema probe. Five reviewed forward migrations reach 97; no fixture or real
+record was written. Current release plan and exact single-address network proposal:
+Temp/aat-full-audit-20261102/release-canonical-27e41b75-20261103T2236/release-plan.md.
+The earlier owner network exception covered the completed three-migration audit
+release. A new scoped exception is needed before this goal's remaining backup/
+rehearsal/release network work; existing rules, credentials, roles and flags stay
+unchanged and any task-added rule must be removed and its removal verified.
+
+Status: resource authoring is source/fixture/package verified and held for deployment,
+actual configuration and operational acceptance. The site is not wholly launch-ready.
+Next work includes guarded backup/populated restore/current+recovery runtime probes,
+compatible backend deployment and final domain verification, plus D03 staged payment,
+D07 ongoing-work/public-time integration, D11 actual arrival/wait/left history,
+D12-D14 hold/sourcing/private collection, D15 configurable reminders, D16 verified
+non-punitive missed appointments and D17 durable tax-aware partial-refund execution.
+RSVP is not physical arrival; do not infer attendance from countdowns. Provider,
+notification, actual-role/storage/device/Safari/Firefox acceptance stays unverified
+where recorded. Rounding is settled; do not ask that owner decision again. Current
+payment/booking/marketing/destructive-retention flags remain unchanged.
+
+Additional integrated source (separate from the published release above):
+
+Additional current-master source, preserved separately:
+
+Additional integrated browser-fixture correction:
+
+## 9 November - attendance recovery source reconciliation
 
 ### 9 November: preserve the newly merged missed-writer safeguard
 

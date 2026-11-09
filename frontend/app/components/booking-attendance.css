@@ -1,0 +1,47 @@
+.booking-attendance {
+  min-width: 0;
+}
+.booking-attendance .attendance-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 1rem;
+  margin-block: 1rem;
+}
+.booking-attendance .attendance-fields > div {
+  min-width: 0;
+}
+.booking-attendance form {
+  margin-block-end: 1rem;
+}
+.booking-attendance label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.booking-attendance select,
+.booking-attendance textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  font: inherit;
+}
+.booking-attendance textarea {
+  min-height: 6rem;
+}
+.booking-attendance .attendance-check {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+}
+.booking-attendance .attendance-check input {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+.booking-attendance ol {
+  padding-left: 1.5rem;
+}
+.booking-attendance li {
+  margin-block: 1rem;
+  overflow-wrap: anywhere;
+}

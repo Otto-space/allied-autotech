@@ -57,6 +57,15 @@ function PolicyFacts({ row }: { row: PolicyVersion; expandFirst?: boolean }) {
         <dd>{parsed.data.dailyLimit}</dd>
       </div>
       <div>
+        <dt>Attendance-check grace</dt>
+        <dd>
+          {parsed.data.noShowGraceMinutes ?? 15} minutes{" "}
+          {parsed.data.noShowGraceMinutes === undefined
+            ? "(delegated default)"
+            : "(configured in this version)"}
+        </dd>
+      </div>
+      <div>
         <dt>Opening days</dt>
         <dd>{parsed.data.openingDays.map((d) => weekDays[d]).join(", ")}</dd>
       </div>
@@ -333,7 +342,9 @@ function CapacityEditor({
       );
       return;
     }
+    const grace = String(form.get("noShowGraceMinutes") ?? "15").trim();
     const settings = capacitySettingsSchema.safeParse({
+      noShowGraceMinutes: Number(grace || "NaN"),
       dailyLimit: Number(form.get("dailyLimit")),
       openingDays: form.getAll("openingDays").map(Number),
       holidays: [
@@ -350,11 +361,13 @@ function CapacityEditor({
     if (!settings.success) {
       const field = String(settings.error.issues[0]?.path[0] ?? "dailyLimit");
       invalid(
-        field === "dailyLimit"
-          ? "Enter a daily limit from 1 to 1,000 bookings."
-          : field === "openingDays"
-            ? "Choose at least one opening day."
-            : "Use valid closed dates in YYYY-MM-DD format, up to 366 dates.",
+        field === "noShowGraceMinutes"
+          ? "Enter an attendance-check grace from 0 to 1,440 minutes."
+          : field === "dailyLimit"
+            ? "Enter a daily limit from 1 to 1,000 bookings."
+            : field === "openingDays"
+              ? "Choose at least one opening day."
+              : "Use valid closed dates in YYYY-MM-DD format, up to 366 dates.",
         field,
       );
       return;
@@ -392,6 +405,10 @@ function CapacityEditor({
       facts: [
         { label: "Branch", value: record.data!.branch.name },
         { label: "Daily limit", value: String(settings.data.dailyLimit) },
+        {
+          label: "Staff attendance-check grace",
+          value: `${settings.data.noShowGraceMinutes ?? 15} minutes; absence is never automatic`,
+        },
         {
           label: "Opening days",
           value: settings.data.openingDays.map((d) => weekDays[d]).join(", "),
@@ -781,6 +798,26 @@ function CapacityForm({
             </div>
           </fieldset>
           <div className="field">
+            <label htmlFor="capacity-noShowGraceMinutes">
+              Attendance-check grace (minutes)
+            </label>
+            <input
+              id="capacity-noShowGraceMinutes"
+              name="noShowGraceMinutes"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={1440}
+              step={1}
+              required
+              defaultValue={previous?.noShowGraceMinutes ?? 15}
+              {...errorProps("noShowGraceMinutes")}
+              aria-describedby="capacity-attendance-help capacity-validation"
+            />
+            <span id="capacity-attendance-help" className="field-hint">
+              The delegated default is 15 minutes. Staff must still verify absence; an
+              appointment is never automatically marked missed.
+            </span>
             <label htmlFor="capacity-holidays">Closed dates (optional)</label>
             <textarea
               id="capacity-holidays"

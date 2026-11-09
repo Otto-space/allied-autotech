@@ -205,11 +205,27 @@ for (const paid of [false, true])
       paid ? 0 : 1,
     );
   });
-test("staff old missed-status action is unavailable until verified attendance controls", async ({
+test("staff verifies missed attendance after grace and reconciles an uncertain save without replay", async ({
   page,
 }) => {
   let mutations = 0;
   let reads = 0;
+  let attendanceEvent: Record<string, unknown> | null = null;
+  const snapshot = () => ({
+    bookingId: id(1),
+    bookingVersion: mutations ? 8 : 7,
+    scheduleVersion: 0,
+    status: mutations ? "NO_SHOW" : "CONFIRMED",
+    startedAt: null,
+    serverTime: "2026-09-25T09:20:00Z",
+    checkAt: "2026-09-25T09:15:00Z",
+    policy: { graceMinutes: 15, source: "DELEGATED_DEFAULT", policyVersionId: null },
+    workReviewRequired: false,
+    checkAttendance: !mutations,
+    current: attendanceEvent,
+    events: attendanceEvent ? [attendanceEvent] : [],
+    receipt: attendanceEvent,
+  });
   await page.route("**/api/v1/**", async (route) => {
     const path = new URL(route.request().url()).pathname.replace("/api/v1", "");
     if (path === "/auth/session")
@@ -250,13 +266,27 @@ test("staff old missed-status action is unavailable until verified attendance co
         ...(mutations ? { status: "NO_SHOW", version: 8 } : {}),
       });
     }
-    if (path === `/staff/bookings/${id(1)}/status`) {
+    if (path === `/staff/bookings/${id(1)}/attendance`) {
+      if (route.request().method() === "GET") return reply(route, snapshot());
       mutations++;
-      expect(route.request().postDataJSON()).toEqual({
-        status: "NO_SHOW",
+      const body = route.request().postDataJSON();
+      expect(body).toEqual({
+        operationId: expect.any(String),
         expectedVersion: 7,
-        staffNotes: null,
+        kind: "ABSENCE_CONFIRMED",
+        reason: "Synthetic staff checked reception: no arrival.",
       });
+      expect(route.request().headers()["x-csrf-token"]).toBeTruthy();
+      attendanceEvent = {
+        id: body.operationId,
+        kind: "ABSENCE_CONFIRMED",
+        reason: body.reason,
+        createdAt: "2026-09-25T09:20:00Z",
+        bookingVersion: 8,
+        scheduleVersion: 0,
+        graceMinutes: 15,
+        graceSource: "DELEGATED_DEFAULT",
+      };
       return route.abort("failed");
     }
     if (path === "/public/capabilities") return route.fallback();
@@ -282,18 +312,40 @@ test("staff old missed-status action is unavailable until verified attendance co
   await expect(
     page.getByLabel("Next status").locator("option[value=NO_SHOW]"),
   ).toHaveCount(0);
+  await page.getByLabel("Update", { exact: true }).selectOption("ABSENCE_CONFIRMED");
+  const save = page.getByRole("button", {
+    name: "Confirm missed appointment",
+    exact: true,
+  });
+  await expect(save).toBeDisabled();
+  await page
+    .getByLabel("Factual note", { exact: true })
+    .fill("Synthetic staff checked reception: no arrival.");
+  await page
+    .getByLabel("I checked that the customer has not arrived.", { exact: true })
+    .check();
   await expect(
-    page.getByText("Missed-appointment updates are temporarily unavailable.", {
-      exact: true,
-    }),
+    page.getByText(/does not apply a fee, forfeiture or automatic refund decision/),
   ).toBeVisible();
-  await expect(page.locator(".booking-detail-status")).toHaveText("Confirmed");
   expect(mutations).toBe(0);
   const accessibility = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
     .analyze();
   expect(accessibility.violations).toEqual([]);
-  expect(reads).toBeGreaterThan(0);
+  await save.click();
+  await expect(
+    page.getByText("The saved update has been found in this appointment's history.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  expect(mutations).toBe(1);
+  await page
+    .getByRole("button", { name: "Continue with saved update", exact: true })
+    .click();
+  await expect(page.locator(".booking-detail-status")).toHaveText("Missed appointment");
+  await expect(page.getByLabel("Next status")).toHaveCount(0);
+  expect(reads).toBeGreaterThan(1);
+  expect(mutations).toBe(1);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
   ).toBe(true);

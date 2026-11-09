@@ -212,5 +212,15 @@ invoice-modal-responsive.spec.ts
 modal-layout.spec.ts
 catalogue-modal-layout.spec.ts
 
-# Transitional writer compatibility; replace with verified attendance acceptance in the full feature.
-staff-bookings.spec.ts > staff old missed-status action is unavailable until verified attendance controls
+# Synthetic attendance coverage; real-role persistence and delivery remain separate.
+booking-attendance.spec.ts > records arrival, agreed waiting and leaving in the dashboard at 390px
+booking-attendance.spec.ts > records arrival, agreed waiting and leaving in the dashboard at 768px
+booking-attendance.spec.ts > records arrival, agreed waiting and leaving in the dashboard at 1440px
+booking-attendance.spec.ts > requires a factual absence check and never marks missed merely because time elapsed
+booking-attendance.spec.ts > recovers a saved attendance operation across reload without retaining the note or replaying the write
+booking-attendance.spec.ts > handles early attendance without exposing an unsafe action
+booking-attendance.spec.ts > handles denied attendance without exposing an unsafe action
+booking-attendance.spec.ts > handles slow attendance without exposing an unsafe action
+booking-attendance.spec.ts > assigned technician records arrival from the job without a booking-confirmation grant at 390px
+booking-attendance.spec.ts > assigned technician records arrival from the job without a booking-confirmation grant at 1440px
+staff-bookings.spec.ts > staff verifies missed attendance after grace and reconciles an uncertain save without replay

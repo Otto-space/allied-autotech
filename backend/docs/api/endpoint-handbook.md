@@ -10301,6 +10301,195 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/bookings/{bookingId}/attendance`
+
+- Operation ID: `getStaffBookingsByBookingIdAttendance`
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Read actual staff-recorded attendance and delegated grace; RSVP is not arrival. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+| `receiptId` | query | string (uuid) | No | Receipt Id used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read actual staff-recorded attendance and delegated grace; RSVP is not arrival",
+  "data": {
+    "bookingId": "00000000-0000-4000-8000-000000000001",
+    "bookingVersion": 1,
+    "scheduleVersion": 1,
+    "status": "synthetic-status",
+    "startedAt": "2030-01-15T10:00:00.000Z",
+    "serverTime": "2030-01-15T10:00:00.000Z",
+    "policy": {
+      "graceMinutes": 1,
+      "source": "DELEGATED_DEFAULT",
+      "policyVersionId": "00000000-0000-4000-8000-000000000001"
+    },
+    "checkAt": "2030-01-15T10:00:00.000Z",
+    "checkAttendance": true,
+    "workReviewRequired": true,
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "kind": "ARRIVED",
+      "reason": "synthetic-reason",
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "bookingVersion": 1,
+      "scheduleVersion": 1,
+      "graceMinutes": "synthetic-graceminutes",
+      "graceSource": "DELEGATED_DEFAULT"
+    },
+    "events": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "kind": "ARRIVED",
+        "reason": "synthetic-reason",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "bookingVersion": 1,
+        "scheduleVersion": 1,
+        "graceMinutes": "synthetic-graceminutes",
+        "graceSource": "DELEGATED_DEFAULT"
+      }
+    ],
+    "receipt": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "kind": "ARRIVED",
+      "reason": "synthetic-reason",
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "bookingVersion": 1,
+      "scheduleVersion": 1,
+      "graceMinutes": "synthetic-graceminutes",
+      "graceSource": "DELEGATED_DEFAULT"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/bookings/{bookingId}/attendance`
+
+- Operation ID: `postStaffBookingsByBookingIdAttendance`
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Record arrival, waiting, leaving or a verified missed appointment; version-bound and idempotent. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `kind` | ARRIVED / WAITING / LEFT / ABSENCE_CONFIRMED | Yes | Kind validated by this operation's strict request contract. |
+| `reason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001",
+  "expectedVersion": 0,
+  "kind": "ARRIVED",
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Record arrival, waiting, leaving or a verified missed appointment; version-bound and idempotent",
+  "data": {
+    "event": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "kind": "ARRIVED",
+      "reason": "synthetic-reason",
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "bookingVersion": 1,
+      "scheduleVersion": 1,
+      "graceMinutes": "synthetic-graceminutes",
+      "graceSource": "DELEGATED_DEFAULT"
+    },
+    "performedByUserId": "00000000-0000-4000-8000-000000000001",
+    "attendance": {
+      "bookingId": "00000000-0000-4000-8000-000000000001",
+      "bookingVersion": 1,
+      "scheduleVersion": 1,
+      "status": "synthetic-status",
+      "startedAt": "2030-01-15T10:00:00.000Z",
+      "serverTime": "2030-01-15T10:00:00.000Z",
+      "policy": {
+        "graceMinutes": 1,
+        "source": "DELEGATED_DEFAULT",
+        "policyVersionId": "00000000-0000-4000-8000-000000000001"
+      },
+      "checkAt": "2030-01-15T10:00:00.000Z",
+      "checkAttendance": true,
+      "workReviewRequired": true,
+      "current": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "kind": "ARRIVED",
+        "reason": "synthetic-reason",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "bookingVersion": 1,
+        "scheduleVersion": 1,
+        "graceMinutes": "synthetic-graceminutes",
+        "graceSource": "DELEGATED_DEFAULT"
+      },
+      "events": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "kind": "ARRIVED",
+          "reason": "synthetic-reason",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "bookingVersion": 1,
+          "scheduleVersion": 1,
+          "graceMinutes": "synthetic-graceminutes",
+          "graceSource": "DELEGATED_DEFAULT"
+        }
+      ],
+      "receipt": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "kind": "ARRIVED",
+        "reason": "synthetic-reason",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "bookingVersion": 1,
+        "scheduleVersion": 1,
+        "graceMinutes": "synthetic-graceminutes",
+        "graceSource": "DELEGATED_DEFAULT"
+      }
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/staff/bookings/{bookingId}/status`
 
 - Operation ID: `postStaffBookingsByBookingIdStatus`
@@ -19705,6 +19894,195 @@ Success: HTTP 200.
     "jobVersion": 0,
     "branchId": "00000000-0000-4000-8000-000000000001",
     "requestId": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/workforce/bookings/{id}/attendance`
+
+- Operation ID: `getStaffWorkforceBookingsByIdAttendance`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingAttendanceRead. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `receiptId` | query | string (uuid) | No | Receipt Id used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: bookingAttendanceRead",
+  "data": {
+    "bookingId": "00000000-0000-4000-8000-000000000001",
+    "bookingVersion": 1,
+    "scheduleVersion": 1,
+    "status": "synthetic-status",
+    "startedAt": "2030-01-15T10:00:00.000Z",
+    "serverTime": "2030-01-15T10:00:00.000Z",
+    "policy": {
+      "graceMinutes": 1,
+      "source": "DELEGATED_DEFAULT",
+      "policyVersionId": "00000000-0000-4000-8000-000000000001"
+    },
+    "checkAt": "2030-01-15T10:00:00.000Z",
+    "checkAttendance": true,
+    "workReviewRequired": true,
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "kind": "ARRIVED",
+      "reason": "synthetic-reason",
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "bookingVersion": 1,
+      "scheduleVersion": 1,
+      "graceMinutes": "synthetic-graceminutes",
+      "graceSource": "DELEGATED_DEFAULT"
+    },
+    "events": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "kind": "ARRIVED",
+        "reason": "synthetic-reason",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "bookingVersion": 1,
+        "scheduleVersion": 1,
+        "graceMinutes": "synthetic-graceminutes",
+        "graceSource": "DELEGATED_DEFAULT"
+      }
+    ],
+    "receipt": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "kind": "ARRIVED",
+      "reason": "synthetic-reason",
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "bookingVersion": 1,
+      "scheduleVersion": 1,
+      "graceMinutes": "synthetic-graceminutes",
+      "graceSource": "DELEGATED_DEFAULT"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/workforce/bookings/{id}/attendance`
+
+- Operation ID: `postStaffWorkforceBookingsByIdAttendance`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingAttendance. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `operationId` | string (uuid) | Yes | Identifier of the operation resource; ownership is resolved server-side. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `kind` | ARRIVED / WAITING / LEFT / ABSENCE_CONFIRMED | Yes | Kind validated by this operation's strict request contract. |
+| `reason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "operationId": "00000000-0000-4000-8000-000000000001",
+  "expectedVersion": 0,
+  "kind": "ARRIVED",
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: bookingAttendance",
+  "data": {
+    "event": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "kind": "ARRIVED",
+      "reason": "synthetic-reason",
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "bookingVersion": 1,
+      "scheduleVersion": 1,
+      "graceMinutes": "synthetic-graceminutes",
+      "graceSource": "DELEGATED_DEFAULT"
+    },
+    "performedByUserId": "00000000-0000-4000-8000-000000000001",
+    "attendance": {
+      "bookingId": "00000000-0000-4000-8000-000000000001",
+      "bookingVersion": 1,
+      "scheduleVersion": 1,
+      "status": "synthetic-status",
+      "startedAt": "2030-01-15T10:00:00.000Z",
+      "serverTime": "2030-01-15T10:00:00.000Z",
+      "policy": {
+        "graceMinutes": 1,
+        "source": "DELEGATED_DEFAULT",
+        "policyVersionId": "00000000-0000-4000-8000-000000000001"
+      },
+      "checkAt": "2030-01-15T10:00:00.000Z",
+      "checkAttendance": true,
+      "workReviewRequired": true,
+      "current": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "kind": "ARRIVED",
+        "reason": "synthetic-reason",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "bookingVersion": 1,
+        "scheduleVersion": 1,
+        "graceMinutes": "synthetic-graceminutes",
+        "graceSource": "DELEGATED_DEFAULT"
+      },
+      "events": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "kind": "ARRIVED",
+          "reason": "synthetic-reason",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "bookingVersion": 1,
+          "scheduleVersion": 1,
+          "graceMinutes": "synthetic-graceminutes",
+          "graceSource": "DELEGATED_DEFAULT"
+        }
+      ],
+      "receipt": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "kind": "ARRIVED",
+        "reason": "synthetic-reason",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "bookingVersion": 1,
+        "scheduleVersion": 1,
+        "graceMinutes": "synthetic-graceminutes",
+        "graceSource": "DELEGATED_DEFAULT"
+      }
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"

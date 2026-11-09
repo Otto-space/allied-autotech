@@ -122,6 +122,7 @@ export const jobSelect = {
 } satisfies Prisma.BookingSelect;
 const jobDetailSelect = {
   ...jobSelect,
+  attendanceEvents: bookingSelect.attendanceEvents,
   branch: { select: { id: true, name: true } },
   assignedStaff: { select: { id: true, firstName: true, lastName: true } },
 } satisfies Prisma.BookingSelect;
@@ -387,6 +388,7 @@ export class WorkforceWorkService {
           customerConcern: true,
           scheduleVersion: true,
           timingSnapshots: bookingSelect.timingSnapshots,
+          attendanceEvents: bookingSelect.attendanceEvents,
           resourceAllocations: bookingSelect.resourceAllocations,
           serviceId: true,
           assignedStaffId: true,

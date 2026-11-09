@@ -1,3 +1,4 @@
+import { type BookingAttendanceInput } from "./booking-attendance.js";
 import type { BookingWorkReviewInput } from "./service-operations.schemas.js";
 import type { BookingTimingOverrideInput } from "./service-operations.schemas.js";
 import type {
@@ -266,6 +267,37 @@ export class ServiceOperationsController {
             actor(req),
             ids(res).bookingId,
             validated<BookingAlternativeResponseInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+  readBookingAttendance = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Appointment attendance",
+          req.id,
+          await this.service.readBookingAttendance(
+            actor(req),
+            ids(res).bookingId,
+            context(req),
+            false,
+            validated<{ receiptId?: string }>(res, "query").receiptId,
+          ),
+        ),
+      );
+  recordBookingAttendance = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Appointment attendance recorded",
+          req.id,
+          await this.service.recordBookingAttendance(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingAttendanceInput>(res, "body"),
             context(req),
           ),
         ),
