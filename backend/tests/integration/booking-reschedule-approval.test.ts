@@ -662,7 +662,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const f = await fixture();
       await prisma.booking.update({
         where: { id: f.booking.id },
-        data: { status: "REQUESTED", assignedStaffId: null },
+        data: { status: "REQUESTED", assignedStaffId: null, bookingSlotId: null },
       });
       const options = (await operations.bookingAlternativeOptions(
         f.actor,
