@@ -9662,3 +9662,19 @@ Next: group 2, Services catalogue/detail and the existing request journey.
 Reference/server review and live desktop 1440/phone 390 baselines are complete.
 Bring discovery forward while preserving categories, actual prices, quotations
 and restricted booking. Groups 2-10 and the full 119-template inventory remain open.
+
+## 9 November - Owner correction: compact Home hero (in progress)
+
+The owner reported excessive hero height and empty space, especially on phones.
+Home's carousel now uses content and controls in normal flow instead of large
+reserved bottom padding. The desktop minimum is reduced from 780px to 560px;
+phones use their content height, consistent stacked actions and a single control
+row where it fits, with two rows at 320px. All seven controls retain 44px targets.
+This intentionally tightens the reference proportions following owner feedback.
+Existing carousel, image recovery, links and permissions remain unchanged.
+
+The existing nine-size Home journey regression also checks stable height across
+all four slides, action/control clearance and first-screen discovery on phones.
+Rendered checks, exact-source gates and publication are pending. Services work is
+preserved separately on codex/stitch-services-20261109 / draft PR45; no unverified
+Services changes are included in this correction. No backend/database rollout.

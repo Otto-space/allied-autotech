@@ -8452,3 +8452,13 @@ checks, engine versions, backups, retained recovery, evidence and disk/cleanup l
 Next: Services catalogue, service detail and the existing request journey.
 References/server behavior and live 1440/390 baselines have been inspected.
 Groups 2-10 and the full 119-template checklist remain open.
+
+## 9 November - Compact Home hero correction (pending verification)
+
+Owner feedback identified excessive hero height and unused space. Home now uses
+flowing carousel controls, a smaller desktop minimum and content-sized phone
+layout. Actions are consistently stacked on phones; controls remain 44px and
+wrap at the smallest width. The existing nine-size journey checks now cover
+slide stability, action/control clearance and discovery visible on phones.
+Rendered candidate, exact-source release gates and live checks remain pending.
+Services PR45 is preserved separately; groups 2-10 remain open.
