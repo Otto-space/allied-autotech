@@ -1,3 +1,51 @@
+## 9 November 13:35 UTC - available late-visit alternatives implemented; release pending
+
+Current item: D11. Source now searches actual same-branch alternatives using the
+saved duration/buffers, qualified technicians, approved calendar, physical resources
+and customer conflicts. Both operational booking screens select checked times.
+Proposal, customer acceptance and independent staff approval recheck availability;
+only successful approval changes the appointment/resources/reminders. No customer
+reschedule allowance or fee is added for workshop-originated changes. Ordinary
+requests retain their 7-14-day window; recorded late visits can use short notice.
+
+A new forward migration (100) adds immutable same-visit continuation evidence.
+Same-day, same-branch approval links prior observed presence instead of inventing
+another arrival. Leaving or a different visit day requires fresh arrival; continued
+presence prevents a missed update. Unknown original allocation is not fabricated:
+a same-visit approval without that evidence is refused with the original intact.
+
+Verification so far: empty isolated 100-migration replay and schema drift check,
+final db:check, 46/46 isolated attendance/reschedule cases and 39/39 affected learning/
+attendance units pass. Four rendered 320/390/768/1440px picker cases pass retry,
+empty, stale version, keyboard selection, axe and overflow checks; uncertain-save,
+permission recheck and obsolete slow-response cases also pass locally. Two normal
+proposal cases completed their interaction assertions but failed the strict console
+check on injected Console Ninja loopback WebSocket CSP errors. These are retained
+as local failures; clean production-build CI remains required, with no weakening of
+its assertions. Initial cold development compilation and a fixture selector error
+were corrected/rechecked; they are not reported as application acceptance.
+
+Integrated current master 4bfd12d6's cross-browser work without changing application
+security headers or dropping its cases. Canonical API contracts add two scoped,
+private/no-store read endpoints. Restricted booking-confirmation advances to v15,
+within the existing retrieval budget; permissions, eligibility and flags stay fixed.
+The legacy browser fixture now also keeps the original time after customer acceptance.
+
+This source is not deployed. Production remains application e947a205/schema 99;
+checkout and new booking requests remain disabled. Required exact-source CI,
+packaged Linux/recovery checks, fresh production backup, separate populated 99-to-100
+restore rehearsal and guarded release remain outstanding. Real-role, provider and
+physical-device acceptance are not inferred from synthetic tests. Continue the full
+D01-D17/audit ledger, including staged payments, sourcing/collection, reminders and
+refund execution; deferred general returns/warranty policy remains separate.
+
+Evidence: TEMP/aat-attendance-20261104/native-1794229686201-100-migration-replay.log;
+latest native alternatives receipts in the same directory; safe rendered captures in
+late-alternatives-browser-recheck and late-alternatives-slow-recheck. No real record
+was changed, no production address rule added and no credentials requested.
+
+---
+
 ## 9 November - calendar/modal acceptance passed; search fixture follow-up
 
 Run 42618283436 completed on 8d6b91c0: 426/428 passed, zero skipped/flaky.

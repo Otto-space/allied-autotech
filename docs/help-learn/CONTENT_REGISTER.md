@@ -1,3 +1,13 @@
+### 9 November: available late alternatives and continued physical visits
+
+Restricted booking-confirmation v15 adds checked alternatives, normal versus late
+notice, repeated availability checks and immutable same-visit evidence. Existing
+permission/eligibility and publication gates remain. The full passage stays within
+the existing retrieval budget; 39 affected units including permitted/denied Allie
+retrieval pass. This source is not production publication or operational acceptance.
+Service-request v29 and assigned-findings v5 are preserved. See the current tracker
+for schema-100 replay, 46 isolated workflow cases and remaining release requirements.
+
 ### 9 November: attendance/work-review application release evidence
 
 Application source e947a205 is released with booking-confirmation v14,
