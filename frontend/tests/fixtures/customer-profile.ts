@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 import type { z } from "zod";
 import type { profileSchema } from "@/lib/api/profile-schemas";
+import { publicCapabilitiesFixture } from "./public-capabilities";
 export const profileId = (n: number) =>
   `e7000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 export function profileRecord(): z.infer<typeof profileSchema> {
@@ -46,6 +47,8 @@ export async function profileFixture(page: Page) {
         headers: { "Retry-After": "2" },
         json: { success: false, error: { code }, meta: { requestId: "profile-qa" } },
       });
+    if (endpoint === "/public/capabilities")
+      return route.fulfill({ json: success(publicCapabilitiesFixture()) });
     if (endpoint === "/auth/session")
       return route.fulfill({
         json: success({

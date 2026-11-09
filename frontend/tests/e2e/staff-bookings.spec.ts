@@ -1264,6 +1264,9 @@ for (const [width, mode] of [
           .analyze()
       ).violations,
     ).toEqual([]);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
     await page.screenshot({
       path: info.outputPath(`collection-review-${mode}-${width}.png`),
     });

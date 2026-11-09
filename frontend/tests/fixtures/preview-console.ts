@@ -1,10 +1,12 @@
 import { test, expect, type Page } from "@playwright/test";
 
+// The exact isolated CI deployment marker is accepted alongside real Vercel IDs.
+// Origin, actual font/CSS response and matching brand/fallback declarations remain mandatory.
 export async function verifyConsole(page: Page, errors: string[], warnings: string[]) {
   expect(errors).toEqual([]);
   for (const warning of warnings) {
     const fontMatch =
-      /^The resource (https?:\/\/[^ /]+\/_next\/static\/media\/[a-f0-9]+-s\.p\.(?:ttf|woff2)(?:\?dpl=dpl_[A-Za-z0-9]+)?) was preloaded using link preload but not used/.exec(
+      /^The resource (https?:\/\/[^ /]+\/_next\/static\/media\/[a-f0-9]+-s\.p\.(?:ttf|woff2)(?:\?dpl=(?:dpl_[A-Za-z0-9]+|isolated-media-acceptance))?) was preloaded using link preload but not used/.exec(
         warning,
       );
     if (fontMatch) {
@@ -37,7 +39,7 @@ export async function verifyConsole(page: Page, errors: string[], warnings: stri
       continue;
     }
     const match =
-      /^The resource (https?:\/\/[^ /]+\/_next\/static\/css\/(?:[a-f0-9]+\.css(?:\?dpl=dpl_[A-Za-z0-9]+)?|app\/not-found\.css\?v=\d+)) was preloaded using link preload but not used/.exec(
+      /^The resource (https?:\/\/[^ /]+\/_next\/static\/css\/(?:[a-f0-9]+\.css(?:\?dpl=(?:dpl_[A-Za-z0-9]+|isolated-media-acceptance))?|app\/not-found\.css\?v=\d+)) was preloaded using link preload but not used/.exec(
         warning,
       );
     expect(match, warning).not.toBeNull();
