@@ -1,3 +1,30 @@
+## 9 November - payment review mobile-width follow-up
+
+Current follow-up codex/payment-review-modal-20261109 starts from authentication
+head ed85193e. Keep PR35's live frontend42691319691 intact; backend42691320124 and
+secret42691320336 passed. Integrate/release through the established exact-master
+gates; this follow-up does not replace the unfinished full goal.
+
+Correcting the old browser helper's missing API message field reproduced a real
+payment review width defect on compiled f7d1fd1b:430px screen has398px dialog and
+320px screen has288px dialog, both x16. The earlier disabled Payer field was a
+malformed isolated capability envelope, not proof of a server launch restriction.
+Evidence: TEMP/allied-payment-modal-baseline-canonical-20261109. Only synthetic
+records were shown; review/cancel caused zero submissions and no real writes.
+
+The page's four-class width override defeats shared mobile sizing. Keep its620px
+desktop preferred width and let the existing shared max-inline-size enforce screen
+and safe-area limits. All height, review, scrolling, payment and permission rules
+remain unchanged. A browser-only inline-style prototype was blocked by CSP; no
+CSP bypass was used and it is not counted as a pass. Verify the compiled patch.
+
+The payment fixture now supplies the complete canonical full-mode API envelope
+only inside isolated tests. Twenty-one new cases collect across Chromium,
+Firefox and WebKit: seven exact viewport pairs, phone/touch where supported,
+centering, full phone width, last-fact/footer reachability, focus containment,
+Escape return, retained draft and zero submissions. Scoped lint/formatting pass;
+compiled acceptance, CI and publication are pending. Production remains restricted.
+
 ## 9 November 20:15 UTC - compiled compatibility acceptance and CI formatting fix
 
 Final combined application f7d1fd1b passes eight native catalogue compatibility

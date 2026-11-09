@@ -1,6 +1,7 @@
 import { test, expect, type Page, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import type { PaymentRecord } from "../../lib/api/payment-schemas";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 const id = (n: number) => `c9000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const initialPayment = (): PaymentRecord => ({
   id: id(1),
@@ -41,6 +42,8 @@ async function fixture(page: Page) {
   };
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/public/capabilities")
+      return reply(route, publicCapabilitiesFixture("full"));
     if (endpoint === "/auth/session") {
       if (!state.signedIn)
         return route.fulfill({
@@ -149,6 +152,67 @@ async function fillManual(page: Page) {
   await page.getByLabel("Payer name", { exact: true }).fill("Synthetic payer");
   await page.getByLabel("Payment date and time (Lagos)").fill("2026-10-07T09:00");
   await page.getByRole("button", { name: "Review payment details" }).click();
+}
+
+for (const [width, height] of [
+  [1280, 720],
+  [1024, 768],
+  [768, 1024],
+  [430, 932],
+  [390, 844],
+  [360, 800],
+  [320, 720],
+]) {
+  test.describe(`payment review geometry ${width}x${height}`, () => {
+    test.use({
+      viewport: { width, height },
+      isMobile: async ({ browserName }, provide) => {
+        await provide(browserName !== "firefox" && width <= 430);
+      },
+      hasTouch: width <= 430,
+      reducedMotion: "reduce",
+    });
+    test("keeps review facts, actions and cancellation reachable", async ({
+      page,
+    }, info) => {
+      const state = await fixture(page);
+      await visit(page);
+      await expect(page.getByLabel("Payer name", { exact: true })).toBeEnabled();
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+        width,
+        height,
+      ]);
+      await fillManual(page);
+      const dialog = page.getByRole("dialog");
+      await expect(dialog).toBeVisible();
+      const box = (await dialog.boundingBox())!;
+      expect(Math.abs(box.x + box.width / 2 - width / 2)).toBeLessThanOrEqual(1);
+      expect(Math.abs(box.y + box.height / 2 - height / 2)).toBeLessThanOrEqual(1);
+      expect(box.width).toBe(width <= 430 ? width : 620);
+      expect(box.height).toBeLessThanOrEqual(height - 24);
+      expect(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+      const lastFact = dialog.getByText("Paid at", { exact: true });
+      await lastFact.scrollIntoViewIfNeeded();
+      await expect(lastFact).toBeInViewport();
+      const confirm = dialog.getByRole("button", { name: "Confirm change", exact: true });
+      await confirm.focus();
+      await expect(confirm).toBeInViewport();
+      await page.keyboard.press("Tab");
+      expect(await dialog.evaluate((el) => el.contains(document.activeElement))).toBe(
+        true,
+      );
+      await page.screenshot({ path: info.outputPath("payment-review.png") });
+      await page.keyboard.press("Escape");
+      await expect(dialog).toHaveCount(0);
+      await expect(
+        page.getByRole("button", { name: "Review payment details", exact: true }),
+      ).toBeFocused();
+      await expect(page.getByLabel("Payer name", { exact: true })).toHaveValue(
+        "Synthetic payer",
+      );
+      expect(state.writes).toEqual([]);
+    });
+  });
 }
 test("checkout rechecks the payable and sends CSRF and one idempotent request before trusted handoff", async ({
   page,
