@@ -3,12 +3,10 @@ import { workBookingDetailFixture, bookingId } from "../fixtures/work-booking-de
 import { detailRecord } from "../fixtures/customer-booking-detail";
 import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
 
-test.beforeEach(async ({ request, page }) => {
-  await bookingRuntimeCapabilities(request, page);
-});
-
 async function openReview(page: Page) {
   const { state } = await workBookingDetailFixture(page);
+  // Register after the catch-all booking fixture so client and server agree.
+  await bookingRuntimeCapabilities(page.request, page);
   const quote = detailRecord().quotes[0];
   state.record.quotes = [
     {
@@ -98,6 +96,12 @@ test("keeps the user's new focus while a closed review refreshes", async ({ page
   await expect(
     page.getByRole("button", { name: "Review issue", exact: true }),
   ).toBeEnabled();
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
   await expect(link).toBeFocused();
   expect(state.writes).toEqual([]);
 });
@@ -120,3 +124,30 @@ for (const outcome of ["issued", "denied"]) {
     expect(state.writes).toEqual([]);
   });
 }
+
+test("successful issue refreshes before focusing the heading; rejection remains reviewable", async ({
+  page,
+}) => {
+  const { state, dialog, opener } = await openReview(page);
+  const confirm = dialog.getByRole("button", { name: "Confirm change", exact: true });
+  state.outcome = "conflict";
+  await confirm.click();
+  await expect(confirm).toBeDisabled();
+  await expect(dialog).toBeVisible();
+  expect(state.writes).toHaveLength(1);
+  await page.keyboard.press("Escape");
+  await expect(opener).toBeFocused();
+  await opener.click();
+  state.outcome = "success";
+  state.record.quotes[0].status = "ISSUED";
+  await confirm.click();
+  await expect(dialog).toHaveCount(0);
+  await expect(opener).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Manage workshop booking", exact: true }),
+  ).toBeFocused();
+  expect(state.writes).toHaveLength(2);
+  expect(state.writes[1].body).toEqual({
+    expectedRevision: state.record.quotes[0].revision,
+  });
+});

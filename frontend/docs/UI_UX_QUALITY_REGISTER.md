@@ -1,3 +1,20 @@
+## 9 November 20:58 UTC - quotation submission focus race
+
+Compiled833bdd0a passes ten initial native Edge quotation cases: all seven exact
+viewport sizes, held-refresh cancellation, deliberate focus movement, changed
+quotation and denied access. The successful issue case then failed: focus ended
+on body after the old action disappeared. The isolated request succeeded; this
+is a UI focus regression, not a failed backend write. A separate characterization
+also passed rejection/cancellation with one intercepted conflict response.
+
+Wait for a new settled booking revision before restoring focus, rather than only
+loading booleans; fast reads can otherwise consume restoration before replacement.
+Add success/conflict coverage and register test capability routing after the booking
+catch-all. Preserve the original failure evidence in TEMP/allied-quotation-modal-
+833bdd0a/msedge/receipt.json; do not call that run wholly passed. Recompile and
+verify the corrected application. Thirty-three quotation engine cases now collect.
+PR35's refreshed-source gate remains independent and must finish normally.
+
 ## 9 November 20:50 UTC - quotation review and payment fixture follow-up
 
 Compiled 9fa89d77 payment reviews pass 14 native Edge/Chrome geometry, focus,

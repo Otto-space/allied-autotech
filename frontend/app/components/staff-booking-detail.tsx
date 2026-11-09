@@ -70,6 +70,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const reviewOpener = useRef<HTMLElement | null>(null);
   const restoreReviewFocus = useRef(false);
+  const reviewClosedAtRevision = useRef<number | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const [validation, setValidation] = useState<string>();
   const [message, setMessage] = useState<string>();
@@ -113,6 +114,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
     if (
       !restoreReviewFocus.current ||
       proposal ||
+      booking.settledRevision === reviewClosedAtRevision.current ||
       booking.loading ||
       booking.refreshing ||
       access.loading ||
@@ -135,7 +137,14 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
       target?.focus();
     });
     return () => cancelAnimationFrame(frame);
-  }, [proposal, booking.loading, booking.refreshing, access.loading, access.refreshing]);
+  }, [
+    proposal,
+    booking.loading,
+    booking.refreshing,
+    booking.settledRevision,
+    access.loading,
+    access.refreshing,
+  ]);
   const choices = current
     ? (transitions[current.status] ?? []).filter((status) =>
         status === "CONFIRMED" ? canConfirm && !!current.service : canOperate,
@@ -830,6 +839,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
         <MutationReview
           proposal={proposal}
           onClose={() => {
+            reviewClosedAtRevision.current = booking.settledRevision;
             restoreReviewFocus.current = true;
             setProposal(null);
             booking.refresh();
