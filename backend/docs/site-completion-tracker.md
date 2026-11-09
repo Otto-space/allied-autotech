@@ -1,3 +1,29 @@
+## 9 November 23:05 UTC - combined native proof; inventory formatting repaired
+
+Source15a47eb4 backend42715870417 and secrets42715870812 pass. Frontend42715870418
+passes1,547 units (12 existing skips), TypeScript and production compilation, then
+fails formatting in regenerated api-coverage.json/md. Format only those outputs;
+JSON semantics are verified unchanged. Its999 browser cases did not run. New exact-
+source CI is required; no publication or capability activation is claimed.
+
+The Git-filtered1,333-file canonical backend export matches committed15a47eb4.
+Fresh isolated111-migration replay/db:check and all15 reminder cases pass. The three
+staged-payment/sourcing/pickup suites pass53 cases. Learning initially has9 failures
+with its flags off; a separate retry is stopped by the missing explicit isolation
+confirmation (10 skipped, one pass). The corrected, test-only flagged retry is
+active. Guards/assertions remain unchanged; runtime login is disabled after each
+completed attempt. No production or protected-snapshot data is used for these tests.
+
+Both aliases still resolve to frontend5464e402/dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV at
+22:58 UTC. Backendc3c54414 remains ACTIVE with its retained digests and no pending
+rollout. The111-schema source still needs full populated restore, compatible API/
+worker/invoice/pickup recovery, packaged acceptance, fresh backup/PITR and exact-
+master gates. The102-schema bridge is not that proof. D17 remains active in the
+other worktree; its unfinished edits are preserved. Whole-audit actual-role,
+provider and physical-device acceptance remain open.
+
+---
+
 ## 9 November 22:53 UTC - retain current Home and account focus repairs
 
 Combined audit source incorporates master3cf5d9cb, preserving the compact Home
