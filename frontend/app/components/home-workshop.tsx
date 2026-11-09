@@ -79,15 +79,15 @@ export function HomeWorkshop() {
           <figure className="home-workshop__bay home-bay">
             <div className="home-workshop__media">
               <Image
-                src="/images/workshop/owner/service-bay.webp"
-                alt="The red two-post vehicle lift inside Allied’s workshop service bay"
+                src="/images/workshop/owner/alignment-at-work.webp"
+                alt="Allied technician beside the workshop’s 3D wheel alignment equipment"
                 fill
                 sizes="(max-width: 767px) calc(100vw - 32px), 460px"
               />
             </div>
             <figcaption>
-              <h3>Underneath the vehicle</h3>
-              <p>Our two-post lift gives the team access beneath your vehicle.</p>
+              <h3>3D wheel alignment</h3>
+              <p>Equipment for checking and correcting wheel geometry.</p>
             </figcaption>
           </figure>
         </div>
@@ -101,6 +101,9 @@ export function HomeWorkshop() {
           </Link>
           <Link href="/about#equipment">
             3D wheel alignment <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
+          <Link href="/about#principles">
+            Two-post vehicle lift <ArrowUpRight size={16} aria-hidden="true" />
           </Link>
           <Link href="/about#principles">
             Our workshop principles <ArrowUpRight size={16} aria-hidden="true" />

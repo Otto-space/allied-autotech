@@ -1,3 +1,29 @@
+## 9 November 19:47 UTC - Home preview interaction pass; fidelity repair
+
+PR36/source29a2c4421 has8/8 focused units plus affected lint, formatting and
+TypeScript passes. Protected preview dpl_GiPmiMXqe9XEbpAChiXhVLjfHx36 built remotely.
+Microsoft Edge157.0.4341.42 read-only browser samples passed all nine exact viewport
+pairs (1920x1080 through320x720), all four slides/destinations, keyboard/manual
+navigation, FAQ, menu Escape/focus, one dock and footer. Scoped main/footer Axe
+at1440/390 returned0 violations; no app page errors or non-GET application writes.
+This preview's backend/capabilities are unavailable and show the truthful outage
+banner. This proves fallback UI, not production data/auth/role acceptance.
+
+Direct view_image comparison with Home screen.png and matching HTML found a legacy
+margin rule shrinking the team card to265px. Explicit full-track width/margin fixes
+it; the genuine alignment photo replaces an unhelpful portrait lift crop. Existing
+lift/equipment information remains linked. Desktop hero height now follows HTML's
+780px large-screen treatment; narrow controls retain44px targets/two rows. Final
+render inspection of these corrections remains pending. Earlier preview passes do
+not automatically accept the new candidate. Exact-source release checks are pending.
+
+npm cache verify completed:3540 entries/1950070362 bytes verified; no reclamation
+reported. Browser-cache deletion was rejected,0 files deleted. Space later21.14GiB;
+no local build/install/Docker write. Backend candidate/migrations and public aliases
+remain unchanged by this task. Temporary preview access will be revoked after QA.
+
+---
+
 ## 9 November 2026 - Stitch implementation, group 1 in progress
 
 Owner instruction: implement the supplied 14 HTML exports/13 screenshots in the

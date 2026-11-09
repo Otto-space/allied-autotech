@@ -7,7 +7,7 @@
 }
 .layout {
   width: min(1200px, calc(100% - 48px));
-  min-height: 720px;
+  min-height: 780px;
   margin-inline: auto;
   padding-block: 104px 144px;
   display: grid;
@@ -168,6 +168,11 @@
   z-index: 1;
   color: var(--text-inverse-muted);
   font-size: 13px;
+}
+@media (max-width: 1023px) {
+  .layout {
+    min-height: 720px;
+  }
 }
 @media (max-width: 767px) {
   .layout {
