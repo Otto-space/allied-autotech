@@ -9396,8 +9396,8 @@ this implementation adds the following ordered status overlay, not a second back
 
 | Group | Scope                                                                          | Implementation / release status                                                                                                                                          |
 | ----- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1     | Shared brand/header/footer/support and Home                                    | Home/editorial footer implemented; header/support behaviour preserved. Focused units 8/8, affected lint and TypeScript pass; cloud browser/fidelity and release pending. |
-| 2     | Services, detail, existing request                                             | Pending reference inspection and implementation.                                                                                                                         |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
+| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                                                                                                                         |
 | 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                                                                                 |
 | 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                                                                           |
 | 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                                                                                |
@@ -9510,3 +9510,61 @@ permission, capability, database or policy changes were made for these repairs.
 C: preflight21.18GiB with0.1GiB browser allowance passed. No local build/install or
 Docker resources were created. Existing recovery deployments/resources retained.
 Do not publish9f9ee2f8 or count this as full119-template completion.
+
+## 9 November 21:19 UTC - Home group published and checked
+
+Group 1 is live at https://alliedautotech.com/ from master
+5464e402f3e81fb55be7bc09def7eb8d312dd59e, deployment
+dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV. Both apex/www deployment identities match;
+apex returns 200 and www redirects 308 to apex. Recovery remains
+dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb / source 160d3b7b.
+
+Exact-source gates passed: frontend 42696079161, backend safety 42696241876,
+secrets 42696079393. Production lint/type/build/format/audit passed.
+Units: 1,526 passed, 12 isolated audit cases skipped. Browser matrix: 757 passed,
+plus 9 repeated WebKit transport and 21 media preflight cases.
+CI engines: Chromium 153.0.8010.12, Firefox 155.0, WebKit 26.6 on Linux.
+Failed earlier runs were repaired and are not counted as passes.
+
+Held candidate and actual public Edge 157.0.4341.42 passed all nine requested
+viewport pairs: four slide states/destinations and Back, FAQ/menu/focus, one
+support dock, no horizontal overflow, scoped Axe at 1440/390 with zero violations,
+and adjacent About/Contact/Help. All nine live footer-clearance checks pass.
+Both real vehicle images decode at 633x475 with no failed media response.
+Five candidate carousel cases pass: swipes/resize, three real-time loops,
+hover/persistent pause/focus, offscreen/revisit recovery and no-JavaScript.
+Existing doubled-text reflow at 320px passes. Actual browser zoom, full screen
+reader, physical devices/Safari and real signed-in role persistence are unverified.
+Product compatibility has eight hosted synthetic cases; no production business
+submission or private record was written.
+
+Approved Nippo/Quicksand, real logo/editorial and workshop photographs, actual
+facts/policies replace sample claims. The reduced Home PNG cannot prove native
+1440px matching; its HTML and rendered comparison guided composition.
+No fabricated statistics, certification, warranty, availability, turnaround,
+prices or phone numbers were imported.
+
+Backend c3c54414-0f19-4b21-bf23-b44184e6f43a remained ACTIVE without a pending
+deployment at 21:19. All public policy fields match before/after publication;
+serverTime is independently validated as a changing current timestamp.
+Eight managed backups rechecked; latest 9 November 05:22 UTC. The verified
+21 October strict-TLS restore rehearsal matches the cluster and records
+sourceWritten=false. No new restore, database write, migration, permission or
+capability change occurred.
+
+Evidence: owner TEMP/aat-stitch-implementation-20261109:
+publication-preflight.json, publication-alias-receipt.json, live-browser-results.json,
+footer-live-compiled-results.json, home-carousel-tests.json, home-reflow-tests.json,
+live-production-photo-results.json and live screenshots. All task-created provider
+share links were revoked, confirmed by empty protectionBypass records.
+C: completion preflight passed at 21.23 GiB with 0.05 GiB allowance. No local
+build/install or Docker resources were created. Automatic approval review rejected
+temporary cache/local access-file deletion as "blocked by policy"; files were
+retained. Local access files retain owner-only permissions. npm cache verify
+completed without a measured reclamation claim. Source, other worktrees and
+recovery resources were retained.
+
+Next: group 2, Services catalogue/detail and the existing request journey.
+Reference/server review and live desktop 1440/phone 390 baselines are complete.
+Bring discovery forward while preserving categories, actual prices, quotations
+and restricted booking. Groups 2-10 and the full 119-template inventory remain open.
