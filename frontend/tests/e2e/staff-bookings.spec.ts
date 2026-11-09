@@ -949,6 +949,10 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
       await page.route("**/api/v1/**", async (route) => {
         const req = route.request();
         const endpoint = new URL(req.url()).pathname.replace("/api/v1", "");
+        // Preserve the earlier real-contract capability fixture on periodic/focus
+        // refresh. Returning {items:[]} here correctly disables booking actions.
+        if (endpoint === "/public/capabilities") return route.fallback();
+
         if (endpoint === "/auth/session")
           return reply(route, {
             id: id(8),
@@ -1069,6 +1073,14 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
         (await new AxeBuilder({ page }).include(".booking-changes").analyze()).violations,
       ).toEqual([]);
       await page.screenshot({ path: info.outputPath("alternative-proposal.png") });
+      await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+      await expect(
+        page.getByRole("button", {
+          name: decision === "ACCEPT" ? "Review proposed time" : "Decline proposed time",
+          exact: true,
+        }),
+      ).toBeEnabled();
+
       await page
         .getByRole("button", {
           name: decision === "ACCEPT" ? "Review proposed time" : "Decline proposed time",
