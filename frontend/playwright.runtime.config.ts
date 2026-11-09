@@ -97,6 +97,21 @@ export default defineConfig({
           : {}),
       },
     })),
+    ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
+      name: `media-contract-${browserName}`,
+      testMatch: [
+        "consolidated-audit-boundaries.spec.ts",
+        "customer-garage-quality.spec.ts",
+        "public-reviews-quality.spec.ts",
+      ],
+      grep: /private portrait|managed own profile|owned garage photos|public review portrait/,
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? { baseURL: "https://127.0.0.1:3104", ignoreHTTPSErrors: true }
+          : {}),
+      },
+    })),
   ],
   outputDir: "./test-results/runtime-capabilities",
   timeout: 90_000,

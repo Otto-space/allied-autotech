@@ -10,7 +10,9 @@ for (const [width, height] of [
   test.describe(`boundaries ${width}x${height}`, () => {
     test.use({
       viewport: { width, height },
-      isMobile: width === 320,
+      isMobile: async ({ browserName }, provide) => {
+        await provide(browserName !== "firefox" && width === 320);
+      },
       hasTouch: width === 320,
     });
     test("private portrait uses the exact owned URL and falls back on image failure", async ({

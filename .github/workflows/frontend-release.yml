@@ -37,6 +37,8 @@ jobs:
       SITE_ORIGIN: https://www.example.com
       SITE_INDEXING: disabled
       NEXT_TELEMETRY_DISABLED: "1"
+      # Exercise hosted image URL behaviour without any production identifier.
+      NEXT_DEPLOYMENT_ID: isolated-media-acceptance
       NEXT_PUBLIC_HELP_LEARN_ENABLED: "true"
     steps:
       - uses: actions/checkout@v7.0.1

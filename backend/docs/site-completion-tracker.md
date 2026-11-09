@@ -1,3 +1,36 @@
+## 9 November 18:00 UTC - hosted portrait and garage URL regression
+
+Current item: complete PR31 with the verified hosted-media correction, then run
+final-head and exact-master gates before publication. The earlier verification-only
+scope is superseded by this concrete application defect; production is unchanged.
+Native Edge against released 160d3b7b reproduced extra dpl query parameters on
+/dashboard/profile at 320x720 and 1280x720, and on the public review portrait at
+320x720. Backend private-image reads accept no query parameters; public review
+portraits accept only their approved v parameter. The installed Next 16.4.3
+get-img-props implementation adds dpl even when unoptimized. Existing dashboard
+avatar and public catalogue media already use overrideSrc; preserve those fixes.
+
+Apply that same exact-source treatment to the profile portrait, customer overview
+vehicle photo, garage list/detail/main/thumbnail images and public reviewer avatar.
+No API validation, authentication, image permission, caching policy or storage
+configuration is relaxed. Image dimensions, fallback and carousel controls remain.
+CI now builds with a synthetic NEXT_DEPLOYMENT_ID, runs the exact-query assertions
+in Chromium/Firefox/WebKit and checks that the backend still rejects dpl/v on
+private reads. The expanded browser matrix collects 713 cases; hosted results for
+the revised source remain pending and are not inferred from earlier green checks.
+
+Local Edge with isolated APIs and the deployment marker verified in HTML passes:
+five private portrait/work-profile boundary/garage slideshow cases (2.5m), two
+public-review portrait/version/removal cases (23.3s), and two overview photo/fallback/
+booked-priority/account-switch cases (40.6s). Earlier native workforce profile layout
+checks passed seven sizes, but its older generic availability fixture still produced
+an outage banner in one capture; those captures are not normal healthy-state proof.
+The first adjacent production portrait run failed as recorded, not a passed test.
+Evidence: TEMP/allied-profile-acceptance-20261109/{adjacent-boundaries,
+exact-media-fix,review-portrait-before,review-portrait-after,overview-media-after}.
+All browser records and requests are isolated fixtures; real accounts/cloud storage,
+physical devices and broader all-page acceptance remain unverified.
+
 ## 9 November 17:41 UTC - profile CI storage configuration correction
 
 PR31 remains held: source 18d8b5ea's Frontend run 42662121820 completed with
@@ -315,8 +348,7 @@ compiled Linux API. This is synthetic role evidence, not real signed-in acceptan
 
 Exact master gates passed: frontend 42640751854 (451/451 browser cases, 9/9 repeated
 WebKit diagnostics, 1,518 units with 12 existing explicit skips, build/types/lint
-and zero production dependency-audit findings), backend 42640751890 and secrets
-42640751930. Installation audit retained 11 development-inclusive findings; that
+and zero production dependency-audit findings), backend 42640751890 and secrets 42640751930. Installation audit retained 11 development-inclusive findings; that
 is not a claim of zero findings across development dependencies. Affected native
 integration 52/52 passed on source 323dabca; all backend code except docs is Git-
 verified identical in 9c219bc8. Final compiled candidate HTTP 5/5 and baseline
@@ -418,7 +450,6 @@ native-1794235610759 (failed fixture cutoff), native-1794235863588 (verified sou
 or delete either isolated restored data or synthetic targets. Shared PostgreSQL,
 current/recovery images, useful caches and unrelated work remain preserved.
 
-
 ---
 
 ## 9 November 14:43 UTC - preserve managed alternative dispatcher fix
@@ -487,6 +518,7 @@ with Back/Forward, reload, keyboard, removal-guard and account-change regression
 a separate package. Evidence: TEMP/allied-saved-return-20261109/finding.md and results.json.
 No saved-items application change belongs to this batch. The owner-unconfirmed
 business facts, physical-device/real-role limits and full two-brief backlog remain.
+
 ## 9 November 14:38 UTC - managed alternatives HTTP regression repaired
 
 The compiled Linux test exposed a genuine dispatcher defect before release: the

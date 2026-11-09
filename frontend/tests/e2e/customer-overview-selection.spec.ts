@@ -70,7 +70,8 @@ for (const [width, height] of [
         }),
       );
       await page.route("**/api/v1/customers/media/images/**", (r) => {
-        media.push(new URL(r.request().url()).pathname);
+        const url = new URL(r.request().url());
+        media.push(url.pathname + url.search);
         return r.request().url().endsWith(id(303))
           ? r.fulfill({ status: 404 })
           : r.fulfill({
