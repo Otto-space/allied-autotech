@@ -31,6 +31,8 @@ export default defineConfig({
         "workforce-directory.spec.ts",
         "saved-items-navigation.spec.ts",
         "saved-items-quality.spec.ts",
+        "customer-profile-quality.spec.ts",
+        "profile-revision.spec.ts",
 
         "order-money-breakdown.spec.ts",
         "workshop-resources.spec.ts",
@@ -84,6 +86,16 @@ export default defineConfig({
         "public-navigation-readiness.spec.ts",
         "saved-items-navigation.spec.ts",
       ],
+    })),
+    ...(["firefox", "webkit"] as const).map((browserName) => ({
+      name: `profile-${browserName}`,
+      testMatch: ["customer-profile-quality.spec.ts", "profile-revision.spec.ts"],
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? { baseURL: "https://127.0.0.1:3104", ignoreHTTPSErrors: true }
+          : {}),
+      },
     })),
   ],
   outputDir: "./test-results/runtime-capabilities",

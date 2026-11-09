@@ -34,6 +34,7 @@ import {
   createPublicProductMediaRouter,
 } from "../../src/modules/catalog/product-media.routes.js";
 import { testOwner } from "../helpers/owner.js";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "profile photo HTTP boundary",
@@ -73,6 +74,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       createPublicServiceMediaRouter(new ServiceMediaService(prisma, storage)),
     );
     beforeAll(async () => {
+      await assertIsolatedLoopbackDatabase();
       for (const name of [
         "CUSTOMER",
         "OTHER",

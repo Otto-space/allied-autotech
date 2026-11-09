@@ -1,3 +1,33 @@
+## 9 November 17:12 UTC - navigation merged; remote release and profile acceptance
+
+PR30 is merged as master 160d3b7b. Its final head 4d3ce6cc passed all three
+required workflows, 1,518 unit tests (12 existing skips), nine early WebKit checks
+and all 563 production-build browser cases. Dedicated Edge 157 and Chrome 156
+preview checks passed nine cases each: seven exact viewports and two native-link
+fallbacks, including unobstructed outage-state menu controls, with zero writes/errors.
+Exact-master Backend 42660261538 and Secrets 42660261735 pass; Frontend
+42660261545 is pending. Held production candidate dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb
+builds directly from the pinned Git SHA with autoAssignCustomDomains=false. Public
+apex remains d553a349 / dpl_9Mhxm6vmMKj8zncDJFLzEdXmkn9J until final gates.
+
+Local disk fell from 21.17 GiB to 11.72 GiB during other concurrent activity.
+The production CLI preflight failed before packaging, and this task stopped its
+3169 dev server, 5024 fixture API and browser retry. Windows reports a 27.86 GiB
+paging file; no prior measurement establishes how much of the drop it caused.
+Remote Git-based building avoids local packaging; Windows settings, other active
+Docker resources, source, dependencies, data and backups remain unchanged.
+
+Profile baseline: 29 passed, three failed (320 page-load timeout and STAFF /
+SUPER_ADMIN redirect timeouts), ten not run. The unchanged focused retry was
+interrupted for the disk reserve and is not a pass. Existing code is preserved.
+Next bounded verification batch adds existing profile revision/private-media HTTP
+and service tests to a fresh isolated CI database with restricted DML credentials
+and actual-target guards. Existing profile browser cases enter Chromium/Firefox/
+WebKit CI; layout cases now use exact requested heights and phone/touch contexts,
+with screenshots. All new hosted results are pending, not inferred from source.
+Actual cloud media delivery, real account persistence, all routes/roles and physical
+devices remain separate acceptance requirements. Business details remain unconfirmed.
+
 ## 9 November 16:36 UTC - navigation outage overlay repair; publication checkpoint
 
 Current item: finish PR30 integration and exact-master publication after its gates.

@@ -8,6 +8,7 @@ import { MediaService } from "../../src/modules/media/media.service.js";
 import { MediaCleanupWorker } from "../../src/workers/media-cleanup.worker.js";
 import { MemoryMediaStorage } from "../helpers/media-storage.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "private profile photos",
@@ -20,6 +21,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     let bytes: Buffer;
     let profileId: string;
     beforeAll(async () => {
+      await assertIsolatedLoopbackDatabase();
       bytes = await sharp({
         create: { width: 64, height: 64, channels: 3, background: "red" },
       })

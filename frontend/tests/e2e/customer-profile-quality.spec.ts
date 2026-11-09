@@ -2,34 +2,61 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { profileFixture, profileId } from "../fixtures/customer-profile";
 const path = "/dashboard/profile";
-for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
-  test(`profile layout ${width}`, async ({ page }) => {
-    const errors: string[] = [];
-    page.on("pageerror", (e) => errors.push(e.message));
-    await page.setViewportSize({ width, height: 1000 });
-    const s = await profileFixture(page);
-    await page.goto(path);
-    await expect(page).toHaveTitle("Your profile \u00b7 Allied AutoTech");
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-      "content",
-      /noindex/,
-    );
-    await expect(
-      page.getByRole("heading", { name: "Your profile", exact: true }),
-    ).toBeVisible();
-    await expect(page.getByLabel("First name", { exact: true })).toHaveValue("Amara");
-    await expect(
-      page.getByRole("navigation", { name: "Breadcrumb", exact: true }),
-    ).toHaveCount(1);
-    await expect(
-      page.getByRole("button", { name: "Save profile", exact: true }),
-    ).toBeDisabled();
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-    ).toBe(true);
-    expect(s.writes).toEqual([]);
-    expect(errors).toEqual([]);
+for (const [width, height] of [
+  [320, 720],
+  [360, 800],
+  [375, 812],
+  [390, 844],
+  [430, 932],
+  [768, 1024],
+  [1024, 768],
+  [1280, 720],
+  [1440, 900],
+  [1536, 864],
+]) {
+  test.describe(`profile layout ${width}x${height}`, () => {
+    test.use({
+      viewport: { width, height },
+      isMobile: async ({ browserName }, provide) => {
+        await provide(browserName !== "firefox" && width <= 430);
+      },
+      hasTouch: width <= 768,
+    });
+    test("shows the saved profile without overflow or an accidental update", async ({
+      page,
+    }, info) => {
+      const errors: string[] = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      const s = await profileFixture(page);
+      await page.goto(path);
+      await expect(page).toHaveTitle("Your profile \u00b7 Allied AutoTech");
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+        "content",
+        /noindex/,
+      );
+      await expect(
+        page.getByRole("heading", { name: "Your profile", exact: true }),
+      ).toBeVisible();
+      await expect(page.getByLabel("First name", { exact: true })).toHaveValue("Amara");
+      await expect(
+        page.getByRole("navigation", { name: "Breadcrumb", exact: true }),
+      ).toHaveCount(1);
+      await expect(
+        page.getByRole("button", { name: "Save profile", exact: true }),
+      ).toBeDisabled();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+      expect(s.writes).toEqual([]);
+      expect(errors).toEqual([]);
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+        width,
+        height,
+      ]);
+      await page.screenshot({ path: info.outputPath("profile.png"), fullPage: true });
+    });
   });
+}
 for (const width of [390, 768, 1280, 1440])
   test(`profile accessibility ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });
