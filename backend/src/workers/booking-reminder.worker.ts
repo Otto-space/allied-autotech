@@ -4,6 +4,7 @@ import { safeErrorAttributes } from "../common/observability/safe-error.js";
 import { prisma } from "../config/database.js";
 import { Prisma, type PrismaClient } from "../generated/prisma/client.js";
 import { enqueueNotification } from "../modules/notifications/notifications.service.js";
+import { isCurrentBookingReminder } from "./booking-reminder-current.js";
 
 interface ClaimedReminder {
   id: string;
@@ -106,17 +107,25 @@ export class BookingReminderWorker {
         reminder.attempts !== attempts
       )
         return "superseded";
+      const now = new Date();
       if (
-        reminder.booking.status !== "CONFIRMED" ||
-        reminder.booking.scheduleVersion !== reminder.scheduleVersion
+        !isCurrentBookingReminder(
+          reminder.booking,
+          reminder.scheduleVersion,
+          now.getTime(),
+        )
       ) {
         await transaction.bookingReminder.update({
           where: { id },
           data: {
             status: "CANCELLED",
-            cancelledAt: new Date(),
+            cancelledAt: now,
             lockedAt: null,
             nextAttemptAt: null,
+            lastErrorCode:
+              reminder.booking.scheduledAt.getTime() <= now.getTime()
+                ? "APPOINTMENT_TIME_PASSED"
+                : null,
           },
         });
         return "cancelled";

@@ -4,6 +4,9 @@ import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js"
 import { prisma } from "../../src/config/database.js";
 import type { Prisma, PrismaClient } from "../../src/generated/prisma/client.js";
 import { BookingReminderWorker } from "../../src/workers/booking-reminder.worker.js";
+import { NotificationDeliveryWorker } from "../../src/workers/notification.worker.js";
+import { encryptNotificationPayload } from "../../src/common/security/mfa-encryption.js";
+import type { TransactionalEmail } from "../../src/providers/messaging/email-provider.port.js";
 
 function gate() {
   let release!: () => void;
@@ -82,12 +85,142 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         },
       });
       jobs.push(reminder.id);
-      return { booking, reminder };
+      return { booking, reminder, user };
     }
     const snapshot = (id: string) =>
       prisma.bookingReminder.findUniqueOrThrow({ where: { id } });
     const notificationCount = (bookingId: string) =>
       prisma.notification.count({ where: { resourceId: bookingId } });
+
+    it("cancels a delayed reminder after appointment time without recording absence", async () => {
+      const f = await fixture();
+      await prisma.booking.update({
+        where: { id: f.booking.id },
+        data: { scheduledAt: new Date(Date.now() - 60_000) },
+      });
+      expect(await new BookingReminderWorker().runOnce(1)).toEqual({
+        sent: 0,
+        cancelled: 1,
+      });
+      expect(await snapshot(f.reminder.id)).toMatchObject({
+        status: "CANCELLED",
+        lastErrorCode: "APPOINTMENT_TIME_PASSED",
+        lockedAt: null,
+        nextAttemptAt: null,
+        sentAt: null,
+      });
+      expect(await notificationCount(f.booking.id)).toBe(0);
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } }),
+      ).toMatchObject({
+        status: "CONFIRMED",
+        scheduleVersion: f.booking.scheduleVersion,
+      });
+      expect(await new BookingReminderWorker().runOnce(1)).toEqual({
+        sent: 0,
+        cancelled: 0,
+      });
+    });
+
+    it.each([false, true])(
+      "rechecks appointment time before the provider boundary (future=%s)",
+      async (future) => {
+        const f = await fixture();
+        const notification = await prisma.notification.create({
+          data: {
+            userId: f.user.id,
+            type: "BOOKING",
+            category: "TRANSACTIONAL",
+            title: "Synthetic appointment reminder",
+            message: "Controlled provider-boundary test; no external delivery.",
+            resourceType: "BOOKING",
+            resourceId: f.booking.id,
+          },
+        });
+        const eventId = randomUUID();
+        const outbox = await prisma.outboxEvent.create({
+          data: {
+            eventId,
+            aggregateType: "Notification",
+            aggregateId: notification.id,
+            eventType: "notification.delivery.requested",
+            payload: {
+              encrypted: encryptNotificationPayload({
+                channel: "EMAIL",
+                recipient: f.user.email,
+                title: notification.title,
+                message: notification.message,
+                bookingAction: {
+                  url: "http://localhost:3000/api/v1/public/booking-response?token=synthetic",
+                  bookingId: f.booking.id,
+                  scheduleVersion: f.booking.scheduleVersion,
+                },
+              }),
+            } as unknown as Prisma.InputJsonValue,
+            notificationDelivery: {
+              create: { notificationId: notification.id, channel: "EMAIL" },
+            },
+          },
+        });
+        // Only time changes: status and schedule version still match the queued job.
+        await prisma.booking.update({
+          where: { id: f.booking.id },
+          data: { scheduledAt: new Date(Date.now() + (future ? 60_000 : -60_000)) },
+        });
+        const sent: TransactionalEmail[] = [];
+        await new NotificationDeliveryWorker(
+          {
+            async send(message) {
+              sent.push(message);
+            },
+          },
+          null,
+          prisma,
+        ).runOnce(100);
+        expect(sent.filter((message) => message.idempotencyKey === eventId)).toHaveLength(
+          future ? 1 : 0,
+        );
+        expect(
+          await prisma.outboxEvent.findUniqueOrThrow({ where: { id: outbox.id } }),
+        ).toMatchObject({
+          status: future ? "PUBLISHED" : "DEAD_LETTER",
+          lastError: future ? null : "STALE_BOOKING_REMINDER",
+        });
+        expect(
+          await prisma.notificationDelivery.findUniqueOrThrow({
+            where: { outboxEventId: outbox.id },
+          }),
+        ).toMatchObject({
+          status: future ? "PUBLISHED" : "DEAD_LETTER",
+          lastErrorCode: future ? null : "STALE_BOOKING_REMINDER",
+        });
+        expect(
+          await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } }),
+        ).toMatchObject({
+          status: "CONFIRMED",
+          scheduleVersion: f.booking.scheduleVersion,
+        });
+        expect(
+          await prisma.bookingAttendanceEvent.count({
+            where: { bookingId: f.booking.id },
+          }),
+        ).toBe(0);
+        expect(
+          await new NotificationDeliveryWorker(
+            {
+              async send(message) {
+                sent.push(message);
+              },
+            },
+            null,
+            prisma,
+          ).runOnce(100),
+        ).toBe(0);
+        expect(sent.filter((message) => message.idempotencyKey === eventId)).toHaveLength(
+          future ? 1 : 0,
+        );
+      },
+    );
 
     for (const confirmed of [true, false]) {
       it.each(["success", "failure"] as const)(

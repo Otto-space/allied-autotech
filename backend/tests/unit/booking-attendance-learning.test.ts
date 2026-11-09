@@ -5,7 +5,7 @@ it("keeps physical attendance guidance in existing permission gates without impo
   for (const [id, gate, version] of [
     ["booking-confirmation", "booking-confirmation", 15],
     ["assigned-findings", "jobs", 5],
-    ["service-request", "public", 29],
+    ["service-request", "public", 30],
   ] as const) {
     const article = learningArticles.find((row) => row.id === id)!;
     expect(article.gate).toBe(gate);
@@ -17,5 +17,11 @@ it("keeps physical attendance guidance in existing permission gates without impo
   expect(work.steps.join(" ")).toContain("not an owner-approved rule");
   expect(work.steps.join(" ")).toContain(
     "does not move the appointment or displace another customer",
+  );
+  const customer = learningArticles.find((row) => row.id === "service-request")!;
+  expect(customer.steps.join(" ")).toContain("confirmed future appointments");
+  expect(customer.steps.join(" ")).toContain("Provider delivery can still be delayed");
+  expect(customer.steps.join(" ")).toContain(
+    "does not record arrival, absence or cancellation",
   );
 });

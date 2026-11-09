@@ -1,3 +1,12 @@
+## 9 November - delayed appointment reminder checks
+
+Service-request v30 retains its public gate, twelve steps, existing semantic targets
+and permission boundaries. It explains current confirmed-future reminder eligibility,
+provider delay and unchanged attendance/cancellation. This does not publish learning
+flags or change reminder timings. See REMINDER_EXPIRY_20261109.md for actual checks.
+
+---
+
 ### 9 November: final D11 source checkpoint
 
 Booking-confirmation v15 retains its existing audience/permission/publication gates.
@@ -346,7 +355,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | financial-policy-work   | financial-policy     | 5 / 2026-11-03        | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
 | parts-fitment           | public               | 14 / 2026-11-03       | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02        | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
-| service-request         | public               | 29 / 2026-11-04       | /services                    | Public launch mode and Services page                                                                                                        |
+| service-request         | public               | 30 / 2026-11-09       | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26        | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
 | no-live-lookup          | public               | 2 / 2026-10-26        | /help                        | Launch restrictions and existing status contracts                                                                                           |
 | own-conversation        | customer             | 4 / 2026-10-27        | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |

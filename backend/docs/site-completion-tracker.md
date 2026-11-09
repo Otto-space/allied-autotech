@@ -1,3 +1,110 @@
+## 9 November 19:27 UTC - delayed reminder guard candidate
+
+Independent implementation continues while packaging is held by disk reserve.
+Branch codex/reminder-expiry-20261109 (base master b362e9f8) adds a shared current-
+appointment check at reminder enqueue and notification provider delivery. Elapsed
+reminders cancel/terminate without changing booking status, attendance or capacity.
+Five focused units pass; scoped lint and formatting pass. New PostgreSQL regressions
+for delayed enqueue, expired provider retry, future delivery, terminal states and
+deduplication are wired into the existing isolated backend CI; not yet executed.
+Service-request v30 keeps its public eligibility and existing targets. Generated
+handbook corrects stale immediate-catch-up/physical-attendance wording. No schema,
+financial permission, reminder timing or production flag changes. See
+docs/help-learn/REMINDER_EXPIRY_20261109.md. Source types, integration/CI and release
+remain pending. The product-timing candidate is held; do not discard its verified
+export or READY frontend. Full configurable D15 and the original audit remain open.
+
+---
+
+## 9 November 19:14 UTC - exact master passes; held frontend accepted with limits
+
+Master b362e9f8 remains current remotely. All required workflows pass: frontend
+42674646758 (1,525 units, 12 existing skips; nine WebKit diagnostics; 574 production
+browser cases), backend 42674646943 and secrets 42674646239. The canonical backend
+export's 1,295 files/21,062,190 bytes were freshly compared with master's actual
+Git-filtered bytes in one batch; every file, including migration checksums, matches.
+
+New source's native schema probe and the three retained 9c219bc8 runtime images
+pass against the populated isolated 101-migration restore. Probes selected no
+business rows, used a read-only non-owner role and removed that role afterward.
+These are not the four new candidate packaged images or the ten packaged tests.
+Guarded build/schema/recovery helpers are prepared and syntax-check, not executed.
+
+Held production-environment frontend dpl_EnS5X45nMXyaGdY6TNMgHtvJzepY is READY
+from the checked master, without domain promotion. Seven actual held Edge fixture
+cases pass: responsive authoring, three save-recovery states and emulated touch.
+Four hosted synthetic public cases FAIL because product data loads on the server,
+where browser routing cannot supply their test-only IDs; they render unavailable.
+Do not count those as passes or change production data to make fixtures exist.
+All four pass in exact-master production CI with its isolated server fixture.
+Separately, the genuine public product passes read-only held checks at320/390/768/1440:
+unknown timing stays absent; checkout stays unavailable; no overflow/page errors/
+application writes; keyboard section links, mobile menu Escape/focus and scoped Axe
+pass. These are hosted fixtures/public reads, not real Admin roles or physical devices.
+
+Authenticated HTTP reaches the held app. Development OIDC is correctly refused
+for production; no Trusted Sources rule changed. A temporary candidate-only test
+link was used and revoked. The first link identifier appeared in a debug shape
+summary and was immediately revoked/replaced; replacement also revoked after tests.
+Fresh provider read confirms zero share links and both temporary browser access
+files are removed. Both public domains still point to dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb;
+backend c3c54414 and all four old component digests are unchanged, with no pending
+backend deployment. No production migration, price/stock edit or flag activation.
+
+Packaging remains held: C:20.76GiB fails21.5GiB required for1.5GiB expected growth.
+A review of34 exact old unshared project compilation cache outputs followed by
+bounded native Docker pruning reclaimed0B; images/containers unchanged. Dependency
+caches, source, database/volumes, backups and recovery images retained. Owner asked
+to free1GiB or identify a disposable folder; continue independent work while pending.
+Do not repeat local dev/browser combinations without their recorded10GiB budget.
+Next: four candidate images, packaged/recovery checks, renewed backup when its
+protected one-hour age expires, verified backend migration/rollout and promotion
+of this same held frontend. Entire original audit/D01-D17 scope remains active.
+
+Private receipts/scripts and safe screenshot results: TEMP/aat-attendance-20261104/
+release-product-timing-449d0ecc-20261109; handoff is in the parent folder. These
+continuity notes remain uncommitted pending the evidence/release closeout.
+
+---
+
+## 9 November 18:47 UTC - product timing merged; release held
+
+PR #32 merged to master b362e9f8b7ba6a2c22c55db859794a5c4716d405. Its full
+Git tree matches reviewed source 449d0ecc. Source-branch frontend 42669985402,
+backend 42669984697 and secrets 42669986094 pass. Frontend evidence: 1,525 unit
+tests pass (12 existing skips), nine repeated WebKit diagnostics and 574 production
+browser cases pass, including all eleven added timing/operator/touch cases.
+These are synthetic CI/browser checks, not live-role/provider/physical-device acceptance.
+
+Exact-master backend 42674646943 and secrets 42674646239 pass; frontend
+42674646758 remains in progress at 18:46 UTC. Observe it; do not restart it.
+The fresh production read-only backup and scoped firewall cleanup were verified.
+The populated isolated 100-to-101 migration rehearsal passes: original-column
+counts/hashes and full previous migration history preserved, new timing values
+remain null. Canonical filtered export is complete and reusable for the identical
+master tree. Production database/schema, prices, stock, permissions and flags
+remain unchanged. Historical managed restore proof is separate from this fresh
+logical restore rehearsal.
+
+Packaging has not started: C: 20.91 GiB fails the 21.5 GiB threshold for the
+four-image warm-cache build's 1.5 GiB growth budget. npm cache verification found
+no useful reclamation. No cache/image/profile/database deletion or pruning was
+performed. No local preview/browser is running. Retain current/rollback images.
+
+Next: exact-master frontend gate, safe space recovery, four candidate images and
+packaged/recovery probes, held frontend acceptance, renewed backup if its protected
+age limit expires, reviewed migration/rollout and both aliases. Recovery must
+retain the new migration-check image with old runtime images; old migration-check
+image knows only 100 migrations. Current frontend is deployment dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb
+at 160d3b7b; backend c3c54414 remains at 9c219bc8. Nothing from this batch is
+published. Full D13/order timing, D12/D14/D15/D17, advanced D03 and the original
+operational/provider/device acceptance remain. Do not mark the whole site ready.
+
+Private continuity: TEMP/aat-attendance-20261104/source-handoff-product-timing-20261109.json.
+This evidence update is intentionally uncommitted while exact-master CI runs.
+
+---
+
 ## 9 November 17:59 UTC - production-build product coverage added
 
 Exact fac525a3 backend safety 42667391915 and secrets 42667391815 pass. Frontend
