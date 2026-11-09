@@ -166,6 +166,55 @@ for (const [width, height] of viewports) {
     expect(errors).toEqual([]);
   });
 }
+test.describe("compact phone carousel controls", () => {
+  test.use({ hasTouch: true });
+  for (const [width, height] of [
+    [320, 667],
+    [360, 600],
+    [360, 800],
+    [390, 844],
+    [430, 932],
+  ]) {
+    test(`touch controls keep the page still at ${width}x${height}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto("/");
+      await page.evaluate(() => document.fonts.ready);
+      const carousel = page.getByRole("region", { name: "Workshop highlights" });
+      const controls = carousel.locator("[data-carousel-controls]");
+      await expect(controls.getByRole("button")).toHaveCount(7);
+      const row = await controls.boundingBox();
+      expect(row!.x).toBeGreaterThanOrEqual(0);
+      expect(row!.x + row!.width).toBeLessThanOrEqual(width);
+      for (const button of await controls.getByRole("button").all()) {
+        const box = await button.boundingBox();
+        expect(box!.width).toBeGreaterThanOrEqual(24);
+        expect(box!.height).toBeGreaterThanOrEqual(44);
+        expect(box!.y + box!.height / 2).toBeCloseTo(row!.y + row!.height / 2, 0);
+        await expect(button).toBeInViewport({ ratio: 1 });
+        await button.tap();
+        expect(
+          await page.evaluate(async () => {
+            // The shared reveal helper queues animation frames after activation.
+            for (let frame = 0; frame < 3; frame++)
+              await new Promise<void>((resolve) =>
+                requestAnimationFrame(() => resolve()),
+              );
+            return scrollY;
+          }),
+        ).toBe(0);
+        expect(new URL(page.url()).hash).toBe("");
+        expect(new URL(page.url()).pathname).toBe("/");
+      }
+      await expect(carousel).toHaveAttribute("data-slide", "1");
+      await expect(carousel).toHaveAttribute("data-rotating", "true");
+      await controls.getByRole("button", { name: "Pause slideshow" }).tap();
+      await expect(carousel).toHaveAttribute("data-rotating", "false");
+      await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
+    });
+  }
+});
+
 test("all editorial images failing retains the task and stops rotation", async ({
   page,
 }) => {

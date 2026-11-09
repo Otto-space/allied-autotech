@@ -9766,3 +9766,30 @@ all four slides, action/control clearance and first-screen discovery on phones.
 Rendered checks, exact-source gates and publication are pending. Services work is
 preserved separately on codex/stitch-services-20261109 / draft PR45; no unverified
 Services changes are included in this correction. No backend/database rollout.
+
+## 9 November - Compact carousel controls and mobile scroll correction
+
+Owner feedback also requests compact responsive controls and reports that tapping
+carousel controls jumps into the next section. Live Edge touch emulation at320x667
+reproduced a native tap scrolling from0 to555px, with the same URL and slide2.
+The shared ViewportNavigation selection/reveal helper aligns the tapped button
+below the sticky header because it treats the support dock as a full-width
+obstruction. Local carousel buttons now opt out of selection re-reveal; keyboard
+focus visibility and normal page/navigation/form handling remain enabled.
+
+Controls follow their DOM/keyboard order: previous, four slide choices, next,
+play/pause. One compact pill fits even320px without a second row. Arrows and
+playback keep44px targets; slide choices are32x44px on phones, above WCAG2.2AA's
+24px minimum, allowing the requested compact arrangement. Hero content spacing
+from the earlier compact change is retained. Five phone/short-phone touch cases
+check all seven controls, stable scroll/URL, one-row fit and pause/play behavior.
+Compiled render, full exact-master checks and publication are pending. Do not
+publish the earlier aba95de1 candidate while this correction is being verified.
+
+This correction is based on current master3cf5d9cb, preserving the concurrently
+merged customer-account focus and recovery-test changes (PR44). Its runtime diff
+is limited to focus restoration around existing permissioned account actions;
+no backend, permission or capability change is included. The 30-minute browser
+step budget was already justified by the measured expanded matrix, with its
+assertions retained. The older aba95de1 frontend gate subsequently passed, but
+does not qualify this newer carousel correction for publication.

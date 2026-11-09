@@ -8550,3 +8550,14 @@ wrap at the smallest width. The existing nine-size journey checks now cover
 slide stability, action/control clearance and discovery visible on phones.
 Rendered candidate, exact-source release gates and live checks remain pending.
 Services PR45 is preserved separately; groups 2-10 remain open.
+
+## 9 November - Carousel control refinement and jump reproduction
+
+Live Edge synthetic native touch at320x667 reproduced scroll0 to555px after Next.
+The shared selection-reveal helper scrolls the control toward the sticky header.
+Home carousel controls opt out of that post-activation reveal, with normal keyboard
+focus visibility retained. The controls now use one compact pill at every phone
+width: previous,32x44 slide targets,next,44px playback, in matching keyboard order.
+Five touch regressions cover320/360/390/430 and short600px-height screens, stable
+scroll/URL, target visibility and pause/play. Exact-source gates/render/live
+verification remain pending; Services PR47 is retained separately.

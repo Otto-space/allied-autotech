@@ -113,7 +113,7 @@
   gap: 4px;
   padding: 6px;
   border: 1px solid #ffffff59;
-  border-radius: 10px;
+  border-radius: 999px;
   background: #080c0fe6;
   color: var(--text-inverse);
 }
@@ -129,7 +129,7 @@
   background: transparent;
   color: inherit;
   border: 0;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
   font-family: var(--font-body);
   font-size: 13px;
@@ -141,6 +141,11 @@
 .controls button:disabled {
   opacity: 0.45;
   cursor: default;
+}
+.controls .playback {
+  margin-left: 4px;
+  border-left: 1px solid #ffffff40;
+  border-radius: 0 24px 24px 0;
 }
 .hero :is(button, a):focus-visible {
   outline: 3px solid var(--text-inverse);
@@ -200,7 +205,7 @@
     min-height: 44px;
   }
   .pickers button {
-    width: 44px;
+    width: 32px;
   }
   .actions {
     display: grid;
@@ -215,17 +220,6 @@
     left: 16px;
     bottom: 6px;
     font-size: 12px;
-  }
-}
-@media (max-width: 359px) {
-  .controls {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    justify-items: center;
-  }
-  .pickers {
-    grid-column: 1 / -1;
-    grid-row: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) {

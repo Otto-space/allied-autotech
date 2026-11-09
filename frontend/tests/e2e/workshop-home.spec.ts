@@ -400,7 +400,10 @@ for (const width of [320, 360, 390, 430, 768, 1024, 1280, 1366, 1440]) {
     expect((await hero(page).boundingBox())!.height).toBeCloseTo(first!.height, 0);
     for (const control of await hero(page).getByRole("button").all()) {
       const bounds = await control.boundingBox();
-      expect(bounds!.width).toBeGreaterThanOrEqual(44);
+      const picker = await control.getAttribute("aria-label");
+      expect(bounds!.width).toBeGreaterThanOrEqual(
+        picker?.startsWith("Show slide") ? 24 : 44,
+      );
       expect(bounds!.height).toBeGreaterThanOrEqual(44);
     }
     for (const selector of [
