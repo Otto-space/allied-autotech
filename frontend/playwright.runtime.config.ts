@@ -6,6 +6,27 @@ process.env.CAPABILITY_TEST_TRANSPORT = "loopback";
 export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
+    ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
+      name: `quotation-modal-${browserName}`,
+      testMatch: ["staff-quotation-modal.spec.ts"],
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? { baseURL: "https://127.0.0.1:3104", ignoreHTTPSErrors: true }
+          : {}),
+      },
+    })),
+    ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
+      name: `payment-modal-${browserName}`,
+      testMatch: ["payment-detail-quality.spec.ts"],
+      grep: /payment review geometry/,
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? { baseURL: "https://127.0.0.1:3104", ignoreHTTPSErrors: true }
+          : {}),
+      },
+    })),
     {
       name: "authentication-lifecycle",
       testMatch: [
