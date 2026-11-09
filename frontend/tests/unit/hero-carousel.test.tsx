@@ -79,7 +79,7 @@ it("loops beyond three cycles with one timer in StrictMode and clears it on unmo
       vi.advanceTimersByTime(HERO_INTERVAL_MS);
     });
     expect(view.container.querySelector("section")?.getAttribute("data-slide")).toBe(
-      String((i % 3) + 1),
+      String((i % 4) + 1),
     );
   }
   view.unmount();

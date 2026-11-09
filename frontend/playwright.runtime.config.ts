@@ -22,6 +22,10 @@ export default defineConfig({
       grep: /registration completes|verification token|accepted request is generic|Retry-After blocks|duplicate submission locks|complete reset|invalid link clears|uncertain .* result|pending session selects|invalid codes clear|recovery code uses|first-factor setup requires|discarding authenticator|late enrollment|malformed enrollment|virtual security key|cancelled browser|existing factor blocks|re-register authenticator|password reveal is reversible|pending submission clears|honest .* response|invalid .* response cannot|MFA hands off|safe continuation|session change clears/,
     },
     {
+      name: "home-design",
+      testMatch: ["home-design.spec.ts"],
+    },
+    {
       name: "product-authoring",
       testMatch: ["work-products.spec.ts"],
       grep: /product estimates validate|edit stays locked/,

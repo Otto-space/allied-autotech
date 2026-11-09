@@ -4,19 +4,18 @@ import { business } from "@/lib/business";
 import { Brand } from "./brand";
 import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { learningEnabled } from "@/lib/learning/contracts";
+import "./site-footer.css";
 
 export function SiteFooter() {
   const { catalogueOnly } = usePublicCapabilities();
   return (
-    <footer className="site-footer bg-ink text-white py-12 overflow-hidden relative">
-      <div className="site-footer__inner grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10 relative z-10">
+    <footer className="site-footer site-footer--editorial">
+      <div className="site-footer__inner site-footer__columns">
         <div>
-          <Brand inverse />
-          <p className="brand-signature text-white/90 mb-6">
-            Built on trust. Driven by quality.
-          </p>
-          <p className="text-white/80 max-w-xs">{business.address}</p>
-          <p className="text-white/80 mt-6">
+          <Brand />
+          <p className="brand-signature">Built on trust. Driven by quality.</p>
+          <p>{business.address}</p>
+          <p>
             <a
               href={business.instagram}
               target="_blank"
@@ -28,83 +27,50 @@ export function SiteFooter() {
           </p>
         </div>
         <div>
-          <p className="font-semibold mb-6">Explore</p>
-          <nav className="flex flex-col gap-4 text-white/70" aria-label="Footer Services">
-            <Link href="/services" className="hover:text-white! transition-colors">
-              Services
-            </Link>
-            <Link href="/parts" className="hover:text-white! transition-colors">
-              Shop
-            </Link>
-            <Link href="/vehicles" className="hover:text-white! transition-colors">
-              Vehicles
-            </Link>
-            <Link href="/about" className="hover:text-white! transition-colors">
-              About Allied AutoTech
-            </Link>
+          <h2>Explore</h2>
+          <nav aria-label="Footer Services">
+            <Link href="/services">Services</Link>
+            <Link href="/parts">Shop</Link>
+            <Link href="/vehicles">Vehicles</Link>
+            <Link href="/about">About Allied AutoTech</Link>
           </nav>
         </div>
         <div>
-          <p className="font-bold mb-6">Support</p>
-          <nav className="flex flex-col gap-4 text-white/70" aria-label="Footer Support">
-            <Link href="/reviews" className="hover:text-white transition-colors">
-              Customer reviews
-            </Link>
-            <Link href="/help" className="hover:text-white transition-colors">
-              Help Centre
-            </Link>
-            {learningEnabled() && (
-              <Link href="/learn" className="hover:text-white transition-colors">
-                Help &amp; Learn
-              </Link>
-            )}
-            <Link href="/contact" className="hover:text-white transition-colors">
-              Customer Care
-            </Link>
-            <Link
-              href={catalogueOnly() ? "/login" : "/dashboard"}
-              className="hover:text-white transition-colors"
-            >
+          <h2>Support</h2>
+          <nav aria-label="Footer Support">
+            <Link href="/reviews">Customer reviews</Link>
+            <Link href="/help">Help Centre</Link>
+            {learningEnabled() && <Link href="/learn">Help &amp; Learn</Link>}
+            <Link href="/contact">Customer Care</Link>
+            <Link href={catalogueOnly() ? "/login" : "/dashboard"}>
               {catalogueOnly() ? "Staff sign in" : "Your Account"}
             </Link>
-            {!catalogueOnly() && (
-              <Link href="/purchase" className="hover:text-white transition-colors">
-                Guest purchases
-              </Link>
-            )}
+            {!catalogueOnly() && <Link href="/purchase">Guest purchases</Link>}
           </nav>
         </div>
         <div>
-          <p className="font-bold mb-6">Contact</p>
-          <div className="flex flex-col gap-4 text-white/70">
+          <h2>Contact</h2>
+          <div>
             <a
               href={business.whatsapp}
-              className="hover:text-white"
+
               target="_blank"
               rel="noopener noreferrer"
             >
               Whatsapp
             </a>
-            <a href={`mailto:${business.email}`} className="hover:text-white">
-              {business.email}
-            </a>
+            <a href={`mailto:${business.email}`}>{business.email}</a>
           </div>
         </div>
       </div>
-      <div className="site-footer__inner flex flex-col md:flex-row justify-between items-center text-xs text-white/70 pt-8 border-t border-white/10 relative z-10">
+      <div className="site-footer__inner site-footer__bottom">
         <p>
           © {new Date().getFullYear()} {business.name}. All rights reserved.
         </p>
-        <div className="flex gap-6 mt-4 md:mt-0">
-          <Link href="/privacy" className="hover:text-white">
-            Privacy
-          </Link>
-          <Link href="/help" className="hover:text-white">
-            Help centre
-          </Link>
-          <Link href="/contact" className="hover:text-white">
-            Contact the team
-          </Link>
+        <div>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/help">Help centre</Link>
+          <Link href="/contact">Contact the team</Link>
         </div>
       </div>
     </footer>

@@ -110,6 +110,24 @@ For dashboard and managed-workforce work, follow the per-page index and state
 coverage in the quality register and `frontend/tests/quality/dashboard-pages.txt`.
 Keep source-only, launch-restricted, mocked and real acceptance distinct.
 
+## Design references, truthful content and complete delivery
+
+Before changing a page, read its project rules, understand its real purpose,
+information and working behaviour, and inspect the approved visual reference.
+Match the reference closely using Allied's branding, approved facts and existing
+permitted features. Never publish sample values, invented claims or unsupported
+controls. Use everyday language and preserve accessibility, account separation,
+security and working journeys. Apply `docs/UI_UX_AND_CONTENT_RULES.md` and record
+scope, visual departures and evidence in `frontend/docs/UI_UX_QUALITY_REGISTER.md`
+and `backend/docs/site-completion-tracker.md`.
+
+Finish and check one coherent page group at a time. For the owner-approved design
+implementation, publish each completed, verified group through the existing
+release process and check it live before proceeding. Never publish a broken or
+partially verified group, skip required checks or claim untested work passed.
+Record published results and remaining limits in those existing records. This is
+a working instruction, not an automatic enforcement mechanism.
+
 ## Help, Learn & Practice maintenance
 
 When a covered workflow, permission, policy or semantic guide target changes, update
