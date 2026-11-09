@@ -47,6 +47,7 @@ export function createRuntimeCapabilityApi() {
     bookingRequestsEnabled: true,
     productPurchasesEnabled: true,
     fail: false,
+    searchUnavailable: false,
   };
   return http.createServer(async (request, response) => {
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
@@ -92,6 +93,7 @@ export function createRuntimeCapabilityApi() {
           bookingRequestsEnabled: value.bookingRequestsEnabled !== false,
           productPurchasesEnabled: value.productPurchasesEnabled !== false,
           fail: value.fail === true,
+          searchUnavailable: value.searchUnavailable === true,
         };
         send(200, { success: true });
       } catch {
@@ -134,11 +136,29 @@ export function createRuntimeCapabilityApi() {
     }
     if (url.pathname.startsWith("/api/v1/public/catalog/")) {
       const route = url.pathname;
+      if (
+        route === "/api/v1/public/catalog/products/discovery" &&
+        settings.searchUnavailable
+      ) {
+        send(503, { success: false, error: { code: "SYNTHETIC_SEARCH_UNAVAILABLE" } });
+        return;
+      }
       success(
         route === `/api/v1/public/catalog/products/${product.id}`
           ? modalProduct
           : route === "/api/v1/public/catalog/products/discovery"
-            ? { items: [modalProduct], totalMatches: 1 }
+            ? {
+                items: [
+                  url.searchParams.has("search")
+                    ? {
+                        ...modalProduct,
+                        brand: "Synthetic maker",
+                        manufacturerPartNumber: "TEST-MPN",
+                      }
+                    : modalProduct,
+                ],
+                totalMatches: 1,
+              }
             : route === "/api/v1/public/catalog/products"
               ? { items: [modalProduct] }
               : { items: [] },

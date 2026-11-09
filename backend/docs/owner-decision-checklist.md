@@ -1,3 +1,28 @@
+### 9 November 2026: D07 continuation and preservation checkpoint
+
+The interruption left the candidate on 1af29213. Its exact-head backend safety and
+secret checks passed; frontend production checks passed, followed by 224 existing
+browser cases passing and twelve new fixture cases failing on an outdated helper
+call. The new fixtures now supply the current page argument and complete envelopes.
+A rendered mobile regression exposed the pending-state dialog unmount; d15823c1
+preserves the dialog while saving and clears old proposals after recovery.
+
+The local twelve-case run passed eleven cases; the remaining administrator mobile
+case completed its workflow but reported a development stylesheet preload warning.
+The unchanged console guard was retained. A focused four-case rerun (mobile admin,
+lost, malformed and not-saved recovery) then passed before interruption; its exact
+output root d73cab6cb03e records a passed terminal run on 4 November at 04:08:31.
+Thirteen work-review cases are now selected for hosted production-build acceptance.
+These are isolated fixtures, not real-role or physical-device acceptance.
+
+Current integration includes master 80e95a38's public-search separator correction,
+recovery fixture and browser cases, alongside the earlier calendar/modal fixes.
+Both evidence histories are retained. New exact-source checks remain required.
+The earlier populated restore preserved original rows and passed guarded 97-to-98
+migration and db:check; its backup is now stale and cannot authorize production.
+No shared migration or production publication has occurred for this candidate.
+D01-D17 remains active; financial activation and unresolved owner facts stay gated.
+
 ### 4 November 2026: D07 assessed remaining-work review — integrated candidate
 
 Integrated source retains master 804eb4fc's Month/Schedule calendar, responsive

@@ -1,3 +1,28 @@
+### 9 November 2026: D07 continuation and preservation checkpoint
+
+The interruption left the candidate on 1af29213. Its exact-head backend safety and
+secret checks passed; frontend production checks passed, followed by 224 existing
+browser cases passing and twelve new fixture cases failing on an outdated helper
+call. The new fixtures now supply the current page argument and complete envelopes.
+A rendered mobile regression exposed the pending-state dialog unmount; d15823c1
+preserves the dialog while saving and clears old proposals after recovery.
+
+The local twelve-case run passed eleven cases; the remaining administrator mobile
+case completed its workflow but reported a development stylesheet preload warning.
+The unchanged console guard was retained. A focused four-case rerun (mobile admin,
+lost, malformed and not-saved recovery) then passed before interruption; its exact
+output root d73cab6cb03e records a passed terminal run on 4 November at 04:08:31.
+Thirteen work-review cases are now selected for hosted production-build acceptance.
+These are isolated fixtures, not real-role or physical-device acceptance.
+
+Current integration includes master 80e95a38's public-search separator correction,
+recovery fixture and browser cases, alongside the earlier calendar/modal fixes.
+Both evidence histories are retained. New exact-source checks remain required.
+The earlier populated restore preserved original rows and passed guarded 97-to-98
+migration and db:check; its backup is now stale and cannot authorize production.
+No shared migration or production publication has occurred for this candidate.
+D01-D17 remains active; financial activation and unresolved owner facts stay gated.
+
 ### 4 November 2026: D07 assessed remaining-work review — integrated candidate
 
 Integrated source retains master 804eb4fc's Month/Schedule calendar, responsive
@@ -48,6 +73,53 @@ frontend verification. C: last passed the 1.5 GiB check at 21.61 GiB; four-image
 builds still require the justified 2 GiB allowance. Production is unchanged by
 this candidate. D01-D17 remains active; actual branch/resource facts, real role
 acceptance and the separate finance/provider decisions are not fabricated.
+
+## 4 November 02:40 UTC — public search acceptance package
+
+Target boundary: 03:40 UTC. Full renewed two-brief goal remains active. Current
+release is master 804eb4fc, frontend dpl_Hsm7YfNcZoDp3YjM9tbSragqnkvY on both
+apex/www (fresh provider readback), backend 8a7821b4-9316-40c1-9638-d2953bdebcbc.
+Calendar/shared-modal release is complete: exact-source frontend/backend/secrets
+checks passed, 1,486 units passed (12 existing skips), 224/224 isolated browser
+regressions passed and six native public-delivery checks passed. Calendar, invoice,
+notification and garage geometry cover all seven required sizes; other owners
+have representative checks. Prior failures below remain historical evidence.
+Release receipt: TEMP/allied-calendar-release-804eb4fc/RELEASE.md. Physical devices,
+full screen-reader acceptance and fresh worker heartbeat timestamps remain unverified.
+Completed calendar branch is retained because GitHub GH013 blocks deletion;
+repository protections were not changed.
+
+Current page: /search, anonymous public browsing. Existing implementation already
+puts submitted results inside the first viewport: heading y367-451px across
+1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800 and 320x720. Fourteen Edge
+states (matching service and valid 100-character query at every size) pass actual
+viewport/no-overflow checks. No layout redesign is needed. Edge and installed
+Chrome 156.0.8078.79 pass the ten-step search journey at all seven sizes: header
+entry, Enter and pointer submission, Help scope, Back/Forward, Close/Escape,
+keyboard empty-group disclosure, cleared required input and invalid external scope.
+The initial Edge run passed four sizes; three phone checks exceeded the runner's
+5-second hydration expectation. The bounded rerun explicitly allowed 25 seconds
+and all three passed unchanged application code. Original failures are retained.
+Chrome passed seven of seven in one run. Zero application writes or page exceptions;
+only expected signed-out session HTTP 401s were observed. Dedicated headless browser
+contexts use mobile/touch emulation for phone sizes; this is not physical testing.
+Evidence: TEMP/allied-public-search-20261104/{baseline.json,interactions.json,
+interactions-phone-rerun.json,chrome/interactions.json}, with captured page states.
+
+P3 verified copy defect: product results joined a recorded brand and manufacturer
+part number with a question mark. Existing synthetic unit strengthened to require
+'Synthetic maker · Part no. AB-123' failed before the separator correction and now
+passes; both search unit files pass 9/9. No brand, inventory or fitment facts were
+invented. Two new production-build browser regressions at 320/1280 cover a failed
+Shop source while Services remain available, distinguish failure from no matches,
+then retry without losing query/scope. The loopback-only test API controls pass a
+503-to-200 probe; rendered execution of these two new cases is still pending CI.
+Scoped lint/format and test collection pass. No new backend/schema/flag changes.
+This batch is not yet merged or deployed. Preserve the other worktrees' changes.
+
+Remaining full scope: the page/state and role matrix below still applies; these
+public search checks do not certify every catalogue facet, authenticated dashboard,
+all roles, Firefox/WebKit, physical device, real product evidence or workshop setup.
 
 4 November exact-master gate: 9fbf3732 passed backend safety, secrets,
 production checks and 223/224 browser cases. All modal, tablet-filter and About
