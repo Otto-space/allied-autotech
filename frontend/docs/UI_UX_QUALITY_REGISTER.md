@@ -1,3 +1,13 @@
+## 9 November 20:52 UTC - authentication release reconciled with Home repair
+
+PR35 source now includes master5464e402's footer clearance and attendance fixture
+settlement. Previous frontend42691319691 is terminal with676 browser passes,
+five real footer-overlap failures and137 unrun cases; backend and secret gates
+passed on ed85193e. Preserve all assertions and rerun the merged source gates.
+Native Edge independently reproduced the footer overlap before integration.
+Quotation/payment follow-up remains separate on PR38; this merge preserves the
+other session's Home implementation. No production publication is claimed.
+
 ## 9 November 20:15 UTC - compiled compatibility acceptance and CI formatting fix
 
 Final combined application f7d1fd1b passes eight native catalogue compatibility

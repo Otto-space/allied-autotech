@@ -1,3 +1,13 @@
+## 9 November 20:52 UTC - authentication release reconciled with Home repair
+
+PR35 source now includes master5464e402's footer clearance and attendance fixture
+settlement. Previous frontend42691319691 is terminal with676 browser passes,
+five real footer-overlap failures and137 unrun cases; backend and secret gates
+passed on ed85193e. Preserve all assertions and rerun the merged source gates.
+Native Edge independently reproduced the footer overlap before integration.
+Quotation/payment follow-up remains separate on PR38; this merge preserves the
+other session's Home implementation. No production publication is claimed.
+
 ## 9 November 20:15 UTC - compiled compatibility acceptance and CI formatting fix
 
 Final combined application f7d1fd1b passes eight native catalogue compatibility
@@ -9470,7 +9480,6 @@ acceptance. Complete the compatibility check and merged-master gates, then stage
 and verify a production-environment frontend without assigning domains, and only
 then publish/check both aliases. The119-template design inventory remains open.
 
-
 ## 9 November - Home release gate repairs
 
 The first held production candidate is READY but has not been published. Exact
@@ -9501,4 +9510,3 @@ permission, capability, database or policy changes were made for these repairs.
 C: preflight21.18GiB with0.1GiB browser allowance passed. No local build/install or
 Docker resources were created. Existing recovery deployments/resources retained.
 Do not publish9f9ee2f8 or count this as full119-template completion.
-
