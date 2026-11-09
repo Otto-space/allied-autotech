@@ -13,7 +13,7 @@ export default defineConfig({
     {
       name: "product-authoring",
       testMatch: ["work-products.spec.ts"],
-      grep: /product estimates validate|edit stays locked/,
+      grep: /product estimates validate|edit stays locked|older catalogue/,
       timeout: 60_000,
       expect: { timeout: 15_000 },
     },
