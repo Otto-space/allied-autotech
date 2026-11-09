@@ -1,3 +1,19 @@
+## 10 November 00:36 Lagos - preserve the approved clock/session fixture fix
+
+Master1fc86e65 (PR49) landed while vehicle CI was being corrected. Reconciled its
+approved booking-reschedule fixture verbatim, including renewed sessions at the
+simulated visit time. Removed the vehicle branch's redundant optional-policy-date
+helper changes; both that integration test and shared policy helpers now match
+current master exactly. All vehicle runtime/schema/frontend changes are retained.
+The previous608d251a workaround is historical, superseded by this integration.
+No applied migration, allocation trigger, session check or real policy changed.
+
+Fresh exact-source checks are required for the merged candidate. Earlier migration
+replay and local/component evidence retain their recorded scope; none proves the
+full new candidate. Preserve PR50 and both briefs' full active ledger. No release.
+
+---
+
 ## 10 November 00:32 Lagos - vehicle candidate retains the database time guard
 
 Corrected535912cc passes the102-migration replay/db:check and initial backend unit
@@ -9960,3 +9976,38 @@ heading's final word. The Home introduction now leaves a56px side lane on phones
 with a rendered disjoint-rectangle assertion in the five touch cases. Services
 sort/category selects stack below375px so their selected text has useful width.
 Both are scoped responsive repairs; final compiled screenshots remain required.
+
+## 10 November - Release gate clock-boundary fixture repair (pending CI)
+
+Production publication remains held. Branch f5969c84 backend safety42718157628
+failed four late-visit fixture setups (278 passed,4 failed,4 skipped). After23:00UTC,
+its Date.now()+1h day selection froze JavaScript at tomorrow's noon. Synthetic
+resource-policy effectiveAt was consequently in the future relative to PostgreSQL's
+real clock, and the existing allocation trigger correctly rejected it.
+
+Only the test fixture changes: choose the most recent past UTC noon, including
+before noon UTC and near Lagos midnight. Keep all18 reschedule assertions,
+allocation triggers, runtime source, privileges and migrations unchanged. No
+production/application database is written, reset, repaired or migrated. The
+isolated GitHub safety job must pass for the resulting exact master source,
+alongside frontend and secret gates, before the combined public mobile release.
+
+Follow-up d5d1ad22 safety42719066777 passed281 with one failure: the allocation
+fix succeeded, but freezing a past day correctly failed the independent visit-
+continuation guard requiring PostgreSQL's current Lagos date. The final fixture
+creates its policies/resources on the real clock before freezing noon of the
+current Lagos date. This preserves both guards and the full same-day assertion;
+no runtime, migration, privilege or data policy changes. Re-run isolated CI.
+
+445ef4a8 safety42719688021 reached allocation but correctly rejected the isolated
+actor's one-hour session after advancing to the simulated visit time. The fixture
+now creates fresh owner/customer test sessions at that simulated time using the
+existing paymentTestSession helper, retaining MFA and expiry checks. This changes
+only disposable isolated fixtures; no session/security runtime rule is relaxed.
+
+The fixture policy clock is bounded by both realNow and the visit noon, so the
+same repair also works after noon UTC when the simulated noon lies in the past.
+Its visit date remains today's Lagos date, and new isolated sessions are created
+at that visit time. Boundary arithmetic checks before noon, after noon and at
+23:00UTC verify policyTime<=realNow, policyTime<=visitTime and matching Lagos day;
+only actual-current-time isolated CI is database-backed evidence.

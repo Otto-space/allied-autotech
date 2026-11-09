@@ -18,7 +18,6 @@ export async function testBranchCapacity(
   branchId: string,
   approverId: string,
   dailyLimit = 20,
-  effectiveAt = new Date(Date.now() - 1000),
 ) {
   if (process.env.RUN_DATABASE_TESTS !== "true")
     throw new Error("Database fixture guard required");
@@ -30,7 +29,7 @@ export async function testBranchCapacity(
       source: "Synthetic isolated integration fixture, not owner approval",
       sourceQuestion: "Q5",
       approvedByUserId: approverId,
-      effectiveAt,
+      effectiveAt: new Date(Date.now() - 1000),
       settings: {
         dailyLimit,
         openingDays: [0, 1, 2, 3, 4, 5, 6],
@@ -50,7 +49,6 @@ export async function testBranchResources(
   approverId: string,
   serviceIds: string[],
   staffIds: string[],
-  effectiveAt = new Date(Date.now() - 1000),
 ) {
   if (
     process.env.RUN_DATABASE_TESTS !== "true" ||
@@ -87,7 +85,7 @@ export async function testBranchResources(
         "Synthetic isolated no-equipment/service-eligibility assumption; not owner approval",
       sourceQuestion: "D06 fixture only",
       approvedByUserId: approverId,
-      effectiveAt,
+      effectiveAt: new Date(Date.now() - 1000),
       settings: {
         timezone: "Africa/Lagos",
         resources: [],
