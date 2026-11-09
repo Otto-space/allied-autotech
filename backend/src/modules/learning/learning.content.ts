@@ -91,7 +91,7 @@ export const learningArticles: LearningArticle[] = [
       [
         "Holding lasts five collection days, Monday-Saturday including public holidays, after both actual readiness and successful customer notification. Imported/custom parts follow the same rule. A failed contact attempt does not start the clock. Check the saved Collect by date and any reasoned extension; overdue does not cancel paid goods, charge storage fees or release allocation.",
         "Open the actual ready order and Collect your parts. Choose quantities, review them and confirm. The server checks readiness and verified financial clearance; payment alone is not collection authority.",
-        "The code is shown once. Share it privately only with your chosen collector. Its security expiry is separate from the collection holding period. Replacing or revoking an unused code does not cancel the order or move money.",
+        "The code is shown once. Copy it before choosing Hide code, refreshing or reloading. A successful background order check keeps it visible; a failed check or access change clears it. Share it privately only with your chosen collector. Its security expiry is separate from the collection holding period. Replacing or revoking an unused code does not cancel the order or move money.",
         "If staff have begun a pickup review, ask the workshop to resolve it before replacing the code. A review is not handover. Each physical pickup consumes its code; exact remaining goods need a new code.",
         "For an uncertain result, reopen the same order and inspect its history. Do not request a second physical handover. A public order number never authorises collection.",
       ],
@@ -99,8 +99,8 @@ export const learningArticles: LearningArticle[] = [
       "OrderPickupService buyer ownership and private one-time authorisation",
       "parts pickup collection private code remaining quantities",
     ),
-    version: 2,
-    reviewedAt: "2026-11-09",
+    version: 3,
+    reviewedAt: "2026-11-10",
   },
   {
     ...article(

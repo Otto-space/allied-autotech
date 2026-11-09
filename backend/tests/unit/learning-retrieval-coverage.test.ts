@@ -76,6 +76,25 @@ afterEach(() => {
 });
 
 describe("authorised server help survives Allie retrieval", () => {
+  it("keeps pickup display and clearing guidance restricted to verified customers", () => {
+    const article = learningArticles.find((row) => row.id === "parts-collection")!;
+    expect(article.version).toBe(3);
+    expect(article.gate).toBe("customer");
+    expect(article.steps.join(" ")).toContain("successful background order check");
+    expect(article.steps.join(" ")).toContain("failed check or access change clears it");
+    expect(
+      learningCatalogue(publicLearningAccess).articles.some(
+        (row) => row.id === article.id,
+      ),
+    ).toBe(false);
+    expect(
+      learningCatalogue({
+        ...publicLearningAccess,
+        role: "CUSTOMER",
+        verified: true,
+      }).articles.some((row) => row.id === article.id && row.version === 3),
+    ).toBe(true);
+  });
   it("keeps reminder-policy guidance and actions restricted to the owner", () => {
     for (const [name, access] of profiles.filter(([name]) => name !== "owner")) {
       const data = learningCatalogue({ ...publicLearningAccess, ...access });

@@ -1,3 +1,31 @@
+## 9 November 23:50 UTC - guest pickup refresh regression corrected; hosted acceptance pending
+
+Source3a14ec13 frontend42719308531 confirms a genuine guest-only defect: the
+post-issuance order refresh unmounts the panel and loses its one-time code.
+Use a background revalidation for that saved-order check, retain the same private
+record while pending and discard it on failure, destination/parser change or access
+change. Explicit refresh/focus still clears. Add five hook regression cases and
+retain the existing guest/customer browser-storage and one-time-display assertions.
+Synthetic 390px code captures are saved before the full matrix clears its output;
+they are not real collection authorisations. Rendered after evidence is pending.
+
+Source3a14ec13 backend42719308334 also exposes a fixture clock mismatch after Lagos
+midnight. Derive the late-visit day from PostgreSQL CURRENT_TIMESTAMP and seed the
+test policies before both clocks. No production guard or applied migration changes.
+All18 reschedule integration cases pass on the isolated synthetic111 database with
+the working-tree helper/test overlay. The earlier previous-day attempt failed the
+same-day guard and was replaced, not waived.
+
+Affected local verification:17 frontend units,41 backend learning/pickup units,
+backend/frontend TypeScript, backend lint and scoped formatting passed. Customer
+parts-collection guide advances to v3; staff guide remains v2. Exact new-source CI,
+rendered guest acceptance, recovery packaging and full release gates remain open.
+The111 legacy recovery probe reads all four booking projections but rejects the
+saved supplemental invoice snapshot and new reminder policy. It is not an accepted
+financial recovery image. No production, real records, grants or flags changed.
+
+---
+
 ## 9 November 23:18 UTC - populated111 restore passes; pickup assertion corrected
 
 The protected retained100-migration snapshot now restores into a fresh loopback

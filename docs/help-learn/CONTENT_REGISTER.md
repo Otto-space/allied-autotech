@@ -739,3 +739,13 @@ busy/held financial proof and completion versus vehicle release. Existing gates,
 semantic targets and the twelve-step public bound are preserved. See
 [the work-scope checkpoint](SERVICE_WORK_SCOPE_20261109.md) for the engineering
 timing choice, exact synthetic evidence and the remaining complete journeys.
+### 10 November: customer one-time code survives the saved-order background check
+
+Customer parts-collection is v3; staff-parts-collection remains v2. The customer
+guide explains copying the code before Hide code, explicit refresh or reload.
+Successful background revalidation keeps the panel and code visible; failed checks
+or access changes discard private data. Existing audience eligibility, exact owned
+destinations and publication flags remain unchanged. Five resource-hook cases and
+41 affected learning/pickup backend unit cases pass. Existing guest/customer hosted
+tests now capture only synthetic 390px codes; actual new-source rendered results
+remain pending. This does not establish real-role or physical collection acceptance.

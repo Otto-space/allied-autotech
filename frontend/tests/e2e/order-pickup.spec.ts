@@ -201,7 +201,7 @@ test("older backend does not expose pickup controls or make unsupported reads", 
 for (const audience of ["customer", "guest"] as const)
   test(`${audience} pickup shows a secret once and keeps it out of refresh and browser storage`, async ({
     page,
-  }) => {
+  }, info) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const guest = audience === "guest" ? await purchaseFixture(page) : null;
     if (!guest) await ordersFixture(page);
@@ -293,6 +293,11 @@ for (const audience of ["customer", "guest"] as const)
     expect(writes).toHaveLength(0);
     await modal.getByRole("button", { name: "Confirm", exact: true }).click();
     await expect(panel.locator("code")).toHaveText("x".repeat(43));
+    await panel.locator("code").scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: info.outputPath(`private-pickup-${audience}-390.png`),
+      fullPage: false,
+    });
     expect(writes).toHaveLength(1);
     expect(
       await page.evaluate(

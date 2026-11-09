@@ -75,6 +75,17 @@ jobs:
       - name: Verify order sourcing review and recovery before the full matrix
         timeout-minutes: 3
         run: npx --no-install playwright test order-timing.spec.ts order-pickup.spec.ts --config playwright.runtime.config.ts --project=runtime --max-failures=1
+      - name: Preserve pickup and sourcing acceptance captures
+        # The later full Playwright run clears its output directory.
+        uses: actions/upload-artifact@v5
+        timeout-minutes: 2
+        with:
+          name: pickup-sourcing-browser
+          path: |
+            frontend/test-results/runtime-capabilities/order-pickup-*/
+            frontend/test-results/runtime-capabilities/order-timing-*/
+          retention-days: 7
+          if-no-files-found: error
       - name: Verify independent runtime availability in the production build
         # A step timeout leaves the job alive to upload its synthetic evidence.
         # The 915-case source reached case 890 at the old 25-minute ceiling.

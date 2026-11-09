@@ -295,8 +295,8 @@ function OrderDetail({ orderId }: { orderId: string }) {
           <OrderPickup
             order={resource.data}
             audience="guest"
-            disabled={busy || resource.loading}
-            onSaved={resource.refresh}
+            disabled={busy || resource.loading || resource.refreshing}
+            onSaved={resource.revalidate}
             onBusyChange={setBusy}
           />
           <OrderTimingSummary
