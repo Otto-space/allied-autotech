@@ -8271,3 +8271,34 @@ preview fallback evidence, not production-data, actual-role or physical-device
 acceptance. Complete the compatibility check and merged-master gates, then stage
 and verify a production-environment frontend without assigning domains, and only
 then publish/check both aliases. The119-template design inventory remains open.
+
+## 9 November - Home release gate repairs
+
+The first held production candidate is READY but has not been published. Exact
+master9f9ee2f8 passed backend-safety42689898810 and secrets42689898387; frontend
+42689898682 failed. Both public aliases still resolve to source160d3b7b.
+
+Four browser failures exposed a real footer clearance regression at1280x720 and
+1024x768 in Chromium/Firefox: the last focused link overlapped the support dock.
+Footer bottom space now follows the existing measured viewport-support-offset,
+with144px minimum. Existing clearance assertions remain unchanged. Compiled
+candidate and complete exact-master verification remain required before release.
+
+The attendance failure was a fixture race: its text assertion matched an unsaved
+textarea while booking/access refresh remounted the editor. The test now waits
+for the permitted booking refresh, checks the selected status, and confirms each
+saved note inside Recorded appointment attendance. All original write/CSRF/status
+assertions remain. Nine repeated hosted Edge synthetic cases pass across390,
+768 and1440; no real booking was written. Its network guard also recognizes only
+the exact configured hosted origin alongside existing loopback allowances.
+
+Held-production read-only Home checks pass all nine requested viewport pairs,
+four real carousel destinations and Back, FAQ/menu/focus, scoped390/1440 Axe,
+image decoding and adjacent About/Contact/Help pages. This is actual public-data
+coverage; private workflow evidence remains synthetic. Product compatibility's
+27 units and eight hosted authoring/recovery fixture cases pass. No backend,
+permission, capability, database or policy changes were made for these repairs.
+
+C: preflight21.18GiB with0.1GiB browser allowance passed. No local build/install or
+Docker resources were created. Existing recovery deployments/resources retained.
+Do not publish9f9ee2f8 or count this as full119-template completion.
