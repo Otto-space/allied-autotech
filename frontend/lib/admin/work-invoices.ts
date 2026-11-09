@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { invoiceSchema } from "@/lib/api/invoice-schemas";
+import { serviceStage } from "@/lib/api/service-payment-schemas";
 import { inspectionPageParams } from "./work-inspections";
 const uuid = z.uuid(),
   date = z.iso.datetime({ offset: true });
@@ -32,7 +33,7 @@ const sourceSchema = z
   .strict();
 export type InvoiceSource = z.infer<typeof sourceSchema>;
 const schema = invoiceSchema
-  .extend({
+  .safeExtend({
     invoiceNumber: z.string().min(1),
     version: z.number().int().nonnegative(),
     issuedAt: date.nullable(),
@@ -72,6 +73,7 @@ const schema = invoiceSchema
           amountKobo: z.string().regex(/^\d+$/),
           currency: z.literal("NGN"),
           succeededAt: date.nullable(),
+          serviceStage: serviceStage.optional(),
         })
         .strict(),
     ),

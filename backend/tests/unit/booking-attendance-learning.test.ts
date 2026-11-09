@@ -5,7 +5,7 @@ it("keeps physical attendance guidance in existing permission gates without impo
   for (const [id, gate, version] of [
     ["booking-confirmation", "booking-confirmation", 14],
     ["assigned-findings", "jobs", 5],
-    ["service-request", "public", 29],
+    ["service-request", "public", 30],
   ] as const) {
     const article = learningArticles.find((row) => row.id === id)!;
     expect(article.gate).toBe(gate);

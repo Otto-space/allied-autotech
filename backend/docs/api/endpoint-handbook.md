@@ -5784,7 +5784,8 @@ Success: HTTP 200.
         "paymentNumber": "synthetic-paymentnumber",
         "amountKobo": "300000",
         "confirmedAt": "2030-01-15T10:00:00.000Z",
-        "refundedKobo": "300000"
+        "refundedKobo": "300000",
+        "serviceStage": "MATERIALS"
       }
     ],
     "paymentRequests": [
@@ -5793,7 +5794,8 @@ Success: HTTP 200.
         "paymentNumber": "synthetic-paymentnumber",
         "amountKobo": "300000",
         "status": "REQUIRES_PAYMENT",
-        "succeededAt": "2030-01-15T10:00:00.000Z"
+        "succeededAt": "2030-01-15T10:00:00.000Z",
+        "serviceStage": "MATERIALS"
       }
     ]
   },
@@ -6528,7 +6530,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/payments`
 
 - Operation ID: `postCustomersPayments`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Staged service invoices require acceptedServiceStage with the exact stage, invoiceVersion and amountKobo. Materials payment does not settle workmanship. Workmanship requires recorded completion and prior materials settlement; unresolved financial adjustments block another charge. The server derives each stage from the immutable accepted-quote allocation, with one saved tax total. Historical invoices without a plan retain their original payment behavior. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -11190,7 +11192,8 @@ Success: HTTP 200.
         "paymentNumber": "synthetic-paymentnumber",
         "amountKobo": "300000",
         "confirmedAt": "2030-01-15T10:00:00.000Z",
-        "refundedKobo": "300000"
+        "refundedKobo": "300000",
+        "serviceStage": "MATERIALS"
       }
     ],
     "paymentRequests": [
@@ -11199,7 +11202,8 @@ Success: HTTP 200.
         "paymentNumber": "synthetic-paymentnumber",
         "amountKobo": "300000",
         "status": "REQUIRES_PAYMENT",
-        "succeededAt": "2030-01-15T10:00:00.000Z"
+        "succeededAt": "2030-01-15T10:00:00.000Z",
+        "serviceStage": "MATERIALS"
       }
     ],
     "createdAt": "2030-01-15T10:00:00.000Z",

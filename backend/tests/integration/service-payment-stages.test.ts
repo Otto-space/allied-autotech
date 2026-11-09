@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { BillingService } from "../../src/modules/billing/billing.service.js";
+import { FinancialDocumentsService } from "../../src/modules/billing/documents.service.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
 import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
 import type { PaymentProviderPort } from "../../src/providers/payments/payment-provider.port.js";
@@ -334,6 +335,72 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(
         await prisma.invoice.findUniqueOrThrow({ where: { id: f.invoice.id } }),
       ).toMatchObject({ status: "VOID" });
+    });
+    it("returns private-safe live stages and stage-labelled invoice documents and receipts", async () => {
+      const f = await fixture(),
+        documents = new FinancialDocumentsService(prisma);
+      const payment = await f.create("MATERIALS");
+      await f.capture(payment.id);
+      const detail = await f.billing.customerGet(f.actor, f.invoice.id);
+      expect(detail).toMatchObject({
+        status: "ISSUED",
+        servicePayment: {
+          materials: { recordedKobo: "10750" },
+          paymentPending: false,
+          nextPayment: null,
+        },
+        payments: [{ serviceStage: "MATERIALS" }],
+      });
+      const json = JSON.stringify(detail);
+      for (const field of [
+        "documentSnapshot",
+        "policySnapshot",
+        "quoteId",
+        "settledAttempt",
+        "anomalies",
+      ])
+        expect(json).not.toContain(field);
+      const paper = await documents.invoice(f.actor, f.invoice.id);
+      expect(paper.servicePaymentPlan?.materials.totalKobo).toBe("10750");
+      expect(paper.receipts[0]?.serviceStage).toBe("MATERIALS");
+      expect(paper.paymentRequests[0]?.serviceStage).toBe("MATERIALS");
+      expect(await documents.receipt(f.actor, payment.id)).toMatchObject({
+        serviceStage: "MATERIALS",
+        amountKobo: "10750",
+        refundedKobo: "0",
+      });
+      await f.complete();
+      expect(await f.billing.customerGet(f.actor, f.invoice.id)).toMatchObject({
+        servicePayment: {
+          nextPayment: { stage: "WORKMANSHIP", invoiceVersion: 2, amountKobo: "10750" },
+        },
+      });
+      const other = await fixture();
+      await expect(
+        f.billing.customerGet(other.actor, f.invoice.id),
+      ).rejects.toMatchObject({ statusCode: 404 });
+      await expect(documents.receipt(other.actor, payment.id)).rejects.toMatchObject({
+        statusCode: 404,
+      });
+    });
+    it("blocks the next stage and shows review when a real stored payment anomaly is unresolved", async () => {
+      const f = await fixture(),
+        payment = await f.create("MATERIALS"),
+        attempt = await f.capture(payment.id);
+      await f.complete();
+      await prisma.paymentAnomaly.create({
+        data: {
+          paymentId: payment.id,
+          paymentAttemptId: attempt.id,
+          type: "DUPLICATE_SUCCESS",
+          summary: "Synthetic adjustment requiring operator reconciliation",
+        },
+      });
+      await expect(f.create("WORKMANSHIP")).rejects.toMatchObject({ statusCode: 409 });
+      expect(await f.billing.customerGet(f.actor, f.invoice.id)).toMatchObject({
+        servicePayment: { financialReviewRequired: true, nextPayment: null },
+      });
+      expect(await prisma.payment.count({ where: { invoiceId: f.invoice.id } })).toBe(1);
     });
   },
 );

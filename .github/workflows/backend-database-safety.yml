@@ -277,6 +277,9 @@ jobs:
             tests/integration/payment-initialization-race.test.ts \
             tests/integration/payment-capture-accounting.test.ts \
             tests/integration/payment-target-concurrency.test.ts \
+            tests/integration/service-payment-stages.test.ts \
+            tests/unit/service-payment-plan.test.ts \
+            tests/unit/service-payment-summary.test.ts \
             tests/integration/order-expiry-payment.test.ts \
             tests/integration/vehicle-expiry-payment.test.ts \
             tests/unit/refund-request-session-boundary.test.ts \

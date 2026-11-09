@@ -265,6 +265,7 @@ export function serviceStagePayable(
 export function hasServiceFinancialHold(
   payments: readonly {
     status: string;
+    anomalies?: readonly { status: string }[];
     settledAttempt?: {
       refunds: readonly { status: string }[];
       disputes: readonly { status: string }[];
@@ -274,6 +275,9 @@ export function hasServiceFinancialHold(
   return payments.some(
     (payment) =>
       payment.status === "REQUIRES_REVIEW" ||
+      payment.anomalies?.some((anomaly) =>
+        ["OPEN", "INVESTIGATING"].includes(anomaly.status),
+      ) ||
       payment.settledAttempt?.refunds.some(
         (refund) => !["FAILED", "CANCELLED"].includes(refund.status),
       ) ||

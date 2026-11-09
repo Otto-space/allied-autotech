@@ -128,6 +128,18 @@ export function StaffInvoicePaper({
         </div>
       </dl>
       <div className="wid-paper-dates">
+        {p.servicePaymentPlan && (
+          <>
+            <p>
+              <span>Materials stage, including VAT and credits</span>
+              <strong>{formatKobo(p.servicePaymentPlan.materials.totalKobo)}</strong>
+            </p>
+            <p>
+              <span>Workmanship and fees stage, including VAT and credits</span>
+              <strong>{formatKobo(p.servicePaymentPlan.workmanship.totalKobo)}</strong>
+            </p>
+          </>
+        )}
         <p>
           <span>Due (Lagos)</span>
           <strong>{p.dueAt ? formatStockInstant(p.dueAt) : "Not set"}</strong>

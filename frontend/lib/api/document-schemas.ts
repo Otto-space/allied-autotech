@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { money } from "./commerce-schemas";
+import { servicePaymentPlanSchema, serviceStage } from "./service-payment-schemas";
 
 export const invoiceDocumentSchema = z
   .object({
@@ -44,6 +45,7 @@ export const invoiceDocumentSchema = z
     discountKobo: money,
     deliveryKobo: money,
     detailBasis: z.enum(["SNAPSHOT", "SOURCE_RECORDS", "LEGACY_SUMMARY"]),
+    servicePaymentPlan: servicePaymentPlanSchema.optional(),
     subtotalKobo: money,
     taxKobo: money,
     depositCreditKobo: money,
@@ -63,6 +65,7 @@ export const invoiceDocumentSchema = z
             "EXPIRED",
           ]),
           succeededAt: z.string().datetime().nullable(),
+          serviceStage: serviceStage.optional(),
         }),
       )
       .max(200),
@@ -74,11 +77,34 @@ export const invoiceDocumentSchema = z
           amountKobo: money,
           confirmedAt: z.string().datetime(),
           refundedKobo: money,
+          serviceStage: serviceStage.optional(),
         }),
       )
       .max(200),
   })
   .superRefine((record, context) => {
+    const plan = record.servicePaymentPlan;
+    if (
+      plan &&
+      (record.source.type !== "BOOKING" ||
+        plan.lines.length !== record.lines.length ||
+        plan.lines.some(
+          (line, index) => line.subtotalKobo !== record.lines[index]?.subtotalKobo,
+        ) ||
+        BigInt(plan.materials.subtotalKobo) + BigInt(plan.workmanship.subtotalKobo) !==
+          BigInt(record.subtotalKobo) ||
+        BigInt(plan.materials.taxKobo) + BigInt(plan.workmanship.taxKobo) !==
+          BigInt(record.taxKobo) ||
+        BigInt(plan.materials.creditKobo) + BigInt(plan.workmanship.creditKobo) !==
+          BigInt(record.depositCreditKobo) ||
+        BigInt(plan.materials.totalKobo) + BigInt(plan.workmanship.totalKobo) !==
+          BigInt(record.totalKobo))
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Service payment stages do not match the saved invoice",
+      });
+    }
     if (
       new Set(record.paymentRequests.map((payment) => payment.id)).size !==
       record.paymentRequests.length

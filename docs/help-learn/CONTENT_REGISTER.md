@@ -527,3 +527,13 @@ Combined service-request v26 retains both the v25 overview vehicle-selection cla
 4 November calendar presentation: service-request v28 adds Month/Schedule navigation and Today in Lagos time, preserving own-record access and the rule that the calendar never offers or reserves new times. Eligibility, practice permissions, guide destinations and live flags are unchanged. The styling/focus changes do not grant new modal actions.
 
 Combined 4 November source: service-request v29 retains both the v28 Month/Schedule calendar navigation and the D07 remaining-work estimate clarification. Existing twelve steps, eligibility and guide targets remain unchanged.
+
+### 9 November: D03 staged invoice source, not published
+
+Service-request v30 preserves the twelve-step public guide while explaining
+materials versus workmanship, uncertain requests, historical invoices and disabled
+payments. Financial-policy-work v6 retains its independent eligibility gate and
+clarifies one saved tax allocation, historical preservation and financial review.
+Semantic targets and feature flags are unchanged. No tutorial grants permissions.
+See [the D03 checkpoint](SERVICE_PAYMENT_STAGES_20261109.md) for actual evidence,
+the synthetic draft and the remaining materials/amendment/vehicle-release work.

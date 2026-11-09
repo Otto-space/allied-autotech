@@ -1,4 +1,5 @@
 import { prisma } from "../../config/database.js";
+import { servicePaymentReadSelect } from "../billing/service-payment-summary.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import type { PaymentListQuery, StaffPaymentListQuery } from "./payments.schemas.js";
 
@@ -152,19 +153,7 @@ export class PaymentsRepository {
         taxKobo: true,
         depositCreditKobo: true,
         booking: { select: { status: true, completedAt: true } },
-        payments: {
-          select: {
-            status: true,
-            amountKobo: true,
-            policySnapshot: true,
-            settledAttempt: {
-              select: {
-                refunds: { select: { status: true } },
-                disputes: { select: { status: true } },
-              },
-            },
-          },
-        },
+        payments: { select: servicePaymentReadSelect },
       },
     });
   }

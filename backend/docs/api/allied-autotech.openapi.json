@@ -88808,6 +88808,174 @@
                           ],
                           "description": "Detail Basis validated by this operation's strict request contract."
                         },
+                        "servicePaymentPlan": {
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "number",
+                              "enum": [
+                                1
+                              ],
+                              "description": "Version validated by this operation's strict request contract."
+                            },
+                            "quoteId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the quote resource; ownership is resolved server-side."
+                            },
+                            "quoteVersion": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Quote Version validated by this operation's strict request contract."
+                            },
+                            "rule": {
+                              "type": "string",
+                              "enum": [
+                                "SAVED_QUOTE_TOTALS_LARGEST_REMAINDER"
+                              ],
+                              "description": "Rule validated by this operation's strict request contract."
+                            },
+                            "feeTiming": {
+                              "type": "string",
+                              "enum": [
+                                "DEFER_UNTIL_WORK_COMPLETED"
+                              ],
+                              "description": "Fee Timing validated by this operation's strict request contract."
+                            },
+                            "materials": {
+                              "type": "object",
+                              "properties": {
+                                "subtotalKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Subtotal Kobo validated by this operation's strict request contract."
+                                },
+                                "taxKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Tax Kobo validated by this operation's strict request contract."
+                                },
+                                "creditKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Credit Kobo validated by this operation's strict request contract."
+                                },
+                                "totalKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Total Kobo validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "subtotalKobo",
+                                "taxKobo",
+                                "creditKobo",
+                                "totalKobo"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Materials validated by this operation's strict request contract."
+                            },
+                            "workmanship": {
+                              "type": "object",
+                              "properties": {
+                                "subtotalKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Subtotal Kobo validated by this operation's strict request contract."
+                                },
+                                "taxKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Tax Kobo validated by this operation's strict request contract."
+                                },
+                                "creditKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Credit Kobo validated by this operation's strict request contract."
+                                },
+                                "totalKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Total Kobo validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "subtotalKobo",
+                                "taxKobo",
+                                "creditKobo",
+                                "totalKobo"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Workmanship validated by this operation's strict request contract."
+                            },
+                            "lines": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "quoteItemId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the quote item resource; ownership is resolved server-side."
+                                  },
+                                  "stage": {
+                                    "type": "string",
+                                    "enum": [
+                                      "MATERIALS",
+                                      "WORKMANSHIP"
+                                    ],
+                                    "description": "Stage validated by this operation's strict request contract."
+                                  },
+                                  "subtotalKobo": {
+                                    "type": "string",
+                                    "pattern": "^(0|[1-9]\\d{0,18})$",
+                                    "description": "Subtotal Kobo validated by this operation's strict request contract."
+                                  },
+                                  "taxKobo": {
+                                    "type": "string",
+                                    "pattern": "^(0|[1-9]\\d{0,18})$",
+                                    "description": "Tax Kobo validated by this operation's strict request contract."
+                                  },
+                                  "creditKobo": {
+                                    "type": "string",
+                                    "pattern": "^(0|[1-9]\\d{0,18})$",
+                                    "description": "Credit Kobo validated by this operation's strict request contract."
+                                  },
+                                  "totalKobo": {
+                                    "type": "string",
+                                    "pattern": "^(0|[1-9]\\d{0,18})$",
+                                    "description": "Total Kobo validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "quoteItemId",
+                                  "stage",
+                                  "subtotalKobo",
+                                  "taxKobo",
+                                  "creditKobo",
+                                  "totalKobo"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Lines Item validated by this operation's strict request contract."
+                              },
+                              "minItems": 1,
+                              "maxItems": 200,
+                              "description": "Lines validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "quoteId",
+                            "quoteVersion",
+                            "rule",
+                            "feeTiming",
+                            "materials",
+                            "workmanship",
+                            "lines"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Service Payment Plan validated by this operation's strict request contract."
+                        },
                         "id": {
                           "type": "string",
                           "format": "uuid",
@@ -88915,6 +89083,14 @@
                                 "type": "string",
                                 "pattern": "^\\d{1,19}$",
                                 "description": "Refunded Kobo validated by this operation's strict request contract."
+                              },
+                              "serviceStage": {
+                                "type": "string",
+                                "enum": [
+                                  "MATERIALS",
+                                  "WORKMANSHIP"
+                                ],
+                                "description": "Service Stage validated by this operation's strict request contract."
                               }
                             },
                             "required": [
@@ -88969,6 +89145,14 @@
                                 ],
                                 "format": "date-time",
                                 "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "serviceStage": {
+                                "type": "string",
+                                "enum": [
+                                  "MATERIALS",
+                                  "WORKMANSHIP"
+                                ],
+                                "description": "Service Stage validated by this operation's strict request contract."
                               }
                             },
                             "required": [
@@ -89105,7 +89289,8 @@
                         "paymentNumber": "synthetic-paymentnumber",
                         "amountKobo": "300000",
                         "confirmedAt": "2030-01-15T10:00:00.000Z",
-                        "refundedKobo": "300000"
+                        "refundedKobo": "300000",
+                        "serviceStage": "MATERIALS"
                       }
                     ],
                     "paymentRequests": [
@@ -89114,7 +89299,8 @@
                         "paymentNumber": "synthetic-paymentnumber",
                         "amountKobo": "300000",
                         "status": "REQUIRES_PAYMENT",
-                        "succeededAt": "2030-01-15T10:00:00.000Z"
+                        "succeededAt": "2030-01-15T10:00:00.000Z",
+                        "serviceStage": "MATERIALS"
                       }
                     ],
                     "createdAt": "2030-01-15T10:00:00.000Z",
@@ -89665,6 +89851,174 @@
                           ],
                           "description": "Detail Basis validated by this operation's strict request contract."
                         },
+                        "servicePaymentPlan": {
+                          "type": "object",
+                          "properties": {
+                            "version": {
+                              "type": "number",
+                              "enum": [
+                                1
+                              ],
+                              "description": "Version validated by this operation's strict request contract."
+                            },
+                            "quoteId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the quote resource; ownership is resolved server-side."
+                            },
+                            "quoteVersion": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Quote Version validated by this operation's strict request contract."
+                            },
+                            "rule": {
+                              "type": "string",
+                              "enum": [
+                                "SAVED_QUOTE_TOTALS_LARGEST_REMAINDER"
+                              ],
+                              "description": "Rule validated by this operation's strict request contract."
+                            },
+                            "feeTiming": {
+                              "type": "string",
+                              "enum": [
+                                "DEFER_UNTIL_WORK_COMPLETED"
+                              ],
+                              "description": "Fee Timing validated by this operation's strict request contract."
+                            },
+                            "materials": {
+                              "type": "object",
+                              "properties": {
+                                "subtotalKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Subtotal Kobo validated by this operation's strict request contract."
+                                },
+                                "taxKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Tax Kobo validated by this operation's strict request contract."
+                                },
+                                "creditKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Credit Kobo validated by this operation's strict request contract."
+                                },
+                                "totalKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Total Kobo validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "subtotalKobo",
+                                "taxKobo",
+                                "creditKobo",
+                                "totalKobo"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Materials validated by this operation's strict request contract."
+                            },
+                            "workmanship": {
+                              "type": "object",
+                              "properties": {
+                                "subtotalKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Subtotal Kobo validated by this operation's strict request contract."
+                                },
+                                "taxKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Tax Kobo validated by this operation's strict request contract."
+                                },
+                                "creditKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Credit Kobo validated by this operation's strict request contract."
+                                },
+                                "totalKobo": {
+                                  "type": "string",
+                                  "pattern": "^(0|[1-9]\\d{0,18})$",
+                                  "description": "Total Kobo validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": [
+                                "subtotalKobo",
+                                "taxKobo",
+                                "creditKobo",
+                                "totalKobo"
+                              ],
+                              "additionalProperties": false,
+                              "description": "Workmanship validated by this operation's strict request contract."
+                            },
+                            "lines": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "quoteItemId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the quote item resource; ownership is resolved server-side."
+                                  },
+                                  "stage": {
+                                    "type": "string",
+                                    "enum": [
+                                      "MATERIALS",
+                                      "WORKMANSHIP"
+                                    ],
+                                    "description": "Stage validated by this operation's strict request contract."
+                                  },
+                                  "subtotalKobo": {
+                                    "type": "string",
+                                    "pattern": "^(0|[1-9]\\d{0,18})$",
+                                    "description": "Subtotal Kobo validated by this operation's strict request contract."
+                                  },
+                                  "taxKobo": {
+                                    "type": "string",
+                                    "pattern": "^(0|[1-9]\\d{0,18})$",
+                                    "description": "Tax Kobo validated by this operation's strict request contract."
+                                  },
+                                  "creditKobo": {
+                                    "type": "string",
+                                    "pattern": "^(0|[1-9]\\d{0,18})$",
+                                    "description": "Credit Kobo validated by this operation's strict request contract."
+                                  },
+                                  "totalKobo": {
+                                    "type": "string",
+                                    "pattern": "^(0|[1-9]\\d{0,18})$",
+                                    "description": "Total Kobo validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "quoteItemId",
+                                  "stage",
+                                  "subtotalKobo",
+                                  "taxKobo",
+                                  "creditKobo",
+                                  "totalKobo"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Lines Item validated by this operation's strict request contract."
+                              },
+                              "minItems": 1,
+                              "maxItems": 200,
+                              "description": "Lines validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "quoteId",
+                            "quoteVersion",
+                            "rule",
+                            "feeTiming",
+                            "materials",
+                            "workmanship",
+                            "lines"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Service Payment Plan validated by this operation's strict request contract."
+                        },
                         "id": {
                           "type": "string",
                           "format": "uuid",
@@ -89771,6 +90125,14 @@
                                 "type": "string",
                                 "pattern": "^\\d{1,19}$",
                                 "description": "Refunded Kobo validated by this operation's strict request contract."
+                              },
+                              "serviceStage": {
+                                "type": "string",
+                                "enum": [
+                                  "MATERIALS",
+                                  "WORKMANSHIP"
+                                ],
+                                "description": "Service Stage validated by this operation's strict request contract."
                               }
                             },
                             "required": [
@@ -89825,6 +90187,14 @@
                                 ],
                                 "format": "date-time",
                                 "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "serviceStage": {
+                                "type": "string",
+                                "enum": [
+                                  "MATERIALS",
+                                  "WORKMANSHIP"
+                                ],
+                                "description": "Service Stage validated by this operation's strict request contract."
                               }
                             },
                             "required": [
@@ -89940,7 +90310,8 @@
                         "paymentNumber": "synthetic-paymentnumber",
                         "amountKobo": "300000",
                         "confirmedAt": "2030-01-15T10:00:00.000Z",
-                        "refundedKobo": "300000"
+                        "refundedKobo": "300000",
+                        "serviceStage": "MATERIALS"
                       }
                     ],
                     "paymentRequests": [
@@ -89949,7 +90320,8 @@
                         "paymentNumber": "synthetic-paymentnumber",
                         "amountKobo": "300000",
                         "status": "REQUIRES_PAYMENT",
-                        "succeededAt": "2030-01-15T10:00:00.000Z"
+                        "succeededAt": "2030-01-15T10:00:00.000Z",
+                        "serviceStage": "MATERIALS"
                       }
                     ]
                   },
@@ -90384,6 +90756,14 @@
                           "minLength": 1,
                           "maxLength": 80,
                           "description": "Method validated by this operation's strict request contract."
+                        },
+                        "serviceStage": {
+                          "type": "string",
+                          "enum": [
+                            "MATERIALS",
+                            "WORKMANSHIP"
+                          ],
+                          "description": "Service Stage validated by this operation's strict request contract."
                         },
                         "refundedKobo": {
                           "type": "string",
@@ -116810,7 +117190,7 @@
           "Payments"
         ],
         "summary": "Create a server-priced payment intent",
-        "description": "Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "description": "Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Staged service invoices require acceptedServiceStage with the exact stage, invoiceVersion and amountKobo. Materials payment does not settle workmanship. Workmanship requires recorded completion and prior materials settlement; unresolved financial adjustments block another charge. The server derives each stage from the immutable accepted-quote allocation, with one saved tax total. Historical invoices without a plan retain their original payment behavior. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -116923,6 +117303,37 @@
                           "SERVICE_INVOICE"
                         ],
                         "description": "Purpose validated by this operation's strict request contract."
+                      },
+                      "acceptedServiceStage": {
+                        "type": "object",
+                        "properties": {
+                          "stage": {
+                            "type": "string",
+                            "enum": [
+                              "MATERIALS",
+                              "WORKMANSHIP"
+                            ],
+                            "description": "Stage validated by this operation's strict request contract."
+                          },
+                          "invoiceVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 2147483647,
+                            "description": "Invoice Version validated by this operation's strict request contract."
+                          },
+                          "amountKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Integer amount in Nigerian kobo; the server remains authoritative."
+                          }
+                        },
+                        "required": [
+                          "stage",
+                          "invoiceVersion",
+                          "amountKobo"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Accepted Service Stage validated by this operation's strict request contract."
                       }
                     },
                     "required": [

@@ -1,5 +1,6 @@
 import { prisma } from "../../config/database.js";
 import { z } from "zod";
+import { servicePaymentReadSelect } from "./service-payment-summary.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import type {
   CustomerInvoiceListQuery,
@@ -25,6 +26,7 @@ export const invoiceSelect = {
   taxKobo: true,
   depositCreditKobo: true,
   totalKobo: true,
+  documentSnapshot: true,
   status: true,
   version: true,
   issuedAt: true,
@@ -45,6 +47,7 @@ export const invoiceSelect = {
     select: {
       id: true,
       status: true,
+      completedAt: true,
       branch: { select: { id: true, code: true, name: true } },
     },
   },
@@ -62,10 +65,9 @@ export const invoiceSelect = {
     select: {
       id: true,
       paymentNumber: true,
-      status: true,
-      amountKobo: true,
       currency: true,
       succeededAt: true,
+      ...servicePaymentReadSelect,
     },
     orderBy: { createdAt: "desc" as const },
   },

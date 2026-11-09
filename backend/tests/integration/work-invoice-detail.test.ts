@@ -8,6 +8,7 @@ import { env } from "../../src/config/env.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
 import { sessionCookieName } from "../../src/common/security/cookies.js";
 import { testOwner } from "../helpers/owner.js";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 const app = createApp({ checkReadiness: async () => undefined });
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "administrator invoice document and lifecycle",
@@ -115,15 +116,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           res.on("error", callback);
         });
     beforeAll(async () => {
-      const [target] = await prisma.$queryRaw<
-        { database: string; host: string; port: number }[]
-      >`SELECT current_database() AS database,host(inet_server_addr()) AS host,inet_server_port() AS port`;
-      expect(target).toEqual({
-        database: env.DB_NAME,
-        host: env.DB_HOST,
-        port: env.DB_PORT,
-      });
-      expect(target?.database).toMatch(/_(test|ci)$/);
+      await assertIsolatedLoopbackDatabase();
       const base = process.env.WORK_INVOICE_FIXTURES;
       if (base && existsSync(base)) {
         const f = JSON.parse(readFileSync(base, "utf8"));

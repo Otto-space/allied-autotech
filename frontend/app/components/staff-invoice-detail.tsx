@@ -42,6 +42,7 @@ import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { StaffInvoicePaper, StaffInvoiceLifecycle } from "./staff-invoice-paper";
 import { DocumentActions } from "./document-actions";
+import { ServicePaymentSummary } from "./service-payment-summary";
 
 export function StaffInvoiceDetail({ invoiceId }: { invoiceId: string }) {
   const session = useAccountSession();
@@ -711,6 +712,7 @@ function InvoiceWorkspace({
                   </section>
                 </aside>
                 <div className="wid-document">
+                  <ServicePaymentSummary summary={current.servicePayment} />
                   <Feedback message={paperError} />
                   {document.loading && <p role="status">Loading invoice document…</p>}
                   {document.refreshing && <p role="status">Checking invoice document…</p>}
@@ -797,6 +799,13 @@ function InvoiceWorkspace({
                           <div>
                             <h3>{p.paymentNumber}</h3>
                             <p>{statusLabel(p.status)}</p>
+                            {p.serviceStage && (
+                              <p>
+                                {p.serviceStage === "MATERIALS"
+                                  ? "Materials"
+                                  : "Workmanship and fees"}
+                              </p>
+                            )}
                             <span className="wid-reference">{p.id}</span>
                           </div>
                           <div>

@@ -5439,7 +5439,7 @@ export interface paths {
         put?: never;
         /**
          * Create a server-priced payment intent
-         * @description Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+         * @description Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Staged service invoices require acceptedServiceStage with the exact stage, invoiceVersion and amountKobo. Materials payment does not settle workmanship. Workmanship requires recorded completion and prior materials settlement; unresolved financial adjustments block another charge. The server derives each stage from the immutable accepted-quote allocation, with one saved tax total. Historical invoices without a plan retain their original payment behavior. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
          */
         post: operations["postCustomersPayments"];
         delete?: never;
@@ -74025,7 +74025,8 @@ export interface operations {
                      *             "paymentNumber": "synthetic-paymentnumber",
                      *             "amountKobo": "300000",
                      *             "confirmedAt": "2030-01-15T10:00:00.000Z",
-                     *             "refundedKobo": "300000"
+                     *             "refundedKobo": "300000",
+                     *             "serviceStage": "MATERIALS"
                      *           }
                      *         ],
                      *         "paymentRequests": [
@@ -74034,7 +74035,8 @@ export interface operations {
                      *             "paymentNumber": "synthetic-paymentnumber",
                      *             "amountKobo": "300000",
                      *             "status": "REQUIRES_PAYMENT",
-                     *             "succeededAt": "2030-01-15T10:00:00.000Z"
+                     *             "succeededAt": "2030-01-15T10:00:00.000Z",
+                     *             "serviceStage": "MATERIALS"
                      *           }
                      *         ],
                      *         "createdAt": "2030-01-15T10:00:00.000Z",
@@ -74123,6 +74125,74 @@ export interface operations {
                              * @enum {string}
                              */
                             detailBasis: "SNAPSHOT" | "SOURCE_RECORDS" | "LEGACY_SUMMARY";
+                            /** @description Service Payment Plan validated by this operation's strict request contract. */
+                            servicePaymentPlan?: {
+                                /**
+                                 * @description Version validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                version: 1;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the quote resource; ownership is resolved server-side.
+                                 */
+                                quoteId: string;
+                                /** @description Quote Version validated by this operation's strict request contract. */
+                                quoteVersion: number;
+                                /**
+                                 * @description Rule validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                rule: "SAVED_QUOTE_TOTALS_LARGEST_REMAINDER";
+                                /**
+                                 * @description Fee Timing validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                feeTiming: "DEFER_UNTIL_WORK_COMPLETED";
+                                /** @description Materials validated by this operation's strict request contract. */
+                                materials: {
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                };
+                                /** @description Workmanship validated by this operation's strict request contract. */
+                                workmanship: {
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                };
+                                /** @description Lines validated by this operation's strict request contract. */
+                                lines: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the quote item resource; ownership is resolved server-side.
+                                     */
+                                    quoteItemId: string;
+                                    /**
+                                     * @description Stage validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    stage: "MATERIALS" | "WORKMANSHIP";
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                }[];
+                            };
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -74183,6 +74253,11 @@ export interface operations {
                                 confirmedAt: string;
                                 /** @description Refunded Kobo validated by this operation's strict request contract. */
                                 refundedKobo: string;
+                                /**
+                                 * @description Service Stage validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                serviceStage?: "MATERIALS" | "WORKMANSHIP";
                             }[];
                             /** @description Payment Requests validated by this operation's strict request contract. */
                             paymentRequests: {
@@ -74205,6 +74280,11 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 succeededAt: string | null;
+                                /**
+                                 * @description Service Stage validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                serviceStage?: "MATERIALS" | "WORKMANSHIP";
                             }[];
                             /**
                              * Format: date-time
@@ -74574,7 +74654,8 @@ export interface operations {
                      *             "paymentNumber": "synthetic-paymentnumber",
                      *             "amountKobo": "300000",
                      *             "confirmedAt": "2030-01-15T10:00:00.000Z",
-                     *             "refundedKobo": "300000"
+                     *             "refundedKobo": "300000",
+                     *             "serviceStage": "MATERIALS"
                      *           }
                      *         ],
                      *         "paymentRequests": [
@@ -74583,7 +74664,8 @@ export interface operations {
                      *             "paymentNumber": "synthetic-paymentnumber",
                      *             "amountKobo": "300000",
                      *             "status": "REQUIRES_PAYMENT",
-                     *             "succeededAt": "2030-01-15T10:00:00.000Z"
+                     *             "succeededAt": "2030-01-15T10:00:00.000Z",
+                     *             "serviceStage": "MATERIALS"
                      *           }
                      *         ]
                      *       },
@@ -74669,6 +74751,74 @@ export interface operations {
                              * @enum {string}
                              */
                             detailBasis: "SNAPSHOT" | "SOURCE_RECORDS" | "LEGACY_SUMMARY";
+                            /** @description Service Payment Plan validated by this operation's strict request contract. */
+                            servicePaymentPlan?: {
+                                /**
+                                 * @description Version validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                version: 1;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the quote resource; ownership is resolved server-side.
+                                 */
+                                quoteId: string;
+                                /** @description Quote Version validated by this operation's strict request contract. */
+                                quoteVersion: number;
+                                /**
+                                 * @description Rule validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                rule: "SAVED_QUOTE_TOTALS_LARGEST_REMAINDER";
+                                /**
+                                 * @description Fee Timing validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                feeTiming: "DEFER_UNTIL_WORK_COMPLETED";
+                                /** @description Materials validated by this operation's strict request contract. */
+                                materials: {
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                };
+                                /** @description Workmanship validated by this operation's strict request contract. */
+                                workmanship: {
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                };
+                                /** @description Lines validated by this operation's strict request contract. */
+                                lines: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the quote item resource; ownership is resolved server-side.
+                                     */
+                                    quoteItemId: string;
+                                    /**
+                                     * @description Stage validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    stage: "MATERIALS" | "WORKMANSHIP";
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                }[];
+                            };
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -74729,6 +74879,11 @@ export interface operations {
                                 confirmedAt: string;
                                 /** @description Refunded Kobo validated by this operation's strict request contract. */
                                 refundedKobo: string;
+                                /**
+                                 * @description Service Stage validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                serviceStage?: "MATERIALS" | "WORKMANSHIP";
                             }[];
                             /** @description Payment Requests validated by this operation's strict request contract. */
                             paymentRequests: {
@@ -74751,6 +74906,11 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 succeededAt: string | null;
+                                /**
+                                 * @description Service Stage validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                serviceStage?: "MATERIALS" | "WORKMANSHIP";
                             }[];
                         };
                         /** @description Meta validated by this operation's strict request contract. */
@@ -75148,6 +75308,11 @@ export interface operations {
                             confirmedAt: string;
                             /** @description Method validated by this operation's strict request contract. */
                             method: string;
+                            /**
+                             * @description Service Stage validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            serviceStage?: "MATERIALS" | "WORKMANSHIP";
                             /** @description Refunded Kobo validated by this operation's strict request contract. */
                             refundedKobo: string;
                             /** @description Source validated by this operation's strict request contract. */
@@ -93981,6 +94146,18 @@ export interface operations {
                      * @enum {string}
                      */
                     purpose: "SERVICE_INVOICE";
+                    /** @description Accepted Service Stage validated by this operation's strict request contract. */
+                    acceptedServiceStage?: {
+                        /**
+                         * @description Stage validated by this operation's strict request contract.
+                         * @enum {string}
+                         */
+                        stage: "MATERIALS" | "WORKMANSHIP";
+                        /** @description Invoice Version validated by this operation's strict request contract. */
+                        invoiceVersion: number;
+                        /** @description Integer amount in Nigerian kobo; the server remains authoritative. */
+                        amountKobo: string;
+                    };
                 } | {
                     /**
                      * @description Target Type validated by this operation's strict request contract.

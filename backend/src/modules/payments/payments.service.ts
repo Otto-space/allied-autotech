@@ -11,6 +11,7 @@ import {
   hasServiceFinancialHold,
   type ServicePaymentBinding,
 } from "../billing/service-payment-plan.js";
+import { servicePaymentReadSelect } from "../billing/service-payment-summary.js";
 import { snapshotRefundClock } from "../policies/refund-clock.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { assertReviewedPurchasePayable } from "../orders/purchase-review-payable.js";
@@ -2657,7 +2658,7 @@ export class PaymentsService {
           booking: { select: { status: true, completedAt: true } },
           payments: {
             where: { id: { not: payment.id } },
-            select: { status: true, amountKobo: true, policySnapshot: true },
+            select: servicePaymentReadSelect,
           },
         },
       });
@@ -2667,6 +2668,7 @@ export class PaymentsService {
       try {
         const plan = servicePaymentPlanFromSnapshot(invoice.documentSnapshot, invoice);
         if (plan) {
+          if (hasServiceFinancialHold(invoice.payments)) return true;
           if (invoice.status !== "ISSUED" || invoice.booking?.status === "CANCELLED")
             return true;
           const binding = servicePaymentBinding(payment.policySnapshot);
