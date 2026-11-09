@@ -137,6 +137,20 @@ export const workforceRouteDefinitions = [
     schemas.workforceRecordParams,
   ],
   [
+    "get",
+    "/staff/workforce/bookings/:id/work-review",
+    "bookingWorkReviewOptions",
+    empty,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
+    "/staff/workforce/bookings/:id/work-review",
+    "bookingWorkReview",
+    schemas.workforceBookingWorkReviewSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
     "post",
     "/staff/workforce/bookings/:id/timing",
     "bookingTiming",
@@ -455,6 +469,24 @@ export function createWorkforceRouter(): Router {
             id,
             schemas.workforceBookingAlternativeSchema.parse(body),
             ctx,
+          );
+          break;
+        case "bookingWorkReviewOptions":
+          res.set("Cache-Control", "private, no-store");
+          data = await new ServiceOperationsService().bookingWorkReviewOptions(
+            actor,
+            id,
+            true,
+          );
+          break;
+        case "bookingWorkReview":
+          res.set("Cache-Control", "private, no-store");
+          data = await new ServiceOperationsService().reviewBookingWork(
+            actor,
+            id,
+            schemas.workforceBookingWorkReviewSchema.parse(body),
+            ctx,
+            true,
           );
           break;
         case "bookingTiming":

@@ -1,3 +1,8 @@
+import {
+  bookingWorkEstimateSchema,
+  bookingWorkReviewOptionsResponseSchema,
+  bookingWorkReviewReceiptSchema,
+} from "../service-operations/service-operations.schemas.js";
 import { bookingRescheduleDecisionBodySchema } from "../service-operations/service-operations.schemas.js";
 export { bookingAlternativeBodySchema as workforceBookingAlternativeSchema } from "../service-operations/service-operations.schemas.js";
 import { supportEmailDeliveryPageSchema } from "../support/customer-email.js";
@@ -660,6 +665,10 @@ export function workforceResponseSchema(action: string): z.ZodType {
         generatedAt: timestamp,
         access: workforceOwnResponseSchema,
       });
+    case "bookingWorkReviewOptions":
+      return bookingWorkReviewOptionsResponseSchema;
+    case "bookingWorkReview":
+      return bookingWorkReviewReceiptSchema;
     case "bookingTiming":
       return z.object({
         id: z.uuid(),
@@ -727,6 +736,8 @@ export function workforceResponseSchema(action: string): z.ZodType {
         rescheduleRequests: z.array(bookingRescheduleProjectionSchema).max(10),
         scheduleVersion: version,
         timingSnapshots: z.array(bookingTimingProjectionSchema).max(10),
+        startedAt: timestamp.nullable(),
+        workEstimate: bookingWorkEstimateSchema.nullable(),
         alternativeStartsAt: timestamp.nullable(),
         alternativeReason: z.string().nullable(),
         alternativeVersion: version.nullable(),
@@ -971,3 +982,5 @@ const bookingTimingProjectionSchema = z.object({
   reason: z.string().max(1000),
   createdAt: timestamp,
 });
+
+export { bookingWorkReviewBodySchema as workforceBookingWorkReviewSchema } from "../service-operations/service-operations.schemas.js";
