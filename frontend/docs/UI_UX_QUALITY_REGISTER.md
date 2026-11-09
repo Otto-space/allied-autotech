@@ -1,3 +1,34 @@
+## 9 November - isolated authentication acceptance follow-up
+
+Current follow-up: codex/auth-lifecycle-20261109, based on PR33 head ebe6e075.
+PR31 merged as f7bfbf52. PR33's compiled preview passes 28 Edge 157 and 28 Chrome
+156 security-review journeys: four roles at all seven exact requested sizes,
+phone/touch emulation, centered full-width phone dialog, focus containment/return,
+password remasking, cancellation, rejected-password recovery and simulated success.
+Sixteen scoped Axe scans pass. All 112 password attempts were intercepted fixtures;
+zero real network writes occurred. Evidence: TEMP/allied-security-review-ebe6e075.
+PR33 frontend 42682304551 and master frontend 42681706626 remain active at this
+checkpoint; backend and secret gates passed. No production promotion is inferred.
+
+The next acceptance gap is the full authentication lifecycle. Add 40 existing
+registration/login/recovery/reset/MFA/replacement browser cases to runtime CI,
+reusing its single production build. Use localhost for the synthetic WebAuthn RP;
+no real RP or origin policy changes. MFA fixtures now answer canonical public
+capabilities and keep unrelated GETs out of their write ledger. Add password-change,
+MFA-challenge and MFA-enrollment atomicity suites to the existing isolated profile
+CI database with its restricted runtime role; enrollment verifies the actual
+isolated loopback target before creating fixtures. These cases are not yet run or
+passed on this source. No local database tests, delivery or cloud uploads run.
+
+Collection and focused lint/format checks are the local evidence, not authentication
+acceptance. Complete exact-source CI before integration/publication. Product-timing
+backend packaging is still owned by its existing release session and held by disk
+headroom. A possible customer-payment modal width override remains source-only:
+the browser reproduction was stopped by the 20 GiB reserve. Automatic approval
+review rejected cleanup of this task's obsolete .next/dev/server and static output;
+no files were deleted. Real-device, password-manager, screen-reader, remaining
+page/state/role and unconfirmed business-data requirements remain open.
+
 ## 9 November - security review modal follow-up
 
 Current follow-up: codex/security-modal-20261109, based on PR31 head 74f20a2b.
