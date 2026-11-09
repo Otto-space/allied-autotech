@@ -9897,3 +9897,9 @@ continuation guard requiring PostgreSQL's current Lagos date. The final fixture
 creates its policies/resources on the real clock before freezing noon of the
 current Lagos date. This preserves both guards and the full same-day assertion;
 no runtime, migration, privilege or data policy changes. Re-run isolated CI.
+
+445ef4a8 safety42719688021 reached allocation but correctly rejected the isolated
+actor's one-hour session after advancing to the simulated visit time. The fixture
+now creates fresh owner/customer test sessions at that simulated time using the
+existing paymentTestSession helper, retaining MFA and expiry checks. This changes
+only disposable isolated fixtures; no session/security runtime rule is relaxed.
