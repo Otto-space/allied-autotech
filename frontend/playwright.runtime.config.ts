@@ -52,6 +52,29 @@ export default defineConfig({
       ],
       grep: /short modal|pending save prevents|download is version-bound|guest invoice download|reviews authoritative|populated gallery|dialog closes with Escape|cancellation in flight|Practice feedback|Allie revalidation|About principles/,
     },
+    ...(["firefox", "webkit"] as const).map((browserName) => ({
+      name: `responsive-${browserName}`,
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? {
+              baseURL: "https://127.0.0.1:3104",
+              // Ephemeral self-signed loopback certificate; production CSP stays on.
+              ignoreHTTPSErrors: true,
+            }
+          : {}),
+      },
+      // Reuse the same production build and isolated API. These are engine
+      // checks on Linux CI, not branded Safari or physical-phone acceptance.
+      testMatch: [
+        "shared-shell-dock.spec.ts",
+        "booking-calendar.spec.ts",
+        "invoice-modal-responsive.spec.ts",
+        "modal-layout.spec.ts",
+        "catalogue-modal-layout.spec.ts",
+        "public-search-recovery.spec.ts",
+      ],
+    })),
   ],
   outputDir: "./test-results/runtime-capabilities",
   timeout: 90_000,
@@ -88,6 +111,13 @@ export default defineConfig({
         VERCEL_ENV: "development",
         NEXT_TELEMETRY_DISABLED: "1",
       },
+    },
+    {
+      command: "node tests/fixtures/runtime-capabilities-https.mjs",
+      url: "https://127.0.0.1:3104/__runtime_tls_health",
+      ignoreHTTPSErrors: true,
+      reuseExistingServer: false,
+      timeout: 30_000,
     },
   ],
 });

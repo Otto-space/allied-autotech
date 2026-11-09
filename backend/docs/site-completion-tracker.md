@@ -143,10 +143,209 @@ documentation checkpoints do not imply another runtime deployment.
 
 ---
 
+## 9 November - calendar/modal acceptance passed; search fixture follow-up
+
+Run 42618283436 completed on 8d6b91c0: 426/428 passed, zero skipped/flaky.
+All 250 Chromium and 89 Firefox cases passed, as did 87 WebKit cases including
+every selected calendar, shared modal, invoice, gallery/filter and shell journey.
+The two WebKit search-recovery cases failed on page-error diagnostics during
+reload; this remains a failed full-suite gate. Backend safety and secrets passed.
+Artifact 13676421450 was downloaded and hash-verified; selected results, calendar
+images and both failure traces are in TEMP/allied-cross-browser-8d6b91c0.
+
+Both traces place the errors immediately after reload while RSC prefetches are
+cancelled. Reads otherwise return 200, and search availability/retry assertions
+pass. The fixture now lets initial network reads settle before changing simulated
+catalogue availability and reloading. The error assertion remains unchanged.
+This does not certify rapid reload while prefetch is in flight: retain that
+separate browser diagnostic/real-delivery check as open. The TLS fixture also
+forwards its actual HTTPS origin to Next, matching a TLS-terminating proxy.
+The early WebKit diagnostic now selects calendar 320px and both search sizes
+(three cases locally collected); fresh rendered acceptance is pending.
+
+The a7029b31 release-evidence update is integrated without changing application
+code. Current released runtime e947a205, its complete attendance/work-review
+flows and schema-99 safeguards are preserved. This testing batch applies no
+migration, changes no production security header and enables no restricted
+feature. Final source CI, master integration and release equivalence checks
+remain required. The full two-brief goal remains active.
+
+## 9 November - WebKit calendar diagnostic passed over HTTPS
+
+The 320x720 calendar diagnostic passed in run 42617191838 on source 9558d5fe
+after adding the isolated TLS transport. This confirms the prior missing-calendar
+failure was caused by test-server asset TLS, not calendar geometry. The full
+engine matrix still requires terminal acceptance on the final integrated source.
+The transport also passed a local Windows synthetic request round trip with CSP
+headers preserved, reusing Git's bundled OpenSSL and leaving no certificate files
+or listening test servers. Integrated nonincremental TypeScript and scoped lint
+pass. The small Windows portability completion is included before final checks.
+No application, permission, security-header or business-data changes are made.
+
+## 9 November 12:18 UTC - WebKit transport diagnosis and integration
+
+Next bounded checkpoint: 13:18 UTC. The previous matrix passed selected Chromium
+and Firefox journeys but did not establish WebKit acceptance. The first early
+diagnostic invocation incorrectly placed the file after the variadic project
+option; it was corrected and locally proved to select exactly one test.
+Run 42615486157 then reproduced the actual 320px failure and retained artifact
+13673066920 (83,616 bytes, SHA256 857aa659f901b14f31328269c90073bb0e223b8c54c21fb5fa0eddbcd084875f).
+The page remained at Opening your dashboard: WebKit upgraded script/font/style
+requests to HTTPS under production CSP, but the loopback server only spoke HTTP.
+Its trace records repeated TLS handshake failures; calendar code never loaded.
+
+The test transport now uses an ephemeral self-signed HTTPS proxy bound only to
+127.0.0.1 for WebKit. Production CSP/headers, authentication and assertions remain
+unchanged. Only that fixture context accepts the ephemeral certificate. Its key
+files are removed immediately after loading; no production key or data is used.
+Syntax, scoped lint and exact one-case discovery pass; rendered execution remains
+pending. Source e947a205's complete attendance and remaining-work integration is
+preserved, including its current regression cases and 99-migration ledger. This
+batch applies no migration and does not publish that concurrent backend candidate.
+
+The other release checkout records efebfa38 now live as frontend
+dpl_C2xNLA3Sxfy6B6JPn1fouw7hGiqH and backend 3035fe3a; apex independently resolves
+to that frontend. Its calendar and shared modal files exactly match the verified
+804eb4fc design. Fresh 16/16 Edge checks remain evidence for those unchanged files,
+not proof of unrelated newly released workflows or physical devices.
+
+## 9 November - WebKit diagnostic checkpoint
+
+Run 42609173440 on 8a609040 reached the 35-minute job limit: 227 Chromium
+cases and 89 Firefox cases passed, then thirteen WebKit calendar cases timed
+out. This is a failed acceptance gate, not a passing matrix. Engine versions
+were Chromium 153.0.8010.12, Firefox 155.0 and WebKit 26.6 on Linux. The timeout
+prevented final diagnostics/artifact upload; the specific cause is not yet proven.
+An early 320px WebKit calendar check and bounded full-suite failure count now
+retain traces before a repeated broad failure consumes the job. Assertions and
+required journeys are unchanged. The integrated work-review source efebfa38 and
+its thirteen browser cases are preserved; its compatible 98-migration backend
+publication remains independently gated. No migration is applied by this batch.
+
+Fresh read-only Chrome authentication checks passed all seven exact viewports
+(login, password visibility, labelled/autocomplete fields, recovery navigation,
+keyboard focus and no overflow/errors/writes). This does not test real login,
+MFA, password-manager autofill or recovery submission. Evidence:
+TEMP/allied-auth-readonly-20261109/results.json. Public GETs at 11:52 UTC confirm
+one published product without photos/compatibilities/brand/MPN, no published
+fitment makes, and four services including diagnostics with unknown duration.
+These successful responses establish missing business data, not request failure.
+Evidence: TEMP/allied-public-data-dependencies-20261109.json.
+
+## 9 November 11:18 UTC — cross-browser acceptance package
+
+Target boundary: 12:18 UTC. Full two-brief goal remains active. Search source
+80e95a386afeba3450cc5e66ed9afab421f52e65 is now live on both apex/www as
+frontend dpl_9AXm5AXHRDzjoo6JJ6xFQwL7durD. All three exact-master checks passed.
+The held production build passed two search journeys; two fresh native Edge
+157.0.4341.42 checks at 320x720 and 1280x720 also pass query/scope, Help submission,
+Back restoration, first-viewport results and no page overflow/errors or writes.
+Backend 8a7821b4 remains ACTIVE and unchanged, readiness 200, eight managed backups
+(latest 9 November), app-only firewall, no migration or security change. The prior
+successful separate 97-migration restore is retained; no new restore was performed
+for this frontend-only release. Recovery frontend is dpl_Hsm7YfNcZoDp3YjM9tbSragqnkvY.
+Search branch retirement was rejected by GH013; branch and protections remain intact.
+Evidence: TEMP/allied-search-release-80e95a38/{live-preflight-20261109.json,native-search.json}.
+
+Fresh calendar/notification checks pass all seven exact viewport pairs, plus both
+tablet catalogue filters (16/16), against the preceding live calendar build on
+9 November. Synthetic private accounts, read-only real public delivery, zero page
+errors/submissions. Evidence: TEMP/allied-calendar-review-20261109/native-modals-verified.json.
+The six public search-to-catalogue handoffs also finished 6/6 on 4 November,
+including JavaScript-disabled Services/Parts/Vehicles forms; the saved receipt
+was inspected now rather than counting the earlier observation timeout as failure.
+
+Current gap: Firefox/WebKit engine acceptance. The existing production-build CI
+now selects the shared shell/dock, calendar, invoice/dialog, catalogue gallery/filter
+and search-recovery cases for both engines, retaining all existing Chromium checks.
+404 cases initially collected, including 89 per additional engine. Firefox preserves exact
+responsive viewports and touch but cannot enable Playwright isMobile; WebKit uses
+phone mobile/touch contexts. Linux WebKit is not branded or physical Safari.
+Engine/version/platform are recorded in CI. One build and serial isolated API are
+reused; no local browser downloads, installs, Docker resources or new worktree.
+Local nonincremental types and scoped lint pass. Rendered engine execution remains pending.
+
+Remaining full scope includes each page's distinct states and nested records,
+real-role acceptance, authentication lifecycle, physical keyboard/device/screen-reader
+and 200% browser zoom checks, genuine catalogue media/fitment and approved workshop
+facts. This bounded matrix does not certify those requirements or enable gated work.
+
+The concurrent master 80b4c8ac attendance recovery preparation is preserved in
+this branch. Its compatible backend publication remains a release dependency.
+The integrated matrix adds its compatibility case (405 expected); source merge
+and test collection are not evidence of backend publication or full attendance.
+
+## 9 November 12:35 UTC - attendance and work-review release verified
+
+Released application source: `e947a205ea9ff852365cbde1e0b9e05234c13306`.
+Frontend `dpl_22d3ubrHm6At1DnxuFFuR9h4SN5A` is assigned to apex and www;
+backend `f6bdcc48-3933-435f-a3ef-ece5edb182a7` is ACTIVE with all four matching
+image digests and HTTP readiness 200. The previous work-review release and its
+features are preserved. This evidence update does not claim a new application
+source or activation merely because documentation advances beyond that commit.
+
+| Capability                                           | Current status                       | Evidence and remaining acceptance                                                                                                                                                                                                                                                                                |
+| ---------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Observed arrival, agreed waiting, leaving and return | Released                             | Managed booking, legacy booking and assigned-job controls; immutable history and scoped recovery receipts. Real signed-in operational-role acceptance remains unverified.                                                                                                                                        |
+| Staff-verified missed appointment (D16)              | Released                             | Grace only flags Check attendance; observed arrival/active work prevent a missed update. Explicit absence, reason, version and scope checks remain. No automatic fee, forfeiture, suspension or refund rejection. Fifteen minutes remains a configurable delegated default, not a personally chosen owner value. |
+| Remaining-work estimates/resources (D07)             | Released and preserved               | Both workflows coexist with the current permission checks, saved timing and physical resource constraints. No financial or security permission expansion.                                                                                                                                                        |
+| Actual available late-arrival replacement (D11)      | Incomplete; next implementation item | Current proposals still accept a typed date without availability validation, and the ordinary 7-14-day window blocks a same-day offer. Preserve the original appointment, resources and physical-visit history when implementing a genuine available alternative. Recording waiting alone does not close D11.    |
+| Public appointment/purchase activation               | Disabled, unchanged                  | Browse/enquiries stays active. Complete the remaining implementation and controlled operational/provider acceptance; do not enable flags to make tests appear functional.                                                                                                                                        |
+
+Exact-master gates passed: Frontend 42614660750, Backend 42614660828 and Secrets 42614660984. The frontend run passed 1,518 units (12 existing skips), production
+lint/types/build/format and 250/250 Chromium browser cases. Local focused checks
+passed 57 backend and 32 frontend units. The combined native PostgreSQL workflow
+suite passed 111/111; the actual compiled Linux candidate passed all 22 attendance
+integration cases against an isolated schema-99 target. These are synthetic tests,
+not production role, payment-provider or physical-device acceptance.
+
+Operational release evidence: 10/10 packaged safety/media/import/font/database
+checks, seven candidate/current-recovery schema probes, a fresh 900,811-byte
+repeatable-read production snapshot, and a separate populated 98-to-99 restore
+rehearsal preserving original columns, row counts/hashes and migration history.
+The guarded production command applied only the reviewed attendance migration;
+all 99 applied checksums and the historical rolled-back entry were preserved.
+Runtime least privilege and existing default grants were checked. Automated managed
+backups were freshly listed; the same-cluster managed restore proof is historical
+(21 October), distinct from this fresh populated local restore. No reset, history
+rewrite, unreviewed SQL or production demonstration records were used.
+
+Both the earlier compatibility API and the currently deployed work-review recovery
+API passed actual authenticated Linux HTTP refusal checks against schema 99 for
+assigned Staff, Admin and Super Admin. The explicit recovery composition retains
+the canonical 99-aware checker with compatible 98 runtimes; normal same-source
+manifest validation is unchanged. Provider spec validation and isolated behavior
+were checked; no real production rollback is claimed. Attendance authoring would
+be unavailable during that recovery while its evidence remains preserved.
+
+After deployment, all 13 checked worker heartbeats were fresh/healthy. Each scoped
+operator address rule was removed and freshly verified, preserving existing and
+concurrent rules. No price, policy, permission or capability flag was changed.
+Worker health does not prove email, SMS, push or financial-provider delivery.
+
+Safe before/after screenshots use synthetic browser records at 390px and 1440px.
+The deployed-after fixture saved arrival/wait/left with CSRF, visible keyboard focus,
+zero horizontal overflow and zero production API requests. Its API interception is
+separate from the 22 compiled-Linux HTTP cases with a real isolated database.
+Real staff/customer sessions, physical devices and full screen-reader acceptance
+remain unverified. The complete audit/D01-D17 goal remains active; staged service
+payments, D11 and the remaining holding/sourcing/collection/refund/reminder and
+operational acceptance contracts must be reconciled with their existing code.
+Approved rounding is settled; the expressly deferred general returns/warranty
+policy remains separate. Do not ask again for already approved decisions.
+
+Evidence directory: `TEMP/aat-attendance-20261104/release-combined-e947a205-20261109`.
+It contains the exact release, migration, recovery, worker, visual and backup/restore
+receipts. Current/previous runtime images and protected recovery resources remain.
+The final measured disk reserve was above 23 GiB; this is a point-in-time preflight,
+not a machine-wide guarantee. No project/database resources were deleted.
+
+---
+
 ## 9 November 11:42 UTC - compatibility release published; combined integration held
 
 Production now serves checked master 80b4c8ac on both apex and www: frontend
- dpl_5gdnYnBjoT5jwuumPPXZZyt4rSJA and backend
+dpl_5gdnYnBjoT5jwuumPPXZZyt4rSJA and backend
 6d88a7ff-230b-4e83-a9bb-e77252a32ea3. Exact master frontend/backend/secrets gates
 pass: 1,486 units passed (12 existing skips), 227 browser cases passed, 10 packaged
 checks passed, a fresh 899,377-byte snapshot restored with all original rows/counts/
@@ -272,7 +471,6 @@ verification and receipt recovery rather than the removed raw status option;
 its source/lint is updated, but that full dashboard test has not run locally.
 The component browser fixture evidence above does not substitute for that test.
 
-
 Integration checkpoint: reconciled current master 9fbf3732 (recorded-work capacity,
 responsive calendar/modals and customer overview) without replacing its repairs.
 Combined guidance advances booking-confirmation to v12 and service-request to v29;
@@ -288,7 +486,6 @@ not a claim that the previously failed 81-case invocation passed. Merged backend
 cryptographically verified SSH signature using the configured signing key. Required hosted gates and
 production migration/recovery acceptance still remain. No production publication.
 
-
 Hosted regression checkpoint: the 7dad16e1 backend run passed its migration,
 booking/resource/financial and earlier learning stages, then failed five audience
 retrieval assertions because the expanded service article exceeded Allie's existing
@@ -300,7 +497,6 @@ Fresh native Edge component reruns on the integrated shared styles pass both
 390/1440 arrival/wait cases and all seven responsive/loading/error/recovery states.
 The signed source remains in draft PR #20, held for updated hosted checks and the
 recorded migration recovery/full-dashboard acceptance requirements.
-
 
 4 November full-dashboard acceptance follow-up (source, hosted run pending):
 new browser coverage mounts attendance in the real managed booking page and
@@ -329,7 +525,6 @@ and the shared 7–14-day new-booking window currently blocks a same-day alterna
 Resolve that late-arrival journey under D11 without weakening ordinary intake,
 resource checks, existing confirmations or physical-attendance history.
 
-
 4 November full-dashboard run: source 26850a6b passed backend safety, secret
 checks and frontend production checks. The expanded production-build browser run
 passed 232/235 cases. All three failures exposed two simultaneous Attendance
@@ -346,7 +541,9 @@ canonically replayed migration-98 isolated database. Its 30 guidance checks pass
 required hosted and packaged release checks remain pending. No production change.
 Keep the full attendance feature here separate until that writer transition and
 98-aware migration/recovery composition have been reviewed and verified.
+
 ## 9 November - attendance recovery source reconciliation
+
 ### 9 November: preserve the newly merged missed-writer safeguard
 
 Candidate 7d5ec4eb passed Backend 42606466337, Secrets 42606466356 and Frontend
@@ -438,7 +635,7 @@ builds still require the justified 2 GiB allowance. Production is unchanged by
 this candidate. D01-D17 remains active; actual branch/resource facts, real role
 acceptance and the separate finance/provider decisions are not fabricated.
 
-## 9 November ? attendance recovery source reconciliation
+## 9 November - attendance recovery source reconciliation
 
 Merged current master 80e95a38 into the held compatibility candidate, preserving
 public-search recovery coverage, corrected product identity wording and the
@@ -796,7 +993,6 @@ where recorded. Rounding is settled; do not ask that owner decision again. Curre
 payment/booking/marketing/destructive-retention flags remain unchanged.
 
 Additional integrated source (separate from the published release above):
-
 
 Additional current-master source, preserved separately:
 

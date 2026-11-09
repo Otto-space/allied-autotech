@@ -1,3 +1,14 @@
+### 9 November: attendance/work-review application release evidence
+
+Application source e947a205 is released with booking-confirmation v14,
+assigned-findings v5 and service-request v29, retaining existing eligibility and
+publication settings. Staff attendance and remaining-work review coexist; no
+learning content grants permissions. Exact-source gates, 250 browser cases,
+111 native workflow cases and 22 compiled-Linux attendance cases pass. Real-role
+and provider delivery acceptance remain separate. D11 actual available late-arrival
+alternatives are still incomplete; do not describe waiting history as a complete
+replacement-time offer/approval journey. Existing deferred owner decisions remain.
+
 ### 9 November: combine attendance with remaining-work reviews
 
 Booking-confirmation v14 preserves both physical attendance and remaining-work

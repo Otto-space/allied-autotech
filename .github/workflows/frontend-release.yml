@@ -25,7 +25,9 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # One production build, followed by the existing Chromium suite and the
+    # bounded Firefox/WebKit responsive matrix. The fixture API is serial.
+    timeout-minutes: 35
     defaults:
       run:
         working-directory: frontend
@@ -46,10 +48,25 @@ jobs:
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run check:production
-      - name: Install only the browser used by the isolated regression
-        run: npx --no-install playwright install --with-deps chromium
+      - name: Install the three engines used by the isolated regression
+        run: npx --no-install playwright install --with-deps chromium firefox webkit
+      - name: Record browser engine versions and test platform
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium, firefox, webkit } from 'playwright';
+          for (const engine of [chromium, firefox, webkit]) {
+            const browser = await engine.launch();
+            try {
+              console.log(JSON.stringify({ engine: engine.name(), version: browser.version(), platform: process.platform, physicalDevice: false }));
+            } finally {
+              await browser.close();
+            }
+          }
+          NODE
+      - name: Verify WebKit calendar and search transport before the full matrix
+        run: npx --no-install playwright test booking-calendar.spec.ts public-search-recovery.spec.ts --config playwright.runtime.config.ts --project=responsive-webkit --grep "calendar 320x720|public search recovery" --max-failures=1
       - name: Verify independent runtime availability in the production build
-        run: npx --no-install playwright test --config playwright.runtime.config.ts
+        run: npx --no-install playwright test --config playwright.runtime.config.ts --max-failures=5
       - name: Preserve synthetic browser evidence
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v5
