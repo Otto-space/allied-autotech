@@ -1,3 +1,42 @@
+## 9 November 17:59 UTC - exact-build product coverage queued
+
+Backend/secrets gates pass on fac525a3. Eleven product operator/public/touch cases
+are now collected in the existing production-build browser configuration, reusing
+its one build and loopback fixture. They are not yet execution evidence. Types,
+lint, formatting and two actual fixture HTTP/parser checks pass. Default case and
+expectation deadlines are unchanged. The canonical tracker records source/run IDs,
+local reserve constraints and retained unverified acceptance; no release occurred.
+
+---
+
+## 9 November 17:47 UTC - current-head acceptance pending
+
+PR 32 head fac525a3 preserves current master 160d3b7b. Merged public 768/1440 and
+unknown-state checks pass; 320 timed out and operator cases were interrupted when
+the disk reserve failed. Do not apply the pre-merge browser totals below to the
+whole current head. Exact-source frontend/backend CI is running; secrets passed.
+See backend/docs/site-completion-tracker.md for the canonical current evidence,
+constraints and handoff. No production publication or activation occurred.
+
+---
+
+## 9 November 17:40 UTC - product timing defaults; unpublished
+
+D13 product editing/review and public details now distinguish optional sourcing
+calendar days, preparation minutes and actual readiness. Unknown customer defaults
+stay blank; operator details identify them. Zero is preserved. Ten unique synthetic
+Edge cases pass, plus the final three-case repeat at 320/768/1440 with scoped WCAG
+2.2 AA Axe checks and laptop sidebar expansion/collapse. Coverage includes uncertain
+saves and unknown timing/media/stock. Four safe visual fixtures cover
+320/390/768/1440, review/focus and touch emulation, with zero writes/errors/overflow.
+
+See [the canonical tracker](../../backend/docs/site-completion-tracker.md) for exact
+checks, failures, recovery and artifacts. Source is unpublished. Order-level timing,
+original audit scope, real roles, provider/device acceptance, canonical CI/recovery
+and verified release remain. This is not D13 or overall commerce readiness.
+
+---
+
 ### 9 November: required D03 collection control; integrate new product estimates
 
 New unpublished source records vehicle collection only after current Admin/Super

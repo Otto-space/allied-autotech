@@ -1,3 +1,4 @@
+import { ProductTiming } from "@/app/components/product-timing";
 import { normalizeProductQuery } from "@/lib/product-discovery";
 import {
   partsEnquiryHref,
@@ -372,6 +373,7 @@ export default async function ProductPage({
                 {product.description ||
                   "Contact our team if you need more information about this product."}
               </p>
+              <ProductTiming product={product} />
               <dl className="pd-specs">
                 {Object.entries(specs).map(([name, value]) => (
                   <div key={name}>

@@ -24527,6 +24527,9 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `sourcingDaysMin` | integer / null | No | Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. |
+| `sourcingDaysMax` | integer / null | No | Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. |
+| `preparationMinutes` | integer / null | No | Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. |
 | `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
 | `oilViscosityGrade` | string / null | No | Oil Viscosity Grade validated by this operation's strict request contract. |
 | `packVolumeMl` | integer / null | No | Pack Volume Ml validated by this operation's strict request contract. |
@@ -24771,6 +24774,9 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `sourcingDaysMin` | integer / null | No | Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. |
+| `sourcingDaysMax` | integer / null | No | Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. |
+| `preparationMinutes` | integer / null | No | Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. |
 | `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
 | `oilViscosityGrade` | string / null | No | Oil Viscosity Grade validated by this operation's strict request contract. |
 | `packVolumeMl` | integer / null | No | Pack Volume Ml validated by this operation's strict request contract. |

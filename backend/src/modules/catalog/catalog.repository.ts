@@ -43,6 +43,9 @@ export const categorySelect = {
 } satisfies Prisma.CategorySelect;
 
 export const productSelect = {
+  sourcingDaysMin: true,
+  sourcingDaysMax: true,
+  preparationMinutes: true,
   family: true,
   oilViscosityGrade: true,
   packVolumeMl: true,
@@ -336,6 +339,9 @@ export class CatalogRepository {
         featured: input.featured,
         brand: input.brand ?? null,
         manufacturerPartNumber: input.manufacturerPartNumber ?? null,
+        sourcingDaysMin: input.sourcingDaysMin ?? null,
+        sourcingDaysMax: input.sourcingDaysMax ?? null,
+        preparationMinutes: input.preparationMinutes ?? null,
         description: input.description ?? null,
         compareAtPriceKobo:
           input.compareAtPriceKobo == null ? null : BigInt(input.compareAtPriceKobo),
@@ -351,6 +357,15 @@ export class CatalogRepository {
     client: DatabaseClient,
   ) {
     const data: Prisma.ProductUncheckedUpdateInput = {
+      ...(input.sourcingDaysMin === undefined
+        ? {}
+        : { sourcingDaysMin: input.sourcingDaysMin }),
+      ...(input.sourcingDaysMax === undefined
+        ? {}
+        : { sourcingDaysMax: input.sourcingDaysMax }),
+      ...(input.preparationMinutes === undefined
+        ? {}
+        : { preparationMinutes: input.preparationMinutes }),
       ...(input.family === undefined ? {} : { family: input.family }),
       ...(input.oilViscosityGrade === undefined
         ? {}

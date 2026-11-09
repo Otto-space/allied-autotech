@@ -37808,6 +37808,33 @@
                           "items": {
                             "type": "object",
                             "properties": {
+                              "sourcingDaysMin": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "maximum": 3650,
+                                "description": "Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness."
+                              },
+                              "sourcingDaysMax": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "maximum": 3650,
+                                "description": "Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate."
+                              },
+                              "preparationMinutes": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "maximum": 525600,
+                                "description": "Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown."
+                              },
                               "family": {
                                 "type": [
                                   "string",
@@ -39865,6 +39892,33 @@
                           "items": {
                             "type": "object",
                             "properties": {
+                              "sourcingDaysMin": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "maximum": 3650,
+                                "description": "Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness."
+                              },
+                              "sourcingDaysMax": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "maximum": 3650,
+                                "description": "Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate."
+                              },
+                              "preparationMinutes": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "maximum": 525600,
+                                "description": "Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown."
+                              },
                               "family": {
                                 "type": [
                                   "string",
@@ -40716,6 +40770,33 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "sourcingDaysMin": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 3650,
+                          "description": "Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness."
+                        },
+                        "sourcingDaysMax": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 3650,
+                          "description": "Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate."
+                        },
+                        "preparationMinutes": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 525600,
+                          "description": "Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown."
+                        },
                         "family": {
                           "type": [
                             "string",
@@ -45510,6 +45591,33 @@
                           "items": {
                             "type": "object",
                             "properties": {
+                              "sourcingDaysMin": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "maximum": 3650,
+                                "description": "Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness."
+                              },
+                              "sourcingDaysMax": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "maximum": 3650,
+                                "description": "Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate."
+                              },
+                              "preparationMinutes": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "maximum": 525600,
+                                "description": "Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown."
+                              },
                               "family": {
                                 "type": [
                                   "string",
@@ -46400,6 +46508,33 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "sourcingDaysMin": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 3650,
+                    "description": "Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness."
+                  },
+                  "sourcingDaysMax": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 3650,
+                    "description": "Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate."
+                  },
+                  "preparationMinutes": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 525600,
+                    "description": "Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown."
+                  },
                   "family": {
                     "type": [
                       "string",
@@ -46585,6 +46720,33 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "sourcingDaysMin": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 3650,
+                          "description": "Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness."
+                        },
+                        "sourcingDaysMax": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 3650,
+                          "description": "Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate."
+                        },
+                        "preparationMinutes": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 525600,
+                          "description": "Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown."
+                        },
                         "family": {
                           "type": [
                             "string",
@@ -47492,6 +47654,33 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "sourcingDaysMin": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 3650,
+                          "description": "Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness."
+                        },
+                        "sourcingDaysMax": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 3650,
+                          "description": "Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate."
+                        },
+                        "preparationMinutes": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 525600,
+                          "description": "Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown."
+                        },
                         "family": {
                           "type": [
                             "string",
@@ -48396,6 +48585,33 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "sourcingDaysMin": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 3650,
+                    "description": "Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness."
+                  },
+                  "sourcingDaysMax": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 3650,
+                    "description": "Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate."
+                  },
+                  "preparationMinutes": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 525600,
+                    "description": "Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown."
+                  },
                   "family": {
                     "type": [
                       "string",
@@ -48570,6 +48786,33 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "sourcingDaysMin": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 3650,
+                          "description": "Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness."
+                        },
+                        "sourcingDaysMax": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 3650,
+                          "description": "Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate."
+                        },
+                        "preparationMinutes": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 0,
+                          "maximum": 525600,
+                          "description": "Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown."
+                        },
                         "family": {
                           "type": [
                             "string",

@@ -1,0 +1,27 @@
+.product-timing {
+  margin-block: 1.25rem;
+  min-width: 0;
+}
+.product-timing h2,
+.product-timing h3 {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+.product-timing dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 0.75rem 1.5rem;
+}
+.product-timing dt,
+.product-timing dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.product-timing dt {
+  font-weight: 600;
+}
+.product-timing p {
+  margin-top: 0.75rem;
+  line-height: 1.5;
+}
