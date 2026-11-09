@@ -1,3 +1,10 @@
+### 9 November: holding candidate preserves current payment-modal fixes
+
+Merged master 6538f4b5 without replacing the new payment/quotation modal sizing,
+post-refresh focus restoration or their browser projects. Both evidence histories
+are retained; only prepended register notes conflicted. The pickup/holding batch
+still needs exact combined-source hosted checks. No production mutation occurred.
+
 ### 9 November: collection holding is connected; release acceptance remains open
 
 D12 now records immutable actual phone/in-person contact results separately from
@@ -151,6 +158,100 @@ Inventory issue/use is an optional extension, not a section-7.2 launch requireme
 materials-before-work, genuine historical credits and all financial safeguards stay.
 The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work remain.
 The owner's separate 79-line Desktop hero edit is preserved.
+
+## 9 November 21:10 UTC - cross-browser payment focus follow-up
+
+PR38 ac43bf8a passed1526 units (12 existing skips), production checks, nine WebKit
+transport diagnostics and21 media diagnostics. Its full matrix passed37 cases and
+failed five, leaving830 unrun: three quotation focus-movement tests used an
+ambiguous desktop link locator; two Firefox payment cancellations lost focus.
+Scope the test to the Breadcrumb navigation without weakening its assertion.
+
+Manual payment review now waits for a new settled payment revision before focus
+restoration, matching the verified booking refresh fix. Preserve deliberate focus
+movement, keep failed-read controls disabled and return to the heading when the
+action is unavailable. Add held-refresh, moved-focus and read-failure regressions
+in all three engines. Production payment and permission rules remain unchanged.
+Final compiled/native/engine acceptance for this change is pending.
+
+Earlier exact ac43 quotation acceptance remains valid:24 Admin Edge/Chrome cases
+plus four Staff/SuperAdmin Edge cases, all required sizes within the Admin matrix,
+success/conflict/review cancellation, no real writes or page errors/overflow.
+Payment833 acceptance passed14 Edge/Chrome cases, but did not establish Firefox
+acceptance. Do not equate those results with the incomplete full engine gate.
+Native screenshot/evidence paths are recorded in TEMP/allied-modal-verification-
+ac43bf8a.md. Authentication PR35 frontend42696383965 remains live; do not restart it.
+
+## 9 November 20:58 UTC - quotation submission focus race
+
+Compiled833bdd0a passes ten initial native Edge quotation cases: all seven exact
+viewport sizes, held-refresh cancellation, deliberate focus movement, changed
+quotation and denied access. The successful issue case then failed: focus ended
+on body after the old action disappeared. The isolated request succeeded; this
+is a UI focus regression, not a failed backend write. A separate characterization
+also passed rejection/cancellation with one intercepted conflict response.
+
+Wait for a new settled booking revision before restoring focus, rather than only
+loading booleans; fast reads can otherwise consume restoration before replacement.
+Add success/conflict coverage and register test capability routing after the booking
+catch-all. Preserve the original failure evidence in TEMP/allied-quotation-modal-
+833bdd0a/msedge/receipt.json; do not call that run wholly passed. Recompile and
+verify the corrected application. Thirty-three quotation engine cases now collect.
+PR35's refreshed-source gate remains independent and must finish normally.
+
+## 9 November 20:50 UTC - quotation review and payment fixture follow-up
+
+Compiled 9fa89d77 payment reviews pass 14 native Edge/Chrome geometry, focus,
+cancel and draft-retention cases across the seven required viewport pairs. These
+are isolated fixtures, with zero real writes or payment submissions. The final
+Evidence value assertion is now tightened from Paid at to No attachment.
+
+PR38 frontend42692772975 passed production checks but failed five payment cases
+before opening a review: the isolated server remained in its default restricted
+mode while only browser capabilities were full. Align the loopback-only server
+control before each case; production capabilities remain unchanged. The remaining
+834 cases did not run. Backend42692772695 and secret42692772940 passed.
+
+Staff quotation review was reproduced on compiled 9fa89d77 at1280,430,320px:
+phone dialogs were398/288px with16px gutters; Escape lost focus to body at all
+three widths while the booking refreshed. Keep desktop560px and shared responsive
+limits; restore focus after refresh, use the heading if the opener disappears,
+and preserve focus deliberately moved by the user. Thirty three-engine cases
+collect, including delayed refresh, lost permissions and changed quotation state.
+Scoped lint and full TypeScript checks pass. Compiled verification is pending.
+
+PR35 frontend42691319691 is terminal:676 passed, five footer-clearance failures,
+137 unrun. Native Edge confirmed actual16px overlap at1280/1024, not merely a
+stale assertion. Master5464e402 already includes that fix and attendance-fixture
+settlement; incorporate it without duplicating the other session's implementation.
+No publication on failed gates. Full goal and real-role/device acceptance stay open.
+
+## 9 November - payment review mobile-width follow-up
+
+Current follow-up codex/payment-review-modal-20261109 starts from authentication
+head ed85193e. Keep PR35's live frontend42691319691 intact; backend42691320124 and
+secret42691320336 passed. Integrate/release through the established exact-master
+gates; this follow-up does not replace the unfinished full goal.
+
+Correcting the old browser helper's missing API message field reproduced a real
+payment review width defect on compiled f7d1fd1b:430px screen has398px dialog and
+320px screen has288px dialog, both x16. The earlier disabled Payer field was a
+malformed isolated capability envelope, not proof of a server launch restriction.
+Evidence: TEMP/allied-payment-modal-baseline-canonical-20261109. Only synthetic
+records were shown; review/cancel caused zero submissions and no real writes.
+
+The page's four-class width override defeats shared mobile sizing. Keep its620px
+desktop preferred width and let the existing shared max-inline-size enforce screen
+and safe-area limits. All height, review, scrolling, payment and permission rules
+remain unchanged. A browser-only inline-style prototype was blocked by CSP; no
+CSP bypass was used and it is not counted as a pass. Verify the compiled patch.
+
+The payment fixture now supplies the complete canonical full-mode API envelope
+only inside isolated tests. Twenty-one new cases collect across Chromium,
+Firefox and WebKit: seven exact viewport pairs, phone/touch where supported,
+centering, full phone width, last-fact/footer reachability, focus containment,
+Escape return, retained draft and zero submissions. Scoped lint/formatting pass;
+compiled acceptance, CI and publication are pending. Production remains restricted.
 
 ## 9 November 20:52 UTC - authentication release reconciled with Home repair
 
