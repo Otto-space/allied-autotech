@@ -9903,3 +9903,10 @@ actor's one-hour session after advancing to the simulated visit time. The fixtur
 now creates fresh owner/customer test sessions at that simulated time using the
 existing paymentTestSession helper, retaining MFA and expiry checks. This changes
 only disposable isolated fixtures; no session/security runtime rule is relaxed.
+
+The fixture policy clock is bounded by both realNow and the visit noon, so the
+same repair also works after noon UTC when the simulated noon lies in the past.
+Its visit date remains today's Lagos date, and new isolated sessions are created
+at that visit time. Boundary arithmetic checks before noon, after noon and at
+23:00UTC verify policyTime<=realNow, policyTime<=visitTime and matching Lagos day;
+only actual-current-time isolated CI is database-backed evidence.
