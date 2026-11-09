@@ -1,3 +1,41 @@
+## 9 November 11:18 UTC — cross-browser acceptance package
+
+Target boundary: 12:18 UTC. Full two-brief goal remains active. Search source
+80e95a386afeba3450cc5e66ed9afab421f52e65 is now live on both apex/www as
+frontend dpl_9AXm5AXHRDzjoo6JJ6xFQwL7durD. All three exact-master checks passed.
+The held production build passed two search journeys; two fresh native Edge
+157.0.4341.42 checks at 320x720 and 1280x720 also pass query/scope, Help submission,
+Back restoration, first-viewport results and no page overflow/errors or writes.
+Backend 8a7821b4 remains ACTIVE and unchanged, readiness 200, eight managed backups
+(latest 9 November), app-only firewall, no migration or security change. The prior
+successful separate 97-migration restore is retained; no new restore was performed
+for this frontend-only release. Recovery frontend is dpl_Hsm7YfNcZoDp3YjM9tbSragqnkvY.
+Search branch retirement was rejected by GH013; branch and protections remain intact.
+Evidence: TEMP/allied-search-release-80e95a38/{live-preflight-20261109.json,native-search.json}.
+
+Fresh calendar/notification checks pass all seven exact viewport pairs, plus both
+tablet catalogue filters (16/16), against the preceding live calendar build on
+9 November. Synthetic private accounts, read-only real public delivery, zero page
+errors/submissions. Evidence: TEMP/allied-calendar-review-20261109/native-modals-verified.json.
+The six public search-to-catalogue handoffs also finished 6/6 on 4 November,
+including JavaScript-disabled Services/Parts/Vehicles forms; the saved receipt
+was inspected now rather than counting the earlier observation timeout as failure.
+
+Current gap: Firefox/WebKit engine acceptance. The existing production-build CI
+now selects the shared shell/dock, calendar, invoice/dialog, catalogue gallery/filter
+and search-recovery cases for both engines, retaining all existing Chromium checks.
+404 cases collect, including 89 per additional engine. Firefox preserves exact
+responsive viewports and touch but cannot enable Playwright isMobile; WebKit uses
+phone mobile/touch contexts. Linux WebKit is not branded or physical Safari.
+Engine/version/platform are recorded in CI. One build and serial isolated API are
+reused; no local browser downloads, installs, Docker resources or new worktree.
+Types/lint/rendered execution are pending. No engine pass is claimed by collection.
+
+Remaining full scope includes each page's distinct states and nested records,
+real-role acceptance, authentication lifecycle, physical keyboard/device/screen-reader
+and 200% browser zoom checks, genuine catalogue media/fitment and approved workshop
+facts. This bounded matrix does not certify those requirements or enable gated work.
+
 ## 4 November 02:40 UTC — public search acceptance package
 
 Target boundary: 03:40 UTC. Full renewed two-brief goal remains active. Current

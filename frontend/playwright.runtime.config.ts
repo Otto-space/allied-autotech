@@ -44,6 +44,20 @@ export default defineConfig({
       ],
       grep: /short modal|pending save prevents|download is version-bound|guest invoice download|reviews authoritative|populated gallery|dialog closes with Escape|cancellation in flight|Practice feedback|Allie revalidation|About principles/,
     },
+    ...(["firefox", "webkit"] as const).map((browserName) => ({
+      name: `responsive-${browserName}`,
+      use: { browserName },
+      // Reuse the same production build and isolated API. These are engine
+      // checks on Linux CI, not branded Safari or physical-phone acceptance.
+      testMatch: [
+        "shared-shell-dock.spec.ts",
+        "booking-calendar.spec.ts",
+        "invoice-modal-responsive.spec.ts",
+        "modal-layout.spec.ts",
+        "catalogue-modal-layout.spec.ts",
+        "public-search-recovery.spec.ts",
+      ],
+    })),
   ],
   outputDir: "./test-results/runtime-capabilities",
   timeout: 90_000,

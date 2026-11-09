@@ -23,7 +23,10 @@ for (const [width, height] of [
   test.describe("public search recovery " + width, () => {
     test.use({
       viewport: { width, height },
-      isMobile: width === 320,
+      // Firefox has no isMobile emulation; retain the exact responsive viewport.
+      isMobile: async ({ browserName }, provide) => {
+        await provide(browserName !== "firefox" && width === 320);
+      },
       hasTouch: width === 320,
     });
     test("one failed catalogue remains distinct from no matches and retry preserves the query", async ({
