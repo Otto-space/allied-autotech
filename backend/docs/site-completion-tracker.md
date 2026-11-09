@@ -1,3 +1,23 @@
+## 9 November 14:38 UTC - managed alternatives HTTP regression repaired
+
+The compiled Linux test exposed a genuine dispatcher defect before release: the
+managed alternatives GET query was reparsed as a generic list and returned 500.
+The dedicated day query now follows the existing specialised-query pattern and
+reads the validated request fields. A full authenticated HTTP regression verifies
+200/private-no-store, actual available times, no capacity/private-field leakage,
+422 malformed/extra query fields, customer rejection and foreign-branch 404.
+All 52 affected native PostgreSQL workflow cases pass; backend types/lint pass.
+
+No permission, pricing, rate-limit, migration or public-capability rule changed.
+The new Linux workflow group will run in its own disposable API process so the
+preceding 22 attendance cases do not exhaust its legitimate per-IP burst budget;
+limits stay enabled. A dedicated qualified synthetic technician avoids conflicting
+with earlier fixture work. Current production remains unchanged. Required fresh
+exact-master checks and final packaged/Linux/protected release evidence remain
+pending; retain the full original audit and D01-D17 requirements.
+
+---
+
 ## 9 November 14:24 UTC - cross-browser gate follow-up; publication held
 
 Exact master 885010a6 passed backend database safety and secrets, production build,
