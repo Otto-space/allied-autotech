@@ -87,3 +87,45 @@ presentation evidence remains in SERVICE_PAYMENT_STAGES_20261109.md.
 Verified invoice identifiers, actual financial-policy publication and provider
 acceptance remain separately gated. General returns/warranty policy is still
 deferred. No price, permission, real customer record or production flag changed.
+
+## Newer D11 integration
+
+Checkpoint 02679ffd preserves this work. Merge 9e7ad91b then incorporates master
+885010a6's available-alternative workflow and append-only visit continuation.
+The migration, alternative/attendance implementation and four affected booking UI
+components match master exactly. Only the new continuation migration was added;
+the earlier 99 migration files were not edited. Both evidence histories and both
+service imports were retained. The attendance guide assertions combine current
+booking-confirmation v15 with D03's assigned-findings v6 and service-request v31.
+
+The generated Prisma client now includes schema 100. Integrated scope/learning
+units pass 66/66; canonical OpenAPI validates 452 paths and 532 mounted operations.
+Generated client types reconcile without a semantic diff. Browser discovery collects
+448 cases in 31 files, not execution evidence. The overlapping frontend unit run
+passed 13 cases but one worker failed to start, so that run is not a passing gate;
+serial verification is recorded separately. No assertion or timeout was relaxed.
+
+The serial frontend rerun passes 19/19 across the same three invoice files with
+unchanged assertions/timeouts (`frontend-invoice-serial-integrated.log`, 66.52
+seconds). No passing gate is inferred from the earlier worker-startup error.
+Final integrated frontend nonincremental and backend source type checks, full
+backend lint, scoped formatting, diff whitespace and the 3,897-file secret guard
+pass. The final C: preflight is 21.93 GiB with a 0.1 GiB allowance.
+
+Final integrated database acceptance on 9e7ad91b passes 208/208 in fourteen files,
+including the credited service stages, work-scope/lock checks, attendance,
+reschedule approval, managed rescheduling, complete concern-booking HTTP journey
+and actual learning HTTP eligibility. The fresh target replayed all 100 migrations,
+passed schema diff/db:check and used the restricted runtime role. The selected
+test container was removed after the terminal result. Final log:
+`native-integrated-d03-d11.log` (598.74 seconds). This is isolated synthetic
+acceptance, not live-role, physical-device, provider or production-migration proof.
+
+Completion resource inspection retains all fourteen original containers and a new
+885010a6 Linux candidate owned by the other release. No image/cache/volume was
+removed. Docker reports 143 images/13.78 GB, 446 build-cache records/13.94 GB and
+15 existing volumes/2.892 GB; compared with the earlier inspection, the four new
+images and seven cache records accompany that other active release. These logical
+totals are not physical Windows space reclaimed. C: preflight passed at 21.94 GiB.
+Useful current caches, all other worktrees, database volumes and recovery images
+remain intact. No claim of a machine-wide disk quota or immutable external state.

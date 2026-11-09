@@ -1,3 +1,29 @@
+### 9 November 2026: D03/D11 integration verified on schema 100; held
+
+Current source 9e7ad91b preserves master 885010a6's available-alternative workflow
+alongside D03's accepted work, original prices, verified materials and legacy-credit
+checks. The imported migration, attendance/alternative implementation and four
+booking UI components match master exactly. Original 99 migrations are unchanged;
+the append-only continuation migration is the sole schema addition. It was not
+applied to production by this task. Both evidence histories/imports and current
+booking-confirmation v15/assigned-findings v6/service-request v31 are retained.
+
+Integrated acceptance passes 208/208 in fourteen files on a fresh schema-100 tmpfs
+_test target, with migration replay, diff/db:check and restricted-runtime proof;
+its container was removed. Scope/learning units pass 66/66. Canonical contracts
+validate 452 paths and 532 mounted operations, and regenerated client types match.
+The overlapping frontend run had one worker-startup error and 13 passing cases;
+the serial unchanged rerun passes 19/19. Discovery collects 448 browser cases in
+31 files, not execution evidence. No new rendered/live-role/provider claim.
+Final frontend nonincremental/backend types, full backend lint, scoped formatting,
+whitespace and 3,897-file secrets pass. Final reserve: 21.93 GiB on C:.
+
+See docs/help-learn/SERVICE_WORK_SCOPE_20261109.md for exact logs, correction history,
+disk/resource retention and remaining work. The other active 885010a6 candidate
+and its four images are retained. This D03 batch is unpublished: full accepted
+amendments/supplements, actual material issue/use, durable cleared-balance vehicle
+release and final acceptance/financial/provider/release gates remain. Goal active.
+
 ### 9 November 2026: D03 accepted work and materials guard, unpublished
 
 Shared server checks now bind staged-invoice work to the saved accepted quotation,

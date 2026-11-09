@@ -1,3 +1,21 @@
+### 9 November 2026: current D03/D11 source reconciled; unpublished
+
+Merge 9e7ad91b preserves master 885010a6's actual alternative-time picker,
+attendance and continuation history alongside D03's invoice/accepted-work controls.
+The four affected booking UI components, underlying alternative/attendance code
+and additive migration match master exactly. Both current guide families and
+permission gates are retained. Scope/learning units pass 66/66; combined native
+acceptance passes 208/208 on all 100 migrations with restricted-runtime proof.
+Frontend invoice units pass 19/19 serially after the overlapping run's worker
+startup error. Assertions/timeouts are unchanged. Browser discovery collects 448
+cases in 31 files; it is not rendered execution. Canonical API/client contracts
+reconcile at 452 paths/532 operations. No new visual, real-role, physical-device,
+provider or production acceptance is claimed. See
+docs/help-learn/SERVICE_WORK_SCOPE_20261109.md for exact evidence and remaining D03
+amendment, material-use and physical release journeys. No flags were enabled.
+Final frontend nonincremental/backend types, full backend lint, scoped formatting,
+whitespace and 3,897-file secrets pass. Final C: reserve: 21.93 GiB.
+
 ### 9 November 2026: D03 accepted-work server boundary, no new visual claim
 
 Legacy and managed workflow actions now share accepted-scope and verified-materials

@@ -1,3 +1,17 @@
+### 9 November 2026: current D03/D11 integration, no new approval
+
+Current work preserves master 885010a6's D11 alternatives/continued-visit source
+and its additive schema-100 migration. D03 guards retain accepted prices/quantities,
+verified materials, genuine historical credit and separate workmanship timing.
+Integrated isolated acceptance passes 208/208, scope/learning units 66/66 and the
+serial invoice units 19/19. See docs/help-learn/SERVICE_WORK_SCOPE_20261109.md for
+actual source, failed attempts, corrected fixtures and precise evidence limits.
+No real financial policy, deposit, price, permission or production activation was
+changed. Full D03 amendment acceptance, physical material issue/use, authorised
+vehicle release and final release/operational/provider safeguards remain open.
+Previously settled owner decisions are not reopened; unresolved identity/policy
+inputs and deferred general returns/warranty remain separate.
+
 ### 9 November 2026: D03 accepted-work checkpoint, not owner activation
 
 Staged work-order authorization now preserves accepted prices/quantities and
