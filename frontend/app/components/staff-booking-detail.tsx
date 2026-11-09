@@ -25,6 +25,7 @@ import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
 import { SlotCatalogPicker } from "./slot-catalog-picker";
 import { StaffPicker } from "./staff-picker";
+import { StaffVehicleCollection } from "./staff-vehicle-collection";
 import { StaffWorkOrder } from "./staff-work-order";
 import { StaffQuoteRecords } from "./staff-quote-records";
 import { MutationReview, type MutationProposal } from "./mutation-review";
@@ -789,6 +790,13 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
             disabled={disabled}
             canChange={canOperate}
             onReview={reviewProposal}
+          />
+          <StaffVehicleCollection
+            booking={current}
+            canRelease={!!admin}
+            disabled={disabled}
+            onReview={reviewProposal}
+            onRefresh={booking.refresh}
           />
         </>
       )}

@@ -1,3 +1,23 @@
+### 9 November: required D03 collection control; integrate new product estimates
+
+New unpublished source records vehicle collection only after current Admin/Super
+Admin session/MFA, actual work completion, exact agreed scope and verified settlement
+of every original/additional staged invoice. A reviewed financial fingerprint and
+booking version are rechecked. Unique immutable history, CSRF, current-role refusal,
+credit, financial holds and unknown-response recovery preserve existing safeguards.
+No stock, payments, prices, permissions or flags change. Inventory issue/use is an
+optional operational extension, not a requirement stated by section 7.2; existing
+materials-before-work checks stay. Historical/corrective finance needs real review.
+
+Pre-integration schema-105 acceptance passes 288 cases/five provisioned-workspace
+skips; replay/diff/db:check/restricted runtime and owned tmpfs cleanup pass. Guides
+pass 68/68. Earlier browser acceptance has 581 passes/two actual supplemental payment
+failures; the booking-only pre-submit check is corrected and new regressions are
+pending. See docs/help-learn/SERVICE_VEHICLE_COLLECTION_20261109.md for exact source,
+failures and limits. Master now b362e9f8 adds product sourcing/preparation estimates;
+retain that functionality and run combined acceptance before publication. Full
+D01-D17 goal and all production/financial/provider safeguards remain active.
+
 ### 9 November 2026: supplemental invoice source and latest navigation integrated
 
 Checkpoint c3cfcc05 and merge 28b4bc80 add separately billed accepted additional

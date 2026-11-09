@@ -547,3 +547,37 @@ export const bookingWorkReviewReceiptSchema = z
     review: bookingWorkReviewRecordSchema,
   })
   .strict();
+
+export const serviceVehicleReleaseBodySchema = z
+  .object({
+    expectedBookingVersion: version,
+    financialReviewHash: z.string().regex(/^[a-f0-9]{64}$/),
+    idempotencyKey: uuid,
+    recipientName: cleanText(120),
+    verificationNote: cleanText(1000, true).refine(
+      (v) => v.length >= 12,
+      "Record the actual identity and collection-authority review",
+    ),
+    identityAndAuthorityVerified: z.literal(true),
+  })
+  .strict();
+export type ServiceVehicleReleaseInput = z.infer<typeof serviceVehicleReleaseBodySchema>;
+
+export const serviceVehicleReleaseReceiptSchema = z
+  .object({
+    id: uuid,
+    bookingId: uuid,
+    releasedAt: dateTime,
+    recipientName: cleanText(120),
+  })
+  .strict();
+
+export const serviceVehicleReleaseReadinessSchema = z
+  .object({
+    bookingId: uuid,
+    bookingVersion: version,
+    financialReviewHash: z.string().regex(/^[a-f0-9]{64}$/),
+    ready: z.literal(true),
+    checkedAt: dateTime,
+  })
+  .strict();

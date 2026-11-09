@@ -83,6 +83,28 @@ const article = (
 export const learningArticles: LearningArticle[] = [
   {
     ...article(
+      "service-vehicle-collection",
+      "admin",
+      "work",
+      "Review and record vehicle collection",
+      "Record collection separately from completed work, using verified current balances and an actual collector review.",
+      [
+        "Open the completed booking in Bookings. Vehicle collection needs both the booking and work order recorded complete. Current Admin or Super Admin access and verified MFA are required; a technician or booking-reading responsibility alone does not authorise release.",
+        "Choose Check collection readiness. The server checks every agreed original and additional invoice, verified materials and workmanship payments, genuine historical credit and financial holds. A payment request or invoice label alone does not prove settlement. Historical invoices without a staged agreement require authorised financial review; do not invent a replacement allocation.",
+        "Enter the actual collector name and record the identity and collection-authority review. Keep this note internal and omit ID numbers, copies and payment credentials. Confirm the identity/authority checkbox only after the actual check, then review the exact details.",
+        "Explicitly confirm at handover. Current access, booking version and the reviewed financial proof are checked again. A conflict preserves the record for review. This creates one immutable collection record and a booking audit entry, not a charge or another work completion. It does not change inventory or grant anyone financial approval powers.",
+        "If the response is uncertain, close the review, refresh the booking and inspect Vehicle collection recorded before handover or another submission. Do not repeat a physical handover. Never invent confirmation from an elapsed countdown or a pending payment. Later financial adjustments retain the historical collection record and need their normal authorised review.",
+      ],
+      "/admin",
+      "Current service collection review, settlement proof and immutable booking-linked collection history",
+      "service vehicle collection handover release materials workmanship cleared balance",
+    ),
+    version: 1,
+    reviewedAt: "2026-11-09",
+  },
+
+  {
+    ...article(
       "work-account-profile",
       "work",
       "work",
@@ -418,7 +440,7 @@ export const learningArticles: LearningArticle[] = [
         "If your booking form offers a concern request, describe it instead of choosing a service. Vehicle concern means unclassified; no service price or confirmed time is implied. A service group follows your draft through sign-in and review. The saved request keeps the original group name despite later catalogue changes; check Requested service group in booking details.",
         "Use enquiry/contact when booking is unavailable. When booking requests are available, unpaid requests do not depend on checkout being available. An availability check does not submit or confirm your draft. After switching tabs or reconnecting, wait for the current availability check before submitting; the server rechecks writes. Choose a branch and offered time, or preferred Lagos time within the booking window. Offers check qualified people, working periods and equipment/shared space, including preparation and cleanup. A listed time is not reserved. With no offer, send a preferred-time request for staff assessment. Availability is checked again when you submit a request for an offered time; the workshop must still confirm it.",
         "When signing in from the booking review, this tab can keep your anonymous draft for 15 minutes. Review it again after sign-in; it is never sent automatically. Logout or an account change clears it.",
-        "Review service, vehicle, requested time and price before submitting. Quotation-required services have no agreed price. No booking deposit is required. Staged invoices show agreed materials, workmanship/fees, recorded payments and the next eligible request. Materials are paid first; workmanship becomes payable only after all agreed work is recorded complete. Preparing a request does not charge you. Work must match your accepted quotation and agreement. Separately accept or reject additional work after reviewing its original invoice reference, version, reason and new items. Your acceptance does not replace an earlier invoice or make a payment. A separate invoice for an accepted addition names the original invoice and reason, bills only new items and never reuses a previous deposit credit. Check both invoices and their separate stages/balances. A closed visit or completed work cannot justify new acceptance; the quotation remains readable and rejectable. Ask the workshop about a new visit or review. Work using quoted materials waits for verified materials payment. A materials receipt does not prove full payment or vehicle release. After uncertainty, check the same original request; do not create another. Payment adjustments need staff review. Historical invoices may lack stages; disabled payment capabilities remain unavailable.",
+        "Review service, vehicle, requested time and price before submitting. Quotation-required services have no agreed price. No booking deposit is required. Staged invoices show agreed amounts, payments and the next eligible request. Materials are paid first; workmanship becomes payable only after all agreed work is recorded complete. Preparing a request does not charge you. Work must match your accepted quotation and agreement. Separately accept or reject additional work after reviewing its original invoice reference, version, reason and new items. Your acceptance does not replace an earlier invoice or make a payment. A separate invoice for an accepted addition names the original invoice and reason, bills only new items and never reuses a previous deposit credit. Check both invoices and their separate stages/balances. A closed visit or completed work cannot justify new acceptance; the quotation remains readable and rejectable. Ask the workshop about a new visit or review. Work using quoted materials waits for verified materials payment. A materials receipt does not prove full payment or vehicle release. The workshop separately records collection after checking all agreed balances and the collector identity and authority. Check an uncertain result on the same request; do not create another. Payment adjustments need staff review. Historical invoices may lack stages; disabled payment capabilities remain unavailable.",
         "Estimated job time is not a promised completion or vehicle-collection time. Saved booking estimates survive changed service defaults; staff can review them with a reason and capacity checks. An unassessed time remains unknown. A remaining-work estimate with its review time stays separate from arrival. Classifying a concern or assigning staff does not confirm the visit, approve a quotation or charge you. Check bookings and quotations separately.",
         "Keep the reference and check bookings for updates. Requests and preferred dates do not reserve capacity or confirm a visit. Staff checks actual people, equipment and shared space. A conflict keeps the request pending; it does not create a payment or replace a confirmed appointment. Check uncertain results on the same request, without creating another.",
         "If your booking offers a workshop-proposed alternative, review the time and reason before responding. Declining keeps your existing appointment. Accepting requests the alternative and still needs workshop confirmation; it does not use your customer reschedule allowance or charge a fee.",
@@ -430,7 +452,7 @@ export const learningArticles: LearningArticle[] = [
       "Public launch mode, ServiceDetail, BookingDetail and ServiceOperationsService booking lifecycle",
       "booking appointment request garage quotation quote",
     ),
-    version: 33,
+    version: 34,
     reviewedAt: "2026-11-09",
   },
   article(

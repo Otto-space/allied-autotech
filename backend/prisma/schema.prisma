@@ -573,6 +573,7 @@ enum OutboxStatus {
 }
 
 model User {
+  serviceVehicleReleases       ServiceVehicleRelease[]
   bookingAttendanceEvents      BookingAttendanceEvent[]
   createdResourceAllocations   BookingResourceAllocation[]
   bookingTimingSnapshots       BookingTimingSnapshot[]
@@ -1071,6 +1072,7 @@ model BookingSlot {
 }
 
 model Booking {
+  vehicleRelease               ServiceVehicleRelease?
   visitContinuations           BookingVisitContinuation[]
   attendanceEvents             BookingAttendanceEvent[]
   resourceAllocations          BookingResourceAllocation[]
@@ -3451,4 +3453,22 @@ model BookingVisitContinuation {
   request                 BookingRescheduleRequest  @relation(fields: [requestId], references: [id], onDelete: Restrict)
 
   @@unique([bookingId, scheduleVersion])
+}
+
+// Physical collection is separate from work completion and payment requests.
+model ServiceVehicleRelease {
+  id                String   @id @default(uuid()) @db.Uuid
+  bookingId         String   @unique @db.Uuid
+  performedByUserId String   @db.Uuid
+  idempotencyKey    String   @unique @db.Uuid
+  requestHash       String   @db.Char(64)
+  recipientName     String   @db.VarChar(120)
+  verificationNote  String   @db.VarChar(1000)
+  bookingVersion    Int
+  financialSnapshot Json
+  releasedAt        DateTime @default(now())
+  booking           Booking  @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  performedBy       User     @relation(fields: [performedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([performedByUserId, releasedAt])
 }

@@ -9659,6 +9659,102 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/bookings/{bookingId}/vehicle-release-readiness`
+
+- Operation ID: `getStaffBookingsByBookingIdVehicleReleaseReadiness`
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Current verified Admin/Super Admin only. Rechecks actual completion, all accepted original/additional obligations, verified settled funds, historical credit and financial holds. Returns only a version-bound review fingerprint and checked time, with no private payment identifiers or amounts. This does not release a vehicle or authorise a technician. Confirmation rechecks the same proof; readiness alone is not collection. Review current vehicle collection clearance. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Review current vehicle collection clearance",
+  "data": {
+    "bookingId": "00000000-0000-4000-8000-000000000001",
+    "bookingVersion": 0,
+    "financialReviewHash": "synthetic-financialreviewhash",
+    "ready": true,
+    "checkedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/bookings/{bookingId}/vehicle-release`
+
+- Operation ID: `postStaffBookingsByBookingIdVehicleRelease`
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Admin/Super Admin with current verified MFA only. Record actual collector identity/authority review after actual booking and work-order completion and verified settlement of every original/additional invoice. Pending, uncertain, adjusted or busy payment proof refuses collection. The source key and reviewed booking version are bound to immutable history. An exact replay returns the existing fact; it never performs another release or charge. Historical unstaged financial records require authorised review. This does not reserve inventory, alter payments or grant technicians release authority. Record verified physical vehicle collection. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedBookingVersion` | integer | Yes | Expected Booking Version validated by this operation's strict request contract. |
+| `financialReviewHash` | string | Yes | Financial Review Hash validated by this operation's strict request contract. |
+| `idempotencyKey` | string (uuid) | Yes | Retry key that must be reused only with an identical logical request. |
+| `recipientName` | string | Yes | Recipient Name validated by this operation's strict request contract. |
+| `verificationNote` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `identityAndAuthorityVerified` | true | Yes | Identity And Authority Verified validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedBookingVersion": 0,
+  "financialReviewHash": "synthetic-financialreviewhash",
+  "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+  "recipientName": "synthetic-recipientname",
+  "verificationNote": "synthetic-verificationnote",
+  "identityAndAuthorityVerified": true
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Record verified physical vehicle collection",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "bookingId": "00000000-0000-4000-8000-000000000001",
+    "releasedAt": "2030-01-15T10:00:00.000Z",
+    "recipientName": "synthetic-recipientname"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/bookings/{bookingId}/alternative-options`
 
 - Operation ID: `getStaffBookingsByBookingIdAlternativeOptions`

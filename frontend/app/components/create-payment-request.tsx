@@ -102,8 +102,14 @@ export function CreatePaymentRequest({
               fresh.id !== invoice.id ||
               fresh.version !== invoice.version ||
               fresh.status !== "ISSUED" ||
-              !fresh.booking ||
-              fresh.booking.id !== invoice.booking?.id ||
+              (!fresh.booking && !fresh.additionalQuote) ||
+              fresh.booking?.id !== invoice.booking?.id ||
+              fresh.additionalQuote?.id !== invoice.additionalQuote?.id ||
+              fresh.additionalQuote?.booking.id !== invoice.additionalQuote?.booking.id ||
+              fresh.additionalQuote?.originalInvoice.invoiceNumber !==
+                invoice.additionalQuote?.originalInvoice.invoiceNumber ||
+              fresh.additionalQuote?.amendmentReason !==
+                invoice.additionalQuote?.amendmentReason ||
               fresh.totalKobo !== invoice.totalKobo ||
               BigInt(fresh.totalKobo) <= BigInt(0) ||
               (fresh.dueAt &&

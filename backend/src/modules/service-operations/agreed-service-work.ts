@@ -188,8 +188,9 @@ async function assertSingleAgreementMaterialsReady(
   tx: Prisma.TransactionClient,
   agreement: Agreement,
   work: readonly PricedLine[],
+  requireWholeBalance = false,
 ) {
-  if (!work.some((line) => line.type === "PART")) return;
+  if (!requireWholeBalance && !work.some((line) => line.type === "PART")) return;
   const credit = agreement.invoice.depositCreditKobo;
   // Refund creation serializes on the settled attempt. Do not wait while holding
   // Booking: verification may already hold Attempt before acquiring Booking.
@@ -228,7 +229,9 @@ async function assertSingleAgreementMaterialsReady(
     )
   )
     throw serviceOperationConflict(
-      "Materials payment is being updated; reload the job after verification finishes",
+      requireWholeBalance
+        ? "Payment verification is busy; reload before vehicle collection"
+        : "Materials payment is being updated; reload the job after verification finishes",
     );
   const invoicePayments = payments.filter((p) => p.invoiceId === agreement.invoice.id);
   const deposits =
@@ -251,7 +254,9 @@ async function assertSingleAgreementMaterialsReady(
     )
   )
     throw serviceOperationConflict(
-      "Materials payment needs financial review before work using those materials can proceed",
+      requireWholeBalance
+        ? "Resolve financial adjustments before vehicle collection"
+        : "Materials payment needs financial review before work using those materials can proceed",
     );
   for (const payment of payments.filter((p) => p.status === "SUCCEEDED")) {
     const receipt = confirmedReceipt({
@@ -266,7 +271,9 @@ async function assertSingleAgreementMaterialsReady(
       (payment.invoiceId === agreement.invoice.id && receipt.refundedKobo !== "0")
     )
       throw serviceOperationConflict(
-        "Verify the recorded materials payment before proceeding",
+        requireWholeBalance
+          ? "Verify the recorded service payments before vehicle collection"
+          : "Verify the recorded materials payment before proceeding",
       );
   }
   if (credit > 0n) {
@@ -291,13 +298,33 @@ async function assertSingleAgreementMaterialsReady(
       BigInt(receipt.amountKobo) - BigInt(receipt.refundedKobo) < credit
     )
       throw serviceOperationConflict(
-        "The saved materials credit needs financial review before proceeding",
+        requireWholeBalance
+          ? "Review the saved historical credit before vehicle collection"
+          : "The saved materials credit needs financial review before proceeding",
       );
   }
+  if (
+    requireWholeBalance &&
+    payments.some((p) =>
+      ["REQUIRES_PAYMENT", "PROCESSING", "REQUIRES_REVIEW"].includes(p.status),
+    )
+  )
+    throw serviceOperationConflict(
+      "Resolve pending payment requests before vehicle collection",
+    );
   const paid = serviceStagePaid(agreement.plan, invoicePayments);
   if (paid.MATERIALS !== BigInt(agreement.plan.materials.totalKobo))
     throw serviceOperationConflict(
-      "The agreed materials payment must be verified before starting work that uses those materials",
+      requireWholeBalance
+        ? "The agreed materials balance must be verified before vehicle collection"
+        : "The agreed materials payment must be verified before starting work that uses those materials",
+    );
+  if (
+    requireWholeBalance &&
+    paid.WORKMANSHIP !== BigInt(agreement.plan.workmanship.totalKobo)
+  )
+    throw serviceOperationConflict(
+      "The agreed workmanship balance must be verified before vehicle collection",
     );
 }
 
@@ -353,4 +380,53 @@ export async function assertAgreedWorkCanProceed(
     );
   assertAgreedWorkScope(agreement.lines, work.items, complete);
   await assertAgreedMaterialsReady(tx, agreement, work.items);
+}
+
+/** Caller holds Booking. This is a financial/operational check, never a payment or release. */
+export async function serviceVehicleReleaseProof(
+  tx: Prisma.TransactionClient,
+  bookingId: string,
+) {
+  const booking = await tx.booking.findUniqueOrThrow({
+    where: { id: bookingId },
+    select: {
+      status: true,
+      completedAt: true,
+      workOrder: { select: { status: true, completedAt: true, items: true } },
+    },
+  });
+  if (
+    booking.status !== "COMPLETED" ||
+    !booking.completedAt ||
+    booking.workOrder?.status !== "COMPLETED" ||
+    !booking.workOrder.completedAt
+  )
+    throw serviceOperationConflict(
+      "Record actual completion before reviewing vehicle collection",
+    );
+  const agreement = await agreedServiceWork(tx, bookingId);
+  if (!agreement || agreement.pendingAdditions)
+    throw serviceOperationConflict(
+      "Review every agreed service invoice before vehicle collection; historical invoices need authorised financial review",
+    );
+  assertAgreedWorkScope(agreement.lines, booking.workOrder.items, true);
+  for (const obligation of agreement.obligations) {
+    if (!["ISSUED", "PAID"].includes(obligation.invoice.status))
+      throw serviceOperationConflict(
+        "Issue and settle every agreed service invoice before vehicle collection",
+      );
+    await assertSingleAgreementMaterialsReady(tx, obligation, obligation.lines, true);
+  }
+  return {
+    kind: "CLEARED_SERVICE_INVOICES_V1",
+    invoices: agreement.obligations.map(({ invoice, plan }) => ({
+      id: invoice.id,
+      invoiceNumber: invoice.invoiceNumber,
+      version: invoice.version,
+      totalKobo: invoice.totalKobo.toString(),
+      depositCreditKobo: invoice.depositCreditKobo.toString(),
+      materialsKobo: plan.materials.totalKobo,
+      workmanshipKobo: plan.workmanship.totalKobo,
+    })),
+  };
 }

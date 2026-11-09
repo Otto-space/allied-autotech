@@ -1,3 +1,13 @@
+### 9 November: separate collection facts and current clearance (unpublished)
+
+Service-request v34 adds the separate collection/balance boundary while retaining
+its twelve-step/8,000-character budget (actual passage 7,909). Administrative
+service-vehicle-collection v1 explains current MFA, completion, all original/additional
+obligations, human identity/authority review, fresh proof and immutable history.
+Public/customer/staff catalogues omit the administrative article. Actual guidance
+checks pass 68/68; no guide target, practice flag or grant changes. See
+SERVICE_VEHICLE_COLLECTION_20261109.md for failures and current held acceptance.
+
 ### 9 November: preserve service-request retrieval and original restrictions
 
 Unpublished service-request v33 now fits the existing 8,000-character Allie budget

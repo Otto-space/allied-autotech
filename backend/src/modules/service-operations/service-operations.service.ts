@@ -1,3 +1,5 @@
+import { serviceVehicleReleaseProof } from "./agreed-service-work.js";
+import type { ServiceVehicleReleaseInput } from "./service-operations.schemas.js";
 import { newQuoteContext, savedQuoteContext } from "./additional-service-quote.js";
 import {
   agreedServiceWork,
@@ -3716,6 +3718,123 @@ export class ServiceOperationsService {
         context,
       });
       return jsonSafe(updated);
+    });
+  }
+
+  async reviewVehicleRelease(actor: AuthenticatedActor, bookingId: string) {
+    assertServiceAdministrator(actor);
+    return this.database.$transaction(async (tx) => {
+      await lockAccessActor(tx, actor);
+      const booking = await this.lockAuthorizedStaffBooking(actor, bookingId, tx);
+      if (await tx.serviceVehicleRelease.findUnique({ where: { bookingId } }))
+        throw serviceOperationConflict(
+          "Collection is already recorded; review the booking history",
+        );
+      const snapshot = await serviceVehicleReleaseProof(tx, bookingId);
+      return {
+        bookingId,
+        bookingVersion: booking.version,
+        financialReviewHash: createHash("sha256")
+          .update(JSON.stringify(snapshot))
+          .digest("hex"),
+        ready: true as const,
+        checkedAt: new Date().toISOString(),
+      };
+    });
+  }
+
+  async releaseCompletedVehicle(
+    actor: AuthenticatedActor,
+    bookingId: string,
+    input: ServiceVehicleReleaseInput,
+    context: RequestSecurityContext,
+  ) {
+    assertServiceAdministrator(actor);
+    return this.database.$transaction(async (tx) => {
+      // Recheck actual account/session/MFA under the established access lock before Booking.
+      await lockAccessActor(tx, actor);
+      const booking = await this.lockAuthorizedStaffBooking(actor, bookingId, tx);
+      const requestHash = createHash("sha256")
+        .update(JSON.stringify({ bookingId, ...input }))
+        .digest("hex");
+      const existing = await tx.serviceVehicleRelease.findUnique({
+        where: { bookingId },
+      });
+      const view = (release: {
+        id: string;
+        bookingId: string;
+        releasedAt: Date;
+        recipientName: string;
+      }) => ({
+        id: release.id,
+        bookingId: release.bookingId,
+        releasedAt: release.releasedAt,
+        recipientName: release.recipientName,
+      });
+      if (existing) {
+        if (
+          existing.idempotencyKey === input.idempotencyKey &&
+          existing.requestHash === requestHash
+        )
+          return jsonSafe(view(existing));
+        throw serviceOperationConflict(
+          "This vehicle collection is already recorded; review the existing record",
+        );
+      }
+      if (booking.version !== input.expectedBookingVersion) throw staleServiceOperation();
+      if (
+        await tx.serviceVehicleRelease.findUnique({
+          where: { idempotencyKey: input.idempotencyKey },
+        })
+      )
+        throw serviceOperationConflict(
+          "This collection reference belongs to another review",
+        );
+      const financialSnapshot = await serviceVehicleReleaseProof(tx, bookingId);
+      if (
+        createHash("sha256").update(JSON.stringify(financialSnapshot)).digest("hex") !==
+        input.financialReviewHash
+      )
+        throw serviceOperationConflict(
+          "The financial review changed; check collection readiness and review again",
+        );
+
+      const release = await tx.serviceVehicleRelease.create({
+        data: {
+          bookingId,
+          performedByUserId: actor.userId,
+          idempotencyKey: input.idempotencyKey,
+          requestHash,
+          recipientName: input.recipientName,
+          verificationNote: input.verificationNote,
+          bookingVersion: booking.version,
+          financialSnapshot,
+        },
+      });
+      const updated = await this.repository.updateBooking(
+        bookingId,
+        booking.version,
+        {},
+        tx,
+      );
+      if (updated.count !== 1) throw staleServiceOperation();
+      await appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "CREATE",
+        entityType: "BOOKING",
+        entityId: bookingId,
+        newValues: {
+          bookingId,
+          bookingVersion: booking.version,
+          releaseId: release.id,
+          invoiceCount: financialSnapshot.invoices.length,
+          financialReviewHash: createHash("sha256")
+            .update(JSON.stringify(financialSnapshot))
+            .digest("hex"),
+        },
+        context,
+      });
+      return jsonSafe(view(release));
     });
   }
 

@@ -1,3 +1,4 @@
+import { serviceVehicleReleaseBodySchema } from "./service-operations.schemas.js";
 import { alternativeOptionsQuerySchema } from "./booking-alternatives.js";
 import {
   bookingAttendanceBodySchema,
@@ -202,6 +203,27 @@ export function createStaffServiceOperationsRouter(): Router {
   const router = Router();
   const controller = new ServiceOperationsController();
   router.use(authenticate(), requireStaff);
+  router.get(
+    "/bookings/:bookingId/vehicle-release-readiness",
+    requireAdministrator,
+    createSensitiveRateLimit(15),
+    validate({ params: bookingParamsSchema, query: serviceOperationsEmptyQuerySchema }),
+    controller.reviewVehicleRelease,
+  );
+
+  router.post(
+    "/bookings/:bookingId/vehicle-release",
+    requireAdministrator,
+    requireCsrf,
+    createSensitiveRateLimit(10),
+    validate({
+      params: bookingParamsSchema,
+      query: serviceOperationsEmptyQuerySchema,
+      body: serviceVehicleReleaseBodySchema,
+    }),
+    controller.releaseCompletedVehicle,
+  );
+
   router.get(
     "/booking-slots",
     validate({ query: staffBookingSlotListQuerySchema }),

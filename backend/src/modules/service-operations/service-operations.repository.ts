@@ -194,6 +194,7 @@ const publicBookingSlotSelect = {
 } satisfies Prisma.BookingSlotSelect;
 
 export const bookingSelect = {
+  vehicleRelease: { select: { id: true, releasedAt: true } },
   attendanceEvents: {
     select: attendanceEventSelect,
     orderBy: { bookingVersion: "desc" as const },

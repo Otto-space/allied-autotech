@@ -432,6 +432,236 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   () => {
     beforeAll(assertIsolatedLoopbackDatabase);
     afterAll(() => prisma.$disconnect());
+    async function collectionFixture() {
+      const f = await fixture(true),
+        { operations, work } = await agreedWork(f);
+      const materials = await f.create("MATERIALS");
+      await f.capture(materials.id);
+      await prisma.workOrder.update({
+        where: { id: work.id },
+        data: { status: "COMPLETED", completedAt: new Date() },
+      });
+      await f.complete();
+      const labour = await f.create("WORKMANSHIP");
+      await f.capture(labour.id);
+      const booking = await prisma.booking.findUniqueOrThrow({
+        where: { id: f.booking.id },
+      });
+      const review = await operations.reviewVehicleRelease(f.operator, f.booking.id);
+      return {
+        ...f,
+        operations,
+        work,
+        labour,
+        body: {
+          expectedBookingVersion: booking.version,
+          financialReviewHash: review.financialReviewHash,
+          idempotencyKey: randomUUID(),
+          recipientName: "Synthetic collector",
+          verificationNote:
+            "Synthetic in-person identity and collection authority verified",
+          identityAndAuthorityVerified: true as const,
+        },
+      };
+    }
+    it("records one cleared physical collection, preserves invoices and rejects replay changes or history rewriting", async () => {
+      const f = await collectionFixture();
+      const before = await prisma.invoice.findUniqueOrThrow({
+        where: { id: f.invoice.id },
+      });
+      const result = await f.operations.releaseCompletedVehicle(
+        f.operator,
+        f.booking.id,
+        f.body,
+        context(),
+      );
+      expect(result).toMatchObject({
+        bookingId: f.booking.id,
+        recipientName: f.body.recipientName,
+      });
+      expect(JSON.stringify(result)).not.toMatch(
+        /financialSnapshot|verificationNote|performedByUserId/,
+      );
+      expect(
+        await f.operations.releaseCompletedVehicle(
+          f.operator,
+          f.booking.id,
+          f.body,
+          context(),
+        ),
+      ).toEqual(result);
+      for (const change of [
+        { idempotencyKey: randomUUID() },
+        { recipientName: "A different person" },
+      ])
+        await expect(
+          f.operations.releaseCompletedVehicle(
+            f.operator,
+            f.booking.id,
+            { ...f.body, ...change },
+            context(),
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+      const saved = await prisma.serviceVehicleRelease.findUniqueOrThrow({
+        where: { bookingId: f.booking.id },
+      });
+      expect(saved.financialSnapshot).toMatchObject({
+        kind: "CLEARED_SERVICE_INVOICES_V1",
+        invoices: [{ id: f.invoice.id, depositCreditKobo: "6000" }],
+      });
+      expect(
+        await prisma.invoice.findUniqueOrThrow({ where: { id: f.invoice.id } }),
+      ).toEqual(before);
+      expect(
+        await prisma.serviceVehicleRelease.count({ where: { bookingId: f.booking.id } }),
+      ).toBe(1);
+      await expect(
+        prisma.serviceVehicleRelease.update({
+          where: { id: saved.id },
+          data: { recipientName: "Rewrite" },
+        }),
+      ).rejects.toThrow(/immutable/);
+      await expect(
+        prisma.serviceVehicleRelease.delete({ where: { id: saved.id } }),
+      ).rejects.toThrow(/immutable/);
+      expect(
+        await prisma.auditLog.count({
+          where: {
+            entityType: "BOOKING",
+            entityId: f.booking.id,
+            newValues: { path: ["releaseId"], equals: saved.id },
+          },
+        }),
+      ).toBe(1);
+    });
+    it("refuses collection before completion or settlement without creating a release", async () => {
+      const f = await fixture(),
+        operations = new ServiceOperationsService(prisma);
+      const body = {
+        expectedBookingVersion: f.booking.version,
+        financialReviewHash: "0".repeat(64),
+        idempotencyKey: randomUUID(),
+        recipientName: "Synthetic collector",
+        verificationNote: "Synthetic identity and collection review",
+        identityAndAuthorityVerified: true as const,
+      };
+      await expect(
+        operations.releaseCompletedVehicle(f.operator, f.booking.id, body, context()),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const { work } = await agreedWork(f),
+        materials = await f.create("MATERIALS");
+      await f.capture(materials.id);
+      await prisma.workOrder.update({
+        where: { id: work.id },
+        data: { status: "COMPLETED", completedAt: new Date() },
+      });
+      await f.complete();
+      const current = await prisma.booking.findUniqueOrThrow({
+        where: { id: f.booking.id },
+      });
+      await expect(
+        operations.releaseCompletedVehicle(
+          f.operator,
+          f.booking.id,
+          { ...body, expectedBookingVersion: current.version },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const pending = await f.create("WORKMANSHIP");
+      await expect(
+        operations.releaseCompletedVehicle(
+          f.operator,
+          f.booking.id,
+          { ...body, expectedBookingVersion: current.version },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      expect(
+        await prisma.serviceVehicleRelease.count({ where: { bookingId: f.booking.id } }),
+      ).toBe(0);
+      expect(
+        await prisma.payment.findUniqueOrThrow({ where: { id: pending.id } }),
+      ).toMatchObject({ status: "REQUIRES_PAYMENT" });
+    });
+    it("refuses unverified/revoked actors, stale reviews and unsettled financial adjustments at collection", async () => {
+      const f = await collectionFixture();
+      await expect(
+        f.operations.releaseCompletedVehicle(f.actor, f.booking.id, f.body, context()),
+      ).rejects.toMatchObject({ statusCode: 403 });
+      await expect(
+        f.operations.releaseCompletedVehicle(
+          { ...f.operator, mfaVerifiedAt: null },
+          f.booking.id,
+          f.body,
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 403 });
+      await expect(
+        f.operations.releaseCompletedVehicle(
+          f.operator,
+          f.booking.id,
+          { ...f.body, expectedBookingVersion: f.body.expectedBookingVersion + 1 },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await prisma.paymentAnomaly.create({
+        data: {
+          paymentId: f.labour.id,
+          type: "DUPLICATE_SUCCESS",
+          summary: "Synthetic collection hold",
+        },
+      });
+      await expect(
+        f.operations.releaseCompletedVehicle(f.operator, f.booking.id, f.body, context()),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await prisma.session.update({
+        where: { id: f.operator.sessionId },
+        data: { revokedAt: new Date() },
+      });
+      await expect(
+        f.operations.releaseCompletedVehicle(f.operator, f.booking.id, f.body, context()),
+      ).rejects.toMatchObject({ statusCode: 403 });
+      expect(
+        await prisma.serviceVehicleRelease.count({ where: { bookingId: f.booking.id } }),
+      ).toBe(0);
+    });
+    it("serializes competing collection reviews and requires authenticated CSRF-protected administrator HTTP", async () => {
+      const f = await collectionFixture(),
+        headers = await testHeaders(f.operator),
+        url = `/api/v1/staff/bookings/${f.booking.id}/vehicle-release`;
+      const app = createApp();
+      const customerHeaders = await testHeaders(f.actor);
+      await request(app).post(url).set(customerHeaders).send(f.body).expect(403);
+      const noCsrf = { ...headers };
+      delete noCsrf["x-csrf-token"];
+      await request(app).post(url).set(noCsrf).send(f.body).expect(403);
+      await request(app)
+        .post(url)
+        .set(headers)
+        .send({ ...f.body, identityAndAuthorityVerified: false })
+        .expect(422);
+      const results = await Promise.all(
+        [1, 2].map(() =>
+          request(app)
+            .post(url)
+            .set(headers)
+            .send({ ...f.body, idempotencyKey: randomUUID() }),
+        ),
+      );
+      expect(results.map((r) => r.status).sort()).toEqual([200, 409]);
+      const view = await request(app)
+        .get(`/api/v1/customers/bookings/${f.booking.id}`)
+        .set(customerHeaders)
+        .expect(200);
+      expect(view.body.data.vehicleRelease).toMatchObject({
+        id: expect.any(String),
+        releasedAt: expect.any(String),
+      });
+      expect(Object.keys(view.body.data.vehicleRelease).sort()).toEqual([
+        "id",
+        "releasedAt",
+      ]);
+    });
     it("keeps exactly one accepted original quotation before invoicing", async () => {
       const f = await fixture(),
         source = await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } });
@@ -1057,6 +1287,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         invoiceNumber: f.invoice.invoiceNumber,
       });
       await f.complete();
+      await prisma.workOrder.update({
+        where: { id: work.id },
+        data: { status: "COMPLETED", completedAt: new Date() },
+      });
       await f.payments.createIntent(
         f.actor,
         await intent("WORKMANSHIP"),
@@ -1078,8 +1312,38 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         documentSnapshot: originalBefore.documentSnapshot,
         status: "ISSUED",
       });
+      await expect(
+        operations.reviewVehicleRelease(f.operator, f.booking.id),
+      ).rejects.toMatchObject({
+        statusCode: 409,
+        message: expect.stringMatching(/workmanship/),
+      });
       const baseLabour = await f.create("WORKMANSHIP");
       await f.capture(baseLabour.id);
+      const clearance = await operations.reviewVehicleRelease(f.operator, f.booking.id);
+      await operations.releaseCompletedVehicle(
+        f.operator,
+        f.booking.id,
+        {
+          expectedBookingVersion: clearance.bookingVersion,
+          financialReviewHash: clearance.financialReviewHash,
+          idempotencyKey: randomUUID(),
+          recipientName: "Synthetic additional-work collector",
+          verificationNote: "Synthetic identity and authority checked in person",
+          identityAndAuthorityVerified: true,
+        },
+        context(),
+      );
+      const handover = await prisma.serviceVehicleRelease.findUniqueOrThrow({
+        where: { bookingId: f.booking.id },
+      });
+      expect(handover.financialSnapshot).toMatchObject({
+        invoices: [
+          { id: f.invoice.id, depositCreditKobo: "6000" },
+          { id: extra.id, depositCreditKobo: "0" },
+        ],
+      });
+
       expect(
         await prisma.invoice.findUniqueOrThrow({ where: { id: f.invoice.id } }),
       ).toMatchObject({ status: "PAID", totalKobo: originalBefore.totalKobo });

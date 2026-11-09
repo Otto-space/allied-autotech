@@ -388,3 +388,36 @@ for (const [width, mode] of [
     await verifyConsole(page, errors, warnings);
   });
 }
+
+for (const changed of ["quotation", "booking", "original invoice", "reason"] as const)
+  test(`supplemental payment refuses changed ${changed} before any request is sent`, async ({
+    page,
+  }) => {
+    const f = await servicePaymentFixture(page, true),
+      errors: string[] = [],
+      warnings: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+      if (m.type() === "warning") warnings.push(m.text());
+    });
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.goto(path);
+    await page
+      .getByRole("button", { name: "Prepare materials payment", exact: true })
+      .click();
+    const addition = f.invoice.additionalQuote!;
+    if (changed === "quotation") addition.id = invoiceId(999);
+    else if (changed === "booking") addition.booking.id = invoiceId(998);
+    else if (changed === "original invoice")
+      addition.originalInvoice.invoiceNumber = "SYNTHETIC-CHANGED-ORIGINAL";
+    else addition.amendmentReason = "Synthetic changed agreement reason";
+    await page
+      .getByRole("button", { name: "Create payment request", exact: true })
+      .click();
+    await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
+      "This record has changed. Refresh it and review the latest details.",
+    );
+    expect(f.writes).toHaveLength(0);
+    await verifyConsole(page, errors, warnings);
+  });

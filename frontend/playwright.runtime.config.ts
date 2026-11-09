@@ -45,7 +45,7 @@ export default defineConfig({
     {
       name: "legacy-attendance",
       testMatch: ["staff-bookings.spec.ts"],
-      grep: /staff verifies missed attendance|alternative appointment/,
+      grep: /staff verifies missed attendance|alternative appointment|vehicle collection/,
     },
     {
       name: "additional-service-quotes",

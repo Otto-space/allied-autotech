@@ -1,3 +1,8 @@
+import { serviceVehicleReleaseReadinessSchema } from "./service-operations.schemas.js";
+import {
+  serviceVehicleReleaseBodySchema,
+  serviceVehicleReleaseReceiptSchema,
+} from "./service-operations.schemas.js";
 import {
   alternativeOptionsQuerySchema,
   alternativeOptionsSchema,
@@ -127,6 +132,30 @@ interface Path {
 
 export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): void {
   const paths: readonly Path[] = [
+    {
+      method: "get",
+      path: "/staff/bookings/{bookingId}/vehicle-release-readiness",
+      summary: "Review current vehicle collection clearance",
+      description:
+        "Current verified Admin/Super Admin only. Rechecks actual completion, all accepted original/additional obligations, verified settled funds, historical credit and financial holds. Returns only a version-bound review fingerprint and checked time, with no private payment identifiers or amounts. This does not release a vehicle or authorise a technician. Confirmation rechecks the same proof; readiness alone is not collection.",
+      params: bookingParamsSchema,
+      secured: true,
+      response: responseSchema.extend({ data: serviceVehicleReleaseReadinessSchema }),
+    },
+
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/vehicle-release",
+      summary: "Record verified physical vehicle collection",
+      description:
+        "Admin/Super Admin with current verified MFA only. Record actual collector identity/authority review after actual booking and work-order completion and verified settlement of every original/additional invoice. Pending, uncertain, adjusted or busy payment proof refuses collection. The source key and reviewed booking version are bound to immutable history. An exact replay returns the existing fact; it never performs another release or charge. Historical unstaged financial records require authorised review. This does not reserve inventory, alter payments or grant technicians release authority.",
+      params: bookingParamsSchema,
+      body: serviceVehicleReleaseBodySchema,
+      response: responseSchema.extend({ data: serviceVehicleReleaseReceiptSchema }),
+      secured: true,
+      csrf: true,
+    },
+
     {
       method: "get",
       path: publicApiPaths.services,

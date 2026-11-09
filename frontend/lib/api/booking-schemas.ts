@@ -117,6 +117,11 @@ export const bookingSchema = z.object({
     .object({ id: z.string().uuid(), status: z.string(), amountKobo: money })
     .nullable(),
   quotes: z.array(quoteSchema),
+  vehicleRelease: z
+    .object({ id: z.uuid(), releasedAt: z.iso.datetime({ offset: true }) })
+    .strict()
+    .nullable()
+    .optional(),
   workOrder: z
     .object({
       workOrderNumber: z.string(),

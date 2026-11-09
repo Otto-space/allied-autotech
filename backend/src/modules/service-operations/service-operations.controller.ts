@@ -1,3 +1,4 @@
+import type { ServiceVehicleReleaseInput } from "./service-operations.schemas.js";
 import { type BookingAttendanceInput } from "./booking-attendance.js";
 import type { BookingWorkReviewInput } from "./service-operations.schemas.js";
 import type { BookingTimingOverrideInput } from "./service-operations.schemas.js";
@@ -643,6 +644,33 @@ export class ServiceOperationsController {
           ),
         ),
       );
+  reviewVehicleRelease = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Collection readiness checked",
+          req.id,
+          await this.service.reviewVehicleRelease(actor(req), ids(res).bookingId),
+        ),
+      );
+
+  releaseCompletedVehicle = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Vehicle collection recorded",
+          req.id,
+          await this.service.releaseCompletedVehicle(
+            actor(req),
+            ids(res).bookingId,
+            validated<ServiceVehicleReleaseInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+
   createWorkOrder = async (req: Request, res: Response) =>
     res
       .status(201)

@@ -330,6 +330,17 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
               <BookingDeposit booking={current} />
             </div>
             <BookingProgress booking={current} />
+            {current.vehicleRelease ? (
+              <section className="detail-section" aria-label="Vehicle collection">
+                <h2>Vehicle collection recorded</h2>
+                <p>{formatBusinessDate(current.vehicleRelease.releasedAt)}</p>
+              </section>
+            ) : current.status === "COMPLETED" ? (
+              <p className="booking-detail-notice">
+                Work completion and vehicle collection are separate. The workshop checks
+                all agreed invoice balances before handover.
+              </p>
+            ) : null}
           </div>
           <section className="booking-changes" aria-labelledby="booking-changes-title">
             <h2 id="booking-changes-title">Appointment changes</h2>
