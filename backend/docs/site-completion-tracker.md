@@ -1,3 +1,40 @@
+## 10 November - customer confirmation focus correction in verification
+
+Native Edge157.0.4341.42 reproduced lost keyboard focus after a confirmed privacy
+request or review submission, followed by a delayed history read. All four baseline
+cases (both routes at1280x720 and320x720 mobile/touch) landed on BODY. Dialog
+centering/full phone width passed; each submission was intercepted, with zero
+outgoing writes or uncaught page errors. Evidence: TEMP/allied-customer-confirmation-
+20261110/baseline.json and baseline-results. The failing assertions are retained.
+
+The two customer workspaces now reuse existing refresh-aware return focus: restore
+the review button after settled history, use its history heading if the form remains
+unavailable, and preserve deliberately moved focus. No shared dialog/hook, request,
+permission, moderation, recovery or business rule changed. Twenty regressions cover
+seven viewport pairs, cancellation, delayed success, failed reads, deliberately moved
+focus and rejected submissions in the existing three-engine CI configuration.
+These new rendered checks, exact-source CI and publication are still pending.
+The separate combined Home/Services release remains owned by its active session.
+
+## 10 November - cart modal native acceptance; existing layout retained
+
+Native Edge157.0.4341.42 verifies the existing cart confirmation at all seven
+requested viewport pairs, plus320x420 after resizing an already-open dialog.
+The24-item fixture covers long text, large totals, centering, full phone width,
+reachable actions, keyboard containment, Escape focus return and retained quantity.
+Five standard-size cases plus the short-height case also scroll to the final item
+and check the thin scrollbar. All eight completed cases have one intercepted write,
+zero outgoing writes and zero uncaught page errors. No application styling changed.
+
+Source3cf5d9cb cart/shared-modal files are unchanged through master1fc86e65.
+Evidence and failed attempts: TEMP/allied-cart-modal-20261109/acceptance.md and
+acceptance.json. Initial malformed-envelope, stale-payload and preview-transition
+failures remain separate; no failed case is counted as a pass. Short-height resizing
+is not physical keyboard/device acceptance. Native zoom, screen readers, other
+page/state/role coverage and the combined release remain open. This evidence-only
+checkpoint should join the next coherent source batch, without restarting the active
+release solely for documentation.
+
 ## 9 November 22:17 UTC - recovery status regression and held-release transport
 
 Exact-master 6538f4b5 frontend run42705393145 completed with879 passes and two

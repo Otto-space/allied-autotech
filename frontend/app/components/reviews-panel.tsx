@@ -11,6 +11,7 @@ import { useAccountSession } from "./dashboard-shell";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { Feedback } from "./feedback";
 import { ReviewCreateForm } from "./review-create-form";
+import { useAccountActionRefresh } from "./use-account-action-refresh";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 
 const statuses = {
@@ -84,6 +85,15 @@ function CustomerReviews({ userId }: { userId: string }) {
   );
   const guard = useReviewWrite(userId, records);
   const reading = records.loading || records.refreshing;
+  const {
+    headingRef: confirmationHeadingRef,
+    onChanged: refreshAfterConfirmation,
+    onReviewClosed: restoreConfirmationFocus,
+  } = useAccountActionRefresh({
+    refresh: records.refresh,
+    refreshing: reading,
+    settledRevision: records.settledRevision,
+  });
   const stale = !!(records.error || records.refreshError);
   function reviewRecovery() {
     const intent = guard.intent;
@@ -187,10 +197,11 @@ function CustomerReviews({ userId }: { userId: string }) {
           userId={userId}
           guard={guard}
           onReviewChange={setReviewOpen}
+          onReviewClosed={restoreConfirmationFocus}
           onSaved={() => {
             setStatus("");
             pagination.reset();
-            records.refresh();
+            refreshAfterConfirmation();
           }}
         />
         <section
@@ -199,7 +210,9 @@ function CustomerReviews({ userId }: { userId: string }) {
           aria-busy={reading}
         >
           <div className="cr-history-heading">
-            <h2 id="review-history-title">Your submissions</h2>
+            <h2 id="review-history-title" ref={confirmationHeadingRef} tabIndex={-1}>
+              Your submissions
+            </h2>
             <p>Track your moderation status.</p>
           </div>
           <div className="cr-history-controls">
