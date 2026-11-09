@@ -1,3 +1,69 @@
+## 9 November ? attendance recovery source reconciliation
+
+Merged current master 80e95a38 into the held compatibility candidate, preserving
+public-search recovery coverage, corrected product identity wording and the
+published calendar/modal changes. This is source integration, not publication.
+The previous compatibility source d619f720 passed all three hosted gates,
+including 225 browser cases; the complete attendance source de9908bf separately
+passed all three gates, including 235 browser cases. Those results do not certify
+this new merge or current master. Required merged-source checks remain pending.
+
+The temporary missed-status limitation belongs only to the recovery candidate.
+The full verified attendance workflow, D11 actual available alternatives and the
+remaining audit requirements remain required. No production records, firewall
+rules, permissions or capability flags changed during this reconciliation.
+
+---
+
+## 4 November 02:40 UTC — public search acceptance package
+
+Target boundary: 03:40 UTC. Full renewed two-brief goal remains active. Current
+release is master 804eb4fc, frontend dpl_Hsm7YfNcZoDp3YjM9tbSragqnkvY on both
+apex/www (fresh provider readback), backend 8a7821b4-9316-40c1-9638-d2953bdebcbc.
+Calendar/shared-modal release is complete: exact-source frontend/backend/secrets
+checks passed, 1,486 units passed (12 existing skips), 224/224 isolated browser
+regressions passed and six native public-delivery checks passed. Calendar, invoice,
+notification and garage geometry cover all seven required sizes; other owners
+have representative checks. Prior failures below remain historical evidence.
+Release receipt: TEMP/allied-calendar-release-804eb4fc/RELEASE.md. Physical devices,
+full screen-reader acceptance and fresh worker heartbeat timestamps remain unverified.
+Completed calendar branch is retained because GitHub GH013 blocks deletion;
+repository protections were not changed.
+
+Current page: /search, anonymous public browsing. Existing implementation already
+puts submitted results inside the first viewport: heading y367-451px across
+1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800 and 320x720. Fourteen Edge
+states (matching service and valid 100-character query at every size) pass actual
+viewport/no-overflow checks. No layout redesign is needed. Edge and installed
+Chrome 156.0.8078.79 pass the ten-step search journey at all seven sizes: header
+entry, Enter and pointer submission, Help scope, Back/Forward, Close/Escape,
+keyboard empty-group disclosure, cleared required input and invalid external scope.
+The initial Edge run passed four sizes; three phone checks exceeded the runner's
+5-second hydration expectation. The bounded rerun explicitly allowed 25 seconds
+and all three passed unchanged application code. Original failures are retained.
+Chrome passed seven of seven in one run. Zero application writes or page exceptions;
+only expected signed-out session HTTP 401s were observed. Dedicated headless browser
+contexts use mobile/touch emulation for phone sizes; this is not physical testing.
+Evidence: TEMP/allied-public-search-20261104/{baseline.json,interactions.json,
+interactions-phone-rerun.json,chrome/interactions.json}, with captured page states.
+
+P3 verified copy defect: product results joined a recorded brand and manufacturer
+part number with a question mark. Existing synthetic unit strengthened to require
+'Synthetic maker · Part no. AB-123' failed before the separator correction and now
+passes; both search unit files pass 9/9. No brand, inventory or fitment facts were
+invented. Two new production-build browser regressions at 320/1280 cover a failed
+Shop source while Services remain available, distinguish failure from no matches,
+then retry without losing query/scope. The loopback-only test API controls pass a
+503-to-200 probe; rendered execution of these two new cases is still pending CI.
+Scoped lint/format and test collection pass. No new backend/schema/flag changes.
+This batch is not yet merged or deployed. Preserve the other worktrees' changes.
+
+Remaining full scope: the page/state and role matrix below still applies; these
+public search checks do not certify every catalogue facet, authenticated dashboard,
+all roles, Firefox/WebKit, physical device, real product evidence or workshop setup.
+
+---
+
 4 November attendance writer compatibility — source prepared, not deployed
 
 Current package: a schema-97 compatibility API before the separately held schema-98
