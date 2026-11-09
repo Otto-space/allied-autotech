@@ -1,10 +1,11 @@
+import { invoiceSourceType } from "./work-invoices";
 import { z } from "zod";
 import { draftIdentity, draftKey, forgetDraft } from "@/lib/forms/drafts";
 const prefix = "aat:staff-invoice:v1:";
 const schema = z
   .object({
     token: z.uuid(),
-    sourceType: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION"]),
+    sourceType: invoiceSourceType,
     sourceId: z.uuid(),
     fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
   })

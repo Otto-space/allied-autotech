@@ -31,6 +31,7 @@ export function bookingRecord(
       durationMinutes: 60,
       version: 1,
       image: null,
+      category: null,
     },
     branch: { id: bookingId(101), code: "QA", name: "Stadium Road workshop" },
     vehicle: {

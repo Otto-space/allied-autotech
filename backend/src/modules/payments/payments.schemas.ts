@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { purchaseOfferAcceptanceSchema } from "../orders/purchase-review.schemas.js";
+import { acceptedServiceStageSchema } from "../billing/service-payment-plan.js";
 
 const uuid = z.uuid();
 const cleanText = (max: number) =>
@@ -47,6 +48,7 @@ export const paymentCreateBodySchema = z.discriminatedUnion("targetType", [
       targetType: z.literal("INVOICE"),
       targetId: uuid,
       purpose: z.literal("SERVICE_INVOICE"),
+      acceptedServiceStage: acceptedServiceStageSchema.optional(),
     })
     .strict(),
   z

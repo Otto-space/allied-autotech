@@ -27,27 +27,40 @@ export const parseSlots = (value: unknown) =>
   z
     .object({ items: z.array(slotSchema), nextCursor: z.string().optional() })
     .parse(value);
-export const quoteSchema = z.object({
-  id: z.string().uuid(),
-  quoteNumber: z.string(),
-  version: z.number(),
-  revision: z.number(),
-  status: z.string(),
-  totalKobo: money,
-  subtotalKobo: money,
-  taxKobo: money,
-  expiresAt: z.string().nullable(),
-  notes: z.string().nullable(),
-  items: z.array(
-    z.object({
-      id: z.string().uuid(),
-      description: z.string(),
-      quantity: z.number(),
-      unitPriceKobo: money,
-      subtotalKobo: money,
-    }),
-  ),
-});
+export const quoteSchema = z
+  .object({
+    originalInvoice: z
+      .object({ invoiceNumber: z.string().min(1).max(50) })
+      .nullable()
+      .optional(),
+    amendmentReason: z.string().trim().min(1).max(1000).nullable().optional(),
+    id: z.string().uuid(),
+    quoteNumber: z.string(),
+    version: z.number(),
+    revision: z.number(),
+    status: z.string(),
+    totalKobo: money,
+    subtotalKobo: money,
+    taxKobo: money,
+    expiresAt: z.string().nullable(),
+    notes: z.string().nullable(),
+    items: z.array(
+      z.object({
+        id: z.string().uuid(),
+        description: z.string(),
+        quantity: z.number(),
+        unitPriceKobo: money,
+        subtotalKobo: money,
+      }),
+    ),
+  })
+  .superRefine((quote, context) => {
+    if (!!quote.originalInvoice !== !!quote.amendmentReason)
+      context.addIssue({
+        code: "custom",
+        message: "Additional-work quotation context is incomplete",
+      });
+  });
 export const rescheduleRequestSchema = z.object({
   id: z.uuid(),
   status: z.enum(["PENDING", "APPROVED", "DECLINED", "WITHDRAWN", "SUPERSEDED"]),
@@ -104,6 +117,11 @@ export const bookingSchema = z.object({
     .object({ id: z.string().uuid(), status: z.string(), amountKobo: money })
     .nullable(),
   quotes: z.array(quoteSchema),
+  vehicleRelease: z
+    .object({ id: z.uuid(), releasedAt: z.iso.datetime({ offset: true }) })
+    .strict()
+    .nullable()
+    .optional(),
   workOrder: z
     .object({
       workOrderNumber: z.string(),

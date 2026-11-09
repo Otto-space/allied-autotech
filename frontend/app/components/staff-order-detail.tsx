@@ -1,4 +1,6 @@
 "use client";
+import { OrderPickup } from "./order-pickup";
+import { OrderTimingSummary, OrderTimingEditor } from "./order-timing";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
@@ -308,6 +310,27 @@ function OrderRecord({
       {current && (
         <>
           <WorkflowProgress workflow="order" status={current.status} />
+          <OrderTimingSummary updates={current.timingUpdates} items={current.items} />
+          <OrderPickup
+            order={current}
+            audience="staff"
+            disabled={blocked}
+            onSaved={order.revalidate}
+            onBusyChange={setPurchaseBusy}
+          />
+          {administrator && (
+            <OrderTimingEditor
+              key={`${current.id}:${current.version}`}
+              order={current}
+              disabled={blocked}
+              onBusyChange={setPurchaseBusy}
+              onSaved={(notice) => {
+                if (notice) setMessage(notice);
+                order.revalidate();
+              }}
+            />
+          )}
+
           {administrator && (
             <PurchaseReviewDecision
               order={current}

@@ -90,6 +90,9 @@ export default defineConfig({
         "booking-timing.spec.ts",
         "booking-attendance.spec.ts",
         "booking-work-review.spec.ts",
+        "service-payment-stages.spec.ts",
+        "order-timing.spec.ts",
+        "order-pickup.spec.ts",
         "booking-calendar.spec.ts",
         "booking-capacity.spec.ts",
         "invoice-modal-responsive.spec.ts",
@@ -120,7 +123,12 @@ export default defineConfig({
     {
       name: "legacy-attendance",
       testMatch: ["staff-bookings.spec.ts"],
-      grep: /staff verifies missed attendance|alternative appointment/,
+      grep: /staff verifies missed attendance|alternative appointment|vehicle collection/,
+    },
+    {
+      name: "additional-service-quotes",
+      testMatch: ["quotation-quality.spec.ts", "customer-booking-detail-quality.spec.ts"],
+      grep: /additional quotation/,
     },
     {
       name: "modal-consumers",

@@ -324,9 +324,20 @@ const quoteFields = {
   notes: nullableText(4_000),
   expiresAt: dateTime,
 } as const;
-export const quoteCreateBodySchema = z.object(quoteFields).strict();
+export const quoteCreateBodySchema = z
+  .object({
+    ...quoteFields,
+    additionalWork: z
+      .strictObject({ expectedBookingVersion: version, reason: cleanText(1000) })
+      .optional(),
+  })
+  .strict();
 export const quoteReplaceBodySchema = z
-  .object({ ...quoteFields, expectedRevision: version })
+  .object({
+    ...quoteFields,
+    expectedRevision: version,
+    amendmentReason: cleanText(1000).optional(),
+  })
   .strict();
 export const quoteTransitionBodySchema = z.object({ expectedRevision: version }).strict();
 
@@ -383,6 +394,18 @@ export type BookingDisruptionResolutionInput = z.infer<
 export type ServiceLineItemInput = z.infer<typeof serviceLineItemSchema>;
 export type QuoteCreateInput = z.infer<typeof quoteCreateBodySchema>;
 export type QuoteReplaceInput = z.infer<typeof quoteReplaceBodySchema>;
+export const quoteDecisionBodySchema = quoteTransitionBodySchema.extend({
+  acceptedAdditionalWork: z
+    .object({
+      invoiceNumber: cleanText(50),
+      quoteVersion: version.min(1),
+      reason: cleanText(1000),
+    })
+    .strict()
+    .optional(),
+});
+export type QuoteDecisionInput = z.infer<typeof quoteDecisionBodySchema>;
+
 export type QuoteTransitionInput = z.infer<typeof quoteTransitionBodySchema>;
 export type WorkOrderCreateInput = z.infer<typeof workOrderCreateBodySchema>;
 export type WorkOrderUpdateInput = z.infer<typeof workOrderUpdateBodySchema>;
@@ -522,5 +545,39 @@ export const bookingWorkReviewReceiptSchema = z
     startedAt: z.iso.datetime({ offset: true }),
     performedByUserId: uuid,
     review: bookingWorkReviewRecordSchema,
+  })
+  .strict();
+
+export const serviceVehicleReleaseBodySchema = z
+  .object({
+    expectedBookingVersion: version,
+    financialReviewHash: z.string().regex(/^[a-f0-9]{64}$/),
+    idempotencyKey: uuid,
+    recipientName: cleanText(120),
+    verificationNote: cleanText(1000, true).refine(
+      (v) => v.length >= 12,
+      "Record the actual identity and collection-authority review",
+    ),
+    identityAndAuthorityVerified: z.literal(true),
+  })
+  .strict();
+export type ServiceVehicleReleaseInput = z.infer<typeof serviceVehicleReleaseBodySchema>;
+
+export const serviceVehicleReleaseReceiptSchema = z
+  .object({
+    id: uuid,
+    bookingId: uuid,
+    releasedAt: dateTime,
+    recipientName: cleanText(120),
+  })
+  .strict();
+
+export const serviceVehicleReleaseReadinessSchema = z
+  .object({
+    bookingId: uuid,
+    bookingVersion: version,
+    financialReviewHash: z.string().regex(/^[a-f0-9]{64}$/),
+    ready: z.literal(true),
+    checkedAt: dateTime,
   })
   .strict();

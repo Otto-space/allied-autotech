@@ -1,3 +1,53 @@
+## 9 November 22:28 UTC - combined audit candidate; no publication
+
+Reconcile committed pickup/holding/staged-service source62815e7c with reminder
+source27c07434. Preserve its owner-set collection calendar: Monday to Saturday,
+public holidays included, after actual readiness and successful notification,
+including imported/custom parts. Do not reask these values. This source has111
+migrations; no previously applied migration is rewritten. The other worktree's
+unfinished supply-exception/refund edits are untouched and are not included.
+
+Merge service-request guidance as v35, keeping staged invoices, actual vehicle
+release, calendar and saved reminder boundaries. Existing eligibility and flags
+remain unchanged. Pickup CI42708988094 failed after3 preliminary passes because
+the customer test's CSRF fixture omits the mandatory response message; fix the
+fixture envelope while retaining one-time display, browser-storage, refresh and
+exact-write assertions. Clean malformed collection labels/punctuation. Combined
+rendered, database replay/restore, types and exact-source gates are pending.
+
+Reminder source27c07434 backend42708086011 and secrets42708086182 pass; frontend
+42708085978 ended at its25-minute cumulative limit after890 cases. Three-engine
+sidebar and320/768/1440 reminder cases pass; this is not a full matrix pass.
+Individual test deadlines/assertions are unchanged; the combined job now budgets
+35 minutes for its full matrix and55 minutes overall. The other committed source's backend42708988327 and
+secrets42708988374 pass; its full rendered matrix did not run after the early
+pickup failure. Neither independent set proves this combined source.
+
+A separately signed102-schema recovery sourceb4c4c505 passes four native read-only
+repository projections of synthetic NOTICE jobs; temporary read role removed.
+Its old capacity parser rejects custom reminder settings. It is neither packaged
+nor compatible proof for this111-schema candidate. Preserve its verified generated
+client separately; regenerate111 before combined checks. Renew all compatibility,
+populated restore, packaged image and exact-master gates for eventual release.
+
+Disk preflights continue to hold packaging and larger checks. A merge preview
+accidentally ran after a failed20.25GiB preflight; it made no branch/worktree change.
+The actual merge was gated on a successful fresh check at20.75GiB. No production
+records, grants, paid allocations, business settings, capability flags or deployment
+changed. The full original audit and operational/provider/role/device acceptance
+remain active; source integration is not launch readiness.
+
+Combined local verification: generated111 client;111 units in10 suites pass,
+465 OpenAPI paths validate and547 operations are inventoried. Initial merge units
+failed retrieval for service-request in all five audiences: the passage exceeded
+the existing8000-character allowance. Concise v35 wording preserves all12 steps,
+staged-payment and reminder conditions; the unchanged retrieval tests now pass.
+Both backend/frontend types, backend lint and scoped frontend lint pass.
+Rendered acceptance remains pending at this checkpoint. Page composition
+is retained; the pickup UI edit only corrects visible labels and punctuation.
+
+---
+
 ## 9 November 22:00 UTC - reminder acceptance and recovery correction
 
 Candidate 31012924 passes backend42698964950 and secrets42698965156. Frontend
@@ -150,6 +200,181 @@ continuity notes remain uncommitted pending the evidence/release closeout.
 ---
 
 ---
+
+---
+
+### 9 November: pickup browser fixture correction
+
+Hosted frontend42707420739 source1cc72541 passed production checks, repeated
+WebKit calendar/search and exact-image checks, then failed before app navigation:
+new pickup tests read the fixture wrapper instead of its detail member. Corrected
+all three call sites. A focused TypeScript check of the new e2e file and transitive
+fixtures passes after adding three existing contract defaults (unknown category,
+empty review/availability histories). No stock/approval/payment fact was invented.
+The browser assertions and execution limits are unchanged. Twelve cases did not
+run; no pickup rendered acceptance or full-matrix pass is claimed from this run.
+New hosted checks are required. Backend/policy/runtime source is unchanged.
+
+### 9 November: holding candidate preserves current payment-modal fixes
+
+Merged master 6538f4b5 without replacing the new payment/quotation modal sizing,
+post-refresh focus restoration or their browser projects. Both evidence histories
+are retained; only prepended register notes conflicted. The pickup/holding batch
+still needs exact combined-source hosted checks. No production mutation occurred.
+
+### 9 November: collection holding is connected; release acceptance remains open
+
+D12 now records immutable actual phone/in-person contact results separately from
+failed attempts. The first successful contact for the actual ready event anchors
+five Monday-Saturday days in Nigeria time, including public holidays and excluding
+the anchor date; imported/custom parts use the same rule. Later contacts do not
+reset the clock. Authorised current branch/MFA operators may extend to a later
+collection day with a private reason; original dates and history remain. No fee,
+cancellation, refund, resale or paid-stock release follows from overdue status.
+
+Forward migration 110 replayed on a new isolated loopback tmpfs DB. Schema diff,
+db:check and restricted runtime checks passed. Final native run: 68/68 in four
+suites, including repeated successful notification retaining the first anchor.
+The final saved-policy comparison is covered separately for JSONB key ordering and
+unknown-policy refusal; exact combined hosted checks remain required.
+Customer/guest/staff order detail UI shows current holding state and exact date;
+contact/extension controls require the actual backend capability. Pickup/holding
+learning definitions are now v2, server-restricted. No production publication or
+new financial activation is claimed; hosted browser acceptance is still pending.
+
+The earlier 4b6d9ac7 hosted backend 42704388499 passed all stages for schema109.
+Its frontend run42704388600 failed because learningHref rejected the two new exact
+order destinations. The frontend allowlist now contains those existing routes;
+60/60 learning tests pass. No browser or full release pass is inferred from that
+failed build. Exact combined-source checks and production safeguards remain open.
+
+### 9 November: pickup candidate preserves newer Home/authentication release
+
+Merged master 1eef9aff, retaining its verified Home/footer release, authentication
+recovery layout, MFA atomicity tests and attendance/capability fixtures. Both hosted
+project/test sets remain. Only evidence-history appends and two stale Home status
+rows conflicted: retained both histories and the newer verified Home status. No
+current Home/security implementation was replaced with the pickup branch's older
+version. Desktop's uncommitted hero edit remains untouched. Combined-source gates
+remain required; this merge is not a production publication.
+
+### 9 November: durable private parts pickup source and owner collection calendar
+
+D14 now has forward migrations 108/109, private buyer/guest routes, current branch/
+MFA Staff routes, exclusive session-bound physical review, exact partial quantities,
+financial rechecks and immutable one-time handover. Native 67/67 in four suites
+passed with 109-migration replay, empty schema diff, db:check and restricted runtime;
+owned tmpfs DB removed. Source UI and version-1 restricted learning are connected.
+Browser/real-role/physical acceptance and exact combined-source release gates are
+still open. Token lifetime is engineering security, never business hold policy.
+
+D12 calendar decisions are now settled in the owner decision register: Mon-Sat,
+public holidays count, after both readiness and notification, imported/custom same.
+Date calculator and pending-notification logic are tested; durable hold/extension
+journey remains open. Do not reask these settled values. No new payment activation,
+production migration, real transaction, grant or publication is claimed.
+See docs/help-learn/PARTS_PICKUP_20261109.md for exact evidence and remaining scope.
+
+### 9 November: first hosted order-sourcing acceptance and recovery-selector correction
+
+Frontend run 42693804531 / source 5a9798bd passed production checks, repeated
+WebKit calendar/search and all exact-media checks. The early sourcing run passed
+five cases: save/review/cancel/reload at 320 and 1440 with strict console, scoped
+axe and overflow assertions; synthetic Staff, Admin-ready and older-backend hiding.
+The sixth, stale-record recovery, correctly showed an uncertain outcome, disabled
+retry and performed no POST, then timed out because the test looked for Go back
+instead of the shared dialog's Close & review record label. The seventh contradictory
+receipt case did not run. Correct only that final selector; retain write counts,
+disabled-retry assertions, freshness checks and all existing execution limits.
+The full matrix was skipped, so this is not a passing whole-runtime result.
+
+Safe synthetic mobile/desktop sourcing screenshots and the failed modal were
+downloaded and visually inspected. Artifact 13707669692, 1,445,779 bytes; SHA256
+554e5ab27d9e8d0bbd6f3e264b8b8c619f673afab871da10eb0edf028ab15f9f matches.
+Local receipt: TEMP/aat-d03-service-payments-20261109/sourcing-hosted-42693804531.
+The summaries wrap without clipping; the failed-state screenshot confirms the
+actual close label and disabled save. Revised-source browser acceptance remains
+required. Backend-only source 8f9cc3a7 has its own active safety run 42695676717;
+its pickup core is not yet a durable handover workflow. No production change.
+
+Sourcing authoring additionally requires the actual response to advertise its
+`timingUpdates` field. Omission by an older backend stays distinct from an empty
+supported history, so the frontend cannot expose an unsupported mutation during
+an independently managed release. Added explicit legacy/Admin-ready/Staff browser
+cases and a bounded focused sourcing run before the full hosted matrix. Existing
+assertions and execution limits remain unchanged.
+
+### 9 November: preserve published-catalogue compatibility during sourcing integration
+
+Merged master 9f9ee2f8 into the D13 source batch 78ea32b9. Kept the newer product
+form capability detection and omission of unsupported timing fields, its recovery
+checks and older-catalogue browser cases byte-for-byte. The runtime configuration
+retains both that project coverage and the new order-sourcing cases. Only an appended
+tracker history conflicted; both histories are retained. Backend runtime/schema and
+learning source are unchanged by this frontend compatibility merge. The earlier e45
+hosted matrix reported a failure and its terminal log is being retrieved; it is not
+counted as passed. No production change or purchasing activation occurred.
+
+### 9 November: order-specific sourcing and preparation implementation (held)
+
+D13 now has per-order, per-item sourcing progress, nullable arrival ranges in
+Nigeria time and separate nullable preparation minutes. Updates are immutable,
+versioned, idempotent and audited. Existing Admin/Super Admin authority with current
+MFA is reused as a bounded engineering choice; no new Staff/delegation grant is
+invented. Customer/account and private guest reads expose the update and customer
+note, never the internal reason, operator ID, hash or replay key. Estimates do not
+approve compatibility, reserve stock, take money, mark ready or create a deadline.
+A latest unavailable item blocks new payment preparation and fulfilment while
+preserving captures, balances and existing allocations for authorised review.
+
+Migration 20261109230000_order_timing_updates adds history without backfilling old
+orders. Actual isolated evidence: 107 migrations replayed, empty diff and db:check
+passed with restricted runtime credentials; 80/80 tests in six suites passed. An
+initial missing explicit Vitest-import failure is retained; it was corrected without
+weakening assertions. A final lint-only control-character predicate rewrite is
+covered by 17/17 follow-up unit/learning tests. Frontend 32/32 focused units and
+scoped lint passed before final hosted checks; browser discovery is not execution.
+
+The owner-approved five-day hold is unchanged. D12 calendar/day counting and
+imported/custom holds remain unresolved; D14 private one-time parts pickup and the
+full bounded D17 exception journey remain independent work. The existing D03 vehicle
+collection is distinct. No production migration/publication, payment, real order
+write, message delivery, capability flag or permission change is claimed. The full
+D01-D17 goal remains active. See docs/help-learn/ORDER_SOURCING_20261109.md.
+
+### 9 November: preserve concurrent Home, support and security fixes
+
+Reconciled candidate e7e2d1f6 with master bc88d970 before publication, as the owner
+requested. Retained the approved Home imagery/layout/footer, compact public support
+dock, shared security-dialog geometry and capability-refresh booking fixture. Both
+runtime project sets and both evidence histories are preserved. Only the prepended
+register entries conflicted; no application implementation was selected over the
+other. Collection/payment protections remain intact. Exact combined-source checks
+and production safeguards are still required; the earlier candidate run is separate
+evidence, not acceptance for this merge. No deployment or database change occurred.
+
+### 9 November: collection, product estimates and latest hosted-image repair combined
+
+Current item: verify the combined candidate before protected publication. Source
+f8116f73/0f52a15c/1290b3f5 implements current-access, agreed-balance collection
+recording and the supplemental-payment precheck fix, while preserving product
+estimate master b362e9f8. Merge 6985b4d7 additionally preserves f7bfbf52's canonical
+image URLs, private-profile acceptance and evidence-retaining CI. Image/fixture/
+frontend-workflow imports match master; the backend workflow also retains D03 tests.
+Backend runtime/schema/learning are unchanged from the actual 308-case/five-skip
+schema-106 acceptance, including real isolated Staff permission denial. Owned DBs
+are removed. Frontend types, 40 serial units, scoped lint, backend types/lint and
+3,923-file secrets pass. A prior unit worker-start failure and the earlier browser
+581-pass/two-failure result remain explicit. No assertion/deadline is relaxed.
+
+See docs/help-learn/SERVICE_VEHICLE_COLLECTION_20261109.md for exact source/evidence
+and the finite synthetic deployment-marker handling in strict console verification.
+Updated full browser acceptance and guarded release are pending. No local preview,
+production migration/promotion, real collection, provider call, flag or grant change.
+Inventory issue/use is an optional extension, not a section-7.2 launch requirement;
+materials-before-work, genuine historical credits and all financial safeguards stay.
+The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work remain.
+The owner's separate 79-line Desktop hero edit is preserved.
 
 ## 9 November 21:10 UTC - cross-browser payment focus follow-up
 
@@ -649,6 +874,49 @@ and verified release remain. This is not D13 or overall commerce readiness.
 
 ---
 
+### 9 November: required D03 collection control; integrate new product estimates
+
+New unpublished source records vehicle collection only after current Admin/Super
+Admin session/MFA, actual work completion, exact agreed scope and verified settlement
+of every original/additional staged invoice. A reviewed financial fingerprint and
+booking version are rechecked. Unique immutable history, CSRF, current-role refusal,
+credit, financial holds and unknown-response recovery preserve existing safeguards.
+No stock, payments, prices, permissions or flags change. Inventory issue/use is an
+optional operational extension, not a requirement stated by section 7.2; existing
+materials-before-work checks stay. Historical/corrective finance needs real review.
+
+Pre-integration schema-105 acceptance passes 288 cases/five provisioned-workspace
+skips; replay/diff/db:check/restricted runtime and owned tmpfs cleanup pass. Guides
+pass 68/68. Earlier browser acceptance has 581 passes/two actual supplemental payment
+failures; the booking-only pre-submit check is corrected and new regressions are
+pending. See docs/help-learn/SERVICE_VEHICLE_COLLECTION_20261109.md for exact source,
+failures and limits. Master now b362e9f8 adds product sourcing/preparation estimates;
+retain that functionality and run combined acceptance before publication. Full
+D01-D17 goal and all production/financial/provider safeguards remain active.
+
+### 9 November 2026: supplemental invoice source and latest navigation integrated
+
+Checkpoint c3cfcc05 and merge 28b4bc80 add separately billed accepted additional
+service work while preserving master 160d3b7b's navigation readiness, native fallback,
+overlay layering and fixed-hour fixture repair. Imported files match master exactly;
+both evidence histories and runtime project families remain. Original prices,
+credits, records, permissions and the owner's separate dirty Desktop hero remain.
+Isolated schema-104 acceptance passes 273 cases, with five provisioned-workspace
+cases explicitly skipped; replay/diff/db:check/restricted runtime pass and the owned
+tmpfs target is removed. Full frontend lint, backend types/lint, 14 invoice units
+and the 3,912-file secret guard pass. Earlier frontend types are pre-integration.
+
+The combined local browser attempt is interrupted for the mandatory disk reserve
+after one passing navigation case and a 1024px hydration-readiness assertion failure.
+No invoice rendered acceptance is claimed. All owned preview/test processes stop;
+other tasks/resources remain. C: drops from 21.16 to 11.57 GiB and later recovers
+without proven attribution; no rejected cleanup is retried. See
+docs/help-learn/SUPPLEMENTAL_SERVICE_INVOICES_20261109.md for actual failure/evidence
+and exact remaining scope. Hosted exact-source checks are the next verification.
+Full D03 remains held for materials issue/use, durable authorised cleared-balance
+vehicle release, corrective/historical financial review and complete release gates.
+No production write, migration, provider call, flag activation or publication.
+
 ## 9 November 16:36 UTC - navigation outage overlay repair; publication checkpoint
 
 Current item: finish PR30 integration and exact-master publication after its gates.
@@ -758,6 +1026,255 @@ API fixtures, not actual delivery, persisted authentication or real-role accepta
 The full page/state, real role/branch, physical-device, screen-reader, browser zoom,
 measured-performance and business-data requirements remain open. Diagnostics duration
 and Engine Oil Filter brand/MPN/approved image remain unconfirmed by the owner.
+
+### 9 November 2026: latest Saved-vehicles fix retained; D03 remains held
+
+Merge 3fc9ad6b incorporates master d553a349's saved-collection navigation/reload
+fix and Firefox/WebKit coverage without replacing the earlier workforce or
+alternative-time repairs. The inspected imported files match master exactly;
+all seven backend/quotation acceptance scopes still match tested e91e4a82.
+The actual 235/235 native result remains applicable. Final frontend types and
+scoped lint pass; secrets pass for 3,905 files. Additional-quote units pass 2/2;
+the saving suite passes 10/10 on an unchanged focused rerun after one 5-second
+product-case timeout in the combined attempt. Nine merged browser cases pass.
+Final capture history retains a fallback-stylesheet verification timeout followed
+by an unchanged passing staff-mobile rerun. No timeout/assertion was relaxed.
+See docs/help-learn/ADDITIONAL_SERVICE_QUOTES_20261109.md for exact evidence,
+safe artifacts and the distinction between local and imported acceptance.
+All task previews/fixtures and isolated DB containers are stopped/removed; the
+fourteen pre-existing containers, images/caches and owner work remain preserved.
+Final C: reserve is 21.33 GiB. Full D03 supplemental charging, actual materials
+issue/use, durable cleared-balance release and exact-source production safeguards
+remain. No production publication, migration, provider call or flag activation.
+
+### 9 November 2026: newer master 9c219bc8 preserved and combined D03 checked
+
+Checkpoint 5ea9b64b adds explicit additional quotations; merge e91e4a82 preserves
+master 9c219bc8's workforce layout, managed alternative query dispatcher repair,
+current search recovery and booking assertions. The ten inspected imported
+workflow/UI/routing/test files match master exactly. Both evidence histories and
+both runtime project families remain. No original migration was edited.
+Combined native acceptance passes 235/235 across sixteen files on fresh isolated
+schema 102, with replay, diff/db:check, restricted runtime and owned-container
+cleanup. The merged frontend/backend types and backend lint pass; the same nine
+synthetic Edge cases pass serially at 320px/1440px with unchanged assertions and
+timeouts. See docs/help-learn/ADDITIONAL_SERVICE_QUOTES_20261109.md for exact
+artifacts, scope, prior failures and remaining work. The owner's separate dirty
+Desktop hero is untouched. Source remains held for full D03 supplemental charges,
+actual materials issue/use, durable authorised vehicle release and all release,
+financial and provider safeguards. No production migration/write/flag activation.
+
+### 9 November 2026: explicit additional-work quotation source, unpublished
+
+D03 staff author/revise/issue and customer separate review/accept/reject now retain
+the original invoice reference and reason. Explicit acceptance binds current facts;
+cached clients and direct old-style writers cannot silently accept extra work or
+rewrite the invoiced original price. No new charge, payment, work or vehicle-release
+authority follows acceptance. Original history and permissions remain intact.
+Fresh isolated acceptance passes 135/135 across all 102 migrations with schema
+diff/db:check and restricted runtime. Nine serial synthetic Edge cases cover
+320px/1440px staff/customer review, Back, validation, reload and malformed context,
+with strict console, overflow and scoped Axe checks. Guide regressions pass 32/32.
+See docs/help-learn/ADDITIONAL_SERVICE_QUOTES_20261109.md for failures, scope,
+artifacts and remaining supplemental-charge/material-use/physical-release work.
+New migrations are not applied to production; full D03 publication stays held.
+Newer remote master 9c219bc8 fixes were identified and must be preserved in the
+integration. This is implementation evidence, not a new owner financial approval.
+
+### 9 November 2026: current D03/D11 source reconciled; unpublished
+
+Merge 9e7ad91b preserves master 885010a6's actual alternative-time picker,
+attendance and continuation history alongside D03's invoice/accepted-work controls.
+The four affected booking UI components, underlying alternative/attendance code
+and additive migration match master exactly. Both current guide families and
+permission gates are retained. Scope/learning units pass 66/66; combined native
+acceptance passes 208/208 on all 100 migrations with restricted-runtime proof.
+Frontend invoice units pass 19/19 serially after the overlapping run's worker
+startup error. Assertions/timeouts are unchanged. Browser discovery collects 448
+cases in 31 files; it is not rendered execution. Canonical API/client contracts
+reconcile at 452 paths/532 operations. No new visual, real-role, physical-device,
+provider or production acceptance is claimed. See
+docs/help-learn/SERVICE_WORK_SCOPE_20261109.md for exact evidence and remaining D03
+amendment, material-use and physical release journeys. No flags were enabled.
+Final frontend nonincremental/backend types, full backend lint, scoped formatting,
+whitespace and 3,897-file secrets pass. Final C: reserve: 21.93 GiB.
+
+### 9 November 2026: D03 accepted-work server boundary, no new visual claim
+
+Legacy and managed workflow actions now share accepted-scope and verified-materials
+checks. Existing action error handling receives a specific conflict for unaccepted
+extras, unpaid/held materials, incomplete agreed work or busy verification, without
+exposing payment details to technical staff. Saved quotation prices survive later
+catalogue changes. Labour-only work remains separate; completion is not release.
+Existing branch/assignment/MFA/version/independent-review/resource checks remain.
+Guides advance to service-request v31, financial-policy-work v7, assigned-findings
+v6 and job-assignment v3 without changing eligibility or semantic destinations.
+
+156 combined isolated cases pass, including managed operations and authenticated
+Help/Learn access. Source types, backend lint, scoped formatting and API contracts
+pass. This phase changes no UI components and claims no new screenshot, physical
+device, real-role or provider acceptance. Separate legacy-credit evidence and
+remaining full amendment/material-use/vehicle-release work are recorded in
+docs/help-learn/SERVICE_WORK_SCOPE_20261109.md. The newer responsive fixes and
+separate Desktop hero edit are preserved. Nothing in this checkpoint is deployed.
+
+### 9 November 2026: integration preserves newer responsive acceptance
+
+Merge 3da72b60 incorporates master 4bfd12d6 without replacing its calendar, modal,
+dock, search-recovery, TLS-fixture or cross-browser CI changes. Those imported
+files match master exactly; runtime configuration adds only the seven D03 cases.
+Both conflicting evidence histories were retained. No application or schema code
+changed in the merge. Fresh invoice units pass 19/19; discovery collects 435 tests
+in 30 files, without claiming execution. Scoped ESLint, fixture syntax, whitespace
+and the 3,891-file secret guard pass. Prior rendered/native evidence retains its
+recorded source and limitations. No deployment, flag, real-role/provider approval,
+new installation or broad rebuild is implied. The independent Desktop hero edit
+remains untouched. D03 stays held until its remaining complete-journey controls.
+
+### 9 November 2026: D03 invoice presentation verified; full journey still held
+
+This source adds the minimal public stage summary, customer and authorised
+administrator presentation, explicit reviewed stage/version/amount submission,
+separate request/receipt labels and PDF stage totals. Private policy/binding IDs,
+refund/dispute metadata and internal attempts are omitted from invoice responses.
+A successful request focuses its next payment link and scrolls it into view.
+The existing public payment gate now disables preparing a new invoice request
+while preserving the readable invoice. It does not enable a provider or finance
+policy. Document export requires matching saved stage totals, not only the overall
+invoice total. Workmanship still cannot be collected before recorded completion.
+
+Actual evidence: 122/122 native cases in eight files passed after all 99 migrations
+replayed on a fresh owned tmpfs _test target, db:check/diff and restricted-runtime
+proof. Existing administrator discovery/detail suites initially refused Docker
+NAT's actual endpoint before their assertions; they now use the shared strict
+helper that verifies container ownership, tmpfs mounts, network and loopback port.
+No guard was removed and no application/shared/production DB was used. The owned
+container was removed. New native cases prove live summary ownership, private-data
+omission, stage-labelled invoice/receipt documents and unresolved-anomaly holds.
+
+Backend money/document/summary units passed 54/54, learning/eligibility/retrieval
+and identifier units 51/51, frontend invoice/summary units 19/19. Frontend and
+backend source types, backend script types, full backend lint, scoped frontend
+lint, 450-path OpenAPI validation, 530-operation mounted-route coverage and the
+3,889-file secret guard passed. Contract-check scripts needed the existing test
+environment import; bare invocations stopped on missing DB environment, without
+connecting to a DB or changing a safeguard. Canonical contracts/types regenerated.
+
+Browser plugin not available; existing Playwright/Edge used 127.0.0.1:5414 and
+synthetic APIs. Seven scenarios passed at 320/1440px across customer, Admin and
+Super Admin: stages/save/refresh, original-key uncertain recovery, financial hold,
+disabled payment gate and staff paper. Stricter focus/console checks then passed
+six cases; the 320px case timed out twice during session verification while local
+checks were running. Trace showed valid synthetic session replies. The isolated
+unchanged case passed in 40.9 seconds with the same 60-second deadline, focus and
+console guard. This is bounded local evidence, not physical-device performance
+or real-role/provider acceptance. Existing console exceptions were not broadened.
+The temporary preview is stopped; its useful cache is retained.
+
+A two-page synthetic DRAFT, SAMPLE-D03-NOT-ISSUED, was generated by the actual
+PDF renderer, text-checked and rendered/visually inspected using existing PyMuPDF.
+Tax/CAC identifiers are omitted pending verification; the sample explains that
+VAT applicability is unresolved. It records no real customer, approval or payment.
+Private artifact/evidence root: TEMP/aat-d03-service-payments-20261109.
+
+Service-request v30 and financial-policy-work v6 cover stage/payment distinctions,
+legacy handling, recovery and financial gates. The twelve-step bound is preserved;
+existing eligibility, semantic targets and feature flags are unchanged. See
+docs/help-learn/SERVICE_PAYMENT_STAGES_20261109.md.
+
+D03 is NOT complete or publishable yet: finish materials-before-installation
+controls, accepted scope/amendment handling and authorised vehicle-release records
+with actual completion and cleared balance/adjustment checks. Then run complete
+HTTP/role/rendered acceptance and exact-source release gates. D01-D17 remains
+active, including the other incomplete journeys and missing factual approvals.
+
+### 9 November 2026: D03 staged-payment backend checkpoint, unpublished
+
+Current worktree integrates master e947a205's complete attendance source and
+preserves both attendance and published D07 evidence. Documentation conflicts
+were resolved by retaining both histories; no application fix was replaced.
+Production status in the dated release records remains historical evidence.
+
+New booking invoices save one accepted quote's immutable materials/workmanship
+allocation in their document snapshot. Existing issued invoices are not rewritten.
+PART lines are materials; labour and fees are deferred to completion as an
+implementation choice, not a newly approved finance policy. Saved VAT and genuine
+legacy deposit credits use integer largest-remainder allocations in saved item
+order and reconcile to the original invoice. VAT is not recomputed per stage.
+
+The customer must accept the exact stage, invoice version and amount. Intent
+replay is bound to that choice. Materials settlement leaves the invoice issued
+with workmanship outstanding. Workmanship requires actual recorded completion
+and prior materials settlement. Creation/initialization/settlement share booking,
+invoice and payment locks. Invalid/surplus/late stage captures retain the capture
+ledger and require reconciliation; they cannot silently mark workmanship paid.
+Refund/dispute adjustments block new stage requests rather than authorise a
+second charge. Original full-invoice behavior remains for historical unplanned
+invoices. Finance gates, invoice identities, approvals and provider settings stay
+unchanged; this checkpoint does not activate purchasing or service payments.
+
+Actual checks: current client generated from the integrated 99-migration schema
+without a DB connection; source typecheck and full backend Oxlint passed.
+Focused money/document units passed 56/56 before the financial-hold addition.
+A fresh owned tmpfs _test target replayed all 99 migrations and passed db:check,
+Prisma diff and restricted-runtime verification; the final run passed 98/98
+across five files, including seven new real-service stage cases, existing target
+concurrency/capture accounting and money/document units. The fixture's missing
+product category and attempted insertion of items into an already accepted quote
+were corrected without weakening immutable quote guards. Both failed runs and
+final evidence remain in TEMP/aat-d03-service-payments-20261109. The owned
+container was removed; application/shared/production databases were not used.
+The repository uses Oxlint; a mistaken direct ESLint invocation found no config
+and was replaced by the existing lint command, which passed.
+
+Remaining D03 before publication: safe public stage summary, customer/staff UI
+and receipts/PDF clarity; materials-before-installation and vehicle-release
+controls; amendments/financial-exception/cancellation coverage; versioned Help,
+Learn and Allie guidance; canonical contracts; HTTP/permissions and rendered
+end-to-end acceptance, final exact-source checks and release safeguards. Do not
+publish this partial journey or mark D03 complete from these backend tests.
+D01-D17 remains active, including D11 actual alternatives, D12 calendar values,
+D13 lead times, D14 private pickup and bounded D17 exception handling.
+
+### 9 November 2026: integrated D07 release published after preservation checks
+
+Runtime source efebfa38239b5eff3b490d3d776c91a2152c0c92 is now published.
+PR #23 preserves the newer calendar/modal/focus, public-search recovery and
+missed-writer compatibility fixes. A concurrent 80b4c8ac release was detected by
+the deployment guard before mutation; its exact source, four image digests and
+frontend were reconciled rather than overwritten. Full attendance stays separate.
+
+Exact-master checks: Frontend 42610763172, Backend 42610763277 and Secrets
+42610763230 passed; 1,507 units passed, twelve existing skips, 240 browser cases.
+Nine packaged-image checks and seven schema probes passed. The schema probes were
+repeated against the newest live baseline, not an obsolete recovery composition.
+Held and post-promotion 320/1440px synthetic review, save and reload checks passed. No real-role or
+physical-device acceptance is inferred from synthetic fixtures.
+
+Fresh strict-TLS target/least-privilege proof, repeatable-read backup, separate
+populated restore and original-column counts/hashes passed. Managed backup API
+showed eight backups, newest 9 November 05:22 UTC; historical managed restore proof
+is dated 21 October. Reviewed migration 20261104010000_booking_work_reviews was
+applied through the guarded runner, 97 to 98; final db:check and existing ledger
+preservation passed. Temporary operator IP access was removed, preserving original
+and concurrent rules. No production demonstration records were created.
+
+Backend 3035fe3a-3611-4c16-9f9e-a2e22f91089c is ACTIVE; readiness 200 and thirteen
+fresh healthy worker tasks verified. Only four image digests changed. Frontend
+dpl_C2xNLA3Sxfy6B6JPn1fouw7hGiqH was promoted only afterward; apex and www both
+resolve to it and return 200. Permissions, financial/AI/chat gates and settings are
+unchanged. Recovery retains the 98-aware migrator; after operational reviews exist,
+do not revert to a runtime that ignores reviewed resources or cleanup.
+
+Final disk preflight: 23.16 GiB free on C:, above the 20 GiB reserve.
+Private release evidence: %TEMP%/aat-running-work-master-efebfa38. D01-D17 remains
+active: staged materials/workmanship, product lead times, secure collection and
+other incomplete journeys are not declared finished. Real operational facts,
+authorized role acceptance, invoice identities, tax applicability and provider
+acceptance retain their separate gates. This header records runtime M; subsequent
+documentation checkpoints do not imply another runtime deployment.
+
+---
 
 ## 9 November 15:47 UTC - Saved items gates passed; integrate release evidence
 

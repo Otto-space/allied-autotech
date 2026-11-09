@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { servicePaymentPlanSchema } from "./service-payment-plan.js";
+import { servicePaymentStageSchema } from "./service-payment-plan.js";
 
 const money = z.string().regex(/^\d{1,19}$/);
 const text = (max: number) => z.string().min(1).max(max);
@@ -23,15 +25,18 @@ export const invoiceSnapshotSchema = z.object({
     reference: z.uuid(),
   }),
   source: z.object({
-    type: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION"]),
+    type: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION", "SERVICE_ADDITION"]),
     id: z.uuid(),
     reference: text(100),
     description: text(1000),
+    originalInvoiceNumber: text(50).optional(),
+    amendmentReason: text(1000).optional(),
   }),
   lines: z.array(documentLineSchema).min(1).max(200),
   discountKobo: money,
   deliveryKobo: money,
   detailBasis: z.enum(["SNAPSHOT", "SOURCE_RECORDS", "LEGACY_SUMMARY"]),
+  servicePaymentPlan: servicePaymentPlanSchema.optional(),
 });
 export const receiptSummarySchema = z.object({
   paymentId: z.uuid(),
@@ -39,6 +44,7 @@ export const receiptSummarySchema = z.object({
   amountKobo: money,
   confirmedAt: z.iso.datetime(),
   refundedKobo: money,
+  serviceStage: servicePaymentStageSchema.optional(),
 });
 export const invoiceDocumentSchema = invoiceSnapshotSchema.extend({
   id: z.uuid(),
@@ -69,6 +75,7 @@ export const invoiceDocumentSchema = invoiceSnapshotSchema.extend({
           "EXPIRED",
         ]),
         succeededAt: z.iso.datetime().nullable(),
+        serviceStage: servicePaymentStageSchema.optional(),
       }),
     )
     .max(200),
@@ -82,6 +89,7 @@ export const receiptDocumentSchema = z.object({
   amountKobo: money,
   confirmedAt: z.iso.datetime(),
   method: text(80),
+  serviceStage: servicePaymentStageSchema.optional(),
   refundedKobo: money,
   source: invoiceSnapshotSchema.shape.source.extend({
     type: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION", "INVOICE"]),

@@ -44,7 +44,11 @@ async function administrator(): Promise<AuthenticatedActor> {
     mfaVerifiedAt: new Date(),
   };
 }
-async function expectSourceWait(kind: "INVOICE" | "VEHICLE_TRANSACTION") {
+// Service invoices now serialize on Booking before Invoice, including additions.
+async function expectSourceWait(
+  kind: "INVOICE" | "VEHICLE_TRANSACTION",
+  bookingFirst = false,
+) {
   await expect
     .poll(
       async () => {
@@ -52,7 +56,7 @@ async function expectSourceWait(kind: "INVOICE" | "VEHICLE_TRANSACTION") {
           SELECT 1 FROM pg_stat_activity WHERE datname = current_database()
           AND cardinality(pg_blocking_pids(pid)) > 0
           AND query LIKE '%FOR UPDATE%'
-          AND query LIKE ${`%"${kind === "INVOICE" ? "Invoice" : "VehicleTransaction"}"%`}
+          AND query LIKE ${`%"${kind === "INVOICE" ? (bookingFirst ? "Booking" : "Invoice") : "VehicleTransaction"}"%`}
         ) AS blocked`;
         return rows[0]?.blocked;
       },
@@ -511,7 +515,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
               (error: unknown) => ({ error }),
             );
             try {
-              await expectSourceWait(kind);
+              await expectSourceWait(kind, true);
             } finally {
               resume.release();
             }
