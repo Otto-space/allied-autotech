@@ -8,6 +8,74 @@ import {
 const root = `/admin/booking-capacity?branch=${capacityId(1)}`;
 const reviewButton = (page: Page) =>
   page.getByRole("button", { name: "Review capacity approval", exact: true });
+
+for (const width of [320, 768, 1440])
+  test(`reminder schedule validates and saves exact reviewed times at ${width}`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    const f = await workCapacityFixture(page);
+    await page.goto(root);
+    const times = page.getByLabel("Reminders (minutes before)", { exact: true });
+    await expect(times).toHaveValue("1440, 120, 30");
+    await times.fill("30, 30");
+    await review(page);
+    await expect(times).toBeFocused();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    expect(f.writes).toEqual([]);
+    await times.fill("90, 10");
+    await reviewButton(page).click();
+    await expect(page.getByRole("dialog")).toContainText("90, 10");
+    await page.keyboard.press("Escape");
+    await expect(reviewButton(page)).toBeFocused();
+    await reviewButton(page).press("Enter");
+    await axe(page);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.screenshot({
+      path: info.outputPath(`reminder-review-${width}.png`),
+      fullPage: true,
+    });
+    await confirm(page);
+    await expect(
+      page.getByRole("heading", { name: "Booking capacity recorded" }),
+    ).toBeFocused();
+    expect(f.writes).toHaveLength(1);
+    expect(f.writes[0]?.settings).toMatchObject({ reminderMinutes: [90, 10] });
+    if (width === 1440) {
+      await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+      await expect(
+        page.getByRole("button", { name: "Expand sidebar", exact: true }),
+      ).toBeVisible();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+      await page.screenshot({
+        path: info.outputPath("reminder-saved-collapsed-1440.png"),
+        fullPage: true,
+      });
+      await page.getByRole("button", { name: "Expand sidebar", exact: true }).click();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+    }
+  });
+
+test("an empty reminder schedule reviews and saves explicit disabling", async ({
+  page,
+}) => {
+  const f = await workCapacityFixture(page);
+  await page.goto(root);
+  await page.getByLabel("Reminders (minutes before)", { exact: true }).fill("");
+  await review(page);
+  await expect(page.getByRole("dialog")).toContainText("None");
+  await confirm(page);
+  await expect(
+    page.getByRole("heading", { name: "Booking capacity recorded" }),
+  ).toBeVisible();
+  expect(f.writes[0]?.settings).toMatchObject({ reminderMinutes: [] });
+});
 async function fill(page: Page) {
   await page
     .getByLabel("Approval source", { exact: true })
@@ -112,6 +180,8 @@ test("empty branch has no invented defaults and publishes one reviewed exact pol
         "Synthetic signed capacity approval for isolated verification only.",
       settings: {
         dailyLimit: 4,
+        noShowGraceMinutes: 15,
+        reminderMinutes: [1440, 120, 30],
         openingDays: [1, 2],
         opensAt: "08:00",
         closesAt: "18:00",

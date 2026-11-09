@@ -1,3 +1,13 @@
+## 9 November - configurable appointment reminders
+
+Service-request v31 keeps its public gate, twelve steps and targets. Owner-only
+booking-reminders v1 explains reviewed branch timing, delegated defaults, explicit
+none, saved appointment policy and delivery limits. Its destination is allowlisted
+without broadening eligibility. No practice or feature flag is enabled. See
+REMINDER_SCHEDULE_20261109.md for actual checks and pending acceptance.
+
+---
+
 ## 9 November - delayed appointment reminder checks
 
 Service-request v30 retains its public gate, twelve steps, existing semantic targets
@@ -355,7 +365,8 @@ mean a production publication. Feature flags remain off in committed examples.
 | financial-policy-work   | financial-policy     | 5 / 2026-11-03        | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
 | parts-fitment           | public               | 14 / 2026-11-03       | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02        | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
-| service-request         | public               | 30 / 2026-11-09       | /services                    | Public launch mode and Services page                                                                                                        |
+| booking-reminders       | owner                | 1 / 2026-11-09        | /admin/booking-capacity      | Reviewed branch reminder policy and saved appointment schedule                                                                              |
+| service-request         | public               | 31 / 2026-11-09       | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26        | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
 | no-live-lookup          | public               | 2 / 2026-10-26        | /help                        | Launch restrictions and existing status contracts                                                                                           |
 | own-conversation        | customer             | 4 / 2026-10-27        | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |

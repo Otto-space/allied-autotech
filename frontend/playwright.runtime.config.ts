@@ -44,6 +44,7 @@ export default defineConfig({
         "booking-attendance.spec.ts",
         "booking-work-review.spec.ts",
         "booking-calendar.spec.ts",
+        "booking-capacity.spec.ts",
         "invoice-modal-responsive.spec.ts",
         "modal-layout.spec.ts",
         "catalogue-modal-layout.spec.ts",

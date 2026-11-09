@@ -64,6 +64,7 @@ import type {
   BookingAlternativeResponseInput,
 } from "./service-operations.schemas.js";
 import { basisPoints } from "../policies/policy-money.js";
+import { bookingReminderMinutes, reminderSchedule } from "./booking-reminder-schedule.js";
 import { quotationTerms } from "../policies/quotation-terms.js";
 import {
   approvedPolicy,
@@ -376,17 +377,10 @@ export async function scheduleReminders(
   transaction: Prisma.TransactionClient,
   booking: { id: string; scheduledAt: Date; scheduleVersion: number },
 ): Promise<void> {
-  const definitions = [["ONE_HOUR", 1]] as const;
-  const now = Date.now();
-  const reminders = definitions
-    .map(([kind, hours]) => ({
-      bookingId: booking.id,
-      kind,
-      scheduledFor: new Date(booking.scheduledAt.getTime() - hours * 3_600_000),
-      scheduleVersion: booking.scheduleVersion,
-    }))
-    // Short-notice confirmation must not dump already missed reminders at once.
-    .filter((reminder) => reminder.scheduledFor.getTime() > now);
+  const reminders = reminderSchedule(
+    booking,
+    await bookingReminderMinutes(transaction, booking.id),
+  );
   if (reminders.length === 0) return;
   await transaction.bookingReminder.createMany({
     data: reminders,

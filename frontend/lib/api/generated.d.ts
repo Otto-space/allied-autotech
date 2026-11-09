@@ -123391,7 +123391,7 @@ export interface operations {
                      *             "resourceId": "00000000-0000-4000-8000-000000000001",
                      *             "message": "synthetic-message",
                      *             "createdAt": "2030-01-15T10:00:00.000Z",
-                     *             "resolvedAt": "2030-01-15T10:00:00.000Z",
+                     *             "resolvedAt": null,
                      *             "resolvedByUserId": "00000000-0000-4000-8000-000000000001"
                      *           }
                      *         ]
@@ -127262,7 +127262,7 @@ export interface operations {
                      *         },
                      *         "delivery": {
                      *           "enabled": false,
-                     *           "policyVersion": "synthetic-policyversion",
+                     *           "policyVersion": null,
                      *           "zones": [
                      *             {
                      *               "id": "synthetic-id",
@@ -127524,7 +127524,8 @@ export interface operations {
                      *         "booking": {
                      *           "confirmation": "STAFF_REVIEW",
                      *           "cancellationFeeKobo": "0",
-                     *           "reminderMinutes": 60
+                     *           "reminderMinutes": null,
+                     *           "reminderTiming": "APPOINTMENT_POLICY"
                      *         },
                      *         "marketing": {
                      *           "enabled": false
@@ -127623,11 +127624,13 @@ export interface operations {
                                  * @enum {string}
                                  */
                                 cancellationFeeKobo: "0";
+                                /** @description Reminder Minutes validated by this operation's strict request contract. */
+                                reminderMinutes: null;
                                 /**
-                                 * @description Reminder Minutes validated by this operation's strict request contract.
-                                 * @enum {number}
+                                 * @description Reminder Timing validated by this operation's strict request contract.
+                                 * @enum {string}
                                  */
-                                reminderMinutes: 60;
+                                reminderTiming: "APPOINTMENT_POLICY";
                             };
                             /** @description Marketing validated by this operation's strict request contract. */
                             marketing: {
@@ -132606,6 +132609,8 @@ export interface operations {
                         dailyLimit: number;
                         /** @description No Show Grace Minutes validated by this operation's strict request contract. */
                         noShowGraceMinutes?: number;
+                        /** @description Reminder Minutes validated by this operation's strict request contract. */
+                        reminderMinutes?: number[];
                         /** @description Opening Days validated by this operation's strict request contract. */
                         openingDays: number[];
                         /**

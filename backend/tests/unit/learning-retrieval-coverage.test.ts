@@ -76,6 +76,21 @@ afterEach(() => {
 });
 
 describe("authorised server help survives Allie retrieval", () => {
+  it("keeps reminder-policy guidance and actions restricted to the owner", () => {
+    for (const [name, access] of profiles.filter(([name]) => name !== "owner")) {
+      const data = learningCatalogue({ ...publicLearningAccess, ...access });
+      expect(
+        data.articles.some((row) => row.id === "booking-reminders"),
+        name,
+      ).toBe(false);
+      expect(
+        retrieveAllieContext(data, "booking-reminders", "work").actions.some(
+          (action) => action.href === "/admin/booking-capacity",
+        ),
+        name,
+      ).toBe(false);
+    }
+  });
   for (const [name, access] of profiles) {
     it(`retrieves every eligible article from the ${name} catalogue`, () => {
       const data = learningCatalogue({ ...publicLearningAccess, ...access });

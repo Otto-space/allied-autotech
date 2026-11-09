@@ -272,6 +272,27 @@ export const learningArticles: LearningArticle[] = [
   },
   {
     ...article(
+      "booking-reminders",
+      "owner",
+      "work",
+      "Review appointment reminder times",
+      "Review branch reminder times through the existing capacity approval. This does not enable booking, email or browser alerts.",
+      [
+        "Use your verified Super Admin session with MFA. Open Booking capacity and choose the branch. Review the current policy and history first.",
+        "Enter up to three distinct whole-minute times before the appointment, from one minute to seven days. Leave blank for none. The delegated implementation defaults are 1,440, 120 and 30 minutes, not a claimed verbatim owner decision.",
+        "Record the genuine approval source and evidence. Review the reminder times alongside capacity, calendar and attendance grace, then confirm the new version. A scheduled version applies only from its effective time. An uncertain result requires reconciliation, not a repeated approval.",
+        "New confirmations and approved appointment changes use their saved capacity-policy version. Publishing a new policy does not rewrite existing reminder jobs. Changes to an appointment cancel earlier pending reminders and create only future applicable notices; short-notice bookings do not receive a burst of missed reminders.",
+        "Reminders do not confirm a request, record arrival, mark absence or cancel a visit. The delivery worker rechecks the confirmed future time and schedule version. Notification preferences and enabled channels still apply; email delivery may be delayed. Browser alerts require separate support, permission and settings. Do not promise SMS or a delivered alert from an unverified provider.",
+      ],
+      "/admin/booking-capacity",
+      "Capacity approval schema, saved appointment policy and versioned reminder workers",
+      "booking reminders schedule minutes notification appointment capacity approval",
+    ),
+    version: 1,
+    reviewedAt: "2026-11-09",
+  },
+  {
+    ...article(
       "workshop-resource-plan",
       "owner",
       "work",
@@ -423,13 +444,13 @@ export const learningArticles: LearningArticle[] = [
         "If your booking offers a workshop-proposed alternative, review the time and reason before responding. Declining keeps your existing appointment. Accepting requests the alternative and still needs workshop confirmation; it does not use your customer reschedule allowance or charge a fee.",
         "In Your bookings, choose View calendar. Switch between Month for dates and Schedule for appointments. Today selects the Lagos date; the calendar does not offer or reserve new times. Navigation changes only the view. Unscheduled records stay listed. Dates use Nigeria time. A countdown appears only for a confirmed future appointment, then stops. Requests, dates and elapsed countdowns do not confirm a visit, start work, change status or prove absence. Refresh after interruptions. Only a confirmed future appointment offers Add to calendar. Download a file or open Google Calendar; review and save it. It includes arrival time, workshop location and reference, not private notes or a promised job-end time. Events may not sync automatically: update or remove them after rescheduling or cancellation; check reminders. An export does not confirm a pending request or guarantee an alarm. History shows recorded attendance. Planning to attend is not arrival. Staff must verify absence: no automatic fee, suspension, forfeiture or refund rejection. Ask the workshop to confirm a new time.",
         "If an optional browser-alert invitation appears, choose Enable notifications only if you want alerts on this device, Review notification settings to inspect the existing controls, or Not now. No permission is requested by the invitation appearing; the browser prompt follows your explicit Enable action. Delivery depends on browser support, permission, availability and your signed-in session; alerts stop on sign-out or expiry. Blocked or unavailable alerts do not prevent using the in-app inbox. You can turn off this device in the same settings.",
-        "For a confirmed booking, use Reschedule appointment only when your current booking allows it. Choose an offered or preferred time and provide a reason. Offers can be withdrawn when their estimate or actual availability changes; you can still send a preferred-time request for staff assessment. An approved move preserves the previously recorded estimate rather than silently using a new default. The request does not reserve the replacement: your original appointment and reminders remain unchanged until staff approves the switch. If the replacement becomes unavailable, staff approval fails and the original stays confirmed. Use Review withdrawal with a reason to withdraw only the pending change, or check Reschedule history for the recorded decision. After approval, review the new confirmed time and update an imported calendar event. Cancellation is a separate action and follows the displayed policy. Self-service cancellation is available only before work starts. Once work has a recorded start, contact the workshop even if an older status still says Confirmed. Short-notice confirmation skips already missed reminders. Reminders require confirmed future appointments. Provider delivery can still be delayed; check your bookings. A reminder does not record arrival, absence or cancellation.",
+        "For a confirmed booking, use Reschedule appointment only when your current booking allows it. Choose an offered or preferred time and provide a reason. Offers can be withdrawn when their estimate or actual availability changes; you can still send a preferred-time request for staff assessment. An approved move preserves the previously recorded estimate rather than silently using a new default. The request does not reserve the replacement: your original appointment and reminders remain unchanged until staff approves the switch. If the replacement becomes unavailable, staff approval fails and the original stays confirmed. Use Review withdrawal with a reason to withdraw only the pending change, or check Reschedule history for the recorded decision. After approval, review the new confirmed time and update an imported calendar event. Cancellation is a separate action and follows the displayed policy. Self-service cancellation is available only before work starts. Once work has a recorded start, contact the workshop even if an older status still says Confirmed. Short-notice confirmation skips already missed reminders; saved settings apply only to confirmed future appointments. Provider delivery can still be delayed; check your bookings. A reminder does not record arrival, absence or cancellation.",
       ],
       "/services",
       "Public launch mode, ServiceDetail, BookingDetail and ServiceOperationsService booking lifecycle",
       "booking appointment request garage quotation quote",
     ),
-    version: 30,
+    version: 31,
     reviewedAt: "2026-11-09",
   },
   article(

@@ -11,14 +11,6 @@ interface ClaimedReminder {
   attempts: number;
 }
 
-const reminderLabels = {
-  ONE_HOUR: "1 hour",
-  SEVEN_DAYS: "7 days",
-  THREE_DAYS: "72 hours",
-  TWO_DAYS: "48 hours",
-  ONE_DAY: "24 hours",
-} as const;
-
 export class BookingReminderWorker {
   constructor(private readonly database: PrismaClient = prisma) {}
 
@@ -145,7 +137,7 @@ export class BookingReminderWorker {
         userId: reminder.booking.customer.userId,
         type: "BOOKING",
         category: "TRANSACTIONAL",
-        title: `Appointment reminder: ${reminderLabels[reminder.kind]}`,
+        title: "Appointment reminder",
         message: `Your Allied AutoTech appointment is scheduled for ${reminder.booking.scheduledAt.toISOString()}. Sign in to your booking to confirm attendance or cancel without a cancellation fee. No response does not cancel your appointment.`,
         resourceType: "BOOKING",
         resourceId: reminder.booking.id,

@@ -30,7 +30,7 @@ List routes use bounded cursor pagination. Pass the returned `nextCursor` as `cu
 1. Read public branches, services, published slots and the current booking policy.
 2. Submit either slotId or serviceId, branchId and preferredAt (an ISO timestamp with timezone), plus the current policy version and an idempotency key. Never combine the two scheduling sources. Preferred requests use an active service and branch without inventing a slot, staff assignment or quotation price. New bookings are REQUESTED with no booking deposit; the existing advance window applies.
 3. Staff with BOOKING_CONFIRM records resource review; the server enforces approved branch capacity/calendar and overlaps before confirmation.
-4. One transactional email reminder is scheduled one hour before a confirmed appointment when that reminder time is still future. Short-notice confirmation skips missed reminders. Delayed jobs and provider retries recheck the appointment time, status and schedule version before sending; actual delivery can still be delayed. GET links only render a screen; the signed POST records the customer's attendance response or eligible cancellation, not physical arrival.
+4. Transactional email reminders follow the appointment's saved branch policy: delegated defaults are 24 hours, two hours and 30 minutes, configurable as up to three offsets or none. Only future reminder times are scheduled. Short-notice confirmation skips missed reminders. Delayed jobs and provider retries recheck the appointment time, status and schedule version before sending; actual delivery can still be delayed. GET links only render a screen; the signed POST records the customer's attendance response or eligible cancellation, not physical arrival.
 5. Rescheduling accepts either an offered slotId or a preferredAt timestamp, including for an original booking without a slot. The current one-change limit and cutoff apply. Rescheduling invalidates earlier links/reminders and returns the appointment to staff review. No response never auto-cancels or incurs a fee. Historical deposit records remain protected.
 
 ### Orders, invoices, vehicles and payments
@@ -2521,7 +2521,7 @@ Success: HTTP 200.
     },
     "delivery": {
       "enabled": false,
-      "policyVersion": "synthetic-policyversion",
+      "policyVersion": null,
       "zones": [
         {
           "id": "synthetic-id",
@@ -2585,7 +2585,8 @@ Success: HTTP 200.
     "booking": {
       "confirmation": "STAFF_REVIEW",
       "cancellationFeeKobo": "0",
-      "reminderMinutes": 60
+      "reminderMinutes": null,
+      "reminderTiming": "APPOINTMENT_POLICY"
     },
     "marketing": {
       "enabled": false
@@ -26599,7 +26600,7 @@ Success: HTTP 200.
         "resourceId": "00000000-0000-4000-8000-000000000001",
         "message": "synthetic-message",
         "createdAt": "2030-01-15T10:00:00.000Z",
-        "resolvedAt": "2030-01-15T10:00:00.000Z",
+        "resolvedAt": null,
         "resolvedByUserId": "00000000-0000-4000-8000-000000000001"
       }
     ]

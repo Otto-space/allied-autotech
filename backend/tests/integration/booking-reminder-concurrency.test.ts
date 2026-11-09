@@ -7,6 +7,7 @@ import { BookingReminderWorker } from "../../src/workers/booking-reminder.worker
 import { NotificationDeliveryWorker } from "../../src/workers/notification.worker.js";
 import { encryptNotificationPayload } from "../../src/common/security/mfa-encryption.js";
 import type { TransactionalEmail } from "../../src/providers/messaging/email-provider.port.js";
+import { scheduleReminders } from "../../src/modules/service-operations/service-operations.service.js";
 
 function gate() {
   let release!: () => void;
@@ -91,6 +92,85 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       prisma.bookingReminder.findUniqueOrThrow({ where: { id } });
     const notificationCount = (bookingId: string) =>
       prisma.notification.count({ where: { resourceId: bookingId } });
+
+    it("uses the saved policy, skips missed custom notices and deduplicates the remainder", async () => {
+      const f = await fixture();
+      const policy = await prisma.businessPolicyVersion.create({
+        data: {
+          key: `booking-capacity:${randomUUID()}`,
+          version: 1,
+          approvalStatus: "APPROVED",
+          source: "Synthetic isolated reminder approval",
+          sourceQuestion: "D15 isolated fixture",
+          approvedByUserId: f.user.id,
+          effectiveAt: new Date(0),
+          settings: { reminderMinutes: [120, 20, 5] },
+        },
+      });
+      await prisma.booking.update({
+        where: { id: f.booking.id },
+        data: { capacityPolicyVersionId: policy.id },
+      });
+      // A later policy must not replace the approval saved on this appointment.
+      await prisma.businessPolicyVersion.create({
+        data: {
+          key: policy.key,
+          version: 2,
+          approvalStatus: "APPROVED",
+          source: "Synthetic later version",
+          sourceQuestion: "D15 isolated fixture",
+          approvedByUserId: f.user.id,
+          effectiveAt: new Date(),
+          settings: { reminderMinutes: [] },
+        },
+      });
+      await prisma.$transaction((tx) => scheduleReminders(tx, f.booking));
+      await prisma.$transaction((tx) => scheduleReminders(tx, f.booking));
+      const rows = await prisma.bookingReminder.findMany({
+        where: {
+          bookingId: f.booking.id,
+          kind: { in: ["NOTICE_1", "NOTICE_2", "NOTICE_3"] },
+        },
+        orderBy: { scheduledFor: "asc" },
+      });
+      expect(
+        rows.map((row) => [
+          row.kind,
+          (f.booking.scheduledAt.getTime() - row.scheduledFor.getTime()) / 60000,
+        ]),
+      ).toEqual([
+        ["NOTICE_2", 20],
+        ["NOTICE_3", 5],
+      ]);
+      jobs.push(...rows.map((row) => row.id));
+    });
+
+    it("an explicitly empty saved reminder schedule creates no notices", async () => {
+      const f = await fixture();
+      const policy = await prisma.businessPolicyVersion.create({
+        data: {
+          key: `booking-capacity:${randomUUID()}`,
+          version: 1,
+          approvalStatus: "APPROVED",
+          source: "Synthetic disabled reminder approval",
+          sourceQuestion: "D15 isolated fixture",
+          approvedByUserId: f.user.id,
+          effectiveAt: new Date(0),
+          settings: { reminderMinutes: [] },
+        },
+      });
+      await prisma.booking.update({
+        where: { id: f.booking.id },
+        data: { capacityPolicyVersionId: policy.id },
+      });
+      await prisma.$transaction((tx) => scheduleReminders(tx, f.booking));
+      expect(
+        await prisma.bookingReminder.count({ where: { bookingId: f.booking.id } }),
+      ).toBe(1);
+      expect(
+        await prisma.bookingReminder.findUniqueOrThrow({ where: { id: f.reminder.id } }),
+      ).toMatchObject({ kind: "ONE_HOUR", status: "PENDING" });
+    });
 
     it("bounds the shared inbox and push notification by the appointment time", async () => {
       const f = await fixture();

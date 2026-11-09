@@ -157535,7 +157535,7 @@
                         "resourceId": "00000000-0000-4000-8000-000000000001",
                         "message": "synthetic-message",
                         "createdAt": "2030-01-15T10:00:00.000Z",
-                        "resolvedAt": "2030-01-15T10:00:00.000Z",
+                        "resolvedAt": null,
                         "resolvedByUserId": "00000000-0000-4000-8000-000000000001"
                       }
                     ]
@@ -163521,7 +163521,7 @@
                     },
                     "delivery": {
                       "enabled": false,
-                      "policyVersion": "synthetic-policyversion",
+                      "policyVersion": null,
                       "zones": [
                         {
                           "id": "synthetic-id",
@@ -163832,17 +163832,22 @@
                               "description": "Cancellation Fee Kobo validated by this operation's strict request contract."
                             },
                             "reminderMinutes": {
-                              "type": "number",
-                              "enum": [
-                                60
-                              ],
+                              "type": "null",
                               "description": "Reminder Minutes validated by this operation's strict request contract."
+                            },
+                            "reminderTiming": {
+                              "type": "string",
+                              "enum": [
+                                "APPOINTMENT_POLICY"
+                              ],
+                              "description": "Reminder Timing validated by this operation's strict request contract."
                             }
                           },
                           "required": [
                             "confirmation",
                             "cancellationFeeKobo",
-                            "reminderMinutes"
+                            "reminderMinutes",
+                            "reminderTiming"
                           ],
                           "description": "Booking validated by this operation's strict request contract."
                         },
@@ -163954,7 +163959,8 @@
                     "booking": {
                       "confirmation": "STAFF_REVIEW",
                       "cancellationFeeKobo": "0",
-                      "reminderMinutes": 60
+                      "reminderMinutes": null,
+                      "reminderTiming": "APPOINTMENT_POLICY"
                     },
                     "marketing": {
                       "enabled": false
@@ -171543,6 +171549,17 @@
                             "minimum": 0,
                             "maximum": 1440,
                             "description": "No Show Grace Minutes validated by this operation's strict request contract."
+                          },
+                          "reminderMinutes": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 10080,
+                              "description": "Reminder Minutes Item validated by this operation's strict request contract."
+                            },
+                            "maxItems": 3,
+                            "description": "Reminder Minutes validated by this operation's strict request contract."
                           },
                           "openingDays": {
                             "type": "array",

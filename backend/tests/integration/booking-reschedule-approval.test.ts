@@ -247,7 +247,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         await prisma.bookingReminder.count({
           where: { bookingId: f.booking.id, scheduleVersion: 1, status: "PENDING" },
         }),
-      ).toBe(1);
+      ).toBe(3);
       expect(
         await prisma.bookingRescheduleRequest.findUnique({ where: { id: pending.id } }),
       ).toMatchObject({ status: "APPROVED", decidedByUserId: f.actor.userId });

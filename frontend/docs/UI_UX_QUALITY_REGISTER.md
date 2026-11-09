@@ -1,3 +1,14 @@
+## 9 November 20:39 UTC - reminder authoring acceptance pending
+
+Booking capacity extends its existing approval/recovery form with reminder times,
+explicit none and delegated-default provenance. New320/768/1440 review, validation,
+keyboard/focus/save/Axe and safe captures await execution. Types, scoped lint and
+five receipt/recovery units pass; these are not rendered or real-role acceptance.
+No new screenshot or physical-device pass is claimed. Canonical evidence and full
+remaining scope: site-completion-tracker.md and docs/help-learn/REMINDER_SCHEDULE_20261109.md.
+
+---
+
 ## 9 November 20:13 UTC - preserve concurrent Home and catalogue release work
 
 Reminder candidate incorporates master 9f9ee2f8: approved Home/support design,

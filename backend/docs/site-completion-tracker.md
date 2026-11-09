@@ -1,3 +1,23 @@
+## 9 November 20:39 UTC - configurable reminder source batch
+
+Branch codex/reminder-schedule-20261109 adds reviewed branch reminder settings with
+delegated 24h/2h/30m defaults, explicit none and saved appointment-policy scheduling.
+An expand-only 102nd migration retains legacy jobs/kinds. Isolated replay/db:check,
+135 booking regressions and 11 learning API cases pass; runtime login is disabled.
+Types, scoped frontend lint, five receipt/recovery units and final45 backend units
+pass. Rendered acceptance and exact-source CI remain pending. No publication or actual
+provider delivery is claimed. See docs/help-learn/REMINDER_SCHEDULE_20261109.md for
+failed attempts and recovery gates: compatible workers must precede new NOTICE
+creation; an old all-component recovery is insufficient.
+
+PR34 expiry head ccb2b196 separately passes backend42692306516 and secrets42692306480;
+frontend42692306583 is active. Its two-clock session fixture failure was corrected
+without weakening the database constraint. Schedule work does not cancel that run.
+Packaging remains held by the21.5GiB preflight. Product timing/full D13, D12/D14/D17,
+advanced D03 and remaining whole-audit role/provider/device acceptance stay open.
+
+---
+
 ## 9 November 20:13 UTC - preserve concurrent Home and catalogue release work
 
 Reminder candidate incorporates master 9f9ee2f8: approved Home/support design,
