@@ -1,15 +1,19 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 
-/** Compact task introduction; stock photography never stands in for a listing. */
+/** Catalogue introduction; editorial photography never stands in for inventory. */
 export function CatalogueBanner({
   kind,
   title,
   description,
+  breadcrumbs,
+  children,
 }: {
   kind: "shop" | "services" | "vehicles";
   title: ReactNode;
   description: string;
+  breadcrumbs?: ReactNode;
+  children?: ReactNode;
 }) {
   const image =
     kind === "shop"
@@ -24,8 +28,13 @@ export function CatalogueBanner({
     >
       <div className="public-wrap catalogue-banner__inner">
         <div className="catalogue-banner__copy">
+          {breadcrumbs}
+          {kind === "services" && (
+            <p className="catalogue-banner__eyebrow">Workshop services</p>
+          )}
           <h1 id={`${kind}-catalogue-title`}>{title}</h1>
           <p>{description}</p>
+          {children}
         </div>
         {image && (
           <figure className="catalogue-banner__media">
@@ -33,7 +42,8 @@ export function CatalogueBanner({
               src={image}
               alt={kind === "services" ? "Inside the Allied AutoTech workshop" : ""}
               fill
-              sizes="(max-width: 700px) 90vw, 36vw"
+              sizes={kind === "services" ? "100vw" : "(max-width: 700px) 90vw, 36vw"}
+              preload={kind === "services"}
             />
             {kind === "shop" && (
               <figcaption>Illustrative automotive essentials</figcaption>

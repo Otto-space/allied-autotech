@@ -25,6 +25,27 @@ Separate four-file units/learning/routing: 37/37; backend types/scoped lint pass
 Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-exception-forward-fix.log.
 Order-sourcing learning is admin-only v2; existing publication/commerce flags remain.
 
+### 10 November: pickup/holding release candidate and retained supply work
+
+Current release worktree remains allied-contact-validation-20261027, now on
+release/collection-hold-20261110. Reconciled schema110 source410fa21c with master
+130556a1, preserving the newer Home/Services phone/carousel, account-action focus,
+recovery and navigation fixes and every hosted project. Only prepended evidence
+histories conflicted; both are retained. No application implementation was replaced
+with an older version. The Desktop owner's dirty hero edit remains untouched.
+
+The separate active D17 source is safely committed at8a2754fe on local branch
+codex/running-work-review-20261104 (79 native cases; schema112). It is intentionally
+held until customer remedy consent, financial linkage and resolved fulfilment are
+connected. Do not publish that unfinished intake or drop it while completing this
+schema110 release. Full D01-D17 scope remains active; the release is a bounded batch.
+
+Latest isolated UI410fa21c run42719802676 is still being verified. Earlier pickup
+runs passed the three staff/legacy cases and exposed a malformed CSRF fixture; its
+correction and code-lifetime continuity require actual browser evidence. No complete
+browser pass or production promotion is inferred. Exact combined-source checks,
+populated restore/migration rehearsal and all production safeguards remain required.
+
 ### 9 November: pickup browser fixture correction
 
 Hosted frontend42707420739 source1cc72541 passed production checks, repeated
@@ -230,6 +251,94 @@ Inventory issue/use is an optional extension, not a section-7.2 launch requireme
 materials-before-work, genuine historical credits and all financial safeguards stay.
 The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work remain.
 The owner's separate 79-line Desktop hero edit is preserved.
+
+## 9 November 22:17 UTC - recovery status regression and held-release transport
+
+Exact-master 6538f4b5 frontend run42705393145 completed with879 passes and two
+failures. Both assertions ambiguously matched the global availability notice and
+the recovery result. Scope each status to its named result region; deliberately
+show a503 availability notice so the collision stays covered. All eight compiled
+Edge/Chrome desktop and320px mobile/touch cases pass with unchanged application
+code. Evidence: TEMP/allied-auth-status-recheck-20261109/report.json. Secret
+clearing, generic copy, focus, session events and accessibility assertions remain.
+
+The held6538 candidate remains unpublished. Authenticated CLI reads return the
+application and JavaScript with200 responses. Browser transport attempts timed out
+or remained at session verification; these are failed checks, not acceptance.
+Deployment protection and public aliases are unchanged. PR44 account focus retains
+40 compiled native passes; its final combined GitHub gate remains pending. The
+complete original goal and active backend dependencies are still open.
+
+## 9 November 21:55 UTC - customer account focus verified in compiled browsers
+
+PR #44's compiled application, bd1d75d7, passes all 40 native Edge/Chrome cases:
+seven exact viewport pairs, both administrator roles, delayed refresh, deliberately
+moved focus, failed reads, rejected writes and filtered-row disappearance after
+confirmed or uncertain outcomes. Phone recovery cases additionally use 320x720
+mobile/touch contexts. No failures, retries or real outgoing writes occurred.
+The tests execute the committed regression file against the protected preview;
+trace/video/auth-state recording is disabled. Evidence:
+TEMP/allied-account-preview-bd1d75d7/report.json and its final-state captures.
+
+CI run 42705596768 passed lint, types, unit tests and the production build, then
+failed the quality register's formatting check. The extra blank line is corrected;
+the rerun must complete all 923 engine cases before release. Backend 42705596739
+and secret 42705596971 passed on bd1d75d7. This documentation-only checkpoint
+does not change the browser-verified application.
+
+Merged authentication/payment/quotation source 6538f4b5 has a READY production
+candidate, dpl_BKtDmMnbDf4n8JxznrkBtemRCMVt, held without public domains.
+Master frontend 42705393145 is running; backend 42705393276 and secret
+42705393445 passed. Held-candidate browser verification and publication remain
+pending. Public domains still serve the separate Home release 5464e402.
+The complete two-brief goal, active backend work and real-role/provider/device
+acceptance remain open.
+
+## 9 November 21:45 UTC - payment/quotation gate passed and integrated
+
+PR38 source58f55aed passes all881 browser cases in24.3 minutes, plus production,
+backend and secret gates. It is merged as6538f4b5, retaining the intervening Home
+release receipts. Final source native payment20, equipment18 and product-photo14
+cases pass; quotation28 native cases retain their unchanged-application scope.
+See TEMP/allied-modal-verification-58f55aed.md for screenshots and limitations.
+Exact-master checks and held-candidate publication remain separate requirements.
+
+Customer account follow-up9f4e64a5 is now reconciled with that master. Full types,
+scoped lint/formatting and the existing account-action unit pass;42 new engine
+cases collect. The923-case combined matrix receives30 minutes instead of25 based
+on the measured881-case runtime; job timeout remains45 minutes and no test or
+assertion is removed. Compiled account-focus acceptance remains pending.
+
+## 9 November 21:40 UTC - customer account review focus follow-up
+
+Authentication PR35 is merged as f1176eff after all818 browser cases, production,
+backend and secret checks passed. Master later advanced through Home receipt-only
+commits to1eef9aff; its replacement frontend42702705731 remains active. Preserve
+that source and the existing Home release5464e402/dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV
+on both public domains. Backendc3c54414 remains ACTIVE and unchanged.
+
+Payment/quotation PR38 remains separate at58f55aed with frontend42700053527 active;
+backend and secrets passed. Final payment native checks pass20 Edge/Chrome cases,
+including delayed/failed refresh and deliberate focus movement. Equipment previews
+pass18 native cases, including image-failure recovery; product-image previews pass14,
+including full phone width, centering, image proportions, keyboard and draft retention.
+These are isolated fixtures, not real-account or physical-device acceptance.
+Evidence: TEMP/allied-{payment,equipment,product-photo}-modal-58f55aed.
+
+A new compiled characterization found customer-account confirmation loses focus to
+BODY after an intercepted successful suspension: Admin/Super Admin at1280x720 and
+320x720, four failures. Cancellation and geometry pass. Preserve that failure receipt:
+TEMP/allied-account-modal-characterize-58f55aed/msedge/receipt.json.
+
+The focused follow-up keeps return focus in the customer workspace until its new
+read settles; use the heading if the original control is disabled or a filtered row
+leaves, and preserve deliberate focus movement. Existing permissions, audit reason,
+uncertain-write locking and request contracts are unchanged.42 cases collect across
+three engines, covering all seven exact sizes, both roles, delayed/failed reads,
+rejection and filtered-row disappearance. Scoped lint and the existing account action
+unit and full TypeScript checks pass; compiled/browser execution and publication remain pending.
+No production account or security setting was changed. Full two-brief/D01-D17 scope,
+business facts, provider delivery and physical/real-role acceptance remain open.
 
 ## 9 November 21:10 UTC - cross-browser payment focus follow-up
 
@@ -10053,18 +10162,18 @@ The current source still has 119 page templates. The existing route/role/state
 inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
 this implementation adds the following ordered status overlay, not a second backlog:
 
-| Group | Scope                                                                          | Implementation / release status                                                                                                                                          |
-| ----- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Group | Scope                                                                          | Implementation / release status                                                                           |
+| ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
 | 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
-| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                                                                                                                         |
-| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                                                                                 |
-| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                                                                           |
-| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                                                                                |
-| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                                                                              |
-| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                                                                                 |
-| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                                                                                            |
-| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                                                                               |
-| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                                                                                        |
+| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                         |
+| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                  |
+| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
+| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
+| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
+| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                  |
+| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                             |
+| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                |
+| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                         |
 
 Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
 The approved editorial workshop/family/parts/showroom family replaces the old
@@ -10227,3 +10336,128 @@ Next: group 2, Services catalogue/detail and the existing request journey.
 Reference/server review and live desktop 1440/phone 390 baselines are complete.
 Bring discovery forward while preserving categories, actual prices, quotations
 and restricted booking. Groups 2-10 and the full 119-template inventory remain open.
+
+## 9 November - Owner correction: compact Home hero (in progress)
+
+The owner reported excessive hero height and empty space, especially on phones.
+Home's carousel now uses content and controls in normal flow instead of large
+reserved bottom padding. The desktop minimum is reduced from 780px to 560px;
+phones use their content height, consistent stacked actions and a single control
+row where it fits, with two rows at 320px. All seven controls retain 44px targets.
+This intentionally tightens the reference proportions following owner feedback.
+Existing carousel, image recovery, links and permissions remain unchanged.
+
+The existing nine-size Home journey regression also checks stable height across
+all four slides, action/control clearance and first-screen discovery on phones.
+Rendered checks, exact-source gates and publication are pending. Services work is
+preserved separately on codex/stitch-services-20261109 / draft PR45; no unverified
+Services changes are included in this correction. No backend/database rollout.
+
+## 9 November - Compact carousel controls and mobile scroll correction
+
+Owner feedback also requests compact responsive controls and reports that tapping
+carousel controls jumps into the next section. Live Edge touch emulation at320x667
+reproduced a native tap scrolling from0 to555px, with the same URL and slide2.
+The shared ViewportNavigation selection/reveal helper aligns the tapped button
+below the sticky header because it treats the support dock as a full-width
+obstruction. Local carousel buttons now opt out of selection re-reveal; keyboard
+focus visibility and normal page/navigation/form handling remain enabled.
+
+Controls follow their DOM/keyboard order: previous, four slide choices, next,
+play/pause. One compact pill fits even320px without a second row. Arrows and
+playback keep44px targets; slide choices are32x44px on phones, above WCAG2.2AA's
+24px minimum, allowing the requested compact arrangement. Hero content spacing
+from the earlier compact change is retained. Five phone/short-phone touch cases
+check all seven controls, stable scroll/URL, one-row fit and pause/play behavior.
+Compiled render, full exact-master checks and publication are pending. Do not
+publish the earlier aba95de1 candidate while this correction is being verified.
+
+This correction is based on current master3cf5d9cb, preserving the concurrently
+merged customer-account focus and recovery-test changes (PR44). Its runtime diff
+is limited to focus restoration around existing permissioned account actions;
+no backend, permission or capability change is included. The 30-minute browser
+step budget was already justified by the measured expanded matrix, with its
+assertions retained. The older aba95de1 frontend gate subsequently passed, but
+does not qualify this newer carousel correction for publication.
+
+## 9 November - Services design group in progress
+
+Group 2 now starts from master aba95de1, preserving Home compact layout and
+the intervening authentication, payment and quotation layout/test fixes. Public Home remains the verified 5464e402 release;
+no Services publication has occurred. The 1440/390 live baseline had eight work-area
+cards above search, four real service records and restricted booking requests.
+
+The catalogue now follows the supplied photographic introduction, overlapping
+white filter panel and four-column desktop/single-column phone result cards.
+Search precedes work-area cards. Actual names, prices, quotations, durations,
+category links, URL/history and permissions retain their existing sources.
+The service detail uses larger typography and a framed real photograph; natural
+portrait/landscape proportions take precedence over the export's full-width crop.
+The existing request page explains the currently available contact route in
+customer language. No booking, support, authentication or transaction logic changed.
+
+Fourteen focused cases join the existing production-build matrix: all nine exact
+viewport pairs, combined filters/detail/back/reload, pagination focus, loading/
+empty/server/rate-limit/network recovery, zero price versus quotation, missing
+images, long facts, doubled-text reflow, and two enquiry review/cancel/receipt
+fixtures. Server reads use the existing loopback in-memory API; application writes
+are intercepted. Collection passes; execution and rendered reference comparison
+remain pending. Affected formatting/lint and an initial TypeScript check passed;
+final source and all three exact-master gates are required before publication.
+
+Reuse the shared dependency junction. No local build/install or Docker work.
+C: latest preflight 21.10 GiB with 0.05 GiB allowance passed; use a justified small
+upload/browser budget and stop if the 20 GiB reserve cannot be verified.
+
+Owner follow-up covers both Home and Services hero height. Services now reduces
+its desktop minimum to460px and phone spacing, removes the redundant phone
+eyebrow and keeps essential visit-arrangement guidance. Search should be fully
+visible within the first phone viewport. Tablet image contrast is strengthened.
+Initial Services CI42706653635 stopped on five instances of the same fixture
+interaction: checking a visually hidden controlled radio immediately after sort.
+The test now waits for the sort value, clicks the visible label and waits for the
+checked state; combined query and reload assertions are retained. No application
+filter logic changed. Re-run all14 cases and full exact-master gates before release.
+PR45/its source branch remain preserved; the reconciled branch is
+codex/stitch-services-compact-20261109. Public aliases remain the Home release.
+
+## 10 November - Combined owner-requested public mobile release candidate
+
+The owner explicitly included both Home and Services hero/mobile corrections.
+PR48 now carries the compact Home/carousel fix and the preserved Services group
+from PR47, on current master3cf5d9cb. This keeps their release evidence on one
+immutable candidate. Original Services branches/PRs are preserved or superseded
+with links; no unverified group is published. Groups3-10 remain open.
+
+Compiled Home38c7bc66 native-coordinate touch checks pass all seven controls at
+320x667,360x600,360x800,390x844,430x932: one278x58px pill, zero scroll movement,
+zero page errors/writes. Locator.tap() itself caused a2px visibility adjustment
+in the short600px test, so the regression now uses native touchscreen coordinates
+and waits through queued animation frames, keeping the strict zero-scroll check.
+
+Services c172ffb5 CI42712081074 passed12 of14 focused cases: nine sizes, pagination,
+recovery/zero/quotation states and missing-image/long/doubled content. Its two
+remaining enquiry fixtures incorrectly expected a combobox when the single
+branch is a labelled automatic choice. They now assert that fixed choice and
+its branchId in the intercepted request. One following registration fixture
+also exposed restricted capability state leaking between projects. Services
+teardown now restores the loopback fixture's full mode; production is unaffected.
+The overall run failed (892 passed,3 failed), and is not release acceptance.
+Re-run the combined full exact-master matrix, all14 Services cases and all five
+new carousel touch cases before publication. Existing public Services candidate
+checks at nine widths, true portrait proportions, combined filters/detail/Back/
+reload, FAQ, scoped1440/390 Axe and doubled320px text pass with no business writes.
+Category-only entry has a verified contrast/overlap defect at the first link;
+remove the catalogue overlap in that state before staging this combined candidate.
+
+The final enquiry fixture follows the existing anonymous public transport:
+its response is the validated publicSupportResult, and the write assertions cover
+service/branch/contact/subject/message plus review/cancel/receipt. Authenticated
+booking CSRF/idempotency expectations were incorrectly copied into this new test
+and are removed; no runtime authentication, CSRF or submission behaviour changed.
+
+The short-phone screenshot also exposed the support dock covering the discovery
+heading's final word. The Home introduction now leaves a56px side lane on phones,
+with a rendered disjoint-rectangle assertion in the five touch cases. Services
+sort/category selects stack below375px so their selected text has useful width.
+Both are scoped responsive repairs; final compiled screenshots remain required.
