@@ -23,6 +23,7 @@ import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { Feedback } from "./feedback";
 import { CopyableValue } from "./copyable-value";
 import { CustomerAccountAction } from "./customer-account-action";
+import { useAccountActionRefresh } from "./use-account-action-refresh";
 import { StatusBadge } from "./status-progress";
 import { customersQuery } from "@/lib/admin/work-customers";
 export function WorkCustomerDetail({ customerId }: { customerId: string }) {
@@ -105,6 +106,15 @@ function CustomerDetailWorkspace({ id }: { id: string }) {
     r = detail.data,
     error = detail.error || detail.refreshError,
     busy = detail.loading || detail.refreshing;
+  const {
+    headingRef: accountHeadingRef,
+    onChanged: refreshAccount,
+    onReviewClosed: restoreAccountFocus,
+  } = useAccountActionRefresh({
+    refresh: detail.refresh,
+    refreshing: busy,
+    settledRevision: detail.settledRevision,
+  });
   const name = r
     ? `${r.firstName} ${r.lastName}`.trim() || "Unnamed customer"
     : "Customer details";
@@ -121,7 +131,9 @@ function CustomerDetailWorkspace({ id }: { id: string }) {
       </nav>
       <header className="wi-header">
         <div>
-          <h1>{name}</h1>
+          <h1 ref={accountHeadingRef} tabIndex={-1}>
+            {name}
+          </h1>
           {r && (
             <div className="care-row-actions">
               <StatusBadge status={r.status} />
@@ -136,7 +148,8 @@ function CustomerDetailWorkspace({ id }: { id: string }) {
             <CustomerAccountAction
               customer={r}
               disabled={busy || !!error}
-              onChanged={detail.refresh}
+              onChanged={refreshAccount}
+              onReviewClosed={restoreAccountFocus}
             />
           )}
           <button className="button secondary" disabled={busy} onClick={detail.refresh}>

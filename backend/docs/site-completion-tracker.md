@@ -1,3 +1,34 @@
+## 9 November 21:40 UTC - customer account review focus follow-up
+
+Authentication PR35 is merged as f1176eff after all818 browser cases, production,
+backend and secret checks passed. Master later advanced through Home receipt-only
+commits to1eef9aff; its replacement frontend42702705731 remains active. Preserve
+that source and the existing Home release5464e402/dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV
+on both public domains. Backendc3c54414 remains ACTIVE and unchanged.
+
+Payment/quotation PR38 remains separate at58f55aed with frontend42700053527 active;
+backend and secrets passed. Final payment native checks pass20 Edge/Chrome cases,
+including delayed/failed refresh and deliberate focus movement. Equipment previews
+pass18 native cases, including image-failure recovery; product-image previews pass14,
+including full phone width, centering, image proportions, keyboard and draft retention.
+These are isolated fixtures, not real-account or physical-device acceptance.
+Evidence: TEMP/allied-{payment,equipment,product-photo}-modal-58f55aed.
+
+A new compiled characterization found customer-account confirmation loses focus to
+BODY after an intercepted successful suspension: Admin/Super Admin at1280x720 and
+320x720, four failures. Cancellation and geometry pass. Preserve that failure receipt:
+TEMP/allied-account-modal-characterize-58f55aed/msedge/receipt.json.
+
+The focused follow-up keeps return focus in the customer workspace until its new
+read settles; use the heading if the original control is disabled or a filtered row
+leaves, and preserve deliberate focus movement. Existing permissions, audit reason,
+uncertain-write locking and request contracts are unchanged.42 cases collect across
+three engines, covering all seven exact sizes, both roles, delayed/failed reads,
+rejection and filtered-row disappearance. Scoped lint and the existing account action
+unit and full TypeScript checks pass; compiled/browser execution and publication remain pending.
+No production account or security setting was changed. Full two-brief/D01-D17 scope,
+business facts, provider delivery and physical/real-role acceptance remain open.
+
 ## 9 November 21:10 UTC - cross-browser payment focus follow-up
 
 PR38 ac43bf8a passed1526 units (12 existing skips), production checks, nine WebKit
