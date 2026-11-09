@@ -102,7 +102,7 @@
 }
 .controls {
   position: absolute;
-  right: max(24px, calc((100% - 1200px) / 2));
+  right: max(96px, calc((100% - 1200px) / 2));
   bottom: 32px;
   z-index: 2;
   display: flex;
@@ -192,7 +192,8 @@
     background: linear-gradient(90deg, #080c0ff2, #080c0fd9);
   }
   .controls {
-    right: 16px;
+    left: 16px;
+    right: auto;
     bottom: 28px;
     gap: 0;
     display: grid;

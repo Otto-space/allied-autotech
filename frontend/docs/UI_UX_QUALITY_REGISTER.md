@@ -1,3 +1,32 @@
+## 9 November 20:00 UTC - Home support collision and inherited CI fixture repair
+
+Second preview f9f5cc132/dpl_9NXHpu8VQfji4gEsnYC9dLAZuRT3 passes the same nine
+Edge viewport/interaction samples and390/1440 scoped Axe,0 page errors/writes.
+Direct screenshots confirm the full-width team-photo repair and natural alignment
+photo crop. They also reveal the inherited full-width phone support bar covering
+the hero controls in the first viewport with an outage banner. Public pages now
+use a constant48px side dock, keeping authentic Allie/Help and Whatsapp accessible
+names and48px targets; dashboard docks are unchanged. Narrow carousel controls
+move left and desktop controls leave the right support lane clear. New hit-testing
+assertions exercise every carousel control, beyond visible-box checks. Updated
+candidate verification is required before release; earlier passes are not reused.
+
+Current master f7bfbf528 frontend run42681706626 failed1/724 browser cases:
+legacy-attendance / alternative appointment ACCEPT at1440px, waiting for a disabled
+Review proposed time button. Stack points to staff-bookings.spec.ts:1077. Its
+newest broad route returns{items:[]} for capability refresh instead of falling
+through to the existing bookingRuntimeCapabilities fixture. That malformed response
+correctly disables actions. The scoped appointment fixture now falls back on
+/public/capabilities and explicitly verifies focus revalidation before review.
+No production booking logic, permission, timeout, assertion or safeguard is weakened.
+Exact-source cloud verification remains pending; do not count master as passing.
+
+Temporary first-preview share was revoked. Automatic review blocked deletion of
+its local ACL-restricted access file; the file was retained and then reused for
+the second candidate. Revoke that share after QA. No production publication yet.
+
+---
+
 ## 9 November 19:47 UTC - Home preview interaction pass; fidelity repair
 
 PR36/source29a2c4421 has8/8 focused units plus affected lint, formatting and

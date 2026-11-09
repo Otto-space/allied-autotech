@@ -71,6 +71,17 @@ for (const [width, height] of viewports) {
       await expect(hero.getByRole("heading", { level: 1 })).toHaveCount(1);
     }
     await hero.getByRole("button", { name: /Show slide 1:/ }).click();
+    for (const control of await hero.getByRole("button").all()) {
+      await control.scrollIntoViewIfNeeded();
+      expect(
+        await control.evaluate((el) => {
+          const r = el.getBoundingClientRect();
+          return el.contains(
+            document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2),
+          );
+        }),
+      ).toBe(true);
+    }
     await hero.getByRole("button", { name: "Next slide", exact: true }).focus();
     await page.keyboard.press("ArrowLeft");
     await expect(hero).toHaveAttribute("data-slide", "4");

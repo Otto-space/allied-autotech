@@ -458,7 +458,7 @@ for (const width of [320, 390])
       name: "Customer support",
       exact: true,
     });
-    expect((await support.boundingBox())!.width).toBe(44);
+    expect((await support.boundingBox())!.width).toBe(48);
     for (const action of [
       hero(page).locator("a[data-hero-primary]:visible"),
       ...(await hero(page).getByRole("button").all()),
@@ -475,9 +475,9 @@ for (const width of [320, 390])
     }
     await page.locator(".home-team-photo").scrollIntoViewIfNeeded();
     await expect(hero(page)).toHaveAttribute("data-in-view", "false");
-    expect((await support.boundingBox())!.width).toBeGreaterThan(width * 0.8);
+    expect((await support.boundingBox())!.width).toBe(48);
     await page.goto("/about");
-    expect((await support.boundingBox())!.width).toBeGreaterThan(width * 0.8);
+    expect((await support.boundingBox())!.width).toBe(48);
   });
 
 test("no-JavaScript first slide retains real HTML, photo and discovery links", async ({
