@@ -1,3 +1,60 @@
+## 9 November 13:57 UTC - D11 source and populated restore checkpoint
+
+Prepared application candidate: `aff7d2fcaa3835cd3d4b8c2010d3c821f3397745`, PR #26.
+The final native run passes 51/51 cases across attendance, reschedule approval,
+managed rescheduling and the complete concern-booking HTTP journey. All 39 affected
+attendance/learning units pass; backend types/lint, frontend types/scoped lint and
+formatting pass. Canonical OpenAPI validates 452 paths and all 532 mounted operations.
+The earlier fixture failures were corrected: genuine workshop configuration precedes
+an available offer, and an unassigned preferred request has no published-slot binding.
+No database guard or assertion was weakened to accept those fixtures.
+
+The picker uses qualified technicians without requiring an original assignment on
+an assessed request. Approval rechecks a previously accepted time without imposing
+a new seven-day notice. Proposal captures known current timing before saving its
+suggestion; later defaults do not silently change that saved estimate. Same-visit
+approval refuses missing/mismatched original allocation evidence and retains arrival.
+
+Rendered evidence: four picker state cases at 320/390/768/1440px, uncertain-save and
+permission recheck cases, and the obsolete slow-response case pass. Safe synthetic
+before captures use actual released frontend dpl_22d3ubrHm6At1DnxuFFuR9h4SN5A;
+after captures use the local candidate at 390/1440px. API reads are intercepted and
+all writes blocked: zero production API requests or application writes. The clean
+390px after capture includes heading, date, available time, reason and review action.
+These are installed Windows Edge fixtures, not real-role or physical-device acceptance.
+Two local strict-console failures remain specifically attributed to injected Console
+Ninja loopback WebSocket CSP errors; production-build CI retains its strict assertions.
+
+Fresh backup: 911,779 bytes, repeatable-read exported snapshot, guarded receipt
+verified. A separate populated 99-to-100 restore and guarded forward migration pass,
+preserving original-column counts/hashes and prior migration/rolled-back history;
+final db:check passes. All original 99 source checksums, strict TLS, runtime least
+privilege and existing default grants were checked. Automated managed backups were
+freshly listed; managed restore evidence is historical, distinct from this fresh
+populated local rehearsal. Production was not migrated. Scoped temporary access was
+removed and freshly verified without changing other rules.
+
+Exact candidate runs are active: Frontend 42628881939 and Backend 42628881934;
+Secrets 42628881952 passed. Re-poll these actual handles; do not restart on an
+observation timeout. Master exact-source gates are required after integration.
+Docker's two existing builder endpoints returned worker-list deadline errors during
+read-only inspection. No image build, builder reset, pruning or resource deletion
+was attempted; preserve all current/recovery images and shared test resources.
+
+Evidence: TEMP/aat-attendance-20261104/release-late-aff7d2fc-20261109,
+canonical-late-aff7d2fc, late-alternatives-visual and
+native-1794232052351-alternative-integration.log. The task preview/fixture were stopped;
+last disk preflight was 22.09 GiB free. This is a point-in-time check.
+
+D11 remains unreleased pending exact-master CI, packaged Linux/candidate/recovery
+verification and guarded backend/frontend publication. Runtime remains e947a205,
+schema 99, browse/enquiries with checkout/new booking requests disabled. The full
+original audit/D01-D17 goal remains active; no new owner decision is needed for this
+batch. Continue staged payments, collection/sourcing, reminders, durable refunds and
+remaining operational/provider/role/device acceptance after the D11 release gates.
+
+---
+
 ## 9 November 13:35 UTC - available late-visit alternatives implemented; release pending
 
 Current item: D11. Source now searches actual same-branch alternatives using the

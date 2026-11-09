@@ -1,3 +1,11 @@
+### 9 November: final D11 source checkpoint
+
+Booking-confirmation v15 retains its existing audience/permission/publication gates.
+39 affected learning/attendance units and 51 isolated workflow cases pass, including
+the classified concern-to-offer/acceptance/approval journey. Same-visit continuation
+and real-resource guidance are source-verified; exact-source CI and protected release
+remain pending. No learning, booking or payment capability was activated.
+
 ### 9 November: available late alternatives and continued physical visits
 
 Restricted booking-confirmation v15 adds checked alternatives, normal versus late
