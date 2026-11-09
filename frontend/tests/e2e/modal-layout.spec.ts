@@ -1,5 +1,6 @@
 import { test, expect, type Locator } from "@playwright/test";
 import { garageFixture } from "../fixtures/customer-garage";
+import { fixture as securityFixture } from "../fixtures/security";
 import {
   notificationsFixture,
   notificationItem,
@@ -14,15 +15,15 @@ async function geometry(dialog: Locator, width: number, height: number) {
   expect(box.height).toBeLessThanOrEqual(height - 24);
   expect(await dialog.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
 }
-for (const [width, height] of [
-  [1280, 720],
-  [1024, 768],
-  [768, 1024],
-  [430, 932],
-  [390, 844],
-  [360, 800],
-  [320, 720],
-]) {
+for (const [width, height, securityRole] of [
+  [1280, 720, "CUSTOMER"],
+  [1024, 768, "STAFF"],
+  [768, 1024, "ADMIN"],
+  [430, 932, "SUPER_ADMIN"],
+  [390, 844, "CUSTOMER"],
+  [360, 800, "STAFF"],
+  [320, 720, "ADMIN"],
+] as const) {
   test.describe(`shared modals ${width}x${height}`, () => {
     test.use({
       viewport: { width, height },
@@ -32,6 +33,47 @@ for (const [width, height] of [
       },
       hasTouch: width <= 768,
       reducedMotion: "reduce",
+    });
+    test("security password review uses shared geometry and clears cancelled credentials", async ({
+      page,
+    }, info) => {
+      const state = await securityFixture(page, securityRole);
+      await page.goto(
+        securityRole === "CUSTOMER" ? "/dashboard/security" : "/admin/security",
+      );
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+        width,
+        height,
+      ]);
+      await expect(
+        page.getByRole("heading", { name: "Test authenticator", exact: true }),
+      ).toBeVisible();
+      const fields = ["Current password", "New password", "Confirm new password"];
+      for (const [index, label] of fields.entries())
+        await page
+          .getByLabel(label, { exact: true })
+          .fill(index ? "new-isolated-passphrase" : "old-isolated-passphrase");
+      const opener = page.getByRole("button", {
+        name: "Review password change",
+        exact: true,
+      });
+      await opener.click();
+      const dialog = page.getByRole("dialog", { name: "Change your password?" });
+      await geometry(dialog, width, height);
+      await expect(dialog).not.toContainText("isolated-passphrase");
+      await dialog.getByRole("button", { name: "Confirm change", exact: true }).focus();
+      await expect(
+        dialog.getByRole("button", { name: "Confirm change", exact: true }),
+      ).toBeInViewport();
+      await page.keyboard.press("Tab");
+      expect(await dialog.evaluate((e) => e.contains(document.activeElement))).toBe(true);
+      await page.screenshot({ path: info.outputPath("security-password-review.png") });
+      await page.keyboard.press("Escape");
+      await expect(dialog).toHaveCount(0);
+      await expect(opener).toBeFocused();
+      for (const label of fields)
+        await expect(page.getByLabel(label, { exact: true })).toHaveValue("");
+      expect(state.writes).toEqual([]);
     });
     test("vehicle form keeps fields and footer reachable", async ({ page }, info) => {
       const state = await garageFixture(page);
