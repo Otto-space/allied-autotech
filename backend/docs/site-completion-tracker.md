@@ -1,3 +1,15 @@
+## 9 November - WebKit calendar diagnostic passed over HTTPS
+
+The 320x720 calendar diagnostic passed in run 42617191838 on source 9558d5fe
+after adding the isolated TLS transport. This confirms the prior missing-calendar
+failure was caused by test-server asset TLS, not calendar geometry. The full
+engine matrix still requires terminal acceptance on the final integrated source.
+The transport also passed a local Windows synthetic request round trip with CSP
+headers preserved, reusing Git's bundled OpenSSL and leaving no certificate files
+or listening test servers. Integrated nonincremental TypeScript and scoped lint
+pass. The small Windows portability completion is included before final checks.
+No application, permission, security-header or business-data changes are made.
+
 ## 9 November 12:18 UTC - WebKit transport diagnosis and integration
 
 Next bounded checkpoint: 13:18 UTC. The previous matrix passed selected Chromium

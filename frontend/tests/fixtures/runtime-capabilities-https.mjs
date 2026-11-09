@@ -3,17 +3,28 @@
 import http from "node:http";
 import https from "node:https";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, unlinkSync, rmdirSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, unlinkSync, rmdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
+let openssl = "openssl";
+if (process.platform === "win32") {
+  // Git for Windows already ships OpenSSL; reuse it without changing PATH or
+  // requiring a second installation for the existing local test workflow.
+  const gitDirectory = execFileSync("git", ["--exec-path"], {
+    encoding: "utf8",
+    windowsHide: true,
+  }).trim();
+  const bundled = path.resolve(gitDirectory, "../../../usr/bin/openssl.exe");
+  if (existsSync(bundled)) openssl = bundled;
+}
 const directory = mkdtempSync(path.join(tmpdir(), "allied-runtime-tls-"));
 const keyPath = path.join(directory, "key.pem");
 const certPath = path.join(directory, "cert.pem");
 let server;
 try {
   execFileSync(
-    "openssl",
+    openssl,
     [
       "req",
       "-x509",
