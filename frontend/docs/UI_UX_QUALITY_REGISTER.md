@@ -1,3 +1,30 @@
+## 9 November 20:50 UTC - quotation review and payment fixture follow-up
+
+Compiled 9fa89d77 payment reviews pass 14 native Edge/Chrome geometry, focus,
+cancel and draft-retention cases across the seven required viewport pairs. These
+are isolated fixtures, with zero real writes or payment submissions. The final
+Evidence value assertion is now tightened from Paid at to No attachment.
+
+PR38 frontend42692772975 passed production checks but failed five payment cases
+before opening a review: the isolated server remained in its default restricted
+mode while only browser capabilities were full. Align the loopback-only server
+control before each case; production capabilities remain unchanged. The remaining
+834 cases did not run. Backend42692772695 and secret42692772940 passed.
+
+Staff quotation review was reproduced on compiled 9fa89d77 at1280,430,320px:
+phone dialogs were398/288px with16px gutters; Escape lost focus to body at all
+three widths while the booking refreshed. Keep desktop560px and shared responsive
+limits; restore focus after refresh, use the heading if the opener disappears,
+and preserve focus deliberately moved by the user. Thirty three-engine cases
+collect, including delayed refresh, lost permissions and changed quotation state.
+Scoped lint and full TypeScript checks pass. Compiled verification is pending.
+
+PR35 frontend42691319691 is terminal:676 passed, five footer-clearance failures,
+137 unrun. Native Edge confirmed actual16px overlap at1280/1024, not merely a
+stale assertion. Master5464e402 already includes that fix and attendance-fixture
+settlement; incorporate it without duplicating the other session's implementation.
+No publication on failed gates. Full goal and real-role/device acceptance stay open.
+
 ## 9 November - payment review mobile-width follow-up
 
 Current follow-up codex/payment-review-modal-20261109 starts from authentication

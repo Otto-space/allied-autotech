@@ -27,6 +27,22 @@ const reply = (route: Route, data: unknown) =>
       meta: { requestId: "payment-quality" },
     },
   });
+test.beforeEach(async ({ request }) => {
+  const origin = process.env.CAPABILITY_TEST_CONTROL_ORIGIN;
+  if (!origin) return;
+  if (origin !== "http://127.0.0.1:5024")
+    throw new Error("Payment capability control must use the isolated loopback fixture");
+  const response = await request.post(`${origin}/__capabilities`, {
+    data: {
+      mode: "full",
+      checkoutApproved: true,
+      bookingRequestsEnabled: true,
+      productPurchasesEnabled: true,
+      fail: false,
+    },
+  });
+  expect(response.ok()).toBe(true);
+});
 async function fixture(page: Page) {
   const state = {
     payment: initialPayment(),
@@ -191,7 +207,7 @@ for (const [width, height] of [
       expect(box.width).toBe(width <= 430 ? width : 620);
       expect(box.height).toBeLessThanOrEqual(height - 24);
       expect(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
-      const lastFact = dialog.getByText("Paid at", { exact: true });
+      const lastFact = dialog.getByText("No attachment", { exact: true });
       await lastFact.scrollIntoViewIfNeeded();
       await expect(lastFact).toBeInViewport();
       const confirm = dialog.getByRole("button", { name: "Confirm change", exact: true });
