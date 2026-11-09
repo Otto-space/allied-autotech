@@ -1,4 +1,6 @@
-import { engineLitres, vehiclePresentation } from "@/lib/vehicle-presentation";
+import { VehicleEngineSummary } from "@/app/components/vehicle-engine-summary";
+import { VehicleFeatures } from "@/app/components/vehicle-features";
+import { vehiclePresentation } from "@/lib/vehicle-presentation";
 import { VehicleOwnerDisclosure } from "../../components/vehicle-owner-disclosure";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -158,24 +160,7 @@ export default async function ListingPage({
     ...(vehicle.manufactureCountryCode
       ? { "Final assembly country": label(vehicle.manufactureCountryCode) }
       : {}),
-    ...(vehicle.powertrain ? { Powertrain: label(vehicle.powertrain) } : {}),
-    ...(vehicle.engineCapacityCc == null
-      ? {}
-      : {
-          "Engine capacity": `${engineLitres(vehicle.engineCapacityCc)} (${vehicle.engineCapacityCc.toLocaleString("en-NG")} cc)`,
-        }),
-    ...(vehicle.features?.length
-      ? { "Recorded features": vehicle.features.join(", ") }
-      : {}),
     ...(vehicle.color ? { Colour: vehicle.color } : {}),
-    ...(vehicle.engineCode ? { "Engine code": vehicle.engineCode } : {}),
-    ...(vehicle.cylinders != null ? { Cylinders: vehicle.cylinders } : {}),
-    ...(vehicle.engineSize && vehicle.engineCapacityCc == null
-      ? { "Engine size": vehicle.engineSize }
-      : {}),
-    ...(vehicle.driveType
-      ? { "Drive type": vehicle.driveType === "FOUR_WD" ? "4WD" : vehicle.driveType }
-      : {}),
     ...(vehicle.doors != null ? { Doors: vehicle.doors } : {}),
     ...(vehicle.seats != null ? { Seats: vehicle.seats } : {}),
   };
@@ -340,6 +325,8 @@ export default async function ListingPage({
                       </div>
                     ))}
                   </dl>
+                  <VehicleEngineSummary vehicle={vehicle} className="vd-specs" />
+                  <VehicleFeatures features={vehicle.features} />
                   <details className="vd-description">
                     <summary>About this vehicle</summary>
                     <p>

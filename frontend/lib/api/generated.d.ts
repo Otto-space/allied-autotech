@@ -78122,6 +78122,8 @@ export interface operations {
                                     powertrain?: "BEV" | "HEV" | "PHEV" | "ICE" | null;
                                     /** @description Engine Capacity Cc validated by this operation's strict request contract. */
                                     engineCapacityCc?: number | null;
+                                    /** @description Engine Details validated by this operation's strict request contract. */
+                                    engineDetails?: string | null;
                                     /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                     engineCode?: string | null;
                                     /** @description Cylinders validated by this operation's strict request contract. */
@@ -79582,6 +79584,8 @@ export interface operations {
                                         powertrain?: "BEV" | "HEV" | "PHEV" | "ICE" | null;
                                         /** @description Engine Capacity Cc validated by this operation's strict request contract. */
                                         engineCapacityCc?: number | null;
+                                        /** @description Engine Details validated by this operation's strict request contract. */
+                                        engineDetails?: string | null;
                                         /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                         engineCode?: string | null;
                                         /** @description Cylinders validated by this operation's strict request contract. */
@@ -80786,6 +80790,8 @@ export interface operations {
                     ownerReportedCondition?: string | null;
                     /** @description Owner Reported Issues validated by this operation's strict request contract. */
                     ownerReportedIssues?: string | null;
+                    /** @description Supplied engine description, up to 500 characters. Separate from capacity, engine code and features; no inferred specifications. */
+                    engineDetails?: string | null;
                     /** @description Engine Size validated by this operation's strict request contract. */
                     engineSize?: string | null;
                     /**
@@ -81307,12 +81313,6 @@ export interface operations {
                      */
                     fuelType?: "PETROL" | "DIESEL" | "HYBRID" | "ELECTRIC" | "OTHER" | null;
                     /**
-                     * @description Condition validated by this operation's strict request contract.
-                     * @default USED
-                     * @enum {string}
-                     */
-                    condition?: "NEW" | "USED" | "FOREIGN_USED" | "LOCALLY_USED";
-                    /**
                      * @description Body Type validated by this operation's strict request contract.
                      * @enum {string|null}
                      */
@@ -81336,6 +81336,8 @@ export interface operations {
                     ownerReportedCondition?: string | null;
                     /** @description Owner Reported Issues validated by this operation's strict request contract. */
                     ownerReportedIssues?: string | null;
+                    /** @description Supplied engine description, up to 500 characters. Separate from capacity, engine code and features; no inferred specifications. */
+                    engineDetails?: string | null;
                     /** @description Engine Size validated by this operation's strict request contract. */
                     engineSize?: string | null;
                     /**
@@ -81362,6 +81364,11 @@ export interface operations {
                      * @description ISO 8601 timestamp interpreted and validated by the server.
                      */
                     acquiredAt?: string | null;
+                    /**
+                     * @description Condition validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    condition?: "NEW" | "USED" | "FOREIGN_USED" | "LOCALLY_USED";
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedVersion: number;
                 };

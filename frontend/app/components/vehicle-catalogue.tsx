@@ -204,7 +204,7 @@ export function VehicleCatalogue({
                         ? value === "true"
                           ? "Featured only"
                           : "Non-featured only"
-                        : `${vehicleLabel(key === "bodyType" ? "Body" : key === "fuelType" ? "Fuel" : key === "conditions" ? "Condition" : key === "powertrains" ? "Powertrain Technology" : key)}: ${["make", "model", "year"].includes(key) ? value : vehicleLabel(value)}`;
+                        : `${vehicleLabel(key === "bodyType" ? "Body" : key === "fuelType" ? "Fuel" : key === "conditions" ? "Condition" : key === "powertrains" ? "Engine / Power type" : key)}: ${["make", "model", "year"].includes(key) ? value : vehicleLabel(value)}`;
                 return (
                   <button
                     type="button"

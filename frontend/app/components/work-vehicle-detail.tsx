@@ -1,4 +1,6 @@
 "use client";
+import { VehicleEngineSummary } from "./vehicle-engine-summary";
+import { VehicleFeatures } from "./vehicle-features";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -393,13 +395,7 @@ function DetailWorkspace({
               ? "Not recorded"
               : `${current.mileageKm.toLocaleString("en-NG")} km`,
         },
-        { label: "Transmission", value: current.transmission },
-        { label: "Fuel type", value: current.fuelType },
         { label: "Body type", value: current.bodyType },
-        { label: "Drive type", value: current.driveType },
-        { label: "Engine code", value: current.engineCode },
-        { label: "Cylinders", value: current.cylinders },
-        { label: "Engine size", value: current.engineSize },
         { label: "Colour", value: current.color },
         { label: "Doors", value: current.doors },
         { label: "Seats", value: current.seats },
@@ -547,7 +543,7 @@ function DetailWorkspace({
                         "Transmission",
                         "Fuel type",
                         "Body type",
-                        "Drive type",
+                        "Drive system",
                       ].includes(f.label)
                         ? human(f.value)
                         : f.value == null
@@ -557,6 +553,8 @@ function DetailWorkspace({
                   </div>
                 ))}
               </dl>
+              <VehicleEngineSummary vehicle={current} className="vd-facts" />
+              <VehicleFeatures features={current.features} />
             </section>
             <section className="detail-section">
               <h2>Stock identity</h2>

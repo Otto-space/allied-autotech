@@ -1,3 +1,39 @@
+## 10 November 2026 - both vehicle and Team & Access/media briefs active
+
+Owner confirmed both the available vehicle-details brief and the Team & Access/media
+attachment. Separate source worktree `allied-vehicle-media-20261109`, branch
+`codex/vehicle-media-20261109`, starts from master `3cf5d9cb2`; the restoration
+worktree's unfinished service/pickup merge is untouched. The complete requirement
+ledger, coverage and exact outstanding work are at the top of
+`frontend/docs/UI_UX_QUALITY_REGISTER.md` (V01-V05 and T01-T07). Do not narrow the
+objective to the first vehicle package or treat Team/media as optional.
+
+Current package implements terminology, shared Engine & drive controls/summary,
+individual Additional features with exact array preservation, import guidance and
+optional 500-character Engine details through server/client contracts. The new
+additive migration is source only; generated client and focused schema checks do
+not replace empty replay, db:check, populated recovery rehearsal, actual round-trip
+or compatible publication. Update schema now preserves omitted condition instead
+of applying the create default. No actual stock values were changed.
+
+Initial frontend 33/33 and backend17/17 focused tests and both TypeScript checkpoints
+pass; final-source gates and actual full-page browser checks remain pending. No
+production publication, vehicle/permission/invitation/upload test or capability
+activation. Both public aliases still resolve to dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV
+at this turn's read. All existing commercial/security/recovery work remains intact.
+Disk checkpoints and retained resources are recorded in the quality register.
+
+Final local source checkpoint: frontend70/70, backend18/18, both compilers,
+scoped/repository lint, contracts, secret guard and diff pass. Isolated Edge
+component fixture5/5 at320/390/768/1024/1440 (720px height) has no overflow, console
+errors or Axe findings and checks real component interactions/focus and font.
+This does not prove full application, actual-role or database acceptance. The
+new actual-route browser project is registered/listed but unexecuted. Current
+master130556a1 advanced with Home/Services work; reconcile and preserve it before
+CI. See the quality ledger for all evidence, fixture failures and remaining gates.
+
+---
+
 ## 9 November 22:17 UTC - recovery status regression and held-release transport
 
 Exact-master 6538f4b5 frontend run42705393145 completed with879 passes and two

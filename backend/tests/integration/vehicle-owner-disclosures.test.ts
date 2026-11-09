@@ -114,6 +114,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const body = vehicleCreateBodySchema.parse({
         ...draft.vehicle,
+        engineDetails: "Synthetic supplied engine description, with punctuation",
+        features: ["Synthetic audio, navigation"],
         branchId: branch.id,
         stockNumber: `BMW-${prefix}`,
       });
@@ -129,6 +131,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(created.status).toBe(201);
       const stock = created.body.data;
       expect(stock).toMatchObject({
+        engineDetails: body.engineDetails,
+        features: body.features,
         engineCode: "N46",
         cylinders: 4,
         mileageKm: null,
@@ -221,6 +225,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ownerReportedCondition: draft.vehicle.ownerReportedCondition,
         mileageKm: null,
         cylinders: 4,
+        engineDetails: body.engineDetails,
+        features: body.features,
         engineCode: "N46",
         conditionReports: [],
       });
@@ -245,6 +251,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         (await request(app).patch(`${path}/${stock.id}`).set(admin.headers).send(update))
           .status,
       ).toBe(409);
+      const unchanged = await request(app).get(`${path}/${stock.id}`).set(admin.headers);
+      expect(unchanged.body.data).toMatchObject({
+        engineDetails: body.engineDetails,
+        features: body.features,
+        condition: body.condition,
+      });
       const audit = await prisma.auditLog.findFirstOrThrow({
         where: { entityId: stock.id, action: "UPDATE" },
       });

@@ -352,7 +352,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       for (const identity of [admin, owner]) {
         const vehicle = await read(identity, "/learning/articles/vehicle-operations");
         expect(vehicle.status).toBe(200);
-        expect(vehicle.body.data).toMatchObject({ version: 2, href: "/admin/vehicles" });
+        expect(vehicle.body.data).toMatchObject({ version: 3, href: "/admin/vehicles" });
         expect(vehicle.body.data.steps.join(" ")).toContain("Edit details");
       }
       expect(ids(await read(owner))).toContain("privileged-recovery");
