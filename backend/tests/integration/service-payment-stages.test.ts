@@ -466,6 +466,17 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     }
     it("records one cleared physical collection, preserves invoices and rejects replay changes or history rewriting", async () => {
       const f = await collectionFixture();
+      await expect(
+        f.operations.releaseCompletedVehicle(
+          f.operator,
+          f.booking.id,
+          { ...f.body, financialReviewHash: "0".repeat(64) },
+          context(),
+        ),
+      ).rejects.toMatchObject({
+        statusCode: 409,
+        message: expect.stringContaining("financial review changed"),
+      });
       const before = await prisma.invoice.findUniqueOrThrow({
         where: { id: f.invoice.id },
       });
@@ -630,6 +641,42 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         headers = await testHeaders(f.operator),
         url = `/api/v1/staff/bookings/${f.booking.id}/vehicle-release`;
       const app = createApp();
+      const worker = await prisma.user.create({
+        data: {
+          email: `${randomUUID()}@example.test`,
+          passwordHash: "unusable-synthetic-only",
+          role: "STAFF",
+          emailVerifiedAt: new Date(),
+          staffProfile: {
+            create: {
+              firstName: "Synthetic",
+              lastName: "Read-only technician",
+              branchId: f.booking.branchId!,
+            },
+          },
+        },
+      });
+      const workerHeaders = await testHeaders({
+        ...f.operator,
+        userId: worker.id,
+        email: worker.email,
+        role: "STAFF",
+      });
+      await request(app)
+        .get(`/api/v1/staff/bookings/${f.booking.id}`)
+        .set(workerHeaders)
+        .expect(200);
+      await request(app)
+        .get(`/api/v1/staff/bookings/${f.booking.id}/vehicle-release-readiness`)
+        .set(workerHeaders)
+        .expect(403);
+      await request(app).post(url).set(workerHeaders).send(f.body).expect(403);
+      await request(app)
+        .post(url)
+        .set(headers)
+        .send({ ...f.body, financialReviewHash: undefined })
+        .expect(422);
+
       const customerHeaders = await testHeaders(f.actor);
       await request(app).post(url).set(customerHeaders).send(f.body).expect(403);
       const noCsrf = { ...headers };
