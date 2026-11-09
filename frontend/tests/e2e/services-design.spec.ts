@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
   servicesDesignFixture,
@@ -10,6 +10,12 @@ test.skip(
   !process.env.CAPABILITY_TEST_CONTROL_ORIGIN,
   "Requires the isolated production-build Services fixture",
 );
+
+async function choosePricing(page: Page, name: string) {
+  const radio = page.getByRole("radio", { name, exact: true });
+  await page.locator(".services-pricing label").filter({ has: radio }).click();
+  await expect(radio).toBeChecked();
+}
 
 for (const [width, height] of [
   [1920, 1080],
@@ -149,7 +155,7 @@ test("Services pagination keeps its filters and reveals the focused results head
   await page.setViewportSize({ width: 320, height: 720 });
   await page.goto("/services");
   state.paged = true;
-  await page.getByRole("radio", { name: "Fixed price", exact: true }).check();
+  await choosePricing(page, "Fixed price");
   await expect(page.locator(".services-row")).toHaveCount(1);
   const pages = page.getByRole("navigation", { name: "Service pages", exact: true });
   await pages.getByRole("button", { name: "Next", exact: true }).click();
@@ -176,12 +182,12 @@ test("Services distinguish loading, empty, failure, zero price and quotation sta
   await page.setViewportSize({ width: 320, height: 720 });
   await page.goto("/services");
   state.delay = 700;
-  await page.getByRole("radio", { name: "Fixed price", exact: true }).check();
+  await choosePricing(page, "Fixed price");
   await expect(page.getByText("Loading services…", { exact: true })).toBeVisible();
   await expect(page.locator(".services-row")).toHaveCount(2);
   state.delay = 0;
   state.empty = true;
-  await page.getByRole("radio", { name: "Quotation required", exact: true }).check();
+  await choosePricing(page, "Quotation required");
   await expect(
     page.getByRole("heading", { name: "No matching service options", exact: true }),
   ).toBeVisible();
@@ -190,7 +196,7 @@ test("Services distinguish loading, empty, failure, zero price and quotation sta
   for (const failure of [503, 429, "network"] as const) {
     state.status = typeof failure === "number" ? failure : 200;
     state.networkFailure = failure === "network";
-    await page.getByRole("radio", { name: "Fixed price", exact: true }).check();
+    await choosePricing(page, "Fixed price");
     await expect(
       page.getByRole("heading", { name: "Services are unavailable", exact: true }),
     ).toBeVisible();
@@ -199,7 +205,7 @@ test("Services distinguish loading, empty, failure, zero price and quotation sta
     state.networkFailure = false;
     await page.getByRole("button", { name: "Retry services", exact: true }).click();
     await expect(page.locator(".services-row")).toHaveCount(2);
-    await page.getByRole("radio", { name: "All services", exact: true }).check();
+    await choosePricing(page, "All services");
     await expect(page.locator(".services-row")).toHaveCount(2);
   }
   state.records = [
@@ -216,10 +222,10 @@ test("Services distinguish loading, empty, failure, zero price and quotation sta
       name: "Synthetic quotation service",
     },
   ];
-  await page.getByRole("radio", { name: "Fixed price", exact: true }).check();
+  await choosePricing(page, "Fixed price");
   await expect(page.locator(".services-row-price strong")).toHaveText("₦0");
   await expect(page.locator(".services-row-copy .muted")).toHaveCount(0);
-  await page.getByRole("radio", { name: "Quotation required", exact: true }).check();
+  await choosePricing(page, "Quotation required");
   await expect(page.locator(".services-row-price strong")).toHaveText(
     "Quotation required",
   );
@@ -300,7 +306,7 @@ test("Services retain long facts and usable links when images fail and text doub
       },
     },
   ];
-  await page.getByRole("radio", { name: "Fixed price", exact: true }).check();
+  await choosePricing(page, "Fixed price");
   await expect(page.locator(".services-row")).toHaveCount(1);
   await expect(page.locator(".services-row h3")).toHaveText(state.records[0].name);
   await expect(
