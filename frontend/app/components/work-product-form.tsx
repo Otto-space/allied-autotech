@@ -1,4 +1,6 @@
 "use client";
+import { productTimingLabels } from "@/lib/product-timing";
+
 import { statusLabel } from "@/lib/status-progress";
 import { useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -199,6 +201,9 @@ function ProductForm({
       brand: record?.brand ?? "",
       manufacturerPartNumber: record?.manufacturerPartNumber ?? "",
       description: record?.description ?? "",
+      sourcingDaysMin: record?.sourcingDaysMin?.toString() ?? "",
+      sourcingDaysMax: record?.sourcingDaysMax?.toString() ?? "",
+      preparationMinutes: record?.preparationMinutes?.toString() ?? "",
       priceKobo: record ? koboToInput(record.priceKobo) : "",
       compareAtPriceKobo: record?.compareAtPriceKobo
         ? koboToInput(record.compareAtPriceKobo)
@@ -224,6 +229,9 @@ function ProductForm({
     "brand",
     "manufacturerPartNumber",
     "description",
+    "sourcingDaysMin",
+    "sourcingDaysMax",
+    "preparationMinutes",
     "priceKobo",
     "compareAtPriceKobo",
     "featured",
@@ -266,6 +274,14 @@ function ProductForm({
           value: body.manufacturerPartNumber || "Not provided",
         },
         { label: "Description", value: body.description || "Not provided" },
+        {
+          label: "Sourcing estimate",
+          value: productTimingLabels(body).sourcing || "Not recorded",
+        },
+        {
+          label: "Preparation estimate",
+          value: productTimingLabels(body).preparation || "Not recorded",
+        },
         { label: "Selling price", value: formatKobo(body.priceKobo) },
         {
           label: "Comparison price",
@@ -402,6 +418,9 @@ function ProductForm({
                   compareAtPriceKobo: "",
                   featured: false,
                   description: "",
+                  sourcingDaysMin: "",
+                  sourcingDaysMax: "",
+                  preparationMinutes: "",
                   isActive: true,
                 });
                 pending(false);
@@ -665,6 +684,34 @@ function ProductForm({
               />
               {error("description")}
             </div>
+            <div className="product-field-wide">
+              <h3>Sourcing & preparation estimates</h3>
+              <p id="product-timing-help">
+                Optional estimates only. Use calendar days for sourcing and minutes for
+                preparation once the item is available. Leave unknown times blank;
+                collection readiness is confirmed on the order.
+              </p>
+            </div>
+            {(
+              [
+                ["sourcingDaysMin", "Minimum sourcing days"],
+                ["sourcingDaysMax", "Maximum sourcing days"],
+                ["preparationMinutes", "Preparation minutes"],
+              ] as const
+            ).map(([name, label]) => (
+              <div className="field" key={name}>
+                <label htmlFor={`admin-${name}`}>{label} (optional)</label>
+                <input
+                  {...form.register(name)}
+                  {...common(name)}
+                  type="text"
+                  inputMode="numeric"
+                  aria-describedby={`product-timing-help ${errors[name] ? `product-error-${name}` : ""}`}
+                  maxLength={6}
+                />
+                {error(name)}
+              </div>
+            ))}
           </div>
           <section className="product-form-group" aria-labelledby="product-pricing-title">
             <h3 id="product-pricing-title">Pricing</h3>

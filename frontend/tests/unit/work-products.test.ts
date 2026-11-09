@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { productTimingLabels } from "@/lib/product-timing";
 import {
   productQuery,
   productFormSchema,
@@ -43,6 +44,43 @@ const values = {
   isActive: true,
 };
 describe("administrator product boundaries", () => {
+  it("keeps zero estimates distinct from unknown values and sends explicit clearing", () => {
+    const zero = productBody(
+      productFormSchema.parse({
+        ...values,
+        sourcingDaysMin: "0",
+        sourcingDaysMax: "0",
+        preparationMinutes: "0",
+      }),
+      null,
+    );
+    expect(zero).toMatchObject({
+      sourcingDaysMin: 0,
+      sourcingDaysMax: 0,
+      preparationMinutes: 0,
+    });
+    expect(productTimingLabels(zero)).toEqual({
+      sourcing: "0 calendar days",
+      preparation: "0 minutes",
+    });
+    const unknown = productBody(productFormSchema.parse(values), null);
+    expect(unknown).toMatchObject({
+      sourcingDaysMin: null,
+      sourcingDaysMax: null,
+      preparationMinutes: null,
+    });
+    expect(productTimingLabels(unknown)).toEqual({ sourcing: null, preparation: null });
+  });
+  it.each([
+    { sourcingDaysMin: "1" },
+    { sourcingDaysMax: "4" },
+    { sourcingDaysMin: "4", sourcingDaysMax: "3" },
+    { sourcingDaysMin: "1.5", sourcingDaysMax: "4" },
+    { preparationMinutes: "1e3" },
+    { preparationMinutes: "-1" },
+  ])("rejects incomplete or misleading estimate input %j", (timing) => {
+    expect(productFormSchema.safeParse({ ...values, ...timing }).success).toBe(false);
+  });
   it("preserves the compatibility tab only for a selected media workspace", () => {
     const selected = productQuery(
       new URLSearchParams(`media=${id}&tab=compatibility&search=filter`),

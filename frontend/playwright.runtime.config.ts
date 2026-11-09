@@ -7,6 +7,27 @@ export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
     {
+      name: "product-authoring",
+      testMatch: ["work-products.spec.ts"],
+      grep: /product estimates validate|edit stays locked/,
+      timeout: 60_000,
+      expect: { timeout: 15_000 },
+    },
+    {
+      name: "product-timing",
+      testMatch: ["product-timing.spec.ts"],
+      timeout: 60_000,
+      expect: { timeout: 15_000 },
+    },
+    {
+      name: "product-touch",
+      testMatch: ["work-products.spec.ts"],
+      grep: /product estimates validate, review and persist at 320px/,
+      use: { hasTouch: true },
+      timeout: 60_000,
+      expect: { timeout: 15_000 },
+    },
+    {
       name: "runtime",
       testMatch: [
         "runtime-capabilities.spec.ts",

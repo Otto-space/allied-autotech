@@ -1,3 +1,40 @@
+## 9 November 17:59 UTC - exact-build product coverage queued
+
+Backend/secrets gates pass on fac525a3. Eleven product operator/public/touch cases
+are now collected in the existing production-build browser configuration, reusing
+its one build and loopback fixture. They are not yet execution evidence. Types,
+lint, formatting and two actual fixture HTTP/parser checks pass. Default case and
+expectation deadlines are unchanged. The canonical tracker records source/run IDs,
+local reserve constraints and retained unverified acceptance; no release occurred.
+
+---
+
+## 9 November 17:47 UTC - current-head acceptance pending
+
+PR 32 head fac525a3 preserves current master 160d3b7b. Merged public 768/1440 and
+unknown-state checks pass; 320 timed out and operator cases were interrupted when
+the disk reserve failed. Do not apply the pre-merge browser totals below to the
+whole current head. Exact-source frontend/backend CI is running; secrets passed.
+See backend/docs/site-completion-tracker.md for the canonical current evidence,
+constraints and handoff. No production publication or activation occurred.
+
+---
+
+## 9 November 17:40 UTC - D13 product defaults implemented; held for gates
+
+Per-product sourcing/preparation estimates have optional observed-version authoring,
+audit, database constraints and customer labels. Stock, suitability, payment and
+collection-ready facts remain separate. Checks pass: 43 isolated integration cases,
+15 backend/26 frontend units, 10 unique Edge cases and final three-case sidebar/Axe
+repeat, types/lint/contracts and 3,881-file secrets. Safe screenshots and actual
+failed attempts are in [the canonical tracker](../backend/docs/site-completion-tracker.md).
+Canonical committed-source replay/CI, recovery and release are pending. No production
+migration, record, permission or capability changed. D13 order timing, D12/D14/D15/
+D17, advanced D03 and original role/provider/device acceptance remain. No new owner
+answer is needed for these optional product defaults.
+
+---
+
 ## 9 November 16:36 UTC - navigation release checkpoint
 
 Saved items d553a349 is published and verified across all seven requested viewports.
