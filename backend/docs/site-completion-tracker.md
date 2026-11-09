@@ -1,3 +1,15 @@
+### 9 November: pickup browser fixture correction
+
+Hosted frontend42707420739 source1cc72541 passed production checks, repeated
+WebKit calendar/search and exact-image checks, then failed before app navigation:
+new pickup tests read the fixture wrapper instead of its detail member. Corrected
+all three call sites. A focused TypeScript check of the new e2e file and transitive
+fixtures passes after adding three existing contract defaults (unknown category,
+empty review/availability histories). No stock/approval/payment fact was invented.
+The browser assertions and execution limits are unchanged. Twelve cases did not
+run; no pickup rendered acceptance or full-matrix pass is claimed from this run.
+New hosted checks are required. Backend/policy/runtime source is unchanged.
+
 ### 9 November: holding candidate preserves current payment-modal fixes
 
 Merged master 6538f4b5 without replacing the new payment/quotation modal sizing,

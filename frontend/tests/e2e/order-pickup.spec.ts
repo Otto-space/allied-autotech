@@ -17,7 +17,7 @@ for (const width of [320, 1440])
       if (message.type() === "error") errors.push(message.text());
       if (message.type() === "warning") warnings.push(message.text());
     });
-    const detail = await workOrderDetailFixture(page);
+    const { detail } = await workOrderDetailFixture(page);
     detail.record = {
       ...detail.record,
       status: "READY",
@@ -180,7 +180,7 @@ for (const width of [320, 1440])
 test("older backend does not expose pickup controls or make unsupported reads", async ({
   page,
 }) => {
-  const detail = await workOrderDetailFixture(page);
+  const { detail } = await workOrderDetailFixture(page);
   detail.record.status = "READY";
   detail.record.allowedTransitions = [];
   let reads = 0;
@@ -311,7 +311,7 @@ test("collection contact failures cannot create a deadline and extensions preser
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  const detail = await workOrderDetailFixture(page);
+  const { detail } = await workOrderDetailFixture(page);
   detail.record = {
     ...detail.record,
     status: "READY",
