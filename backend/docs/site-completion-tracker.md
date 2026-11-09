@@ -1,3 +1,41 @@
+### 9 November: D14 private pickup core (not a completed handover workflow)
+
+Prepared the reusable cryptographic and quantity rules for the remaining D14
+journey. Each generated secret has 256 random bits; HMAC purpose and actual order
+UUID bind its hash. Validation rejects expired, future-issued, revoked, consumed,
+wrong-order, malformed and incorrect secrets with one safe error. Raw pickupCode
+fields are redacted at request/response log paths. The code accepts an explicit
+future expiry with a seven-day security ceiling chosen in engineering; this is not
+an owner-approved business hold or a selected operational token lifetime.
+
+Partial plans validate actual order lines against grouped physical handover totals,
+reject over-collection and duplicate/unknown lines, and leave exact remainders. They
+never infer handover from payment/stock/READY status. Actual authorisation, current
+branch/MFA access, verified financial clearance, durable issuance/revoke/reissue,
+transactional consumption, handover audit, customer/guest/staff UI and concurrent
+acceptance remain to be connected. No endpoint or capability was enabled. The pure
+core cannot claim atomicity or physical acceptance by itself. Final isolated acceptance passed 63/63 in four suites, including the final
+upper-bound assertion, actual expired-session availability regression and existing
+identity/commerce security units. All 107 migrations replayed; empty diff, db:check
+and restricted runtime checks passed. Owned tmpfs DB removed. Unit-only checks
+passed 43/43; backend types and scoped lint passed. The full D01-D17 goal remains active.
+
+Hosted backend 42693804385 passed migration/type/lint, current-access booking/
+finance, media, authoring, pre-payment/source updates, guest privacy, financial
+concurrency and learning stages, then failed one existing Care fixture: separate
+clock reads made idleExpiresAt exceed expiresAt. Final Care batch: 114 passed,
+one failed. Replaced only those two fixture values with a shared past timestamp;
+kept the database constraint and expired-session assertions. Native 63/63 rerun
+includes the affected 20-case suite. Receipt: TEMP/aat-d03-service-payments-20261109/
+native-pickup-support.log. New hosted acceptance remains required; no pass is
+inferred from the former failed gate.
+
+Hosted frontend 42693804531 for remote source 5a9798bd is now running; keep that
+verified handle rather than restart for an observation timeout. Older 42688797955
+is terminal CANCELLED with its matrix step marked failure; log fetch returns 404
+BlobNotFound and no artifact is available. It is not a passing runtime result or
+evidence of a specific application assertion. Current source has not been deployed.
+
 Sourcing authoring additionally requires the actual response to advertise its
 `timingUpdates` field. Omission by an older backend stays distinct from an empty
 supported history, so the frontend cannot expose an unsupported mutation during
