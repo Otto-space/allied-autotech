@@ -1,3 +1,18 @@
+## 9 November 17:40 UTC - D13 product defaults implemented; held for gates
+
+Per-product sourcing/preparation estimates have optional observed-version authoring,
+audit, database constraints and customer labels. Stock, suitability, payment and
+collection-ready facts remain separate. Checks pass: 43 isolated integration cases,
+15 backend/26 frontend units, 10 unique Edge cases and final three-case sidebar/Axe
+repeat, types/lint/contracts and 3,881-file secrets. Safe screenshots and actual
+failed attempts are in [the canonical tracker](../backend/docs/site-completion-tracker.md).
+Canonical committed-source replay/CI, recovery and release are pending. No production
+migration, record, permission or capability changed. D13 order timing, D12/D14/D15/
+D17, advanced D03 and original role/provider/device acceptance remain. No new owner
+answer is needed for these optional product defaults.
+
+---
+
 ## 9 November 15:39 UTC - current publication and requirement ledger
 
 Application 9c219bc8, schema 100, publishes checked late-arrival alternatives and

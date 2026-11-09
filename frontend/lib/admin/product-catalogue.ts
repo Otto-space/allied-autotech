@@ -1,3 +1,4 @@
+import { productTimingFields } from "@/lib/product-timing";
 import { z } from "zod";
 import {
   productFamily,
@@ -19,6 +20,7 @@ export const productCategorySchema = z.object({
   parentId: uuid.nullable().optional(),
 });
 export const adminProductSchema = productExtrasSchema.extend({
+  ...productTimingFields,
   ...recordedProductFields,
   name: z.string().min(1).max(180),
   slug: z.string().min(2).max(120),
@@ -168,6 +170,15 @@ const clean = (max: number) =>
       (v) => !/[\u0000-\u001f\u007f]/.test(v),
       "Remove unsupported control characters.",
     );
+const timingInput = (maximum: number) =>
+  z
+    .string()
+    .trim()
+    .refine(
+      (v) => !v || (/^(0|[1-9][0-9]*)$/.test(v) && Number(v) <= maximum),
+      `Enter a whole number from 0 to ${maximum.toLocaleString("en-NG")}.`,
+    )
+    .optional();
 const amount = (optional = false) =>
   z
     .string()
@@ -213,12 +224,27 @@ export const productFormSchema = z
     brand: clean(100),
     manufacturerPartNumber: clean(120),
     description: clean(10000),
+    sourcingDaysMin: timingInput(3650),
+    sourcingDaysMax: timingInput(3650),
+    preparationMinutes: timingInput(525600),
     priceKobo: amount(),
     compareAtPriceKobo: amount(true),
     featured: z.boolean(),
     isActive: z.boolean(),
   })
   .superRefine((v, context) => {
+    if (
+      !!v.sourcingDaysMin !== !!v.sourcingDaysMax ||
+      (v.sourcingDaysMin &&
+        v.sourcingDaysMax &&
+        Number(v.sourcingDaysMin) > Number(v.sourcingDaysMax))
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["sourcingDaysMax"],
+        message: "Enter both sourcing estimates, with the maximum at least the minimum.",
+      });
+    }
     try {
       if (
         v.compareAtPriceKobo &&
@@ -259,6 +285,11 @@ export function productBody(values: ProductFormValues, record?: AdminProduct | n
     brand: values.brand || null,
     manufacturerPartNumber: values.manufacturerPartNumber || null,
     description: values.description || null,
+    sourcingDaysMin: values.sourcingDaysMin ? Number(values.sourcingDaysMin) : null,
+    sourcingDaysMax: values.sourcingDaysMax ? Number(values.sourcingDaysMax) : null,
+    preparationMinutes: values.preparationMinutes
+      ? Number(values.preparationMinutes)
+      : null,
     priceKobo: nairaToKobo(values.priceKobo),
     compareAtPriceKobo: values.compareAtPriceKobo
       ? nairaToKobo(values.compareAtPriceKobo)

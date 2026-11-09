@@ -10,6 +10,74 @@ const review = (page: Page) =>
   page.getByRole("button", { name: "Review changes", exact: true });
 const confirm = (page: Page) =>
   page.getByRole("button", { name: "Confirm save", exact: true });
+
+for (const width of [320, 768, 1440])
+  test(`product estimates validate, review and persist at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const { state } = await workProductsFixture(page);
+    await page.goto(`${path}?edit=${bookingId(1000)}`);
+    await expect(page.getByLabel("Minimum sourcing days (optional)")).toHaveValue("");
+    if (width === 1440) {
+      await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+      await expect(
+        page.getByRole("button", { name: "Expand sidebar", exact: true }),
+      ).toBeVisible();
+    }
+    await page.getByLabel("Minimum sourcing days (optional)").fill("3");
+    await review(page).click();
+    await expect(page.getByLabel("Maximum sourcing days (optional)")).toBeFocused();
+    await expect(
+      page.getByText(
+        "Enter both sourcing estimates, with the maximum at least the minimum.",
+      ),
+    ).toBeVisible();
+    expect(state.writes).toHaveLength(0);
+    await page.getByLabel("Maximum sourcing days (optional)").fill("7");
+    await page.getByLabel("Preparation minutes (optional)").fill("60");
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include("#product-editor")
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await review(page).click();
+    await expect(page.getByRole("dialog")).toContainText("3–7 calendar days");
+    await expect(page.getByRole("dialog")).toContainText("60 minutes");
+    await page.getByRole("button", { name: "Go back", exact: true }).click();
+    await expect(review(page)).toBeFocused();
+    await expect(page.getByLabel("Maximum sourcing days (optional)")).toHaveValue("7");
+    await review(page).click();
+    await confirm(page).click();
+    await expect(page.getByText("Product saved.", { exact: true }).first()).toBeVisible();
+    expect(state.writes).toHaveLength(1);
+    expect(state.writes[0].body).toMatchObject({
+      sourcingDaysMin: 3,
+      sourcingDaysMax: 7,
+      preparationMinutes: 60,
+    });
+    await page.goto(`${path}/${bookingId(1000)}`);
+    await expect(
+      page.getByRole("region", { name: "Sourcing and preparation estimates" }),
+    ).toContainText("3–7 calendar days");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    if (width === 1440) {
+      // A full navigation intentionally starts a fresh dashboard shell.
+      await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+      await page.getByRole("button", { name: "Expand sidebar", exact: true }).click();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+    }
+  });
 async function fillCreate(page: Page) {
   await expect(page.getByLabel("Name", { exact: true })).toBeEnabled();
   await page.getByLabel("Name", { exact: true }).fill("Synthetic oil filter");
@@ -165,6 +233,7 @@ for (const outcome of ["uncertain", "uncommitted", "contradictory"])
     const { state } = await workProductsFixture(page);
     await page.goto(`${path}?edit=${bookingId(1000)}`);
     await page.getByLabel("Name", { exact: true }).fill("Reviewed new name");
+    await page.getByLabel("Preparation minutes (optional)").fill("30");
     await review(page).click();
     state.outcome = outcome;
     await confirm(page).click();
@@ -183,6 +252,9 @@ for (const outcome of ["uncertain", "uncommitted", "contradictory"])
     await expect(review(page)).toBeEnabled();
     await expect(page.getByLabel("Name", { exact: true })).toHaveValue(
       outcome === "uncommitted" ? "Ceramic brake pads" : "Reviewed new name",
+    );
+    await expect(page.getByLabel("Preparation minutes (optional)")).toHaveValue(
+      outcome === "uncommitted" ? "" : "30",
     );
     expect(state.writes).toHaveLength(1);
   });

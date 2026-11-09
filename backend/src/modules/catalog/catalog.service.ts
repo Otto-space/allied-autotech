@@ -530,11 +530,17 @@ export class CatalogService {
           categoryId: existing.category.id,
           active: existing.isActive,
           priceKobo: existing.priceKobo.toString(),
+          sourcingDaysMin: existing.sourcingDaysMin,
+          sourcingDaysMax: existing.sourcingDaysMax,
+          preparationMinutes: existing.preparationMinutes,
         },
         newValues: {
           categoryId,
           active: product.isActive,
           priceKobo: product.priceKobo.toString(),
+          sourcingDaysMin: product.sourcingDaysMin,
+          sourcingDaysMax: product.sourcingDaysMax,
+          preparationMinutes: product.preparationMinutes,
           changedFields: Object.keys(input)
             .filter((key) => key !== "expectedUpdatedAt")
             .sort()

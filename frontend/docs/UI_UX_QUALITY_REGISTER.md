@@ -1,3 +1,20 @@
+## 9 November 17:40 UTC - product timing defaults; unpublished
+
+D13 product editing/review and public details now distinguish optional sourcing
+calendar days, preparation minutes and actual readiness. Unknown customer defaults
+stay blank; operator details identify them. Zero is preserved. Ten unique synthetic
+Edge cases pass, plus the final three-case repeat at 320/768/1440 with scoped WCAG
+2.2 AA Axe checks and laptop sidebar expansion/collapse. Coverage includes uncertain
+saves and unknown timing/media/stock. Four safe visual fixtures cover
+320/390/768/1440, review/focus and touch emulation, with zero writes/errors/overflow.
+
+See [the canonical tracker](../../backend/docs/site-completion-tracker.md) for exact
+checks, failures, recovery and artifacts. Source is unpublished. Order-level timing,
+original audit scope, real roles, provider/device acceptance, canonical CI/recovery
+and verified release remain. This is not D13 or overall commerce readiness.
+
+---
+
 ## 9 November 15:47 UTC - Saved items gates passed; integrate release evidence
 
 Current item: publish the Saved items collection-context fix after exact-master gates.

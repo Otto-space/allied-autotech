@@ -1,3 +1,86 @@
+## 9 November 17:37 UTC - D13 product-default verification completed; CI/release pending
+
+Ten unique native Edge fixture cases passed: three estimate edit/review/save/details
+journeys at 320/768/1440, three uncertain/uncommitted/contradictory-save recoveries,
+and four public responsive/unknown-media/stock/timing cases. The final three-case
+repeat passes unchanged timeouts and now explicitly covers expanded/collapsed
+1440px sidebars plus scoped WCAG 2.2 AA Axe checks. Full navigation intentionally
+resets the shell; the initial expanded-state test assumed persistence and was
+corrected to exercise both states explicitly. The public test fixture now serves
+its own loopback capabilities and current availability wording, preserving disabled
+stock actions; no application gate or production flag was relaxed.
+
+Four additional screenshot/read-only fixture journeys pass at 320/390/768/1440,
+with zero application writes, page errors and document overflow, review facts and
+focus restoration; 320 uses emulated touch. Original d553a349 editor/form-contract
+files were temporarily loaded only in this task's preview for the valid before-
+390.png capture, then byte-verified restored. A later optional baseline viewport
+attempt timed out; its source was also restored and is not counted as a successful
+capture. After-390-viewport.png and review-390.png are current safe fixture captures;
+all screenshots are local synthetic records, not real roles or physical devices.
+
+The own preview is stopped; shared native PostgreSQL, isolated evidence/data, source,
+other worktrees, caches, recovery resources and credentials are retained. No Docker
+resource or production record was created/changed. Last reserve check: 21.12 GiB.
+Final source formatting, backend/frontend types, affected lint, 15 backend units,
+26 frontend units and the 3,881-file secret guard pass. The signed candidate/PR is
+being closed out. Exact committed-source CI (including canonical migration replay),
+populated recovery and verified release remain; do not mark D13 or the whole goal
+ready from these product-default checks. Order-level estimates, D12/D14/D15/D17,
+advanced D03 and original operational/provider/device acceptance remain as below.
+
+---
+
+## 9 November 17:19 UTC - D13 product estimate authoring candidate
+
+Current work is based on freshly fetched master d553a349, branch
+codex/collection-timing-20261109. The parallel initial D03 comparison is retained
+at signed a50a07c4; do not merge its incompatible plan/migration format over the
+more advanced active D03 source in allied-contact-validation-20261027.
+
+Implemented: optional per-product minimum/maximum sourcing calendar days and
+preparation minutes once available. Admin/Super Admin use the existing observed-
+version editor, review, audit and uncertain-save recovery; zero differs from unknown.
+Public product information displays only recorded estimates, separately from stock,
+payment and actual readiness. Staff details identify unknown estimates. No universal
+one-day promise, supplier availability, compatibility, price or collection authority
+is inferred. Existing products remain null. Append-only migration
+20261109180000_product_timing_estimates adds three nullable columns and database
+range/pair constraints. No historical migration or production database was changed.
+
+Evidence so far: Prisma client regenerated; local empty 101-migration replay and
+db:check passed on newly isolated aat_product_timing_*_ci. Restricted runtime passed
+43/43 catalogue/discovery/Help HTTP integration cases. Initial run passed 34/43;
+nine Help cases received disabled-feature responses. Correct test-only learning
+flags resolved that runner error; production flags stay off. Backend typecheck,
+scoped Oxlint and 15 affected learning units passed. Frontend final typecheck,
+scoped ESLint and 26 product-form units pass on matching Next 16.4.3 dependencies;
+all direct installed versions were checked against the lockfile. Earlier wrong-
+version/interrupted checks are not final acceptance. Canonical API and client types
+are regenerated; 452 paths and 532 mounted operations plus four infrastructure
+routes validate. Mobile/tablet/browser/visual acceptance is being completed below.
+
+The first browser attempt passed 1440px and timed out at 320/768px. Its assertions
+and timeouts are unchanged for the rerun. C: temporarily fell from 21.17 to 11.61 GiB;
+this task stopped previews/checks immediately. Space returned above 21 GiB without
+file deletion; exact cause is not proven. Checks now run serially with memory bounds.
+No credentials, source, history, data, dependencies or other task resources were
+removed. Reused the existing matching frontend dependency junction; no installation.
+
+D13 remains incomplete overall: order-specific auditable sourcing/preparation
+updates, accepted timing snapshots, supplier/import arrival checks and actual
+collection-ready commitment remain. D12 holding-calendar decisions and deadline/
+extension workflow, D14 private partial pickup, D15 reminders, D17 durable refunds,
+advanced D03 and original full-audit operational/provider/device acceptance remain.
+Canonical committed-source replay/recovery, exact-source CI and guarded release
+remain before publication of this candidate. No capability was enabled. No new
+owner answer is needed for these optional product defaults.
+
+Artifacts: TEMP/aat-attendance-20261104/product-timing-* and
+product-timing-visual-20261109. Fixtures contain no real customer or stock records.
+
+---
+
 ## 9 November 15:47 UTC - Saved items gates passed; integrate release evidence
 
 Current item: publish the Saved items collection-context fix after exact-master gates.

@@ -1,3 +1,4 @@
+import { productTimingFields } from "@/lib/product-timing";
 import { fitmentDecisionSchema, fitmentQualifierKeys } from "../parts-fitment";
 import { z } from "zod";
 import {
@@ -20,6 +21,7 @@ export const categorySchema = z.object({
   description: z.string().nullable(),
 });
 export const productSchema = z.object({
+  ...productTimingFields,
   ...recordedProductFields,
   fitment: fitmentDecisionSchema.optional(),
   condition: z.enum(["NEW", "USED", "REFURBISHED"]).nullable().optional(),

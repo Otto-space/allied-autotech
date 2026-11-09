@@ -36770,6 +36770,12 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /** @description Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. */
+                                sourcingDaysMin?: number | null;
+                                /** @description Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. */
+                                sourcingDaysMax?: number | null;
+                                /** @description Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. */
+                                preparationMinutes?: number | null;
                                 /**
                                  * @description Family validated by this operation's strict request contract.
                                  * @enum {string|null}
@@ -37948,6 +37954,12 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /** @description Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. */
+                                sourcingDaysMin?: number | null;
+                                /** @description Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. */
+                                sourcingDaysMax?: number | null;
+                                /** @description Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. */
+                                preparationMinutes?: number | null;
                                 /**
                                  * @description Family validated by this operation's strict request contract.
                                  * @enum {string|null}
@@ -38391,6 +38403,12 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. */
+                            sourcingDaysMin?: number | null;
+                            /** @description Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. */
+                            sourcingDaysMax?: number | null;
+                            /** @description Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. */
+                            preparationMinutes?: number | null;
                             /**
                              * @description Family validated by this operation's strict request contract.
                              * @enum {string|null}
@@ -41824,6 +41842,12 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /** @description Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. */
+                                sourcingDaysMin?: number | null;
+                                /** @description Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. */
+                                sourcingDaysMax?: number | null;
+                                /** @description Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. */
+                                preparationMinutes?: number | null;
                                 /**
                                  * @description Family validated by this operation's strict request contract.
                                  * @enum {string|null}
@@ -42225,6 +42249,12 @@ export interface operations {
                  *     }
                  */
                 "application/json": {
+                    /** @description Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. */
+                    sourcingDaysMin?: number | null;
+                    /** @description Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. */
+                    sourcingDaysMax?: number | null;
+                    /** @description Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. */
+                    preparationMinutes?: number | null;
                     /**
                      * @description Family validated by this operation's strict request contract.
                      * @enum {string|null}
@@ -42384,6 +42414,12 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. */
+                            sourcingDaysMin?: number | null;
+                            /** @description Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. */
+                            sourcingDaysMax?: number | null;
+                            /** @description Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. */
+                            preparationMinutes?: number | null;
                             /**
                              * @description Family validated by this operation's strict request contract.
                              * @enum {string|null}
@@ -42887,6 +42923,12 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. */
+                            sourcingDaysMin?: number | null;
+                            /** @description Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. */
+                            sourcingDaysMax?: number | null;
+                            /** @description Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. */
+                            preparationMinutes?: number | null;
                             /**
                              * @description Family validated by this operation's strict request contract.
                              * @enum {string|null}
@@ -43301,6 +43343,12 @@ export interface operations {
             content: {
                 /** @example {} */
                 "application/json": {
+                    /** @description Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. */
+                    sourcingDaysMin?: number | null;
+                    /** @description Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. */
+                    sourcingDaysMax?: number | null;
+                    /** @description Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. */
+                    preparationMinutes?: number | null;
                     /**
                      * @description Family validated by this operation's strict request contract.
                      * @enum {string|null}
@@ -43458,6 +43506,12 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Minimum estimated elapsed calendar days if sourcing is needed. Set both bounds, or clear both. This does not confirm stock or collection readiness. */
+                            sourcingDaysMin?: number | null;
+                            /** @description Maximum estimated elapsed calendar days, at least the minimum. Unknown timing is null; zero is a recorded estimate. */
+                            sourcingDaysMax?: number | null;
+                            /** @description Estimated preparation minutes once the item is available, separately from sourcing and the order's actual collection-ready time. Null means unknown. */
+                            preparationMinutes?: number | null;
                             /**
                              * @description Family validated by this operation's strict request contract.
                              * @enum {string|null}
