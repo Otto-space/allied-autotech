@@ -35,7 +35,7 @@ export async function PublicHome() {
       <SiteHeader />
       <main id="main" className="public-site home-page">
         <HomeHero />
-        <section className="public-section">
+        <section className="public-section home-discovery">
           <div className="public-wrap partner-layout">
             <div className="partner-intro">
               <h2>Choose what you need</h2>

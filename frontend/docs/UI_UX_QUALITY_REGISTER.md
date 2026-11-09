@@ -8006,3 +8006,132 @@ authorize real charges. Production publication still requires exact-master CI,
 compatible backend rollout and the documented database backup/recovery gates.
 Ordering/media authoring, structured booking group context and Allie group sources
 remain unfinished. This is local evidence, not a production acceptance claim.
+
+## Stitch design implementation — 9 November 2026
+
+New owner-priority implementation records follow. These extend the established route/state inventory. No platform completion is implied.
+
+## 9 November 19:49 UTC - Home support collision and inherited CI fixture repair
+
+Second preview f9f5cc132/dpl_9NXHpu8VQfji4gEsnYC9dLAZuRT3 passes the same nine
+Edge viewport/interaction samples and390/1440 scoped Axe,0 page errors/writes.
+Direct screenshots confirm the full-width team-photo repair and natural alignment
+photo crop. They also reveal the inherited full-width phone support bar covering
+the hero controls in the first viewport with an outage banner. Public pages now
+use a constant48px side dock, keeping authentic Allie/Help and Whatsapp accessible
+names and48px targets; dashboard docks are unchanged. Narrow carousel controls
+move left and desktop controls leave the right support lane clear. New hit-testing
+assertions exercise every carousel control, beyond visible-box checks. Updated
+candidate verification is required before release; earlier passes are not reused.
+
+Current master f7bfbf528 frontend run42681706626 failed1/724 browser cases:
+legacy-attendance / alternative appointment ACCEPT at1440px, waiting for a disabled
+Review proposed time button. Stack points to staff-bookings.spec.ts:1077. Its
+newest broad route returns{items:[]} for capability refresh instead of falling
+through to the existing bookingRuntimeCapabilities fixture. That malformed response
+correctly disables actions. The scoped appointment fixture now falls back on
+/public/capabilities and explicitly verifies focus revalidation before review.
+No production booking logic, permission, timeout, assertion or safeguard is weakened.
+Exact-source cloud verification remains pending; do not count master as passing.
+
+Temporary first-preview share was revoked. Automatic review blocked deletion of
+its local ACL-restricted access file; the file was retained and then reused for
+the second candidate. Revoke that share after QA. No production publication yet.
+
+---
+
+## 9 November 19:47 UTC - Home preview interaction pass; fidelity repair
+
+PR36/source29a2c4421 has8/8 focused units plus affected lint, formatting and
+TypeScript passes. Protected preview dpl_GiPmiMXqe9XEbpAChiXhVLjfHx36 built remotely.
+Microsoft Edge157.0.4341.42 read-only browser samples passed all nine exact viewport
+pairs (1920x1080 through320x720), all four slides/destinations, keyboard/manual
+navigation, FAQ, menu Escape/focus, one dock and footer. Scoped main/footer Axe
+at1440/390 returned0 violations; no app page errors or non-GET application writes.
+This preview's backend/capabilities are unavailable and show the truthful outage
+banner. This proves fallback UI, not production data/auth/role acceptance.
+
+Direct view_image comparison with Home screen.png and matching HTML found a legacy
+margin rule shrinking the team card to265px. Explicit full-track width/margin fixes
+it; the genuine alignment photo replaces an unhelpful portrait lift crop. Existing
+lift/equipment information remains linked. Desktop hero height now follows HTML's
+780px large-screen treatment; narrow controls retain44px targets/two rows. Final
+render inspection of these corrections remains pending. Earlier preview passes do
+not automatically accept the new candidate. Exact-source release checks are pending.
+
+npm cache verify completed:3540 entries/1950070362 bytes verified; no reclamation
+reported. Browser-cache deletion was rejected,0 files deleted. Space later21.14GiB;
+no local build/install/Docker write. Backend candidate/migrations and public aliases
+remain unchanged by this task. Temporary preview access will be revoked after QA.
+
+---
+
+## 9 November 2026 - Stitch implementation, group 1 in progress
+
+Owner instruction: implement the supplied 14 HTML exports/13 screenshots in the
+existing app and publish coherent verified groups. The separate design.md's older
+mockup-only directions are reference context; no new Stitch project is required.
+Worktree: allied-stitch-design-20261109; branch codex/stitch-home-20261109, based on
+remote master f7bfbf528. A concurrent reminder-worker task in the original worktree
+is preserved on its prior branch, with its evidence restored and named stash kept.
+
+Current public deployment was read live on both aliases: dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb,
+source 160d3b7b. Keep this compatible recovery option. Master also contains product
+timing and profile/media acceptance work; its frontend gate is still running.
+Do not deploy a backend/migration or imply the separately held backend batch is live.
+
+The current source still has 119 page templates. The existing route/role/state
+inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
+this implementation adds the following ordered status overlay, not a second backlog:
+
+| Group | Scope                                                                          | Implementation / release status                                                                                                                                          |
+| ----- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1     | Shared brand/header/footer/support and Home                                    | Home/editorial footer implemented; header/support behaviour preserved. Focused units 8/8, affected lint and TypeScript pass; cloud browser/fidelity and release pending. |
+| 2     | Services, detail, existing request                                             | Pending reference inspection and implementation.                                                                                                                         |
+| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                                                                                 |
+| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                                                                           |
+| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                                                                                |
+| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                                                                              |
+| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                                                                                 |
+| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                                                                                            |
+| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                                                                               |
+| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                                                                                        |
+
+Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
+The approved editorial workshop/family/parts/showroom family replaces the old
+split-photo hero. Carousel retains bounded image recovery, manual/focus/reduced-motion
+pause, visibility suspension and no-JavaScript first slide. Four-state initialization
+now derives from slide count. Real workshop team/equipment photos form a compact grid.
+Services/catalogue/reviews keep current validated public reads and all data states.
+
+Reference fidelity ledger: full-width 720px desktop hero and high-contrast scrim;
+three padded discovery cards; white services region; dark workshop photo grid;
+off-white semantic footer. Intentional departures: approved fonts/logo/images,
+plain truthful copy, no fabricated live-open badge/stats/certification/stock/delivery
+or phone numbers, real listing warnings/prices, existing FAQ/reviews recovery,
+black workshop instead of general navy, 44px controls in two rows on narrow screens.
+The 363x1600 Home PNG is a reduced full-page preview; the matching HTML specifies
+the desktop composition. A native 1440px PNG comparison is therefore unavailable.
+Browser-rendered comparison and meaningful state checks remain PENDING.
+
+Browser path: in-app browser returned "browser access host is unavailable";
+installed Microsoft Edge 157.0.4341.42 inspected live Home at 1440x900/390x844,
+with no page errors or overflow at 1440. This was a read-only baseline, not acceptance.
+New home-design.spec.ts is in the existing exact-build CI browser configuration:
+all nine requested viewport pairs, four slide destinations, keyboard/wrap, FAQ,
+menu Escape/focus, footer/dock, scoped Axe, image failure and no writes. Execution
+is pending. Updated legacy carousel checks retain image/focus/timing assertions.
+
+Disk: default preflight failed at20.71GiB/25GiB. Isolated checkout was necessary to
+protect concurrent edits, with0.3GiB budget; shared dependency junction reused.
+No local build/install/Docker write. The owner requested safe cleanup. Read-only
+review found242MiB temporary browser cache; automatic review rejected deletion
+with "blocked by policy", so no deletion was performed. Native npm cache verify
+is running. Do not delete unknown resources or weaken the20GiB reserve.
+
+Next: complete cloud checks, inspect the held rendered candidate against reference
+and fix mismatches, integrate to master, require all three exact-master gates,
+verify compatibility with the unchanged backend, publish and check both aliases.
+No group or full-platform completion/release claim yet.
+
+---
