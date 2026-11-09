@@ -1,5 +1,6 @@
 "use client";
 import { BookingAttendanceHistory } from "./booking-attendance";
+import { BookingWorkEstimate } from "./booking-work-estimate";
 import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { usePublicCapabilities } from "./public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
@@ -98,6 +99,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
       : undefined;
   const disruption =
     current?.status === "CONFIRMED" &&
+    !current.startedAt &&
     !!current.disruptionRequestedAt &&
     current.disruptionResolution === "PENDING";
   const hasDeposit = !!current?.depositPayment && !!current.depositPaidAt;
@@ -106,6 +108,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
   );
   const canReschedule =
     !pendingReschedule &&
+    !current?.startedAt &&
     current?.status === "CONFIRMED" &&
     !!current.branch &&
     !!verifiedPolicy &&
@@ -300,6 +303,10 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
           <div className="booking-detail-grid">
             <div className="booking-detail-primary">
               <BookingAppointment booking={current} now={now} current={fresh} />
+              <BookingWorkEstimate
+                estimate={current.workEstimate}
+                status={current.status}
+              />
               <BookingDeposit booking={current} />
             </div>
             <BookingProgress booking={current} />
@@ -307,6 +314,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
           <section className="booking-changes" aria-labelledby="booking-changes-title">
             <h2 id="booking-changes-title">Appointment changes</h2>
             {current.alternativeStartsAt &&
+              !current.startedAt &&
               ["REQUESTED", "CONFIRMED"].includes(current.status) && (
                 <section
                   className="booking-detail-notice"

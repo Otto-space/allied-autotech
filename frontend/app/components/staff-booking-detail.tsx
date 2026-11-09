@@ -1,5 +1,7 @@
 "use client";
 import { BookingAttendance, BookingAttendanceHistory } from "./booking-attendance";
+import { BookingWorkReview } from "./booking-work-review";
+import { BookingWorkEstimate } from "./booking-work-estimate";
 import { BookingTimingReview } from "./booking-timing-review";
 import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { BookingRescheduleReview } from "./booking-reschedule-review";
@@ -438,6 +440,15 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
           ) : (
             <BookingAttendanceHistory events={current.attendanceEvents} />
           )}
+          <BookingWorkEstimate estimate={current.workEstimate} status={current.status} />
+          <BookingWorkReview
+            key={"work:" + session.user.id + ":" + current.id + ":" + current.version}
+            booking={{ ...current, branchId: current.branch?.id ?? null }}
+            owner={session.user.id}
+            canReview={canConfirm}
+            disabled={disabled}
+            onSaved={booking.refresh}
+          />
           <BookingTimingReview
             key={`timing:${session.user.id}:${current.id}:${current.version}`}
             booking={{ ...current, branchId: current.branch?.id ?? null }}

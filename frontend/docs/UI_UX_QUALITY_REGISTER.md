@@ -1,3 +1,40 @@
+## 9 November 11:42 UTC - compatibility release published; combined integration held
+
+Production now serves checked master 80b4c8ac on both apex and www: frontend
+dpl_5gdnYnBjoT5jwuumPPXZZyt4rSJA and backend
+6d88a7ff-230b-4e83-a9bb-e77252a32ea3. Exact master frontend/backend/secrets gates
+pass: 1,486 units passed (12 existing skips), 227 browser cases passed, 10 packaged
+checks passed, a fresh 899,377-byte snapshot restored with all original rows/counts/
+hashes and 97-migration history preserved, seven packaged candidate/recovery
+probes passed, and all 13 checked worker heartbeats were fresh and healthy. The
+scoped operator rule was removed and freshly verified. No production migration,
+permission, price, policy or capability activation occurred. Normal runtime worker
+activity is separate from the read-only release inspection. Provider payment,
+real-role and physical-device acceptance are not claimed.
+
+Full attendance cb46774c separately passed all three branch gates, 1,497 units
+(12 existing skips) and 237 browser cases. Master then advanced to efebfa38 with
+remaining-work reviews. The combined candidate preserves both workflows,
+requires booking-confirmation v14 and contains 99 migrations. The client and
+canonical contracts have been regenerated. Frontend/backend types and lint,
+57 backend and 32 frontend focused units, OpenAPI (450 paths) and mounted-route
+coverage (530 operations) pass. Runtime discovery includes 250 cases in 29 files;
+rendered combined execution and release/recovery evidence are pending. Prior
+single-feature results do not prove this composition. It is not published.
+
+A preflight temporarily failed with C: at 13.64 GiB free; substantial writes
+stopped. Windows subsequently reduced its page-file allocation (29,075 to 18,773
+MiB observed), and the fresh 0.3 GiB operation preflight passed with 23.21 GiB free.
+No project files or databases were deleted and the 20 GiB reserve was not lowered.
+Generation and combined verification have resumed with measured stage checks.
+D11 actual available alternatives, D03/D12-D17 and the original audit/role/provider
+acceptance requirements remain in the full ledger. A passing build is not launch
+approval for the complete site.
+
+Release receipt: TEMP/aat-attendance-20261104/release-compat-80b4c8ac-20261109/final-release-receipt.json.
+
+---
+
 ## 9 November - full attendance integration in progress
 
 Reconciled the complete attendance candidate with current master 80e95a38 and
@@ -414,6 +451,99 @@ Additional current-master source, preserved separately:
 Additional integrated browser-fixture correction:
 
 ## 9 November - attendance recovery source reconciliation
+
+### 9 November: preserve the newly merged missed-writer safeguard
+
+Candidate 7d5ec4eb passed Backend 42606466337, Secrets 42606466356 and Frontend
+42606466323: 1,507 units passed, twelve existing skips, and 239 production-browser
+cases passed, including all thirteen work reviews and both public-search cases.
+Before merge/publication, master advanced to 80b4c8ac with the missed-writer
+transition safeguard. This combined candidate preserves that refusal, hidden raw
+missed-status option, independent role guidance and all compatibility tests.
+Booking-confirmation v13 combines both v12 histories; service-request stays v29.
+New exact-source acceptance is required. Full attendance remains a separate draft.
+The only schema addition here is the remaining-work review migration (98 total).
+Future attendance publication must rehearse against this current ledger and retain
+a migrator aware of every applied migration; fixed historical migration counts do
+not authorize an older recovery image. Production has not changed in this batch.
+
+### 9 November 2026: D07 continuation and preservation checkpoint
+
+The interruption left the candidate on 1af29213. Its exact-head backend safety and
+secret checks passed; frontend production checks passed, followed by 224 existing
+browser cases passing and twelve new fixture cases failing on an outdated helper
+call. The new fixtures now supply the current page argument and complete envelopes.
+A rendered mobile regression exposed the pending-state dialog unmount; d15823c1
+preserves the dialog while saving and clears old proposals after recovery.
+
+The local twelve-case run passed eleven cases; the remaining administrator mobile
+case completed its workflow but reported a development stylesheet preload warning.
+The unchanged console guard was retained. A focused four-case rerun (mobile admin,
+lost, malformed and not-saved recovery) then passed before interruption; its exact
+output root d73cab6cb03e records a passed terminal run on 4 November at 04:08:31.
+Thirteen work-review cases are now selected for hosted production-build acceptance.
+These are isolated fixtures, not real-role or physical-device acceptance.
+
+Current integration includes master 80e95a38's public-search separator correction,
+recovery fixture and browser cases, alongside the earlier calendar/modal fixes.
+Both evidence histories are retained. New exact-source checks remain required.
+The earlier populated restore preserved original rows and passed guarded 97-to-98
+migration and db:check; its backup is now stale and cannot authorize production.
+No shared migration or production publication has occurred for this candidate.
+D01-D17 remains active; financial activation and unresolved owner facts stay gated.
+
+### 4 November 2026: D07 assessed remaining-work review — integrated candidate
+
+Integrated source retains master 804eb4fc's Month/Schedule calendar, responsive
+modal geometry, nonmodal filters, focus containment and complete browser coverage.
+Those application files are unchanged by this batch. Combined service-request v29
+preserves calendar guidance and adds the remaining-work clarification; restricted
+booking-confirmation is v12. Eligibility, semantic guide targets and live flags
+are unchanged; the owner resource-plan guide remains draft.
+
+The privileged, branch-scoped Review remaining work journey records the actual
+remaining minutes, cleanup, selected approved physical units and an internal reason.
+It requires an actual recorded start, current qualified technician and service,
+current policy, independent BOOKING_CONFIRM and scoped BOOKING_READ for managed
+access. All minimum requirements and any additional units must fit the full
+technician/resource/calendar/capacity window. Conflicts do not displace appointments.
+The original visit, schedule version, actual start, status, money and historical
+estimates/allocations remain unchanged. Legacy unknown original timing stays unknown.
+An overdue unfinished review continues to block overlapping work until assessed or
+explicitly completed. Completion/cancellation uses the reviewed cleanup allowance.
+
+Customers receive only a dated remaining-work estimate, explicitly separate from
+collection readiness. Private reasons, unit/actor IDs and allocation history are
+not exposed. Recorded-start bookings no longer offer customer rescheduling,
+disruption replacement or stale workshop alternatives even with legacy Confirmed
+status. Uncertain writes retain only an owner-bound local recovery reference;
+refresh and current saved-receipt inspection are required before clearing it.
+
+Local evidence: native pass 118/118 across seven files, all 98 forward migrations
+replayed and db:check succeeded on a newly owned tmpfs _test database using a
+restricted CRUD runtime role. The owned container was removed; no application DB
+was contacted. A rerun verifies the later integration and sequential option reads.
+Frontend typecheck and 21 focused units passed after correcting the new component
+test's DOM environment. Earlier native fixture failures and cross-case limiter
+interference were corrected without changing permissions or production limits;
+a within-journey limiter test proves the existing limit remains enforced.
+
+Rendered acceptance is pending: the candidate adds 12 production-build browser
+cases covering 320/768/1440px staff/admin reviews, lost/malformed receipts, revoked
+grants/changed plans, draft preservation and the customer estimate/started-work
+boundary. Browser plugin not available; use the existing isolated Playwright
+workflow. No synthetic result establishes real-role or physical workshop acceptance.
+
+Migration 20261104010000_booking_work_reviews is additive and not applied to a
+shared target. Production publication remains gated by exact combined-source CI,
+matching image build evidence, fresh target backup and separate populated restore,
+managed backup/PITR and privilege proof, compatible backend readiness and held
+frontend verification. C: last passed the 1.5 GiB check at 21.61 GiB; four-image
+builds still require the justified 2 GiB allowance. Production is unchanged by
+this candidate. D01-D17 remains active; actual branch/resource facts, real role
+acceptance and the separate finance/provider decisions are not fabricated.
+
+## 9 November ? attendance recovery source reconciliation
 
 Merged current master 80e95a38 into the held compatibility candidate, preserving
 public-search recovery coverage, corrected product identity wording and the

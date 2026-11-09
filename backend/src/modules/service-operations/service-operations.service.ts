@@ -7,6 +7,17 @@ import {
   type BookingAttendanceInput,
 } from "./booking-attendance.js";
 import {
+  bookingWithWorkEstimate,
+  currentWorkEstimate,
+  type WorkReviewBooking,
+  type EstimateAllocation,
+} from "./booking-work-estimate.js";
+import {
+  bookingWorkReviewOptions,
+  reviewStartedBookingWork,
+} from "./booking-work-review.js";
+import type { BookingWorkReviewInput } from "./service-operations.schemas.js";
+import {
   allocateBookingResources,
   findApprovedWorkshopResources,
   assertOfferedWorkshopResources,
@@ -157,7 +168,8 @@ function jsonSafe(value: unknown): unknown {
 }
 
 function customerSafeBooking<
-  T extends {
+  T extends WorkReviewBooking & {
+    resourceAllocations?: EstimateAllocation[];
     staffNotes: unknown;
     scheduleVersion: number;
     timingSnapshots: Array<{ scheduleVersion: number; durationMinutes: number | null }>;
@@ -177,6 +189,7 @@ function customerSafeBooking<
 >(booking: T) {
   const {
     staffNotes: _staffNotes,
+    resourceAllocations,
     timingSnapshots,
     workOrder,
     depositPayment,
@@ -228,6 +241,7 @@ function customerSafeBooking<
     : booking.bookingSlot;
   return {
     ...safe,
+    workEstimate: currentWorkEstimate(booking, resourceAllocations ?? []),
     bookingSlot: safeSlot,
     service:
       safeService === null
@@ -1942,6 +1956,118 @@ export class ServiceOperationsService {
     return updated;
   }
 
+  private async assertWorkReviewScope(
+    tx: Prisma.TransactionClient,
+    actor: AuthenticatedActor,
+    id: string,
+    managed: boolean,
+  ) {
+    if (!managed) {
+      await this.lockAuthorizedStaffBooking(actor, id, tx);
+      return;
+    }
+    const access = await workforceSnapshot(tx, actor);
+    if (!access.managed || !access.independentCapabilities.includes("BOOKING_CONFIRM"))
+      workforceDenied();
+    if (
+      !(await tx.booking.findFirst({
+        where: { AND: [{ id }, bookingScope(access, "BOOKINGS_READ")] },
+        select: { id: true },
+      }))
+    )
+      workforceNotFound();
+  }
+  async bookingWorkReviewOptions(actor: AuthenticatedActor, id: string, managed = false) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      await lockWorkforce(tx);
+      await lockAccessActor(tx, actor);
+      await this.assertWorkReviewScope(tx, actor, id, managed);
+      await assertCapability(tx, actor, "BOOKING_CONFIRM");
+      const booking = await this.repository.lockBooking(id, tx);
+      if (!booking) throw serviceOperationNotFound();
+      const result = await bookingWorkReviewOptions(tx, booking);
+      await this.assertWorkReviewScope(tx, actor, id, managed);
+      await assertCapability(tx, actor, "BOOKING_CONFIRM");
+      return jsonSafe(result);
+    });
+  }
+  async reviewBookingWork(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingWorkReviewInput,
+    context: RequestSecurityContext,
+    managed = false,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (tx) => {
+      await lockWorkforce(tx);
+      await lockAccessActor(tx, actor);
+      await this.assertWorkReviewScope(tx, actor, id, managed);
+      await assertCapability(tx, actor, "BOOKING_CONFIRM");
+      const booking = await this.repository.lockBooking(id, tx);
+      if (!booking) throw serviceOperationNotFound();
+      const review = await reviewStartedBookingWork(tx, actor, booking, input);
+      await tx.bookingRescheduleRequest.updateMany({
+        where: { bookingId: id, status: "PENDING" },
+        data: {
+          status: "SUPERSEDED",
+          decidedAt: new Date(),
+          decidedByUserId: actor.userId,
+          decisionReason:
+            "Work has a recorded start. Review any further change with the workshop; the original visit was not moved.",
+        },
+      });
+      await cancelPendingReminders(tx, id);
+      const updated = await this.repository.staffBooking(id, actor.role !== "STAFF", tx);
+      if (!updated) throw serviceOperationNotFound();
+      const customer = await tx.customerProfile.findUniqueOrThrow({
+        where: { id: booking.customerId },
+        select: { userId: true },
+      });
+      await enqueueNotification(tx, {
+        userId: customer.userId,
+        type: "BOOKING",
+        category: "TRANSACTIONAL",
+        title: "Work estimate reviewed",
+        message:
+          "The workshop has updated its estimate for the remaining work. View your booking for the review time and estimate. This is not a promised completion or vehicle-collection time.",
+        resourceType: "BOOKING",
+        resourceId: id,
+        deduplicationKey: "booking:" + id + ":work-review:" + review.id,
+        channels: ["EMAIL"],
+      });
+      await this.auditBooking(tx, actor, booking, updated, context);
+      await this.assertWorkReviewScope(tx, actor, id, managed);
+      await assertCapability(tx, actor, "BOOKING_CONFIRM");
+      await lockAccessActor(tx, actor);
+      return jsonSafe({
+        id,
+        branchId: updated.branchId,
+        serviceId: updated.serviceId,
+        staffId: updated.assignedStaffId,
+        version: updated.version,
+        scheduleVersion: updated.scheduleVersion,
+        status: updated.status,
+        scheduledAt: updated.scheduledAt,
+        startedAt: updated.startedAt,
+        performedByUserId: actor.userId,
+        review: {
+          id: review.id,
+          bookingVersion: review.bookingVersion,
+          resourcePolicyVersionId: review.policyVersionId,
+          performedByUserId: actor.userId,
+          reviewedAt: review.workReviewedAt,
+          remainingMinutes: review.remainingMinutes,
+          cleanupMinutes: review.cleanupMinutes,
+          expectedWorkEndsAt: review.expectedWorkEndsAt,
+          resourceIds: review.resourceIds,
+          reason: review.reason,
+        },
+      });
+    });
+  }
+
   async overrideBookingTiming(
     actor: AuthenticatedActor,
     id: string,
@@ -2214,11 +2340,13 @@ export class ServiceOperationsService {
       throw serviceOperationForbidden();
     return jsonSafe(
       page(
-        await this.repository.listStaffBookings(
-          query,
-          actor.role === "STAFF" ? profile!.branchId : null,
-          actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
-        ),
+        await this.repository
+          .listStaffBookings(
+            query,
+            actor.role === "STAFF" ? profile!.branchId : null,
+            actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+          )
+          .then((rows) => rows.map(bookingWithWorkEstimate)),
         query.limit,
       ),
     );
@@ -2735,7 +2863,7 @@ export class ServiceOperationsService {
       status: input.status,
       ...(input.staffNotes === undefined ? {} : { staffNotes: input.staffNotes }),
       ...(input.status === "CONFIRMED" ? { confirmedAt: now } : {}),
-      ...(input.status === "IN_PROGRESS" ? { startedAt: now } : {}),
+      ...(input.status === "IN_PROGRESS" ? { startedAt: booking.startedAt ?? now } : {}),
       ...(input.status === "COMPLETED" ? { completedAt: now } : {}),
       ...(input.status === "CANCELLED"
         ? { cancelledAt: now, cancellationReason: input.reason! }
@@ -3416,7 +3544,7 @@ export class ServiceOperationsService {
         const changed = await this.repository.updateBooking(
           booking.id,
           booking.version,
-          { status: "IN_PROGRESS", startedAt: now },
+          { status: "IN_PROGRESS", startedAt: booking.startedAt ?? now },
           transaction,
         );
         if (changed.count !== 1) throw staleServiceOperation();

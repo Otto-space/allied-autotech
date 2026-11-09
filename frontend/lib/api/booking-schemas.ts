@@ -1,4 +1,5 @@
 import { attendanceEventSchema } from "./booking-attendance";
+import { bookingWorkEstimateSchema } from "./booking-work-review-schemas";
 import { z } from "zod";
 import { serviceSchema } from "./public-schemas";
 import { branchRef, money } from "./commerce-schemas";
@@ -66,6 +67,8 @@ export const rescheduleRequestSchema = z.object({
 export type BookingRescheduleRequest = z.infer<typeof rescheduleRequestSchema>;
 export const bookingSchema = z.object({
   attendanceEvents: z.array(attendanceEventSchema).max(30).optional(),
+  startedAt: z.iso.datetime({ offset: true }).nullable().optional(),
+  workEstimate: bookingWorkEstimateSchema.nullable().optional(),
   rescheduleRequests: z.array(rescheduleRequestSchema).max(10).optional(),
   id: z.string().uuid(),
   status: z.string(),

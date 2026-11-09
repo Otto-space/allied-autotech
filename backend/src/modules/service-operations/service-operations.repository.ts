@@ -1,5 +1,9 @@
 import { attendanceEventSelect } from "./booking-attendance.js";
 import {
+  bookingWorkEstimateSelect,
+  bookingWithWorkEstimate,
+} from "./booking-work-estimate.js";
+import {
   workshopResourceAvailabilitySelect,
   type WorkshopResourceAvailability,
 } from "./booking-resource-availability.js";
@@ -191,6 +195,11 @@ export const bookingSelect = {
     select: attendanceEventSelect,
     orderBy: { bookingVersion: "desc" as const },
     take: 30,
+  },
+  resourceAllocations: {
+    select: bookingWorkEstimateSelect,
+    orderBy: { bookingVersion: "desc" as const },
+    take: 1,
   },
   timingSnapshots: {
     select: {
@@ -694,7 +703,7 @@ export class ServiceOperationsRepository {
     });
     return row
       ? {
-          ...row,
+          ...bookingWithWorkEstimate(row),
           service: row.service
             ? { ...row.service, durationMinutes: bookedJobMinutes(row) }
             : null,

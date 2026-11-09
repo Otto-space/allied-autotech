@@ -1,3 +1,14 @@
+## 9 November combined-source clarification
+
+The remaining-work review release adds 20261104010000_booking_work_reviews to the
+97-migration production baseline. Its combined compatibility runtime therefore
+has 98 migrations. Full attendance adds the separately reviewed
+20261104002000_booking_attendance_history migration later; that composition has
+99 migrations, not the historical attendance-only 98. Inspect actual immutable
+names/checksums before replay, populated restore, migration and recovery. Preserve
+both histories; never remove the operational-review migration from a recovery
+migrator. This is a release-order clarification, not attendance publication.
+
 # Attendance writer transition and recovery
 
 This is a held release sequence, not evidence of production publication.
@@ -11,7 +22,7 @@ writer must be rejected before the constraint is introduced.
    Package and verify that API and its runtime using the existing release workflow.
    Verify current deployment and recovery identities, encrypted off-device backup,
    retention/PITR evidence, a fresh backup and an isolated populated restore before
-   publication. The compatibility application remains at migration level 97 and
+   publication. The original compatibility-only application had migration level 97 and
    refuses raw missed-status changes for all roles. It does not provide attendance
    authoring. Keep this transitional limitation explicit in staff guidance.
 2. Finish and integrate the full attendance feature separately. Preserve the
@@ -20,12 +31,12 @@ writer must be rejected before the constraint is introduced.
    Preserve the complete attendance notification and append-only audit transaction.
    Reconcile article versions above the published compatibility versions.
 3. Require exact-master checks, real dashboard fixture acceptance and matching
-   packaged Linux tests. Rehearse migration 98 against a fresh isolated restore,
+   packaged Linux tests. Rehearse the attendance migration against a fresh isolated restore of the current ledger,
    preserving original columns, row counts/hashes and prior migration history.
    Recheck target, least privilege, backups and recoverability before guarded
    production migration. No booking or payment flag is enabled by this work.
 4. Retain a reviewed recovery spec with per-component source/digest provenance.
-   After migration 98, keep the verified **98-aware migration component**, even if
+   After attendance migration, keep the verified **current-ledger migration component**, even if
    restoring the compatible older API and worker runtimes. Do not run an old
    97-only migrator against the newer ledger, rewrite history or revert SQL.
    The normal immutable release-manifest validator remains unchanged; a mixed

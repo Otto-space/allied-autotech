@@ -16,6 +16,7 @@ export default defineConfig({
         "workforce-booking-reschedule.spec.ts",
         "booking-timing.spec.ts",
         "booking-attendance.spec.ts",
+        "booking-work-review.spec.ts",
         "booking-calendar.spec.ts",
         "invoice-modal-responsive.spec.ts",
         "modal-layout.spec.ts",

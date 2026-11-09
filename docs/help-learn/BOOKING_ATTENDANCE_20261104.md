@@ -1,7 +1,7 @@
 # Arrival and attendance checkpoint — 4 November 2026
 
 Source implementation; publication and real-role acceptance remain pending.
-Booking-confirmation v13, assigned-findings v5 and public service-request v29
+Booking-confirmation v14, assigned-findings v5 and public service-request v29
 explain factual arrival/wait/left history, staff-verified absence, no automatic
 penalty, existing responsibility limits and uncertain-response recovery.
 Existing eligibility gates are retained: booking confirmation, assigned job
@@ -31,3 +31,8 @@ Retrieval acceptance: customer service guidance remains within the existing 12-s
 9 November reconciliation: full attendance guidance supersedes the transitional
 unavailable wording at v13/v5. Permission gates and the complete recovery behavior
 remain; combined-source checks must pass before publication.
+
+9 November combined work-review integration: booking-confirmation v14 preserves
+both physical attendance and current remaining-work review guidance. The combined
+candidate has 99 migrations. New source/client/contracts and both workflows need
+fresh verification; earlier 237 attendance cases do not certify this merge.
