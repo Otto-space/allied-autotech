@@ -1,3 +1,76 @@
+## 9 November 17:41 UTC - profile CI storage configuration correction
+
+PR31 remains held: source 18d8b5ea's Frontend run 42662121820 completed with
+686/689 browser cases passing. The same invalid-file feedback assertion failed
+in Chromium, Firefox and WebKit. Source inspection establishes that FileUpload
+ignores selection and disables its input when ASSET_STORAGE_HOSTS is empty; the
+isolated Next runtime omitted that setting. Production's safeguard is preserved.
+Configure only the test server with reserved storage.invalid and explicitly assert
+that selection is enabled before invalid-file feedback. All three captured CI error contexts confirm the unavailable-storage notice and
+disabled picker. Artifact 13694499957 was downloaded with its SHA256 verified;
+final hosted verification is still required to confirm the correction.
+The profile fixture also now returns the canonical public-capabilities response,
+and normal layouts verify foreground availability instead of accepting an accidental
+outage banner. Add storage-preparation failure/recovery acceptance: the preview
+stays available, Save stays disabled, no profile/media mutation occurs, and removal
+restores focus. Its POST calls are intercepted, including the normal CSRF request.
+This batch changes verification and documentation, not application behavior,
+permissions, production configuration or data. The runtime matrix collects 692 cases.
+Native Edge passes both focused cases (18.7s) against the public app with all API
+calls intercepted; the first new-test attempt exposed an omitted expected CSRF POST
+in the assertion, now accounted for explicitly. Thirteen profile contract/draft units
+pass. Formatting and scoped ESLint pass. Final-head hosted runs remain required before
+integration. Backend 42662122018's 36 restricted-database profile cases remain passed.
+The navigation release remains 160d3b7b / dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb.
+The full two-brief route/state, real-role, physical-device and business-data work
+remains open. Do not equate this bounded verification batch with full completion.
+
+## 9 November - navigation published; profile verification checkpoint
+
+Current item: finish PR31 profile acceptance, resolve any verified regressions,
+and integrate its final checked source. The broader two-brief goal is still active.
+Navigation PR30 is deployed as master 160d3b7b on both public domains via
+`dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb`. Exact-master Frontend 42660261545,
+Backend 42660261538 and Secrets 42660261735 passed: 1,518 units (12 existing
+skips), nine early WebKit checks and all 563 production-build browser cases.
+Public Edge 157 and Chrome 156 each pass nine navigation cases, covering all
+seven exact viewports, outage overlays, focus/Escape and two native-link fallbacks.
+Zero page errors/application writes; desktop-engine emulation is not physical testing.
+Chrome's initial immediate post-script-release overflow assertion failed. Waiting
+for document load before desktop geometry checks passes; retain the initial receipt
+without claiming a proven application layout defect. The held candidate returned
+403 to browser OIDC but served the application through authenticated CLI GET.
+No security exception was introduced. Evidence: TEMP/allied-navigation-release-160d3b7b/
+publication-receipt.json, public/native-preview.json and public/chrome/load-check/.
+Backend c3c54414 remains ACTIVE and unchanged; retain d553a349's deployment
+`dpl_9Mhxm6vmMKj8zncDJFLzEdXmkn9J` for compatible recovery. The completed local
+navigation branch was retired after ancestry checks; remote deletion protection remains.
+
+PR31 source 18d8b5ea passes Backend 42662122018 and Secrets 42662121976.
+All 36 profile revision, photo-service and HTTP-boundary cases pass on a fresh
+isolated database under restricted DML credentials after migration replay and target
+verification. Photo storage is in memory; this does not establish cloud object delivery.
+Public Edge profile acceptance passed 13 focused cases plus eight remaining cases:
+seven exact viewports, all three workforce-role redirects with no customer reads,
+stale/lost-save recovery, session clearing, long text and keyboard photo review.
+Screenshot review then found the fixture's generic fallback malformed the public
+capability response. Correct only that fixture, explicitly verify a healthy availability
+refresh, and preserve all production safeguards. The seven corrected normal layouts
+pass in 27.8 seconds; current captures are TEMP/allied-profile-acceptance-20261109/
+healthy-public. Earlier outage-banner captures are retained as fixture evidence.
+The expanded Chromium/Firefox/WebKit configuration collects 689 cases; final-head
+hosted results, integration and exact-master release evidence remain required.
+
+Disk recovered without this task deleting files or changing Windows settings: the
+latest reserve check passes with about 21.1 GiB free. The temporary failed 11.72 GiB
+preflight stopped local packaging and the local preview/tests; the held candidate
+instead built remotely from the pinned Git SHA with automatic domains disabled.
+No dependency install, local production/Docker build, local database or archive was
+created. Other worktree edits, active Docker resources, useful caches and data remain.
+Full route/state and real-role acceptance, physical devices, broader accessibility/
+performance verification and the owner's unconfirmed Diagnostics/product facts remain
+open. Do not infer full-site completion from this bounded release and profile batch.
+
 ## 9 November 17:12 UTC - navigation merged; remote release and profile acceptance
 
 PR30 is merged as master 160d3b7b. Its final head 4d3ce6cc passed all three

@@ -38,6 +38,14 @@ for (const [width, height] of [
         page.getByRole("heading", { name: "Your profile", exact: true }),
       ).toBeVisible();
       await expect(page.getByLabel("First name", { exact: true })).toHaveValue("Amara");
+      // Verify the normal fixture's foreground availability read instead of
+      // accidentally accepting a malformed fallback as an outage layout.
+      const availability = page.waitForResponse("**/api/v1/public/capabilities");
+      await page.evaluate(() => window.dispatchEvent(new Event("online")));
+      await availability;
+      await expect(
+        page.getByRole("complementary", { name: "Online availability" }),
+      ).toHaveCount(0);
       await expect(
         page.getByRole("navigation", { name: "Breadcrumb", exact: true }),
       ).toHaveCount(1);
@@ -284,6 +292,7 @@ test("mobile photo disclosure and invalid file remain usable", async ({ page }) 
   await page.goto(path);
   await expect(page.locator("#profile-photo-file")).not.toBeVisible();
   await page.locator(".cp-photo summary").click();
+  await expect(page.locator("#profile-photo-file")).toBeEnabled();
   await page.locator("#profile-photo-file").setInputFiles({
     name: "wrong.txt",
     mimeType: "text/plain",
@@ -296,6 +305,56 @@ test("mobile photo disclosure and invalid file remain usable", async ({ page }) 
     page.getByRole("button", { name: "Save profile photo", exact: true }),
   ).toBeDisabled();
   expect(s.writes).toEqual([]);
+});
+test("photo storage failure preserves the profile and allows selection recovery", async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const s = await profileFixture(page);
+  await page.goto(path);
+  await expect(page.getByLabel("First name", { exact: true })).toHaveValue("Amara");
+  await page.locator(".cp-photo summary").click();
+  const input = page.locator("#profile-photo-file");
+  await expect(input).toBeEnabled();
+  const png = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 40;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = "#173747";
+    ctx.fillRect(0, 0, 40, 40);
+    return canvas.toDataURL("image/png").split(",")[1];
+  });
+  await input.setInputFiles({
+    name: "isolated-profile.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(png, "base64"),
+  });
+  const preview = page.getByRole("img", { name: "Selected file: isolated-profile.png" });
+  await expect(preview).toBeVisible();
+  await page.getByRole("button", { name: "Upload selected file", exact: true }).click();
+  await expect(
+    page.getByText(
+      "Image storage is temporarily unavailable. Your existing images are unchanged. Please try again later.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(preview).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Save profile photo", exact: true }),
+  ).toBeDisabled();
+  expect(s.writes.map(({ method, path }) => ({ method, path }))).toEqual([
+    { method: "POST", path: "/auth/csrf" },
+    { method: "POST", path: "/customers/profile/photo/upload" },
+  ]);
+  expect(s.record.mediaVersion).toBe(0);
+  await page.screenshot({
+    path: info.outputPath("photo-storage-error.png"),
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "Remove selected file", exact: true }).click();
+  await expect(preview).toHaveCount(0);
+  await expect(input).toBeFocused();
+  await expect(page.getByLabel("First name", { exact: true })).toHaveValue("Amara");
 });
 test("short viewport keeps form actions and keyboard focus reachable", async ({
   page,

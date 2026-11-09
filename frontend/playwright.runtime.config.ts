@@ -129,6 +129,9 @@ export default defineConfig({
         // Reuse the exact production-check build. Its rewrite keeps the CI
         // placeholder, so browser fixtures explicitly route API calls to loopback.
         BACKEND_ORIGIN: "http://127.0.0.1:5024",
+        // Reserved, non-routable fixture host: enable file selection without
+        // supplying credentials or allowing any real object-storage upload.
+        ASSET_STORAGE_HOSTS: "storage.invalid",
         VERCEL: "",
         VERCEL_ENV: "development",
         NEXT_TELEMETRY_DISABLED: "1",
