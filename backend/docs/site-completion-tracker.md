@@ -1,3 +1,29 @@
+## 10 November 00:24 Lagos - vehicle source CI follow-up
+
+Draft PR50: https://github.com/Otto-space/allied-autotech/pull/50 . Signed source
+4685d389 reconciles current Home/Services master130556a1. Backend42719821223 passes
+all102 migrations, schema drift rejection, db:check, types/script types, lint and
+backup/startup protection. It stops at an obsolete private vehicle-operations v2
+assertion (67 pass/1 fail in that step); the article intentionally advanced to v3.
+Correct that exact version and assert the new supplied-engine/feature wording,
+retaining all role/managed/unverified/owner/finance exclusions. Later isolated
+HTTP suites did not run and are not claimed as passes. Secret42719821446 passes;
+frontend42719821439 was confirmed live in production checks. Never restart solely
+because observation expires; inspect the current commit's authoritative run state.
+
+The corrected exact backend unit group now passes70/70 across12 suites locally;
+the CI list explicitly includes the two new engine validation regressions. This
+follow-up changes only that workflow, its version/content assertion and this
+record: migration/runtime/frontend bytes match the replayed4685d389 source.
+
+The original full two-brief goal remains active. New source still needs complete
+exact-source CI, actual-route browser/API acceptance, populated restore and safe
+compatible publication. No production change. The component evidence and detailed
+scope remain in the existing quality ledger. Disk postflight21.32GiB; owned Vite
+process stopped, evidence/client retained, no existing resources deleted.
+
+---
+
 ## 10 November 2026 - both vehicle and Team & Access/media briefs active
 
 Owner confirmed both the available vehicle-details brief and the Team & Access/media
