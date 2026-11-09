@@ -1,6 +1,9 @@
 import { workshopResourceSettingsSchema } from "../../src/modules/service-operations/workshop-resources.js";
 import { ServiceOperationsRepository } from "../../src/modules/service-operations/service-operations.repository.js";
-import { bookingAlternativeOptions } from "../../src/modules/service-operations/booking-alternatives.js";
+import {
+  bookingAlternativeOptions,
+  reviewBookingAlternative,
+} from "../../src/modules/service-operations/booking-alternatives.js";
 import { captureBookingTiming } from "../../src/modules/service-operations/booking-timing.js";
 import { allocateBookingResources } from "../../src/modules/service-operations/booking-resources.js";
 import { effectiveAttendance } from "../../src/modules/service-operations/booking-attendance.js";
@@ -655,6 +658,51 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } }),
       ).toMatchObject({ version: 0, scheduledAt: f.startsAt, alternativeStartsAt: null });
     });
+    it("can propose checked times for an assessed request without requiring an original technician", async () => {
+      const f = await fixture();
+      await prisma.booking.update({
+        where: { id: f.booking.id },
+        data: { status: "REQUESTED", assignedStaffId: null },
+      });
+      const options = (await operations.bookingAlternativeOptions(
+        f.actor,
+        f.booking.id,
+        f.nextAt.toISOString().slice(0, 10),
+      )) as { items: Array<{ startsAt: string }> };
+      expect(
+        options.items.some((i) => Date.parse(i.startsAt) === f.nextAt.getTime()),
+      ).toBe(true);
+      await operations.proposeBookingAlternative(
+        f.actor,
+        f.booking.id,
+        {
+          preferredAt: f.nextAt.toISOString(),
+          expectedVersion: 0,
+          reason: "Reviewed qualified technician and available time for assessed request",
+        },
+        context(),
+      );
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } }),
+      ).toMatchObject({
+        status: "REQUESTED",
+        assignedStaffId: null,
+        scheduledAt: f.startsAt,
+      });
+    });
+    it("rechecks accepted requests at approval without imposing a new seven-day notice", async () => {
+      const f = await fixture(),
+        startsAt = new Date(Date.now() + 5 * 86400000);
+      startsAt.setUTCHours(9, 0, 0, 0);
+      await prisma.$transaction(async (tx) => {
+        const b = (await new ServiceOperationsRepository().lockBooking(
+          f.booking.id,
+          tx,
+        ))!;
+        await expect(reviewBookingAlternative(tx, b, startsAt)).rejects.toThrow();
+        await reviewBookingAlternative(tx, b, startsAt, f.staff.id, "APPROVAL");
+      });
+    });
     it("does not expose protected availability to a customer actor", async () => {
       const f = await fixture();
       await expect(
@@ -735,6 +783,81 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           data: { previousScheduleVersion: 10 },
         }),
       ).rejects.toThrow();
+    });
+    it("refuses an unproven same-visit allocation while retaining real arrival and the original appointment", async () => {
+      const f = await lateVisit();
+      // Create a separate legacy visit without manufacturing an allocation.
+      const b = await prisma.booking.create({
+        data: {
+          customerId: (await customer()).customerId,
+          branchId: f.branchId,
+          serviceId: f.sources.service.id,
+          assignedStaffId: f.staff.id,
+          scheduledAt: new Date(f.original.getTime() - 86400000),
+          status: "CONFIRMED",
+          confirmedAt: new Date(),
+        },
+      });
+      await operations.recordBookingAttendance(
+        f.actor,
+        b.id,
+        { operationId: randomUUID(), expectedVersion: 0, kind: "ARRIVED" },
+        context(),
+      );
+      // The assigned technician's other earlier visit is outside the replacement window.
+      await operations.proposeBookingAlternative(
+        f.actor,
+        b.id,
+        {
+          preferredAt: f.replacement.toISOString(),
+          expectedVersion: 1,
+          reason: "Legacy visit needs a same-day available replacement",
+        },
+        context(),
+      );
+      const buyer = await prisma.customerProfile.findUniqueOrThrow({
+        where: { id: b.customerId },
+        select: { userId: true, user: { select: { email: true } } },
+      });
+      const actor = {
+        ...f.buyer.actor,
+        userId: buyer.userId,
+        email: buyer.user.email,
+        sessionId: await paymentTestSession(buyer.userId),
+      };
+      await operations.respondToBookingAlternative(
+        actor,
+        b.id,
+        { decision: "ACCEPT", expectedVersion: 2 },
+        context(),
+      );
+      const pending = await prisma.bookingRescheduleRequest.findFirstOrThrow({
+        where: { bookingId: b.id, status: "PENDING" },
+      });
+      await expect(
+        operations.decideBookingReschedule(
+          f.actor,
+          b.id,
+          {
+            requestId: pending.id,
+            expectedVersion: 3,
+            decision: "APPROVE",
+            reason: "Synthetic verified replacement",
+            resourceReviewNote: "Synthetic people and physical resources reviewed",
+          },
+          context(),
+        ),
+      ).rejects.toThrow(/original visit/);
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: b.id } }),
+      ).toMatchObject({
+        scheduledAt: b.scheduledAt,
+        scheduleVersion: 0,
+        status: "CONFIRMED",
+      });
+      expect((await prisma.$transaction((tx) => effectiveAttendance(tx, b)))?.kind).toBe(
+        "ARRIVED",
+      );
     });
     it("does not carry a departed customer into a later appointment", async () => {
       const f = await lateVisit("LEFT");

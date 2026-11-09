@@ -1269,6 +1269,7 @@ export class ServiceOperationsService {
         "Review the pending reschedule request before proposing another time",
       );
     const startsAt = new Date(input.preferredAt);
+    await captureBookingTiming(tx, booking, actor.userId);
     await reviewBookingAlternative(tx, booking, startsAt);
     if (startsAt.getTime() === booking.scheduledAt.getTime())
       throw serviceOperationConflict("Choose a different appointment time");
@@ -1778,7 +1779,9 @@ export class ServiceOperationsService {
         booking.branchId === request.branchId &&
         nigeriaDay(priorVisit.createdAt) === nigeriaDay(request.startsAt) &&
         nigeriaDay(priorVisit.createdAt) === nigeriaDay(new Date()) &&
-        !priorAllocation
+        (!priorAllocation ||
+          priorAllocation.branchId !== booking.branchId ||
+          priorAllocation.scheduledAt.getTime() !== booking.scheduledAt.getTime())
       )
         throw serviceOperationConflict(
           "Review the original visit's resource allocation before approving a same-day replacement. Its recorded arrival and original appointment are unchanged",
@@ -1872,7 +1875,13 @@ export class ServiceOperationsService {
         staff.id !== booking.assignedStaffId || request.branchId !== booking.branchId;
       if (scope) await scope(assignmentChanged);
       if (request.source === "WORKSHOP_ALTERNATIVE")
-        await reviewBookingAlternative(tx, booking, request.startsAt, staff.id);
+        await reviewBookingAlternative(
+          tx,
+          booking,
+          request.startsAt,
+          staff.id,
+          "APPROVAL",
+        );
       // Preserve the workforce permission boundary before reporting availability.
       if (slot) await this.reviewOfferedSlot(tx, slot, booking.id);
       const originalTiming = await captureBookingTiming(tx, booking, actor.userId, true);

@@ -71,13 +71,12 @@ async function alternativeContext(tx: Prisma.TransactionClient, booking: Booking
   if (
     !booking.branchId ||
     !booking.serviceId ||
-    !booking.assignedStaffId ||
     booking.startedAt ||
     attendanceWorkReviewRequired(booking) ||
     !["REQUESTED", "CONFIRMED"].includes(booking.status)
   )
     throw serviceOperationConflict(
-      "Assess the service and assign an eligible technician before checking alternatives for this unstarted appointment",
+      "Assess the service before checking alternatives for this unstarted appointment",
     );
   const service = await tx.service.findUnique({ where: { id: booking.serviceId } });
   const timing = await tx.bookingTimingSnapshot.findUnique({
@@ -133,8 +132,12 @@ export async function reviewBookingAlternative(
   booking: Booking,
   startsAt: Date,
   selectedStaffId?: string,
+  stage: "PROPOSAL" | "APPROVAL" = "PROPOSAL",
 ) {
-  await assertAlternativeWindow(tx, booking, startsAt);
+  if (stage === "APPROVAL") {
+    if (startsAt <= new Date())
+      throw serviceOperationConflict("The requested replacement time has passed");
+  } else await assertAlternativeWindow(tx, booking, startsAt);
   if (startsAt.getTime() === booking.scheduledAt.getTime())
     throw serviceOperationConflict("Choose a different appointment time");
   const context = await alternativeContext(tx, booking);

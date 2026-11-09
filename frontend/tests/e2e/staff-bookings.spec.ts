@@ -942,7 +942,7 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
       let alternativeStartsAt: string | null = null;
       let alternativeReason: string | null = null;
       let alternativeVersion: number | null = null;
-      let scheduledAt = new Date(Date.now() + 8 * 86400000).toISOString();
+      const scheduledAt = new Date(Date.now() + 8 * 86400000).toISOString();
       const originalTime = scheduledAt;
       const writes: { endpoint: string; body: Record<string, unknown> }[] = [];
       await page.setViewportSize({ width, height: 900 });
