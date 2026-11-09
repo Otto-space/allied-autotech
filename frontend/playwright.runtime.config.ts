@@ -38,6 +38,10 @@ export default defineConfig({
       },
     })),
     {
+      name: "services-design",
+      testMatch: ["services-design.spec.ts"],
+    },
+    {
       name: "authentication-lifecycle",
       testMatch: [
         "auth-forms.spec.ts",

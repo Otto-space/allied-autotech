@@ -1201,6 +1201,9 @@
   .home-page .public-section {
     padding-block: 40px;
   }
+  .home-page .home-discovery .partner-intro {
+    padding-inline-end: 56px;
+  }
   .home-page .home-discovery .partner-links {
     grid-template-columns: minmax(0, 1fr);
   }

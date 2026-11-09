@@ -55,41 +55,41 @@ export default async function ServicesPage({
     <>
       <SiteHeader />
       <main id="main" className="public-site services-page">
-        <nav className="public-wrap services-breadcrumb" aria-label="Breadcrumb">
-          <ol>
-            <li>
-              <Link href="/">Home</Link>
-            </li>
-            <li>
-              <ChevronRight size={14} aria-hidden="true" />
-              <span aria-current="page">Services</span>
-            </li>
-          </ol>
-        </nav>
         <CatalogueBanner
           kind="services"
           title="Find the service your vehicle needs"
           description="Explore our services or tell the team what you have noticed about your vehicle."
-        />
-        <nav
-          className="public-wrap services-discovery-paths"
-          aria-label="Find service help"
+          breadcrumbs={
+            <nav className="services-breadcrumb" aria-label="Breadcrumb">
+              <ol>
+                <li>
+                  <Link href="/">Home</Link>
+                </li>
+                <li>
+                  <ChevronRight size={14} aria-hidden="true" />
+                  <span aria-current="page">Services</span>
+                </li>
+              </ol>
+            </nav>
+          }
         >
-          <Link href="#service-catalogue">
-            <strong>Browse a service</strong>
-            <span>Compare services and their details.</span>
-            <ArrowUpRight size={20} aria-hidden="true" />
-          </Link>
-          <Link href={bookingRequestsEnabled ? "/services/request" : "/contact#enquiry"}>
-            <strong>Describe a vehicle problem</strong>
-            <span>
-              Tell the team what you have noticed. A request does not confirm an
-              appointment.
-            </span>
-            <ArrowUpRight size={20} aria-hidden="true" />
-          </Link>
-        </nav>
-        <ServiceGroups />
+          <nav className="services-hero-actions" aria-label="Find service help">
+            <Link className="button" href="#service-catalogue">
+              Browse services <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+            <Link
+              className="button secondary"
+              href={bookingRequestsEnabled ? "/services/request" : "/contact#enquiry"}
+            >
+              Describe a vehicle problem <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+          </nav>
+          <p className="services-hero-note">
+            {bookingRequestsEnabled
+              ? "A request does not confirm an appointment."
+              : "Agree visit arrangements with the team."}
+          </p>
+        </CatalogueBanner>
         <section
           className="public-wrap services-catalogue"
           id="service-catalogue"
@@ -97,6 +97,7 @@ export default async function ServicesPage({
         >
           <ServicesCatalogue initial={initial} />
         </section>
+        <ServiceGroups />
         <ServiceJourney showStartLink={false} />
         <section className="services-faq" aria-labelledby="services-faq-title">
           <div className="public-wrap services-faq-inner">
