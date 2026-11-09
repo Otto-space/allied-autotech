@@ -61,7 +61,7 @@ Guidance does not allocate inventory or authorise physical release.
 
 ## Remaining acceptance and scope
 
-Fresh isolated schema-103 acceptance, current types/lint/contracts, rendered
+Fresh isolated schema-104 acceptance, current types/lint/contracts, rendered
 customer/staff/source-recovery checks and safe artifacts are recorded after their
 terminal results. No pending run is counted as a passing gate.
 
@@ -139,3 +139,34 @@ is removed. This proves isolated database/workflow behavior, not production role
 provider or physical workshop acceptance. Frontend/rendered checks remain pending
 for this checkpoint. Remote master now includes navigation readiness/layering and
 a working-hours fixture repair (160d3b7b); integrate those without replacement.
+
+## Integration and interrupted rendered acceptance
+
+Checkpoint c3cfcc05 contains the supplemental source; merge 28b4bc80 retains all
+master 160d3b7b navigation hydration/native-fallback/overlay repairs and the Lagos
+working-hour test correction. The imported application, test and instruction files
+match master byte-for-byte. Both continuity/quality histories and both browser
+project families remain. Backend application/schema and invoice/booking API scopes
+are unchanged from the 273-case tested checkpoint. The separate Desktop hero still
+has the owner's 79 added lines and is untouched.
+
+Frontend nonincremental types and 14/14 invoice units pass before the integration;
+full frontend ESLint and merged backend typing/lint pass. The secret guard passes
+3,912 files. Canonical contracts/types were regenerated (452 paths/532 operations).
+Final merged frontend types/production build and rendered acceptance remain pending.
+
+The local 29-case combined Edge attempt starts with the preserved navigation tests.
+The first 1280px readiness case passes. At 1024px the opener remains disabled after
+script release and the existing 20-second assertion fails. Screenshot and trace
+are retained; this is not a passing navigation gate and its cause is unproven.
+Before it completes, C: falls from 21.16 to 11.57 GiB. The agent stops its browser,
+preview and read-only capability fixture. No owned process or listener remains on
+5414/5415. A concurrent browser task in another worktree is observed and preserved.
+The partial attempt cannot establish any invoice or closed-visit rendered acceptance.
+No timeout or assertion is relaxed. Artifacts total 46,014,321 bytes, which cannot
+explain the measured host drop. The pagefile reports 19,471 MiB allocated, without
+a matching earlier physical-allocation baseline; no exact cause is claimed. C:
+later measures approximately 21.05 GiB. No deletion is attempted or credited for
+that recovery. Do not repeat this local browser workload under the same pressure;
+use existing isolated hosted CI for exact-source acceptance. No protected data,
+images/caches/volumes, pagefile or other task is modified.

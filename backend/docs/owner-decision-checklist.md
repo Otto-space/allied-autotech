@@ -1,3 +1,26 @@
+### 9 November 2026: supplemental invoice source and latest navigation integrated
+
+Checkpoint c3cfcc05 and merge 28b4bc80 add separately billed accepted additional
+service work while preserving master 160d3b7b's navigation readiness, native fallback,
+overlay layering and fixed-hour fixture repair. Imported files match master exactly;
+both evidence histories and runtime project families remain. Original prices,
+credits, records, permissions and the owner's separate dirty Desktop hero remain.
+Isolated schema-104 acceptance passes 273 cases, with five provisioned-workspace
+cases explicitly skipped; replay/diff/db:check/restricted runtime pass and the owned
+tmpfs target is removed. Full frontend lint, backend types/lint, 14 invoice units
+and the 3,912-file secret guard pass. Earlier frontend types are pre-integration.
+
+The combined local browser attempt is interrupted for the mandatory disk reserve
+after one passing navigation case and a 1024px hydration-readiness assertion failure.
+No invoice rendered acceptance is claimed. All owned preview/test processes stop;
+other tasks/resources remain. C: drops from 21.16 to 11.57 GiB and later recovers
+without proven attribution; no rejected cleanup is retried. See
+docs/help-learn/SUPPLEMENTAL_SERVICE_INVOICES_20261109.md for actual failure/evidence
+and exact remaining scope. Hosted exact-source checks are the next verification.
+Full D03 remains held for materials issue/use, durable authorised cleared-balance
+vehicle release, corrective/historical financial review and complete release gates.
+No production write, migration, provider call, flag activation or publication.
+
 ### 9 November 2026: latest Saved-vehicles fix retained; D03 remains held
 
 Merge 3fc9ad6b incorporates master d553a349's saved-collection navigation/reload

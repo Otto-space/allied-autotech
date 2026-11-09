@@ -1,3 +1,15 @@
+### 9 November: separate accepted additional-work obligations (unpublished)
+
+Service-request v33 and restricted financial-policy-work v9 explain a separately
+reviewed additional invoice, original reference/reason, no reused booking credit,
+materials first and workmanship only after actual completion. Existing eligibility,
+permissions, guide targets and publication flags remain. Closed visits cannot
+authorise new agreement/issue from old completion; rejection remains available.
+Isolated final acceptance includes 32 learning/identifier units within 273 passing
+cases; five provisioned-workspace cases are explicitly skipped. Physical issue/use,
+vehicle release and production/provider acceptance remain separate. See
+SUPPLEMENTAL_SERVICE_INVOICES_20261109.md for failures, evidence and held scope.
+
 ### 9 November: final D11 source checkpoint
 
 Booking-confirmation v15 retains its existing audience/permission/publication gates.
