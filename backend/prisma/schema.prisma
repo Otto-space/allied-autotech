@@ -672,7 +672,8 @@ model User {
 
   owner_UserCapability_grantedByUserId UserCapability[] @relation("Owner_UserCapability_grantedByUserId")
 
-  owner_UserCapability_userId UserCapability[] @relation("Owner_UserCapability_userId")
+  owner_UserCapability_userId UserCapability[]       @relation("Owner_UserCapability_userId")
+  orderCollectionEvents       OrderCollectionEvent[]
 
   @@index([role])
   @@index([status])
@@ -699,8 +700,9 @@ model Session {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
 
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mfaChallenges MfaChallenge[]
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mfaChallenges         MfaChallenge[]
+  orderCollectionEvents OrderCollectionEvent[]
 
   @@index([userId])
   @@index([expiresAt])
@@ -1647,6 +1649,7 @@ model Order {
   review                              Review?
   complaints                          Complaint[]
   owner_OrderAftercareRequest_orderId OrderAftercareRequest[] @relation("Owner_OrderAftercareRequest_orderId")
+  collectionEvents                    OrderCollectionEvent[]
 
   @@index([guestId, createdAt])
   @@index([guestId, id], map: "Order_guest_directory_idx")
@@ -3579,4 +3582,30 @@ model OrderPickupClaim {
   handover           OrderPickupHandover?
 
   @@index([orderId, claimedAt])
+}
+
+model OrderCollectionEvent {
+  id                    String                 @id @default(uuid()) @db.Uuid
+  orderId               String                 @db.Uuid
+  performedByUserId     String                 @db.Uuid
+  sessionId             String                 @db.Uuid
+  orderVersion          Int
+  readyAt               DateTime
+  kind                  String                 @db.VarChar(30)
+  method                String?                @db.VarChar(20)
+  reason                String                 @db.VarChar(1000)
+  noticeId              String?                @db.Uuid
+  previousCollectByDate DateTime?              @db.Date
+  collectByDate         DateTime?              @db.Date
+  policySnapshot        Json
+  idempotencyKey        String                 @unique @db.Uuid
+  requestHash           String                 @db.Char(64)
+  createdAt             DateTime               @default(now())
+  order                 Order                  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  performedBy           User                   @relation(fields: [performedByUserId], references: [id], onDelete: Restrict)
+  session               Session                @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  notice                OrderCollectionEvent?  @relation("CollectionNoticeExtensions", fields: [noticeId], references: [id], onDelete: Restrict)
+  extensions            OrderCollectionEvent[] @relation("CollectionNoticeExtensions")
+
+  @@index([orderId, readyAt, kind, createdAt])
 }

@@ -1,3 +1,4 @@
+import { orderCollectionHold } from "./order-collection-hold.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { confirmedReceipt, receiptPaymentSelect } from "../billing/documents.service.js";
 import { hasServiceFinancialHold } from "../billing/service-payment-plan.js";
@@ -65,6 +66,8 @@ export async function pickupSummary(tx: Prisma.TransactionClient, order: PickupO
     }),
   ]);
   return {
+    holding: await orderCollectionHold(tx, order),
+    collectionHoldCapabilityVersion: 1,
     handoverReview,
     orderId: order.id,
     version: order.version,

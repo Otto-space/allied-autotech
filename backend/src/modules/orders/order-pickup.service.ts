@@ -1,3 +1,5 @@
+import { orderCollectionHold } from "./order-collection-hold.js";
+import { collectionHoldPolicy } from "./order-collection-clock.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
@@ -41,6 +43,8 @@ import {
   pickupVerifySchema,
   pickupHandoverSchema,
   pickupCancelClaimSchema,
+  collectionNoticeSchema,
+  collectionExtensionSchema,
 } from "./order-pickup.schemas.js";
 
 type Buyer =
@@ -257,6 +261,113 @@ export class OrderPickupService {
             revokedPickupAuthorisationId: authorisation.id,
             reason: input.reason,
             guestId: order.guestId,
+          },
+          context,
+        });
+        return pickupSummary(tx, { ...order, version: changed.version });
+      },
+      { isolationLevel: "Serializable" },
+    );
+  }
+  collectionContact(
+    actor: AuthenticatedActor,
+    id: string,
+    raw: unknown,
+    context: RequestSecurityContext,
+  ) {
+    const input = collectionNoticeSchema.parse(raw);
+    return this.collectionEvent(actor, id, input, context);
+  }
+  extendCollectionHold(
+    actor: AuthenticatedActor,
+    id: string,
+    raw: unknown,
+    context: RequestSecurityContext,
+  ) {
+    const input = collectionExtensionSchema.parse(raw);
+    return this.collectionEvent(actor, id, input, context);
+  }
+  private collectionEvent(
+    actor: AuthenticatedActor,
+    id: string,
+    input:
+      | ReturnType<typeof collectionNoticeSchema.parse>
+      | ReturnType<typeof collectionExtensionSchema.parse>,
+    context: RequestSecurityContext,
+  ) {
+    const requestHash = orderFingerprint({ orderId: id, ...input });
+    return withTransactionRetry(
+      this.database,
+      async (tx) => {
+        const order = await this.staffOrder(tx, actor, id);
+        const previous = await tx.orderCollectionEvent.findUnique({
+          where: { idempotencyKey: input.idempotencyKey },
+        });
+        if (previous) {
+          if (previous.orderId !== id || previous.requestHash !== requestHash)
+            throw orderConflict(
+              "This collection update reference was used for other details.",
+            );
+          return pickupSummary(tx, order);
+        }
+        if (order.version !== input.expectedVersion) throw orderStale();
+        if (
+          order.status !== "READY" ||
+          !order.readyAt ||
+          order.fulfillmentMethod !== "COLLECTION" ||
+          !order.branch?.isActive
+        )
+          throw orderConflict(
+            "Record collection contact only for actual ready collection goods.",
+          );
+        const holding = await orderCollectionHold(tx, order);
+        const extended = "collectByDate" in input;
+        if (
+          extended &&
+          (!holding.noticeId ||
+            !holding.collectByDate ||
+            input.collectByDate <= holding.collectByDate ||
+            new Date(input.collectByDate + "T12:00:00Z").getUTCDay() === 0)
+        )
+          throw orderConflict(
+            "An extension needs actual successful notification and a later Monday-Saturday collection date.",
+          );
+        const event = await tx.orderCollectionEvent.create({
+          data: {
+            orderId: id,
+            performedByUserId: actor.userId,
+            sessionId: actor.sessionId,
+            orderVersion: order.version,
+            readyAt: order.readyAt,
+            kind: extended ? "EXTENDED" : input.outcome,
+            method: extended ? null : input.method,
+            reason: input.reason,
+            noticeId: extended ? holding.noticeId : null,
+            previousCollectByDate: extended
+              ? new Date(holding.collectByDate! + "T00:00:00Z")
+              : null,
+            collectByDate: extended ? new Date(input.collectByDate + "T00:00:00Z") : null,
+            policySnapshot: collectionHoldPolicy,
+            idempotencyKey: input.idempotencyKey,
+            requestHash,
+            createdAt: new Date(),
+          },
+        });
+        const changed = await tx.order.update({
+          where: { id },
+          data: { version: { increment: 1 } },
+          select: { version: true },
+        });
+        await appendAuditEvent(tx, {
+          actorUserId: actor.userId,
+          action: "UPDATE",
+          entityType: "ORDER",
+          entityId: id,
+          newValues: {
+            collectionEventId: event.id,
+            kind: event.kind,
+            actualContactResultConfirmed: !extended,
+            reason: input.reason,
           },
           context,
         });

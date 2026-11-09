@@ -13,6 +13,8 @@ export const learningHref = z.enum([
   "/contact",
   "/forgot-password",
   "/dashboard/support",
+  "/dashboard/orders",
+  "/staff/orders",
   "/admin",
   "/admin/vehicles",
   "/admin/profile",

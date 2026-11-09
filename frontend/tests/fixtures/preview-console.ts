@@ -70,7 +70,7 @@ export async function verifyConsole(page: Page, errors: string[], warnings: stri
       expect(selectors.length).toBeGreaterThan(0);
       expect(
         selectors.every((selector) =>
-          /^\.site-footer(?:[._:# >\[]|$)|^\.part-fitment-summary_/.test(selector),
+          /^\.site-footer(?:[-._:# >\[]|$)|^\.part-fitment-summary_/.test(selector),
         ),
         warning,
       ).toBe(true);

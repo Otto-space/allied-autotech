@@ -1,6 +1,8 @@
 /** Owner decision recorded 9 November 2026. This collection calendar is independent
  * of bank/refund and appointment-capacity calendars. Holidays count; Sunday does not.
  * It calculates a date only. It never releases stock, charges, cancels or refunds. */
+// Immutable V1 calculation contract. Future calendar changes need a new version;
+// retain this version for already-notified orders instead of recalculating history.
 export const collectionHoldPolicy = {
   version: "COLLECTION_HOLD_20261109_V1",
   timeZone: "Africa/Lagos",

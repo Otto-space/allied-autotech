@@ -4,6 +4,20 @@ const lines = z
   .max(200);
 const time = z.iso.datetime({ offset: true });
 export const pickupSummarySchema = z.object({
+  collectionHoldCapabilityVersion: z.literal(1).optional(),
+  holding: z
+    .object({
+      state: z.enum(["PENDING", "HOLDING", "OVERDUE", "COLLECTED"]),
+      notifiedAt: time.nullable(),
+      originalCollectByDate: z.iso.date().nullable(),
+      collectByDate: z.iso.date().nullable(),
+      extendedAt: time.nullable(),
+      pendingReason: z.enum(["READINESS_REQUIRED", "NOTIFICATION_REQUIRED"]).nullable(),
+      latestNotificationAttempt: z
+        .object({ kind: z.enum(["NOTIFIED", "NOTIFICATION_FAILED"]), createdAt: time })
+        .nullable(),
+    })
+    .optional(),
   orderId: z.uuid(),
   version: z.number().int().nonnegative(),
   status: z.string(),

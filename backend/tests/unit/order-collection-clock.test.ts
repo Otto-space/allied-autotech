@@ -78,7 +78,7 @@ it("keeps pickup instructions behind current audience eligibility", async () => 
   const staff = learningArticles.find(
     (article) => article.id === "staff-parts-collection",
   )!;
-  expect([customer.version, staff.version]).toEqual([1, 1]);
+  expect([customer.version, staff.version]).toEqual([2, 2]);
   expect(learningEligible(publicLearningAccess, staff.gate)).toBe(false);
   expect(
     learningEligible(
@@ -114,4 +114,14 @@ it("rejects a private pickup code from Allie prompts without blocking instructio
   expect(containsAllieSecret("How do I create or revoke my private pickup code?")).toBe(
     false,
   );
+});
+
+it("retains the saved holding policy across JSONB key ordering and refuses unknown policies", async () => {
+  const { assertCollectionHoldPolicySnapshot } =
+    await import("../../src/modules/orders/order-collection-hold.js");
+  const jsonb = Object.fromEntries(Object.entries(collectionHoldPolicy).reverse());
+  expect(() => assertCollectionHoldPolicySnapshot(jsonb)).not.toThrow();
+  expect(() =>
+    assertCollectionHoldPolicySnapshot({ ...jsonb, version: "UNAPPROVED_REPLACEMENT" }),
+  ).toThrow();
 });

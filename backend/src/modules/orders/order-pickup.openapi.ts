@@ -7,6 +7,8 @@ import {
   pickupVerifySchema,
   pickupHandoverSchema,
   pickupCancelClaimSchema,
+  collectionNoticeSchema,
+  collectionExtensionSchema,
 } from "./order-pickup.schemas.js";
 
 export function registerPickupOpenApi(registry: OpenAPIRegistry) {
@@ -21,6 +23,16 @@ export function registerPickupOpenApi(registry: OpenAPIRegistry) {
       guest = prefix.startsWith("/purchase");
     const writes: (readonly [string, z.ZodType, string])[] = staff
       ? [
+          [
+            "/contact",
+            collectionNoticeSchema,
+            "Record actual successful collection notification or a failed contact attempt separately",
+          ],
+          [
+            "/extend-hold",
+            collectionExtensionSchema,
+            "Extend an actual collection hold with a reason without releasing paid goods",
+          ],
           [
             "/cancel-review",
             pickupCancelClaimSchema,

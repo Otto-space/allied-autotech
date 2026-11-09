@@ -70,7 +70,8 @@ function PickupPanel({
     [notice, setNotice] = useState<string>();
   const alive = useRef(true),
     controller = useRef<AbortController | null>(null),
-    errorRef = useRef<HTMLDivElement>(null);
+    errorRef = useRef<HTMLDivElement>(null),
+    validationFocus = useRef(false);
   const request = (suffix: string, options: RequestOptions = {}) =>
     audience === "guest"
       ? purchaseRequest(path + suffix, options)
@@ -127,7 +128,8 @@ function PickupPanel({
     return () => abort.abort();
   }, [audience, path, order.id, revision]);
   useEffect(() => {
-    if (error) {
+    if (error && validationFocus.current) {
+      validationFocus.current = false;
       errorRef.current?.focus({ preventScroll: true });
       errorRef.current?.scrollIntoView({ block: "nearest" });
     }
@@ -136,7 +138,14 @@ function PickupPanel({
     order.items.find((item) => item.id === itemId)?.productName ?? "Order item";
   const blocked = disabled || loading || changed || uncertain || !!proposal || !summary;
   function propose(
-    action: "issue" | "revoke" | "verify" | "handover" | "cancel-review",
+    action:
+      | "issue"
+      | "revoke"
+      | "verify"
+      | "handover"
+      | "cancel-review"
+      | "contact"
+      | "extend-hold",
     form: FormData,
   ) {
     if (blocked || !summary) return;
@@ -199,7 +208,24 @@ function PickupPanel({
           goodsNotHandedOverConfirmed:
             z.literal("on").parse(form.get("confirmed")) === "on",
         });
+      if (action === "contact")
+        Object.assign(body, {
+          idempotencyKey: crypto.randomUUID(),
+          outcome: z.enum(["NOTIFIED", "NOTIFICATION_FAILED"]).parse(form.get("outcome")),
+          method: z.enum(["PHONE_CALL", "IN_PERSON"]).parse(form.get("method")),
+          reason: z.string().trim().min(12).max(1000).parse(form.get("reason")),
+          actualContactResultConfirmed:
+            z.literal("on").parse(form.get("confirmed")) === "on",
+        });
+      if (action === "extend-hold")
+        Object.assign(body, {
+          idempotencyKey: crypto.randomUUID(),
+          collectByDate: z.iso.date().parse(form.get("collectByDate")),
+          reason: z.string().trim().min(12).max(1000).parse(form.get("reason")),
+        });
       const titles = {
+        contact: "Record this actual contact result?",
+        "extend-hold": "Extend the collection holding date?",
         issue: "Create a private pickup code?",
         revoke: "Revoke this pickup code?",
         verify: "Begin this pickup review?",
@@ -207,6 +233,10 @@ function PickupPanel({
         "cancel-review": "Resolve review without handing over?",
       };
       const descriptions = {
+        contact:
+          "Record only the contact that actually occurred. A failed attempt cannot start the holding clock. The first successful notification after readiness starts the five collection-day period; later messages do not silently reset it.",
+        "extend-hold":
+          "Save this later collection date with the reason. The original date and history remain recorded. This does not release stock, charge storage fees or move money. Inform the customer of the change separately.",
         issue:
           "The new code replaces any unused code and is shown once. Share it privately only with your chosen collector. Its security expiry is separate from the collection holding period.",
         revoke:
@@ -230,6 +260,20 @@ function PickupPanel({
             label: name(line.orderItemId),
             value: `Quantity ${line.quantity}`,
           })),
+          ...(body.collectByDate
+            ? [{ label: "New collect-by date", value: String(body.collectByDate) }]
+            : []),
+          ...(body.outcome
+            ? [
+                {
+                  label: "Actual contact result",
+                  value:
+                    body.outcome === "NOTIFIED"
+                      ? "Successfully notified"
+                      : "Contact attempt failed",
+                },
+              ]
+            : []),
           ...(body.collectorName
             ? [{ label: "Collector", value: String(body.collectorName) }]
             : []),
@@ -302,17 +346,12 @@ function PickupPanel({
         },
       });
     } catch {
+      validationFocus.current = true;
       setError(
         "Check quantities and required fields. Select at least one item. Notes about verification or resolving a review need at least 12 characters.",
       );
     }
   }
-  const form =
-    (action: Parameters<typeof propose>[0]) =>
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      propose(action, new FormData(event.currentTarget));
-    };
   return (
     <section className={`card ${styles.section}`} aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`}>
@@ -351,6 +390,148 @@ function PickupPanel({
       </button>
       {summary && (
         <>
+          {summary.holding && (
+            <div className={styles.secret}>
+              <h3>Collection holding period</h3>
+              <p>
+                Five collection days, Monday?Saturday, after readiness and successful
+                notification. Public holidays count. The same rule applies to
+                imported/custom parts.
+              </p>
+              {summary.holding.collectByDate ? (
+                <>
+                  <p>
+                    <strong>
+                      Collect by{" "}
+                      {new Intl.DateTimeFormat("en-NG", {
+                        dateStyle: "long",
+                        timeZone: "Africa/Lagos",
+                      }).format(new Date(summary.holding.collectByDate + "T12:00:00Z"))}
+                    </strong>{" "}
+                    during actual workshop collection hours.
+                  </p>
+                  {summary.holding.extendedAt && (
+                    <p>
+                      Extended from {summary.holding.originalCollectByDate}; the original
+                      deadline remains recorded.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p>
+                  A collection deadline is not set until actual readiness and successful
+                  customer notification are recorded.
+                </p>
+              )}
+              {summary.holding.state === "OVERDUE" && (
+                <p role="status">
+                  Collection overdue. Contact the workshop to arrange collection or a
+                  reasoned extension. This status does not cancel your order or release
+                  paid goods.
+                </p>
+              )}
+              {summary.holding.state === "COLLECTED" && (
+                <p>Physical collection is complete.</p>
+              )}
+              {staff &&
+                summary.holding.latestNotificationAttempt?.kind ===
+                  "NOTIFICATION_FAILED" && (
+                  <p role="status">
+                    The latest contact attempt failed. Follow up with the customer. An
+                    earlier successful notification, if present, retains its original
+                    holding date.
+                  </p>
+                )}
+            </div>
+          )}
+          {staff &&
+            summary.status === "READY" &&
+            summary.collectionHoldCapabilityVersion === 1 && (
+              <>
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    propose("contact", new FormData(event.currentTarget));
+                  }}
+                >
+                  <fieldset className={styles.fields} disabled={blocked || !!review}>
+                    <legend>Record actual collection contact</legend>
+                    <label>
+                      Contact method
+                      <select className="input" name="method">
+                        <option value="PHONE_CALL">Phone conversation / attempt</option>
+                        <option value="IN_PERSON">In person</option>
+                      </select>
+                    </label>
+                    <label>
+                      Actual result
+                      <select
+                        className="input"
+                        name="outcome"
+                        defaultValue="NOTIFICATION_FAILED"
+                      >
+                        <option value="NOTIFICATION_FAILED">
+                          Contact attempt failed
+                        </option>
+                        <option value="NOTIFIED">Customer successfully notified</option>
+                      </select>
+                    </label>
+                    <label>
+                      Internal contact note
+                      <textarea
+                        className="input"
+                        name="reason"
+                        minLength={12}
+                        maxLength={1000}
+                        required
+                      />
+                    </label>
+                    <label className={styles.check}>
+                      <input type="checkbox" name="confirmed" required />I confirm this is
+                      the contact result that actually occurred.
+                    </label>
+                    <button className="button secondary" type="submit">
+                      Review contact result
+                    </button>
+                  </fieldset>
+                </form>
+                {summary.holding?.collectByDate && (
+                  <form
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      propose("extend-hold", new FormData(event.currentTarget));
+                    }}
+                  >
+                    <fieldset className={styles.fields} disabled={blocked || !!review}>
+                      <legend>Extend collection holding</legend>
+                      <label>
+                        New collect-by date (Nigeria time)
+                        <input
+                          className="input"
+                          type="date"
+                          name="collectByDate"
+                          min={summary.holding.collectByDate}
+                          required
+                        />
+                      </label>
+                      <label>
+                        Internal extension reason
+                        <textarea
+                          className="input"
+                          name="reason"
+                          minLength={12}
+                          maxLength={1000}
+                          required
+                        />
+                      </label>
+                      <button className="button secondary" type="submit">
+                        Review holding extension
+                      </button>
+                    </fieldset>
+                  </form>
+                )}
+              </>
+            )}
           {summary.legacyCompleted ? (
             <p>
               This order was completed before detailed pickup history was available. No
@@ -409,7 +590,12 @@ function PickupPanel({
             !summary.legacyCompleted &&
             summary.remaining.length > 0 &&
             !review && (
-              <form onSubmit={form(staff ? "verify" : "issue")}>
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  propose(staff ? "verify" : "issue", new FormData(event.currentTarget));
+                }}
+              >
                 <fieldset
                   className={styles.fields}
                   disabled={blocked || (!staff && !!summary.handoverReview)}
@@ -456,7 +642,12 @@ function PickupPanel({
               </form>
             )}
           {!staff && summary.authorisation && !summary.handoverReview && (
-            <form onSubmit={form("revoke")}>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                propose("revoke", new FormData(event.currentTarget));
+              }}
+            >
               <fieldset className={styles.fields} disabled={blocked}>
                 <legend>Revoke an unused code</legend>
                 <label>
@@ -470,7 +661,12 @@ function PickupPanel({
             </form>
           )}
           {staff && review && (
-            <form onSubmit={form("handover")}>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                propose("handover", new FormData(event.currentTarget));
+              }}
+            >
               <fieldset className={styles.fields} disabled={blocked}>
                 <legend>Record physical handover</legend>
                 <p>Your exclusive review covers only these quantities:</p>
@@ -512,7 +708,12 @@ function PickupPanel({
             </form>
           )}
           {staff && (review || summary.handoverReview) && (
-            <form onSubmit={form("cancel-review")}>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                propose("cancel-review", new FormData(event.currentTarget));
+              }}
+            >
               <fieldset className={styles.fields} disabled={blocked}>
                 <legend>Resolve without handover</legend>
                 <p>

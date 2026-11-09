@@ -1,3 +1,29 @@
+### 9 November: collection holding is connected; release acceptance remains open
+
+D12 now records immutable actual phone/in-person contact results separately from
+failed attempts. The first successful contact for the actual ready event anchors
+five Monday-Saturday days in Nigeria time, including public holidays and excluding
+the anchor date; imported/custom parts use the same rule. Later contacts do not
+reset the clock. Authorised current branch/MFA operators may extend to a later
+collection day with a private reason; original dates and history remain. No fee,
+cancellation, refund, resale or paid-stock release follows from overdue status.
+
+Forward migration 110 replayed on a new isolated loopback tmpfs DB. Schema diff,
+db:check and restricted runtime checks passed. Final native run: 68/68 in four
+suites, including repeated successful notification retaining the first anchor.
+The final saved-policy comparison is covered separately for JSONB key ordering and
+unknown-policy refusal; exact combined hosted checks remain required.
+Customer/guest/staff order detail UI shows current holding state and exact date;
+contact/extension controls require the actual backend capability. Pickup/holding
+learning definitions are now v2, server-restricted. No production publication or
+new financial activation is claimed; hosted browser acceptance is still pending.
+
+The earlier 4b6d9ac7 hosted backend 42704388499 passed all stages for schema109.
+Its frontend run42704388600 failed because learningHref rejected the two new exact
+order destinations. The frontend allowlist now contains those existing routes;
+60/60 learning tests pass. No browser or full release pass is inferred from that
+failed build. Exact combined-source checks and production safeguards remain open.
+
 ### 9 November: pickup candidate preserves newer Home/authentication release
 
 Merged master 1eef9aff, retaining its verified Home/footer release, authentication

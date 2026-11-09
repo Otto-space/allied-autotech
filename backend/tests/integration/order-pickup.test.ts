@@ -412,6 +412,118 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).not.toBeNull();
       expect((await f.issue(5, 3)).pickupCode).toBeTruthy();
     });
+    it("starts holding only on actual successful contact, preserves failed attempts and extends with immutable reasons", async () => {
+      const f = await fixture();
+      const failed = {
+        expectedVersion: 0,
+        idempotencyKey: randomUUID(),
+        outcome: "NOTIFICATION_FAILED",
+        method: "PHONE_CALL",
+        reason: "Synthetic customer contact attempt was not answered",
+        actualContactResultConfirmed: true,
+      };
+      const pending = await f.service.collectionContact(
+        f.actor,
+        f.order.id,
+        failed,
+        context,
+      );
+      expect(pending.holding).toMatchObject({
+        state: "PENDING",
+        pendingReason: "NOTIFICATION_REQUIRED",
+        collectByDate: null,
+        latestNotificationAttempt: { kind: "NOTIFICATION_FAILED" },
+      });
+      const success = {
+        ...failed,
+        expectedVersion: 1,
+        idempotencyKey: randomUUID(),
+        outcome: "NOTIFIED",
+        reason: "Synthetic successful conversation confirmed collection readiness",
+      };
+      const held = await f.service.collectionContact(
+        f.actor,
+        f.order.id,
+        success,
+        context,
+      );
+      expect(held.holding.state).toBe("HOLDING");
+      expect(held.holding.notifiedAt).not.toBeNull();
+      expect(held.holding.collectByDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      await f.service.collectionContact(f.actor, f.order.id, success, context);
+      expect(
+        await prisma.orderCollectionEvent.count({ where: { orderId: f.order.id } }),
+      ).toBe(2);
+      const later = { ...failed, expectedVersion: 2, idempotencyKey: randomUUID() };
+      const failedAgain = await f.service.collectionContact(
+        f.actor,
+        f.order.id,
+        later,
+        context,
+      );
+      expect(failedAgain.holding.collectByDate).toBe(held.holding.collectByDate);
+      expect(failedAgain.holding.notifiedAt).toEqual(held.holding.notifiedAt);
+      const notifiedAgain = await f.service.collectionContact(
+        f.actor,
+        f.order.id,
+        { ...success, expectedVersion: 3, idempotencyKey: randomUUID() },
+        context,
+      );
+      expect(notifiedAgain.holding.notifiedAt).toEqual(held.holding.notifiedAt);
+      expect(notifiedAgain.holding.noticeId).toBe(held.holding.noticeId);
+      expect(notifiedAgain.holding.collectByDate).toBe(held.holding.collectByDate);
+      await expect(
+        f.service.extendCollectionHold(
+          f.actor,
+          f.order.id,
+          {
+            expectedVersion: 4,
+            idempotencyKey: randomUUID(),
+            collectByDate: held.holding.collectByDate,
+            reason: "Synthetic unchanged deadline must be refused",
+          },
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const collectByDate = new Date(
+        Date.parse(held.holding.collectByDate!) + 7 * 86400000,
+      )
+        .toISOString()
+        .slice(0, 10);
+      const extended = await f.service.extendCollectionHold(
+        f.actor,
+        f.order.id,
+        {
+          expectedVersion: 4,
+          idempotencyKey: randomUUID(),
+          collectByDate,
+          reason: "Synthetic customer agreed later collection; goods retained",
+        },
+        context,
+      );
+      expect(extended.holding).toMatchObject({
+        state: "HOLDING",
+        originalCollectByDate: held.holding.collectByDate,
+        collectByDate,
+      });
+      expect(JSON.stringify(await f.service.read(f.buyer, f.order.id))).not.toContain(
+        "Synthetic customer agreed",
+      );
+      const history = await prisma.orderCollectionEvent.findMany({
+        where: { orderId: f.order.id },
+      });
+      expect(history).toHaveLength(5);
+      await expect(
+        prisma.orderCollectionEvent.delete({ where: { id: history[0]!.id } }),
+      ).rejects.toThrow();
+      expect(
+        await prisma.orderPickupHandover.count({ where: { orderId: f.order.id } }),
+      ).toBe(0);
+      expect(
+        (await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } })).totalKobo,
+      ).toBe(f.order.totalKobo);
+      expect(await prisma.payment.count({ where: { orderId: f.order.id } })).toBe(1);
+    });
     it("does not let a direct status update, unresolved payment or changed proof bypass collection checks", async () => {
       const f = await fixture();
       await expect(

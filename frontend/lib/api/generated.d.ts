@@ -3436,6 +3436,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/staff/orders/{orderId}/pickup/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record actual successful collection notification or a failed contact attempt separately
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Record actual successful collection notification or a failed contact attempt separately. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffOrdersByOrderIdPickupContact"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/orders/{orderId}/pickup/extend-hold": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Extend an actual collection hold with a reason without releasing paid goods
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Extend an actual collection hold with a reason without releasing paid goods. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffOrdersByOrderIdPickupExtendHold"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/staff/orders/{orderId}/pickup/cancel-review": {
         parameters: {
             query?: never;
@@ -65276,6 +65316,584 @@ export interface operations {
                      *       "message": "The requested resource is not available.",
                      *       "error": {
                      *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffOrdersByOrderIdPickupContact: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+                 *       "outcome": "NOTIFIED",
+                 *       "method": "PHONE_CALL",
+                 *       "reason": "synthetic-reason",
+                 *       "actualContactResultConfirmed": true
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Retry key that must be reused only with an identical logical request.
+                     */
+                    idempotencyKey: string;
+                    /**
+                     * @description Outcome validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    outcome: "NOTIFIED" | "NOTIFICATION_FAILED";
+                    /**
+                     * @description Method validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    method: "PHONE_CALL" | "IN_PERSON";
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                    /**
+                     * @description Actual Contact Result Confirmed validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    actualContactResultConfirmed: true;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Record actual successful collection notification or a failed contact attempt separately. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Record actual successful collection notification or a failed contact attempt separately",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Record actual successful collection notification or a failed contact attempt separately. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffOrdersByOrderIdPickupExtendHold: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+                 *       "collectByDate": "2030-01-15T10:00:00.000Z",
+                 *       "reason": "synthetic-reason"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Retry key that must be reused only with an identical logical request.
+                     */
+                    idempotencyKey: string;
+                    /**
+                     * Format: date
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    collectByDate: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Extend an actual collection hold with a reason without releasing paid goods. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Extend an actual collection hold with a reason without releasing paid goods",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Extend an actual collection hold with a reason without releasing paid goods. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"

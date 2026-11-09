@@ -89,6 +89,7 @@ export const learningArticles: LearningArticle[] = [
       "Use a private parts pickup code",
       "Authorise collection for one ready order without exposing your other records.",
       [
+        "Holding lasts five collection days, Monday-Saturday including public holidays, after both actual readiness and successful customer notification. Imported/custom parts follow the same rule. A failed contact attempt does not start the clock. Check the saved Collect by date and any reasoned extension; overdue does not cancel paid goods, charge storage fees or release allocation.",
         "Open the actual ready order and Collect your parts. Choose quantities, review them and confirm. The server checks readiness and verified financial clearance; payment alone is not collection authority.",
         "The code is shown once. Share it privately only with your chosen collector. Its security expiry is separate from the collection holding period. Replacing or revoking an unused code does not cancel the order or move money.",
         "If staff have begun a pickup review, ask the workshop to resolve it before replacing the code. A review is not handover. Each physical pickup consumes its code; exact remaining goods need a new code.",
@@ -98,7 +99,7 @@ export const learningArticles: LearningArticle[] = [
       "OrderPickupService buyer ownership and private one-time authorisation",
       "parts pickup collection private code remaining quantities",
     ),
-    version: 1,
+    version: 2,
     reviewedAt: "2026-11-09",
   },
   {
@@ -109,6 +110,7 @@ export const learningArticles: LearningArticle[] = [
       "Review and record physical parts collection",
       "Use a current branch-authorised, session-bound review before recording actual handover.",
       [
+        "Holding lasts five collection days, Monday-Saturday including public holidays, after both actual readiness and successful customer notification. Imported/custom parts follow the same rule. A failed contact attempt does not start the clock. Check the saved Collect by date and any reasoned extension; overdue does not cancel paid goods, charge storage fees or release allocation.",
         "Open the actual ready order and Physical parts collection. Current verified staff access and actual branch scope are required. Enter the private code and exact goods for this pickup. Check actual goods and authority; omit ID numbers or copies from notes.",
         "Review pickup authorisation and confirm. The review is exclusively bound to your current session. Another operator must not release the same goods. Financial proof and remaining quantities are checked again; a review never marks goods collected.",
         "Only after the listed goods have physically been handed over, enter the collector name and verification note, confirm that physical fact and review the handover record. The code is consumed once, immutable history is retained and any partial remainder stays outstanding. This takes no payment and does not consume stock again.",
@@ -118,7 +120,7 @@ export const learningArticles: LearningArticle[] = [
       "OrderPickupService current MFA, branch scope, exclusive review claim and immutable handover",
       "staff parts pickup collection exclusive review physical handover",
     ),
-    version: 1,
+    version: 2,
     reviewedAt: "2026-11-09",
   },
   {

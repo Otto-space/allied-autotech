@@ -56,3 +56,22 @@ export const pickupCancelClaimSchema = z
     goodsNotHandedOverConfirmed: z.literal(true),
   })
   .strict();
+
+export const collectionNoticeSchema = z
+  .object({
+    expectedVersion: version,
+    idempotencyKey: z.uuid(),
+    outcome: z.enum(["NOTIFIED", "NOTIFICATION_FAILED"]),
+    method: z.enum(["PHONE_CALL", "IN_PERSON"]),
+    reason: paragraph(12, 1000),
+    actualContactResultConfirmed: z.literal(true),
+  })
+  .strict();
+export const collectionExtensionSchema = z
+  .object({
+    expectedVersion: version,
+    idempotencyKey: z.uuid(),
+    collectByDate: z.iso.date(),
+    reason: paragraph(12, 1000),
+  })
+  .strict();

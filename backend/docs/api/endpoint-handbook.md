@@ -11328,6 +11328,118 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### POST `/staff/orders/{orderId}/pickup/contact`
+
+- Operation ID: `postStaffOrdersByOrderIdPickupContact`
+- Purpose: Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Record actual successful collection notification or a failed contact attempt separately. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `idempotencyKey` | string (uuid) | Yes | Retry key that must be reused only with an identical logical request. |
+| `outcome` | NOTIFIED / NOTIFICATION_FAILED | Yes | Outcome validated by this operation's strict request contract. |
+| `method` | PHONE_CALL / IN_PERSON | Yes | Method validated by this operation's strict request contract. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `actualContactResultConfirmed` | true | Yes | Actual Contact Result Confirmed validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+  "outcome": "NOTIFIED",
+  "method": "PHONE_CALL",
+  "reason": "synthetic-reason",
+  "actualContactResultConfirmed": true
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Record actual successful collection notification or a failed contact attempt separately",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/orders/{orderId}/pickup/extend-hold`
+
+- Operation ID: `postStaffOrdersByOrderIdPickupExtendHold`
+- Purpose: Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Extend an actual collection hold with a reason without releasing paid goods. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `idempotencyKey` | string (uuid) | Yes | Retry key that must be reused only with an identical logical request. |
+| `collectByDate` | string (date) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+  "collectByDate": "2030-01-15T10:00:00.000Z",
+  "reason": "synthetic-reason"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Extend an actual collection hold with a reason without releasing paid goods",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/staff/orders/{orderId}/pickup/cancel-review`
 
 - Operation ID: `postStaffOrdersByOrderIdPickupCancelReview`

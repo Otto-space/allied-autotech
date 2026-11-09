@@ -14,6 +14,8 @@ import {
   pickupVerifySchema,
   pickupHandoverSchema,
   pickupCancelClaimSchema,
+  collectionNoticeSchema,
+  collectionExtensionSchema,
 } from "./order-pickup.schemas.js";
 
 const value = (res: Response, key: string) => res.locals.validated?.[key];
@@ -104,6 +106,27 @@ export function registerStaffPickupRoutes(router: Router) {
     async (req, res) =>
       send(req, res, await service.verify(actor(req), orderId(res), value(res, "body"))),
   );
+  for (const [suffix, body, operation] of [
+    ["contact", collectionNoticeSchema, "collectionContact"],
+    ["extend-hold", collectionExtensionSchema, "extendCollectionHold"],
+  ] as const)
+    router.post(
+      `/:orderId/pickup/${suffix}`,
+      createSensitiveRateLimit(10, 60000),
+      requireCsrf,
+      validate({ ...params, body }),
+      async (req, res) =>
+        send(
+          req,
+          res,
+          await service[operation](
+            actor(req),
+            orderId(res),
+            value(res, "body"),
+            context(req),
+          ),
+        ),
+    );
   router.post(
     "/:orderId/pickup/cancel-review",
     createSensitiveRateLimit(10, 60000),
