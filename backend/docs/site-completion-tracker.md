@@ -1,3 +1,43 @@
+## 9 November 23:18 UTC - populated111 restore passes; pickup assertion corrected
+
+The protected retained100-migration snapshot now restores into a fresh loopback
+111-schema database and passes guarded forward migration, db:check, original-row/
+column fingerprints and complete migration-history preservation. Existing product
+estimates remain unknown. Source and production were not written. This protected
+snapshot is never a fixture-submission target. Renew the production backup and
+managed PITR checks before rollout. First attempt timed out creating a local DB;
+read-only investigation confirmed no target existed, then a bounded local creation
+retry with a planned-target receipt succeeded. Other query/guard limits remain.
+
+Source82df0353 frontend42717479766 passes production checks, then pickup preflight
+completes physical handover/refresh but fails a stale punctuation assertion:
+actual Engine oil: 1 remaining versus the earlier question-mark separator. Update
+only that expected text; keep quantities, collector history, cleared-secret,
+write-count and overflow assertions. Remaining browser cases were not run. The
+native111 replay and15/53/11 cases retain their exact-source15a47eb4 scope; backend
+runtime/schema are unchanged. A new exact-source CI run remains required.
+
+Signed111-schema legacy bridge sourcecea4d2b3 is prepared locally, not deployed,
+compiled or accepted. Its invoice/policy/pickup compatibility still needs testing;
+the earlier102 bridge proof does not cover it. Full recovery/images/production
+release and original role/provider/device acceptance remain open. No capability,
+permission, business record or deployment changed.
+
+---
+
+## 9 November 23:05 UTC - corrected learning/native result
+
+Exact source15a47eb4 now has111-migration replay/db:check,15 reminder cases,53
+staged-payment/sourcing/pickup cases and11 learning cases passed. The learning
+recheck uses CI's test-only flags and explicit isolated-target confirmation; all
+restricted runtime logins are disabled afterward. Initial harness failures remain
+in the private receipts. No real provider or production data was used. Final
+82df0353 changes only inventory formatting/evidence; fresh exact-source CI remains
+required. Preserve this owned receipt note with the next source checkpoint rather
+than restarting active CI only to commit evidence. Whole goal remains active.
+
+---
+
 ## 9 November 23:05 UTC - combined native proof; inventory formatting repaired
 
 Source15a47eb4 backend42715870417 and secrets42715870812 pass. Frontend42715870418

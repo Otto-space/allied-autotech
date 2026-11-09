@@ -158,7 +158,7 @@ for (const width of [320, 1440])
     ).toBeVisible();
     expect(writes.map((write) => write.suffix)).toEqual(["verify", "handover"]);
     await page.reload();
-    await expect(panel).toContainText("Engine oil ? 1 remaining");
+    await expect(panel).toContainText("Engine oil: 1 remaining");
     await expect(panel).toContainText("Synthetic collector");
     await expect(panel.getByLabel("Private pickup code", { exact: true })).toHaveValue(
       "",
