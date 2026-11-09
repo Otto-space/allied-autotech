@@ -1,3 +1,40 @@
+## 9 November 18:40 UTC - image fixture integrity and CI checkpoint
+
+PR31 is not eligible for publication yet. Frontend run 42670082332 for 0251270a
+hit its 35-minute job limit: 702 of 713 matrix cases passed, two Firefox private
+portrait cases failed, and nine cases did not complete. All 1,518 units passed
+(12 existing skips), as did nine early WebKit calendar/search cases. Backend
+42670081023 passed all 37 isolated profile cases; Secrets 42670080079 passed.
+The cancelled frontend run has no browser artifact and is not counted as green.
+
+The portrait PNG fixture has a verified invalid IDAT CRC (stored 4020454809,
+computed 4020414299). A second copy in vehicle-stock has the same invalid chunk.
+Correct only the checksum in the four affected synthetic-image fixtures; preserve
+pixel content and strict naturalWidth/query assertions. Native Edge/Chrome decode
+the corrected PNG. Firefox/WebKit confirmation remains pending; invalid fixture
+bytes are established, but the cancelled job did not retain its assertion details.
+Run all three media-contract projects before the long matrix so failures surface
+early. Give the job 45 minutes and the full-matrix step 25 minutes, based on its
+observed 14-minute setup and roughly 21-minute matrix, leaving artifact headroom.
+Do not weaken tests or treat the longer execution allowance as a passing result.
+
+Hosted preview dpl_7E5cyv8Nws7osTGkfTx5EyaaofHT passes 21 media cases in Edge 157
+and 21 in Chrome 156 across the exact seven requested viewport pairs. All profile,
+garage and review portrait flows load pixels, retain exact image queries and handle
+removed images; no page errors, document overflow or production writes occurred.
+An additional 28 Edge security-page cases cover Customer, Staff, Admin and Super
+Admin section navigation and session disclosures across those same seven sizes.
+These are isolated browser fixtures, not live MFA/identity acceptance or physical
+phone tests. Screenshots and receipts are under TEMP/allied-profile-acceptance-
+20261109/native-preview-seven and TEMP/allied-security-readonly-20261109.
+
+Production remains 160d3b7b / dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb. Backend c3c54414
+is ACTIVE, no pending deployment; the database is online and the provider lists
+8 backups, latest 2026-11-09T05:22:14Z. No schema/runtime backend change is included.
+Next: final revised-source CI, merge PR31, exact-master gates, held production
+candidate and public-alias verification. Full two-brief route/state, real-role,
+authentication lifecycle, physical-device and business-data requirements remain open.
+
 ## 9 November 18:00 UTC - hosted portrait and garage URL regression
 
 Current item: complete PR31 with the verified hosted-media correction, then run
