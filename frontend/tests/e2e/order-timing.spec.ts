@@ -190,7 +190,9 @@ for (const outcome of ["stale", "contradictory"] as const)
       modal.getByRole("button", { name: "Save sourcing update", exact: true }),
     ).toBeDisabled();
     expect(writes).toBe(outcome === "stale" ? 0 : 1);
-    await modal.getByRole("button", { name: "Go back", exact: true }).click();
+    await modal
+      .getByRole("button", { name: "Close & review record", exact: true })
+      .click();
     await page.reload();
     if (outcome === "contradictory")
       await expect(

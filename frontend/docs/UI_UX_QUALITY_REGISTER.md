@@ -1,3 +1,25 @@
+### 9 November: first hosted order-sourcing acceptance and recovery-selector correction
+
+Frontend run 42693804531 / source 5a9798bd passed production checks, repeated
+WebKit calendar/search and all exact-media checks. The early sourcing run passed
+five cases: save/review/cancel/reload at 320 and 1440 with strict console, scoped
+axe and overflow assertions; synthetic Staff, Admin-ready and older-backend hiding.
+The sixth, stale-record recovery, correctly showed an uncertain outcome, disabled
+retry and performed no POST, then timed out because the test looked for Go back
+instead of the shared dialog's Close & review record label. The seventh contradictory
+receipt case did not run. Correct only that final selector; retain write counts,
+disabled-retry assertions, freshness checks and all existing execution limits.
+The full matrix was skipped, so this is not a passing whole-runtime result.
+
+Safe synthetic mobile/desktop sourcing screenshots and the failed modal were
+downloaded and visually inspected. Artifact 13707669692, 1,445,779 bytes; SHA256
+554e5ab27d9e8d0bbd6f3e264b8b8c619f673afab871da10eb0edf028ab15f9f matches.
+Local receipt: TEMP/aat-d03-service-payments-20261109/sourcing-hosted-42693804531.
+The summaries wrap without clipping; the failed-state screenshot confirms the
+actual close label and disabled save. Revised-source browser acceptance remains
+required. Backend-only source 8f9cc3a7 has its own active safety run 42695676717;
+its pickup core is not yet a durable handover workflow. No production change.
+
 Sourcing authoring additionally requires the actual response to advertise its
 `timingUpdates` field. Omission by an older backend stays distinct from an empty
 supported history, so the frontend cannot expose an unsupported mutation during
