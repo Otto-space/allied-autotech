@@ -8170,7 +8170,6 @@ acceptance. Complete the compatibility check and merged-master gates, then stage
 and verify a production-environment frontend without assigning domains, and only
 then publish/check both aliases. The119-template design inventory remains open.
 
-
 ## 9 November - Home release gate repairs
 
 The first held production candidate is READY but has not been published. Exact
@@ -8201,4 +8200,3 @@ permission, capability, database or policy changes were made for these repairs.
 C: preflight21.18GiB with0.1GiB browser allowance passed. No local build/install or
 Docker resources were created. Existing recovery deployments/resources retained.
 Do not publish9f9ee2f8 or count this as full119-template completion.
-
