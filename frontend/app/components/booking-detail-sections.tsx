@@ -175,11 +175,13 @@ export function BookingProgress({ booking }: { booking: CustomerBookingDetail })
 }
 
 export function BookingQuotations({
+  additionalAcceptanceOpen = true,
   quotes,
   now,
   disabled,
   onReview,
 }: {
+  additionalAcceptanceOpen?: boolean;
   quotes: BookingQuote[];
   now: number;
   disabled: boolean;
@@ -207,6 +209,15 @@ export function BookingQuotations({
           </div>
           <WorkflowProgress workflow="quote" status={quote.status} />
           <AdditionalQuoteNotice quote={quote} />
+          {quote.originalInvoice &&
+            quote.status === "ISSUED" &&
+            !additionalAcceptanceOpen && (
+              <p role="status">
+                This visit is closed. Contact the workshop for a new visit or a review
+                before agreeing additional work. You can still reject this outstanding
+                quotation.
+              </p>
+            )}
           {quote.expiresAt && <p>Expires {formatBusinessDate(quote.expiresAt)}</p>}
           <table className="booking-quote-items">
             <caption className="sr-only">Items in quotation {quote.quoteNumber}</caption>
@@ -262,7 +273,9 @@ export function BookingQuotations({
               <div className="actions">
                 <button
                   className="button"
-                  disabled={disabled}
+                  disabled={
+                    disabled || (!!quote.originalInvoice && !additionalAcceptanceOpen)
+                  }
                   onClick={() => onReview(quote, "accept")}
                 >
                   Accept quotation

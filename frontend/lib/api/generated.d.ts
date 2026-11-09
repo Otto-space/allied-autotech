@@ -4241,7 +4241,7 @@ export interface paths {
         };
         /**
          * List minimal eligible invoice sources
-         * @description Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing. List minimal eligible invoice sources. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name, accepted additional-quotation-number or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing. List minimal eligible invoice sources. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getStaffInvoicesSources"];
         put?: never;
@@ -4287,7 +4287,7 @@ export interface paths {
         put?: never;
         /**
          * Create an invoice from a server-owned source
-         * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative. Create an invoice from a server-owned source. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative. SERVICE_ADDITION uses the explicitly accepted additional quotation as its unique source. Only its new items are billed, with no original deposit credit. Original amounts and payments are preserved; invoice issue, payment stages and work authorisation require independent checks. Create an invoice from a server-owned source. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffInvoices"];
         delete?: never;
@@ -74314,7 +74314,9 @@ export interface operations {
                      *           "type": "ORDER",
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "reference": "synthetic-reference",
-                     *           "description": "synthetic-description"
+                     *           "description": "synthetic-description",
+                     *           "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+                     *           "amendmentReason": "synthetic-amendmentreason"
                      *         },
                      *         "lines": [
                      *           {
@@ -74414,7 +74416,7 @@ export interface operations {
                                  * @description Type validated by this operation's strict request contract.
                                  * @enum {string}
                                  */
-                                type: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                                type: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "SERVICE_ADDITION";
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -74424,6 +74426,10 @@ export interface operations {
                                 reference: string;
                                 /** @description Description validated by this operation's strict request contract. */
                                 description: string;
+                                /** @description Original Invoice Number validated by this operation's strict request contract. */
+                                originalInvoiceNumber?: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                amendmentReason?: string;
                             };
                             /** @description Lines validated by this operation's strict request contract. */
                             lines: {
@@ -74943,7 +74949,9 @@ export interface operations {
                      *           "type": "ORDER",
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "reference": "synthetic-reference",
-                     *           "description": "synthetic-description"
+                     *           "description": "synthetic-description",
+                     *           "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+                     *           "amendmentReason": "synthetic-amendmentreason"
                      *         },
                      *         "lines": [
                      *           {
@@ -75040,7 +75048,7 @@ export interface operations {
                                  * @description Type validated by this operation's strict request contract.
                                  * @enum {string}
                                  */
-                                type: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                                type: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "SERVICE_ADDITION";
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -75050,6 +75058,10 @@ export interface operations {
                                 reference: string;
                                 /** @description Description validated by this operation's strict request contract. */
                                 description: string;
+                                /** @description Original Invoice Number validated by this operation's strict request contract. */
+                                originalInvoiceNumber?: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                amendmentReason?: string;
                             };
                             /** @description Lines validated by this operation's strict request contract. */
                             lines: {
@@ -75571,7 +75583,9 @@ export interface operations {
                      *           "type": "ORDER",
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "reference": "synthetic-reference",
-                     *           "description": "synthetic-description"
+                     *           "description": "synthetic-description",
+                     *           "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+                     *           "amendmentReason": "synthetic-amendmentreason"
                      *         }
                      *       },
                      *       "meta": {
@@ -75651,6 +75665,10 @@ export interface operations {
                                 reference: string;
                                 /** @description Description validated by this operation's strict request contract. */
                                 description: string;
+                                /** @description Original Invoice Number validated by this operation's strict request contract. */
+                                originalInvoiceNumber?: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                amendmentReason?: string;
                             };
                         };
                         /** @description Meta validated by this operation's strict request contract. */
@@ -75962,7 +75980,7 @@ export interface operations {
                  * @description Source Type used to constrain this request.
                  * @example ORDER
                  */
-                sourceType: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                sourceType: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "SERVICE_ADDITION";
                 /**
                  * @description Source Id used to constrain this request.
                  * @example 00000000-0000-4000-8000-000000000001
@@ -76454,7 +76472,7 @@ export interface operations {
                  * @description Source Type used to constrain this request.
                  * @example ORDER
                  */
-                sourceType?: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                sourceType?: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "SERVICE_ADDITION";
                 /**
                  * @description Source Id used to constrain this request.
                  * @example 00000000-0000-4000-8000-000000000001
@@ -76700,7 +76718,7 @@ export interface operations {
                      * @description Source Type validated by this operation's strict request contract.
                      * @enum {string}
                      */
-                    sourceType: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                    sourceType: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "SERVICE_ADDITION";
                     /**
                      * Format: uuid
                      * @description Identifier of the source resource; ownership is resolved server-side.

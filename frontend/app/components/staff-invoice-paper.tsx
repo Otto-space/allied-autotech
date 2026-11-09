@@ -45,6 +45,18 @@ export function StaffInvoicePaper({
         <div>
           <span>{p.source.description}</span>
           <strong>{p.source.reference}</strong>
+          {p.source.originalInvoiceNumber && (
+            <>
+              <span>Original invoice</span>
+              <strong>{p.source.originalInvoiceNumber}</strong>
+            </>
+          )}
+          {p.source.amendmentReason && (
+            <>
+              <span>Additional work reason</span>
+              <strong>{p.source.amendmentReason}</strong>
+            </>
+          )}
           <span>Workshop</span>
           <strong>{branch}</strong>
         </div>

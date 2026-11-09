@@ -1,3 +1,9 @@
+import { renderFinancialPdf } from "../../src/modules/billing/document-pdf.js";
+import {
+  financeScope,
+  workforceFinanceSelect,
+  projectWorkforcePayment,
+} from "../../src/modules/organization/workforce-finance-workspace.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { createApp } from "../../src/app.js";
@@ -340,14 +346,43 @@ async function checkWork(bookingId: string, complete = false) {
     await assertAgreedWorkCanProceed(tx, bookingId, complete);
   });
 }
+async function testHeaders(actor: AuthenticatedActor) {
+  const token = randomUUID(),
+    csrf = randomUUID().repeat(2),
+    expiry = new Date(Date.now() + 3600000);
+  await prisma.session.create({
+    data: {
+      userId: actor.userId,
+      tokenHash: hashToken("session", token),
+      csrfTokenHash: hashToken("csrf", csrf),
+      expiresAt: expiry,
+      idleExpiresAt: expiry,
+      createdAt: new Date(
+        Math.min(Date.now() - 1000, actor.mfaVerifiedAt?.getTime() ?? Date.now() - 1000),
+      ),
+      mfaRequired: actor.role !== "CUSTOMER",
+      mfaVerifiedAt: actor.mfaVerifiedAt,
+    },
+  });
+  return {
+    Cookie: `${sessionCookieName}=${token}`,
+    Origin: env.FRONTEND_URL[0]!,
+    "x-csrf-token": csrf,
+  };
+}
+
 async function additionalQuote(
   f: Awaited<ReturnType<typeof fixture>>,
   reason = "Synthetic additional inspection requested after the original agreement",
+  materials = false,
 ) {
   const booking = await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } });
   const operations = new ServiceOperationsService(prisma);
   const body = {
     items: [
+      ...(materials
+        ? [{ type: "PART" as const, productId: f.product.id, quantity: 1 }]
+        : []),
       {
         type: "LABOUR" as const,
         description: "Additional inspection",
@@ -775,30 +810,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     it("runs authoring, CSRF, customer review, acceptance and reload through authenticated HTTP without a charge", async () => {
       const f = await fixture();
       const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
-      async function headers(actor: AuthenticatedActor) {
-        const token = randomUUID(),
-          csrf = randomUUID().repeat(2),
-          expiry = new Date(Date.now() + 3600000);
-        await prisma.session.create({
-          data: {
-            userId: actor.userId,
-            tokenHash: hashToken("session", token),
-            csrfTokenHash: hashToken("csrf", csrf),
-            expiresAt: expiry,
-            idleExpiresAt: expiry,
-            createdAt: new Date(Date.now() - 1000),
-            mfaRequired: actor.role !== "CUSTOMER",
-            mfaVerifiedAt: actor.mfaVerifiedAt,
-          },
-        });
-        return {
-          Cookie: `${sessionCookieName}=${token}`,
-          Origin: env.FRONTEND_URL[0]!,
-          "x-csrf-token": csrf,
-        };
-      }
-      const staff = await headers(f.operator),
-        customer = await headers(f.actor);
+      const staff = await testHeaders(f.operator),
+        customer = await testHeaders(f.actor);
       const body = {
         items: [
           {
@@ -862,6 +875,480 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .expect(409);
       expect(await prisma.payment.count({ where: { invoiceId: f.invoice.id } })).toBe(0);
       expect(await prisma.invoice.count({ where: { bookingId: f.booking.id } })).toBe(1);
+    });
+    it("bills an accepted addition once, gates its own materials, and settles workmanship only after completion", async () => {
+      const f = await fixture(true),
+        { operations, quote } = await additionalQuote(
+          f,
+          "Agreed additional material and inspection",
+          true,
+        );
+      const originalBefore = await prisma.invoice.findUniqueOrThrow({
+        where: { id: f.invoice.id },
+      });
+      expect(originalBefore.depositCreditKobo).toBe(6000n);
+      await operations.issueQuote(
+        f.operator,
+        f.booking.id,
+        quote.id,
+        { expectedRevision: 0 },
+        context(),
+      );
+      await operations.acceptQuote(
+        f.actor,
+        f.booking.id,
+        quote.id,
+        additionalConsent(quote),
+        context(),
+      );
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      const staffHeaders = await testHeaders(f.operator),
+        customerHeaders = await testHeaders(f.actor);
+      const source = { sourceType: "SERVICE_ADDITION", sourceId: quote.id };
+      await request(app)
+        .post("/api/v1/staff/invoices")
+        .set(staffHeaders)
+        .send({ ...source, depositCreditKobo: "3000" })
+        .expect(422);
+      await request(app)
+        .post("/api/v1/staff/invoices")
+        .set(staffHeaders)
+        .send(source)
+        .expect(201);
+      let extra = await prisma.invoice.findUniqueOrThrow({
+        where: { additionalQuoteId: quote.id },
+      });
+      expect(extra).toMatchObject({
+        bookingId: null,
+        subtotalKobo: 15000n,
+        taxKobo: 1125n,
+        totalKobo: 16125n,
+        depositCreditKobo: 0n,
+      });
+      expect(
+        await prisma.invoice.findUniqueOrThrow({ where: { id: f.invoice.id } }),
+      ).toEqual(originalBefore);
+      await f.billing.issue(f.operator, extra.id, { expectedVersion: 0 }, context());
+      const { work } = await agreedWork(f);
+      const originalMaterial = await f.create("MATERIALS");
+      await f.capture(originalMaterial.id);
+      await prisma.workOrder.update({
+        where: { id: work.id },
+        data: { startedAt: new Date(), status: "IN_PROGRESS" },
+      });
+      const addItems = [
+        { type: "PART" as const, productId: f.product.id, quantity: 1 },
+        {
+          type: "LABOUR" as const,
+          description: "Additional inspection",
+          quantity: 1,
+          unitPriceKobo: "5000",
+        },
+      ];
+      await expect(
+        operations.updateWorkOrder(
+          f.operator,
+          f.booking.id,
+          work.id,
+          { expectedVersion: 0, addItems },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      async function intent(stage: "MATERIALS" | "WORKMANSHIP") {
+        extra = await prisma.invoice.findUniqueOrThrow({ where: { id: extra.id } });
+        const plan = servicePaymentPlanFromSnapshot(extra.documentSnapshot, extra)!;
+        return {
+          targetType: "INVOICE" as const,
+          targetId: extra.id,
+          purpose: "SERVICE_INVOICE" as const,
+          acceptedServiceStage: {
+            stage,
+            invoiceVersion: extra.version,
+            amountKobo:
+              stage === "MATERIALS"
+                ? plan.materials.totalKobo
+                : plan.workmanship.totalKobo,
+          },
+        };
+      }
+      await expect(
+        f.payments.createIntent(
+          f.actor,
+          await intent("WORKMANSHIP"),
+          randomUUID(),
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await f.payments.createIntent(
+        f.actor,
+        await intent("MATERIALS"),
+        randomUUID(),
+        context(),
+      );
+      const material = await prisma.payment.findFirstOrThrow({
+        where: { invoiceId: extra.id },
+      });
+      expect(material.amountKobo).toBe(10750n);
+      const scoped = await prisma.payment.findFirst({
+        where: { id: material.id, ...financeScope([f.booking.branchId!]) },
+        select: workforceFinanceSelect,
+      });
+      expect(scoped).not.toBeNull();
+      expect(projectWorkforcePayment(scoped!, [f.booking.branchId!]).sources).toEqual([
+        expect.objectContaining({ kind: "INVOICE", reference: extra.invoiceNumber }),
+      ]);
+      expect(
+        await prisma.payment.count({
+          where: { id: material.id, ...financeScope([randomUUID()]) },
+        }),
+      ).toBe(0);
+      await expect(
+        operations.updateWorkOrder(
+          f.operator,
+          f.booking.id,
+          work.id,
+          { expectedVersion: 0, addItems },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await f.capture(material.id);
+      await operations.updateWorkOrder(
+        f.operator,
+        f.booking.id,
+        work.id,
+        { expectedVersion: 0, addItems },
+        context(),
+      );
+      await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT "id" FROM "Booking" WHERE "id"=${f.booking.id}::uuid FOR UPDATE`;
+        await assertAgreedWorkCanProceed(tx, f.booking.id, true);
+      });
+      const documents = new FinancialDocumentsService(prisma);
+      const paper = await documents.invoice(f.actor, extra.id);
+      expect(paper).toMatchObject({
+        source: {
+          type: "SERVICE_ADDITION",
+          id: quote.id,
+          originalInvoiceNumber: f.invoice.invoiceNumber,
+          amendmentReason: "Agreed additional material and inspection",
+        },
+        subtotalKobo: "15000",
+        depositCreditKobo: "0",
+      });
+      const read = await request(app)
+        .get(`/api/v1/customers/invoices/${extra.id}`)
+        .set(customerHeaders)
+        .expect(200);
+      const publicInvoice = read.body.data;
+      const pdf = await renderFinancialPdf(paper);
+      expect(pdf.subarray(0, 4).toString()).toBe("%PDF");
+      expect(pdf.length).toBeGreaterThan(1000);
+      expect(publicInvoice).toMatchObject({
+        additionalQuote: { id: quote.id },
+        servicePayment: {
+          materials: { recordedKobo: "10750" },
+          workCompleted: false,
+          nextPayment: null,
+        },
+      });
+      expect(JSON.stringify(publicInvoice)).not.toContain("acceptedAdditionalContext");
+      expect(JSON.stringify(publicInvoice)).not.toContain("customerUserId");
+      expect(publicInvoice.additionalQuote.originalInvoice).toEqual({
+        invoiceNumber: f.invoice.invoiceNumber,
+      });
+      await f.complete();
+      await f.payments.createIntent(
+        f.actor,
+        await intent("WORKMANSHIP"),
+        randomUUID(),
+        context(),
+      );
+      const labour = await prisma.payment.findFirstOrThrow({
+        where: { invoiceId: extra.id, status: "REQUIRES_PAYMENT" },
+      });
+      expect(labour.amountKobo).toBe(5375n);
+      await f.capture(labour.id);
+      expect(
+        await prisma.invoice.findUniqueOrThrow({ where: { id: extra.id } }),
+      ).toMatchObject({ status: "PAID", totalKobo: 16125n });
+      expect(
+        await prisma.invoice.findUniqueOrThrow({ where: { id: f.invoice.id } }),
+      ).toMatchObject({
+        totalKobo: originalBefore.totalKobo,
+        documentSnapshot: originalBefore.documentSnapshot,
+        status: "ISSUED",
+      });
+      const baseLabour = await f.create("WORKMANSHIP");
+      await f.capture(baseLabour.id);
+      expect(
+        await prisma.invoice.findUniqueOrThrow({ where: { id: f.invoice.id } }),
+      ).toMatchObject({ status: "PAID", totalKobo: originalBefore.totalKobo });
+      expect(
+        await prisma.payment.aggregate({
+          where: { invoiceId: { in: [extra.id, f.invoice.id] }, status: "SUCCEEDED" },
+          _sum: { amountKobo: true },
+        }),
+      ).toMatchObject({ _sum: { amountKobo: 31625n } });
+      await expect(
+        f.billing.create(
+          f.operator,
+          { sourceType: "SERVICE_ADDITION", sourceId: quote.id },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+    });
+    it("refuses unaccepted/foreign sources, concurrent duplicate invoices and source/credit rewrites", async () => {
+      const f = await fixture(),
+        { operations, quote } = await additionalQuote(
+          f,
+          "Separate material requiring review",
+          true,
+        );
+      await expect(
+        f.billing.create(
+          f.operator,
+          { sourceType: "SERVICE_ADDITION", sourceId: f.quote.id },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 404 });
+      await expect(
+        f.billing.create(
+          f.operator,
+          { sourceType: "SERVICE_ADDITION", sourceId: quote.id },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 404 });
+      await operations.issueQuote(
+        f.operator,
+        f.booking.id,
+        quote.id,
+        { expectedRevision: 0 },
+        context(),
+      );
+      await operations.acceptQuote(
+        f.actor,
+        f.booking.id,
+        quote.id,
+        additionalConsent(quote),
+        context(),
+      );
+      const result = await Promise.allSettled(
+        [1, 2].map(() =>
+          f.billing.create(
+            f.operator,
+            { sourceType: "SERVICE_ADDITION", sourceId: quote.id },
+            context(),
+          ),
+        ),
+      );
+      expect(result.filter((row) => row.status === "fulfilled")).toHaveLength(1);
+      expect(result.filter((row) => row.status === "rejected")).toHaveLength(1);
+      const extra = await prisma.invoice.findUniqueOrThrow({
+        where: { additionalQuoteId: quote.id },
+      });
+      await expect(
+        prisma.invoice.update({
+          where: { id: extra.id },
+          data: { additionalQuoteId: f.quote.id },
+        }),
+      ).rejects.toThrow();
+      await expect(
+        prisma.invoice.update({
+          where: { id: extra.id },
+          data: { depositCreditKobo: 1n, totalKobo: extra.totalKobo - 1n },
+        }),
+      ).rejects.toThrow();
+      await f.billing.issue(f.operator, extra.id, { expectedVersion: 0 }, context());
+      expect(await f.billing.customerGet(f.actor, extra.id)).toMatchObject({
+        servicePayment: { nextPayment: { stage: "MATERIALS" } },
+      });
+      const foreign = await fixture();
+      await expect(f.billing.customerGet(foreign.actor, extra.id)).rejects.toMatchObject({
+        statusCode: 404,
+      });
+      await expect(
+        prisma.invoice.update({
+          where: { id: extra.id },
+          data: { customerId: foreign.booking.customerId },
+        }),
+      ).rejects.toThrow();
+      await f.billing.void(f.operator, f.invoice.id, { expectedVersion: 1 }, context());
+      expect(await f.billing.customerGet(f.actor, extra.id)).toMatchObject({
+        servicePayment: { financialReviewRequired: true, nextPayment: null },
+      });
+      await expect(
+        f.billing.issue(f.operator, extra.id, { expectedVersion: 0 }, context()),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await expect(
+        prisma.invoice.update({
+          where: { id: extra.id },
+          data: { status: "ISSUED", issuedAt: new Date() },
+        }),
+      ).rejects.toThrow();
+    });
+    it("keeps a supplemental late capture as real money for review when the original agreement was voided", async () => {
+      const f = await fixture(),
+        { operations, quote } = await additionalQuote(
+          f,
+          "Additional materials only",
+          true,
+        );
+      await operations.issueQuote(
+        f.operator,
+        f.booking.id,
+        quote.id,
+        { expectedRevision: 0 },
+        context(),
+      );
+      await operations.acceptQuote(
+        f.actor,
+        f.booking.id,
+        quote.id,
+        additionalConsent(quote),
+        context(),
+      );
+      await f.billing.create(
+        f.operator,
+        { sourceType: "SERVICE_ADDITION", sourceId: quote.id },
+        context(),
+      );
+      const invoice = await prisma.invoice.findUniqueOrThrow({
+        where: { additionalQuoteId: quote.id },
+      });
+      await f.billing.issue(f.operator, invoice.id, { expectedVersion: 0 }, context());
+      await f.payments.createIntent(
+        f.actor,
+        {
+          targetType: "INVOICE",
+          targetId: invoice.id,
+          purpose: "SERVICE_INVOICE",
+          acceptedServiceStage: {
+            stage: "MATERIALS",
+            invoiceVersion: 1,
+            amountKobo: "10750",
+          },
+        },
+        randomUUID(),
+        context(),
+      );
+      const payment = await prisma.payment.findFirstOrThrow({
+        where: { invoiceId: invoice.id },
+      });
+      await f.billing.void(f.operator, f.invoice.id, { expectedVersion: 1 }, context());
+      const attempt = await f.capture(payment.id);
+      expect(
+        await prisma.payment.findUniqueOrThrow({ where: { id: payment.id } }),
+      ).toMatchObject({ status: "REQUIRES_REVIEW", settledAttemptId: null });
+      expect(
+        await prisma.paymentLedgerEntry.count({
+          where: { paymentAttemptId: attempt.id, type: "CAPTURE" },
+        }),
+      ).toBe(1);
+      expect(
+        await prisma.invoice.findUniqueOrThrow({ where: { id: invoice.id } }),
+      ).toMatchObject({ status: "ISSUED" });
+    });
+    it.each(["BOOKING", "WORK_ORDER"])(
+      "refuses late additional acceptance after %s completion without fabricating new completion",
+      async (kind) => {
+        const f = await fixture(),
+          { operations, quote } = await additionalQuote(f);
+        await operations.issueQuote(
+          f.operator,
+          f.booking.id,
+          quote.id,
+          { expectedRevision: 0 },
+          context(),
+        );
+        if (kind === "BOOKING") await f.complete();
+        else {
+          const { work } = await agreedWork(f, false);
+          await prisma.workOrder.update({
+            where: { id: work.id },
+            data: {
+              status: "COMPLETED",
+              startedAt: new Date(Date.now() - 1000),
+              completedAt: new Date(),
+            },
+          });
+        }
+        await expect(
+          operations.acceptQuote(
+            f.actor,
+            f.booking.id,
+            quote.id,
+            additionalConsent(quote),
+            context(),
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        await expect(
+          prisma.serviceQuote.update({
+            where: { id: quote.id },
+            data: {
+              status: "ACCEPTED",
+              acceptedAt: new Date(),
+              acceptedAdditionalContext: {
+                kind: "ADDITIONAL_WORK",
+                ...additionalConsent(quote).acceptedAdditionalWork,
+                customerUserId: f.actor.userId,
+              },
+            },
+          }),
+        ).rejects.toThrow();
+        expect(
+          await prisma.invoice.count({ where: { additionalQuoteId: quote.id } }),
+        ).toBe(0);
+        await operations.rejectQuote(
+          f.actor,
+          f.booking.id,
+          quote.id,
+          { expectedRevision: 1 },
+          context(),
+        );
+        expect(
+          await prisma.serviceQuote.findUniqueOrThrow({ where: { id: quote.id } }),
+        ).toMatchObject({ status: "REJECTED" });
+      },
+    );
+    it("refuses preparing or issuing an unreviewed supplement after an old completion while preserving the draft", async () => {
+      const f = await fixture(),
+        { operations, quote } = await additionalQuote(f);
+      await operations.issueQuote(
+        f.operator,
+        f.booking.id,
+        quote.id,
+        { expectedRevision: 0 },
+        context(),
+      );
+      await operations.acceptQuote(
+        f.actor,
+        f.booking.id,
+        quote.id,
+        additionalConsent(quote),
+        context(),
+      );
+      await f.billing.create(
+        f.operator,
+        { sourceType: "SERVICE_ADDITION", sourceId: quote.id },
+        context(),
+      );
+      const draft = await prisma.invoice.findUniqueOrThrow({
+        where: { additionalQuoteId: quote.id },
+      });
+      await f.complete();
+      await expect(
+        f.billing.issue(f.operator, draft.id, { expectedVersion: 0 }, context()),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await expect(
+        prisma.invoice.update({
+          where: { id: draft.id },
+          data: { status: "ISSUED", issuedAt: new Date() },
+        }),
+      ).rejects.toThrow();
+      expect(
+        await prisma.invoice.findUniqueOrThrow({ where: { id: draft.id } }),
+      ).toMatchObject({ status: "DRAFT", version: 0 });
+      expect(await prisma.payment.count({ where: { invoiceId: draft.id } })).toBe(0);
     });
     it("honours a genuine historical credit once and refuses a later forfeiture", async () => {
       const f = await fixture(true);

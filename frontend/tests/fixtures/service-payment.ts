@@ -3,7 +3,7 @@ import { invoicesFixture, invoiceId } from "./customer-invoices";
 import { publicCapabilitiesFixture } from "./public-capabilities";
 import type { ServicePaymentSummary } from "@/lib/api/service-payment-schemas";
 
-export async function servicePaymentFixture(page: Page) {
+export async function servicePaymentFixture(page: Page, additional = false) {
   const base = await invoicesFixture(page);
   const invoice = base.records[0]!;
   Object.assign(invoice, {
@@ -13,6 +13,16 @@ export async function servicePaymentFixture(page: Page) {
     totalKobo: "21500",
     dueAt: null,
   });
+  const addition = additional
+    ? {
+        id: invoiceId(501),
+        quoteNumber: "SYNTHETIC-ADDITION",
+        amendmentReason: "Synthetic separately agreed extra work",
+        originalInvoice: { invoiceNumber: "INV-ORIGINAL-SYNTHETIC" },
+        booking: { id: invoice.booking!.id },
+      }
+    : null;
+  if (addition) Object.assign(invoice, { additionalQuote: addition, booking: null });
   invoice.servicePayment = {
     materials: { totalKobo: "10750", recordedKobo: "0" },
     workmanship: { totalKobo: "10750", recordedKobo: "0" },
@@ -64,12 +74,21 @@ export async function servicePaymentFixture(page: Page) {
           paymentTerms: "",
         },
         billTo: { name: "Synthetic customer", address: null, reference: invoiceId(302) },
-        source: {
-          type: "BOOKING",
-          id: invoice.booking!.id,
-          reference: "SYNTHETIC-QUOTE",
-          description: "Service booking",
-        },
+        source: addition
+          ? {
+              type: "SERVICE_ADDITION",
+              id: addition.id,
+              reference: addition.quoteNumber,
+              description: "Additional service work",
+              originalInvoiceNumber: addition.originalInvoice.invoiceNumber,
+              amendmentReason: addition.amendmentReason,
+            }
+          : {
+              type: "BOOKING",
+              id: invoice.booking!.id,
+              reference: "SYNTHETIC-QUOTE",
+              description: "Service booking",
+            },
         lines: [
           {
             description: "Synthetic materials",

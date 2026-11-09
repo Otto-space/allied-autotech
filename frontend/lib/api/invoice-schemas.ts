@@ -17,6 +17,16 @@ export const invoiceSchema = z
     depositCreditKobo: money,
     totalKobo: money,
     servicePayment: servicePaymentSummarySchema.optional(),
+    additionalQuote: z
+      .object({
+        id: z.uuid(),
+        quoteNumber: z.string().min(1),
+        amendmentReason: z.string().trim().min(1).max(1000),
+        originalInvoice: z.object({ invoiceNumber: z.string().min(1).max(50) }),
+        booking: z.object({ id: z.uuid() }),
+      })
+      .nullable()
+      .optional(),
     issuedAt: z.string().nullable(),
     dueAt: z.string().nullable(),
     paidAt: z.string().nullable(),
@@ -37,7 +47,21 @@ export const invoiceSchema = z
       }),
     ),
   })
-  .superRefine(validateServicePaymentSummary);
+  .superRefine(validateServicePaymentSummary)
+  .superRefine((record, context) => {
+    if (
+      record.additionalQuote &&
+      (record.order ||
+        record.booking ||
+        record.vehicleTransaction ||
+        record.depositCreditKobo !== "0" ||
+        !record.servicePayment)
+    )
+      context.addIssue({
+        code: "custom",
+        message: "The separate additional invoice has conflicting source or credit facts",
+      });
+  });
 export const parseInvoice = (value: unknown) => invoiceSchema.parse(value);
 export const parseInvoices = (value: unknown) =>
   z

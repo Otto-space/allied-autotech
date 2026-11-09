@@ -653,3 +653,59 @@ for (const width of [390, 1440])
     ).toBe(true);
     await page.screenshot({ path: info.outputPath("saved-concern.png") });
   });
+
+for (const closed of ["booking", "work-order"] as const)
+  test(`closed ${closed} keeps additional quotation readable and rejectable without acceptance`, async ({
+    page,
+  }) => {
+    const errors: string[] = [],
+      warnings: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+      if (m.type() === "warning") warnings.push(m.text());
+    });
+    await page.setViewportSize({ width: 320, height: 900 });
+    const f = await bookingDetailFixture(page);
+    await page.route("**/api/v1/public/capabilities", (r) =>
+      r.fulfill({
+        json: {
+          success: true,
+          data: publicCapabilitiesFixture("full", false),
+          message: "Synthetic booking-only capabilities",
+          meta: { requestId: "closed-addition" },
+        },
+      }),
+    );
+    Object.assign(f.record.quotes[0], {
+      originalInvoice: { invoiceNumber: "INV-ORIGINAL-QA" },
+      amendmentReason: "Additional work offered before this visit closed",
+    });
+    if (closed === "booking") f.record.status = "COMPLETED";
+    else
+      f.record.workOrder = {
+        workOrderNumber: "SYNTHETIC-COMPLETE",
+        status: "COMPLETED",
+        diagnosis: null,
+      };
+    await page.goto(route);
+    await expect(
+      page.getByRole("button", { name: "Accept quotation", exact: true }),
+    ).toBeDisabled();
+    await expect(page.getByText("This visit is closed.", { exact: false })).toBeVisible();
+    expect(f.writes).toHaveLength(0);
+    await page.getByRole("button", { name: "Reject quotation", exact: true }).click();
+    await page.getByRole("button", { name: "Confirm change", exact: true }).click();
+    await expect(
+      page.locator('.booking-quotation .booking-detail-status[data-status="REJECTED"]'),
+    ).toBeVisible();
+    expect(f.writes).toHaveLength(1);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await verifyConsole(page, errors, warnings);
+    expect(f.writes[0]).toMatchObject({
+      path: expect.stringContaining("/reject"),
+      body: { expectedRevision: 2 },
+    });
+  });

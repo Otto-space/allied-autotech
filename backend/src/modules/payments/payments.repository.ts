@@ -1,3 +1,4 @@
+import { additionalInvoiceQuoteSelect } from "../billing/service-invoice-context.js";
 import { prisma } from "../../config/database.js";
 import { servicePaymentReadSelect } from "../billing/service-payment-summary.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
@@ -147,6 +148,7 @@ export class PaymentsRepository {
         currency: true,
         dueAt: true,
         bookingId: true,
+        additionalQuote: { select: additionalInvoiceQuoteSelect },
         version: true,
         documentSnapshot: true,
         subtotalKobo: true,
@@ -263,6 +265,7 @@ export class PaymentsRepository {
                     OR: [
                       { order: { branchId } },
                       { booking: { branchId } },
+                      { additionalQuote: { booking: { branchId } } },
                       { vehicleTransaction: { vehicleListing: { branchId } } },
                     ],
                   },
@@ -288,6 +291,7 @@ export class PaymentsRepository {
           select: {
             order: { select: { branchId: true } },
             booking: { select: { branchId: true } },
+            additionalQuote: { select: { booking: { select: { branchId: true } } } },
             vehicleTransaction: {
               select: { vehicleListing: { select: { branchId: true } } },
             },

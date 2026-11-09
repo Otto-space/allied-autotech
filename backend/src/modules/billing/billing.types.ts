@@ -19,7 +19,15 @@ export function invoiceJsonSafe(value: unknown): unknown {
               "completedAt",
             ].includes(key),
         )
-        .map(([key, child]) => [key, invoiceJsonSafe(child)]),
+        .map(([key, child]) => [
+          key,
+          key === "originalInvoice" &&
+          child !== null &&
+          typeof child === "object" &&
+          "invoiceNumber" in child
+            ? { invoiceNumber: child.invoiceNumber }
+            : invoiceJsonSafe(child),
+        ]),
     );
     if ("documentSnapshot" in value && "payments" in value) {
       const summary = servicePaymentSummary(

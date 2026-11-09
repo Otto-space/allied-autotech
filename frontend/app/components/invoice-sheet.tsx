@@ -55,6 +55,16 @@ export function InvoiceSheet({ document }: { document: InvoiceDocument }) {
           </dd>
         </div>
       </dl>
+      {document.source.originalInvoiceNumber && (
+        <p className="invoice-note">
+          Original invoice: {document.source.originalInvoiceNumber}
+        </p>
+      )}
+      {document.source.amendmentReason && (
+        <p className="invoice-note">
+          Additional work reason: {document.source.amendmentReason}
+        </p>
+      )}
       {document.status === "VOID" && (
         <Feedback
           message="This invoice is void. Do not use it to make a payment."

@@ -1,3 +1,4 @@
+import { lockServiceInvoiceBooking } from "../billing/service-invoice-context.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { PaymentCreateInput } from "./payments.schemas.js";
 import { paymentTargetPending } from "./payments.errors.js";
@@ -23,15 +24,7 @@ export async function lockTarget(tx: Prisma.TransactionClient, target: Target) {
   const key = `payment-target:${target.targetType}:${target.targetId}`;
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`;
   if (target.targetType === "INVOICE") {
-    const invoice = await tx.invoice.findUnique({
-      where: { id: target.targetId },
-      select: { bookingId: true },
-    });
-    // The actual completion/cancellation fact must remain stable through attempt
-    // creation and allocation. Match booking operations' order: booking, invoice,
-    // then Payment. The existing target lock still serializes all stage intents.
-    if (invoice?.bookingId)
-      await tx.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${invoice.bookingId}::uuid FOR UPDATE`;
+    await lockServiceInvoiceBooking(tx, target.targetId);
     await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${target.targetId}::uuid FOR UPDATE`;
   }
 }

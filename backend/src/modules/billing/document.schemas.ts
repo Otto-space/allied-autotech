@@ -25,10 +25,12 @@ export const invoiceSnapshotSchema = z.object({
     reference: z.uuid(),
   }),
   source: z.object({
-    type: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION"]),
+    type: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION", "SERVICE_ADDITION"]),
     id: z.uuid(),
     reference: text(100),
     description: text(1000),
+    originalInvoiceNumber: text(50).optional(),
+    amendmentReason: text(1000).optional(),
   }),
   lines: z.array(documentLineSchema).min(1).max(200),
   discountKobo: money,

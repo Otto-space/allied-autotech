@@ -1,4 +1,5 @@
-import type { Prisma } from "../../generated/prisma/client.js";
+import { assertSupplementalInvoiceCurrent } from "../billing/service-invoice-context.js";
+import type { Invoice, Prisma } from "../../generated/prisma/client.js";
 import { invoiceSnapshotSchema } from "../billing/document.schemas.js";
 import { assertDocumentTotals } from "../billing/document-snapshot.js";
 import { confirmedReceipt, receiptPaymentSelect } from "../billing/documents.service.js";
@@ -14,10 +15,11 @@ import { serviceOperationConflict } from "./service-operations.errors.js";
 /** Call only after authorization and the Booking row lock. Never retrofit an
  * issued historical invoice. The saved quotation, not today's catalogue price,
  * defines the work which the customer actually accepted. */
-export async function agreedServiceWork(tx: Prisma.TransactionClient, bookingId: string) {
-  await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "bookingId" = ${bookingId}::uuid FOR SHARE`;
-  const invoice = await tx.invoice.findUnique({ where: { bookingId } });
-  if (!invoice) return null;
+async function invoiceWorkAgreement(
+  tx: Prisma.TransactionClient,
+  bookingId: string,
+  invoice: Invoice,
+) {
   const plan = servicePaymentPlanFromSnapshot(invoice.documentSnapshot, invoice);
   if (!plan) return null;
   if (invoice.status === "VOID")
@@ -35,6 +37,9 @@ export async function agreedServiceWork(tx: Prisma.TransactionClient, bookingId:
   if (
     !quote ||
     quote.bookingId !== bookingId ||
+    (invoice.additionalQuoteId
+      ? quote.id !== invoice.additionalQuoteId
+      : quote.originalInvoiceId !== null) ||
     quote.status !== "ACCEPTED" ||
     !quote.acceptedAt ||
     quote.version !== plan.quoteVersion ||
@@ -56,7 +61,43 @@ export async function agreedServiceWork(tx: Prisma.TransactionClient, bookingId:
     );
   return { invoice, plan, lines: quote.items };
 }
-type Agreement = NonNullable<Awaited<ReturnType<typeof agreedServiceWork>>>;
+type Agreement = NonNullable<Awaited<ReturnType<typeof invoiceWorkAgreement>>>;
+
+/** Caller holds Booking. Include only separately issued, explicitly agreed additions. */
+export async function agreedServiceWork(tx: Prisma.TransactionClient, bookingId: string) {
+  await tx.$queryRaw`SELECT i."id" FROM "Invoice" i LEFT JOIN "ServiceQuote" q ON q."id"=i."additionalQuoteId" WHERE i."bookingId"=${bookingId}::uuid OR q."bookingId"=${bookingId}::uuid ORDER BY i."id" FOR SHARE OF i`;
+  const original = await tx.invoice.findUnique({ where: { bookingId } });
+  if (!original) return null;
+  const base = await invoiceWorkAgreement(tx, bookingId, original);
+  if (!base) return null;
+  const additions = await tx.serviceQuote.findMany({
+    where: { bookingId, originalInvoiceId: original.id, status: "ACCEPTED" },
+    orderBy: { version: "asc" },
+    include: { supplementalInvoice: true },
+  });
+  const obligations: Agreement[] = [base];
+  let pendingAdditions = false;
+  for (const addition of additions) {
+    const invoice = addition.supplementalInvoice;
+    if (!invoice || !["ISSUED", "PAID"].includes(invoice.status)) {
+      pendingAdditions = true;
+      continue;
+    }
+    await assertSupplementalInvoiceCurrent(tx, invoice.id);
+    const agreement = await invoiceWorkAgreement(tx, bookingId, invoice);
+    if (!agreement)
+      throw serviceOperationConflict(
+        "The additional invoice needs a reviewed payment allocation",
+      );
+    obligations.push(agreement);
+  }
+  return {
+    ...base,
+    obligations,
+    pendingAdditions,
+    lines: obligations.flatMap((agreement) => agreement.lines),
+  };
+}
 
 const key = (line: Omit<PricedLine, "quantity" | "subtotalKobo">) =>
   JSON.stringify([
@@ -143,7 +184,7 @@ export function priceAgreedWorkInputs(
 /** Engineering timing choice: a work order containing quoted materials cannot
  * enter active work before their agreed stage is verified. Labour-only work can
  * proceed; this never collects workmanship early or turns it into a deposit. */
-export async function assertAgreedMaterialsReady(
+async function assertSingleAgreementMaterialsReady(
   tx: Prisma.TransactionClient,
   agreement: Agreement,
   work: readonly PricedLine[],
@@ -190,7 +231,10 @@ export async function assertAgreedMaterialsReady(
       "Materials payment is being updated; reload the job after verification finishes",
     );
   const invoicePayments = payments.filter((p) => p.invoiceId === agreement.invoice.id);
-  const deposits = payments.filter((p) => p.bookingId === agreement.invoice.bookingId);
+  const deposits =
+    credit > 0n
+      ? payments.filter((p) => p.bookingId === agreement.invoice.bookingId)
+      : [];
   // A completed historical deposit refund may already be included in the saved
   // net credit. Pending adjustments still hold; the exact remaining credit is
   // verified below. Never interpret a refund as permission to recharge.
@@ -257,6 +301,36 @@ export async function assertAgreedMaterialsReady(
     );
 }
 
+/** Check each separately billed materials obligation without reusing an original payment. */
+export async function assertAgreedMaterialsReady(
+  tx: Prisma.TransactionClient,
+  agreement: Agreement & { obligations?: Agreement[] },
+  work: readonly PricedLine[],
+) {
+  if (!agreement.obligations)
+    return assertSingleAgreementMaterialsReady(tx, agreement, work);
+  // Allocate identical rows in agreement order, original first. A paid original
+  // quantity cannot cover an unpaid additional quantity with the same identity.
+  const remaining = new Map<string, number>();
+  for (const line of work)
+    remaining.set(key(line), (remaining.get(key(line)) ?? 0) + line.quantity);
+  for (const obligation of agreement.obligations) {
+    const used: PricedLine[] = [];
+    for (const line of obligation.lines) {
+      const quantity = Math.min(line.quantity, remaining.get(key(line)) ?? 0);
+      if (quantity) {
+        used.push({
+          ...line,
+          quantity,
+          subtotalKobo: line.unitPriceKobo * BigInt(quantity),
+        });
+        remaining.set(key(line), remaining.get(key(line))! - quantity);
+      }
+    }
+    await assertSingleAgreementMaterialsReady(tx, obligation, used);
+  }
+}
+
 /** Shared by direct booking transitions, legacy work orders and managed jobs. */
 export async function assertAgreedWorkCanProceed(
   tx: Prisma.TransactionClient,
@@ -272,6 +346,10 @@ export async function assertAgreedWorkCanProceed(
   if (!work || work.status === "CANCELLED")
     throw serviceOperationConflict(
       "Prepare the agreed work order before starting or completing this job",
+    );
+  if (complete && agreement.pendingAdditions)
+    throw serviceOperationConflict(
+      "Prepare and issue the agreed additional-work invoices before completing this job",
     );
   assertAgreedWorkScope(agreement.lines, work.items, complete);
   await assertAgreedMaterialsReady(tx, agreement, work.items);

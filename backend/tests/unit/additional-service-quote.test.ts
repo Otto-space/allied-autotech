@@ -80,11 +80,11 @@ it("keeps versioned guidance truthful and permission gated", () => {
   const customer = learningArticles.find((row) => row.id === "service-request")!;
   const finance = learningArticles.find((row) => row.id === "financial-policy-work")!;
   expect([customer.version, customer.gate, customer.steps.length]).toEqual([
-    32,
+    33,
     "public",
     12,
   ]);
-  expect([finance.version, finance.gate]).toEqual([8, "financial-policy"]);
+  expect([finance.version, finance.gate]).toEqual([9, "financial-policy"]);
   expect(customer.steps.join(" ")).toContain(
     "acceptance does not replace an earlier invoice or make a payment",
   );

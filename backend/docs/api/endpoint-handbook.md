@@ -5759,7 +5759,9 @@ Success: HTTP 200.
       "type": "ORDER",
       "id": "00000000-0000-4000-8000-000000000001",
       "reference": "synthetic-reference",
-      "description": "synthetic-description"
+      "description": "synthetic-description",
+      "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+      "amendmentReason": "synthetic-amendmentreason"
     },
     "lines": [
       {
@@ -5874,7 +5876,9 @@ Success: HTTP 200.
       "type": "ORDER",
       "id": "00000000-0000-4000-8000-000000000001",
       "reference": "synthetic-reference",
-      "description": "synthetic-description"
+      "description": "synthetic-description",
+      "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+      "amendmentReason": "synthetic-amendmentreason"
     }
   },
   "meta": {
@@ -11214,7 +11218,9 @@ Success: HTTP 200.
       "type": "ORDER",
       "id": "00000000-0000-4000-8000-000000000001",
       "reference": "synthetic-reference",
-      "description": "synthetic-description"
+      "description": "synthetic-description",
+      "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+      "amendmentReason": "synthetic-amendmentreason"
     },
     "lines": [
       {
@@ -11296,7 +11302,7 @@ Relevant errors: 400 The request is malformed.; 401 Authentication required; 403
 ### GET `/staff/invoices/sources`
 
 - Operation ID: `getStaffInvoicesSources`
-- Purpose: Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing. List minimal eligible invoice sources. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name, accepted additional-quotation-number or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing. List minimal eligible invoice sources. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -11308,7 +11314,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-| `sourceType` | query | ORDER / BOOKING / VEHICLE_TRANSACTION | Yes | Source Type used to constrain this request. |
+| `sourceType` | query | ORDER / BOOKING / VEHICLE_TRANSACTION / SERVICE_ADDITION | Yes | Source Type used to constrain this request. |
 | `sourceId` | query | string (uuid) | No | Source Id used to constrain this request. |
 | `search` | query | string | No | Search used to constrain this request. |
 
@@ -11354,7 +11360,7 @@ Parameters:
 | `customerId` | query | string (uuid) | No | Customer Id used to constrain this request. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
 | `invoiceNumber` | query | string | No | Invoice Number used to constrain this request. |
-| `sourceType` | query | ORDER / BOOKING / VEHICLE_TRANSACTION | No | Source Type used to constrain this request. |
+| `sourceType` | query | ORDER / BOOKING / VEHICLE_TRANSACTION / SERVICE_ADDITION | No | Source Type used to constrain this request. |
 | `sourceId` | query | string (uuid) | No | Source Id used to constrain this request. |
 
 Success: HTTP 200.
@@ -11383,7 +11389,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/invoices`
 
 - Operation ID: `postStaffInvoices`
-- Purpose: ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative. Create an invoice from a server-owned source. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative. SERVICE_ADDITION uses the explicitly accepted additional quotation as its unique source. Only its new items are billed, with no original deposit credit. Original amounts and payments are preserved; invoice issue, payment stages and work authorisation require independent checks. Create an invoice from a server-owned source. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -11399,7 +11405,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
-| `sourceType` | ORDER / BOOKING / VEHICLE_TRANSACTION | Yes | Source Type validated by this operation's strict request contract. |
+| `sourceType` | ORDER / BOOKING / VEHICLE_TRANSACTION / SERVICE_ADDITION | Yes | Source Type validated by this operation's strict request contract. |
 | `sourceId` | string (uuid) | Yes | Identifier of the source resource; ownership is resolved server-side. |
 | `dueAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 

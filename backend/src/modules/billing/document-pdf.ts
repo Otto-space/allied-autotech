@@ -184,6 +184,10 @@ export function renderFinancialPdf(
         if (document.billTo.address) paragraph(document.billTo.address);
         paragraph(`Account reference: ${document.billTo.reference}`, 9);
         paragraph(`${document.source.description}: ${document.source.reference}`, 10);
+        if (document.source.originalInvoiceNumber)
+          paragraph(`Original invoice: ${document.source.originalInvoiceNumber}`, 10);
+        if (document.source.amendmentReason)
+          paragraph(`Additional work reason: ${document.source.amendmentReason}`, 10);
         if (document.status === "VOID")
           paragraph("This invoice is void. Do not use it to make a payment.", 11, red);
         if (document.status === "DRAFT")

@@ -6,7 +6,12 @@ const pageFields = {
   limit: z.coerce.number().int().min(1).max(100).default(25),
 } as const;
 const status = z.enum(["DRAFT", "ISSUED", "PAID", "VOID"]);
-const sourceType = z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION"]);
+const sourceType = z.enum([
+  "ORDER",
+  "BOOKING",
+  "VEHICLE_TRANSACTION",
+  "SERVICE_ADDITION",
+]);
 export const invoiceParamsSchema = z.object({ invoiceId: uuid }).strict();
 export const billingEmptyQuerySchema = z.object({}).strict().default({});
 export const customerInvoiceListQuerySchema = z
@@ -58,7 +63,7 @@ export const invoiceSourceListQuerySchema = z
 export type InvoiceSourceListQuery = z.infer<typeof invoiceSourceListQuerySchema>;
 export const invoiceCreateBodySchema = z
   .object({
-    sourceType: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION"]),
+    sourceType,
     sourceId: uuid,
     dueAt: z.iso.datetime({ offset: true }).optional(),
   })

@@ -712,6 +712,23 @@ function InvoiceWorkspace({
                   </section>
                 </aside>
                 <div className="wid-document">
+                  {current.additionalQuote && (
+                    <section
+                      aria-label="Additional service invoice"
+                      className="field-hint"
+                    >
+                      <h2>Additional work</h2>
+                      <p>
+                        Original invoice:{" "}
+                        {current.additionalQuote.originalInvoice.invoiceNumber}
+                      </p>
+                      <p>{current.additionalQuote.amendmentReason}</p>
+                      <p>
+                        Only the new accepted items are billed here. Original amounts and
+                        payments remain separate; no previous deposit credit is reused.
+                      </p>
+                    </section>
+                  )}
                   <ServicePaymentSummary summary={current.servicePayment} />
                   <Feedback message={paperError} />
                   {document.loading && <p role="status">Loading invoice document…</p>}

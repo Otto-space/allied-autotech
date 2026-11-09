@@ -43,6 +43,7 @@ type InvoiceSource = {
   guestId?: string | null;
   orderId?: string | null;
   bookingId?: string | null;
+  additionalQuoteId?: string | null;
   vehicleTransactionId?: string | null;
   subtotalKobo: bigint | number;
   taxKobo: bigint | number;
@@ -54,6 +55,16 @@ export function assertDocumentTotals(
   snapshot: InvoiceSnapshot,
   invoice: InvoiceSource,
 ): void {
+  if (
+    invoice.additionalQuoteId &&
+    (!snapshot.servicePaymentPlan ||
+      snapshot.source.type !== "SERVICE_ADDITION" ||
+      snapshot.source.id !== invoice.additionalQuoteId ||
+      !snapshot.source.originalInvoiceNumber ||
+      !snapshot.source.amendmentReason ||
+      BigInt(invoice.depositCreditKobo ?? 0) !== 0n)
+  )
+    throw invoiceConflict("The separate additional invoice context is incomplete");
   let subtotal = 0n;
   for (const line of snapshot.lines) {
     if (BigInt(line.unitPriceKobo) * BigInt(line.quantity) !== BigInt(line.subtotalKobo))
@@ -71,8 +82,12 @@ export function assertDocumentTotals(
     throw invoiceConflict("Invoice document totals are inconsistent");
   if (snapshot.servicePaymentPlan) {
     if (
-      !invoice.bookingId ||
-      snapshot.source.type !== "BOOKING" ||
+      (!(invoice.bookingId && snapshot.source.type === "BOOKING") &&
+        !(
+          invoice.additionalQuoteId &&
+          snapshot.source.type === "SERVICE_ADDITION" &&
+          snapshot.servicePaymentPlan.quoteId === invoice.additionalQuoteId
+        )) ||
       snapshot.servicePaymentPlan.lines.length !== snapshot.lines.length ||
       snapshot.lines.some(
         (line, index) =>
@@ -99,7 +114,10 @@ export async function buildInvoiceSnapshot(
   if (
     Boolean(invoice.customerId) === Boolean(invoice.guestId) ||
     (invoice.guestId &&
-      (!invoice.orderId || invoice.bookingId || invoice.vehicleTransactionId))
+      (!invoice.orderId ||
+        invoice.bookingId ||
+        invoice.vehicleTransactionId ||
+        invoice.additionalQuoteId))
   )
     throw invoiceConflict("Invoice purchase ownership is inconsistent");
   const customer = invoice.customerId
@@ -117,7 +135,11 @@ export async function buildInvoiceSnapshot(
     : null;
   if (invoice.customerId && !customer)
     throw invoiceConflict("Invoice account is unavailable");
-  const reference = invoice.orderId ?? invoice.bookingId ?? invoice.vehicleTransactionId;
+  const reference =
+    invoice.orderId ??
+    invoice.bookingId ??
+    invoice.additionalQuoteId ??
+    invoice.vehicleTransactionId;
   if (!reference) throw invoiceConflict("Invoice source is unavailable");
   const snapshot: InvoiceSnapshot = {
     schemaVersion: 1,
@@ -142,7 +164,9 @@ export async function buildInvoiceSnapshot(
         ? "ORDER"
         : invoice.bookingId
           ? "BOOKING"
-          : "VEHICLE_TRANSACTION",
+          : invoice.additionalQuoteId
+            ? "SERVICE_ADDITION"
+            : "VEHICLE_TRANSACTION",
       id: reference,
       reference,
       description: "Vehicle purchase",
@@ -191,13 +215,14 @@ export async function buildInvoiceSnapshot(
       unitPriceKobo: item.unitPriceKobo.toString(),
       subtotalKobo: item.subtotalKobo.toString(),
     }));
-  } else if (invoice.bookingId) {
+  } else if (invoice.bookingId || invoice.additionalQuoteId) {
     if (!invoice.customerId) throw invoiceConflict("Invoice account is unavailable");
     const quote = await database.serviceQuote.findFirst({
       where: {
-        bookingId: invoice.bookingId,
+        ...(invoice.additionalQuoteId
+          ? { id: invoice.additionalQuoteId, originalInvoiceId: { not: null } }
+          : { bookingId: invoice.bookingId!, originalInvoiceId: null }),
         status: "ACCEPTED",
-        originalInvoiceId: null,
         booking: { customerId: invoice.customerId },
       },
       orderBy: { version: "desc" },
@@ -205,6 +230,8 @@ export async function buildInvoiceSnapshot(
         id: true,
         version: true,
         quoteNumber: true,
+        amendmentReason: true,
+        originalInvoice: { select: { invoiceNumber: true } },
         items: {
           take: 201,
           orderBy: [{ createdAt: "asc" }, { id: "asc" }],
@@ -219,7 +246,15 @@ export async function buildInvoiceSnapshot(
         },
       },
     });
-    snapshot.source.description = "Service booking";
+    snapshot.source.description = invoice.additionalQuoteId
+      ? "Additional service work"
+      : "Service booking";
+    if (invoice.additionalQuoteId) {
+      if (!quote?.originalInvoice || !quote.amendmentReason)
+        throw invoiceConflict("Additional service invoice context is unavailable");
+      snapshot.source.originalInvoiceNumber = quote.originalInvoice.invoiceNumber;
+      snapshot.source.amendmentReason = quote.amendmentReason;
+    }
     if (quote) {
       snapshot.source.reference = quote.quoteNumber;
       snapshot.lines = quote.items.map((item) => ({

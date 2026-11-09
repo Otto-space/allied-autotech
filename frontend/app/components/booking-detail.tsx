@@ -785,6 +785,10 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
               )}
           </section>
           <BookingQuotations
+            additionalAcceptanceOpen={
+              !["CANCELLED", "COMPLETED"].includes(current.status) &&
+              current.workOrder?.status !== "COMPLETED"
+            }
             quotes={current.quotes}
             now={now}
             disabled={disabled}

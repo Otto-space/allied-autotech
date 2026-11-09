@@ -89101,7 +89101,8 @@
                               "enum": [
                                 "ORDER",
                                 "BOOKING",
-                                "VEHICLE_TRANSACTION"
+                                "VEHICLE_TRANSACTION",
+                                "SERVICE_ADDITION"
                               ],
                               "description": "Type validated by this operation's strict request contract."
                             },
@@ -89121,6 +89122,18 @@
                               "minLength": 1,
                               "maxLength": 1000,
                               "description": "Description validated by this operation's strict request contract."
+                            },
+                            "originalInvoiceNumber": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 50,
+                              "description": "Original Invoice Number validated by this operation's strict request contract."
+                            },
+                            "amendmentReason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                             }
                           },
                           "required": [
@@ -89640,7 +89653,9 @@
                       "type": "ORDER",
                       "id": "00000000-0000-4000-8000-000000000001",
                       "reference": "synthetic-reference",
-                      "description": "synthetic-description"
+                      "description": "synthetic-description",
+                      "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+                      "amendmentReason": "synthetic-amendmentreason"
                     },
                     "lines": [
                       {
@@ -90144,7 +90159,8 @@
                               "enum": [
                                 "ORDER",
                                 "BOOKING",
-                                "VEHICLE_TRANSACTION"
+                                "VEHICLE_TRANSACTION",
+                                "SERVICE_ADDITION"
                               ],
                               "description": "Type validated by this operation's strict request contract."
                             },
@@ -90164,6 +90180,18 @@
                               "minLength": 1,
                               "maxLength": 1000,
                               "description": "Description validated by this operation's strict request contract."
+                            },
+                            "originalInvoiceNumber": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 50,
+                              "description": "Original Invoice Number validated by this operation's strict request contract."
+                            },
+                            "amendmentReason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                             }
                           },
                           "required": [
@@ -90661,7 +90689,9 @@
                       "type": "ORDER",
                       "id": "00000000-0000-4000-8000-000000000001",
                       "reference": "synthetic-reference",
-                      "description": "synthetic-description"
+                      "description": "synthetic-description",
+                      "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+                      "amendmentReason": "synthetic-amendmentreason"
                     },
                     "lines": [
                       {
@@ -91181,6 +91211,18 @@
                               "minLength": 1,
                               "maxLength": 1000,
                               "description": "Description validated by this operation's strict request contract."
+                            },
+                            "originalInvoiceNumber": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 50,
+                              "description": "Original Invoice Number validated by this operation's strict request contract."
+                            },
+                            "amendmentReason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                             }
                           },
                           "required": [
@@ -91251,7 +91293,9 @@
                       "type": "ORDER",
                       "id": "00000000-0000-4000-8000-000000000001",
                       "reference": "synthetic-reference",
-                      "description": "synthetic-description"
+                      "description": "synthetic-description",
+                      "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+                      "amendmentReason": "synthetic-amendmentreason"
                     }
                   },
                   "meta": {
@@ -91555,7 +91599,7 @@
     "/staff/invoices/sources": {
       "get": {
         "summary": "List minimal eligible invoice sources",
-        "description": "Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing. List minimal eligible invoice sources. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name, accepted additional-quotation-number or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing. List minimal eligible invoice sources. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -91594,7 +91638,8 @@
               "enum": [
                 "ORDER",
                 "BOOKING",
-                "VEHICLE_TRANSACTION"
+                "VEHICLE_TRANSACTION",
+                "SERVICE_ADDITION"
               ],
               "description": "Source Type validated by this operation's strict request contract."
             },
@@ -92268,7 +92313,8 @@
               "enum": [
                 "ORDER",
                 "BOOKING",
-                "VEHICLE_TRANSACTION"
+                "VEHICLE_TRANSACTION",
+                "SERVICE_ADDITION"
               ],
               "description": "Source Type validated by this operation's strict request contract."
             },
@@ -92537,7 +92583,7 @@
       },
       "post": {
         "summary": "Create an invoice from a server-owned source",
-        "description": "ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative. Create an invoice from a server-owned source. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "description": "ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative. SERVICE_ADDITION uses the explicitly accepted additional quotation as its unique source. Only its new items are billed, with no original deposit credit. Original amounts and payments are preserved; invoice issue, payment stages and work authorisation require independent checks. Create an invoice from a server-owned source. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -92568,7 +92614,8 @@
                     "enum": [
                       "ORDER",
                       "BOOKING",
-                      "VEHICLE_TRANSACTION"
+                      "VEHICLE_TRANSACTION",
+                      "SERVICE_ADDITION"
                     ],
                     "description": "Source Type validated by this operation's strict request contract."
                   },

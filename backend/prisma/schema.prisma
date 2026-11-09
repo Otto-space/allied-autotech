@@ -1178,6 +1178,7 @@ model BookingReminder {
 }
 
 model ServiceQuote {
+  supplementalInvoice       Invoice?    @relation("SupplementalInvoice")
   acceptedAdditionalContext Json?
   originalInvoiceId         String?     @db.Uuid
   amendmentReason           String?     @db.VarChar(1000)
@@ -2676,6 +2677,8 @@ model PromotionUsage {
 }
 
 model Invoice {
+  additionalQuoteId    String?        @unique @db.Uuid
+  additionalQuote      ServiceQuote?  @relation("SupplementalInvoice", fields: [additionalQuoteId], references: [id], onDelete: Restrict)
   additionalWorkQuotes ServiceQuote[] @relation("AdditionalServiceQuotes")
   policySnapshot       Json?
   documentSnapshot     Json?

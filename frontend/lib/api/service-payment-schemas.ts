@@ -22,8 +22,21 @@ export const servicePaymentSummarySchema = z
   .strict();
 export type ServicePaymentSummary = z.infer<typeof servicePaymentSummarySchema>;
 export function servicePaymentDocumentMatches(
-  invoice: { servicePayment?: ServicePaymentSummary },
+  invoice: {
+    servicePayment?: ServicePaymentSummary;
+    additionalQuote?: {
+      id: string;
+      amendmentReason: string;
+      originalInvoice: { invoiceNumber: string };
+    } | null;
+  },
   document: {
+    source?: {
+      type: string;
+      id: string;
+      originalInvoiceNumber?: string;
+      amendmentReason?: string;
+    };
     servicePaymentPlan?: {
       materials: { totalKobo: string };
       workmanship: { totalKobo: string };
@@ -33,6 +46,13 @@ export function servicePaymentDocumentMatches(
   const summary = invoice.servicePayment,
     plan = document.servicePaymentPlan;
   return (
+    (invoice.additionalQuote
+      ? document.source?.type === "SERVICE_ADDITION" &&
+        document.source.id === invoice.additionalQuote.id &&
+        document.source.originalInvoiceNumber ===
+          invoice.additionalQuote.originalInvoice.invoiceNumber &&
+        document.source.amendmentReason === invoice.additionalQuote.amendmentReason
+      : document.source?.type !== "SERVICE_ADDITION") &&
     Boolean(summary) === Boolean(plan) &&
     (!summary ||
       (!!plan &&
@@ -48,6 +68,7 @@ export function validateServicePaymentSummary(
     version: number;
     status: string;
     booking: unknown;
+    additionalQuote?: unknown;
   },
   context: z.RefinementCtx,
 ) {
@@ -59,7 +80,7 @@ export function validateServicePaymentSummary(
     wp = BigInt(summary.workmanship.recordedKobo);
   const next = summary.nextPayment;
   if (
-    !invoice.booking ||
+    (!invoice.booking && !invoice.additionalQuote) ||
     m + w !== BigInt(invoice.totalKobo) ||
     mp > m ||
     wp > w ||

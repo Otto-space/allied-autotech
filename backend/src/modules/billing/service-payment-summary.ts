@@ -1,3 +1,4 @@
+import { serviceInvoiceBooking } from "./service-invoice-context.js";
 import { z } from "zod";
 import type { Prisma } from "../../generated/prisma/client.js";
 import {
@@ -52,6 +53,13 @@ type SummaryInvoice = {
   version: number;
   status: string;
   booking: { status: string; completedAt: Date | null } | null;
+  additionalQuote?: {
+    booking: { status: string; completedAt: Date | null };
+    originalInvoice?: {
+      status: string;
+      payments: Parameters<typeof hasServiceFinancialHold>[0];
+    } | null;
+  } | null;
   payments: readonly {
     status: string;
     amountKobo: bigint;
@@ -70,20 +78,26 @@ export function servicePaymentSummary(invoice: SummaryInvoice) {
   const plan = servicePaymentPlanFromSnapshot(invoice.documentSnapshot, invoice);
   if (!plan) return null;
   const paid = serviceStagePaid(plan, invoice.payments);
-  const financialReviewRequired = hasServiceFinancialHold(invoice.payments);
+  const original = invoice.additionalQuote?.originalInvoice;
+  const financialReviewRequired =
+    hasServiceFinancialHold(invoice.payments) ||
+    (!!invoice.additionalQuote &&
+      (!original ||
+        !["ISSUED", "PAID"].includes(original.status) ||
+        hasServiceFinancialHold(original.payments)));
   const paymentPending = invoice.payments.some(
     (payment) =>
       !["SUCCEEDED", "CANCELLED", "EXPIRED"].includes(payment.status) ||
       (payment.attempts?.length ?? 0) > 0,
   );
-  const workCompleted =
-    invoice.booking?.status === "COMPLETED" && invoice.booking.completedAt !== null;
+  const booking = serviceInvoiceBooking(invoice);
+  const workCompleted = booking?.status === "COMPLETED" && booking.completedAt !== null;
   const materialsDue = BigInt(plan.materials.totalKobo) - paid.MATERIALS;
   const workmanshipDue = BigInt(plan.workmanship.totalKobo) - paid.WORKMANSHIP;
   let nextPayment: z.infer<typeof acceptedServiceStageSchema> | null = null;
   if (
     invoice.status === "ISSUED" &&
-    invoice.booking?.status !== "CANCELLED" &&
+    booking?.status !== "CANCELLED" &&
     !financialReviewRequired &&
     !paymentPending
   ) {

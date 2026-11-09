@@ -189,6 +189,7 @@ export class FinancialDocumentsService {
             guestId: true,
             orderId: true,
             bookingId: true,
+            additionalQuoteId: true,
             vehicleTransactionId: true,
             currency: true,
             status: true,
@@ -225,12 +226,17 @@ export class FinancialDocumentsService {
           : await buildInvoiceSnapshot(database, invoice, true);
         assertDocumentTotals(snapshot, invoice);
         const expectedSource =
-          invoice.orderId ?? invoice.bookingId ?? invoice.vehicleTransactionId;
+          invoice.orderId ??
+          invoice.bookingId ??
+          invoice.additionalQuoteId ??
+          invoice.vehicleTransactionId;
         const expectedType = invoice.orderId
           ? "ORDER"
           : invoice.bookingId
             ? "BOOKING"
-            : "VEHICLE_TRANSACTION";
+            : invoice.additionalQuoteId
+              ? "SERVICE_ADDITION"
+              : "VEHICLE_TRANSACTION";
         if (
           snapshot.billTo.reference !== (invoice.customerId ?? invoice.guestId) ||
           snapshot.source.id !== expectedSource ||

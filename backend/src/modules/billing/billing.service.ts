@@ -1,3 +1,8 @@
+import { assertAdditionalWorkOpen } from "../service-operations/additional-service-quote.js";
+import {
+  assertSupplementalInvoiceCurrent,
+  lockServiceInvoiceBooking,
+} from "./service-invoice-context.js";
 import { assertFinanceGate, policySnapshot } from "../policies/policies.service.js";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
@@ -141,6 +146,44 @@ export class BillingService {
           totalKobo: source.totalKobo,
           dueAt,
         };
+      } else if (input.sourceType === "SERVICE_ADDITION") {
+        const reference = await transaction.serviceQuote.findUnique({
+          where: { id: input.sourceId },
+          select: { bookingId: true },
+        });
+        if (!reference) throw invoiceNotFound();
+        await transaction.$queryRaw`SELECT "id" FROM "Booking" WHERE "id"=${reference.bookingId}::uuid FOR UPDATE`;
+        await assertAdditionalWorkOpen(transaction, reference.bookingId);
+        const quote = await transaction.serviceQuote.findUnique({
+          where: { id: input.sourceId },
+          include: {
+            booking: true,
+            originalInvoice: true,
+            supplementalInvoice: { select: { id: true } },
+          },
+        });
+        if (
+          !quote ||
+          quote.status !== "ACCEPTED" ||
+          !quote.originalInvoice ||
+          !quote.acceptedAdditionalContext ||
+          quote.booking.status === "CANCELLED"
+        )
+          throw invoiceNotFound();
+        if (quote.supplementalInvoice)
+          throw invoiceConflict("An invoice already exists for this accepted addition");
+        branchId = quote.booking.branchId;
+        data = {
+          invoiceNumber: number(),
+          customerId: quote.booking.customerId,
+          additionalQuoteId: quote.id,
+          currency: quote.currency,
+          subtotalKobo: quote.subtotalKobo,
+          taxKobo: quote.taxKobo,
+          totalKobo: quote.totalKobo,
+          depositCreditKobo: 0n,
+          dueAt,
+        };
       } else if (input.sourceType === "BOOKING") {
         await transaction.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${input.sourceId}::uuid FOR UPDATE`;
         const source = await this.repository.bookingSource(input.sourceId, transaction);
@@ -220,6 +263,7 @@ export class BillingService {
         guestId: data.guestId ?? null,
         orderId: data.orderId ?? null,
         bookingId: data.bookingId ?? null,
+        additionalQuoteId: data.additionalQuoteId ?? null,
         vehicleTransactionId: data.vehicleTransactionId ?? null,
         subtotalKobo: BigInt(data.subtotalKobo),
         taxKobo: BigInt(data.taxKobo ?? 0),
@@ -228,6 +272,8 @@ export class BillingService {
         policySnapshot: data.policySnapshot,
       });
       const invoice = await this.repository.create(data, transaction);
+      if (data.additionalQuoteId)
+        await assertSupplementalInvoiceCurrent(transaction, invoice.id);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "CREATE",
@@ -270,9 +316,11 @@ export class BillingService {
     assertInvoiceOperator(actor);
     return this.database.$transaction(async (transaction) => {
       if (target === "ISSUED") await assertFinanceGate(transaction);
+      await lockServiceInvoiceBooking(transaction, id);
       const invoice = await this.repository.lockInvoice(id, transaction);
       if (invoice === null) throw invoiceNotFound();
       await this.assertBranch(actor, this.branchId(invoice), transaction);
+      if (target === "ISSUED") await assertSupplementalInvoiceCurrent(transaction, id);
       const from: Array<"DRAFT" | "ISSUED"> =
         target === "ISSUED" ? ["DRAFT"] : ["DRAFT", "ISSUED"];
       if (
@@ -312,6 +360,7 @@ export class BillingService {
     return (
       invoice.order?.branch?.id ??
       invoice.booking?.branch?.id ??
+      invoice.additionalQuote?.booking.branch?.id ??
       invoice.vehicleTransaction?.vehicleListing.branch.id ??
       null
     );

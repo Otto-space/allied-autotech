@@ -1,4 +1,9 @@
 import {
+  additionalInvoiceQuoteSelect,
+  assertSupplementalInvoiceCurrent,
+  serviceInvoiceBooking,
+} from "../billing/service-invoice-context.js";
+import {
   hasVerificationHold,
   holdUnallocatableProviderResult,
   recordConflictingProviderFacts,
@@ -2656,6 +2661,7 @@ export class PaymentsService {
           depositCreditKobo: true,
           totalKobo: true,
           booking: { select: { status: true, completedAt: true } },
+          additionalQuote: { select: additionalInvoiceQuoteSelect },
           payments: {
             where: { id: { not: payment.id } },
             select: servicePaymentReadSelect,
@@ -2666,11 +2672,12 @@ export class PaymentsService {
       // already settled. Hold it for reconciliation instead of throwing and
       // rolling back the capture ledger, or marking workmanship paid early.
       try {
+        await assertSupplementalInvoiceCurrent(tx, payment.invoiceId);
+        const booking = serviceInvoiceBooking(invoice);
         const plan = servicePaymentPlanFromSnapshot(invoice.documentSnapshot, invoice);
         if (plan) {
           if (hasServiceFinancialHold(invoice.payments)) return true;
-          if (invoice.status !== "ISSUED" || invoice.booking?.status === "CANCELLED")
-            return true;
+          if (invoice.status !== "ISSUED" || booking?.status === "CANCELLED") return true;
           const binding = servicePaymentBinding(payment.policySnapshot);
           if (
             !binding ||
@@ -2684,8 +2691,7 @@ export class PaymentsService {
               plan,
               serviceStagePaid(plan, invoice.payments),
               binding.stage,
-              invoice.booking?.status === "COMPLETED" &&
-                invoice.booking.completedAt !== null,
+              booking?.status === "COMPLETED" && booking.completedAt !== null,
             ) !== payment.amountKobo
           );
         }
@@ -3011,6 +3017,7 @@ export class PaymentsService {
       source?.order?.branchId ??
       source?.invoice?.order?.branchId ??
       source?.invoice?.booking?.branchId ??
+      source?.invoice?.additionalQuote?.booking.branchId ??
       source?.invoice?.vehicleTransaction?.vehicleListing.branchId ??
       source?.vehicleTransaction?.vehicleListing.branchId ??
       source?.booking?.branchId ??
@@ -3045,9 +3052,11 @@ export class PaymentsService {
         !source ||
         source.currency !== "NGN" ||
         source.status !== "ISSUED" ||
-        source.bookingId === null
+        (source.bookingId === null && !source.additionalQuote)
       )
         throw paymentNotFound();
+      await assertSupplementalInvoiceCurrent(tx, input.targetId);
+      const booking = serviceInvoiceBooking(source);
       const plan = servicePaymentPlanFromSnapshot(source.documentSnapshot, source);
       if (!plan) {
         if (input.acceptedServiceStage)
@@ -3064,7 +3073,7 @@ export class PaymentsService {
       if (
         !accepted ||
         accepted.invoiceVersion !== source.version ||
-        source.booking?.status === "CANCELLED"
+        booking?.status === "CANCELLED"
       )
         throw paymentConflict(
           "Refresh the invoice and review the current service payment stage",
@@ -3073,7 +3082,7 @@ export class PaymentsService {
         plan,
         serviceStagePaid(plan, source.payments),
         accepted.stage,
-        source.booking?.status === "COMPLETED" && source.booking.completedAt !== null,
+        booking?.status === "COMPLETED" && booking.completedAt !== null,
       );
       if (amountKobo.toString() !== accepted.amountKobo)
         throw paymentConflict("The service amount due changed. Refresh the invoice.");

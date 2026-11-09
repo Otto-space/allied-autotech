@@ -91,7 +91,7 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
     !document.error &&
     !document.refreshError;
   const paymentEligible =
-    current?.booking &&
+    (current?.booking || current?.additionalQuote) &&
     current.status === "ISSUED" &&
     BigInt(current.totalKobo) > BigInt(0) &&
     (!current.dueAt ||
@@ -188,8 +188,10 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
                     <ArrowRight size={17} aria-hidden="true" />
                   </Link>
                 )}
-                {current.booking && (
-                  <Link href={`/dashboard/bookings/${current.booking.id}`}>
+                {(current.booking || current.additionalQuote) && (
+                  <Link
+                    href={`/dashboard/bookings/${current.booking?.id ?? current.additionalQuote!.booking.id}`}
+                  >
                     <FileText size={18} aria-hidden="true" />
                     <span>View booking &amp; quotation</span>
                     <ArrowRight size={17} aria-hidden="true" />
@@ -207,6 +209,20 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
               </section>
             </aside>
             <div className="invoice-content">
+              {current.additionalQuote && (
+                <section aria-label="Additional service invoice" className="field-hint">
+                  <h2>Additional work</h2>
+                  <p>
+                    Original invoice:{" "}
+                    {current.additionalQuote.originalInvoice.invoiceNumber}
+                  </p>
+                  <p>{current.additionalQuote.amendmentReason}</p>
+                  <p>
+                    This separate invoice covers only the agreed additional items.
+                    Previous work and payments remain on the original invoice.
+                  </p>
+                </section>
+              )}
               <ServicePaymentSummary summary={current.servicePayment} />
               <DocumentActions
                 key={current.id}

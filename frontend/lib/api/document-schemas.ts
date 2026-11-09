@@ -26,10 +26,12 @@ export const invoiceDocumentSchema = z
       reference: z.string().uuid(),
     }),
     source: z.object({
-      type: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION"]),
+      type: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION", "SERVICE_ADDITION"]),
       id: z.string().uuid(),
       reference: z.string().min(1).max(100),
       description: z.string().min(1).max(1000),
+      originalInvoiceNumber: z.string().min(1).max(50).optional(),
+      amendmentReason: z.string().min(1).max(1000).optional(),
     }),
     lines: z
       .array(
@@ -85,8 +87,21 @@ export const invoiceDocumentSchema = z
   .superRefine((record, context) => {
     const plan = record.servicePaymentPlan;
     if (
+      record.source.type === "SERVICE_ADDITION" &&
+      (!plan ||
+        !record.source.originalInvoiceNumber ||
+        !record.source.amendmentReason ||
+        record.source.id !== plan.quoteId ||
+        record.depositCreditKobo !== "0")
+    )
+      context.addIssue({
+        code: "custom",
+        message:
+          "The separate additional invoice needs its complete saved payment plan and agreement context",
+      });
+    if (
       plan &&
-      (record.source.type !== "BOOKING" ||
+      (!["BOOKING", "SERVICE_ADDITION"].includes(record.source.type) ||
         plan.lines.length !== record.lines.length ||
         plan.lines.some(
           (line, index) => line.subtotalKobo !== record.lines[index]?.subtotalKobo,
