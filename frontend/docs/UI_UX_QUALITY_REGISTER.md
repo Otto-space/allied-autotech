@@ -1,3 +1,135 @@
+## 9 November - calendar/modal acceptance passed; search fixture follow-up
+
+Run 42618283436 completed on 8d6b91c0: 426/428 passed, zero skipped/flaky.
+All 250 Chromium and 89 Firefox cases passed, as did 87 WebKit cases including
+every selected calendar, shared modal, invoice, gallery/filter and shell journey.
+The two WebKit search-recovery cases failed on page-error diagnostics during
+reload; this remains a failed full-suite gate. Backend safety and secrets passed.
+Artifact 13676421450 was downloaded and hash-verified; selected results, calendar
+images and both failure traces are in TEMP/allied-cross-browser-8d6b91c0.
+
+Both traces place the errors immediately after reload while RSC prefetches are
+cancelled. Reads otherwise return 200, and search availability/retry assertions
+pass. The fixture now lets initial network reads settle before changing simulated
+catalogue availability and reloading. The error assertion remains unchanged.
+This does not certify rapid reload while prefetch is in flight: retain that
+separate browser diagnostic/real-delivery check as open. The TLS fixture also
+forwards its actual HTTPS origin to Next, matching a TLS-terminating proxy.
+The early WebKit diagnostic now selects calendar 320px and both search sizes
+(three cases locally collected); fresh rendered acceptance is pending.
+
+The a7029b31 release-evidence update is integrated without changing application
+code. Current released runtime e947a205, its complete attendance/work-review
+flows and schema-99 safeguards are preserved. This testing batch applies no
+migration, changes no production security header and enables no restricted
+feature. Final source CI, master integration and release equivalence checks
+remain required. The full two-brief goal remains active.
+
+## 9 November - WebKit calendar diagnostic passed over HTTPS
+
+The 320x720 calendar diagnostic passed in run 42617191838 on source 9558d5fe
+after adding the isolated TLS transport. This confirms the prior missing-calendar
+failure was caused by test-server asset TLS, not calendar geometry. The full
+engine matrix still requires terminal acceptance on the final integrated source.
+The transport also passed a local Windows synthetic request round trip with CSP
+headers preserved, reusing Git's bundled OpenSSL and leaving no certificate files
+or listening test servers. Integrated nonincremental TypeScript and scoped lint
+pass. The small Windows portability completion is included before final checks.
+No application, permission, security-header or business-data changes are made.
+
+## 9 November 12:18 UTC - WebKit transport diagnosis and integration
+
+Next bounded checkpoint: 13:18 UTC. The previous matrix passed selected Chromium
+and Firefox journeys but did not establish WebKit acceptance. The first early
+diagnostic invocation incorrectly placed the file after the variadic project
+option; it was corrected and locally proved to select exactly one test.
+Run 42615486157 then reproduced the actual 320px failure and retained artifact
+13673066920 (83,616 bytes, SHA256 857aa659f901b14f31328269c90073bb0e223b8c54c21fb5fa0eddbcd084875f).
+The page remained at Opening your dashboard: WebKit upgraded script/font/style
+requests to HTTPS under production CSP, but the loopback server only spoke HTTP.
+Its trace records repeated TLS handshake failures; calendar code never loaded.
+
+The test transport now uses an ephemeral self-signed HTTPS proxy bound only to
+127.0.0.1 for WebKit. Production CSP/headers, authentication and assertions remain
+unchanged. Only that fixture context accepts the ephemeral certificate. Its key
+files are removed immediately after loading; no production key or data is used.
+Syntax, scoped lint and exact one-case discovery pass; rendered execution remains
+pending. Source e947a205's complete attendance and remaining-work integration is
+preserved, including its current regression cases and 99-migration ledger. This
+batch applies no migration and does not publish that concurrent backend candidate.
+
+The other release checkout records efebfa38 now live as frontend
+dpl_C2xNLA3Sxfy6B6JPn1fouw7hGiqH and backend 3035fe3a; apex independently resolves
+to that frontend. Its calendar and shared modal files exactly match the verified
+804eb4fc design. Fresh 16/16 Edge checks remain evidence for those unchanged files,
+not proof of unrelated newly released workflows or physical devices.
+
+## 9 November - WebKit diagnostic checkpoint
+
+Run 42609173440 on 8a609040 reached the 35-minute job limit: 227 Chromium
+cases and 89 Firefox cases passed, then thirteen WebKit calendar cases timed
+out. This is a failed acceptance gate, not a passing matrix. Engine versions
+were Chromium 153.0.8010.12, Firefox 155.0 and WebKit 26.6 on Linux. The timeout
+prevented final diagnostics/artifact upload; the specific cause is not yet proven.
+An early 320px WebKit calendar check and bounded full-suite failure count now
+retain traces before a repeated broad failure consumes the job. Assertions and
+required journeys are unchanged. The integrated work-review source efebfa38 and
+its thirteen browser cases are preserved; its compatible 98-migration backend
+publication remains independently gated. No migration is applied by this batch.
+
+Fresh read-only Chrome authentication checks passed all seven exact viewports
+(login, password visibility, labelled/autocomplete fields, recovery navigation,
+keyboard focus and no overflow/errors/writes). This does not test real login,
+MFA, password-manager autofill or recovery submission. Evidence:
+TEMP/allied-auth-readonly-20261109/results.json. Public GETs at 11:52 UTC confirm
+one published product without photos/compatibilities/brand/MPN, no published
+fitment makes, and four services including diagnostics with unknown duration.
+These successful responses establish missing business data, not request failure.
+Evidence: TEMP/allied-public-data-dependencies-20261109.json.
+
+## 9 November 11:18 UTC — cross-browser acceptance package
+
+Target boundary: 12:18 UTC. Full two-brief goal remains active. Search source
+80e95a386afeba3450cc5e66ed9afab421f52e65 is now live on both apex/www as
+frontend dpl_9AXm5AXHRDzjoo6JJ6xFQwL7durD. All three exact-master checks passed.
+The held production build passed two search journeys; two fresh native Edge
+157.0.4341.42 checks at 320x720 and 1280x720 also pass query/scope, Help submission,
+Back restoration, first-viewport results and no page overflow/errors or writes.
+Backend 8a7821b4 remains ACTIVE and unchanged, readiness 200, eight managed backups
+(latest 9 November), app-only firewall, no migration or security change. The prior
+successful separate 97-migration restore is retained; no new restore was performed
+for this frontend-only release. Recovery frontend is dpl_Hsm7YfNcZoDp3YjM9tbSragqnkvY.
+Search branch retirement was rejected by GH013; branch and protections remain intact.
+Evidence: TEMP/allied-search-release-80e95a38/{live-preflight-20261109.json,native-search.json}.
+
+Fresh calendar/notification checks pass all seven exact viewport pairs, plus both
+tablet catalogue filters (16/16), against the preceding live calendar build on
+9 November. Synthetic private accounts, read-only real public delivery, zero page
+errors/submissions. Evidence: TEMP/allied-calendar-review-20261109/native-modals-verified.json.
+The six public search-to-catalogue handoffs also finished 6/6 on 4 November,
+including JavaScript-disabled Services/Parts/Vehicles forms; the saved receipt
+was inspected now rather than counting the earlier observation timeout as failure.
+
+Current gap: Firefox/WebKit engine acceptance. The existing production-build CI
+now selects the shared shell/dock, calendar, invoice/dialog, catalogue gallery/filter
+and search-recovery cases for both engines, retaining all existing Chromium checks.
+404 cases initially collected, including 89 per additional engine. Firefox preserves exact
+responsive viewports and touch but cannot enable Playwright isMobile; WebKit uses
+phone mobile/touch contexts. Linux WebKit is not branded or physical Safari.
+Engine/version/platform are recorded in CI. One build and serial isolated API are
+reused; no local browser downloads, installs, Docker resources or new worktree.
+Local nonincremental types and scoped lint pass. Rendered engine execution remains pending.
+
+Remaining full scope includes each page's distinct states and nested records,
+real-role acceptance, authentication lifecycle, physical keyboard/device/screen-reader
+and 200% browser zoom checks, genuine catalogue media/fitment and approved workshop
+facts. This bounded matrix does not certify those requirements or enable gated work.
+
+The concurrent master 80b4c8ac attendance recovery preparation is preserved in
+this branch. Its compatible backend publication remains a release dependency.
+The integrated matrix adds its compatibility case (405 expected); source merge
+and test collection are not evidence of backend publication or full attendance.
+
 ## 9 November 12:35 UTC - attendance and work-review release verified
 
 Released application source: `e947a205ea9ff852365cbde1e0b9e05234c13306`.
@@ -610,7 +742,7 @@ builds still require the justified 2 GiB allowance. Production is unchanged by
 this candidate. D01-D17 remains active; actual branch/resource facts, real role
 acceptance and the separate finance/provider decisions are not fabricated.
 
-## 9 November ? attendance recovery source reconciliation
+## 9 November - attendance recovery source reconciliation
 
 Merged current master 80e95a38 into the held compatibility candidate, preserving
 public-search recovery coverage, corrected product identity wording and the
@@ -1103,18 +1235,21 @@ None of these changes are promoted. Draft PR #14 tracks this work; newer master
 financial changes must be preserved and compatible release gates resolved. Last
 reserve check: 20.85 GiB free with 0.25 GiB bounded-write allowance.
 
-### Remaining renewed-goal coverage — all still open
+### Renewed-goal coverage - current as of 9 November
 
-| Batch                                 | Existing implementation found                                                                                   | Remaining verification / implementation                                                                                                                                                                                                      |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shared foundation                     | Palette/type/radius/elevation tokens, mobile search, own-profile APIs, focus helpers, strict learning contract. | Real 200% browser zoom, short-height/virtual keyboard/safe-area checks and other shared consumers.                                                                                                                                           |
-| Public pages/details                  | Search clarity, galleries, honest issue disclosure and URL filters.                                             | Each distinct page at seven sizes, populated layouts, combined facets/history/gallery interactions, images and measured loading.                                                                                                             |
-| Customer personalization/all 15 pages | Server-owned current care, empty states, historical/current separation, no-store and invalidation tests.        | Two-account switching, selected/default vehicle/photo, open enquiries/invoices and nested states. Overview currently uses latest garage addition although CustomerVehicle already has defaultSlot; reproduce server fixtures before editing. |
-| Work dashboards/details               | Scoped role navigation, own profile, nearby admin actions, invoice task disclosure.                             | All 39 named admin pages plus managed workforce and real role/branch/independent-permission denial states. Shell cases alone do not certify pages.                                                                                           |
-| Authentication/system/performance     | Existing isolated security suites and recovery controls.                                                        | Full isolated lifecycle, expired/throttled/session/error states, password-manager/keyboard and measured performance acceptance.                                                                                                              |
-| Browser/device                        | Installed Edge and Chrome verified for these batches.                                                           | Firefox/WebKit not installed; physical Safari/Android, real virtual keyboards and 200% browser zoom unverified.                                                                                                                              |
-| Business data                         | Known catalogue evidence and approved-duration dependencies.                                                    | Real product photography, compatibility, workshop duration and duty decisions; never invent data or approvals.                                                                                                                               |
-| Release                               | Verified bounded commits; production unchanged.                                                                 | Current-master reconciliation, exact-source CI, compatible backend/candidate acceptance, both-domain smoke checks and branch retirement.                                                                                                     |
+Historical checkpoints below remain evidence of their recorded source and date.
+This table records current coverage; a bounded fixture pass does not certify every page.
+
+| Batch                                 | Verified implementation / evidence                                                                                                                                                           | Remaining verification / implementation                                                                                                                                                       |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shared foundation                     | Published shared shell, modal centering, full phone width, focus containment and responsive calendar. Fresh Edge calendar/notifications at seven sizes plus tablet catalogue filters: 16/16. | Real 200% browser zoom, physical virtual keyboards/safe areas and remaining distinct consumers/states.                                                                                        |
+| Public pages/details                  | Search query/scope/history/retry, populated galleries, truthful issue disclosure and URL filters have bounded fixture/live checks. Latest search release 80e95a38 verified on both domains.  | Each distinct page and nested state at seven sizes, combined facets/history/gallery interactions, image quality and measured loading.                                                         |
+| Customer personalization/all 15 pages | Released owned default/booked/recent vehicle selection, private photos and account-switch invalidation; attention uses actual open enquiry, issued invoice and collection-ready order.       | Remaining distinct customer pages/nested states and real-role acceptance. Existing overview fixes must be preserved, not reimplemented.                                                       |
+| Work dashboards/details               | Scoped navigation, profile, invoice disclosure and shared modal coverage. Master efebfa38 adds isolated remaining-work review coverage.                                                      | All 39 named admin pages, managed workforce and real role/branch/independent-permission states. Work-review publication needs its compatible backend; shell tests do not certify whole pages. |
+| Authentication/system/performance     | Existing isolated security suites. Fresh read-only Chrome login/recovery navigation, labels, password visibility and focus passed seven sizes.                                               | Full isolated authentication/MFA lifecycle, expired/throttled/session/error states, real password-manager/keyboard and measured performance.                                                  |
+| Browser/device                        | Installed Edge/Chrome evidence; CI run 42609173440 passed 227 Chromium and 89 Firefox selected cases.                                                                                        | WebKit calendar timed out; diagnosis and full matrix remain required. Linux WebKit is not physical Safari. Physical iOS/Android, virtual keyboards and native 200% zoom remain unverified.    |
+| Business data                         | Successful public GETs on 9 November reconfirm missing product photography/compatibility/brand/MPN, empty fitment makes and unknown diagnostics duration.                                    | Approved genuine media, fitment evidence, workshop duration and duty decisions; never invent availability or approvals.                                                                       |
+| Release                               | Search source 80e95a38 published and checked on both aliases; backend 80b4c8ac became active separately.                                                                                     | Current-master reconciliation, exact-source CI and compatible held-candidate checks for each new batch. Branch deletion remains protected where GH013 refused it.                             |
 
 ## 3 November: renewed Markdown implementation goal — reconciliation in progress
 
