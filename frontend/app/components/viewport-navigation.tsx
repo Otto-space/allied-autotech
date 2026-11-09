@@ -301,6 +301,10 @@ export function ViewportNavigation() {
         );
     }
     function selection(control: HTMLElement) {
+      // Carousel buttons update their own frame. Re-revealing them after a tap
+      // can move the entire page past the hero, despite the button being visible.
+      // Keyboard focus still uses the normal visibility handling below.
+      if (control.closest("[data-carousel-controls]")) return;
       afterRender(() => {
         if (pointerHeld) return;
         const target = controlledTarget(control);
