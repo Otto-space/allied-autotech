@@ -13,7 +13,8 @@ unavailable, and preserve deliberately moved focus. No shared dialog/hook, reque
 permission, moderation, recovery or business rule changed. Twenty regressions cover
 seven viewport pairs, cancellation, delayed success, failed reads, deliberately moved
 focus and rejected submissions in the existing three-engine CI configuration.
-These new rendered checks, exact-source CI and publication are still pending.
+Full local TypeScript, scoped ESLint and formatting pass; test discovery lists all
+60 engine cases. Rendered checks, exact-source CI and publication are still pending.
 The separate combined Home/Services release remains owned by its active session.
 
 ## 10 November - cart modal native acceptance; existing layout retained
