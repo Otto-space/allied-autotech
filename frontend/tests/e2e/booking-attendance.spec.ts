@@ -22,6 +22,8 @@ async function start(page: Page, width: number, mode = "normal") {
   const errors: string[] = [],
     warnings: string[] = [],
     external: string[] = [];
+  const targetOrigin = new URL(test.info().project.use.baseURL ?? "http://localhost:3000")
+    .origin;
   let readFailure = mode === "denied";
   let releaseRead: (() => void) | undefined;
   const held =
@@ -106,6 +108,7 @@ async function start(page: Page, width: number, mode = "normal") {
     const url = new URL(request.url());
     if (
       /^https?:/.test(url.protocol) &&
+      url.origin !== targetOrigin &&
       !["127.0.0.1", "localhost"].includes(url.hostname)
     )
       external.push(request.url());
@@ -167,20 +170,26 @@ for (const width of [390, 768, 1440]) {
       page.getByText("Attendance update saved.", { exact: true }),
     ).toBeVisible();
     for (const kind of ["WAITING", "LEFT"] as const) {
+      await expect(
+        page.getByText("Checking permitted booking…", { exact: true }),
+      ).toHaveCount(0);
       await panel.getByLabel("Update", { exact: true }).selectOption(kind);
       await panel
         .getByLabel("Factual note", { exact: true })
         .fill(
           `Synthetic customer ${kind === "WAITING" ? "agreed to wait" : "left the workshop"}.`,
         );
+      await expect(panel.getByLabel("Update", { exact: true })).toHaveValue(kind);
       await panel
         .getByRole("button", { name: "Save attendance update", exact: true })
         .click();
       await expect(
-        panel.getByText(
-          `Synthetic customer ${kind === "WAITING" ? "agreed to wait" : "left the workshop"}.`,
-          { exact: true },
-        ),
+        panel
+          .getByRole("region", { name: "Recorded appointment attendance", exact: true })
+          .getByText(
+            `Synthetic customer ${kind === "WAITING" ? "agreed to wait" : "left the workshop"}.`,
+            { exact: true },
+          ),
       ).toBeVisible();
     }
     expect(writes.map((w) => w.body.kind)).toEqual(["ARRIVED", "WAITING", "LEFT"]);
