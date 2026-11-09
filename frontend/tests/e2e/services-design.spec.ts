@@ -55,11 +55,17 @@ for (const [width, height] of [
     await page
       .getByLabel("Service category", { exact: true })
       .selectOption(serviceDesignGroup);
+    await expect(page.getByLabel("Service category", { exact: true })).toHaveValue(
+      serviceDesignGroup,
+    );
     await page.getByLabel("Search services", { exact: true }).fill("wheel");
     await page
       .locator(".services-discovery-controls")
       .getByRole("button", { name: "Search", exact: true })
       .click();
+    await expect(
+      page.getByRole("button", { name: "Remove service search" }),
+    ).toContainText("wheel");
     await page.getByLabel("Sort services", { exact: true }).selectOption("duration_asc");
     await expect(page.getByLabel("Sort services", { exact: true })).toHaveValue(
       "duration_asc",
@@ -73,6 +79,10 @@ for (const [width, height] of [
     ).toBeChecked();
     await expect(page.locator(".services-row")).toHaveCount(2);
     const query = new URL(page.url()).searchParams.toString();
+    expect(new URL(page.url()).searchParams.get("search")).toBe("wheel");
+    expect(new URL(page.url()).searchParams.get("categoryId")).toBe(serviceDesignGroup);
+    expect(new URL(page.url()).searchParams.get("sort")).toBe("duration_asc");
+    expect(new URL(page.url()).searchParams.get("pricingType")).toBe("FIXED");
     await page
       .getByRole("link", { name: "View Synthetic wheel service 1", exact: true })
       .click();
