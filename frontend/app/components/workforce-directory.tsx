@@ -202,24 +202,34 @@ function DirectoryTable() {
                 aria-label="Workforce accounts"
                 tabIndex={0}
               >
-                <table>
+                <table role="table">
                   <caption className="sr-only">
                     Account roles, business positions and currently active responsibility
                     grants
                   </caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Person</th>
-                      <th scope="col">Account role</th>
-                      <th scope="col">Business position</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">Responsibilities you can manage</th>
+                  <thead role="rowgroup">
+                    <tr role="row">
+                      <th scope="col" role="columnheader">
+                        Person
+                      </th>
+                      <th scope="col" role="columnheader">
+                        Account role
+                      </th>
+                      <th scope="col" role="columnheader">
+                        Business position
+                      </th>
+                      <th scope="col" role="columnheader">
+                        Status
+                      </th>
+                      <th scope="col" role="columnheader">
+                        Responsibilities you can manage
+                      </th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody role="rowgroup">
                     {data.items.map((person) => (
-                      <tr key={person.userId}>
-                        <th scope="row">
+                      <tr key={person.userId} role="row">
+                        <th scope="row" role="rowheader">
                           <span>{person.name}</span>
                           <span className="wf-directory-secondary">{person.email}</span>
                           {person.canInspect && (
@@ -232,14 +242,20 @@ function DirectoryTable() {
                             </Link>
                           )}
                         </th>
-                        <td>
+                        <td role="cell">
+                          <span className="wf-directory-label" aria-hidden="true">
+                            Account role
+                          </span>
                           {person.role === "SUPER_ADMIN"
                             ? "Super Admin"
                             : person.role === "ADMIN"
                               ? "Admin"
                               : "Staff"}
                         </td>
-                        <td>
+                        <td role="cell">
+                          <span className="wf-directory-label" aria-hidden="true">
+                            Business position
+                          </span>
                           {person.position
                             ? positionLabels[person.position]
                             : person.managed
@@ -252,7 +268,10 @@ function DirectoryTable() {
                             </span>
                           )}
                         </td>
-                        <td>
+                        <td role="cell">
+                          <span className="wf-directory-label" aria-hidden="true">
+                            Status
+                          </span>
                           {person.status === "ACTIVE"
                             ? "Active"
                             : person.status === "SUSPENDED"
@@ -264,7 +283,10 @@ function DirectoryTable() {
                             </span>
                           )}
                         </td>
-                        <td>
+                        <td role="cell">
+                          <span className="wf-directory-label" aria-hidden="true">
+                            Responsibilities you can manage
+                          </span>
                           {person.responsibilities.length ? (
                             <ul>
                               {person.responsibilities.map((assignment) => (

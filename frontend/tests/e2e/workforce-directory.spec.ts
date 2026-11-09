@@ -1,8 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import path from "node:path";
-import os from "node:os";
 import { workStaffDetailFixture, id } from "../fixtures/work-staff-detail";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 const base = "/admin/workforce/access",
   stamp = "2026-10-26T18:00:00.000Z";
 async function setup(page: Page, delegated = false) {
@@ -22,10 +21,21 @@ async function setup(page: Page, delegated = false) {
       meta: { requestId: "r4-directory" },
     },
   });
+  await page.route("**/api/v1/public/capabilities", (route) =>
+    route.fulfill(ok(publicCapabilitiesFixture("browse_enquiries"))),
+  );
   const row = (n: number) => ({
     userId: n === 0 ? f.member.id : id(240000 + n),
-    name: n === 0 ? "Ada Okoro" : `Fixture colleague ${n}`,
-    email: `fixture.${n}@example.test`,
+    name:
+      n === 0
+        ? "Ada Okoro"
+        : n === 1
+          ? "Chidinma Alexandra Okonkwo-Emmanuel"
+          : `Fixture colleague ${n}`,
+    email:
+      n === 1
+        ? "chidinma.alexandra.okonkwo-emmanuel@example.test"
+        : `fixture.${n}@example.test`,
     role: "STAFF",
     status: "ACTIVE",
     verified: true,
@@ -118,65 +128,135 @@ async function setup(page: Page, delegated = false) {
   }
   return { ...state, state, f };
 }
-for (const width of [320, 390, 768, 1024, 1440])
-  test(`directory at ${width}px keeps filters, table and actions accessible`, async ({
-    page,
-  }) => {
-    const s = await setup(page);
-    await page.setViewportSize({ width, height: 1000 });
-    await page.goto(base);
-    await expect(
-      page.getByRole("heading", {
-        name: "Manage workforce & responsibilities",
-        exact: true,
-      }),
-    ).toBeVisible();
-    const region = page.getByRole("region", { name: "Workforce accounts", exact: true });
-    await expect(region).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: "View/manage Ada Okoro", exact: true }),
-    ).toBeAttached();
-    const overflow = await page.evaluate(() =>
-      [...document.querySelectorAll("body *")]
-        .filter(
-          (e) =>
-            e.getBoundingClientRect().right > window.innerWidth + 1 &&
-            getComputedStyle(e).position !== "fixed",
-        )
-        .slice(0, 12)
-        .map((e) => ({
-          tag: e.tagName,
-          class: e.className,
-          width: e.getBoundingClientRect().width,
-          right: e.getBoundingClientRect().right,
-        })),
-    );
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth,
-      ),
-      JSON.stringify(overflow),
-    ).toBe(true);
-    await region.focus();
-    await expect(region).toBeFocused();
-    await page.keyboard.press("End");
-    expect(
-      await region.evaluate((e) => {
-        const style = getComputedStyle(e);
-        return style.outlineStyle !== "none";
-      }),
-    ).toBe(true);
-    expect(
-      (await new AxeBuilder({ page }).include(".workforce-directory").analyze())
-        .violations,
-    ).toEqual([]);
-    await page.screenshot({
-      path: path.join(os.tmpdir(), `allied-workforce-r4-directory-${width}.png`),
-      fullPage: true,
+for (const [width, height] of [
+  [1280, 720],
+  [1024, 768],
+  [768, 1024],
+  [430, 932],
+  [390, 844],
+  [360, 800],
+  [320, 720],
+]) {
+  test.describe(`workforce directory ${width}x${height}`, () => {
+    test.use({
+      viewport: { width, height },
+      isMobile: width <= 430,
+      hasTouch: width <= 768,
+      reducedMotion: "reduce",
     });
-    expect(s.errors).toEqual([]);
-    expect(s.writes).toEqual([]);
+    test(`directory at ${width}px keeps filters, table and actions accessible`, async ({
+      page,
+    }, info) => {
+      const s = await setup(page);
+      await page.goto(base);
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+        width,
+        height,
+      ]);
+      await expect(
+        page.getByRole("heading", {
+          name: "Manage workforce & responsibilities",
+          exact: true,
+        }),
+      ).toBeVisible();
+      const region = page.getByRole("region", {
+        name: "Workforce accounts",
+        exact: true,
+      });
+      await expect(region).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: "View/manage Ada Okoro", exact: true }),
+      ).toBeAttached();
+      await region.locator("tbody tr").first().scrollIntoViewIfNeeded();
+      await page.screenshot({ path: info.outputPath("workforce-records.png") });
+      const cells = await region.locator("tbody th, tbody td").evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const box = node.getBoundingClientRect();
+          return { left: box.left, right: box.right, text: node.textContent };
+        }),
+      );
+      expect(
+        cells.every((cell) => cell.left >= 0 && cell.right <= width),
+        JSON.stringify(cells),
+      ).toBe(true);
+      expect(
+        await region.evaluate((element) => element.scrollWidth <= element.clientWidth),
+      ).toBe(true);
+      if (width >= 1024) {
+        await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+        await expect(
+          page.getByRole("button", { name: "Expand sidebar", exact: true }),
+        ).toBeVisible();
+        expect(
+          await region.evaluate((element) => element.scrollWidth <= element.clientWidth),
+        ).toBe(true);
+        await page.getByRole("button", { name: "Expand sidebar", exact: true }).click();
+        await expect(
+          page.getByRole("button", { name: "Collapse sidebar", exact: true }),
+        ).toBeVisible();
+      }
+      const overflow = await page.evaluate(() =>
+        [...document.querySelectorAll("body *")]
+          .filter(
+            (e) =>
+              e.getBoundingClientRect().right > window.innerWidth + 1 &&
+              getComputedStyle(e).position !== "fixed",
+          )
+          .slice(0, 12)
+          .map((e) => ({
+            tag: e.tagName,
+            class: e.className,
+            width: e.getBoundingClientRect().width,
+            right: e.getBoundingClientRect().right,
+          })),
+      );
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+        JSON.stringify(overflow),
+      ).toBe(true);
+      await region.focus();
+      await expect(region).toBeFocused();
+      await page.keyboard.press("End");
+      expect(
+        await region.evaluate((e) => {
+          const style = getComputedStyle(e);
+          return style.outlineStyle !== "none";
+        }),
+      ).toBe(true);
+      expect(
+        (await new AxeBuilder({ page }).include(".workforce-directory").analyze())
+          .violations,
+      ).toEqual([]);
+      const open = page.getByRole("link", { name: "View/manage Ada Okoro", exact: true });
+      await open.focus();
+      await expect(open).toBeInViewport();
+      await page.keyboard.press("Enter");
+      await expect(
+        page.getByRole("heading", {
+          name: "Responsibilities & temporary cover",
+          exact: true,
+        }),
+      ).toBeVisible();
+      await page.getByText("Review legacy access and enroll", { exact: true }).click();
+      await expect(page.getByLabel("Job position", { exact: true })).toBeVisible();
+      const review = page.getByRole("button", { name: "Review enrollment", exact: true });
+      await review.focus();
+      await expect(review).toBeInViewport();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+      await page.screenshot({ path: info.outputPath("workforce-detail.png") });
+      await page
+        .getByRole("link", { name: "Back to workforce directory", exact: true })
+        .click();
+      await expect(region).toBeVisible();
+      expect(s.errors).toEqual([]);
+      expect(s.writes).toEqual([]);
+    });
   });
+}
 test("directory filtering, pagination, clear and deep-link context use real controls", async ({
   page,
 }) => {
@@ -212,7 +292,9 @@ test("empty, failure and invalid filters provide recovery and clear retained row
 }) => {
   const s = await setup(page);
   await page.goto(base);
-  await expect(page.getByText("Ada Okoro", { exact: true })).toBeVisible();
+  await expect(
+    page.locator(".workforce-directory").getByText("Ada Okoro", { exact: true }),
+  ).toBeVisible();
   s.state.mode = "error";
   await page.getByRole("button", { name: "Refresh workforce", exact: true }).click();
   await expect(page.locator(".workforce-directory").getByRole("alert")).toBeVisible();
@@ -237,7 +319,9 @@ test("delegated administrator loses open directory and copied detail route when 
   s.state.mode = "revoked";
   await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
   await expect(page).toHaveURL(/\/admin\?workAccess=updated$/);
-  await expect(page.getByText("Ada Okoro", { exact: true })).toHaveCount(0);
+  await expect(
+    page.locator(".workforce-directory").getByText("Ada Okoro", { exact: true }),
+  ).toHaveCount(0);
   await page.goto(`${base}/${s.f.member.id}`);
   await expect(page).toHaveURL(/\/admin\?workAccess=updated$/);
   await expect(

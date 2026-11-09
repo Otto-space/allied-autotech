@@ -1,4 +1,4 @@
-import { test, expect, type APIRequestContext } from "@playwright/test";
+import { test, expect, type APIRequestContext, type Request } from "@playwright/test";
 
 const origin = process.env.CAPABILITY_TEST_CONTROL_ORIGIN;
 async function searchAvailability(request: APIRequestContext, unavailable: boolean) {
@@ -36,6 +36,23 @@ for (const [width, height] of [
       await searchAvailability(request, false);
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
+      const reads = new Set<Request>();
+      let lastReadActivity = Date.now();
+      page.on("request", (read) => {
+        reads.add(read);
+        lastReadActivity = Date.now();
+      });
+      const finishRead = (read: Request) => {
+        if (reads.delete(read)) lastReadActivity = Date.now();
+      };
+      page.on("requestfinished", finishRead);
+      page.on("requestfailed", finishRead);
+      const settleReads = () =>
+        expect
+          .poll(() => reads.size === 0 && Date.now() - lastReadActivity >= 500, {
+            message: "Current document reads and deferred prefetches have settled",
+          })
+          .toBe(true);
       await page.route("**/api/v1/**", async (route) => {
         expect(route.request().method()).toBe("GET");
         const url = new URL(route.request().url());
@@ -52,10 +69,10 @@ for (const [width, height] of [
         page.getByRole("button", { name: "Close search", exact: true }),
       ).toBeEnabled();
       await expect(shop).toContainText("Synthetic maker · Part no. TEST-MPN");
-      // Finish reads against the current synthetic state before changing it.
-      // WebKit reports cancelled prefetches during reload as page errors; this
-      // fixture tests catalogue recovery, not navigation during in-flight RSC.
-      await page.waitForLoadState("networkidle");
+      // A recorded WebKit networkidle load state returned while new RSC reads
+      // were still active. Observe current requests before changing fixture
+      // state; this case covers settled recovery, not interrupted prefetches.
+      await settleReads();
       await searchAvailability(request, true);
       await page.reload();
       await expect(shop.getByRole("status")).toContainText(
@@ -67,6 +84,7 @@ for (const [width, height] of [
       await expect(page.getByText("Shop: no matches", { exact: true })).toHaveCount(0);
       await expect(query).toHaveValue("Synthetic");
       await page.screenshot({ path: info.outputPath("partial-search-failure.png") });
+      await settleReads();
       await searchAvailability(request, false);
       await expect(
         page.getByRole("button", { name: "Close search", exact: true }),
@@ -84,6 +102,7 @@ for (const [width, height] of [
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
       ).toBe(false);
+      await settleReads();
       expect(errors).toEqual([]);
       await page.screenshot({ path: info.outputPath("search-recovered.png") });
     });
