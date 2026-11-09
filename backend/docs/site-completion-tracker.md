@@ -1,3 +1,36 @@
+### 10 November: settled collection calendar and current integrated verification
+
+Owner calendar remains five Monday-Saturday days, with public holidays counted,
+starting after both actual readiness and successful customer notification; exclude
+the later anchor date. Imported/custom parts use the same rule. No further owner
+calendar value is required. Durable contact failure/success and reasoned extensions
+are implemented; remaining work is release/acceptance, not missing calendar policy.
+
+Release candidate dab976c79928a404d193abda302a2036d222db56 preserves latest master
+1fc86e65 and its corrected real/simulated booking fixture clocks. The previous
+combined backend run42720338191 had four late-visit fixture failures; the newer
+master fix is integrated instead of replacing it. Current-source isolated replay
+of110 migrations, empty schema diff, db:check and restricted runtime pass, with
+31/31 booking-reschedule/collection-clock cases. Owned tmpfs test DB removed.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-late-visit-holding.log.
+
+Hosted source d42f62cf passed all13 focused sourcing/pickup cases, including six
+pickup/holding journeys: staff320/1440, unsupported-backend guard, customer/guest
+one-time code with focus revalidation, failed contact and retained extension history.
+Its full matrix was cancelled by the newer candidate; it is not a full release pass.
+Artifact13721380954 downloaded and SHA256 verified. Its directory was overwritten
+by the later full matrix, so it contains no current pickup screenshots. Earlier
+synthetic screenshots remain historical, not an after-image of this candidate.
+
+Current exact-source runs: frontend42721896492, backend42721896518 still running;
+secret42721896435 passed. Before publication require exact-master checks, populated
+restore/forward-migration rehearsal, guarded production migration and matching image/
+frontend verification. Read-only app identity remains c3c54414 with no pending deploy;
+eight managed backups, latest2026-11-09T05:22:14Z, do not prove a new restore rehearsal.
+C: completion preflight21.22GiB passed with0.05GiB expected small-write allowance.
+Owner Desktop hero edit and dependency junction remain untouched. D17 resolution
+remains held locally and incomplete; no payment, refund or production write occurred.
+
 ### 10 November: supply concern intake and Care handoff verified in isolation
 
 D17 now retains actual affected unit ranges, the immutable original monetary basis

@@ -71,9 +71,10 @@ Existing global learning/AI/practice/publication flags stay unchanged.
 Owner's latest calendar answer: five days, Monday-Saturday, public holidays count,
 exclude the anchor day after both actual readiness and successful notification;
 imported/custom parts use the same rule. The date-only engine has no payment or
-stock side effects. Pending notification yields no deadline. D12 durable evidence,
-reasoned extensions, customer/staff rendering and failed-notification acceptance
-still require implementation. Older unresolved calendar notes are superseded.
+stock side effects. Pending notification yields no deadline. D12 durable contact
+evidence, reasoned extensions and customer/staff rendering are implemented. Hosted
+failed-contact/extension acceptance passed on d42f62cf; exact combined-source release
+gates remain open. Older unresolved calendar notes are superseded.
 
 Verification checkpoint: 10 calendar tests and one audience eligibility test pass;
 28/28 combined calendar/eligibility/retrieval/sourcing tests pass. Three pickup UI
