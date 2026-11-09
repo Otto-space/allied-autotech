@@ -31,7 +31,7 @@ type NextStatus = RequestBody<"/staff/bookings/{bookingId}/status", "post">["sta
 const transitions: Record<string, readonly NextStatus[]> = {
   REQUESTED: ["CONFIRMED", "CANCELLED"],
   AWAITING_DEPOSIT: ["CANCELLED"],
-  CONFIRMED: ["IN_PROGRESS", "CANCELLED", "NO_SHOW"],
+  CONFIRMED: ["IN_PROGRESS", "CANCELLED"],
   IN_PROGRESS: ["COMPLETED", "CANCELLED"],
 };
 const textField = (max: number) =>
@@ -659,6 +659,11 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
                         </option>
                       ))}
                     </select>
+                    {current.status === "CONFIRMED" && (
+                      <p className="field-hint">
+                        Missed-appointment updates are temporarily unavailable.
+                      </p>
+                    )}
                   </div>
                   {choices.includes("CONFIRMED") && (
                     <div className="field">

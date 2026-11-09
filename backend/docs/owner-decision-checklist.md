@@ -1,3 +1,18 @@
+### 9 November: preserve the newly merged missed-writer safeguard
+
+Candidate 7d5ec4eb passed Backend 42606466337, Secrets 42606466356 and Frontend
+42606466323: 1,507 units passed, twelve existing skips, and 239 production-browser
+cases passed, including all thirteen work reviews and both public-search cases.
+Before merge/publication, master advanced to 80b4c8ac with the missed-writer
+transition safeguard. This combined candidate preserves that refusal, hidden raw
+missed-status option, independent role guidance and all compatibility tests.
+Booking-confirmation v13 combines both v12 histories; service-request stays v29.
+New exact-source acceptance is required. Full attendance remains a separate draft.
+The only schema addition here is the remaining-work review migration (98 total).
+Future attendance publication must rehearse against this current ledger and retain
+a migrator aware of every applied migration; fixed historical migration counts do
+not authorize an older recovery image. Production has not changed in this batch.
+
 ### 9 November 2026: D07 continuation and preservation checkpoint
 
 The interruption left the candidate on 1af29213. Its exact-head backend safety and

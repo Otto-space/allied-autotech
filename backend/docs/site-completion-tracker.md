@@ -1,3 +1,18 @@
+### 9 November: preserve the newly merged missed-writer safeguard
+
+Candidate 7d5ec4eb passed Backend 42606466337, Secrets 42606466356 and Frontend
+42606466323: 1,507 units passed, twelve existing skips, and 239 production-browser
+cases passed, including all thirteen work reviews and both public-search cases.
+Before merge/publication, master advanced to 80b4c8ac with the missed-writer
+transition safeguard. This combined candidate preserves that refusal, hidden raw
+missed-status option, independent role guidance and all compatibility tests.
+Booking-confirmation v13 combines both v12 histories; service-request stays v29.
+New exact-source acceptance is required. Full attendance remains a separate draft.
+The only schema addition here is the remaining-work review migration (98 total).
+Future attendance publication must rehearse against this current ledger and retain
+a migrator aware of every applied migration; fixed historical migration counts do
+not authorize an older recovery image. Production has not changed in this batch.
+
 ### 9 November 2026: D07 continuation and preservation checkpoint
 
 The interruption left the candidate on 1af29213. Its exact-head backend safety and
@@ -74,6 +89,23 @@ builds still require the justified 2 GiB allowance. Production is unchanged by
 this candidate. D01-D17 remains active; actual branch/resource facts, real role
 acceptance and the separate finance/provider decisions are not fabricated.
 
+## 9 November ? attendance recovery source reconciliation
+
+Merged current master 80e95a38 into the held compatibility candidate, preserving
+public-search recovery coverage, corrected product identity wording and the
+published calendar/modal changes. This is source integration, not publication.
+The previous compatibility source d619f720 passed all three hosted gates,
+including 225 browser cases; the complete attendance source de9908bf separately
+passed all three gates, including 235 browser cases. Those results do not certify
+this new merge or current master. Required merged-source checks remain pending.
+
+The temporary missed-status limitation belongs only to the recovery candidate.
+The full verified attendance workflow, D11 actual available alternatives and the
+remaining audit requirements remain required. No production records, firewall
+rules, permissions or capability flags changed during this reconciliation.
+
+---
+
 ## 4 November 02:40 UTC — public search acceptance package
 
 Target boundary: 03:40 UTC. Full renewed two-brief goal remains active. Current
@@ -120,6 +152,55 @@ This batch is not yet merged or deployed. Preserve the other worktrees' changes.
 Remaining full scope: the page/state and role matrix below still applies; these
 public search checks do not certify every catalogue facet, authenticated dashboard,
 all roles, Firefox/WebKit, physical device, real product evidence or workshop setup.
+
+---
+
+4 November attendance writer compatibility — source prepared, not deployed
+
+Current package: a schema-97 compatibility API before the separately held schema-98
+attendance release. Full feature branch codex/booking-attendance-20261104 remains
+at 26850a6b, draft PR #20. Its full dashboard suite is running; D11's actual available
+alternative and the remaining full audit scope are not declared complete here.
+
+This patch rejects the older direct NO_SHOW status action for every operational
+role before a database write. The now-unreachable old no-show notification branch
+is removed. It does not implement attendance authoring or enable any capability.
+Booking-confirmation v12 and assigned-findings v4 explain the unavailable old
+status action while retaining their existing eligibility gates. Verified physical
+attendance and final missed-visit authoring remain in the separately held feature.
+
+Actual local evidence: fresh canonical 98-migration replay and db:check pass on a
+new task-owned _ci target. The compatibility application uses its genuine older
+97-migration generated client (no attendance model); its real startup scalar probe
+passes against that 98 schema. Authenticated assigned Staff, Admin and Super Admin
+raw missed-status writes each return 409 and leave the appointment/version/time/
+work/reschedule state unchanged. Only synthetic records were used. Source types and full backend lint pass. All 30 focused guide/retrieval
+checks pass after the guidance update. Required hosted checks still need final
+results for this source.
+
+The first attempt correctly stopped on checksum drift against the earlier local
+98 test database: three existing historical files there used different line
+endings from canonical checkout bytes. That database and its evidence are retained;
+no SQL or applied ledger was edited. The fresh canonical replay is independent
+of that earlier worktree-byte evidence.
+
+Release remains held for exact-master gates, matching packaged-image tests and
+fresh backup/populated restore/target/privilege checks. The recovery configuration
+must keep the 98-aware migration component while using the tested compatibility
+API/worker runtime. Never run the older 97 migrator against a 98 ledger. See
+backend/docs/attendance-writer-transition.md. No production database/firewall,
+permissions, prices, policies or capability flags were changed by this rehearsal.
+
+Compatibility UI follow-up: the old missed-status option is removed from the
+legacy staff form, and its temporary unavailability is explicit beside the other
+status choices. The regression now requires no unsupported option or write and
+retains mobile navigation, readable current status and accessibility checks. It is
+registered in the existing hosted runtime suite (225 intended cases). The full
+feature in draft #20 replaces this temporary notice/case with verified attendance;
+remove the compatibility-only project on that integration, preserving the complete
+new workflow's assertions. Source lint/discovery is not a browser pass.
+
+---
 
 4 November exact-master gate: 9fbf3732 passed backend safety, secrets,
 production checks and 223/224 browser cases. All modal, tablet-filter and About

@@ -32,6 +32,11 @@ export default defineConfig({
       ],
     },
     {
+      name: "legacy-attendance-compatibility",
+      testMatch: ["staff-bookings.spec.ts"],
+      grep: /staff old missed-status action/,
+    },
+    {
       name: "modal-consumers",
       testMatch: [
         "customer-garage-quality.spec.ts",

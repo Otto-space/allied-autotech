@@ -1,3 +1,18 @@
+### 9 November: preserve the newly merged missed-writer safeguard
+
+Candidate 7d5ec4eb passed Backend 42606466337, Secrets 42606466356 and Frontend
+42606466323: 1,507 units passed, twelve existing skips, and 239 production-browser
+cases passed, including all thirteen work reviews and both public-search cases.
+Before merge/publication, master advanced to 80b4c8ac with the missed-writer
+transition safeguard. This combined candidate preserves that refusal, hidden raw
+missed-status option, independent role guidance and all compatibility tests.
+Booking-confirmation v13 combines both v12 histories; service-request stays v29.
+New exact-source acceptance is required. Full attendance remains a separate draft.
+The only schema addition here is the remaining-work review migration (98 total).
+Future attendance publication must rehearse against this current ledger and retain
+a migrator aware of every applied migration; fixed historical migration counts do
+not authorize an older recovery image. Production has not changed in this batch.
+
 4 November D07 operational review source checkpoint: booking-confirmation v12 and
 service-request v29 explain remaining-work estimates, actual approved physical-unit
 choices and uncertain-result inspection. Eligibility and existing guide targets
@@ -285,7 +300,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | ----------------------- | -------------------- | --------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | privacy-and-allie       | public               | 1 / 2026-11-01        | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff                                         |
 | financial-aftercare     | financial-aftercare  | 5 / 2026-11-03        | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
-| booking-confirmation    | booking-confirmation | 12 / 2026-11-04       | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
+| booking-confirmation    | booking-confirmation | 13 / 2026-11-09       | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
 | workshop-resource-plan  | owner                | 1 / 2026-11-03, draft | /admin/booking-resources     | Owner-only lookup, current record, versioned approval and uncertain-result recovery; not published                                          |
 | refund-work             | refunds              | 3 / 2026-10-27        | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
 | dispute-work            | disputes             | 3 / 2026-10-27        | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
