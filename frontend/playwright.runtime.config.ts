@@ -28,6 +28,8 @@ export default defineConfig({
         "customer-overview-attention.spec.ts",
         "shared-shell-dock.spec.ts",
         "workforce-directory.spec.ts",
+        "saved-items-navigation.spec.ts",
+        "saved-items-quality.spec.ts",
 
         "order-money-breakdown.spec.ts",
         "workshop-resources.spec.ts",
@@ -78,6 +80,7 @@ export default defineConfig({
         "modal-layout.spec.ts",
         "catalogue-modal-layout.spec.ts",
         "public-search-recovery.spec.ts",
+        "saved-items-navigation.spec.ts",
       ],
     })),
   ],

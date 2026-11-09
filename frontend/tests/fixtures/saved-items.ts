@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Page, Route } from "@playwright/test";
 import path from "node:path";
 import { id, product, listing } from "./public-account-actions";
 export { id };
@@ -62,6 +62,16 @@ export async function savedFixture(page: Page) {
     nextCursor: undefined as string | undefined,
     brokenImages: false,
   };
+  const imageReply = (route: Route) =>
+    state.brokenImages
+      ? route.abort()
+      : route.fulfill({
+          contentType: "image/webp",
+          path: path.resolve(
+            `public/images/allied-autotech/${new URL(route.request().url()).pathname.includes("/vehicles/") ? "showroom" : "parts"}-editorial.webp`,
+          ),
+        });
+  await page.route("**/api/catalogue-image/**", imageReply);
   await page.route("**/api/v1/**", async (route) => {
     const req = route.request(),
       u = new URL(req.url()),
@@ -77,15 +87,7 @@ export async function savedFixture(page: Page) {
           meta: { requestId: "saved-qa" },
         },
       });
-    if (p.includes("/images/"))
-      return state.brokenImages
-        ? route.abort()
-        : route.fulfill({
-            contentType: "image/webp",
-            path: path.resolve(
-              `public/images/allied-autotech/${p.includes("catalog") ? "parts" : "showroom"}-editorial.webp`,
-            ),
-          });
+    if (p.includes("/images/")) return imageReply(route);
     if (p === "/auth/session")
       return state.signedIn
         ? reply({
