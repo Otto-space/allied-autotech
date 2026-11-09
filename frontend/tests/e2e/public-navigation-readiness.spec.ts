@@ -141,6 +141,11 @@ for (const width of [320, 1280]) {
       });
       await navigation.getByRole("link", { name: "Shop", exact: true }).click();
       await expect(page).toHaveURL(/\/parts$/);
+      await page.waitForLoadState("load");
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([width, 720]);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
       await expect(
         page.getByRole("main").getByRole("heading", { level: 1 }),
       ).toBeVisible();

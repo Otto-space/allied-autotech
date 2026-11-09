@@ -117,15 +117,20 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       who: { headers: Record<string, string> },
       id: string,
       expectedVersion = 0,
-    ) =>
-      request(app)
+    ) => {
+      // Keep the entire 60-minute visit inside the synthetic Lagos working day,
+      // regardless of the wall-clock hour when CI runs.
+      const preferredAt = new Date(Date.now() + 8 * 86400000);
+      preferredAt.setUTCHours(9, 0, 0, 0);
+      return request(app)
         .post(`/api/v1/staff/workforce/bookings/${id}/alternative`)
         .set(who.headers)
         .send({
           expectedVersion,
-          preferredAt: new Date(Date.now() + 8 * 86400000).toISOString(),
+          preferredAt: preferredAt.toISOString(),
           reason: "Allow more time for the requested diagnostic checks.",
         });
+    };
     it("proposes a scoped alternative without changing the appointment or confirming it", async () => {
       const v = await fixture();
       const result = await propose(v.who, v.booking.id);

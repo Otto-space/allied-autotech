@@ -1,3 +1,25 @@
+## 9 November 16:29 UTC - navigation preview and time-dependent CI fixture
+
+PR30 source 592214bf has a READY preview dpl_6eb6rcRcQNmwfLH18RKsBWnBoMdZ.
+Native Edge first-ready-activation, focus/Escape, scroll locking and overflow pass
+all seven requested viewports, zero application writes/errors. JavaScript-disabled
+mobile navigation reaches Parts, but an immediate post-navigation viewport check
+observed 405x912 instead of 320x720; a separate direct load measures 320x720 without
+overflow. Waiting for the native document load completes both 320/1280 fallback
+checks with exact viewports and no overflow, errors or writes. Retain the earlier
+failed observation; this is a load-completion harness correction, not a Parts CSS fix.
+Evidence: TEMP/allied-navigation-release-592214bf/fallback-recheck/native-preview.json.
+All nine native preview cases now have passing evidence.
+
+Backend CI 42654083490 failed four existing workforce alternative-proposal cases.
+The fixture proposes Date.now()+8 days, retaining current time. At 16:24 UTC this is
+17:24 Lagos; the required 60-minute service extends beyond the fixture's 18:00 close,
+so valid availability enforcement returns 409 before the cases' intended assertions.
+Pin only the synthetic proposal time to 09:00 UTC (10:00 Lagos), retaining future
+date, duration, capacity, scope and atomicity assertions. Application/backend code
+and business hours stay unchanged. Isolated CI rerun is required; no local/shared
+application database is used. Other backend owner's D03 work is preserved.
+
 ## 9 November 16:21 UTC - Saved items published; mobile navigation readiness
 
 Current bounded item: integrate the verified public-navigation hydration repair.
@@ -15,8 +37,8 @@ access limitation, not a native held-candidate pass. The application/test-equiva
 1831a758 preview passed all seven exact viewports. After promotion, native Edge on
 the public domain passes populated Saved vehicles, decoded fixture images, public
 listing navigation, Back/reload, keyboard collection recovery and overflow at
-1280x720 and 320x720, with zero page errors or application writes. Remaining five
-public-domain checks are running. Receipts: TEMP/allied-saved-release-d553a349/public.
+all seven exact requested viewports, with zero page errors or application writes.
+Native Edge production acceptance is complete for this isolated Saved journey. Receipts: TEMP/allied-saved-release-d553a349/public.
 An initial test-helper invocation used the repository root and failed to resolve a
 fixture photograph; rerunning from frontend corrected that harness error.
 
