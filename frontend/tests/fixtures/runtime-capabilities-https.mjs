@@ -58,7 +58,13 @@ try {
           port: 3103,
           path: request.url,
           method: request.method,
-          headers: request.headers,
+          headers: {
+            ...request.headers,
+            host: "127.0.0.1:3104",
+            "x-forwarded-host": "127.0.0.1:3104",
+            "x-forwarded-proto": "https",
+            "x-forwarded-port": "3104",
+          },
         },
         (result) => {
           // Preserve CSP and all other application response headers unchanged.

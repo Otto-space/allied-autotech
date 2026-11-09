@@ -52,6 +52,10 @@ for (const [width, height] of [
         page.getByRole("button", { name: "Close search", exact: true }),
       ).toBeEnabled();
       await expect(shop).toContainText("Synthetic maker · Part no. TEST-MPN");
+      // Finish reads against the current synthetic state before changing it.
+      // WebKit reports cancelled prefetches during reload as page errors; this
+      // fixture tests catalogue recovery, not navigation during in-flight RSC.
+      await page.waitForLoadState("networkidle");
       await searchAvailability(request, true);
       await page.reload();
       await expect(shop.getByRole("status")).toContainText(
