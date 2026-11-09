@@ -235,3 +235,14 @@ workforce-directory.spec.ts > workforce directory 320x720 > directory at 320px k
 
 workforce-booking-confirmation.spec.ts > available alternatives preserve loading, retry, empty and keyboard states
 workforce-booking-confirmation.spec.ts > workforce proposes a reviewed time
+
+# Saved collection navigation uses the isolated loopback runtime fixture.
+saved-items-navigation.spec.ts > saved navigation 1280x720 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 1024x768 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 768x1024 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 430x932 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 390x844 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 360x800 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 320x720 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > an open removal review stays bound to its collection through a URL change
+saved-items-navigation.spec.ts > saving a vehicle opens its vehicle collection from the receipt

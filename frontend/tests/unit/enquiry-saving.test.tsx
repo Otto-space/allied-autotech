@@ -99,7 +99,9 @@ it.each(["product", "vehicle"])(
           name: kind === "product" ? /View favourites/ : /View saved vehicles/,
         })
         .getAttribute("href"),
-    ).toBe("/dashboard/saved");
+    ).toBe(
+      kind === "product" ? "/dashboard/saved" : "/dashboard/saved?collection=vehicles",
+    );
   },
 );
 it.each(["product", "vehicle"])("keeps catalogue-only %s saving closed", (kind) => {

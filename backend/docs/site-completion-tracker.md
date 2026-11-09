@@ -1,3 +1,54 @@
+## 9 November 15:22 UTC - Saved items return context acceptance
+
+Bounded package started 14:45 UTC; target checkpoint 15:45 UTC. The owner confirmed
+Diagnostics duration and Engine Oil Filter brand, manufacturer part number and
+approved image location are still unknown. Preserve their missing-data states.
+
+The next verified P2 defect is corrected: `/dashboard/saved?collection=vehicles`
+retains Saved vehicles through the real public listing, Back/Forward and reload.
+The save-vehicle receipt now opens that collection directly. Only one supported
+URL value selects vehicles; missing, unknown and duplicate values default safely
+to products. Tabs replace history while preserving other query fields/hash and
+independent in-memory cursors. URLs contain no private records or cursor values.
+An open removal review remains bound to its original collection across URL changes;
+closing it restores focus to the requested tab. Identity-keyed reset, session abort,
+CSRF, failed/uncertain removal guards and disabled-commerce capabilities remain.
+
+Local Edge 157 acceptance uses only isolated Customer/API fixtures and the existing
+loopback public-listing server. All 55 distinct cases have passing results: the
+final suite passed 54/55; the 768x1024 case exceeded the default 60-second total
+budget while loading/reloading under local contention, then passed in 24.7 seconds
+with the existing CI 90-second budget and no application change. Seven exact
+viewports cover 1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800 and 320x720;
+phone contexts use mobile/touch emulation. Twenty existing populated-layout cases
+now require decoded images. The fixture serves the current catalogue-image route
+with the matching parts/vehicle photograph. Eight affected image/layout/return
+cases passed after that fixture correction. Three automated accessibility scans,
+keyboard tabs/review, invalid query, pagination, session/account changes and failure
+recovery passed. The earlier cancelled-remount request is retained in the account
+assertion: every new-account read must use the first page, never the old cursor.
+Seventeen focused units, nonincremental TypeScript, scoped lint and formatting passed.
+Hosted CI remains pending.
+
+Evidence: TEMP/allied-saved-return-20261109/{finding.md,results.json,back-*.png}
+records the original live-frontend reproduction with private fixtures; TEMP/allied-
+saved-context-20261109/{final,tablet-recheck,image-recheck} retains passing captures
+and the failed timeout trace. The runtime matrix now collects 530 tests; collection
+is not execution. Firefox/WebKit, production-build and native hosted acceptance for
+this Saved batch are not yet complete. Physical devices/manual screen readers and
+real-role persistence remain separate. No fictional inventory, real saved-record
+mutation, backend/schema change or publication was performed by this batch.
+
+Workforce PR #27 merged as master 9c219bc8 after d4a16ef9 passed 1,518 units
+(12 existing skips), 9/9 repeated WebKit diagnostics and 451/451 browser cases,
+plus backend and secret checks. Exact-master frontend run 42640751854 is pending;
+backend 42640751890 and secrets 42640751930 passed. The other release owner has
+verified production migration 100, removed its temporary access and is handling
+the compatible backend rollout from the same master. Its 15:08 source-handoff
+receipt is TEMP/aat-attendance-20261104/source-handoff-late-20261109.json. Preserve
+that ownership; do not independently repeat migrations or promote before readiness.
+The complete two-brief route/role/auth/device/performance backlog remains active.
+
 ## 9 November 14:43 UTC - preserve managed alternative dispatcher fix
 
 Integrate master 323dabca's dedicated alternative-day query parser and authenticated
