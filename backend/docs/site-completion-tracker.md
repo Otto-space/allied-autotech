@@ -1,3 +1,29 @@
+## 9 November 14:42 UTC - native preview pass and traced WebKit fixture race
+
+Exact-head preview dpl_D4D59noJTk7YHzg3GrUpDozbQxN3 (0878feb0) passes native Edge
+at actual 320x720 mobile/touch and 1280x720 desktop: complete records, sidebar,
+keyboard detail, enrollment disclosure/review reachability and return, with zero
+page errors or application writes. Short-lived Vercel OIDC was attached only to the
+preview origin in memory; protection was unchanged. The earlier HTTP-bridge failures
+remain retained, separate from this native-browser acceptance. Evidence and captures:
+TEMP/allied-workforce-release-0878feb0/oidc-workforce.json and oidc-*.png.
+
+Run 42634905065 passed build/types/lint/units, backend and secrets, but failed the
+early WebKit search diagnostic, so the full matrix did not run. Artifact 13682643338
+is 1,201,226 bytes and matches SHA256
+0fc7ae061edef25fb17ce95a14b97608494fb4374a2d5b802b8529f68eb41868.
+Its trace shows networkidle returned at 15457ms while RSC requests begun at 15434ms
+were still active; reload at 15463ms produced cancellation errors at 15477-15485ms,
+before Retry at 15860ms. This disproves an assumption that the prior load-state wait
+ensured current requests were idle. No application change is justified by that alone.
+The isolated search fixture now tracks actual request start/finish/failure and waits
+for no active reads plus a 500ms quiet period before changing state, and before final
+error assessment. Error assertions, real recovery controls and production CSP remain
+unchanged. Early WebKit diagnostics repeat three times to establish stability before
+the full suite. Fresh CI is required; interrupted-prefetch reload and physical Safari
+remain unverified separately. Production publication is still held behind all exact-
+master gates and the other session's compatible schema-100 backend handoff.
+
 ## 9 November 14:27 UTC - combined gate outcome and next verified finding
 
 Combined source 6c8abe99 passed backend safety, secrets, the production build,
