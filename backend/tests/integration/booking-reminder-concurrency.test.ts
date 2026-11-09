@@ -92,6 +92,19 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     const notificationCount = (bookingId: string) =>
       prisma.notification.count({ where: { resourceId: bookingId } });
 
+    it("bounds the shared inbox and push notification by the appointment time", async () => {
+      const f = await fixture();
+      expect(await new BookingReminderWorker().runOnce(1)).toEqual({
+        sent: 1,
+        cancelled: 0,
+      });
+      const notification = await prisma.notification.findFirstOrThrow({
+        where: { resourceType: "BOOKING", resourceId: f.booking.id },
+      });
+      expect(notification.expiresAt).toEqual(f.booking.scheduledAt);
+      expect(await notificationCount(f.booking.id)).toBe(1);
+    });
+
     it("cancels a delayed reminder after appointment time without recording absence", async () => {
       const f = await fixture();
       await prisma.booking.update({

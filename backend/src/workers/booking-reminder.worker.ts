@@ -149,6 +149,7 @@ export class BookingReminderWorker {
         message: `Your Allied AutoTech appointment is scheduled for ${reminder.booking.scheduledAt.toISOString()}. Sign in to your booking to confirm attendance or cancel without a cancellation fee. No response does not cancel your appointment.`,
         resourceType: "BOOKING",
         resourceId: reminder.booking.id,
+        expiresAt: reminder.booking.scheduledAt,
         deduplicationKey: `booking:${reminder.booking.id}:reminder:${reminder.scheduleVersion}:${reminder.kind}`,
         channels: ["EMAIL"],
         bookingAction: {

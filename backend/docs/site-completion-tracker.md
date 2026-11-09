@@ -1,3 +1,16 @@
+## 9 November 20:10 UTC - reminder expiry metadata verified in isolation
+
+New reminder notifications now store appointment time as their expiry, using
+existing inbox/push expiry controls. All 12 reminder/concurrency cases and db:check
+pass on the isolated 101-migration database; its restricted runtime login is
+disabled. Earlier 11 learning/API integration cases and 27 affected Help/retrieval
+units pass (overlapping coverage, not additive totals). No real provider, legacy
+backfill or production write is claimed. Final exact-source CI and release remain
+pending. Packaging preflight at20:08 UTC fails: C:21.45GiB versus21.5GiB required.
+The complete audit goal, configurable reminders and real-role acceptance stay open.
+
+---
+
 ## 9 November 19:31 UTC - reminder candidate reconciles current media acceptance
 
 PR34 incorporates master f7bfbf52 and preserves its canonical hosted image URL

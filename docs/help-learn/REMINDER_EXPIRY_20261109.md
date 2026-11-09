@@ -20,8 +20,8 @@ and formatting pass. The handbook was regenerated from the unchanged canonical
 OpenAPI document using its actual generator. New real-PostgreSQL cases cover an
 elapsed delayed job, a queued provider delivery that expires, a future positive
 control, terminal delivery state, deduplication and unchanged booking/attendance.
-They await the existing isolated backend CI workflow; no local database run or
-actual provider delivery is claimed for this candidate.
+The isolated database results below supplement the existing backend CI workflow;
+actual provider delivery is not claimed for this candidate.
 
 The four-image packaging preflight remains blocked by local free space. The held
 product-timing frontend and its earlier evidence are retained. Configurable
@@ -42,3 +42,10 @@ article now uses 7,971 of the unchanged 8,000-character retrieval budget. All
 27 affected Help/retrieval unit cases pass, including public/customer/staff/Admin/
 owner retrieval. No passage truncation, safety check, budget or test was weakened.
 Exact final-source CI and production release remain pending.
+
+The final metadata regression passes all 12 reminder/concurrency cases against
+the same isolated 101-migration database, with db:check passing. Newly enqueued
+notifications expire at appointment time, so existing inbox and push expiry
+controls can reject elapsed reminders. No legacy notification backfill or real
+push delivery was tested. The restricted test runtime login was disabled again;
+production data and delivery flags were untouched.
