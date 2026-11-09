@@ -170,3 +170,12 @@ later measures approximately 21.05 GiB. No deletion is attempted or credited for
 that recovery. Do not repeat this local browser workload under the same pressure;
 use existing isolated hosted CI for exact-source acceptance. No protected data,
 images/caches/volumes, pagefile or other task is modified.
+
+Hosted frontend run 42668296246 on 91c80c8f passes full lint, types, 1,529 units
+(twelve existing skips) and the optimized production build. Its final formatting
+check fails only on two extra blank lines retained between merged quality-register
+histories. Canonical Prettier removes those blank lines without changing either
+history or application code. This failed run never reaches browser execution.
+The corrected source needs a new hosted frontend gate; the earlier build is not
+represented as complete release/browser acceptance. Secret run 42668296250 passes;
+backend run 42668296194 remains in progress at this checkpoint.

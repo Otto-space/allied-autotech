@@ -380,8 +380,6 @@ documentation checkpoints do not imply another runtime deployment.
 
 ---
 
-
-
 ## 9 November 15:47 UTC - Saved items gates passed; integrate release evidence
 
 Current item: publish the Saved items collection-context fix after exact-master gates.
