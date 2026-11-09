@@ -192,7 +192,8 @@ test.describe("compact phone carousel controls", () => {
         expect(box!.height).toBeGreaterThanOrEqual(44);
         expect(box!.y + box!.height / 2).toBeCloseTo(row!.y + row!.height / 2, 0);
         await expect(button).toBeInViewport({ ratio: 1 });
-        await button.tap();
+        // Native coordinates avoid locator.tap() scrolling the target for us.
+        await page.touchscreen.tap(box!.x + box!.width / 2, box!.y + box!.height / 2);
         expect(
           await page.evaluate(async () => {
             // The shared reveal helper queues animation frames after activation.
@@ -208,7 +209,13 @@ test.describe("compact phone carousel controls", () => {
       }
       await expect(carousel).toHaveAttribute("data-slide", "1");
       await expect(carousel).toHaveAttribute("data-rotating", "true");
-      await controls.getByRole("button", { name: "Pause slideshow" }).tap();
+      const pause = await controls
+        .getByRole("button", { name: "Pause slideshow" })
+        .boundingBox();
+      await page.touchscreen.tap(
+        pause!.x + pause!.width / 2,
+        pause!.y + pause!.height / 2,
+      );
       await expect(carousel).toHaveAttribute("data-rotating", "false");
       await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
     });

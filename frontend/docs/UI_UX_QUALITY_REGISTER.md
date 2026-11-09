@@ -8561,3 +8561,43 @@ width: previous,32x44 slide targets,next,44px playback, in matching keyboard ord
 Five touch regressions cover320/360/390/430 and short600px-height screens, stable
 scroll/URL, target visibility and pause/play. Exact-source gates/render/live
 verification remain pending; Services PR47 is retained separately.
+
+## 9 November - Services design group in progress
+
+Group 2 now starts from master aba95de1, preserving Home compact layout and
+the intervening authentication, payment and quotation layout/test fixes. Public Home remains the verified 5464e402 release;
+no Services publication has occurred. The 1440/390 live baseline had eight work-area
+cards above search, four real service records and restricted booking requests.
+
+The catalogue now follows the supplied photographic introduction, overlapping
+white filter panel and four-column desktop/single-column phone result cards.
+Search precedes work-area cards. Actual names, prices, quotations, durations,
+category links, URL/history and permissions retain their existing sources.
+The service detail uses larger typography and a framed real photograph; natural
+portrait/landscape proportions take precedence over the export's full-width crop.
+The existing request page explains the currently available contact route in
+customer language. No booking, support, authentication or transaction logic changed.
+
+Fourteen focused cases join the existing production-build matrix: all nine exact
+viewport pairs, combined filters/detail/back/reload, pagination focus, loading/
+empty/server/rate-limit/network recovery, zero price versus quotation, missing
+images, long facts, doubled-text reflow, and two enquiry review/cancel/receipt
+fixtures. Server reads use the existing loopback in-memory API; application writes
+are intercepted. Collection passes; execution and rendered reference comparison
+remain pending. Affected formatting/lint and an initial TypeScript check passed;
+final source and all three exact-master gates are required before publication.
+
+Reuse the shared dependency junction. No local build/install or Docker work.
+C: latest preflight 21.10 GiB with 0.05 GiB allowance passed; use a justified small
+upload/browser budget and stop if the 20 GiB reserve cannot be verified.
+
+## 10 November - Combined Home/Services mobile candidate (not yet live)
+
+The owner's Both/compact-controls feedback is reconciled in PR48 with Services
+PR47 retained as superseded source. Native coordinate touch at five phone/short
+sizes keeps scroll unchanged; the pill is278x58px. Services'12/14 CI passes are
+partial evidence: two enquiry fixtures require the existing automatic single-
+branch choice, and loopback capabilities must be restored after this project.
+These fixture repairs and the combined full exact-master gates remain required.
+Category-only introduction overlaps the photograph at All services; correct
+that state and verify its contrast/focus before publication. Groups3-10 remain open.

@@ -9793,3 +9793,73 @@ no backend, permission or capability change is included. The 30-minute browser
 step budget was already justified by the measured expanded matrix, with its
 assertions retained. The older aba95de1 frontend gate subsequently passed, but
 does not qualify this newer carousel correction for publication.
+
+## 9 November - Services design group in progress
+
+Group 2 now starts from master aba95de1, preserving Home compact layout and
+the intervening authentication, payment and quotation layout/test fixes. Public Home remains the verified 5464e402 release;
+no Services publication has occurred. The 1440/390 live baseline had eight work-area
+cards above search, four real service records and restricted booking requests.
+
+The catalogue now follows the supplied photographic introduction, overlapping
+white filter panel and four-column desktop/single-column phone result cards.
+Search precedes work-area cards. Actual names, prices, quotations, durations,
+category links, URL/history and permissions retain their existing sources.
+The service detail uses larger typography and a framed real photograph; natural
+portrait/landscape proportions take precedence over the export's full-width crop.
+The existing request page explains the currently available contact route in
+customer language. No booking, support, authentication or transaction logic changed.
+
+Fourteen focused cases join the existing production-build matrix: all nine exact
+viewport pairs, combined filters/detail/back/reload, pagination focus, loading/
+empty/server/rate-limit/network recovery, zero price versus quotation, missing
+images, long facts, doubled-text reflow, and two enquiry review/cancel/receipt
+fixtures. Server reads use the existing loopback in-memory API; application writes
+are intercepted. Collection passes; execution and rendered reference comparison
+remain pending. Affected formatting/lint and an initial TypeScript check passed;
+final source and all three exact-master gates are required before publication.
+
+Reuse the shared dependency junction. No local build/install or Docker work.
+C: latest preflight 21.10 GiB with 0.05 GiB allowance passed; use a justified small
+upload/browser budget and stop if the 20 GiB reserve cannot be verified.
+
+Owner follow-up covers both Home and Services hero height. Services now reduces
+its desktop minimum to460px and phone spacing, removes the redundant phone
+eyebrow and keeps essential visit-arrangement guidance. Search should be fully
+visible within the first phone viewport. Tablet image contrast is strengthened.
+Initial Services CI42706653635 stopped on five instances of the same fixture
+interaction: checking a visually hidden controlled radio immediately after sort.
+The test now waits for the sort value, clicks the visible label and waits for the
+checked state; combined query and reload assertions are retained. No application
+filter logic changed. Re-run all14 cases and full exact-master gates before release.
+PR45/its source branch remain preserved; the reconciled branch is
+codex/stitch-services-compact-20261109. Public aliases remain the Home release.
+
+## 10 November - Combined owner-requested public mobile release candidate
+
+The owner explicitly included both Home and Services hero/mobile corrections.
+PR48 now carries the compact Home/carousel fix and the preserved Services group
+from PR47, on current master3cf5d9cb. This keeps their release evidence on one
+immutable candidate. Original Services branches/PRs are preserved or superseded
+with links; no unverified group is published. Groups3-10 remain open.
+
+Compiled Home38c7bc66 native-coordinate touch checks pass all seven controls at
+320x667,360x600,360x800,390x844,430x932: one278x58px pill, zero scroll movement,
+zero page errors/writes. Locator.tap() itself caused a2px visibility adjustment
+in the short600px test, so the regression now uses native touchscreen coordinates
+and waits through queued animation frames, keeping the strict zero-scroll check.
+
+Services c172ffb5 CI42712081074 passed12 of14 focused cases: nine sizes, pagination,
+recovery/zero/quotation states and missing-image/long/doubled content. Its two
+remaining enquiry fixtures incorrectly expected a combobox when the single
+branch is a labelled automatic choice. They now assert that fixed choice and
+its branchId in the intercepted request. One following registration fixture
+also exposed restricted capability state leaking between projects. Services
+teardown now restores the loopback fixture's full mode; production is unaffected.
+The overall run failed (892 passed,3 failed), and is not release acceptance.
+Re-run the combined full exact-master matrix, all14 Services cases and all five
+new carousel touch cases before publication. Existing public Services candidate
+checks at nine widths, true portrait proportions, combined filters/detail/Back/
+reload, FAQ, scoped1440/390 Axe and doubled320px text pass with no business writes.
+Category-only entry has a verified contrast/overlap defect at the first link;
+remove the catalogue overlap in that state before staging this combined candidate.
