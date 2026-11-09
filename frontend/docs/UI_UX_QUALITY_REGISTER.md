@@ -1,3 +1,35 @@
+## 9 November - security review modal follow-up
+
+Current follow-up: codex/security-modal-20261109, based on PR31 head 74f20a2b.
+Keep PR31's active full-matrix run 42676929195 intact; integrate that checked batch
+before publishing this focused follow-up. Product-timing backend publication is
+still owned by its existing release session and must be verified before promotion.
+
+Reproduced /dashboard/security password review on the exact 74f20a2b hosted
+preview: at 430x932 the dialog is 398px wide, x=16, with max-width 540px. The
+account-security selector's width and max-width override the shared phone geometry.
+Remove those two legacy declarations; keep padding, desktop preferred sizing,
+review guards, secret handling, focus containment and actions unchanged.
+
+A browser-only prototype removing exactly those declarations passes 28 Edge 157
+role/viewport journeys (Customer, Staff, Admin, Super Admin at all seven required
+sizes). Each exercises password reveal/remasking, centered full-phone-width review,
+keyboard containment, Escape/focus return, cleared credentials, rejected-password
+recovery, and a simulated successful change/session refresh. Its 56 password attempts
+are intercepted in browser memory; zero real network writes occur. Work accounts
+retain their final-factor removal restriction. This is not backend password/MFA or
+physical-device acceptance. Evidence: TEMP/allied-security-modal-before-20261109,
+TEMP/allied-security-modal-prototype-20261109. Baseline failure is retained.
+
+The source patch now matches that two-declaration removal. Seven regression cases
+join the existing shared-modal matrix and rotate the four roles across the exact
+sizes; all three engines collect them, bringing the combined total to 745. Fix the
+shared security fixture's missing public-capabilities response for honest healthy
+states. Scoped lint, formatting and test collection pass. A compiled preview and
+final-source CI remain required; prototype success is not a deployed-source pass.
+Full authentication lifecycle, other distinct page states and business/device limits
+remain open. No production record, permission, security setting or database changed.
+
 ## 9 November 18:45 UTC - reconcile current product-timing master
 
 Remote master advanced to b362e9f8 (PR32 product sourcing/preparation estimates)
