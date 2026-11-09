@@ -224,3 +224,11 @@ booking-attendance.spec.ts > handles slow attendance without exposing an unsafe 
 booking-attendance.spec.ts > assigned technician records arrival from the job without a booking-confirmation grant at 390px
 booking-attendance.spec.ts > assigned technician records arrival from the job without a booking-confirmation grant at 1440px
 staff-bookings.spec.ts > staff verifies missed attendance after grace and reconciles an uncertain save without replay
+
+workforce-directory.spec.ts > workforce directory 1280x720 > directory at 1280px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 1024x768 > directory at 1024px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 768x1024 > directory at 768px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 430x932 > directory at 430px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 390x844 > directory at 390px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 360x800 > directory at 360px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 320x720 > directory at 320px keeps filters, table and actions accessible

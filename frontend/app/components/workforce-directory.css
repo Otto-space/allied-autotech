@@ -24,7 +24,7 @@
   border-radius: 8px;
   background: white;
 }
-.wf-directory-filters .field {
+.dashboard .dashboard-content .wf-directory-filters .field {
   min-width: 0;
   margin: 0;
   align-content: start;
@@ -42,11 +42,16 @@
   margin-block: 16px;
 }
 .wf-directory-table-region {
+  container-type: inline-size;
+  container-name: workforce-records;
   max-width: 100%;
   overflow-x: auto;
   border: 1px solid var(--line, #d5deea);
   border-radius: 8px;
   background: white;
+}
+.wf-directory-label {
+  display: none;
 }
 .wf-directory-table-region:focus-visible {
   outline: 3px solid var(--focus-ring);
@@ -103,5 +108,49 @@
   }
   .wf-directory-heading {
     align-items: stretch;
+  }
+}
+
+/* Respond to the space left by either sidebar state, not the device name.
+   Keep native table relationships while showing complete records vertically. */
+@container workforce-records (max-width: 849px) {
+  .wf-directory-table-region table {
+    min-width: 0;
+  }
+  .wf-directory-table-region thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .wf-directory-table-region :is(table, tbody, tr, th, td) {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .wf-directory-table-region tbody tr {
+    padding: 16px;
+  }
+  .wf-directory-table-region tbody tr + tr {
+    border-top: 1px solid var(--line, #d5deea);
+  }
+  .wf-directory-table-region tbody :is(th, td) {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .wf-directory-table-region tbody td {
+    margin-top: 12px;
+  }
+  .wf-directory-table-region .wf-directory-label {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--muted, #536170);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .wf-directory-table-region .text-link {
+    margin-top: 4px;
   }
 }

@@ -1,3 +1,51 @@
+## 9 November 13:48 UTC - workforce directory page acceptance
+
+Bounded package started 13:31 UTC; target checkpoint 14:31 UTC. The preceding
+calendar/modal cross-browser batch is integrated at master 4bfd12d6. All three
+exact-master checks passed: Frontend 42624975734 (428/428 browser cases, 3/3 early
+WebKit diagnostics, 1,518 units with 12 existing explicit skips), Backend
+42624975798 and Secrets 42624975898. Production application files remain equivalent
+to released e947a205; both aliases were freshly read back as
+`dpl_22d3ubrHm6At1DnxuFFuR9h4SN5A`. No new application deployment was needed for
+that testing-only merge. Physical devices and the full two-brief goal remain open.
+
+Next reproduced page: `/admin/workforce/access`, authorised Super Admin and delegated
+manager fixtures. The prior action-placement repair is preserved. A new rendered
+320px check found the remaining 850px table placed status, branch and responsibilities
+off-screen (right edge 867px); the older page-overflow assertion passed despite it.
+The new regression checks every field's horizontal bounds and actual viewport.
+Narrow containers now show complete labelled records; wide containers retain a
+semantic table. Explicit table roles preserve relationships through display changes,
+visual labels are hidden from assistive technology, and the existing scoped action,
+query/cursor/deep links, server filtering and revocation boundaries remain intact.
+Scoped filter margins remove the inherited 40px gap per field. No permission,
+backend contract, guide target, business policy, data or capability changes.
+
+Seven exact Edge viewport journeys now cover long identity/email, complete record
+fields, no horizontal scroll, visible focus, desktop sidebar states, keyboard detail
+navigation, enrollment disclosure/action reachability and return. The full file also
+checks combined search/pagination/context, failure/empty/invalid-filter recovery and
+revoked management. All API traffic uses isolated fixtures, with no production
+submission. Browser plugin not available; existing installed Edge/Playwright reused.
+Final local Edge acceptance passes 10/10, including all seven exact viewport pairs.
+The focused unit suite passes 10/10. Exact-source hosted gates are pending. No screen-reader or real-role acceptance
+is claimed. Full scope still includes all other page-specific states and roles.
+
+Failures are retained under `TEMP/allied-workforce-page-20261109`: initial cold dev
+compilation exceeded the 60s navigation limit, then unchanged warm baseline passed;
+the stronger narrow-record assertion reproduced the actual defect. An initial CSS
+rule-order error was corrected. A later 430px dev run completed interactions but
+reported a missing layout chunk; the unchanged page-error guard is retained. The
+old unscoped Ada assertion now targets the directory, preserving the genuine own-
+profile name in the header. Final rerun and production-build results must establish
+acceptance rather than discarding those original failures.
+
+The owner confirmed these business facts are not yet established: Diagnostics
+duration and Engine Oil Filter brand/MPN/approved image location. Preserve honest
+unknown states; do not ask again in this batch or fill the missing facts by guessing.
+No new worktree, dependency install or browser download; current release/recovery
+resources retained. Latest C: reserve was above 22 GiB.
+
 ## 9 November - calendar/modal acceptance passed; search fixture follow-up
 
 Run 42618283436 completed on 8d6b91c0: 426/428 passed, zero skipped/flaky.
@@ -1240,16 +1288,16 @@ reserve check: 20.85 GiB free with 0.25 GiB bounded-write allowance.
 Historical checkpoints below remain evidence of their recorded source and date.
 This table records current coverage; a bounded fixture pass does not certify every page.
 
-| Batch                                 | Verified implementation / evidence                                                                                                                                                           | Remaining verification / implementation                                                                                                                                                       |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shared foundation                     | Published shared shell, modal centering, full phone width, focus containment and responsive calendar. Fresh Edge calendar/notifications at seven sizes plus tablet catalogue filters: 16/16. | Real 200% browser zoom, physical virtual keyboards/safe areas and remaining distinct consumers/states.                                                                                        |
-| Public pages/details                  | Search query/scope/history/retry, populated galleries, truthful issue disclosure and URL filters have bounded fixture/live checks. Latest search release 80e95a38 verified on both domains.  | Each distinct page and nested state at seven sizes, combined facets/history/gallery interactions, image quality and measured loading.                                                         |
-| Customer personalization/all 15 pages | Released owned default/booked/recent vehicle selection, private photos and account-switch invalidation; attention uses actual open enquiry, issued invoice and collection-ready order.       | Remaining distinct customer pages/nested states and real-role acceptance. Existing overview fixes must be preserved, not reimplemented.                                                       |
-| Work dashboards/details               | Scoped navigation, profile, invoice disclosure and shared modal coverage. Master efebfa38 adds isolated remaining-work review coverage.                                                      | All 39 named admin pages, managed workforce and real role/branch/independent-permission states. Work-review publication needs its compatible backend; shell tests do not certify whole pages. |
-| Authentication/system/performance     | Existing isolated security suites. Fresh read-only Chrome login/recovery navigation, labels, password visibility and focus passed seven sizes.                                               | Full isolated authentication/MFA lifecycle, expired/throttled/session/error states, real password-manager/keyboard and measured performance.                                                  |
-| Browser/device                        | Installed Edge/Chrome evidence; CI run 42609173440 passed 227 Chromium and 89 Firefox selected cases.                                                                                        | WebKit calendar timed out; diagnosis and full matrix remain required. Linux WebKit is not physical Safari. Physical iOS/Android, virtual keyboards and native 200% zoom remain unverified.    |
-| Business data                         | Successful public GETs on 9 November reconfirm missing product photography/compatibility/brand/MPN, empty fitment makes and unknown diagnostics duration.                                    | Approved genuine media, fitment evidence, workshop duration and duty decisions; never invent availability or approvals.                                                                       |
-| Release                               | Search source 80e95a38 published and checked on both aliases; backend 80b4c8ac became active separately.                                                                                     | Current-master reconciliation, exact-source CI and compatible held-candidate checks for each new batch. Branch deletion remains protected where GH013 refused it.                             |
+| Batch                                 | Verified implementation / evidence                                                                                                                                                           | Remaining verification / implementation                                                                                                                           |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shared foundation                     | Published shared shell, modal centering, full phone width, focus containment and responsive calendar. Fresh Edge calendar/notifications at seven sizes plus tablet catalogue filters: 16/16. | Real 200% browser zoom, physical virtual keyboards/safe areas and remaining distinct consumers/states.                                                            |
+| Public pages/details                  | Search query/scope/history/retry, populated galleries, truthful issue disclosure and URL filters have bounded fixture/live checks. Latest search release 80e95a38 verified on both domains.  | Each distinct page and nested state at seven sizes, combined facets/history/gallery interactions, image quality and measured loading.                             |
+| Customer personalization/all 15 pages | Released owned default/booked/recent vehicle selection, private photos and account-switch invalidation; attention uses actual open enquiry, issued invoice and collection-ready order.       | Remaining distinct customer pages/nested states and real-role acceptance. Existing overview fixes must be preserved, not reimplemented.                           |
+| Work dashboards/details               | Scoped navigation/profile/invoice/modal coverage; e947a205 attendance and remaining-work review are deployed. Workforce directory narrow-record follow-up passes ten local Edge cases.       | Hosted gates and publication for this follow-up; remaining named admin/staff pages and nested states, real role/branch/independent-permission acceptance.         |
+| Authentication/system/performance     | Existing isolated security suites. Fresh read-only Chrome login/recovery navigation, labels, password visibility and focus passed seven sizes.                                               | Full isolated authentication/MFA lifecycle, expired/throttled/session/error states, real password-manager/keyboard and measured performance.                      |
+| Browser/device                        | Installed Edge/Chrome evidence; exact-master 4bfd12d6 passed all 428 production-build cases including 89 Firefox and 89 WebKit selected cases.                                               | Engine emulation is not physical Safari/iOS/Android. Virtual keyboards, native 200% zoom and full screen-reader checks remain unverified.                         |
+| Business data                         | Public GETs reconfirm missing product media/identity/compatibility and unknown Diagnostics duration. Owner confirmed on 9 November that the requested genuine facts are not yet established. | Approved media, identity/fitment evidence and workshop duration; preserve truthful unknown states rather than inventing values.                                   |
+| Release                               | Runtime e947a205 is deployed with schema 99; exact-master 4bfd12d6 cross-browser checks passed with equivalent application files. Both aliases verified.                                     | Each new application batch still needs exact-source CI, compatible held-candidate checks and promotion. Branch deletion remains protected where GH013 refused it. |
 
 ## 3 November: renewed Markdown implementation goal — reconciliation in progress
 
@@ -2730,7 +2778,7 @@ No payment, booking, AI, delivery, deposit or reservation activation is authoris
 | Operational booking                                   | Existing request/confirm, proposals, customer response, capacity/resource checks and disabled deposits                                                      | No activation; reconcile actual approved hours/resources/responsibility/policy values, isolated lifecycle regression and authorised operational acceptance remain                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Account-optional purchasing                           | Owner-approved; published commerce remains closed                                                                                                           | Source: separate guest ownership/access, shared checkout/payment and public cart/verification/history/recovery screens. Native final 52/52; 18 distinct local browser cases; three cart units plus 35 existing payment/learning regressions pass. Guest quotations now pass native 61/61 and guest/account browser 16/16 with seven-day guidance v6. Guest invoice/receipt access and explicit PDF delivery now pass native 54/54 and 45 distinct guest/account browser cases across recorded runs. Aftercare/operator integration, fresh populated restore, exact CI/publication and actual provider/role/device acceptance remain required. |
 | Payment/collection/finance                            | Preserve pay-first then final compatibility/availability review, separate paid/allocated/ready states, collection-only, seven-day quote validity            | New quotation seven-day enforcement is source-only, verified 37 native / seven rendered cases; existing offers unchanged. Actual provider acceptance and verified Tax/CAC, VAT applicability, percentage rounding and service-invoice timing remain separate owner/accountant items                                                                                                                                                                                                                                                                                                                                                           |
-| Release and evidence                                  | Exact master CI, packaged safety, held-hosted checks, backup/recovery/read-only DB checks and alias verification required                                   | Batch published with exact-source CI, packaged, held, deployed and safety gates above. Whole-site readiness is not established; provider/physical/real-role evidence stays separate                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Release                                               | Runtime e947a205 is deployed with schema 99; exact-master 4bfd12d6 cross-browser checks passed with equivalent application files. Both aliases verified.    | Each new application batch still needs exact-source CI, compatible held-candidate checks and promotion. Branch deletion remains protected where GH013 refused it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 Current batch evidence and safe before/after paths:
 [Full audit implementation](../../docs/LIVE_AUDIT_IMPLEMENTATION_20261102.md).

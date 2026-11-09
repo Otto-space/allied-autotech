@@ -1,3 +1,51 @@
+## 9 November 13:48 UTC - workforce directory page acceptance
+
+Bounded package started 13:31 UTC; target checkpoint 14:31 UTC. The preceding
+calendar/modal cross-browser batch is integrated at master 4bfd12d6. All three
+exact-master checks passed: Frontend 42624975734 (428/428 browser cases, 3/3 early
+WebKit diagnostics, 1,518 units with 12 existing explicit skips), Backend
+42624975798 and Secrets 42624975898. Production application files remain equivalent
+to released e947a205; both aliases were freshly read back as
+`dpl_22d3ubrHm6At1DnxuFFuR9h4SN5A`. No new application deployment was needed for
+that testing-only merge. Physical devices and the full two-brief goal remain open.
+
+Next reproduced page: `/admin/workforce/access`, authorised Super Admin and delegated
+manager fixtures. The prior action-placement repair is preserved. A new rendered
+320px check found the remaining 850px table placed status, branch and responsibilities
+off-screen (right edge 867px); the older page-overflow assertion passed despite it.
+The new regression checks every field's horizontal bounds and actual viewport.
+Narrow containers now show complete labelled records; wide containers retain a
+semantic table. Explicit table roles preserve relationships through display changes,
+visual labels are hidden from assistive technology, and the existing scoped action,
+query/cursor/deep links, server filtering and revocation boundaries remain intact.
+Scoped filter margins remove the inherited 40px gap per field. No permission,
+backend contract, guide target, business policy, data or capability changes.
+
+Seven exact Edge viewport journeys now cover long identity/email, complete record
+fields, no horizontal scroll, visible focus, desktop sidebar states, keyboard detail
+navigation, enrollment disclosure/action reachability and return. The full file also
+checks combined search/pagination/context, failure/empty/invalid-filter recovery and
+revoked management. All API traffic uses isolated fixtures, with no production
+submission. Browser plugin not available; existing installed Edge/Playwright reused.
+Final local Edge acceptance passes 10/10, including all seven exact viewport pairs.
+The focused unit suite passes 10/10. Exact-source hosted gates are pending. No screen-reader or real-role acceptance
+is claimed. Full scope still includes all other page-specific states and roles.
+
+Failures are retained under `TEMP/allied-workforce-page-20261109`: initial cold dev
+compilation exceeded the 60s navigation limit, then unchanged warm baseline passed;
+the stronger narrow-record assertion reproduced the actual defect. An initial CSS
+rule-order error was corrected. A later 430px dev run completed interactions but
+reported a missing layout chunk; the unchanged page-error guard is retained. The
+old unscoped Ada assertion now targets the directory, preserving the genuine own-
+profile name in the header. Final rerun and production-build results must establish
+acceptance rather than discarding those original failures.
+
+The owner confirmed these business facts are not yet established: Diagnostics
+duration and Engine Oil Filter brand/MPN/approved image location. Preserve honest
+unknown states; do not ask again in this batch or fill the missing facts by guessing.
+No new worktree, dependency install or browser download; current release/recovery
+resources retained. Latest C: reserve was above 22 GiB.
+
 ## 9 November - calendar/modal acceptance passed; search fixture follow-up
 
 Run 42618283436 completed on 8d6b91c0: 426/428 passed, zero skipped/flaky.
