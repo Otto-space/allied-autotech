@@ -23,6 +23,9 @@ export function productRecord(n = 0): AdminProduct {
     brand: n === 2 ? null : "Quality Parts",
     manufacturerPartNumber: n === 2 ? null : `PART-${n}`,
     description: n === 2 ? null : "Synthetic product for isolated quality checks.",
+    sourcingDaysMin: null,
+    sourcingDaysMax: null,
+    preparationMinutes: null,
     priceKobo: n === 4 ? "9999999999999999" : String(1850000 + n * 100),
     compareAtPriceKobo: n === 0 ? "2100000" : null,
     currency: "NGN",
@@ -45,6 +48,7 @@ export function productRecord(n = 0): AdminProduct {
 export async function workProductsFixture(page: Page, role = "ADMIN") {
   const base = await workBookingsFixture(page, role);
   const state = {
+    timingSupported: true,
     mode: "normal",
     detailMode: "normal",
     categoriesMode: "normal",
@@ -67,7 +71,17 @@ export async function workProductsFixture(page: Page, role = "ADMIN") {
       route.fulfill({
         json: {
           success: true,
-          data,
+          data: state.timingSupported
+            ? data
+            : JSON.parse(
+                JSON.stringify(data, (key, value) =>
+                  ["sourcingDaysMin", "sourcingDaysMax", "preparationMinutes"].includes(
+                    key,
+                  )
+                    ? undefined
+                    : value,
+                ),
+              ),
           message: "Synthetic QA",
           meta: { requestId: "work-products" },
         },
@@ -124,6 +138,7 @@ export async function workProductsFixture(page: Page, role = "ADMIN") {
         );
       const cursor = url.searchParams.get("cursor");
       if (cursor) rows = rows.slice(rows.findIndex((r) => r.id === cursor) + 1);
+      if (url.searchParams.get("limit") === "1") return ok({ items: rows.slice(0, 1) });
       return ok({
         items: rows.slice(0, 3),
         ...(rows.length > 3 ? { nextCursor: rows[2].id } : {}),
@@ -131,6 +146,13 @@ export async function workProductsFixture(page: Page, role = "ADMIN") {
     }
     const body = request.postDataJSON() as Record<string, unknown>;
     state.writes.push({ path, method, body, csrf: request.headers()["x-csrf-token"] });
+    if (
+      !state.timingSupported &&
+      ["sourcingDaysMin", "sourcingDaysMax", "preparationMinutes"].some((key) =>
+        Object.hasOwn(body, key),
+      )
+    )
+      return fail(400, "VALIDATION_ERROR");
     const existing = state.records.find((r) => path.endsWith(r.id));
     if (
       state.outcome === "reject" ||
