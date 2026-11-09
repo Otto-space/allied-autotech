@@ -1,3 +1,41 @@
+### 9 November 2026: integrated D07 release published after preservation checks
+
+Runtime source efebfa38239b5eff3b490d3d776c91a2152c0c92 is now published.
+PR #23 preserves the newer calendar/modal/focus, public-search recovery and
+missed-writer compatibility fixes. A concurrent 80b4c8ac release was detected by
+the deployment guard before mutation; its exact source, four image digests and
+frontend were reconciled rather than overwritten. Full attendance stays separate.
+
+Exact-master checks: Frontend 42610763172, Backend 42610763277 and Secrets
+42610763230 passed; 1,507 units passed, twelve existing skips, 240 browser cases.
+Nine packaged-image checks and seven schema probes passed. The schema probes were
+repeated against the newest live baseline, not an obsolete recovery composition.
+Held and post-promotion 320/1440px synthetic review, save and reload checks passed. No real-role or
+physical-device acceptance is inferred from synthetic fixtures.
+
+Fresh strict-TLS target/least-privilege proof, repeatable-read backup, separate
+populated restore and original-column counts/hashes passed. Managed backup API
+showed eight backups, newest 9 November 05:22 UTC; historical managed restore proof
+is dated 21 October. Reviewed migration 20261104010000_booking_work_reviews was
+applied through the guarded runner, 97 to 98; final db:check and existing ledger
+preservation passed. Temporary operator IP access was removed, preserving original
+and concurrent rules. No production demonstration records were created.
+
+Backend 3035fe3a-3611-4c16-9f9e-a2e22f91089c is ACTIVE; readiness 200 and thirteen
+fresh healthy worker tasks verified. Only four image digests changed. Frontend
+dpl_C2xNLA3Sxfy6B6JPn1fouw7hGiqH was promoted only afterward; apex and www both
+resolve to it and return 200. Permissions, financial/AI/chat gates and settings are
+unchanged. Recovery retains the 98-aware migrator; after operational reviews exist,
+do not revert to a runtime that ignores reviewed resources or cleanup.
+
+Final disk preflight: 23.16 GiB free on C:, above the 20 GiB reserve.
+Private release evidence: %TEMP%/aat-running-work-master-efebfa38. D01-D17 remains
+active: staged materials/workmanship, product lead times, secure collection and
+other incomplete journeys are not declared finished. Real operational facts,
+authorized role acceptance, invoice identities, tax applicability and provider
+acceptance retain their separate gates. This header records runtime M; subsequent
+documentation checkpoints do not imply another runtime deployment.
+
 ### 9 November: preserve the newly merged missed-writer safeguard
 
 Candidate 7d5ec4eb passed Backend 42606466337, Secrets 42606466356 and Frontend
