@@ -1,3 +1,10 @@
+Sourcing authoring additionally requires the actual response to advertise its
+`timingUpdates` field. Omission by an older backend stays distinct from an empty
+supported history, so the frontend cannot expose an unsupported mutation during
+an independently managed release. Added explicit legacy/Admin-ready/Staff browser
+cases and a bounded focused sourcing run before the full hosted matrix. Existing
+assertions and execution limits remain unchanged.
+
 # Per-order sourcing and preparation: D13
 
 Source implements section 7.7 of the 2 November self-contained brief. The explicit

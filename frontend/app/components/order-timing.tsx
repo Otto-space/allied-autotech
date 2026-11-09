@@ -19,10 +19,10 @@ import styles from "./order-timing.module.css";
 
 type Item = { id: string; productName: string };
 export function OrderTimingSummary({
-  updates,
+  updates = [],
   items,
 }: {
-  updates: TimingUpdate[];
+  updates?: TimingUpdate[];
   items: Item[];
 }) {
   const title = useId(),
@@ -86,7 +86,7 @@ export function OrderTimingEditor({
   onSaved: (message?: string) => void;
 }) {
   const id = useId();
-  const latest = order.timingUpdates[0];
+  const latest = order.timingUpdates?.[0];
   const [statuses, setStatuses] = useState<Record<string, keyof typeof sourcingLabels>>(
     () =>
       Object.fromEntries(
@@ -121,7 +121,8 @@ export function OrderTimingEditor({
       validationRef.current?.scrollIntoView({ block: "nearest" });
     }
   }, [error]);
-  if (["READY", "COMPLETED", "CANCELLED"].includes(order.status)) return null;
+  if (!order.timingUpdates || ["READY", "COMPLETED", "CANCELLED"].includes(order.status))
+    return null;
   function review(form: FormData) {
     if (disabled || proposal || uncertain || changed) return;
     setError(undefined);
@@ -198,7 +199,7 @@ export function OrderTimingEditor({
             if (
               saved.id !== order.id ||
               saved.version !== order.version + 1 ||
-              !saved.timingUpdates[0] ||
+              !saved.timingUpdates?.[0] ||
               saved.timingUpdates[0].orderVersion !== order.version ||
               timingSignature(saved.timingUpdates[0].lines) !==
                 timingSignature(body.lines) ||
@@ -244,7 +245,12 @@ export function OrderTimingEditor({
           <Feedback message={error} />
         </div>
       )}
-      <form action={review}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          review(new FormData(event.currentTarget));
+        }}
+      >
         <fieldset
           className={styles.fields}
           disabled={disabled || !!proposal || uncertain || changed}

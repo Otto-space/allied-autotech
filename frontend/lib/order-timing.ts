@@ -57,9 +57,8 @@ export const timingUpdatesSchema = z
       .strict(),
   )
   .max(1)
-  .optional()
-  .default([]);
-export type TimingUpdate = z.infer<typeof timingUpdatesSchema>[number];
+  .optional();
+export type TimingUpdate = NonNullable<z.infer<typeof timingUpdatesSchema>>[number];
 
 export function timingSignature(lines: z.infer<typeof timingLineSchema>[]) {
   return JSON.stringify(

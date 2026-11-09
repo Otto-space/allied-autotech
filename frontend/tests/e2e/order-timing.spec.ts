@@ -18,6 +18,7 @@ for (const width of [320, 1440])
       if (message.type() === "warning") warnings.push(message.text());
     });
     const { detail } = await workOrderDetailFixture(page);
+    detail.record.timingUpdates = [];
     const writes: unknown[] = [];
     await page.route("**/api/v1/admin/orders/*/timing", async (route) => {
       const body = route.request().postDataJSON();
@@ -117,28 +118,30 @@ for (const width of [320, 1440])
     await verifyConsole(page, errors, warnings);
   });
 
-test("staff cannot author sourcing and ready orders cannot change estimates", async ({
-  page,
-}) => {
-  const { detail } = await workOrderDetailFixture(page, "STAFF");
-  await page.goto(path);
-  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Update this order’s sourcing" }),
-  ).toHaveCount(0);
-  detail.record.status = "READY";
-  detail.record.allowedTransitions = ["COMPLETED"];
-  await page.reload();
-  await expect(
-    page.getByRole("heading", { name: "Update this order’s sourcing" }),
-  ).toHaveCount(0);
-});
+for (const variant of ["STAFF", "READY", "LEGACY"] as const)
+  test(`sourcing editor stays closed for ${variant}`, async ({ page }) => {
+    const { detail } = await workOrderDetailFixture(
+      page,
+      variant === "STAFF" ? "STAFF" : "ADMIN",
+    );
+    if (variant !== "LEGACY") detail.record.timingUpdates = [];
+    if (variant === "READY") {
+      detail.record.status = "READY";
+      detail.record.allowedTransitions = ["COMPLETED"];
+    }
+    await page.goto(path);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Update this order?s sourcing" }),
+    ).toHaveCount(0);
+  });
 
 for (const outcome of ["stale", "contradictory"] as const)
   test(`sourcing ${outcome} outcome cannot report success or repeat a write`, async ({
     page,
   }) => {
     const { detail } = await workOrderDetailFixture(page);
+    detail.record.timingUpdates = [];
     let writes = 0;
     await page.route("**/api/v1/admin/orders/*/timing", async (route) => {
       writes++;

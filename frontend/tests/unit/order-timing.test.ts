@@ -19,13 +19,13 @@ describe("order sourcing receipt validation", () => {
     createdAt: "2026-11-09T12:00:00Z",
   };
   it("parses a saved update and keeps unknown distinct from zero", () => {
-    expect(timingUpdatesSchema.parse([update])[0].lines[0].preparationMinutes).toBe(0);
+    expect(timingUpdatesSchema.parse([update])![0].lines[0].preparationMinutes).toBe(0);
     expect(
       timingUpdatesSchema.parse([
         { ...update, lines: [{ ...line, preparationMinutes: null }] },
-      ])[0].lines[0].preparationMinutes,
+      ])![0].lines[0].preparationMinutes,
     ).toBeNull();
-    expect(parseStaffOrderDetail(staffOrderRecord()).timingUpdates).toEqual([]);
+    expect(parseStaffOrderDetail(staffOrderRecord()).timingUpdates).toBeUndefined();
   });
   it.each([
     { sourcingUntil: null },

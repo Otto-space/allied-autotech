@@ -1,3 +1,10 @@
+Sourcing authoring additionally requires the actual response to advertise its
+`timingUpdates` field. Omission by an older backend stays distinct from an empty
+supported history, so the frontend cannot expose an unsupported mutation during
+an independently managed release. Added explicit legacy/Admin-ready/Staff browser
+cases and a bounded focused sourcing run before the full hosted matrix. Existing
+assertions and execution limits remain unchanged.
+
 ### 9 November: preserve published-catalogue compatibility during sourcing integration
 
 Merged master 9f9ee2f8 into the D13 source batch 78ea32b9. Kept the newer product
