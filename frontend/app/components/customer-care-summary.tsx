@@ -46,6 +46,7 @@ function VehiclePhoto({ vehicle }: { vehicle: NonNullable<CustomerCare["vehicle"
         <Image
           unoptimized
           src={photo.url}
+          overrideSrc={photo.url}
           width={photo.width}
           height={photo.height}
           alt={photo.altText || `${vehicle.year} ${vehicle.make} ${vehicle.model}`}

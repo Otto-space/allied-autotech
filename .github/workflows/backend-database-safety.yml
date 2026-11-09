@@ -119,6 +119,42 @@ jobs:
             tests/integration/workforce-booking-confirmation.test.ts tests/integration/workforce-bookings.test.ts \
             tests/integration/booking-response.test.ts \
             tests/integration/booking-settlement-race.test.ts tests/integration/concern-booking-journey.test.ts
+      - name: Verify private profiles and media with isolated runtime privileges
+        env:
+          DB_NAME: allied_profile_acceptance_ci
+          TEST_DB_NAME: allied_profile_acceptance_ci
+        run: |
+          docker exec "${{ job.services.postgres.id }}" createdb --username=postgres allied_profile_acceptance_ci
+          npm run test:migrations
+          npm run db:check
+          docker exec -i "${{ job.services.postgres.id }}" psql --username=postgres --dbname=allied_profile_acceptance_ci -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE allied_profile_runtime_ci LOGIN PASSWORD 'isolated-ci-only-password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;
+          GRANT CONNECT ON DATABASE allied_profile_acceptance_ci TO allied_profile_runtime_ci;
+          GRANT USAGE ON SCHEMA public TO allied_profile_runtime_ci;
+          GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO allied_profile_runtime_ci;
+          GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO allied_profile_runtime_ci;
+          REVOKE ALL ON TABLE "_prisma_migrations" FROM allied_profile_runtime_ci;
+          DO $$ BEGIN
+            IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'allied_profile_runtime_ci' AND (rolsuper OR rolcreatedb OR rolcreaterole))
+              OR has_schema_privilege('allied_profile_runtime_ci', 'public', 'CREATE')
+              OR has_database_privilege('allied_profile_runtime_ci', 'allied_profile_acceptance_ci', 'CREATE')
+              OR has_table_privilege('allied_profile_runtime_ci', 'public."CustomerProfile"', 'TRUNCATE')
+              OR has_table_privilege('allied_profile_runtime_ci', 'public."_prisma_migrations"', 'SELECT')
+            THEN RAISE EXCEPTION 'Profile CI runtime privileges exceed the allowed scope'; END IF;
+          END $$;
+          SQL
+          # The existing guard verifies the actual loopback database before fixtures.
+          # Photo bytes use memory storage; no real delivery or cloud upload is enabled.
+          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+            --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
+            -e DB_NAME=allied_profile_acceptance_ci -e TEST_DB_NAME=allied_profile_acceptance_ci \
+            -e DB_USER=allied_profile_runtime_ci -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
+            -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/integration/profile-revision.test.ts tests/integration/profile-photo.test.ts \
+            tests/integration/profile-photo-http.test.ts --maxWorkers=1
       - name: Verify administrator authoring on the new isolated CI database
         run: |
           docker run --rm --network "container:${{ job.services.postgres.id }}" \

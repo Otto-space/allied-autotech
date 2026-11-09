@@ -32,6 +32,9 @@ test("owned garage photos appear as a usable slideshow on list and detail", asyn
     },
   ];
   await page.route("**/api/v1/customers/media/images/*", (route) => {
+    // The authenticated API deliberately rejects query parameters, including
+    // Next's deployment marker. Never optimise or rewrite this owned URL.
+    expect(new URL(route.request().url()).search).toBe("");
     const side = route.request().url().includes(garageId(102));
     return route.fulfill({
       contentType: "image/svg+xml",

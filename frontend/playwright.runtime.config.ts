@@ -52,6 +52,8 @@ export default defineConfig({
         "workforce-directory.spec.ts",
         "saved-items-navigation.spec.ts",
         "saved-items-quality.spec.ts",
+        "customer-profile-quality.spec.ts",
+        "profile-revision.spec.ts",
 
         "order-money-breakdown.spec.ts",
         "workshop-resources.spec.ts",
@@ -106,6 +108,31 @@ export default defineConfig({
         "saved-items-navigation.spec.ts",
       ],
     })),
+    ...(["firefox", "webkit"] as const).map((browserName) => ({
+      name: `profile-${browserName}`,
+      testMatch: ["customer-profile-quality.spec.ts", "profile-revision.spec.ts"],
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? { baseURL: "https://127.0.0.1:3104", ignoreHTTPSErrors: true }
+          : {}),
+      },
+    })),
+    ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
+      name: `media-contract-${browserName}`,
+      testMatch: [
+        "consolidated-audit-boundaries.spec.ts",
+        "customer-garage-quality.spec.ts",
+        "public-reviews-quality.spec.ts",
+      ],
+      grep: /private portrait|managed own profile|owned garage photos|public review portrait/,
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? { baseURL: "https://127.0.0.1:3104", ignoreHTTPSErrors: true }
+          : {}),
+      },
+    })),
   ],
   outputDir: "./test-results/runtime-capabilities",
   timeout: 90_000,
@@ -138,6 +165,9 @@ export default defineConfig({
         // Reuse the exact production-check build. Its rewrite keeps the CI
         // placeholder, so browser fixtures explicitly route API calls to loopback.
         BACKEND_ORIGIN: "http://127.0.0.1:5024",
+        // Reserved, non-routable fixture host: enable file selection without
+        // supplying credentials or allowing any real object-storage upload.
+        ASSET_STORAGE_HOSTS: "storage.invalid",
         VERCEL: "",
         VERCEL_ENV: "development",
         NEXT_TELEMETRY_DISABLED: "1",

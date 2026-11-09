@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
-import { reviewTargets } from "@/lib/api/review-schemas";
+import { reviewTargets, type PublicReview } from "@/lib/api/review-schemas";
 
 const id = (n: number) => `c5000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const rows = reviewTargets.map((targetType, index) => ({
@@ -17,6 +17,7 @@ const rows = reviewTargets.map((targetType, index) => ({
   customer: { firstName: "PRIVATE_NAME", email: "private@example.invalid" },
   moderationNote: "PRIVATE_NOTE",
   status: "APPROVED",
+  reviewer: undefined as PublicReview["reviewer"],
 }));
 async function fixture(page: Page) {
   const state = {
@@ -95,6 +96,57 @@ async function open(page: Page) {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Customer reviews.");
   await page.getByRole("button", { name: "Refresh reviews", exact: true }).click();
   await expect(page.locator(".review-card--editorial")).toHaveCount(5);
+}
+
+for (const width of [320, 1280]) {
+  test.describe(`review portrait ${width}`, () => {
+    test.use({
+      viewport: { width, height: 720 },
+      isMobile: async ({ browserName }, provide) => {
+        await provide(browserName !== "firefox" && width === 320);
+      },
+      hasTouch: width === 320,
+    });
+    test("public review portrait retains its approved version URL and handles removal", async ({
+      page,
+    }, info) => {
+      const state = await fixture(page);
+      state.content[0].reviewer = {
+        displayName: "Amara Okafor",
+        photoUrl: `/api/v1/public/support/reviews/${id(1)}/photo?v=7`,
+      };
+      await page.route("**/api/v1/public/support/reviews/*/photo**", (route) => {
+        const url = new URL(route.request().url());
+        expect([...url.searchParams.keys()]).toEqual(["v"]);
+        expect(url.pathname).toBe(`/api/v1/public/support/reviews/${id(1)}/photo`);
+        return url.searchParams.get("v") === "8"
+          ? route.fulfill({ status: 404 })
+          : route.fulfill({
+              contentType: "image/png",
+              body: Buffer.from(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=",
+                "base64",
+              ),
+            });
+      });
+      await open(page);
+      const card = page.locator(".review-card--editorial").first();
+      const portrait = card.locator(".reviewer-avatar img");
+      await portrait.scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => portrait.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+        .toBeGreaterThan(0);
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([width, 720]);
+      await page.screenshot({ path: info.outputPath("review-portrait.png") });
+      state.content[0].reviewer.photoUrl = `/api/v1/public/support/reviews/${id(1)}/photo?v=8`;
+      await page.getByRole("button", { name: "Refresh reviews", exact: true }).click();
+      await card.scrollIntoViewIfNeeded();
+      await expect(portrait).toHaveCount(0);
+      await expect(card.locator(".reviewer-avatar")).toHaveText("AO");
+      expect(state.privateReads).toEqual([]);
+      expect(state.writes).toEqual([]);
+    });
+  });
 }
 
 for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {

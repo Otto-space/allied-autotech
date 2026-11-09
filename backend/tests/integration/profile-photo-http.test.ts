@@ -34,6 +34,7 @@ import {
   createPublicProductMediaRouter,
 } from "../../src/modules/catalog/product-media.routes.js";
 import { testOwner } from "../helpers/owner.js";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "profile photo HTTP boundary",
@@ -73,6 +74,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       createPublicServiceMediaRouter(new ServiceMediaService(prisma, storage)),
     );
     beforeAll(async () => {
+      await assertIsolatedLoopbackDatabase();
       for (const name of [
         "CUSTOMER",
         "OTHER",
@@ -165,6 +167,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             .send({})
         ).status,
       ).toBe(403);
+    });
+    it("rejects added deployment or cache query parameters on private image reads", async () => {
+      for (const query of ["dpl=isolated-media-acceptance", "v=1"]) {
+        const response = await request(app)
+          .get(`/api/v1/customers/media/images/${randomUUID()}?${query}`)
+          .set("Cookie", sessions.get("CUSTOMER")!.cookie);
+        expect(response.status).toBe(422);
+        expect(response.body.error.code).toBe("VALIDATION_FAILED");
+      }
     });
     it("enforces garage role and CSRF boundaries on every mutation", async () => {
       const base = `/api/v1/customers/vehicles/${randomUUID()}`;
