@@ -47,6 +47,7 @@ import {
   quoteCreateBodySchema,
   quoteParamsSchema,
   quoteReplaceBodySchema,
+  quoteDecisionBodySchema,
   quoteTransitionBodySchema,
   serviceCreateBodySchema,
   serviceParamsSchema,
@@ -313,8 +314,10 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "post",
       path: "/customers/bookings/{bookingId}/quotes/{quoteId}/accept",
       summary: "Accept an issued quote",
+      description:
+        "Additional-work acceptance must explicitly acknowledge the displayed original invoice number, quotation version and reason. Cached clients without that acknowledgement are refused. This preserves the original agreement and does not create a payment or authorise vehicle release.",
       params: quoteParamsSchema,
-      body: quoteTransitionBodySchema,
+      body: quoteDecisionBodySchema,
       secured: true,
       csrf: true,
     },
@@ -438,6 +441,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "post",
       path: "/staff/bookings/{bookingId}/quotes",
       summary: "Create a quote draft",
+      description:
+        "When an original service invoice exists, explicit additionalWork intent, a current booking version and a customer-visible reason are required. The server binds the original invoice; the client cannot choose another invoice. Include only additional items. No original amount or payment is replaced and no charge is made.",
       params: bookingParamsSchema,
       body: quoteCreateBodySchema,
       secured: true,
@@ -448,6 +453,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "put",
       path: "/staff/bookings/{bookingId}/quotes/{quoteId}",
       summary: "Create a replacement quote version",
+      description:
+        "A new draft version preserves its original-invoice association. An additional-work reason may be reviewed for the new draft; the old reason/history remain immutable. Issued original invoices are never silently repriced.",
       params: quoteParamsSchema,
       body: quoteReplaceBodySchema,
       secured: true,

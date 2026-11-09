@@ -1178,26 +1178,30 @@ model BookingReminder {
 }
 
 model ServiceQuote {
-  policySnapshot   Json?
-  id               String      @id @default(uuid()) @db.Uuid
-  bookingId        String      @db.Uuid
-  createdByStaffId String      @db.Uuid
-  quoteNumber      String      @unique @db.VarChar(40)
-  version          Int         @default(1)
-  revision         Int         @default(0)
-  status           QuoteStatus @default(DRAFT)
-  currency         String      @default("NGN") @db.Char(3)
-  subtotalKobo     BigInt
-  taxKobo          BigInt      @default(0)
-  totalKobo        BigInt
-  notes            String?
-  expiresAt        DateTime?
-  issuedAt         DateTime?
-  acceptedAt       DateTime?
-  rejectedAt       DateTime?
-  voidedAt         DateTime?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  acceptedAdditionalContext Json?
+  originalInvoiceId         String?     @db.Uuid
+  amendmentReason           String?     @db.VarChar(1000)
+  originalInvoice           Invoice?    @relation("AdditionalServiceQuotes", fields: [originalInvoiceId], references: [id], onDelete: Restrict)
+  policySnapshot            Json?
+  id                        String      @id @default(uuid()) @db.Uuid
+  bookingId                 String      @db.Uuid
+  createdByStaffId          String      @db.Uuid
+  quoteNumber               String      @unique @db.VarChar(40)
+  version                   Int         @default(1)
+  revision                  Int         @default(0)
+  status                    QuoteStatus @default(DRAFT)
+  currency                  String      @default("NGN") @db.Char(3)
+  subtotalKobo              BigInt
+  taxKobo                   BigInt      @default(0)
+  totalKobo                 BigInt
+  notes                     String?
+  expiresAt                 DateTime?
+  issuedAt                  DateTime?
+  acceptedAt                DateTime?
+  rejectedAt                DateTime?
+  voidedAt                  DateTime?
+  createdAt                 DateTime    @default(now())
+  updatedAt                 DateTime    @updatedAt
 
   booking        Booking      @relation(fields: [bookingId], references: [id], onDelete: Restrict)
   createdByStaff StaffProfile @relation(fields: [createdByStaffId], references: [id], onDelete: Restrict)
@@ -1206,6 +1210,7 @@ model ServiceQuote {
 
   @@unique([bookingId, version])
   @@index([bookingId, status])
+  @@index([originalInvoiceId])
   @@index([bookingId, version(sort: Desc)], map: "ServiceQuote_bookingId_version_desc_idx")
   @@index([status, expiresAt])
   @@index([issuedAt], map: "ServiceQuote_overview_issued_idx")
@@ -2671,28 +2676,29 @@ model PromotionUsage {
 }
 
 model Invoice {
+  additionalWorkQuotes ServiceQuote[] @relation("AdditionalServiceQuotes")
   policySnapshot       Json?
   documentSnapshot     Json?
-  id                   String        @id @default(uuid()) @db.Uuid
-  invoiceNumber        String        @unique @db.VarChar(50)
-  customerId           String?       @db.Uuid
-  guestId              String?       @db.Uuid
-  orderId              String?       @unique @db.Uuid
-  bookingId            String?       @unique @db.Uuid
-  vehicleTransactionId String?       @unique @db.Uuid
-  currency             String        @default("NGN") @db.Char(3)
+  id                   String         @id @default(uuid()) @db.Uuid
+  invoiceNumber        String         @unique @db.VarChar(50)
+  customerId           String?        @db.Uuid
+  guestId              String?        @db.Uuid
+  orderId              String?        @unique @db.Uuid
+  bookingId            String?        @unique @db.Uuid
+  vehicleTransactionId String?        @unique @db.Uuid
+  currency             String         @default("NGN") @db.Char(3)
   subtotalKobo         BigInt
-  taxKobo              BigInt        @default(0)
-  depositCreditKobo    BigInt        @default(0)
+  taxKobo              BigInt         @default(0)
+  depositCreditKobo    BigInt         @default(0)
   totalKobo            BigInt
-  status               InvoiceStatus @default(DRAFT)
-  version              Int           @default(0)
+  status               InvoiceStatus  @default(DRAFT)
+  version              Int            @default(0)
   issuedAt             DateTime?
   dueAt                DateTime?
   paidAt               DateTime?
   voidedAt             DateTime?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 
   customer           CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: Restrict)
   guest              PurchaseGuest?      @relation(fields: [guestId], references: [id], onDelete: Restrict)

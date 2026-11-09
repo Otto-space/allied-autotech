@@ -2759,7 +2759,7 @@ export interface paths {
         put?: never;
         /**
          * Accept an issued quote
-         * @description Accept an issued quote. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Additional-work acceptance must explicitly acknowledge the displayed original invoice number, quotation version and reason. Cached clients without that acknowledgement are refused. This preserves the original agreement and does not create a payment or authorise vehicle release. Accept an issued quote. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postCustomersBookingsByBookingIdQuotesByQuoteIdAccept"];
         delete?: never;
@@ -3007,7 +3007,7 @@ export interface paths {
         put?: never;
         /**
          * Create a quote draft
-         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Create a quote draft. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. When an original service invoice exists, explicit additionalWork intent, a current booking version and a customer-visible reason are required. The server binds the original invoice; the client cannot choose another invoice. Include only additional items. No original amount or payment is replaced and no charge is made. Create a quote draft. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffBookingsByBookingIdQuotes"];
         delete?: never;
@@ -3026,7 +3026,7 @@ export interface paths {
         get?: never;
         /**
          * Create a replacement quote version
-         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Create a replacement quote version. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. A new draft version preserves its original-invoice association. An additional-work reason may be reviewed for the new draft; the old reason/history remain immutable. Issued original invoices are never silently repriced. Create a replacement quote version. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         put: operations["putStaffBookingsByBookingIdQuotesByQuoteId"];
         post?: never;
@@ -53833,12 +53833,26 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "expectedRevision": 0
+                 *       "expectedRevision": 0,
+                 *       "acceptedAdditionalWork": {
+                 *         "invoiceNumber": "synthetic-invoicenumber",
+                 *         "quoteVersion": 1,
+                 *         "reason": "synthetic-reason"
+                 *       }
                  *     }
                  */
                 "application/json": {
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedRevision: number;
+                    /** @description Accepted Additional Work validated by this operation's strict request contract. */
+                    acceptedAdditionalWork?: {
+                        /** @description Invoice Number validated by this operation's strict request contract. */
+                        invoiceNumber: string;
+                        /** @description Quote Version validated by this operation's strict request contract. */
+                        quoteVersion: number;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        reason: string;
+                    };
                 };
             };
         };
@@ -57963,7 +57977,11 @@ export interface operations {
                  *       ],
                  *       "taxKobo": "300000",
                  *       "notes": "synthetic-notes",
-                 *       "expiresAt": "2030-01-15T10:00:00.000Z"
+                 *       "expiresAt": "2030-01-15T10:00:00.000Z",
+                 *       "additionalWork": {
+                 *         "expectedBookingVersion": 0,
+                 *         "reason": "synthetic-reason"
+                 *       }
                  *     }
                  */
                 "application/json": {
@@ -58008,6 +58026,13 @@ export interface operations {
                      * @description ISO 8601 timestamp interpreted and validated by the server.
                      */
                     expiresAt: string;
+                    /** @description Additional Work validated by this operation's strict request contract. */
+                    additionalWork?: {
+                        /** @description Expected Booking Version validated by this operation's strict request contract. */
+                        expectedBookingVersion: number;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        reason: string;
+                    };
                 };
             };
         };
@@ -58286,7 +58311,8 @@ export interface operations {
                  *       "taxKobo": "300000",
                  *       "notes": "synthetic-notes",
                  *       "expiresAt": "2030-01-15T10:00:00.000Z",
-                 *       "expectedRevision": 0
+                 *       "expectedRevision": 0,
+                 *       "amendmentReason": "synthetic-amendmentreason"
                  *     }
                  */
                 "application/json": {
@@ -58333,6 +58359,8 @@ export interface operations {
                     expiresAt: string;
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedRevision: number;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    amendmentReason?: string;
                 };
             };
         };

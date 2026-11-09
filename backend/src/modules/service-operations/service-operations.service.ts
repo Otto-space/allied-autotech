@@ -1,3 +1,4 @@
+import { newQuoteContext, savedQuoteContext } from "./additional-service-quote.js";
 import {
   agreedServiceWork,
   assertAgreedMaterialsReady,
@@ -130,6 +131,7 @@ import type {
   PublicBookingSlotListQuery,
   QuoteCreateInput,
   QuoteReplaceInput,
+  QuoteDecisionInput,
   QuoteTransitionInput,
   ServiceCreateInput,
   ServiceLineItemInput,
@@ -3303,6 +3305,11 @@ export class ServiceOperationsService {
       );
       if (!activeBookingStatuses.includes(booking.status))
         throw invalidServiceTransition();
+      const additional = await newQuoteContext(
+        transaction,
+        booking,
+        input.additionalWork,
+      );
       const staff = await this.repository.staffProfile(actor.userId, transaction);
       if (staff === null) throw serviceOperationForbidden();
       const expiresAt = this.futureExpiry(input.expiresAt);
@@ -3321,6 +3328,7 @@ export class ServiceOperationsService {
         input.notes,
         expiresAt,
         transaction,
+        additional,
       );
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
@@ -3352,6 +3360,11 @@ export class ServiceOperationsService {
       const quote = await this.repository.quote(quoteId, bookingId, transaction);
       if (quote === null) throw serviceOperationNotFound();
       if (quote.status !== "DRAFT") throw invalidServiceTransition();
+      const additional = await savedQuoteContext(transaction, bookingId, quoteId);
+      if (!additional && input.amendmentReason !== undefined)
+        throw serviceOperationConflict(
+          "An amendment reason is only valid for an additional-work quotation",
+        );
       const staff = await this.repository.staffProfile(actor.userId, transaction);
       if (staff === null) throw serviceOperationForbidden();
       const lines = await this.priceLines(input.items, transaction);
@@ -3371,6 +3384,12 @@ export class ServiceOperationsService {
         input.notes,
         this.futureExpiry(input.expiresAt),
         transaction,
+        additional
+          ? {
+              ...additional,
+              amendmentReason: input.amendmentReason ?? additional.amendmentReason,
+            }
+          : null,
       );
       if (updated === null) throw staleServiceOperation();
       await appendAuditEvent(transaction, {
@@ -3412,7 +3431,14 @@ export class ServiceOperationsService {
       const finance = await assertFinanceGate(transaction);
       const now = new Date();
       const terms = await quotationTerms(transaction, now);
-      await this.repository.voidOtherIssuedQuotes(bookingId, quoteId, now, transaction);
+      const additional = await savedQuoteContext(transaction, bookingId, quoteId);
+      await this.repository.voidOtherIssuedQuotes(
+        bookingId,
+        quoteId,
+        now,
+        transaction,
+        additional?.originalInvoiceId ?? null,
+      );
       const result = await this.repository.transitionQuote(
         quoteId,
         input.expectedRevision,
@@ -3466,7 +3492,7 @@ export class ServiceOperationsService {
     actor: AuthenticatedActor,
     bookingId: string,
     quoteId: string,
-    input: QuoteTransitionInput,
+    input: QuoteDecisionInput,
     context: RequestSecurityContext,
   ) {
     return this.customerQuoteTransition(
@@ -3844,7 +3870,7 @@ export class ServiceOperationsService {
     actor: AuthenticatedActor,
     bookingId: string,
     quoteId: string,
-    input: QuoteTransitionInput,
+    input: QuoteDecisionInput,
     target: "ACCEPTED" | "REJECTED",
     context: RequestSecurityContext,
   ) {
@@ -3863,13 +3889,45 @@ export class ServiceOperationsService {
         quote.expiresAt <= new Date()
       )
         throw invalidServiceTransition();
+      const additional =
+        target === "ACCEPTED"
+          ? await savedQuoteContext(transaction, bookingId, quoteId)
+          : null;
+      if (target === "ACCEPTED") {
+        const acknowledgement = input.acceptedAdditionalWork;
+        if (
+          additional
+            ? !acknowledgement ||
+              acknowledgement.invoiceNumber !== quote.originalInvoice?.invoiceNumber ||
+              acknowledgement.quoteVersion !== quote.version ||
+              acknowledgement.reason !== additional.amendmentReason
+            : acknowledgement !== undefined
+        )
+          throw serviceOperationConflict(
+            "Review and explicitly acknowledge the current additional-work quotation before accepting",
+          );
+      }
       const now = new Date();
       const result = await this.repository.transitionQuote(
         quoteId,
         input.expectedRevision,
         ["ISSUED"],
         target === "ACCEPTED"
-          ? { status: target, acceptedAt: now }
+          ? {
+              status: target,
+              acceptedAt: now,
+              ...(additional
+                ? {
+                    acceptedAdditionalContext: {
+                      kind: "ADDITIONAL_WORK",
+                      invoiceNumber: quote.originalInvoice!.invoiceNumber,
+                      quoteVersion: quote.version,
+                      reason: additional.amendmentReason,
+                      customerUserId: actor.userId,
+                    },
+                  }
+                : {}),
+            }
           : { status: target, rejectedAt: now },
         transaction,
       );
@@ -3878,7 +3936,7 @@ export class ServiceOperationsService {
         const changed = await this.repository.updateBooking(
           bookingId,
           booking.version,
-          { quotedPriceKobo: quote.totalKobo },
+          additional ? {} : { quotedPriceKobo: quote.totalKobo },
           transaction,
         );
         if (changed.count !== 1) throw staleServiceOperation();

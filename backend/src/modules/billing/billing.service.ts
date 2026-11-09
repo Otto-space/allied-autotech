@@ -142,6 +142,7 @@ export class BillingService {
           dueAt,
         };
       } else if (input.sourceType === "BOOKING") {
+        await transaction.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${input.sourceId}::uuid FOR UPDATE`;
         const source = await this.repository.bookingSource(input.sourceId, transaction);
         const quote = source?.quotes[0];
         if (source === null || quote === undefined || source.status === "CANCELLED")

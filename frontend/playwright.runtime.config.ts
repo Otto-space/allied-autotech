@@ -44,6 +44,11 @@ export default defineConfig({
       grep: /staff verifies missed attendance|alternative appointment/,
     },
     {
+      name: "additional-service-quotes",
+      testMatch: ["quotation-quality.spec.ts", "customer-booking-detail-quality.spec.ts"],
+      grep: /additional quotation/,
+    },
+    {
       name: "modal-consumers",
       testMatch: [
         "customer-garage-quality.spec.ts",

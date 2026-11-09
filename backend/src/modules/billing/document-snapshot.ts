@@ -197,6 +197,7 @@ export async function buildInvoiceSnapshot(
       where: {
         bookingId: invoice.bookingId,
         status: "ACCEPTED",
+        originalInvoiceId: null,
         booking: { customerId: invoice.customerId },
       },
       orderBy: { version: "desc" },

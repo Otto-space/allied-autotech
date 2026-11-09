@@ -62671,6 +62671,7 @@
     "/customers/bookings/{bookingId}/quotes/{quoteId}/accept": {
       "post": {
         "summary": "Accept an issued quote",
+        "description": "Additional-work acceptance must explicitly acknowledge the displayed original invoice number, quotation version and reason. Cached clients without that acknowledgement are refused. This preserves the original agreement and does not create a payment or authorise vehicle release. Accept an issued quote. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "tags": [
           "Service operations"
         ],
@@ -62728,6 +62729,36 @@
                     "minimum": 0,
                     "maximum": 2147483647,
                     "description": "Last server version observed by the client; stale writes are rejected."
+                  },
+                  "acceptedAdditionalWork": {
+                    "type": "object",
+                    "properties": {
+                      "invoiceNumber": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50,
+                        "description": "Invoice Number validated by this operation's strict request contract."
+                      },
+                      "quoteVersion": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 2147483647,
+                        "description": "Quote Version validated by this operation's strict request contract."
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000,
+                        "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                      }
+                    },
+                    "required": [
+                      "invoiceNumber",
+                      "quoteVersion",
+                      "reason"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Accepted Additional Work validated by this operation's strict request contract."
                   }
                 },
                 "required": [
@@ -62737,7 +62768,12 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
-                "expectedRevision": 0
+                "expectedRevision": 0,
+                "acceptedAdditionalWork": {
+                  "invoiceNumber": "synthetic-invoicenumber",
+                  "quoteVersion": 1,
+                  "reason": "synthetic-reason"
+                }
               }
             }
           },
@@ -62992,7 +63028,6 @@
           }
         },
         "operationId": "postCustomersBookingsByBookingIdQuotesByQuoteIdAccept",
-        "description": "Accept an issued quote. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
@@ -68061,7 +68096,7 @@
     "/staff/bookings/{bookingId}/quotes": {
       "post": {
         "summary": "Create a quote draft",
-        "description": "Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Create a quote draft. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "description": "Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. When an original service invoice exists, explicit additionalWork intent, a current booking version and a customer-visible reason are required. The server binds the original invoice; the client cannot choose another invoice. Include only additional items. No original amount or payment is replaced and no charge is made. Create a quote draft. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "tags": [
           "Service operations"
         ],
@@ -68206,6 +68241,29 @@
                     "type": "string",
                     "format": "date-time",
                     "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  },
+                  "additionalWork": {
+                    "type": "object",
+                    "properties": {
+                      "expectedBookingVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647,
+                        "description": "Expected Booking Version validated by this operation's strict request contract."
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000,
+                        "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                      }
+                    },
+                    "required": [
+                      "expectedBookingVersion",
+                      "reason"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Additional Work validated by this operation's strict request contract."
                   }
                 },
                 "required": [
@@ -68226,7 +68284,11 @@
                 ],
                 "taxKobo": "300000",
                 "notes": "synthetic-notes",
-                "expiresAt": "2030-01-15T10:00:00.000Z"
+                "expiresAt": "2030-01-15T10:00:00.000Z",
+                "additionalWork": {
+                  "expectedBookingVersion": 0,
+                  "reason": "synthetic-reason"
+                }
               }
             }
           },
@@ -68494,7 +68556,7 @@
     "/staff/bookings/{bookingId}/quotes/{quoteId}": {
       "put": {
         "summary": "Create a replacement quote version",
-        "description": "Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Create a replacement quote version. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "description": "Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. A new draft version preserves its original-invoice association. An additional-work reason may be reviewed for the new draft; the old reason/history remain immutable. Issued original invoices are never silently repriced. Create a replacement quote version. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "tags": [
           "Service operations"
         ],
@@ -68657,6 +68719,12 @@
                     "minimum": 0,
                     "maximum": 2147483647,
                     "description": "Last server version observed by the client; stale writes are rejected."
+                  },
+                  "amendmentReason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                   }
                 },
                 "required": [
@@ -68679,7 +68747,8 @@
                 "taxKobo": "300000",
                 "notes": "synthetic-notes",
                 "expiresAt": "2030-01-15T10:00:00.000Z",
-                "expectedRevision": 0
+                "expectedRevision": 0,
+                "amendmentReason": "synthetic-amendmentreason"
               }
             }
           },

@@ -174,7 +174,7 @@ export class BillingRepository {
       const rows = await this.database.booking.findMany({
         where: {
           status: { not: "CANCELLED" },
-          quotes: { some: { status: "ACCEPTED" } },
+          quotes: { some: { status: "ACCEPTED", originalInvoiceId: null } },
           invoice: null,
           ...(reference ? { id: reference } : {}),
           ...(text ? { service: { name: text } } : {}),
@@ -280,7 +280,8 @@ export class BillingRepository {
           },
         },
         quotes: {
-          where: { status: "ACCEPTED" },
+          where: { status: "ACCEPTED", originalInvoiceId: null },
+          orderBy: { version: "desc" },
           select: { subtotalKobo: true, taxKobo: true, totalKobo: true, currency: true },
           take: 1,
         },

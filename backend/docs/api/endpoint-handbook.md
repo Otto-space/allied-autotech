@@ -5148,7 +5148,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/bookings/{bookingId}/quotes/{quoteId}/accept`
 
 - Operation ID: `postCustomersBookingsByBookingIdQuotesByQuoteIdAccept`
-- Purpose: Accept an issued quote. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Additional-work acceptance must explicitly acknowledge the displayed original invoice number, quotation version and reason. Cached clients without that acknowledgement are refused. This preserves the original agreement and does not create a payment or authorise vehicle release. Accept an issued quote. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -5167,12 +5167,18 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `acceptedAdditionalWork` | object | No | Accepted Additional Work validated by this operation's strict request contract. |
 
 Synthetic request example:
 
 ```json
 {
-  "expectedRevision": 0
+  "expectedRevision": 0,
+  "acceptedAdditionalWork": {
+    "invoiceNumber": "synthetic-invoicenumber",
+    "quoteVersion": 1,
+    "reason": "synthetic-reason"
+  }
 }
 ```
 
@@ -10591,7 +10597,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/bookings/{bookingId}/quotes`
 
 - Operation ID: `postStaffBookingsByBookingIdQuotes`
-- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Create a quote draft. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. When an original service invoice exists, explicit additionalWork intent, a current booking version and a customer-visible reason are required. The server binds the original invoice; the client cannot choose another invoice. Include only additional items. No original amount or payment is replaced and no charge is made. Create a quote draft. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10612,6 +10618,7 @@ JSON request fields:
 | `taxKobo` | string | No | Legacy compatibility field; ignored. The server calculates quotation tax from its priced subtotal. |
 | `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 | `expiresAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
+| `additionalWork` | object | No | Additional Work validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -10627,7 +10634,11 @@ Synthetic request example:
   ],
   "taxKobo": "300000",
   "notes": "synthetic-notes",
-  "expiresAt": "2030-01-15T10:00:00.000Z"
+  "expiresAt": "2030-01-15T10:00:00.000Z",
+  "additionalWork": {
+    "expectedBookingVersion": 0,
+    "reason": "synthetic-reason"
+  }
 }
 ```
 
@@ -10652,7 +10663,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PUT `/staff/bookings/{bookingId}/quotes/{quoteId}`
 
 - Operation ID: `putStaffBookingsByBookingIdQuotesByQuoteId`
-- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Create a replacement quote version. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. A new draft version preserves its original-invoice association. An additional-work reason may be reviewed for the new draft; the old reason/history remain immutable. Issued original invoices are never silently repriced. Create a replacement quote version. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -10675,6 +10686,7 @@ JSON request fields:
 | `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 | `expiresAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
 | `expectedRevision` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `amendmentReason` | string | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
 
@@ -10691,7 +10703,8 @@ Synthetic request example:
   "taxKobo": "300000",
   "notes": "synthetic-notes",
   "expiresAt": "2030-01-15T10:00:00.000Z",
-  "expectedRevision": 0
+  "expectedRevision": 0,
+  "amendmentReason": "synthetic-amendmentreason"
 }
 ```
 

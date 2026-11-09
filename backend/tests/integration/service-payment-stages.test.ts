@@ -1,4 +1,10 @@
 import { randomUUID } from "node:crypto";
+import request from "supertest";
+import { createApp } from "../../src/app.js";
+import { env } from "../../src/config/env.js";
+import { hashToken } from "../../src/common/security/session-tokens.js";
+import { sessionCookieName } from "../../src/common/security/cookies.js";
+import { buildInvoiceSnapshot } from "../../src/modules/billing/document-snapshot.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
@@ -304,11 +310,14 @@ async function fixture(legacyCredit = false) {
 
 async function agreedWork(f: Awaited<ReturnType<typeof fixture>>, materials = true) {
   const operations = new ServiceOperationsService(prisma);
+  const currentBooking = await prisma.booking.findUniqueOrThrow({
+    where: { id: f.booking.id },
+  });
   const work = await operations.createWorkOrder(
     f.operator,
     f.booking.id,
     {
-      expectedBookingVersion: 0,
+      expectedBookingVersion: currentBooking.version,
       items: [
         ...(materials
           ? [{ type: "PART" as const, productId: f.product.id, quantity: 1 }]
@@ -331,12 +340,529 @@ async function checkWork(bookingId: string, complete = false) {
     await assertAgreedWorkCanProceed(tx, bookingId, complete);
   });
 }
+async function additionalQuote(
+  f: Awaited<ReturnType<typeof fixture>>,
+  reason = "Synthetic additional inspection requested after the original agreement",
+) {
+  const booking = await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } });
+  const operations = new ServiceOperationsService(prisma);
+  const body = {
+    items: [
+      {
+        type: "LABOUR" as const,
+        description: "Additional inspection",
+        quantity: 1,
+        unitPriceKobo: "5000",
+      },
+    ],
+    taxKobo: "0",
+    expiresAt: new Date(Date.now() + 86400000).toISOString(),
+    additionalWork: { expectedBookingVersion: booking.version, reason },
+  };
+  const quote = (await operations.createQuote(
+    f.operator,
+    f.booking.id,
+    body,
+    context(),
+  )) as {
+    id: string;
+    revision: number;
+    version: number;
+    originalInvoice: { invoiceNumber: string };
+    amendmentReason: string;
+  };
+  return { operations, body, quote };
+}
+
+function additionalConsent(
+  quote: {
+    version: number;
+    originalInvoice: { invoiceNumber: string };
+    amendmentReason: string;
+  },
+  revision = 1,
+) {
+  return {
+    expectedRevision: revision,
+    acceptedAdditionalWork: {
+      invoiceNumber: quote.originalInvoice.invoiceNumber,
+      quoteVersion: quote.version,
+      reason: quote.amendmentReason,
+    },
+  };
+}
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "synthetic D03 service payment stages on an isolated database",
   () => {
     beforeAll(assertIsolatedLoopbackDatabase);
     afterAll(() => prisma.$disconnect());
+    it("keeps exactly one accepted original quotation before invoicing", async () => {
+      const f = await fixture(),
+        source = await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } });
+      const booking = await prisma.booking.create({
+        data: {
+          customerId: source.customerId,
+          branchId: source.branchId,
+          serviceId: source.serviceId,
+          scheduledAt: new Date(Date.now() + 3600000),
+          status: "CONFIRMED",
+          confirmedAt: new Date(),
+        },
+      });
+      const operations = new ServiceOperationsService(prisma);
+      const body = {
+        items: [
+          {
+            type: "LABOUR" as const,
+            description: "Original synthetic scope",
+            quantity: 1,
+            unitPriceKobo: "5000",
+          },
+        ],
+        taxKobo: "0",
+        expiresAt: new Date(Date.now() + 86400000).toISOString(),
+      };
+      const first = (await operations.createQuote(
+        f.operator,
+        booking.id,
+        body,
+        context(),
+      )) as { id: string };
+      await operations.issueQuote(
+        f.operator,
+        booking.id,
+        first.id,
+        { expectedRevision: 0 },
+        context(),
+      );
+      await operations.acceptQuote(
+        f.actor,
+        booking.id,
+        first.id,
+        { expectedRevision: 1 },
+        context(),
+      );
+      const second = (await operations.createQuote(
+        f.operator,
+        booking.id,
+        body,
+        context(),
+      )) as { id: string };
+      await operations.issueQuote(
+        f.operator,
+        booking.id,
+        second.id,
+        { expectedRevision: 0 },
+        context(),
+      );
+      await expect(
+        operations.acceptQuote(
+          f.actor,
+          booking.id,
+          second.id,
+          { expectedRevision: 1 },
+          context(),
+        ),
+      ).rejects.toThrow();
+      expect(
+        await prisma.serviceQuote.count({
+          where: { bookingId: booking.id, status: "ACCEPTED", originalInvoiceId: null },
+        }),
+      ).toBe(1);
+      expect(
+        await prisma.serviceQuote.findUniqueOrThrow({ where: { id: second.id } }),
+      ).toMatchObject({ status: "ISSUED" });
+    });
+    it("requires explicit additional-work intent and a current booking review after invoicing", async () => {
+      const f = await fixture(),
+        { operations, body } = await additionalQuote(f);
+      const { additionalWork: _additional, ...base } = body;
+      const before = await prisma.serviceQuote.count({
+        where: { bookingId: f.booking.id },
+      });
+      await expect(
+        operations.createQuote(f.operator, f.booking.id, base, context()),
+      ).rejects.toThrow(/Choose Additional work/);
+      await expect(
+        operations.createQuote(
+          f.operator,
+          f.booking.id,
+          {
+            ...body,
+            additionalWork: { ...body.additionalWork, expectedBookingVersion: 99 },
+          },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      expect(
+        await prisma.serviceQuote.count({ where: { bookingId: f.booking.id } }),
+      ).toBe(before);
+    });
+    it("accepts itemised additional work without replacing the original quote, invoice or payments", async () => {
+      const f = await fixture(),
+        before = await prisma.invoice.findUniqueOrThrow({ where: { id: f.invoice.id } });
+      const { operations, quote } = await additionalQuote(f);
+      expect(quote).toMatchObject({
+        originalInvoice: { invoiceNumber: before.invoiceNumber },
+        amendmentReason: expect.stringContaining("Synthetic"),
+      });
+      expect(quote).not.toHaveProperty("originalInvoiceId");
+      const issued = (await operations.issueQuote(
+        f.operator,
+        f.booking.id,
+        quote.id,
+        { expectedRevision: 0 },
+        context(),
+      )) as { revision: number };
+      for (const input of [
+        { expectedRevision: issued.revision },
+        {
+          ...additionalConsent(quote),
+          acceptedAdditionalWork: {
+            ...additionalConsent(quote).acceptedAdditionalWork,
+            invoiceNumber: "WRONG",
+          },
+        },
+        {
+          ...additionalConsent(quote),
+          acceptedAdditionalWork: {
+            ...additionalConsent(quote).acceptedAdditionalWork,
+            quoteVersion: quote.version + 1,
+          },
+        },
+        {
+          ...additionalConsent(quote),
+          acceptedAdditionalWork: {
+            ...additionalConsent(quote).acceptedAdditionalWork,
+            reason: "Unreviewed reason",
+          },
+        },
+      ])
+        await expect(
+          operations.acceptQuote(f.actor, f.booking.id, quote.id, input, context()),
+        ).rejects.toMatchObject({ statusCode: 409 });
+      await expect(
+        prisma.serviceQuote.update({
+          where: { id: quote.id },
+          data: { status: "ACCEPTED", acceptedAt: new Date() },
+        }),
+      ).rejects.toThrow();
+      await expect(
+        prisma.booking.update({
+          where: { id: f.booking.id },
+          data: { quotedPriceKobo: 5375n },
+        }),
+      ).rejects.toThrow();
+      await operations.acceptQuote(
+        f.actor,
+        f.booking.id,
+        quote.id,
+        additionalConsent(quote, issued.revision),
+        context(),
+      );
+      expect(
+        await prisma.invoice.findUniqueOrThrow({ where: { id: f.invoice.id } }),
+      ).toEqual(before);
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } }),
+      ).toMatchObject({ quotedPriceKobo: 20000n, version: 1 });
+      expect(
+        await prisma.serviceQuote.findUniqueOrThrow({ where: { id: f.quote.id } }),
+      ).toMatchObject({ status: "ACCEPTED", totalKobo: 21500n });
+      expect(
+        await prisma.serviceQuote.findUniqueOrThrow({ where: { id: quote.id } }),
+      ).toMatchObject({
+        status: "ACCEPTED",
+        totalKobo: 5375n,
+        originalInvoiceId: f.invoice.id,
+      });
+      const accepted = await prisma.serviceQuote.findUniqueOrThrow({
+        where: { id: quote.id },
+      });
+      expect(accepted.acceptedAdditionalContext).toEqual({
+        kind: "ADDITIONAL_WORK",
+        ...additionalConsent(quote).acceptedAdditionalWork,
+        customerUserId: f.actor.userId,
+      });
+      await expect(
+        prisma.serviceQuote.update({
+          where: { id: quote.id },
+          data: { acceptedAdditionalContext: { kind: "changed" } },
+        }),
+      ).rejects.toThrow();
+      expect(await prisma.payment.count({ where: { invoiceId: f.invoice.id } })).toBe(0);
+      expect(await f.input("MATERIALS")).toMatchObject({
+        acceptedServiceStage: { amountKobo: "10750" },
+      });
+      const rebuilt = await prisma.$transaction((tx) => buildInvoiceSnapshot(tx, before));
+      expect(rebuilt.servicePaymentPlan?.quoteId).toBe(f.quote.id);
+      const { work } = await agreedWork(f);
+      await expect(
+        operations.updateWorkOrder(
+          f.operator,
+          f.booking.id,
+          work.id,
+          {
+            expectedVersion: 0,
+            addItems: [
+              {
+                type: "LABOUR",
+                description: "Additional inspection",
+                quantity: 1,
+                unitPriceKobo: "5000",
+              },
+            ],
+          },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+    });
+    it("keeps rejected additional work separate and revises a draft with its saved parent context", async () => {
+      const f = await fixture(),
+        { operations, quote, body } = await additionalQuote(f);
+      const { additionalWork: _additional, ...fields } = body;
+      const revised = (await operations.replaceQuote(
+        f.operator,
+        f.booking.id,
+        quote.id,
+        {
+          ...fields,
+          expectedRevision: 0,
+          amendmentReason: "Revised synthetic reason before issue",
+        },
+        context(),
+      )) as { id: string; revision: number };
+      expect(
+        await prisma.serviceQuote.findUniqueOrThrow({ where: { id: quote.id } }),
+      ).toMatchObject({ status: "VOID", amendmentReason: body.additionalWork.reason });
+      expect(
+        await prisma.serviceQuote.findUniqueOrThrow({ where: { id: revised.id } }),
+      ).toMatchObject({
+        originalInvoiceId: f.invoice.id,
+        amendmentReason: "Revised synthetic reason before issue",
+      });
+      const issued = (await operations.issueQuote(
+        f.operator,
+        f.booking.id,
+        revised.id,
+        { expectedRevision: revised.revision },
+        context(),
+      )) as { revision: number };
+      await operations.rejectQuote(
+        f.actor,
+        f.booking.id,
+        revised.id,
+        { expectedRevision: issued.revision },
+        context(),
+      );
+      expect(
+        await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } }),
+      ).toMatchObject({ quotedPriceKobo: 20000n, version: 0 });
+      expect(
+        await prisma.serviceQuote.findUniqueOrThrow({ where: { id: revised.id } }),
+      ).toMatchObject({ status: "REJECTED" });
+      expect(await prisma.invoice.count({ where: { bookingId: f.booking.id } })).toBe(1);
+    });
+    it("supersedes only pending additions and never voids an accepted agreement", async () => {
+      const f = await fixture(),
+        first = await additionalQuote(f);
+      await first.operations.issueQuote(
+        f.operator,
+        f.booking.id,
+        first.quote.id,
+        { expectedRevision: 0 },
+        context(),
+      );
+      const second = await additionalQuote(
+        f,
+        "Replacement pending addition, not a replacement original invoice",
+      );
+      await second.operations.issueQuote(
+        f.operator,
+        f.booking.id,
+        second.quote.id,
+        { expectedRevision: 0 },
+        context(),
+      );
+      expect(
+        await prisma.serviceQuote.findUniqueOrThrow({ where: { id: first.quote.id } }),
+      ).toMatchObject({ status: "VOID" });
+      await second.operations.acceptQuote(
+        f.actor,
+        f.booking.id,
+        second.quote.id,
+        additionalConsent(second.quote),
+        context(),
+      );
+      const third = await additionalQuote(
+        f,
+        "Another separately reviewed additional item",
+      );
+      await third.operations.issueQuote(
+        f.operator,
+        f.booking.id,
+        third.quote.id,
+        { expectedRevision: 0 },
+        context(),
+      );
+      for (const id of [f.quote.id, second.quote.id])
+        expect(
+          await prisma.serviceQuote.findUniqueOrThrow({ where: { id } }),
+        ).toMatchObject({ status: "ACCEPTED" });
+    });
+    it("enforces original-invoice binding, frozen reasons and original amount snapshots in PostgreSQL", async () => {
+      const f = await fixture(),
+        foreign = await fixture(),
+        { quote } = await additionalQuote(f);
+      await expect(
+        prisma.serviceQuote.update({
+          where: { id: quote.id },
+          data: { originalInvoiceId: foreign.invoice.id },
+        }),
+      ).rejects.toThrow();
+      await expect(
+        prisma.serviceQuote.update({
+          where: { id: quote.id },
+          data: { amendmentReason: "Silently changed saved scope" },
+        }),
+      ).rejects.toThrow();
+      const original = await prisma.serviceQuote.findUniqueOrThrow({
+        where: { id: f.quote.id },
+      });
+      await expect(
+        prisma.serviceQuote.create({
+          data: {
+            bookingId: foreign.booking.id,
+            createdByStaffId: original.createdByStaffId,
+            quoteNumber: randomUUID(),
+            version: 99,
+            subtotalKobo: 0n,
+            totalKobo: 0n,
+            originalInvoiceId: f.invoice.id,
+            amendmentReason: "Synthetic cross-booking binding must fail",
+          },
+        }),
+      ).rejects.toThrow();
+      expect(
+        await prisma.invoice.findUniqueOrThrow({ where: { id: f.invoice.id } }),
+      ).toMatchObject({ totalKobo: 21500n, status: "ISSUED" });
+    });
+    it("does not let another customer accept the additional work", async () => {
+      const f = await fixture(),
+        other = await fixture(),
+        { operations, quote } = await additionalQuote(f);
+      await operations.issueQuote(
+        f.operator,
+        f.booking.id,
+        quote.id,
+        { expectedRevision: 0 },
+        context(),
+      );
+      await expect(
+        operations.acceptQuote(
+          other.actor,
+          f.booking.id,
+          quote.id,
+          { expectedRevision: 1 },
+          context(),
+        ),
+      ).rejects.toMatchObject({ statusCode: 404 });
+      expect(
+        await prisma.serviceQuote.findUniqueOrThrow({ where: { id: quote.id } }),
+      ).toMatchObject({ status: "ISSUED" });
+    });
+    it("runs authoring, CSRF, customer review, acceptance and reload through authenticated HTTP without a charge", async () => {
+      const f = await fixture();
+      const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+      async function headers(actor: AuthenticatedActor) {
+        const token = randomUUID(),
+          csrf = randomUUID().repeat(2),
+          expiry = new Date(Date.now() + 3600000);
+        await prisma.session.create({
+          data: {
+            userId: actor.userId,
+            tokenHash: hashToken("session", token),
+            csrfTokenHash: hashToken("csrf", csrf),
+            expiresAt: expiry,
+            idleExpiresAt: expiry,
+            createdAt: new Date(Date.now() - 1000),
+            mfaRequired: actor.role !== "CUSTOMER",
+            mfaVerifiedAt: actor.mfaVerifiedAt,
+          },
+        });
+        return {
+          Cookie: `${sessionCookieName}=${token}`,
+          Origin: env.FRONTEND_URL[0]!,
+          "x-csrf-token": csrf,
+        };
+      }
+      const staff = await headers(f.operator),
+        customer = await headers(f.actor);
+      const body = {
+        items: [
+          {
+            type: "LABOUR",
+            description: "Synthetic extra inspection",
+            quantity: 1,
+            unitPriceKobo: "5000",
+          },
+        ],
+        expiresAt: new Date(Date.now() + 86400000).toISOString(),
+        additionalWork: {
+          expectedBookingVersion: 0,
+          reason: "Synthetic customer-visible additional scope",
+        },
+      };
+      const base = `/api/v1/staff/bookings/${f.booking.id}/quotes`;
+      const { "x-csrf-token": _csrf, ...withoutCsrf } = staff;
+      await request(app).post(base).set(withoutCsrf).send(body).expect(403);
+      const saved = await request(app).post(base).set(staff).send(body).expect(201);
+      const id = saved.body.data.id as string;
+      const issued = await request(app)
+        .post(`${base}/${id}/issue`)
+        .set(staff)
+        .send({ expectedRevision: 0 })
+        .expect(200);
+      expect(
+        Date.parse(issued.body.data.expiresAt) - Date.parse(issued.body.data.issuedAt),
+      ).toBe(7 * 86400000);
+      const read = await request(app)
+        .get(`/api/v1/customers/bookings/${f.booking.id}`)
+        .set(customer)
+        .expect(200);
+      const shown = read.body.data.quotes.find((row: { id: string }) => row.id === id);
+      expect(shown).toMatchObject({
+        originalInvoice: { invoiceNumber: f.invoice.invoiceNumber },
+        amendmentReason: body.additionalWork.reason,
+        totalKobo: "5375",
+      });
+      expect(shown).not.toHaveProperty("originalInvoiceId");
+      expect(shown).not.toHaveProperty("acceptedAdditionalContext");
+      const accept = `/api/v1/customers/bookings/${f.booking.id}/quotes/${id}/accept`;
+      await request(app)
+        .post(accept)
+        .set(customer)
+        .send(additionalConsent(shown))
+        .expect(200);
+      const refreshed = await request(app)
+        .get(`/api/v1/customers/bookings/${f.booking.id}`)
+        .set(customer)
+        .expect(200);
+      expect(
+        refreshed.body.data.quotes.find((row: { id: string }) => row.id === id).status,
+      ).toBe("ACCEPTED");
+      expect(
+        refreshed.body.data.quotes.find((row: { id: string }) => row.id === id),
+      ).not.toHaveProperty("acceptedAdditionalContext");
+      await request(app)
+        .post(accept)
+        .set(customer)
+        .send(additionalConsent(shown))
+        .expect(409);
+      expect(await prisma.payment.count({ where: { invoiceId: f.invoice.id } })).toBe(0);
+      expect(await prisma.invoice.count({ where: { bookingId: f.booking.id } })).toBe(1);
+    });
     it("honours a genuine historical credit once and refuses a later forfeiture", async () => {
       const f = await fixture(true);
       await agreedWork(f);

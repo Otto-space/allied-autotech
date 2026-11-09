@@ -13,6 +13,7 @@ import type { capacitySettingsSchema } from "./booking-capacity.js";
 import { bookedJobMinutes } from "./booking-timing.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
+import type { AdditionalQuoteContext } from "./additional-service-quote.js";
 import { resourceImageSelect } from "../media/media.projection.js";
 import { projectServiceImage } from "./service-media.service.js";
 import { publicServiceCopy } from "./public-service-copy.js";
@@ -112,6 +113,8 @@ const workLineSelect = {
 } satisfies Prisma.WorkOrderItemSelect;
 
 export const quoteSelect = {
+  amendmentReason: true,
+  originalInvoice: { select: { invoiceNumber: true } },
   id: true,
   bookingId: true,
   quoteNumber: true,
@@ -861,11 +864,13 @@ export class ServiceOperationsRepository {
     notes: string | null | undefined,
     expiresAt: Date,
     client: DatabaseClient,
+    additional: AdditionalQuoteContext | null = null,
   ) {
     const subtotalKobo = lines.reduce((sum, line) => sum + line.subtotalKobo, 0n);
     return client.serviceQuote.create({
       data: {
         bookingId,
+        ...additional,
         createdByStaffId: staffId,
         quoteNumber,
         version: versionNumber,
@@ -892,6 +897,7 @@ export class ServiceOperationsRepository {
     notes: string | null | undefined,
     expiresAt: Date,
     client: Prisma.TransactionClient,
+    additional: AdditionalQuoteContext | null = null,
   ) {
     const updated = await client.serviceQuote.updateMany({
       where: { id, status: "DRAFT", revision: expectedRevision },
@@ -912,6 +918,7 @@ export class ServiceOperationsRepository {
       notes,
       expiresAt,
       client,
+      additional,
     );
   }
 
@@ -933,9 +940,10 @@ export class ServiceOperationsRepository {
     exceptId: string,
     now: Date,
     client: DatabaseClient,
+    originalInvoiceId: string | null = null,
   ) {
     return client.serviceQuote.updateMany({
-      where: { bookingId, id: { not: exceptId }, status: "ISSUED" },
+      where: { bookingId, originalInvoiceId, id: { not: exceptId }, status: "ISSUED" },
       data: { status: "VOID", voidedAt: now, revision: { increment: 1 } },
     });
   }

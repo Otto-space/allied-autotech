@@ -24,8 +24,8 @@ const labour: PricedLine = {
 const agreed = [material, labour];
 it("keeps updated work guidance in existing permission gates with explicit financial boundaries", () => {
   for (const [id, gate, version] of [
-    ["service-request", "public", 31],
-    ["financial-policy-work", "financial-policy", 7],
+    ["service-request", "public", 32],
+    ["financial-policy-work", "financial-policy", 8],
     ["assigned-findings", "jobs", 6],
     ["job-assignment", "assign", 3],
   ] as const) {

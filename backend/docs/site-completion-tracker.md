@@ -1,3 +1,20 @@
+### 9 November 2026: explicit additional-work quotation source, unpublished
+
+D03 staff author/revise/issue and customer separate review/accept/reject now retain
+the original invoice reference and reason. Explicit acceptance binds current facts;
+cached clients and direct old-style writers cannot silently accept extra work or
+rewrite the invoiced original price. No new charge, payment, work or vehicle-release
+authority follows acceptance. Original history and permissions remain intact.
+Fresh isolated acceptance passes 135/135 across all 102 migrations with schema
+diff/db:check and restricted runtime. Nine serial synthetic Edge cases cover
+320px/1440px staff/customer review, Back, validation, reload and malformed context,
+with strict console, overflow and scoped Axe checks. Guide regressions pass 32/32.
+See docs/help-learn/ADDITIONAL_SERVICE_QUOTES_20261109.md for failures, scope,
+artifacts and remaining supplemental-charge/material-use/physical-release work.
+New migrations are not applied to production; full D03 publication stays held.
+Newer remote master 9c219bc8 fixes were identified and must be preserved in the
+integration. This is implementation evidence, not a new owner financial approval.
+
 ### 9 November 2026: D03/D11 integration verified on schema 100; held
 
 Current source 9e7ad91b preserves master 885010a6's available-alternative workflow

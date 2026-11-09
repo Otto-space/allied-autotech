@@ -1,4 +1,5 @@
 import { WorkflowProgress } from "./status-progress";
+import { AdditionalQuoteNotice } from "./additional-quote-notice";
 import Link from "next/link";
 import { CarFront, MapPin, NotebookPen } from "lucide-react";
 import type { CustomerBookingDetail } from "@/lib/api/customer-booking-detail-schema";
@@ -205,6 +206,7 @@ export function BookingQuotations({
             <span className="booking-revision">Revision {quote.revision}</span>
           </div>
           <WorkflowProgress workflow="quote" status={quote.status} />
+          <AdditionalQuoteNotice quote={quote} />
           {quote.expiresAt && <p>Expires {formatBusinessDate(quote.expiresAt)}</p>}
           <table className="booking-quote-items">
             <caption className="sr-only">Items in quotation {quote.quoteNumber}</caption>

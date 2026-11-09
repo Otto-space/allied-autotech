@@ -324,9 +324,20 @@ const quoteFields = {
   notes: nullableText(4_000),
   expiresAt: dateTime,
 } as const;
-export const quoteCreateBodySchema = z.object(quoteFields).strict();
+export const quoteCreateBodySchema = z
+  .object({
+    ...quoteFields,
+    additionalWork: z
+      .strictObject({ expectedBookingVersion: version, reason: cleanText(1000) })
+      .optional(),
+  })
+  .strict();
 export const quoteReplaceBodySchema = z
-  .object({ ...quoteFields, expectedRevision: version })
+  .object({
+    ...quoteFields,
+    expectedRevision: version,
+    amendmentReason: cleanText(1000).optional(),
+  })
   .strict();
 export const quoteTransitionBodySchema = z.object({ expectedRevision: version }).strict();
 
@@ -383,6 +394,18 @@ export type BookingDisruptionResolutionInput = z.infer<
 export type ServiceLineItemInput = z.infer<typeof serviceLineItemSchema>;
 export type QuoteCreateInput = z.infer<typeof quoteCreateBodySchema>;
 export type QuoteReplaceInput = z.infer<typeof quoteReplaceBodySchema>;
+export const quoteDecisionBodySchema = quoteTransitionBodySchema.extend({
+  acceptedAdditionalWork: z
+    .object({
+      invoiceNumber: cleanText(50),
+      quoteVersion: version.min(1),
+      reason: cleanText(1000),
+    })
+    .strict()
+    .optional(),
+});
+export type QuoteDecisionInput = z.infer<typeof quoteDecisionBodySchema>;
+
 export type QuoteTransitionInput = z.infer<typeof quoteTransitionBodySchema>;
 export type WorkOrderCreateInput = z.infer<typeof workOrderCreateBodySchema>;
 export type WorkOrderUpdateInput = z.infer<typeof workOrderUpdateBodySchema>;

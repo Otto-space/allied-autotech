@@ -222,13 +222,33 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
     if (!quoteOpen(quote, now)) return;
     ask({
       title: `${action === "accept" ? "Accept" : "Reject"} this quotation?`,
-      description: "Review the quotation total before confirming.",
+      description: quote.originalInvoice
+        ? "Review these additional items and their reason. Acceptance adds this agreement alongside the original invoice; it does not replace previous work, make a payment or release the vehicle."
+        : "Review the quotation total before confirming.",
       path: `${path}/quotes/${quote.id}/${action}`,
       method: "POST",
-      body: { expectedRevision: quote.revision },
+      body: {
+        expectedRevision: quote.revision,
+        ...(action === "accept" && quote.originalInvoice
+          ? {
+              acceptedAdditionalWork: {
+                invoiceNumber: quote.originalInvoice.invoiceNumber,
+                quoteVersion: quote.version,
+                reason: quote.amendmentReason!,
+              },
+            }
+          : {}),
+      },
       quote,
       facts: [
         { label: "Quotation", value: quote.quoteNumber },
+        ...(quote.originalInvoice
+          ? [
+              { label: "Original invoice", value: quote.originalInvoice.invoiceNumber },
+              { label: "Reason", value: quote.amendmentReason! },
+            ]
+          : []),
+        { label: "Version", value: String(quote.version) },
         { label: "Revision", value: String(quote.revision) },
         { label: "Total", value: formatKobo(quote.totalKobo) },
         { label: "Expires", value: formatBusinessDate(quote.expiresAt) },

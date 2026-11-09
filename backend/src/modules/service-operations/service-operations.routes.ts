@@ -46,6 +46,7 @@ import {
   quoteCreateBodySchema,
   quoteParamsSchema,
   quoteReplaceBodySchema,
+  quoteDecisionBodySchema,
   quoteTransitionBodySchema,
   serviceCreateBodySchema,
   serviceOperationsEmptyQuerySchema,
@@ -179,7 +180,7 @@ export function createCustomerServiceOperationsRouter(): Router {
     requireCsrf,
     validate({
       params: quoteParamsSchema,
-      body: quoteTransitionBodySchema,
+      body: quoteDecisionBodySchema,
       query: serviceOperationsEmptyQuerySchema,
     }),
     controller.acceptQuote,

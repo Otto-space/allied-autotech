@@ -281,6 +281,7 @@ jobs:
             tests/unit/service-payment-plan.test.ts \
             tests/unit/service-payment-summary.test.ts \
             tests/unit/agreed-service-work.test.ts \
+            tests/unit/additional-service-quote.test.ts \
             tests/integration/order-expiry-payment.test.ts \
             tests/integration/vehicle-expiry-payment.test.ts \
             tests/unit/refund-request-session-boundary.test.ts \
