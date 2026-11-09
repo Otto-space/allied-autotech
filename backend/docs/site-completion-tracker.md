@@ -1,3 +1,71 @@
+## 9 November 12:35 UTC - attendance and work-review release verified
+
+Released application source: `e947a205ea9ff852365cbde1e0b9e05234c13306`.
+Frontend `dpl_22d3ubrHm6At1DnxuFFuR9h4SN5A` is assigned to apex and www;
+backend `f6bdcc48-3933-435f-a3ef-ece5edb182a7` is ACTIVE with all four matching
+image digests and HTTP readiness 200. The previous work-review release and its
+features are preserved. This evidence update does not claim a new application
+source or activation merely because documentation advances beyond that commit.
+
+| Capability | Current status | Evidence and remaining acceptance |
+| --- | --- | --- |
+| Observed arrival, agreed waiting, leaving and return | Released | Managed booking, legacy booking and assigned-job controls; immutable history and scoped recovery receipts. Real signed-in operational-role acceptance remains unverified. |
+| Staff-verified missed appointment (D16) | Released | Grace only flags Check attendance; observed arrival/active work prevent a missed update. Explicit absence, reason, version and scope checks remain. No automatic fee, forfeiture, suspension or refund rejection. Fifteen minutes remains a configurable delegated default, not a personally chosen owner value. |
+| Remaining-work estimates/resources (D07) | Released and preserved | Both workflows coexist with the current permission checks, saved timing and physical resource constraints. No financial or security permission expansion. |
+| Actual available late-arrival replacement (D11) | Incomplete; next implementation item | Current proposals still accept a typed date without availability validation, and the ordinary 7-14-day window blocks a same-day offer. Preserve the original appointment, resources and physical-visit history when implementing a genuine available alternative. Recording waiting alone does not close D11. |
+| Public appointment/purchase activation | Disabled, unchanged | Browse/enquiries stays active. Complete the remaining implementation and controlled operational/provider acceptance; do not enable flags to make tests appear functional. |
+
+Exact-master gates passed: Frontend 42614660750, Backend 42614660828 and Secrets
+42614660984. The frontend run passed 1,518 units (12 existing skips), production
+lint/types/build/format and 250/250 Chromium browser cases. Local focused checks
+passed 57 backend and 32 frontend units. The combined native PostgreSQL workflow
+suite passed 111/111; the actual compiled Linux candidate passed all 22 attendance
+integration cases against an isolated schema-99 target. These are synthetic tests,
+not production role, payment-provider or physical-device acceptance.
+
+Operational release evidence: 10/10 packaged safety/media/import/font/database
+checks, seven candidate/current-recovery schema probes, a fresh 900,811-byte
+repeatable-read production snapshot, and a separate populated 98-to-99 restore
+rehearsal preserving original columns, row counts/hashes and migration history.
+The guarded production command applied only the reviewed attendance migration;
+all 99 applied checksums and the historical rolled-back entry were preserved.
+Runtime least privilege and existing default grants were checked. Automated managed
+backups were freshly listed; the same-cluster managed restore proof is historical
+(21 October), distinct from this fresh populated local restore. No reset, history
+rewrite, unreviewed SQL or production demonstration records were used.
+
+Both the earlier compatibility API and the currently deployed work-review recovery
+API passed actual authenticated Linux HTTP refusal checks against schema 99 for
+assigned Staff, Admin and Super Admin. The explicit recovery composition retains
+the canonical 99-aware checker with compatible 98 runtimes; normal same-source
+manifest validation is unchanged. Provider spec validation and isolated behavior
+were checked; no real production rollback is claimed. Attendance authoring would
+be unavailable during that recovery while its evidence remains preserved.
+
+After deployment, all 13 checked worker heartbeats were fresh/healthy. Each scoped
+operator address rule was removed and freshly verified, preserving existing and
+concurrent rules. No price, policy, permission or capability flag was changed.
+Worker health does not prove email, SMS, push or financial-provider delivery.
+
+Safe before/after screenshots use synthetic browser records at 390px and 1440px.
+The deployed-after fixture saved arrival/wait/left with CSRF, visible keyboard focus,
+zero horizontal overflow and zero production API requests. Its API interception is
+separate from the 22 compiled-Linux HTTP cases with a real isolated database.
+Real staff/customer sessions, physical devices and full screen-reader acceptance
+remain unverified. The complete audit/D01-D17 goal remains active; staged service
+payments, D11 and the remaining holding/sourcing/collection/refund/reminder and
+operational acceptance contracts must be reconciled with their existing code.
+Approved rounding is settled; the expressly deferred general returns/warranty
+policy remains separate. Do not ask again for already approved decisions.
+
+Evidence directory: `TEMP/aat-attendance-20261104/release-combined-e947a205-20261109`.
+It contains the exact release, migration, recovery, worker, visual and backup/restore
+receipts. Current/previous runtime images and protected recovery resources remain.
+The final measured disk reserve was above 23 GiB; this is a point-in-time preflight,
+not a machine-wide guarantee. No project/database resources were deleted.
+
+---
+
 ## 9 November 11:42 UTC - compatibility release published; combined integration held
 
 Production now serves checked master 80b4c8ac on both apex and www: frontend
