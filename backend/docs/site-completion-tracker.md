@@ -1,3 +1,24 @@
+## 9 November 21:03 UTC - canonical reminder proof and frontend regression follow-up
+
+PR41 source d05113f6 passes a Git-filtered 1,299-file backend export, fresh
+102-migration replay/db:check,14 reminder cases,121 other booking cases and11
+learning API cases. The first canonical domain run had133 passes/two failures
+because this global-queue suite ran after lifecycle fixtures; the final harness
+matches CI and runs it first without weakening assertions or clearing records.
+Earlier worktree migration bytes differed from Git's configured line endings;
+the guard stopped that claim. Applied migration files were not rewritten.
+
+Expiry PR34's frontend42692306583 failed five cases after501 passes: four footer
+clearance cases and one Firefox Saved items focus case. The newer footer repair
+is retained. A follow-up schedules collection focus after the modal and target
+collection commit, covering successful removal and Escape cancellation; rendered
+confirmation remains pending. Reminder messages now use explicit Nigeria time;
+a UTC/date-boundary integration case awaits final-source verification. Types and
+scoped lint pass; no publication or real provider/role/device acceptance is claimed.
+Packaging and the complete original audit requirements remain open.
+
+---
+
 ## 9 November 20:39 UTC - configurable reminder source batch
 
 Branch codex/reminder-schedule-20261109 adds reviewed branch reminder settings with
@@ -9501,7 +9522,6 @@ preview fallback evidence, not production-data, actual-role or physical-device
 acceptance. Complete the compatibility check and merged-master gates, then stage
 and verify a production-environment frontend without assigning domains, and only
 then publish/check both aliases. The119-template design inventory remains open.
-
 
 ## 9 November - Home release gate repairs
 

@@ -52,6 +52,15 @@ final database run).
 
 ## Release and remaining acceptance
 
+Canonical d05113f6 verification subsequently passes: 102-migration replay/db:check,
+14 reminder cases first, then 121 other booking cases and 11 learning API cases.
+The initial canonical domain run had two failures because lifecycle fixtures left
+global due jobs before the reminder suite; matching CI's separate first invocation
+fixes the harness without clearing data or changing assertions. The earlier
+worktree/Git-filtered line-ending mismatch was not treated as canonical proof.
+No applied migration was rewritten. A subsequent Nigeria-time message change adds
+a UTC/date-boundary case; final-source verification remains pending.
+
 Exact-source CI, rendered evidence and exact-master gates remain. The pending
 product-timing and reminder migrations still need protected populated restore,
 packaged-image and recovery gates. Deploy and verify the compatible general worker

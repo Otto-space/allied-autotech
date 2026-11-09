@@ -185,6 +185,25 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(await notificationCount(f.booking.id)).toBe(1);
     });
 
+    it("shows Nigeria time when its calendar date differs from UTC", async () => {
+      const f = await fixture();
+      await prisma.booking.update({
+        where: { id: f.booking.id },
+        data: { scheduledAt: new Date("2048-12-31T23:30:00Z") },
+      });
+      expect(await new BookingReminderWorker().runOnce(1)).toEqual({
+        sent: 1,
+        cancelled: 0,
+      });
+      const notification = await prisma.notification.findFirstOrThrow({
+        where: { resourceId: f.booking.id },
+      });
+      expect(notification.message).toContain("1 January 2049");
+      expect(notification.message).toContain("00:30");
+      expect(notification.message).toContain("Nigeria time");
+      expect(notification.message).not.toContain("2048-12-31T23:30");
+    });
+
     it("cancels a delayed reminder after appointment time without recording absence", async () => {
       const f = await fixture();
       await prisma.booking.update({

@@ -1,3 +1,17 @@
+## 9 November 21:03 UTC - Saved items focus regression follow-up
+
+Earlier CI42692306583 failed the Firefox collection-change focus assertion and
+four footer-clearance cases, with501 passes before its failure limit. Preserve
+the newer footer fix. SavedCollections now waits for the committed target and
+closed review before focusing its tab; an explicit tab action/account change
+clears the pending focus. Removal remains bound to its original collection.
+Both removal and Escape cancellation now assert target focus and controlled write
+counts, with safe fixture captures. Types/lint pass; browser execution is pending.
+No actual customer collection was changed. Reminder authoring acceptance and the
+full original route/state/role/provider/device scope remain open below.
+
+---
+
 ## 9 November 20:39 UTC - reminder authoring acceptance pending
 
 Booking capacity extends its existing approval/recovery form with reminder times,

@@ -11,6 +11,17 @@ interface ClaimedReminder {
   attempts: number;
 }
 
+const appointmentDateTime = new Intl.DateTimeFormat("en-NG", {
+  timeZone: "Africa/Lagos",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  hourCycle: "h23",
+  minute: "2-digit",
+});
+
 export class BookingReminderWorker {
   constructor(private readonly database: PrismaClient = prisma) {}
 
@@ -138,7 +149,7 @@ export class BookingReminderWorker {
         type: "BOOKING",
         category: "TRANSACTIONAL",
         title: "Appointment reminder",
-        message: `Your Allied AutoTech appointment is scheduled for ${reminder.booking.scheduledAt.toISOString()}. Sign in to your booking to confirm attendance or cancel without a cancellation fee. No response does not cancel your appointment.`,
+        message: `Your Allied AutoTech appointment is scheduled for ${appointmentDateTime.format(reminder.booking.scheduledAt)} Nigeria time. Sign in to your booking to confirm attendance or cancel without a cancellation fee. No response does not cancel your appointment.`,
         resourceType: "BOOKING",
         resourceId: reminder.booking.id,
         expiresAt: reminder.booking.scheduledAt,
