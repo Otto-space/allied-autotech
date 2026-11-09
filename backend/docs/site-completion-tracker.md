@@ -1,3 +1,28 @@
+## 9 November 21:55 UTC - customer account focus verified in compiled browsers
+
+PR #44's compiled application, bd1d75d7, passes all 40 native Edge/Chrome cases:
+seven exact viewport pairs, both administrator roles, delayed refresh, deliberately
+moved focus, failed reads, rejected writes and filtered-row disappearance after
+confirmed or uncertain outcomes. Phone recovery cases additionally use 320x720
+mobile/touch contexts. No failures, retries or real outgoing writes occurred.
+The tests execute the committed regression file against the protected preview;
+trace/video/auth-state recording is disabled. Evidence:
+TEMP/allied-account-preview-bd1d75d7/report.json and its final-state captures.
+
+CI run 42705596768 passed lint, types, unit tests and the production build, then
+failed the quality register's formatting check. The extra blank line is corrected;
+the rerun must complete all 923 engine cases before release. Backend 42705596739
+and secret 42705596971 passed on bd1d75d7. This documentation-only checkpoint
+does not change the browser-verified application.
+
+Merged authentication/payment/quotation source 6538f4b5 has a READY production
+candidate, dpl_BKtDmMnbDf4n8JxznrkBtemRCMVt, held without public domains.
+Master frontend 42705393145 is running; backend 42705393276 and secret
+42705393445 passed. Held-candidate browser verification and publication remain
+pending. Public domains still serve the separate Home release 5464e402.
+The complete two-brief goal, active backend work and real-role/provider/device
+acceptance remain open.
+
 ## 9 November 21:45 UTC - payment/quotation gate passed and integrated
 
 PR38 source58f55aed passes all881 browser cases in24.3 minutes, plus production,
@@ -12,7 +37,6 @@ scoped lint/formatting and the existing account-action unit pass;42 new engine
 cases collect. The923-case combined matrix receives30 minutes instead of25 based
 on the measured881-case runtime; job timeout remains45 minutes and no test or
 assertion is removed. Compiled account-focus acceptance remains pending.
-
 
 ## 9 November 21:40 UTC - customer account review focus follow-up
 
@@ -9535,18 +9559,18 @@ The current source still has 119 page templates. The existing route/role/state
 inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
 this implementation adds the following ordered status overlay, not a second backlog:
 
-| Group | Scope                                                                          | Implementation / release status                                                                                                                                          |
-| ----- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Group | Scope                                                                          | Implementation / release status                                                                           |
+| ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
 | 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
-| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                                                                                                                         |
-| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                                                                                 |
-| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                                                                           |
-| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                                                                                |
-| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                                                                              |
-| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                                                                                 |
-| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                                                                                            |
-| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                                                                               |
-| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                                                                                        |
+| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                         |
+| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                  |
+| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
+| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
+| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
+| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                  |
+| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                             |
+| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                |
+| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                         |
 
 Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
 The approved editorial workshop/family/parts/showroom family replaces the old

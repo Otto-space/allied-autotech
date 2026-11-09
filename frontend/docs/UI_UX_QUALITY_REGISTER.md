@@ -1,3 +1,28 @@
+## 9 November 21:55 UTC - customer account focus verified in compiled browsers
+
+PR #44's compiled application, bd1d75d7, passes all 40 native Edge/Chrome cases:
+seven exact viewport pairs, both administrator roles, delayed refresh, deliberately
+moved focus, failed reads, rejected writes and filtered-row disappearance after
+confirmed or uncertain outcomes. Phone recovery cases additionally use 320x720
+mobile/touch contexts. No failures, retries or real outgoing writes occurred.
+The tests execute the committed regression file against the protected preview;
+trace/video/auth-state recording is disabled. Evidence:
+TEMP/allied-account-preview-bd1d75d7/report.json and its final-state captures.
+
+CI run 42705596768 passed lint, types, unit tests and the production build, then
+failed the quality register's formatting check. The extra blank line is corrected;
+the rerun must complete all 923 engine cases before release. Backend 42705596739
+and secret 42705596971 passed on bd1d75d7. This documentation-only checkpoint
+does not change the browser-verified application.
+
+Merged authentication/payment/quotation source 6538f4b5 has a READY production
+candidate, dpl_BKtDmMnbDf4n8JxznrkBtemRCMVt, held without public domains.
+Master frontend 42705393145 is running; backend 42705393276 and secret
+42705393445 passed. Held-candidate browser verification and publication remain
+pending. Public domains still serve the separate Home release 5464e402.
+The complete two-brief goal, active backend work and real-role/provider/device
+acceptance remain open.
+
 ## 9 November 21:45 UTC - payment/quotation gate passed and integrated
 
 PR38 source58f55aed passes all881 browser cases in24.3 minutes, plus production,
@@ -12,7 +37,6 @@ scoped lint/formatting and the existing account-action unit pass;42 new engine
 cases collect. The923-case combined matrix receives30 minutes instead of25 based
 on the measured881-case runtime; job timeout remains45 minutes and no test or
 assertion is removed. Compiled account-focus acceptance remains pending.
-
 
 ## 9 November 21:40 UTC - customer account review focus follow-up
 
