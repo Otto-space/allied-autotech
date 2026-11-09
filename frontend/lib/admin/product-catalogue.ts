@@ -260,7 +260,11 @@ export const productFormSchema = z
     }
   });
 export type ProductFormValues = z.infer<typeof productFormSchema>;
-export function productBody(values: ProductFormValues, record?: AdminProduct | null) {
+export function productBody(
+  values: ProductFormValues,
+  record?: AdminProduct | null,
+  timingSupported = true,
+) {
   return {
     ...(values.family === undefined
       ? {}
@@ -285,11 +289,15 @@ export function productBody(values: ProductFormValues, record?: AdminProduct | n
     brand: values.brand || null,
     manufacturerPartNumber: values.manufacturerPartNumber || null,
     description: values.description || null,
-    sourcingDaysMin: values.sourcingDaysMin ? Number(values.sourcingDaysMin) : null,
-    sourcingDaysMax: values.sourcingDaysMax ? Number(values.sourcingDaysMax) : null,
-    preparationMinutes: values.preparationMinutes
-      ? Number(values.preparationMinutes)
-      : null,
+    ...(timingSupported
+      ? {
+          sourcingDaysMin: values.sourcingDaysMin ? Number(values.sourcingDaysMin) : null,
+          sourcingDaysMax: values.sourcingDaysMax ? Number(values.sourcingDaysMax) : null,
+          preparationMinutes: values.preparationMinutes
+            ? Number(values.preparationMinutes)
+            : null,
+        }
+      : {}),
     priceKobo: nairaToKobo(values.priceKobo),
     compareAtPriceKobo: values.compareAtPriceKobo
       ? nairaToKobo(values.compareAtPriceKobo)

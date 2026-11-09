@@ -1,3 +1,14 @@
+### 9 November: preserve published-catalogue compatibility during sourcing integration
+
+Merged master 9f9ee2f8 into the D13 source batch 78ea32b9. Kept the newer product
+form capability detection and omission of unsupported timing fields, its recovery
+checks and older-catalogue browser cases byte-for-byte. The runtime configuration
+retains both that project coverage and the new order-sourcing cases. Only an appended
+tracker history conflicted; both histories are retained. Backend runtime/schema and
+learning source are unchanged by this frontend compatibility merge. The earlier e45
+hosted matrix reported a failure and its terminal log is being retrieved; it is not
+counted as passed. No production change or purchasing activation occurred.
+
 ### 9 November: order-specific sourcing and preparation implementation (held)
 
 D13 now has per-order, per-item sourcing progress, nullable arrival ranges in
@@ -9698,3 +9709,37 @@ verify compatibility with the unchanged backend, publish and check both aliases.
 No group or full-platform completion/release claim yet.
 
 ---
+
+## 9 November - frontend compatibility before Home publication
+
+PR36 merged to master bc88d970; signature and merged tree were verified. All
+three exact-master gates are running. The live aliases remain160d3b7b, with the
+compatible old backend9c219bc8 / deploymentc3c54414 unchanged by this task.
+
+Release comparison found a concrete compatibility blocker inherited from PR32:
+productBody always sends three timing keys, including nulls, while the published
+backend's product create/update schemas are strict and predate those keys. Do not
+publish this combination or trigger the unrelated product-timing backend rollout.
+
+The frontend follow-up recognizes a timing-capable catalogue only when its actual
+response includes all three timing keys; explicit null and zero still count as
+supported. Existing-record editing uses that record. New-record editing makes one
+small authorized catalogue read; absent, partial, empty or failed data leaves the
+optional controls hidden and omits the unsupported keys from save/review. Ordinary
+product creation/editing remains available. A newly empty upgraded catalogue can
+create its first product without estimates, then add them after the new contract
+is visible. No backend API/schema, flags, permissions, prices or records changed.
+
+Known newer-contract estimate validation, zero/unknown distinction and explicit
+clearing remain covered. The shared product fixture now represents the current
+new contract with explicit nulls and has an older strict-server mode that omits
+and rejects timing keys. Two focused390/1440 create/edit cases join the existing
+production-build matrix. Twenty-seven product units, affected lint/formatting and
+TypeScript pass locally; final hosted fixture and exact-source checks pending.
+
+The corrected Home/support preview passes all nine Edge size/interaction/hit-test
+samples,390/1440 scoped Axe and manual reference/render comparison. This remains
+preview fallback evidence, not production-data, actual-role or physical-device
+acceptance. Complete the compatibility check and merged-master gates, then stage
+and verify a production-environment frontend without assigning domains, and only
+then publish/check both aliases. The119-template design inventory remains open.

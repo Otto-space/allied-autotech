@@ -512,3 +512,43 @@ for (const width of [375, 430, 1440])
     await expect(review(page)).toBeFocused();
     expect(state.writes).toHaveLength(0);
   });
+
+for (const width of [390, 1440]) {
+  test(`older catalogue keeps product create and edit usable at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const { state } = await workProductsFixture(page);
+    state.timingSupported = false;
+    await page.goto(`${path}?edit=${bookingId(1000)}`);
+    await expect(page.getByLabel("Name", { exact: true })).toHaveValue(
+      "Ceramic brake pads",
+    );
+    await expect(page.getByLabel("Minimum sourcing days (optional)")).toHaveCount(0);
+    await page.getByLabel("Name", { exact: true }).fill("Synthetic older-catalogue edit");
+    await review(page).click();
+    await expect(page.getByRole("dialog")).not.toContainText("Sourcing estimate");
+    await confirm(page).click();
+    await expect(page.getByText("Product saved.", { exact: true }).first()).toBeVisible();
+    expect(state.writes).toHaveLength(1);
+    expect(state.writes[0].body.expectedUpdatedAt).toBe("2026-10-13T08:00:00.000Z");
+    await page.goto(`${path}?view=create`);
+    await fillCreate(page);
+    await expect
+      .poll(() =>
+        state.reads.some(
+          (url) =>
+            url.pathname.endsWith("/products") && url.searchParams.get("limit") === "1",
+        ),
+      )
+      .toBe(true);
+    await expect(page.getByLabel("Minimum sourcing days (optional)")).toHaveCount(0);
+    await review(page).click();
+    await confirm(page).click();
+    await expect(page.getByText("Product saved.", { exact: true }).first()).toBeVisible();
+    expect(state.writes).toHaveLength(2);
+    for (const write of state.writes)
+      for (const key of ["sourcingDaysMin", "sourcingDaysMax", "preparationMinutes"])
+        expect(write.body).not.toHaveProperty(key);
+  });
+}

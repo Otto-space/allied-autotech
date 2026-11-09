@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { productTimingLabels } from "@/lib/product-timing";
+import { productTimingLabels, supportsProductTiming } from "@/lib/product-timing";
 import {
   productQuery,
   productFormSchema,
@@ -44,6 +44,41 @@ const values = {
   isActive: true,
 };
 describe("administrator product boundaries", () => {
+  it("requires the complete timing response contract and omits unknown keys for an older server", () => {
+    expect(supportsProductTiming(parseAdminProduct(record))).toBe(false);
+    expect(supportsProductTiming({ sourcingDaysMin: null })).toBe(false);
+    expect(
+      supportsProductTiming({
+        sourcingDaysMin: null,
+        sourcingDaysMax: null,
+        preparationMinutes: null,
+      }),
+    ).toBe(true);
+    expect(
+      supportsProductTiming({
+        sourcingDaysMin: 0,
+        sourcingDaysMax: 0,
+        preparationMinutes: 0,
+      }),
+    ).toBe(true);
+    const body = productBody(
+      productFormSchema.parse({
+        ...values,
+        sourcingDaysMin: "3",
+        sourcingDaysMax: "7",
+        preparationMinutes: "60",
+      }),
+      parseAdminProduct(record),
+      false,
+    );
+    for (const key of ["sourcingDaysMin", "sourcingDaysMax", "preparationMinutes"])
+      expect(body).not.toHaveProperty(key);
+    expect(body).toMatchObject({
+      expectedUpdatedAt: record.updatedAt,
+      sku: "PAD-1",
+      priceKobo: record.priceKobo,
+    });
+  });
   it("keeps zero estimates distinct from unknown values and sends explicit clearing", () => {
     const zero = productBody(
       productFormSchema.parse({
