@@ -1,3 +1,25 @@
+### 9 November 2026: newer fixes reconciled before publication
+
+Owner requested inspection and integration without overwriting newer fixes.
+Checkpoint ee5ce616 preserves the verified D03 presentation; merge 3da72b60
+then incorporates master 4bfd12d6, including PR25's cross-browser calendar/modal
+acceptance and the newer attendance release evidence. Only the two evidence
+registers conflicted; both histories were retained. No application code or schema
+changed during this reconciliation. The imported CI, TLS fixture and six modified
+calendar/modal/search/dock test files match master byte-for-byte. The runtime
+configuration retains every master project and adds only D03's seven cases.
+
+Fresh integrated checks: invoice/summary units 19/19, runtime discovery 435 cases
+in 30 files (collection only, not a claimed 435-case execution), TLS-fixture syntax,
+scoped ESLint, diff whitespace and the 3,891-file secret guard passed. Earlier
+native/rendered evidence below remains identified by its actual source and scope;
+no unnecessary database replay, image build or production mutation was repeated.
+C: preflight passed at 22.29 GiB with a 0.2 GiB allowance. The owned test database
+and preview remain stopped/removed; useful caches and other tasks are preserved.
+Desktop's separate home-hero edit was not touched. This integration is pushed on
+the work branch, not published or represented as exact-master release acceptance.
+D03's remaining materials/amendment/vehicle-release controls below remain active.
+
 ### 9 November 2026: D03 invoice presentation verified; full journey still held
 
 This source adds the minimal public stage summary, customer and authorised

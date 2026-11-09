@@ -1,3 +1,16 @@
+### 9 November 2026: integration preserves newer responsive acceptance
+
+Merge 3da72b60 incorporates master 4bfd12d6 without replacing its calendar, modal,
+dock, search-recovery, TLS-fixture or cross-browser CI changes. Those imported
+files match master exactly; runtime configuration adds only the seven D03 cases.
+Both conflicting evidence histories were retained. No application or schema code
+changed in the merge. Fresh invoice units pass 19/19; discovery collects 435 tests
+in 30 files, without claiming execution. Scoped ESLint, fixture syntax, whitespace
+and the 3,891-file secret guard pass. Prior rendered/native evidence retains its
+recorded source and limitations. No deployment, flag, real-role/provider approval,
+new installation or broad rebuild is implied. The independent Desktop hero edit
+remains untouched. D03 stays held until its remaining complete-journey controls.
+
 ### 9 November 2026: D03 invoice presentation verified; full journey still held
 
 This source adds the minimal public stage summary, customer and authorised
