@@ -61,7 +61,8 @@ function PickupPanel({
     [error, setError] = useState<string>(),
     [loading, setLoading] = useState(true),
     [changed, setChanged] = useState(false),
-    [uncertain, setUncertain] = useState(false);
+    [uncertain, setUncertain] = useState(false),
+    [uncertainMessage, setUncertainMessage] = useState("");
   const [secret, setSecret] = useState<z.infer<typeof pickupIssueResultSchema>>(),
     [review, setReview] = useState<PickupReview>(),
     [code, setCode] = useState("");
@@ -337,8 +338,16 @@ function PickupPanel({
               alive.current &&
               sent &&
               !(cause instanceof ApiError && cause.status >= 400 && cause.status < 500)
-            )
+            ) {
               setUncertain(true);
+              setUncertainMessage(
+                action === "handover"
+                  ? "The handover record is uncertain. Do not hand over the goods again. Reopen the order and check history; ask an administrator if goods may already have left."
+                  : action === "verify"
+                    ? "The review may have been saved. Close the dialog, refresh collection details and check your existing review before any handover."
+                    : "The update outcome is uncertain. Close the dialog, refresh collection details and review the saved state before making another change.",
+              );
+            }
             throw cause;
           } finally {
             if (alive.current) onBusyChange?.(false);
@@ -361,7 +370,7 @@ function PickupPanel({
         Payment, readiness and physical collection are separate. A public order number
         cannot authorise collection.
       </p>
-      {loading && <p role="status">Checking collection details?</p>}
+      {loading && <p role="status">Checking collection details...</p>}
       {changed && (
         <Feedback message="Your access changed. Reopen the order to continue." />
       )}
@@ -371,9 +380,7 @@ function PickupPanel({
         </div>
       )}
       {notice && <p role="status">{notice}</p>}
-      {uncertain && (
-        <Feedback message="The result is uncertain. Do not repeat a handover. Reopen the order and review the saved history; ask an administrator if goods may already have left." />
-      )}
+      {uncertain && <Feedback message={uncertainMessage} />}
       <button
         type="button"
         className="button secondary"
@@ -394,7 +401,7 @@ function PickupPanel({
             <div className={styles.secret}>
               <h3>Collection holding period</h3>
               <p>
-                Five collection days, Monday?Saturday, after readiness and successful
+                Five collection days, Monday-Saturday, after readiness and successful
                 notification. Public holidays count. The same rule applies to
                 imported/custom parts.
               </p>
@@ -541,7 +548,7 @@ function PickupPanel({
             <ul>
               {summary.remaining.map((line) => (
                 <li key={line.orderItemId}>
-                  {name(line.orderItemId)} ? {line.quantity} remaining
+                  {name(line.orderItemId)}: {line.quantity} remaining
                 </li>
               ))}
             </ul>
@@ -673,12 +680,12 @@ function PickupPanel({
                 <ul>
                   {review.lines.map((line) => (
                     <li key={line.orderItemId}>
-                      {line.productName} ? {line.quantity}
+                      {line.productName}: {line.quantity}
                     </li>
                   ))}
                 </ul>
                 <label>
-                  Collector?s name
+                  Collector name
                   <input
                     className="input"
                     name="collectorName"
@@ -745,11 +752,11 @@ function PickupPanel({
             <ul>
               {summary.handovers.map((row) => (
                 <li key={row.id}>
-                  {formatBusinessDate(row.createdAt)} ? {row.collectorName}
+                  {formatBusinessDate(row.createdAt)} - {row.collectorName}
                   <ul>
                     {row.lines.map((line) => (
                       <li key={line.orderItemId}>
-                        {name(line.orderItemId)} ? {line.quantity}
+                        {name(line.orderItemId)}: {line.quantity}
                       </li>
                     ))}
                   </ul>

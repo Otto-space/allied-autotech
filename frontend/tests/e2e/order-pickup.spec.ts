@@ -140,7 +140,7 @@ for (const width of [320, 1440])
       panel.getByRole("group", { name: "Record physical handover", exact: true }),
     ).toBeVisible();
     expect(writes.map((write) => write.suffix)).toEqual(["verify"]);
-    await panel.getByLabel("Collector?s name").fill("Synthetic collector");
+    await panel.getByLabel("Collector name").fill("Synthetic collector");
     await panel
       .getByLabel("Verification note")
       .fill("Synthetic authority and actual goods checked; no ID number stored");
@@ -158,7 +158,7 @@ for (const width of [320, 1440])
     ).toBeVisible();
     expect(writes.map((write) => write.suffix)).toEqual(["verify", "handover"]);
     await page.reload();
-    await expect(panel).toContainText("Engine oil ? 1 remaining");
+    await expect(panel).toContainText("Engine oil: 1 remaining");
     await expect(panel).toContainText("Synthetic collector");
     await expect(panel.getByLabel("Private pickup code", { exact: true })).toHaveValue(
       "",
@@ -274,6 +274,7 @@ for (const audience of ["customer", "guest"] as const)
           json: {
             success: true,
             data: { csrfToken: "c".repeat(43) },
+            message: "Synthetic current-session CSRF",
             meta: { requestId: "synthetic-csrf" },
           },
         }),

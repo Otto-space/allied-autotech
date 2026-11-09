@@ -1,3 +1,20 @@
+### 10 November: pickup evidence review and complete CSRF fixture
+
+Source90feb4e1 hosted42711745848 again passed production/calendar/media and the
+three staff/legacy pickup cases. Its customer trace confirms the actual blocking
+error occurs in the CSRF fixture: the mandatory response message was missing, so
+the client rejected it before any code issuance. The earlier lifetime callback
+change is retained as protection for a completed issuance, not evidence that parent
+refresh caused this particular failure. The test now returns the full CSRF envelope;
+once-only, no-storage and refresh assertions are unchanged.
+
+Inspected the actual 320/1440 panel screenshots from62815e7c. Corrected authored
+punctuation corruption, restored fieldset grouping above dashboard resets, bounded
+desktop form width and retained full mobile action width. Quantity/history lists
+now have readable separation. Unknown outcomes distinguish review/update from actual
+physical handover. These refinements still require new rendered acceptance. No
+production publication or D17 financial capability is claimed.
+
 ### 9 November: preserve buyer one-time pickup code after issuance
 
 Hosted62815e7c frontend42708988094 passed production/calendar/media checks and
