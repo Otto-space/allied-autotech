@@ -66,6 +66,7 @@ for (const [width, height] of viewports) {
       "Understand your vehicle’s condition.",
     );
     await expect(hero).toHaveAttribute("data-rotating", "false");
+    const initialHero = await hero.boundingBox();
     for (let i = 0; i < 4; i++) {
       await hero
         .getByRole("button", { name: new RegExp(`Show slide ${i + 1}:`) })
@@ -77,6 +78,18 @@ for (const [width, height] of viewports) {
       );
       await expect(hero.locator('img[data-current="true"]')).toHaveCount(1);
       await expect(hero.getByRole("heading", { level: 1 })).toHaveCount(1);
+      // Changing slides must not move the next section or crowd the controls.
+      expect((await hero.boundingBox())!.height).toBeCloseTo(initialHero!.height, 0);
+      const action = await hero.locator("a[data-hero-primary]:visible").boundingBox();
+      const picker = await hero
+        .getByRole("button", { name: /Show slide 1:/ })
+        .boundingBox();
+      expect(picker!.y).toBeGreaterThanOrEqual(action!.y + action!.height);
+    }
+    if (width <= 430) {
+      await page.evaluate(() => scrollTo(0, 0));
+      const nextHeading = await page.locator(".home-discovery h2").boundingBox();
+      expect(nextHeading!.y + nextHeading!.height).toBeLessThanOrEqual(height);
     }
     await hero.getByRole("button", { name: /Show slide 1:/ }).click();
     for (const control of await hero.getByRole("button").all()) {
@@ -153,6 +166,69 @@ for (const [width, height] of viewports) {
     expect(errors).toEqual([]);
   });
 }
+test.describe("compact phone carousel controls", () => {
+  test.use({ hasTouch: true });
+  for (const [width, height] of [
+    [320, 667],
+    [360, 600],
+    [360, 800],
+    [390, 844],
+    [430, 932],
+  ]) {
+    test(`touch controls keep the page still at ${width}x${height}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto("/");
+      await page.evaluate(() => document.fonts.ready);
+      const carousel = page.getByRole("region", { name: "Workshop highlights" });
+      const controls = carousel.locator("[data-carousel-controls]");
+      await expect(controls.getByRole("button")).toHaveCount(7);
+      const row = await controls.boundingBox();
+      expect(row!.x).toBeGreaterThanOrEqual(0);
+      expect(row!.x + row!.width).toBeLessThanOrEqual(width);
+      for (const button of await controls.getByRole("button").all()) {
+        const box = await button.boundingBox();
+        expect(box!.width).toBeGreaterThanOrEqual(24);
+        expect(box!.height).toBeGreaterThanOrEqual(44);
+        expect(box!.y + box!.height / 2).toBeCloseTo(row!.y + row!.height / 2, 0);
+        await expect(button).toBeInViewport({ ratio: 1 });
+        // Native coordinates avoid locator.tap() scrolling the target for us.
+        await page.touchscreen.tap(box!.x + box!.width / 2, box!.y + box!.height / 2);
+        expect(
+          await page.evaluate(async () => {
+            // The shared reveal helper queues animation frames after activation.
+            for (let frame = 0; frame < 3; frame++)
+              await new Promise<void>((resolve) =>
+                requestAnimationFrame(() => resolve()),
+              );
+            return scrollY;
+          }),
+        ).toBe(0);
+        expect(new URL(page.url()).hash).toBe("");
+        expect(new URL(page.url()).pathname).toBe("/");
+      }
+      await expect(carousel).toHaveAttribute("data-slide", "1");
+      await expect(carousel).toHaveAttribute("data-rotating", "true");
+      const pause = await controls
+        .getByRole("button", { name: "Pause slideshow" })
+        .boundingBox();
+      await page.touchscreen.tap(
+        pause!.x + pause!.width / 2,
+        pause!.y + pause!.height / 2,
+      );
+      await expect(carousel).toHaveAttribute("data-rotating", "false");
+      await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
+      const heading = await page.locator(".home-discovery h2").boundingBox();
+      const dock = await page.locator(".support-controls").boundingBox();
+      expect(
+        heading!.x + heading!.width <= dock!.x ||
+          heading!.y + heading!.height <= dock!.y ||
+          heading!.y >= dock!.y + dock!.height,
+      ).toBe(true);
+    });
+  }
+});
+
 test("all editorial images failing retains the task and stops rotation", async ({
   page,
 }) => {

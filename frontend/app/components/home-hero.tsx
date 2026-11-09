@@ -221,11 +221,42 @@ export function HomeHero() {
               <span className={styles.unavailable}>Editorial image unavailable</span>
             )}
           </div>
-          <div className={styles.controls}>
+          <div className={styles.controls} data-carousel-controls>
             {enhanced && (
               <>
                 <button
                   type="button"
+                  disabled={allFailed}
+                  aria-label="Previous slide"
+                  onClick={() => move(-1)}
+                >
+                  <ChevronLeft size={20} aria-hidden="true" />
+                </button>
+                <div className={styles.pickers} role="group" aria-label="Choose a slide">
+                  {slides.map((slide, index) => (
+                    <button
+                      key={slide.image}
+                      type="button"
+                      disabled={allFailed}
+                      aria-label={`Show slide ${index + 1}: ${slide.action}`}
+                      aria-current={state.current === index ? "true" : undefined}
+                      onClick={() => move(index < state.current ? -1 : 1, index)}
+                    >
+                      <span />
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  disabled={allFailed}
+                  aria-label="Next slide"
+                  onClick={() => move(1)}
+                >
+                  <ChevronRight size={20} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  className={styles.playback}
                   disabled={allFailed}
                   onPointerDown={() => {
                     pointerStop.current = !stopped;
@@ -247,36 +278,6 @@ export function HomeHero() {
                     <Pause size={17} aria-hidden="true" />
                   )}
                   <span className="sr-only">{stopped ? "Play" : "Pause"}</span>
-                </button>
-                <div className={styles.pickers} role="group" aria-label="Choose a slide">
-                  {slides.map((slide, index) => (
-                    <button
-                      key={slide.image}
-                      type="button"
-                      disabled={allFailed}
-                      aria-label={`Show slide ${index + 1}: ${slide.action}`}
-                      aria-current={state.current === index ? "true" : undefined}
-                      onClick={() => move(index < state.current ? -1 : 1, index)}
-                    >
-                      <span />
-                    </button>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  disabled={allFailed}
-                  aria-label="Previous slide"
-                  onClick={() => move(-1)}
-                >
-                  <ChevronLeft size={20} aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  disabled={allFailed}
-                  aria-label="Next slide"
-                  onClick={() => move(1)}
-                >
-                  <ChevronRight size={20} aria-hidden="true" />
                 </button>
               </>
             )}

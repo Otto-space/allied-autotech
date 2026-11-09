@@ -7,10 +7,12 @@
 }
 .layout {
   width: min(1200px, calc(100% - 48px));
-  min-height: 780px;
+  min-height: 560px;
   margin-inline: auto;
-  padding-block: 104px 144px;
+  padding-block: 56px 28px;
   display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 28px;
   align-items: center;
 }
 .content {
@@ -101,16 +103,17 @@
   opacity: 1;
 }
 .controls {
-  position: absolute;
-  right: max(96px, calc((100% - 1200px) / 2));
-  bottom: 32px;
+  position: relative;
+  justify-self: end;
+  margin-right: 72px;
+  max-width: 100%;
   z-index: 2;
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 6px;
   border: 1px solid #ffffff59;
-  border-radius: 10px;
+  border-radius: 999px;
   background: #080c0fe6;
   color: var(--text-inverse);
 }
@@ -126,7 +129,7 @@
   background: transparent;
   color: inherit;
   border: 0;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
   font-family: var(--font-body);
   font-size: 13px;
@@ -138,6 +141,11 @@
 .controls button:disabled {
   opacity: 0.45;
   cursor: default;
+}
+.controls .playback {
+  margin-left: 4px;
+  border-left: 1px solid #ffffff40;
+  border-radius: 0 24px 24px 0;
 }
 .hero :is(button, a):focus-visible {
   outline: 3px solid var(--text-inverse);
@@ -169,51 +177,41 @@
   color: var(--text-inverse-muted);
   font-size: 13px;
 }
-@media (max-width: 1023px) {
-  .layout {
-    min-height: 720px;
-  }
-}
 @media (max-width: 767px) {
   .layout {
     width: calc(100% - 32px);
-    min-height: 650px;
-    padding-block: 64px 144px;
+    min-height: 0;
+    padding-block: 36px 24px;
+    gap: 24px;
   }
   .hero .title {
-    font-size: clamp(36px, 7.5vw, 50px);
+    font-size: clamp(32px, 8.5vw, 42px);
     max-width: 18ch;
   }
   .hero .copy {
     font-size: 16px;
-    margin-block: 20px 28px;
+    margin-block: 16px 24px;
   }
   .media::after {
     background: linear-gradient(90deg, #080c0ff2, #080c0fd9);
   }
   .controls {
-    left: 16px;
-    right: auto;
-    bottom: 28px;
+    justify-self: start;
+    margin-right: 0;
     gap: 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    justify-items: center;
   }
   .controls button {
     width: 44px;
     min-height: 44px;
   }
   .pickers button {
-    width: 44px;
-  }
-  .pickers {
-    grid-column: 1 / -1;
-    grid-row: 1;
+    width: 32px;
   }
   .actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
-    gap: 12px;
+    gap: 10px;
   }
   .actions a {
     padding-inline: 16px;
