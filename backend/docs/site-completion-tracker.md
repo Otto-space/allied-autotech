@@ -10628,3 +10628,22 @@ passed its build and units but failed formatting of this newly appended quality
 record; browser stages did not run. Format the record, retain the strengthened
 scan and rerun all three gates on the resulting exact master. Do not publish the
 failed commit or describe it as a complete frontend pass.
+
+## 10 November - close the photo-present overview gap before publication
+
+The retained 102b10f4 multi-photo CI screenshot exposes a blank band between the
+right-side product identity and price panels. The gallery spans two auto-sized
+rows; surplus height was distributed into both tracks while the panels align to
+their starts. Use a min-content identity track and let the second track absorb
+the taller gallery. Reset rows on the phone's single-column flow. Add an assertion
+to the existing desktop product journeys that identity and price share their edge.
+
+A bounded same-origin stylesheet override on the held e768 application, with a
+clearly synthetic 750px gallery height and unchanged real product data, measures
+zero identity/price gap at 1440 and 1024 and no overflow at 390. CSP remains intact.
+This is a geometry diagnostic, not packaged photo-present acceptance; final CI
+records must still verify actual multi-photo fixtures and all complete gates.
+Evidence: parts-grid-geometry-diagnostic.json. The earlier matcher omitted the
+stylesheet query and did not apply; that attempt is excluded. Application data,
+permissions, timing and enquiry behaviour are unchanged. Public remains b1222a11;
+source 2537650d's checked-format gate is superseded by this necessary visual repair.

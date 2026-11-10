@@ -1076,6 +1076,7 @@
 /* The product overview keeps the reference's photo/information split. */
 .pd-top-grid {
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  grid-template-rows: min-content 1fr auto;
   gap: 0 28px;
 }
 .product-detail .pd-top-grid > .pd-heading {
@@ -1152,6 +1153,7 @@
 @media (max-width: 899px) {
   .pd-top-grid {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
     gap: 16px;
   }
   .pd-top-grid > .pd-section-nav {

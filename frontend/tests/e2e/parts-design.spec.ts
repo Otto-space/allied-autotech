@@ -140,6 +140,12 @@ for (const [width, height] of [
       })
       .click();
     await expect(page.locator("main h1")).toHaveText("Synthetic stitch-fixture part 1");
+    if (width >= 900) {
+      const identity = await page.locator(".pd-heading").boundingBox();
+      const availability = await page.locator(".pd-purchase").boundingBox();
+      // A tall gallery must not insert empty space between identity and price.
+      expect(availability!.y).toBeCloseTo(identity!.y + identity!.height, 0);
+    }
     await expect(
       page.getByRole("link", { name: "Send an enquiry", exact: true }),
     ).toBeVisible();
