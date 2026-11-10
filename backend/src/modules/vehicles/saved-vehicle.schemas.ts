@@ -35,6 +35,7 @@ export const savedVehicleListingSchema = z.object({
     manufactureCountryCode: z.string().nullable().optional(),
     powertrain: z.enum(["BEV", "HEV", "PHEV", "ICE"]).nullable().optional(),
     engineCapacityCc: z.number().int().nullable().optional(),
+    engineDetails: z.string().max(500).nullable().optional(),
     engineCode: z.string().nullable().optional(),
     cylinders: z.number().int().nullable().optional(),
     ownerReportedCondition: z.string().nullable().optional(),

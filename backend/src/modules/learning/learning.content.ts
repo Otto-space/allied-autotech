@@ -172,8 +172,8 @@ export const learningArticles: LearningArticle[] = [
       "Maintain vehicle records and asking prices",
       "Admin and Super Admin can maintain vehicle stock, draft listings and asking prices with current verified access. Owner-only controls and separate financial approvals remain restricted.",
       [
-        "Open Vehicle stock, choose Add vehicle record and enter the actual branch, stock number and known vehicle details. Preserve unknown values and review before confirming. A stock record does not publish a listing.",
-        "Choose View details on a stock row to inspect its facts, or Edit details to open the existing specifications editor. The detail header also offers Edit details. Use the horizontal section links for listings, photos, documents and condition; scroll this row locally when needed. Opening an editor saves nothing. Review changes before explicitly confirming. Create a draft listing with an initial asking price when needed. Use ungrouped NGN or correctly grouped commas, such as 55000000.00 or 55,000,000.00. Review the exact amount before saving.",
+        "Open Vehicle stock, choose Add vehicle record and enter the actual branch, stock number and known vehicle details. Preserve unknown values and review before confirming. Engine / Power type, Fuel type, Drive system and Transmission describe separate facts. Engine & drive keeps supplied Engine details (up to 500 characters) separate from precise capacity and known issues. Additional features are individual items, up to 40 with 80 characters each; commas within an item are preserved. Only include equipment supplied for this vehicle. Changing power type never clears other supplied specifications. A stock record does not publish a listing.",
+        "Choose View details on a stock row to inspect its facts, or Edit details to open the existing specifications editor. The detail header also offers Edit details. Use the horizontal section links for listings, photos, documents and condition; scroll this row locally when needed. Opening an editor saves nothing. Review changes before explicitly confirming. Saving public vehicle details updates existing listings without creating a listing or changing its status. Create a draft listing with an initial asking price when needed. Use ungrouped NGN or correctly grouped commas, such as 55000000.00 or 55,000,000.00. Review the exact amount before saving.",
         "Use Manage asking price to enter a different amount and reason. Price history records your signed-in account; an employee profile is not required for Admin or Super Admin. Reserved, sold and archived listings retain their committed-price safeguards.",
         "Document review records the reviewing account and the decision. Review the actual evidence; a role does not establish document authenticity. Publishing still requires the normal photo, branch, price and lifecycle checks.",
         "If a record changed, reload and inspect its current version before editing again. For an uncertain response, inspect the recorded state and history before acknowledging it; do not retry automatically or guess a new price.",
@@ -182,8 +182,8 @@ export const learningArticles: LearningArticle[] = [
       "VehiclesService role/branch policy and User-attributed price/document audit",
       "vehicle stock create edit draft listing asking price history administrator",
     ),
-    version: 2,
-    reviewedAt: "2026-11-02",
+    version: 3,
+    reviewedAt: "2026-11-09",
   },
   {
     ...article(
@@ -464,7 +464,7 @@ export const learningArticles: LearningArticle[] = [
       "Enquire about a vehicle or inspection",
       "An enquiry or preferred inspection time is not a reservation or confirmed appointment.",
       [
-        "Open Vehicles. Edit pending preferences in Filters, then choose Apply filters. Used includes unspecified, foreign and Nigerian use; refine the recorded history when known. Assembly location is separate. Clear all filters preserves search and sort; Reset search clears the full discovery state.",
+        "Open Vehicles. Edit pending preferences in Filters, then choose Apply filters. Used includes unspecified, foreign and Nigerian use; refine the recorded history when known. Assembly location is separate. Engine / Power type, Fuel type and Drive system are separate filters. Additional features lists supplied equipment, not a certification that it was tested or works; missing features mean information was not supplied. Engine details preserve the supplied description without inferring other specifications. Clear all filters preserves search and sort; Reset search clears the full discovery state.",
         "Open a listing and read the owner-reported condition and known issues beside the enquiry action. These statements are separate from a recorded inspection; missing information does not mean fault-free. Use the requirements enquiry if no listing suits you.",
         "Review the enquiry before sending. In an enquiries release, send a vehicle enquiry to discuss an inspection; there is no online inspection request action. Use an inspection request only when the listing offers it. Neither an enquiry nor a submitted request confirms a visit or reserves the vehicle. The team confirms any inspection separately.",
       ],
@@ -472,8 +472,8 @@ export const learningArticles: LearningArticle[] = [
       "Vehicle discovery and listing-less enquiry contracts",
       "car sale inspection reservation known issues condition owner reported",
     ),
-    version: 5,
-    reviewedAt: "2026-11-02",
+    version: 6,
+    reviewedAt: "2026-11-09",
   },
   {
     ...article(

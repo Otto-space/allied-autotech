@@ -55,6 +55,29 @@ for (const [width, height] of [
     await expect(page.locator("main h1")).toHaveText(
       "Find the service your vehicle needs",
     );
+    await expect(page.locator(".services-row").first()).toBeVisible();
+    const cardActions = await page
+      .locator(".services-row-actions")
+      .evaluateAll((actions) =>
+        actions.map((action) => {
+          const price = action
+            .querySelector(".services-row-price")!
+            .getBoundingClientRect();
+          const link = action
+            .querySelector(".services-view-link")!
+            .getBoundingClientRect();
+          return {
+            priceBottom: price.bottom,
+            linkTop: link.top,
+            linkHeight: link.height,
+          };
+        }),
+      );
+    for (const action of cardActions) {
+      expect(action.linkTop).toBeGreaterThanOrEqual(action.priceBottom);
+      expect(action.linkHeight).toBeGreaterThanOrEqual(44);
+      expect(action.linkHeight).toBeLessThan(96);
+    }
     if (width <= 430) {
       await expect(page.getByLabel("Search services", { exact: true })).toBeInViewport({
         ratio: 1,

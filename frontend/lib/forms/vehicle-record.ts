@@ -61,21 +61,27 @@ export const recordSchema = z.object({
     ),
   powertrain: z.enum(["", ...vehicleEnums.powertrain]),
   engineCapacityCc: optionalInteger(1, 30000),
-  features: text(3239).refine((v) => {
-    const a = v
-      .split(",")
-      .map((f) => f.trim())
-      .filter(Boolean);
-    return (
-      a.length <= 40 &&
-      a.every((f) => f.length <= 80) &&
-      new Set(a.map((f) => f.toLowerCase())).size === a.length
-    );
-  }, "Use up to 40 distinct features, each up to 80 characters, separated by commas."),
+  features: z
+    .array(z.object({ value: text(80).min(1, "Enter a feature or remove this item.") }))
+    .max(40, "Use up to 40 features.")
+    .superRefine((items, context) => {
+      const seen = new Set<string>();
+      items.forEach((item, index) => {
+        const key = item.value.toLowerCase();
+        if (seen.has(key))
+          context.addIssue({
+            code: "custom",
+            path: [index, "value"],
+            message: "This feature is already in the list.",
+          });
+        seen.add(key);
+      });
+    }),
   engineCode: text(40).optional(),
   cylinders: optionalInteger(1, 24).optional(),
   ownerReportedCondition: text(2000).optional(),
   ownerReportedIssues: text(4000).optional(),
+  engineDetails: text(500).optional(),
   engineSize: text(40),
   color: text(40),
   doors: optionalInteger(1, 20),
@@ -127,10 +133,7 @@ export function vehicleRecordBody(
     manufactureCountryCode: value.manufactureCountryCode || null,
     powertrain: value.powertrain || null,
     engineCapacityCc: nullableNumber(value.engineCapacityCc),
-    features: value.features
-      .split(",")
-      .map((v) => v.trim())
-      .filter(Boolean),
+    features: value.features.map((item) => item.value.trim()),
     ...(value.engineCode !== undefined ? { engineCode: value.engineCode || null } : {}),
     ...(value.cylinders !== undefined
       ? { cylinders: nullableNumber(value.cylinders) }
@@ -140,6 +143,9 @@ export function vehicleRecordBody(
       : {}),
     ...(value.ownerReportedIssues !== undefined
       ? { ownerReportedIssues: value.ownerReportedIssues || null }
+      : {}),
+    ...(value.engineDetails !== undefined
+      ? { engineDetails: value.engineDetails || null }
       : {}),
     engineSize: value.engineSize || null,
     color: value.color || null,
@@ -194,11 +200,12 @@ export function vehicleDefaults(
     manufactureCountryCode: vehicle?.manufactureCountryCode ?? "",
     powertrain: vehicle?.powertrain ?? "",
     engineCapacityCc: vehicle?.engineCapacityCc?.toString() ?? "",
-    features: vehicle?.features?.join(", ") ?? "",
+    features: vehicle?.features?.map((value) => ({ value })) ?? [],
     engineCode: vehicle?.engineCode ?? "",
     cylinders: vehicle?.cylinders?.toString() ?? "",
     ownerReportedCondition: vehicle?.ownerReportedCondition ?? "",
     ownerReportedIssues: vehicle?.ownerReportedIssues ?? "",
+    engineDetails: vehicle?.engineDetails ?? "",
     engineSize: vehicle?.engineSize ?? "",
     color: vehicle?.color ?? "",
     doors: vehicle?.doors?.toString() ?? "",

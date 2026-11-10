@@ -34,6 +34,7 @@ const publicVehicleSelect = {
   cylinders: true,
   ownerReportedCondition: true,
   ownerReportedIssues: true,
+  engineDetails: true,
   engineSize: true,
   driveType: true,
   color: true,

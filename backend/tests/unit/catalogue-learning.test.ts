@@ -45,7 +45,7 @@ it("explains controllable workshop highlights without turning a discovery reques
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
-  expect([parts.version, vehicles.version]).toEqual([14, 5]);
+  expect([parts.version, vehicles.version]).toEqual([14, 6]);
   expect(parts.steps.join(" ")).toContain("payment without another staff approval");
   expect(parts.steps.join(" ")).toContain("changing only quantity retains the vehicle");
   expect(parts.steps.join(" ")).toContain("If the offer changes, refresh and review");
@@ -248,4 +248,14 @@ it("explains resource-aware offers without promising a reservation or hiding pre
     "workshop must still confirm it",
   ])
     expect(text).toContain(phrase);
+});
+
+it("explains supplied engine and feature information without changing vehicle learning audiences", () => {
+  const work = learningArticles.find((item) => item.id === "vehicle-operations")!;
+  const enquiry = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
+  expect(work.version).toBe(3);
+  expect(work.gate).toBe("vehicle-admin");
+  expect(enquiry.gate).toBe("public");
+  expect(work.steps.join(" ")).toContain("commas within an item are preserved");
+  expect(enquiry.steps.join(" ")).toContain("not a certification");
 });

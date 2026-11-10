@@ -185,6 +185,18 @@ cases; five provisioned-workspace cases are explicitly skipped. Physical issue/u
 vehicle release and production/provider acceptance remain separate. See
 SUPPLEMENTAL_SERVICE_INVOICES_20261109.md for failures, evidence and held scope.
 
+### 10 November: vehicle terminology, engine descriptions and individual features (unpublished)
+
+Vehicle-operations v3 and vehicle-enquiry v6 describe Engine / Power type, Fuel type,
+Drive system, supplied Engine details and individual Additional features. Private
+edit guidance explains that saved public facts update existing listings without
+creating a listing or changing its status. Limits
+stay 40/80; engine description limit is500. Faults/inspection remain separate and
+no tested/working claim is inferred. Existing audiences, targets, permissions,
+practice and publication flags are unchanged. Focused learning units pass; isolated
+HTTP acceptance and coherent schema/server/frontend publication are pending.
+See the active vehicle/Team/media ledger in the existing quality register.
+
 ### 9 November: final D11 source checkpoint
 
 Booking-confirmation v15 retains its existing audience/permission/publication gates.

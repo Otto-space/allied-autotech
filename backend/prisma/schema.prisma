@@ -2127,6 +2127,7 @@ model Vehicle {
   cylinders              Int?
   ownerReportedCondition String?          @db.VarChar(2000)
   ownerReportedIssues    String?          @db.VarChar(4000)
+  engineDetails          String?          @db.VarChar(500)
   engineSize             String?
   driveType              DriveType?
   color                  String?

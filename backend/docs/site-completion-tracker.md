@@ -382,6 +382,293 @@ materials-before-work, genuine historical credits and all financial safeguards s
 The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work remain.
 The owner's separate 79-line Desktop hero edit is preserved.
 
+## 10 November 01:00 UTC - repair confirmed live Services card stretching
+
+Public apex and www now identify deployment dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi,
+master580a1bb5. Backend remainsc3c54414 ACTIVE with no pending/in-progress rollout
+and zero temporary IP rules. Reconciled the master's auth-fixture isolation at
+65ef746e; preserve the full combined candidate and independent D17 work.
+
+Fresh public API/read-only Edge checks confirm no workbook/import/discount-provenance
+notes in the service descriptions and unchanged approved public prices. Catalogue
+and diagnostics imagery load at390/1440 without horizontal overflow. Anonymous
+401 responses are from /auth/session; no page runtime exception was found.
+
+Actual mobile rendering exposed a card-footer regression: horizontal flex plus a
+full-width action squeezed the price text into one-character lines, stretching the
+390px action to1045.34px and the first card to1437.38px. Stack price and action in
+the shared photographic card rules. Add price-before-action and44-96px action-height
+assertions to all nine existing Services discovery viewport cases.
+
+Exact candidate CSS, served through a local same-origin stylesheet response
+override with CSP preserved, passes320/360/390/430/768/1024/1280/1440/1920 checks:
+all36 links measure44px high; prices precede actions; no horizontal overflow.
+Search diagnostics, reload persistence, visible keyboard focus and Enter-to-detail
+also pass. Visually inspected public before390 and candidate after390/1440 captures.
+This is stylesheet-override evidence, not packaged or published acceptance.
+Affected CSS/test formatting and ESLint pass; all14 Services cases collect.
+Full exact-source hosted execution and publication remain required. Prepare this
+public correction as a separate release batch while retaining the larger backend
+candidate. No customer submission, protected record or provider payment was made.
+The initial live verifier waited on offscreen lazy images; corrected the harness
+to scroll images into view and use bounded loading checks. Its interrupted run is
+not a pass. Inline style injection was blocked by CSP; no CSP setting was changed.
+
+## 10 November 02:01 Lagos - vehicle CSP test correction and recovery evidence
+
+Source c9560249 passes Backend 42728953813 and Secrets 42728953579. Frontend
+42728954083 completes the full 960-case matrix: 958 pass and two fail. All 1,538
+units pass (12 existing skips), as do build/types/lint/format, nine WebKit transport
+diagnostics and 21 media diagnostics. The two failures are the 320px BEV/ICE
+text-spacing test adding a style tag without the nonce required by the unchanged
+production CSP. Content, feature columns, owner faults and Axe checks reach that
+step successfully; eight other public cases and every editor/recovery/filter case
+pass. Do not describe the failed overall gate or those two cases as passed.
+
+Correct only the test: reuse the document's existing script nonce for the test
+style, assert that computed spacing was applied, then retain the no-overflow
+assertion. No CSP directive or application runtime changed. The identical new
+spacing block passes on the compiled c956 protected preview at 320x720. That
+checks the harness against real CSP; full engine-page spacing acceptance remains
+for final exact-source/master CI. Local scoped lint, formatting and diff checks
+pass. Ordinary Preview has no connected public listings; two earlier read-only
+listing attempts therefore did not reach their heading assertions. Keep those
+as unavailable, not live or public-data acceptance.
+
+A separate new synthetic PostgreSQL 18 fixture replays all 102 migrations, shows
+no drift and passes db:check. The retained 9c219bc8 API image and current generated
+client both pass actual all-column probes using a SELECT-only, non-owner role.
+The old-image process is read-only and its network guard permits only the fixture
+database. No protected snapshot is used. The first two setup attempts failed on
+internal-network host-port publication and temporary init-server readiness; final
+TCP readiness passes without changing application checks or deadlines. All three
+attempts' own containers/networks are removed; no persistent volumes were created.
+Evidence: TEMP/allied-vehicle-recovery-853b5e14b168/{verified,cleanup}.json. This
+proves schema recovery compatibility, not a new candidate-image or worker pass.
+
+The Vercel dry run identifies Next.js and 1,235 payload files, about 29 MB. Private,
+environment, backend, dependency, build and test-file exclusions pass. An empty
+zero-byte test-results directory placeholder has no included children; it is not
+a test-artifact upload. Nothing is deployed by this inspection. Existing warm
+Docker dependencies/base layers can be reused for a staged four-image build with
+reserve checks before every stage; the prepared runner refuses dirty/non-master
+or changed backend source. It has not built or published a candidate.
+
+Concurrent master c3028cc1 contains only Home/Services release-record updates above
+580a1bb5. Both aliases now serve dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi (published by
+the other task); www retains its 308 apex redirect. Preserve those records and
+source, and use that deployment as the current frontend recovery baseline. This
+task has made no production migration, grant, upload, domain or capability change.
+Backend remains the retained c3c54414 release at its last verified provider read.
+Full vehicle publication and every Team/media requirement remain active.
+
+---
+
+## 10 November 01:28 Lagos - vehicle persistence and recovery pass; public heading correction
+
+Vehicle PR50 source 37bf3368 passes Backend 42726292636 and Secrets 42726292726.
+All 102 migration replay, drift, database, runtime privilege, access, vehicle and
+learning gates pass. The expanded real HTTP case preserves 500-character multiline
+engine text, 1998cc, FOREIGN_USED and exact comma-bearing and 80-character feature
+items through save and public reload. Invalid 501-character, 81-character, 41-item and duplicate inputs leave
+version and data unchanged. No production stock was used for these assertions.
+
+Frontend 42726292411 passes 1,538 units (12 existing skips), build/types/lint/format,
+9 WebKit diagnostics and 21 media diagnostics. The full 960-case matrix stops after
+7 editor/rejected/uncertain-save passes and 5 public-page heading-order failures;
+948 cases did not run. This failed run is not a release pass. The new public
+fixtures expose an existing h1-to-h3 skip in owner statements before the main h2.
+Public detail now requests h2 owner-statement headings, retaining the component's
+default h3 elsewhere and its existing style. Keep the full Axe assertion. Revised
+source still requires the complete matrix; do not count parent 947-case run as this pass.
+
+Hosted 37bf preview dpl_CHLiwavZVum2ZNhur3TKiHobA7zZ passes the 7 editor/recovery
+cases in installed Edge with synthetic responses and blocked unmatched API writes.
+The added filter setup exposed obsolete page-count wording and an always-open
+desktop panel being closed by an unconditional click. Align the precise 4-match/
+3-visible count and open only when closed; no application filter guard is changed.
+Private capture setup also encountered a shell-encoded separator; use its exact
+Unicode escape. The corrected filter scenario passes on the hosted 37bf application, including
+all three query values, named chips, refresh and Back. It waits for the existing
+layout-ready marker before reading the panel state after refresh. Earlier setup
+attempts failed without altering application controls. The 7 editor cases plus
+this distinct filter case are 8 unique hosted cases; repeated attempts are not
+extra coverage. Corrected public-page rendered acceptance remains pending.
+Earlier held 21c focus samples pass at 320/1440: keyboard Tab reaches Fuel type and
+Remove feature 1, and focused controls are not occluded at their centres. Actual
+viewport captures show readable groups and visible focus. These are emulations.
+
+A new protected isolated restore allied_vehicle_restore_c47d898ae573_ci on the
+verified loopback PostgreSQL 18 target passed guarded 100-to-102 migration and final
+db:check. Original-column counts/hashes and all prior successful/rolled-back
+migration history match the verified backup snapshot; new engine descriptions
+remain null. This is a logical rehearsal from an existing verified production
+backup, not a fresh production-release backup. Keep the protected snapshot; do
+not use it for synthetic business submissions or routine cleanup. Receipts are
+TEMP/allied-vehicle-release-37bf3368/populated-restore-1794269708682-*.json.
+
+At 00:13 UTC the provider reports ACTIVE backend c3c54414, no pending rollout and
+8 managed backups (latest 9 November at 05:22 UTC); four component digests were read.
+That is a current provider read, not a new PITR rehearsal or runtime rollout.
+Production aliases and business/capability/grant data are unchanged by this task.
+No new Docker image/container, dependency install or full local frontend build.
+Existing other-task Docker/PostgreSQL resources are retained. C: preflights remain
+above 21.2 GiB with justified bounded allowances; no machine-wide guarantee is made.
+
+Team/media scope is still active. Source tracing confirms the owner and delegated
+workforce directory has branch/duty limits distinct from the older administrator
+directory. Pinned duty versions 1/2, independent permissions, session revision and
+protected owner baseline must survive canonical People/person presentation. No
+Team/media implementation, real grant or new position has been published.
+
+---
+
+## 10 November 00:55 Lagos - vehicle held application passes; stronger checks pending
+
+Previous goal turn made source/CI progress; this package continues the complete
+vehicle and Team & Access/media objective. Draft PR50 source21c7e0b8 passes five
+actual built-editor flows on its protected Preview at320/390/768/1024/1440x720,
+using synthetic API responses and blocked unmatched writes. No real role or stock
+acceptance is inferred. Ephemeral origin-scoped OIDC used the existing verified
+Vercel identity/project; no protection change or share link. Current apex/www still
+resolve to dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV. No production publication.
+
+Backend42721820281 passes102 migrations, schema/db:check and stages through vehicle,
+customer, finance and private-access regressions, then fails the remaining public
+vehicle-enquiry v5 HTTP assertion (article nowv6). Correct that exact assertion;
+retain all privacy/eligibility checks. Frontend42721820652 completed successfully, including1534 units and947 runtime
+browser cases; diagnostic repeats are not extra coverage. Secret42721820287 passes. Do not replace a running job solely
+because observation expires, and do not call the failed backend run a release pass.
+
+Source now extends actual application coverage to18 cases, including public known/
+unknown ICE/BEV views at five widths, filters through refresh/Back, failed/uncertain
+save recovery, long descriptions/features and text-spacing checks. Isolated API
+regressions require500-character engine text, precise1998cc and exact comma-bearing
+feature arrays to round-trip, with invalid inputs leaving state/version unchanged.
+Selected frontend45/45, both compilers/scoped lint/format checks and direct four-
+record loopback fixture projection checks pass; the18 rendered and expanded database
+cases remain unexecuted. New filter-chip capitalization and truthful existing-listing
+review text need the new application run. No runtime permission or policy changed.
+
+Current page/account/scope/state matrix and the single complete requirement ledger
+are in the existing UI_UX_QUALITY_REGISTER.md. Finish this coherent vehicle group
+through final exact-source CI, populated recovery/package and live verification
+before publishing it. All Team/media work, real-role/device evidence and the full
+original scope remain active. Reuse the isolated source worktree; preserve the
+restoration checkout's unrelated unfinished merge. Disk checkpoints/evidence there.
+
+Focused held-preview captures of the engine and feature groups also pass at320 and
+1440px. Reviewed screenshots show separate, labelled feature rows, retained commas
+and supplied text; long input values scroll within their controls. A first capture
+attempt failed to load its synthetic seed; corrected bounded500-character fixtures
+pass2/2 without changing application guards. These are two visual samples, not
+extra unique workflow cases. Tall element screenshots intersect sticky chrome,
+so they do not establish complete mobile visual acceptance. New source still needs
+its own exact-source application and database run.
+
+---
+
+## 10 November 00:36 Lagos - preserve the approved clock/session fixture fix
+
+Master1fc86e65 (PR49) landed while vehicle CI was being corrected. Reconciled its
+approved booking-reschedule fixture verbatim, including renewed sessions at the
+simulated visit time. Removed the vehicle branch's redundant optional-policy-date
+helper changes; both that integration test and shared policy helpers now match
+current master exactly. All vehicle runtime/schema/frontend changes are retained.
+The previous608d251a workaround is historical, superseded by this integration.
+No applied migration, allocation trigger, session check or real policy changed.
+
+Fresh exact-source checks are required for the merged candidate. Earlier migration
+replay and local/component evidence retain their recorded scope; none proves the
+full new candidate. Preserve PR50 and both briefs' full active ledger. No release.
+
+---
+
+## 10 November 00:32 Lagos - vehicle candidate retains the database time guard
+
+Corrected535912cc passes the102-migration replay/db:check and initial backend unit
+step; secret42720509249 passes. Backend42720509221 then fails four existing
+late-visit fixture cases in booking-reschedule-approval at the resource-allocation
+trigger. The fixture mocks application time to noon on the Lagos date, which can
+be the following day while PostgreSQL CURRENT_TIMESTAMP is still the previous day.
+Its synthetic policy effectiveAt was consequently future-dated to the real SQL
+clock. Preserve the trigger: read the isolated database clock and explicitly date
+only these test policies before both clocks. Helper defaults for other tests stay
+unchanged. The simulated application date is always ahead of SQL time to
+exercise this regression deterministically. Types and scoped lint pass; the
+isolated API run still must prove the correction. This is test-fixture work,
+not a runtime or approved-policy change.
+
+Fresh complete isolated CI proof is pending for that correction; do not call the
+four failures a pass or alter the allocation guard. Frontend42720509475 was verified
+live in production checks; no timeout or lack of output is a terminal state.
+Vehicle API, full application browser, restore/package/live and all Team/media
+requirements remain active. Source worktree and draft PR50 are recorded below.
+
+---
+
+## 10 November 00:24 Lagos - vehicle source CI follow-up
+
+Draft PR50: https://github.com/Otto-space/allied-autotech/pull/50 . Signed source
+4685d389 reconciles current Home/Services master130556a1. Backend42719821223 passes
+all102 migrations, schema drift rejection, db:check, types/script types, lint and
+backup/startup protection. It stops at an obsolete private vehicle-operations v2
+assertion (67 pass/1 fail in that step); the article intentionally advanced to v3.
+Correct that exact version and assert the new supplied-engine/feature wording,
+retaining all role/managed/unverified/owner/finance exclusions. Later isolated
+HTTP suites did not run and are not claimed as passes. Secret42719821446 passes;
+frontend42719821439 was confirmed live in production checks. Never restart solely
+because observation expires; inspect the current commit's authoritative run state.
+
+The corrected exact backend unit group now passes70/70 across12 suites locally;
+the CI list explicitly includes the two new engine validation regressions. This
+follow-up changes only that workflow, its version/content assertion and this
+record: migration/runtime/frontend bytes match the replayed4685d389 source.
+
+The original full two-brief goal remains active. New source still needs complete
+exact-source CI, actual-route browser/API acceptance, populated restore and safe
+compatible publication. No production change. The component evidence and detailed
+scope remain in the existing quality ledger. Disk postflight21.32GiB; owned Vite
+process stopped, evidence/client retained, no existing resources deleted.
+
+---
+
+## 10 November 2026 - both vehicle and Team & Access/media briefs active
+
+Owner confirmed both the available vehicle-details brief and the Team & Access/media
+attachment. Separate source worktree `allied-vehicle-media-20261109`, branch
+`codex/vehicle-media-20261109`, starts from master `3cf5d9cb2`; the restoration
+worktree's unfinished service/pickup merge is untouched. The complete requirement
+ledger, coverage and exact outstanding work are at the top of
+`frontend/docs/UI_UX_QUALITY_REGISTER.md` (V01-V05 and T01-T07). Do not narrow the
+objective to the first vehicle package or treat Team/media as optional.
+
+Current package implements terminology, shared Engine & drive controls/summary,
+individual Additional features with exact array preservation, import guidance and
+optional 500-character Engine details through server/client contracts. The new
+additive migration is source only; generated client and focused schema checks do
+not replace empty replay, db:check, populated recovery rehearsal, actual round-trip
+or compatible publication. Update schema now preserves omitted condition instead
+of applying the create default. No actual stock values were changed.
+
+Initial frontend 33/33 and backend17/17 focused tests and both TypeScript checkpoints
+pass; final-source gates and actual full-page browser checks remain pending. No
+production publication, vehicle/permission/invitation/upload test or capability
+activation. Both public aliases still resolve to dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV
+at this turn's read. All existing commercial/security/recovery work remains intact.
+Disk checkpoints and retained resources are recorded in the quality register.
+
+Final local source checkpoint: frontend70/70, backend18/18, both compilers,
+scoped/repository lint, contracts, secret guard and diff pass. Isolated Edge
+component fixture5/5 at320/390/768/1024/1440 (720px height) has no overflow, console
+errors or Axe findings and checks real component interactions/focus and font.
+This does not prove full application, actual-role or database acceptance. The
+new actual-route browser project is registered/listed but unexecuted. Current
+master130556a1 advanced with Home/Services work; reconcile and preserve it before
+CI. See the quality ledger for all evidence, fixture failures and remaining gates.
+
+---
+
 ## 9 November 22:17 UTC - recovery status regression and held-release transport
 
 Exact-master 6538f4b5 frontend run42705393145 completed with879 passes and two
@@ -10294,9 +10581,9 @@ this implementation adds the following ordered status overlay, not a second back
 
 | Group | Scope                                                                          | Implementation / release status                                                                           |
 | ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
-| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                         |
-| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                  |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt. |
+| 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt. |
+| 3     | Shop, filters, product, fitment                                                | Next: reference and read-only 390px baseline reviewed; preserve collection, fitment and timing uncertainty. |
 | 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
 | 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
 | 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
@@ -10642,3 +10929,78 @@ survives without a submission, then retains every success/password/notification
 assertion. Verification still checks all outgoing request URLs for token leakage.
 No application, auth, capability, permission or database behavior changes. Require
 all three gates on the resulting master before publishing Home/Services.
+
+## 10 November - Home and Services mobile release published and verified
+
+Published master 580a1bb5b24817916c03544a0b205ca5c19bfee5 at 00:41 UTC to
+https://alliedautotech.com/. Both apex and www resolve to deployment
+dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi; apex returns 200 and www redirects 308.
+The www Services redirect preserves its search query. UI PR48 and isolated fixture
+repairs PR49/PR52 are included. Earlier failed/cancelled candidates are superseded.
+
+All exact-master gates passed: frontend 42725610840, backend safety 42725610890 and
+secrets 42725610777. Frontend passed 1,526 unit tests (12 existing conditional skips),
+9 WebKit transport diagnostics, 21 media diagnostics and the full 942-case browser
+matrix in 25.9 minutes. All 14 Services cases and all 5 carousel touch regressions
+passed. CI used Chromium 153.0.8010.12, Firefox 155.0 and WebKit 26.6 on Linux.
+
+Home's desktop/tablet hero is 560px; phones fit their content (about 414px at 390px).
+The unused vertical space is removed. All phones use one 278x58px control pill with
+previous, four slide choices, next and playback in matching DOM/keyboard order.
+Carousel activation opts out of the shared scroll-reveal helper. Live native touch
+on every control retains scroll 0 and an unchanged URL at 320x667, 360x600,
+360x800, 390x844 and 430x932. The discovery heading stays clear of the support dock.
+
+Services follows the photographic introduction, white filter panel and responsive
+cards. Its phone hero is about 402px at 390px; search is visible on the first screen.
+Category-only entry keeps All services below the photograph, and sort/category
+controls stack below 375px. Detail typography, natural authentic photo proportions
+and the existing request/enquiry journey are verified. Nippo/Quicksand, actual facts,
+zero prices, quotation distinctions, permissions and capability gates remain intact.
+Natural portrait framing, truthful content and the owner's requested compact hero
+are intentional departures from the reference's crop, sample claims and height.
+
+Fresh public Edge 157.0.4341.42 checks passed all 9 requested exact viewport pairs
+for Home, catalogue, detail and request (36 checks), all 4 Home slides, the 5 touch
+sizes, category-only entry, natural photo proportions, combined filters/sort/detail/
+Back/reload at 390/1440, menu Escape/focus recovery, FAQ and enquiry-heading focus.
+Scoped main/footer Axe at 1440/390 and category 390 found zero violations. Exact-
+candidate doubled text at 320px reflows on Home and Services. Public checks sent no
+business writes and reported no page errors.
+
+Enquiry review/cancel/receipt uses isolated/intercepted fixtures: the 390/1440 hosted
+journeys at a393f79f retain identical public-form runtime, and all 14 Services cases
+pass on released master. Two auth journeys passed hosted Edge with loopback
+availability and intercepted responses. This does not establish real submissions,
+provider delivery, real-role persistence, full screen-reader, actual browser zoom,
+physical-device or branded Safari acceptance. Groups 3-10 remain open; Parts is next.
+
+Backend c3c54414-0f19-4b21-bf23-b44184e6f43a remained ACTIVE and unchanged at preflight.
+No backend rollout, migration or shared/application database write occurred. Required
+isolated safety stages passed, including all 18 reschedule cases with allocation,
+same-day and session-expiry guards retained. The GET-only managed recovery recheck
+found 8 backups from 2 November 05:22:11 UTC through 9 November 05:22:14 UTC. The
+existing verified strict-TLS restore receipt is dated 21 October 23:07:46.733 UTC,
+with sourceWritten=false; no new restore ran. Compatible recovery G5Yf7J6o/source
+5464e402 and older oe7Yn63U/source160d3b7b remain available.
+
+Evidence under TEMP/aat-stitch-implementation-20261109: frontend-580a-evidence.json,
+backend-580a-evidence.json, public-mobile-580a-publication-preflight.json,
+public-mobile-580a-publication-alias-receipt.json, public-mobile-580a-browser.json,
+public-mobile-580a-live-browser.json, auth-580a-hosted.json and matching live PNGs.
+Temporary preview sharing was revoked; task browsers and loopback API were closed.
+C: passed 21.42 GiB before publication and 21.40 GiB after live checks, with a justified
+0.05 GiB browser allowance above the 20 GiB reserve. Dependencies were reused; no
+local build/install or Docker operation ran. Automatic approval review rejected
+cache and old private preview-access-file deletion as blocked by policy. Those
+files remain; no manual cleanup saving is claimed.
+
+Branch retirement was reviewed for the four completed Home-hero, carousel, clock-
+fixture and auth-fixture branches: remote/local heads are ancestors of released
+580a1bb5, no owning worktrees or open PRs, and none is the provider's production
+branch. Conditional deletion of codex/home-hero-mobile-20261109 was rejected by
+GitHub GH013 repository rules: Cannot delete this branch. Retirement stopped;
+all four remote/local branches remain. No protection rule or source/history was
+changed. The linked release/public-launch-20261022 branch, unique unmerged Services
+variants, active receipt branch and compatible recovery deployments are retained.
+Evidence: retirement-580a-review.json and the rejected native Git command output.

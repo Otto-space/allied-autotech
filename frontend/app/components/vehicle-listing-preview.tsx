@@ -1,4 +1,6 @@
 "use client";
+import { VehicleEngineSummary } from "./vehicle-engine-summary";
+import { VehicleFeatures } from "./vehicle-features";
 
 import type { StaffListing, StaffVehicle } from "@/lib/api/staff-vehicle-schemas";
 import { formatKobo } from "@/lib/format/money";
@@ -39,6 +41,8 @@ export function VehicleListingPreview({
           ? vehicleLabel(vehicle.transmission)
           : "Transmission not listed"}
       </p>
+      <VehicleEngineSummary vehicle={vehicle} className="vd-facts" />
+      <VehicleFeatures features={vehicle.features} />
       <VehicleOwnerDisclosure vehicle={vehicle} />
       <p className="preserve-lines">
         {listing.description || "No description recorded."}

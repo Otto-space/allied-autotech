@@ -77,7 +77,7 @@ describe("vehicle attributes and shareable filters", () => {
       manufactureCountryCode: "",
       powertrain: "",
       engineCapacityCc: "",
-      features: "",
+      features: [],
     });
     const values = {
       ...defaults,
@@ -89,7 +89,7 @@ describe("vehicle attributes and shareable filters", () => {
       manufactureCountryCode: "JP",
       powertrain: "HEV" as const,
       engineCapacityCc: "1800",
-      features: "Sunroof, Rear camera",
+      features: [{ value: "Sunroof" }, { value: "Rear camera" }],
     };
     expect(recordSchema.safeParse(values).success).toBe(true);
     expect(vehicleRecordBody(values)).toMatchObject({
@@ -104,7 +104,10 @@ describe("vehicle attributes and shareable filters", () => {
         .success,
     ).toBe(false);
     expect(
-      recordSchema.safeParse({ ...values, features: "Sunroof, sunroof" }).success,
+      recordSchema.safeParse({
+        ...values,
+        features: [{ value: "Sunroof" }, { value: "sunroof" }],
+      }).success,
     ).toBe(false);
   });
 });
