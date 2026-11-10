@@ -1,3 +1,4 @@
+import { verifyConsole } from "../fixtures/preview-console";
 import { test, expect, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
@@ -1144,3 +1145,215 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
     });
   }
 }
+
+for (const [width, mode] of [
+  [320, "normal"],
+  [1440, "normal"],
+  [320, "wrong-receipt"],
+  [320, "unverified-readiness"],
+  [320, "staff"],
+] as const)
+  test(`vehicle collection ${mode} preserves verified review, uncertainty and recorded history at ${width}px`, async ({
+    page,
+  }, info) => {
+    const errors: string[] = [],
+      warnings: string[] = [],
+      writes: Record<string, unknown>[] = [];
+    let saved: { id: string; releasedAt: string } | null = null,
+      checks = 0;
+    const role = mode === "staff" ? "STAFF" : "ADMIN";
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+      if (m.type() === "warning") warnings.push(m.text());
+    });
+    await page.route("**/api/v1/**", async (route) => {
+      const request = route.request(),
+        endpoint = new URL(request.url()).pathname.replace("/api/v1", "");
+      if (endpoint === "/public/capabilities") return route.fallback();
+      if (endpoint === "/auth/session")
+        return reply(route, {
+          id: id(8),
+          expiresAt: "2027-01-01T00:00:00Z",
+          idleExpiresAt: "2027-01-01T00:00:00Z",
+          mfaRequired: true,
+          mfaVerifiedAt: "2026-11-09T09:00:00Z",
+          user: { id: id(9), email: "collection@example.test", role },
+        });
+      if (endpoint === "/staff/profile")
+        return reply(route, {
+          id: id(9),
+          email: "collection@example.test",
+          role,
+          status: "ACTIVE",
+          capabilities: [],
+          staffProfile: {
+            id: id(6),
+            firstName: "Synthetic",
+            lastName: "Collector reviewer",
+            branchId: id(5),
+          },
+        });
+      if (endpoint === "/auth/csrf")
+        return reply(route, { csrfToken: "synthetic-collection-csrf-token".repeat(2) });
+      if (endpoint === `/staff/bookings/${id(1)}`)
+        return reply(route, {
+          ...record(),
+          status: "COMPLETED",
+          version: saved ? 8 : 7,
+          vehicleRelease: saved,
+          depositPayment: undefined,
+          depositAmountKobo: null,
+          depositPaidAt: null,
+          workOrder: {
+            id: id(31),
+            workOrderNumber: "SYNTHETIC-COMPLETED",
+            status: "COMPLETED",
+            version: 4,
+            diagnosis: null,
+            internalNotes: null,
+            items: [],
+          },
+        });
+      if (endpoint === `/staff/bookings/${id(1)}/vehicle-release-readiness`) {
+        checks++;
+        expect(request.method()).toBe("GET");
+        return reply(route, {
+          bookingId: id(1),
+          bookingVersion: 7,
+          financialReviewHash: "a".repeat(64),
+          ready: mode !== "unverified-readiness",
+          checkedAt: "2026-11-09T12:00:00Z",
+        });
+      }
+      if (endpoint === `/staff/bookings/${id(1)}/vehicle-release`) {
+        expect(request.method()).toBe("POST");
+        const body = request.postDataJSON();
+        writes.push(body);
+        expect(request.headers()["x-csrf-token"]).toBeTruthy();
+        saved = { id: id(41), releasedAt: "2026-11-09T12:05:00Z" };
+        return reply(route, {
+          ...saved,
+          bookingId: mode === "wrong-receipt" ? id(999) : id(1),
+          recipientName: body.recipientName,
+        });
+      }
+      if (request.method() !== "GET")
+        throw Error(`Unexpected synthetic write ${endpoint}`);
+      return reply(route, { items: [], unreadCount: 0, count: 0 });
+    });
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`/admin/bookings/${id(1)}`);
+    const check = page.getByRole("button", {
+      name: "Check collection readiness",
+      exact: true,
+    });
+    if (mode === "staff") {
+      await expect(
+        page.getByRole("heading", { name: "Work order", exact: true }),
+      ).toBeVisible();
+      await expect(check).toHaveCount(0);
+      expect(checks).toBe(0);
+      expect(writes).toHaveLength(0);
+      await verifyConsole(page, errors, warnings);
+      return;
+    }
+    await expect(check).toBeEnabled();
+    await check.click();
+    if (mode === "unverified-readiness") {
+      await expect(
+        page.locator('[aria-labelledby="vehicle-collection-title"]').getByRole("alert"),
+      ).toContainText("Collection readiness could not be verified.");
+      await expect(
+        page.getByRole("textbox", { name: "Collector name", exact: true }),
+      ).toHaveCount(0);
+      expect(writes).toHaveLength(0);
+      await verifyConsole(page, errors, warnings);
+      return;
+    }
+    const collector = page.getByRole("textbox", { name: "Collector name", exact: true });
+    await expect(collector).toBeFocused();
+    await collector.fill("Synthetic authorised collector");
+    await page
+      .getByLabel("Identity and collection-authority review (internal)", { exact: true })
+      .fill("Synthetic identity and collection authority checked in person.");
+    await page
+      .getByRole("checkbox", {
+        name: "I verified the identity and collection authority of this person.",
+        exact: true,
+      })
+      .check();
+    const review = page.getByRole("button", {
+      name: "Review vehicle collection",
+      exact: true,
+    });
+    await review.click();
+    await expect(page.getByRole("dialog")).toContainText(
+      "Synthetic authorised collector",
+    );
+    expect(writes).toHaveLength(0);
+    await page.getByRole("button", { name: "Go back", exact: true }).click();
+    expect(writes).toHaveLength(0);
+    await expect(review).toBeEnabled();
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include('[aria-labelledby="vehicle-collection-title"]')
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.screenshot({
+      path: info.outputPath(`collection-review-${mode}-${width}.png`),
+    });
+    await review.click();
+    await page.getByRole("button", { name: "Confirm change", exact: true }).click();
+    if (mode === "wrong-receipt") {
+      await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
+        "outcome could not be confirmed",
+      );
+      await expect(
+        page.getByRole("button", { name: "Confirm change", exact: true }),
+      ).toBeDisabled();
+      await page
+        .getByRole("button", { name: "Close & review record", exact: true })
+        .click();
+    }
+    const heading = page.getByRole("heading", {
+      name: "Vehicle collection recorded",
+      exact: true,
+    });
+    await expect(heading).toBeFocused();
+    expect(await heading.evaluate((e) => getComputedStyle(e).outlineStyle)).toBe("none");
+    expect(writes).toHaveLength(1);
+    expect(writes[0]).toEqual({
+      expectedBookingVersion: 7,
+      financialReviewHash: "a".repeat(64),
+      idempotencyKey: expect.any(String),
+      recipientName: "Synthetic authorised collector",
+      verificationNote: "Synthetic identity and collection authority checked in person.",
+      identityAndAuthorityVerified: true,
+    });
+    await page.reload();
+    await expect(heading).toBeVisible();
+    await expect(heading).not.toBeFocused();
+    await expect(check).toHaveCount(0);
+    expect(writes).toHaveLength(1);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include('[aria-label="Vehicle collection"]')
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: info.outputPath(`collection-record-${mode}-${width}.png`),
+    });
+    await verifyConsole(page, errors, warnings);
+  });

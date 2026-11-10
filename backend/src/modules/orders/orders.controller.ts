@@ -96,6 +96,22 @@ export class OrdersController {
           ),
         ),
       );
+  updateTiming = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Order sourcing estimate updated; readiness and payment are unchanged",
+          req.id,
+          await this.service.updateTiming(
+            actor(req),
+            id(res),
+            validated(res, "body"),
+            context(req),
+          ),
+        ),
+      );
   decidePurchaseReview = async (req: Request, res: Response) =>
     res
       .set("Cache-Control", "private, no-store")

@@ -38,7 +38,15 @@ export function invoicePaper(v: WorkInvoice): StaffInvoiceDocument {
           ? "Parts order"
           : source.kind === "BOOKING"
             ? "Service booking"
-            : "Vehicle purchase",
+            : source.kind === "SERVICE_ADDITION"
+              ? "Additional service work"
+              : "Vehicle purchase",
+      ...(v.additionalQuote
+        ? {
+            originalInvoiceNumber: v.additionalQuote.originalInvoice.invoiceNumber,
+            amendmentReason: v.additionalQuote.amendmentReason,
+          }
+        : {}),
     },
     lines: [
       {

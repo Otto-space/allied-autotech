@@ -144,7 +144,8 @@ export const publicCapabilitiesSchema = z.object({
   booking: z.object({
     confirmation: z.literal("STAFF_REVIEW"),
     cancellationFeeKobo: z.literal("0"),
-    reminderMinutes: z.literal(60),
+    reminderMinutes: z.null(),
+    reminderTiming: z.literal("APPOINTMENT_POLICY"),
   }),
   marketing: z.object({ enabled: z.literal(false) }),
   destructiveRetention: z.object({ enabled: z.literal(false) }),

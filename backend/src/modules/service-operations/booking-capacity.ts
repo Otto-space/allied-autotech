@@ -3,11 +3,13 @@ import { z } from "zod";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { approvedPolicy } from "../policies/policies.service.js";
 import { serviceOperationConflict } from "./service-operations.errors.js";
+import { reminderMinutesSchema } from "./booking-reminder-schedule.js";
 
 export const capacitySettingsSchema = z
   .object({
     dailyLimit: z.number().int().min(1).max(1000),
     noShowGraceMinutes: z.number().int().min(0).max(1440).optional(),
+    reminderMinutes: reminderMinutesSchema.optional(),
     openingDays: z.array(z.number().int().min(0).max(6)).min(1).max(7),
     opensAt: z.literal("08:00"),
     closesAt: z.literal("18:00"),

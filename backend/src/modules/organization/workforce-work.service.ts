@@ -1,3 +1,4 @@
+import { assertAgreedWorkCanProceed } from "../service-operations/agreed-service-work.js";
 import { currentWorkEstimate } from "../service-operations/booking-work-estimate.js";
 import { allocateBookingResources } from "../service-operations/booking-resources.js";
 import {
@@ -657,6 +658,8 @@ export class WorkforceWorkService {
       };
       if (input.status && !transitions[work.status]?.includes(input.status))
         workforceConflict("The requested work transition is unavailable");
+      if (input.status === "IN_PROGRESS" || input.status === "QUALITY_CHECK")
+        await assertAgreedWorkCanProceed(tx, id);
       const now = new Date();
       const updated = await tx.workOrder.updateMany({
         where: { id: work.id, version: input.expectedVersion, status: work.status },
@@ -727,6 +730,7 @@ export class WorkforceWorkService {
         booking.status !== "IN_PROGRESS"
       )
         workforceConflict();
+      await assertAgreedWorkCanProceed(tx, id, true);
       const now = new Date();
       const changed = await tx.workOrder.updateMany({
         where: { id: work.id, version: input.expectedVersion, status: "QUALITY_CHECK" },

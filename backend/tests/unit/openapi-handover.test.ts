@@ -10,6 +10,20 @@ function isObject(value: unknown): value is JsonObject {
 }
 
 describe("private API handover contract", () => {
+  it("keeps nullable reminder capability examples consistent with their schema", () => {
+    const document = createOpenApiDocument({ sessionCookieName: "__Host-aat_session" });
+    const response = document.paths?.["/public/capabilities"]?.get?.responses?.[
+      "200"
+    ] as JsonObject;
+    const content = response["content"] as JsonObject;
+    const media = content["application/json"] as JsonObject;
+    const example = media["example"] as JsonObject;
+    const data = example["data"] as JsonObject;
+    expect(data["booking"]).toMatchObject({
+      reminderMinutes: null,
+      reminderTiming: "APPOINTMENT_POLICY",
+    });
+  });
   it("generates the public review portrait parameters without blocking startup", () => {
     const document = createOpenApiDocument({ sessionCookieName: "__Host-aat_session" });
     const operation = document.paths?.["/public/support/reviews/{reviewId}/photo"]?.get;

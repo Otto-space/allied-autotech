@@ -1,0 +1,16 @@
+.form {
+  margin-top: 1.25rem;
+}
+.form fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.form legend {
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+.form textarea {
+  min-height: 6rem;
+}

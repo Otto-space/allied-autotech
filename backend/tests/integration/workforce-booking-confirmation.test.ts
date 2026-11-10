@@ -392,7 +392,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).toBe(1);
       expect(
         await prisma.bookingReminder.count({ where: { bookingId: v.booking.id } }),
-      ).toBe(1);
+      ).toBe(3);
     });
     it("enforces actual approved daily capacity without committing review metadata", async () => {
       const v = await fixture({ branchId: f.other.id });

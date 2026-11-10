@@ -1,3 +1,20 @@
+### 9 November: owner resolves the collection-hold calendar
+
+Owner reply in this conversation: count Monday-Saturday; public holidays are not
+excluded; begin after both actual readiness and customer notification; apply the
+same five-day rule to imported/custom parts. Sunday does not count. This supersedes
+older unresolved-calendar entries below. It does not change banking/refund or
+appointment-capacity calendars, approve storage fees or release paid stock.
+
+The date calculator has explicit pending-readiness/pending-notification states and
+uses the later event's Nigeria date, excluding that date. Queuing/attempting a
+notification is not successful customer notification. It returns a Collect by date,
+with overdue beginning on the next Nigeria date; this date-only engineering
+boundary does not invent an owner-approved closing-hour penalty. Durable evidence,
+reasoned extension, customer/staff rendering and notification-failure acceptance
+remain to be connected before D12 is complete. Do not request these settled values
+again. No production policy publication or backfill is claimed.
+
 ## 3 November 2026: owner-approved monetary arithmetic
 
 The user explicitly selected "Use the recommended rule" in this chat after

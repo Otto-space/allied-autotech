@@ -1,5 +1,7 @@
 import { test, expect, type Route, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { verifyConsole } from "../fixtures/preview-console";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 const id = (n: number) => `20000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const record = () => ({
   id: id(1),
@@ -56,11 +58,17 @@ type Options = {
   bookingError?: number;
   status?: string;
   quotes?: string[];
+  additional?: boolean;
+  persistWrites?: boolean;
 };
 async function fixture(page: Page, options: Options = {}) {
   const writes: unknown[] = [];
   const role = options.role ?? "STAFF";
   const quote = (status: string, index: number) => ({
+    originalInvoice: options.additional ? { invoiceNumber: "INV-ORIGINAL-QA" } : null,
+    amendmentReason: options.additional
+      ? "Synthetic additional inspection beyond the original agreement"
+      : null,
     id: id(20 + index),
     quoteNumber: `Q-2026-${1042 + index}`,
     version: 2,
@@ -83,9 +91,32 @@ async function fixture(page: Page, options: Options = {}) {
       },
     ],
   });
+  const records = (options.quotes ?? ["DRAFT"]).map(quote);
   await page.route("**/api/v1/**", async (route) => {
     const request = route.request();
     const endpoint = new URL(request.url()).pathname.replace("/api/v1", "");
+    if (request.method() === "GET" && endpoint === "/staff/notifications/summary")
+      return reply(route, { unreadCount: 0, groups: [], destinations: [] });
+    if (request.method() === "GET" && endpoint === "/staff/notifications/context")
+      return reply(route, { items: [], hasMore: false });
+    if (request.method() === "GET" && endpoint === `/staff/bookings/${id(1)}/attendance`)
+      return reply(route, {
+        bookingId: id(1),
+        bookingVersion: 7,
+        scheduleVersion: 0,
+        status: options.status ?? "CONFIRMED",
+        startedAt: null,
+        serverTime: new Date().toISOString(),
+        checkAt: new Date(Date.parse(record().scheduledAt) + 15 * 60000).toISOString(),
+        policy: { graceMinutes: 15, source: "DELEGATED_DEFAULT", policyVersionId: null },
+        checkAttendance: false,
+        workReviewRequired: false,
+        current: null,
+        events: [],
+        receipt: null,
+      });
+    if (endpoint === "/public/capabilities")
+      return reply(route, publicCapabilitiesFixture("full", false));
     if (endpoint === "/auth/session") {
       if (role === "ANONYMOUS")
         return route.fulfill({
@@ -136,11 +167,42 @@ async function fixture(page: Page, options: Options = {}) {
         depositAmountKobo: null,
         depositPaidAt: null,
         depositPayment: null,
-        quotes: (options.quotes ?? ["DRAFT"]).map(quote),
+        quotes: records,
       });
     }
     if (request.method() !== "GET") {
       writes.push(request.postDataJSON());
+      if (options.persistWrites && endpoint === `/staff/bookings/${id(1)}/quotes`) {
+        const body = request.postDataJSON();
+        const saved = {
+          ...quote("DRAFT", records.length),
+          id: id(70),
+          quoteNumber: "Q-ADDITIONAL-QA",
+          revision: 0,
+          originalInvoice: { invoiceNumber: "INV-ORIGINAL-QA" },
+          amendmentReason: body.additionalWork.reason,
+          subtotalKobo: "5000",
+          taxKobo: "375",
+          totalKobo: "5375",
+          items: [
+            {
+              ...quote("DRAFT", 0).items[0],
+              description: "Additional inspection",
+              quantity: 1,
+              unitPriceKobo: "5000",
+              subtotalKobo: "5000",
+            },
+          ],
+        };
+        records.push(saved);
+        return reply(route, saved);
+      }
+      if (options.persistWrites && endpoint.endsWith(`/quotes/${id(70)}/issue`)) {
+        const saved = records.find((row) => row.id === id(70))!;
+        saved.status = "ISSUED";
+        saved.revision++;
+        return reply(route, saved);
+      }
       return route.fulfill({
         status: 409,
         json: {
@@ -160,6 +222,104 @@ async function fixture(page: Page, options: Options = {}) {
   await page.goto(`/admin/bookings/${id(1)}`);
   return { writes };
 }
+for (const width of [320, 1440])
+  test(`additional quotation review, save and reload at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    const errors: string[] = [],
+      warnings: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(message.text());
+      if (message.type() === "warning") warnings.push(message.text());
+    });
+    const { writes } = await fixture(page, { quotes: [], persistWrites: true });
+    await page.getByRole("button", { name: "Create quotation", exact: true }).click();
+    const additional = page.getByRole("checkbox", {
+      name: "Additional work for an existing issued service invoice",
+    });
+    await additional.focus();
+    await page.keyboard.press("Space");
+    const reason = page.getByRole("textbox", {
+      name: "Why is this additional work needed?",
+    });
+    await expect(reason).toBeFocused();
+    const box = await reason.boundingBox();
+    expect(box!.y).toBeGreaterThanOrEqual(0);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(900);
+    await page.getByLabel("Description", { exact: true }).fill("Additional inspection");
+    await page.getByLabel("Unit price (NGN)").fill("50");
+    await page.getByLabel("Draft expiry (Lagos time)").fill("2027-01-10T10:00");
+    await page
+      .getByRole("button", { name: "Review quotation draft", exact: true })
+      .click();
+    await expect(
+      page.getByText("Explain why this additional work is needed.", { exact: true }),
+    ).toBeVisible();
+    expect(writes).toHaveLength(0);
+    await reason.fill("Synthetic additional inspection beyond the original agreement");
+    await page
+      .getByRole("button", { name: "Review quotation draft", exact: true })
+      .click();
+    let dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText(
+      "Additional work; original invoice and payments remain intact",
+    );
+    await dialog.getByRole("button", { name: "Go back", exact: true }).click();
+    expect(writes).toHaveLength(0);
+    await expect(reason).toHaveValue(
+      "Synthetic additional inspection beyond the original agreement",
+    );
+    await page
+      .getByRole("button", { name: "Review quotation draft", exact: true })
+      .click();
+    dialog = page.getByRole("dialog");
+    await dialog.getByRole("button", { name: "Confirm change", exact: true }).click();
+    const saved = page.getByRole("article", { name: "Q-ADDITIONAL-QA", exact: true });
+    await expect(saved).toBeVisible();
+    await expect(saved).toContainText("INV-ORIGINAL-QA");
+    expect(writes[0]).toMatchObject({
+      additionalWork: {
+        expectedBookingVersion: 7,
+        reason: "Synthetic additional inspection beyond the original agreement",
+      },
+    });
+    await saved.getByRole("button", { name: "Review issue", exact: true }).click();
+    await expect(page.getByRole("dialog")).toContainText("INV-ORIGINAL-QA");
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Confirm change", exact: true })
+      .click();
+    await expect(saved.getByText("Issued", { exact: true })).toBeVisible();
+    await page.reload();
+    await expect(saved.getByText("Issued", { exact: true })).toBeVisible();
+    expect(writes).toHaveLength(2);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include(".staff-quotations")
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await verifyConsole(page, errors, warnings);
+    await saved.evaluate((element) =>
+      window.scrollTo({
+        top:
+          window.scrollY +
+          element.getBoundingClientRect().top -
+          (window.innerWidth < 768 ? 160 : 96),
+        behavior: "instant",
+      }),
+    );
+    await page.screenshot({
+      path: info.outputPath(`additional-quotation-staff-${width}.png`),
+    });
+  });
 for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
   test(`quotation editor, saved record and review fit ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });

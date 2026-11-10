@@ -14,6 +14,9 @@ import { CreatePaymentRequest } from "./create-payment-request";
 import { DocumentActions } from "./document-actions";
 import "./invoice-detail.css";
 import { InvoiceSheet, InvoiceTotals } from "./invoice-sheet";
+import { ServicePaymentSummary } from "./service-payment-summary";
+import { usePublicCapabilities } from "./public-capabilities";
+import { servicePaymentDocumentMatches } from "@/lib/api/service-payment-schemas";
 
 const labels = { DRAFT: "Draft", ISSUED: "Issued", PAID: "Paid", VOID: "Void" };
 const paymentLabels: Record<string, string> = {
@@ -25,6 +28,7 @@ const paymentLabels: Record<string, string> = {
   EXPIRED: "Expired",
 };
 export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
+  const { checkoutEnabled } = usePublicCapabilities();
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
@@ -75,7 +79,8 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
     document.data.totalKobo === current.totalKobo &&
     document.data.subtotalKobo === current.subtotalKobo &&
     document.data.taxKobo === current.taxKobo &&
-    document.data.depositCreditKobo === current.depositCreditKobo
+    document.data.depositCreditKobo === current.depositCreditKobo &&
+    servicePaymentDocumentMatches(current, document.data)
       ? document.data
       : undefined;
   const documentReady =
@@ -86,18 +91,20 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
     !document.error &&
     !document.refreshError;
   const paymentEligible =
-    current?.booking &&
+    (current?.booking || current?.additionalQuote) &&
     current.status === "ISSUED" &&
     BigInt(current.totalKobo) > BigInt(0) &&
     (!current.dueAt ||
       (Number.isFinite(Date.parse(current.dueAt)) && Date.parse(current.dueAt) > now)) &&
-    current.payments.every((payment) =>
-      ["CANCELLED", "EXPIRED"].includes(payment.status),
-    ) &&
-    (!paper ||
-      paper.paymentRequests.every((payment) =>
-        ["CANCELLED", "EXPIRED"].includes(payment.status),
-      ));
+    (current.servicePayment
+      ? !!current.servicePayment.nextPayment
+      : current.payments.every((payment) =>
+          ["CANCELLED", "EXPIRED"].includes(payment.status),
+        ) &&
+        (!paper ||
+          paper.paymentRequests.every((payment) =>
+            ["CANCELLED", "EXPIRED"].includes(payment.status),
+          )));
   const requests = documentReady ? paper.paymentRequests : (current?.payments ?? []);
   function refresh() {
     invoice.refresh();
@@ -146,11 +153,19 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
                   {labels[current.status]}
                 </span>
                 {paymentEligible ? (
-                  <CreatePaymentRequest
-                    key={current.id}
-                    invoice={current}
-                    disabled={!ready}
-                  />
+                  <>
+                    {!checkoutEnabled && (
+                      <p>
+                        New payments are currently unavailable. Your invoice and recorded
+                        payments remain available.
+                      </p>
+                    )}
+                    <CreatePaymentRequest
+                      key={`${current.id}:${current.version}:${current.servicePayment?.nextPayment?.stage ?? "legacy"}`}
+                      invoice={current}
+                      disabled={!ready || !checkoutEnabled}
+                    />
+                  </>
                 ) : (
                   <p>
                     {current.status === "VOID"
@@ -173,8 +188,10 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
                     <ArrowRight size={17} aria-hidden="true" />
                   </Link>
                 )}
-                {current.booking && (
-                  <Link href={`/dashboard/bookings/${current.booking.id}`}>
+                {(current.booking || current.additionalQuote) && (
+                  <Link
+                    href={`/dashboard/bookings/${current.booking?.id ?? current.additionalQuote!.booking.id}`}
+                  >
                     <FileText size={18} aria-hidden="true" />
                     <span>View booking &amp; quotation</span>
                     <ArrowRight size={17} aria-hidden="true" />
@@ -192,6 +209,21 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
               </section>
             </aside>
             <div className="invoice-content">
+              {current.additionalQuote && (
+                <section aria-label="Additional service invoice" className="field-hint">
+                  <h2>Additional work</h2>
+                  <p>
+                    Original invoice:{" "}
+                    {current.additionalQuote.originalInvoice.invoiceNumber}
+                  </p>
+                  <p>{current.additionalQuote.amendmentReason}</p>
+                  <p>
+                    This separate invoice covers only the agreed additional items.
+                    Previous work and payments remain on the original invoice.
+                  </p>
+                </section>
+              )}
+              <ServicePaymentSummary summary={current.servicePayment} />
               <DocumentActions
                 key={current.id}
                 kind="invoice"
@@ -237,6 +269,9 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
                       </Link>
                       <span>
                         {paymentLabels[payment.status] ?? "Check payment status"}
+                        {payment.serviceStage
+                          ? ` · ${payment.serviceStage === "MATERIALS" ? "Materials" : "Workmanship and fees"}`
+                          : ""}
                       </span>
                     </div>
                     <strong>{formatKobo(payment.amountKobo)}</strong>

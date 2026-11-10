@@ -105,7 +105,7 @@ it("versions guest refund handoff guidance while preserving separate financial a
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(29);
+  expect(article.version).toBe(35);
   expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
   expect(article.steps.join(" ")).toContain("wait for the current availability check");
   expect(article.steps.join(" ")).toContain(
@@ -218,15 +218,17 @@ it("versions saved financial breakdown guidance without expanding its independen
   expect(aftercare.steps.join(" ")).toContain(
     "does not prove payment or approve a partial refund",
   );
-  expect(policy.version).toBe(5);
+  expect(policy.version).toBe(9);
   expect(policy.gate).toBe("financial-policy");
   expect(policy.steps.join(" ")).toContain("exact halves rounded up");
   expect(policy.steps.join(" ")).toContain("Preserve issued historical amounts");
+  expect(policy.steps.join(" ")).toContain("do not issue duplicate sales");
+  expect(policy.steps.join(" ")).toContain("not a new owner finance approval");
 });
 
 it("explains recorded-start cancellation and missed reminder boundaries without inventing a cutoff", () => {
   const article = learningArticles.find((value) => value.id === "service-request")!;
-  expect(article.version).toBe(29);
+  expect(article.version).toBe(35);
   const text = article.steps.join(" ");
   expect(text).toContain("only before work starts");
   expect(text).toContain("older status still says Confirmed");
@@ -235,7 +237,7 @@ it("explains recorded-start cancellation and missed reminder boundaries without 
 
 it("explains resource-aware offers without promising a reservation or hiding preferred-time requests", () => {
   const article = learningArticles.find((value) => value.id === "service-request")!;
-  expect(article.version).toBe(29);
+  expect(article.version).toBe(35);
   expect(article.gate).toBe("public");
   const text = article.steps.join(" ");
   for (const phrase of [

@@ -327,9 +327,13 @@ describe("financial document authority", () => {
       },
       serviceQuote: {
         findFirst: vi.fn().mockResolvedValue({
+          id,
+          version: 1,
           quoteNumber: "QUOTE-1",
-          items: snapshot.lines.map((item) => ({
+          items: snapshot.lines.map((item, index) => ({
             ...item,
+            id: `f7000000-0000-4000-8000-00000000000${index + 3}`,
+            type: "LABOUR",
             unitPriceKobo: BigInt(item.unitPriceKobo),
             subtotalKobo: BigInt(item.subtotalKobo),
           })),
@@ -345,6 +349,12 @@ describe("financial document authority", () => {
       billTo: { name: "Account holder", address: null },
       detailBasis: "SOURCE_RECORDS",
     });
+    expect(
+      (await buildInvoiceSnapshot(db, invoice)).servicePaymentPlan?.workmanship.totalKobo,
+    ).toBe("9137500");
+    expect(
+      (await buildInvoiceSnapshot(db, invoice, true)).servicePaymentPlan,
+    ).toBeUndefined();
   });
   it("labels missing legacy itemization and fails closed for new inconsistent sources", async () => {
     const db = {

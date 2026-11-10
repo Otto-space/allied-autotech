@@ -1,3 +1,4 @@
+import { lockServiceInvoiceBooking } from "../billing/service-invoice-context.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { PaymentCreateInput } from "./payments.schemas.js";
 import { paymentTargetPending } from "./payments.errors.js";
@@ -22,6 +23,10 @@ export function paymentTarget(payment: StoredTarget): Target | null {
 export async function lockTarget(tx: Prisma.TransactionClient, target: Target) {
   const key = `payment-target:${target.targetType}:${target.targetId}`;
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`;
+  if (target.targetType === "INVOICE") {
+    await lockServiceInvoiceBooking(tx, target.targetId);
+    await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${target.targetId}::uuid FOR UPDATE`;
+  }
 }
 
 export async function lockStoredTarget(tx: Prisma.TransactionClient, id: string) {
@@ -37,6 +42,7 @@ export async function assertNoCompetingPayment(
   tx: Prisma.TransactionClient,
   target: Target,
   currentPaymentId?: string,
+  allowSettledServiceStages = false,
 ) {
   const where: Prisma.PaymentWhereInput =
     target.targetType === "ORDER"
@@ -66,7 +72,8 @@ export async function assertNoCompetingPayment(
           },
         },
         { status: { not: "SUCCEEDED" }, attempts: { some: { status: "SUCCESSFUL" } } },
-        ...(target.targetType !== "VEHICLE_TRANSACTION"
+        ...(target.targetType !== "VEHICLE_TRANSACTION" &&
+        !(target.targetType === "INVOICE" && allowSettledServiceStages)
           ? [{ status: "SUCCEEDED" as const }]
           : []),
       ],

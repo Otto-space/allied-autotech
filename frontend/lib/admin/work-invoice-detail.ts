@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { invoiceDocumentSchema } from "@/lib/api/document-schemas";
 import { invoiceSource, parseWorkInvoice, type WorkInvoice } from "./work-invoices";
+import { servicePaymentDocumentMatches } from "@/lib/api/service-payment-schemas";
 const date = z.iso.datetime({ offset: true });
 export const staffInvoiceDocumentSchema = z
   .object({
@@ -46,6 +47,7 @@ export function parseStaffInvoiceDocument(value: unknown, id: string) {
         p.amountKobo !== r.amountKobo ||
         p.paymentNumber !== r.paymentNumber ||
         p.succeededAt !== r.confirmedAt ||
+        p.serviceStage !== r.serviceStage ||
         BigInt(r.refundedKobo) > BigInt(r.amountKobo)
       );
     })
@@ -64,6 +66,7 @@ export function invoiceDocumentMatches(
     invoice.status === document.status &&
     invoice.version === document.version &&
     invoice.currency === document.currency &&
+    servicePaymentDocumentMatches(invoice, document) &&
     source.kind === document.source.type &&
     source.id === document.source.id &&
     (source.kind === "BOOKING" || source.reference === document.source.reference) &&
@@ -88,7 +91,8 @@ export function invoiceDocumentMatches(
           r.paymentNumber === p.paymentNumber &&
           r.amountKobo === p.amountKobo &&
           r.status === p.status &&
-          r.succeededAt === p.succeededAt,
+          r.succeededAt === p.succeededAt &&
+          r.serviceStage === p.serviceStage,
       ),
     )
   );

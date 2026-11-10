@@ -17,6 +17,10 @@ export function orderPaymentAcceptedReview(order: CustomerOrder) {
 }
 
 export function orderPaymentUnavailable(order: CustomerOrder, now = Date.now()) {
+  if (
+    order.timingUpdates?.[0]?.lines.some((line) => line.sourcingStatus === "UNAVAILABLE")
+  )
+    return "An item is unavailable. Contact Customer Care before payment; any existing payment remains recorded.";
   if (order.paidAt) return "Payment is already recorded for this order.";
   if (order.status !== "PENDING")
     return "This order is not open for a new payment request.";

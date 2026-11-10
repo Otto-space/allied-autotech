@@ -216,14 +216,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).rejects.toThrow();
     });
     it("notifies from the responsibility-based staff workspace and keeps its delivery view scoped", async () => {
+      const sessionNow = Date.now();
       await prisma.session.create({
         data: {
           id: admin.sessionId,
           userId: admin.userId,
           tokenHash: hashToken("session", randomUUID()),
-          createdAt: new Date(Date.now() - 1000),
-          expiresAt: new Date(Date.now() + 3600000),
-          idleExpiresAt: new Date(Date.now() + 3600000),
+          createdAt: new Date(sessionNow - 1000),
+          expiresAt: new Date(sessionNow + 3600000),
+          idleExpiresAt: new Date(sessionNow + 3600000),
           mfaRequired: true,
           mfaVerifiedAt: new Date(),
         },

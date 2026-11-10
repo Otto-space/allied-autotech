@@ -1,3 +1,5 @@
+import { registerPickupOpenApi } from "./order-pickup.openapi.js";
+import { orderTimingBodySchema } from "./order-timing.schemas.js";
 import {
   issuePartsQuoteSchema,
   partsQuoteDecisionSchema,
@@ -39,7 +41,17 @@ interface Path {
   created?: boolean;
 }
 export function registerOrdersOpenApi(registry: OpenAPIRegistry): void {
+  registerPickupOpenApi(registry);
   const paths: Path[] = [
+    {
+      method: "post",
+      path: "/admin/orders/{orderId}/timing",
+      summary:
+        "Record a current-access, auditable per-item sourcing estimate without authorising payment or collection",
+      params: orderParamsSchema,
+      body: orderTimingBodySchema,
+      headers: csrf,
+    },
     {
       method: "post",
       path: "/customers/orders/{orderId}/purchase-review",

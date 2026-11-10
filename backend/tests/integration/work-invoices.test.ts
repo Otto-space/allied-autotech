@@ -8,6 +8,7 @@ import { env } from "../../src/config/env.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
 import { sessionCookieName } from "../../src/common/security/cookies.js";
 import { testOwner } from "../helpers/owner.js";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import { testReservationAcceptance } from "../helpers/reservation-terms.js";
 
 const app = createApp({ checkReadiness: async () => undefined });
@@ -110,15 +111,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
     }
     beforeAll(async () => {
-      const [actual] = await prisma.$queryRaw<
-        { database: string; host: string; port: number }[]
-      >`SELECT current_database() AS database,host(inet_server_addr()) AS host,inet_server_port() AS port`;
-      expect(actual).toEqual({
-        database: env.DB_NAME,
-        host: env.DB_HOST,
-        port: env.DB_PORT,
-      });
-      expect(actual?.database).toMatch(/_(test|ci)$/);
+      await assertIsolatedLoopbackDatabase();
       const a = await account("ADMIN"),
         s = await account("STAFF"),
         c = await account("CUSTOMER");

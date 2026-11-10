@@ -23,6 +23,7 @@ export type TokenPurpose =
   | "order-checkout-idempotency"
   | "order-reservation"
   | "order-inventory"
+  | "order-pickup"
   | "workforce-aftercare-review"
   | "vehicle-reservation-idempotency"
   | "vehicle-creation-idempotency"

@@ -1,16 +1,23 @@
 import { z } from "zod";
 import { invoiceSchema } from "@/lib/api/invoice-schemas";
+import { serviceStage } from "@/lib/api/service-payment-schemas";
 import { inspectionPageParams } from "./work-inspections";
 const uuid = z.uuid(),
   date = z.iso.datetime({ offset: true });
 const branch = z
   .object({ id: uuid, code: z.string().min(1), name: z.string().min(1) })
   .strict();
-export const invoiceSourceType = z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION"]);
+export const invoiceSourceType = z.enum([
+  "ORDER",
+  "BOOKING",
+  "VEHICLE_TRANSACTION",
+  "SERVICE_ADDITION",
+]);
 export type InvoiceSourceType = z.infer<typeof invoiceSourceType>;
 export const invoiceSourceLabels = {
   ORDER: "Parts order",
   BOOKING: "Workshop booking",
+  SERVICE_ADDITION: "Agreed additional service work",
   VEHICLE_TRANSACTION: "Vehicle purchase",
 };
 export const invoiceStatusLabels = {
@@ -32,7 +39,7 @@ const sourceSchema = z
   .strict();
 export type InvoiceSource = z.infer<typeof sourceSchema>;
 const schema = invoiceSchema
-  .extend({
+  .safeExtend({
     invoiceNumber: z.string().min(1),
     version: z.number().int().nonnegative(),
     issuedAt: date.nullable(),
@@ -50,6 +57,19 @@ const schema = invoiceSchema
       })
       .strict()
       .nullable(),
+    additionalQuote: z
+      .object({
+        id: uuid,
+        quoteNumber: z.string().min(1),
+        amendmentReason: z.string().min(1).max(1000),
+        originalInvoice: z.object({ invoiceNumber: z.string().min(1).max(50) }).strict(),
+        booking: z
+          .object({ id: uuid, status: z.string().min(1), branch: branch.nullable() })
+          .strict(),
+      })
+      .strict()
+      .nullable()
+      .optional(),
     booking: z
       .object({ id: uuid, status: z.string().min(1), branch: branch.nullable() })
       .strict()
@@ -72,6 +92,7 @@ const schema = invoiceSchema
           amountKobo: z.string().regex(/^\d+$/),
           currency: z.literal("NGN"),
           succeededAt: date.nullable(),
+          serviceStage: serviceStage.optional(),
         })
         .strict(),
     ),
@@ -79,6 +100,14 @@ const schema = invoiceSchema
   .strict();
 export type WorkInvoice = z.infer<typeof schema>;
 export function invoiceSource(v: WorkInvoice) {
+  if (v.additionalQuote)
+    return {
+      kind: "SERVICE_ADDITION" as const,
+      id: v.additionalQuote.id,
+      reference: v.additionalQuote.quoteNumber,
+      branch: v.additionalQuote.booking.branch,
+      href: `/admin/bookings/${v.additionalQuote.booking.id}`,
+    };
   if (v.order)
     return {
       kind: "ORDER" as const,
@@ -108,7 +137,8 @@ export function invoiceSource(v: WorkInvoice) {
 export function parseWorkInvoice(value: unknown) {
   const v = schema.parse(value);
   if (
-    [v.order, v.booking, v.vehicleTransaction].filter(Boolean).length !== 1 ||
+    [v.order, v.booking, v.vehicleTransaction, v.additionalQuote].filter(Boolean)
+      .length !== 1 ||
     BigInt(v.subtotalKobo) + BigInt(v.taxKobo) - BigInt(v.depositCreditKobo) !==
       BigInt(v.totalKobo) ||
     new Set(v.payments.map((p) => p.id)).size !== v.payments.length

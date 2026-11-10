@@ -63,6 +63,9 @@ enum BookingReminderKind {
   THREE_DAYS
   TWO_DAYS
   ONE_DAY
+  NOTICE_1
+  NOTICE_2
+  NOTICE_3
 }
 
 enum BookingReminderStatus {
@@ -573,6 +576,12 @@ enum OutboxStatus {
 }
 
 model User {
+  pickupClaims                 OrderPickupClaim[]               @relation("PickupClaimant")
+  pickupClaimCancellations     OrderPickupClaim[]               @relation("PickupClaimCanceller")
+  pickupAuthorisations         OrderPickupAuthorisation[]
+  pickupHandovers              OrderPickupHandover[]
+  orderTimingUpdates           OrderTimingUpdate[]
+  serviceVehicleReleases       ServiceVehicleRelease[]
   bookingAttendanceEvents      BookingAttendanceEvent[]
   createdResourceAllocations   BookingResourceAllocation[]
   bookingTimingSnapshots       BookingTimingSnapshot[]
@@ -666,7 +675,8 @@ model User {
 
   owner_UserCapability_grantedByUserId UserCapability[] @relation("Owner_UserCapability_grantedByUserId")
 
-  owner_UserCapability_userId UserCapability[] @relation("Owner_UserCapability_userId")
+  owner_UserCapability_userId UserCapability[]       @relation("Owner_UserCapability_userId")
+  orderCollectionEvents       OrderCollectionEvent[]
 
   @@index([role])
   @@index([status])
@@ -674,6 +684,7 @@ model User {
 }
 
 model Session {
+  pickupClaims        OrderPickupClaim[]
   supportLivePresence SupportLivePresence[]
   pushSubscriptions   PushSubscription[]
   id                  String                @id @default(uuid()) @db.Uuid
@@ -692,8 +703,9 @@ model Session {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
 
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mfaChallenges MfaChallenge[]
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mfaChallenges         MfaChallenge[]
+  orderCollectionEvents OrderCollectionEvent[]
 
   @@index([userId])
   @@index([expiresAt])
@@ -1071,6 +1083,7 @@ model BookingSlot {
 }
 
 model Booking {
+  vehicleRelease               ServiceVehicleRelease?
   visitContinuations           BookingVisitContinuation[]
   attendanceEvents             BookingAttendanceEvent[]
   resourceAllocations          BookingResourceAllocation[]
@@ -1178,26 +1191,31 @@ model BookingReminder {
 }
 
 model ServiceQuote {
-  policySnapshot   Json?
-  id               String      @id @default(uuid()) @db.Uuid
-  bookingId        String      @db.Uuid
-  createdByStaffId String      @db.Uuid
-  quoteNumber      String      @unique @db.VarChar(40)
-  version          Int         @default(1)
-  revision         Int         @default(0)
-  status           QuoteStatus @default(DRAFT)
-  currency         String      @default("NGN") @db.Char(3)
-  subtotalKobo     BigInt
-  taxKobo          BigInt      @default(0)
-  totalKobo        BigInt
-  notes            String?
-  expiresAt        DateTime?
-  issuedAt         DateTime?
-  acceptedAt       DateTime?
-  rejectedAt       DateTime?
-  voidedAt         DateTime?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  supplementalInvoice       Invoice?    @relation("SupplementalInvoice")
+  acceptedAdditionalContext Json?
+  originalInvoiceId         String?     @db.Uuid
+  amendmentReason           String?     @db.VarChar(1000)
+  originalInvoice           Invoice?    @relation("AdditionalServiceQuotes", fields: [originalInvoiceId], references: [id], onDelete: Restrict)
+  policySnapshot            Json?
+  id                        String      @id @default(uuid()) @db.Uuid
+  bookingId                 String      @db.Uuid
+  createdByStaffId          String      @db.Uuid
+  quoteNumber               String      @unique @db.VarChar(40)
+  version                   Int         @default(1)
+  revision                  Int         @default(0)
+  status                    QuoteStatus @default(DRAFT)
+  currency                  String      @default("NGN") @db.Char(3)
+  subtotalKobo              BigInt
+  taxKobo                   BigInt      @default(0)
+  totalKobo                 BigInt
+  notes                     String?
+  expiresAt                 DateTime?
+  issuedAt                  DateTime?
+  acceptedAt                DateTime?
+  rejectedAt                DateTime?
+  voidedAt                  DateTime?
+  createdAt                 DateTime    @default(now())
+  updatedAt                 DateTime    @updatedAt
 
   booking        Booking      @relation(fields: [bookingId], references: [id], onDelete: Restrict)
   createdByStaff StaffProfile @relation(fields: [createdByStaffId], references: [id], onDelete: Restrict)
@@ -1206,6 +1224,7 @@ model ServiceQuote {
 
   @@unique([bookingId, version])
   @@index([bookingId, status])
+  @@index([originalInvoiceId])
   @@index([bookingId, version(sort: Desc)], map: "ServiceQuote_bookingId_version_desc_idx")
   @@index([status, expiresAt])
   @@index([issuedAt], map: "ServiceQuote_overview_issued_idx")
@@ -1514,14 +1533,15 @@ model ProductFavourite {
 // Guest purchase identity is deliberately separate from User/CustomerProfile.
 // Email proof cannot authenticate an account or grant its historical records.
 model PurchaseGuest {
-  id                String                  @id @default(uuid()) @db.Uuid
-  email             String                  @unique @db.Citext
-  verifiedAt        DateTime
-  createdAt         DateTime                @default(now())
-  sessions          PurchaseGuestSession[]
-  orders            Order[]
-  invoices          Invoice[]
-  aftercareRequests OrderAftercareRequest[]
+  pickupAuthorisations OrderPickupAuthorisation[]
+  id                   String                     @id @default(uuid()) @db.Uuid
+  email                String                     @unique @db.Citext
+  verifiedAt           DateTime
+  createdAt            DateTime                   @default(now())
+  sessions             PurchaseGuestSession[]
+  orders               Order[]
+  invoices             Invoice[]
+  aftercareRequests    OrderAftercareRequest[]
 }
 
 model PurchaseGuestChallenge {
@@ -1579,37 +1599,41 @@ model CartItem {
 }
 
 model Order {
+  pickupClaims                 OrderPickupClaim[]
+  pickupAuthorisations         OrderPickupAuthorisation[]
+  pickupHandovers              OrderPickupHandover[]
+  timingUpdates                OrderTimingUpdate[]
   purchaseReviews              OrderPurchaseReview[]
   partsQuote                   PartsQuote?
   fulfillmentEvidenceAt        DateTime?
-  fulfillmentEvidenceReference String?               @db.VarChar(300)
-  taxKobo                      BigInt                @default(0)
+  fulfillmentEvidenceReference String?                    @db.VarChar(300)
+  taxKobo                      BigInt                     @default(0)
   policySnapshot               Json?
-  id                           String                @id @default(uuid()) @db.Uuid
-  customerId                   String?               @db.Uuid
-  guestId                      String?               @db.Uuid
-  branchId                     String?               @db.Uuid
-  orderNumber                  String                @unique @db.VarChar(40)
-  status                       OrderStatus           @default(PENDING)
-  fulfillmentMethod            FulfillmentMethod     @default(COLLECTION)
-  currency                     String                @default("NGN") @db.Char(3)
+  id                           String                     @id @default(uuid()) @db.Uuid
+  customerId                   String?                    @db.Uuid
+  guestId                      String?                    @db.Uuid
+  branchId                     String?                    @db.Uuid
+  orderNumber                  String                     @unique @db.VarChar(40)
+  status                       OrderStatus                @default(PENDING)
+  fulfillmentMethod            FulfillmentMethod          @default(COLLECTION)
+  currency                     String                     @default("NGN") @db.Char(3)
   subtotalKobo                 BigInt
-  discountAmountKobo           BigInt                @default(0)
-  deliveryFeeKobo              BigInt                @default(0)
+  discountAmountKobo           BigInt                     @default(0)
+  deliveryFeeKobo              BigInt                     @default(0)
   totalKobo                    BigInt
   customerName                 String
-  customerEmail                String                @db.Citext
-  customerPhone                String                @db.VarChar(32)
+  customerEmail                String                     @db.Citext
+  customerPhone                String                     @db.VarChar(32)
   deliveryName                 String?
-  deliveryPhone                String?               @db.VarChar(32)
+  deliveryPhone                String?                    @db.VarChar(32)
   deliveryAddress              String?
   deliveryCity                 String?
   deliveryState                String?
   deliveryCountry              String?
   cancellationReason           String?
-  version                      Int                   @default(0)
-  createdAt                    DateTime              @default(now())
-  updatedAt                    DateTime              @updatedAt
+  version                      Int                        @default(0)
+  createdAt                    DateTime                   @default(now())
+  updatedAt                    DateTime                   @updatedAt
   paymentDueAt                 DateTime?
   confirmedAt                  DateTime?
   paidAt                       DateTime?
@@ -1628,6 +1652,7 @@ model Order {
   review                              Review?
   complaints                          Complaint[]
   owner_OrderAftercareRequest_orderId OrderAftercareRequest[] @relation("Owner_OrderAftercareRequest_orderId")
+  collectionEvents                    OrderCollectionEvent[]
 
   @@index([guestId, createdAt])
   @@index([guestId, id], map: "Order_guest_directory_idx")
@@ -2675,28 +2700,31 @@ model PromotionUsage {
 }
 
 model Invoice {
+  additionalQuoteId    String?        @unique @db.Uuid
+  additionalQuote      ServiceQuote?  @relation("SupplementalInvoice", fields: [additionalQuoteId], references: [id], onDelete: Restrict)
+  additionalWorkQuotes ServiceQuote[] @relation("AdditionalServiceQuotes")
   policySnapshot       Json?
   documentSnapshot     Json?
-  id                   String        @id @default(uuid()) @db.Uuid
-  invoiceNumber        String        @unique @db.VarChar(50)
-  customerId           String?       @db.Uuid
-  guestId              String?       @db.Uuid
-  orderId              String?       @unique @db.Uuid
-  bookingId            String?       @unique @db.Uuid
-  vehicleTransactionId String?       @unique @db.Uuid
-  currency             String        @default("NGN") @db.Char(3)
+  id                   String         @id @default(uuid()) @db.Uuid
+  invoiceNumber        String         @unique @db.VarChar(50)
+  customerId           String?        @db.Uuid
+  guestId              String?        @db.Uuid
+  orderId              String?        @unique @db.Uuid
+  bookingId            String?        @unique @db.Uuid
+  vehicleTransactionId String?        @unique @db.Uuid
+  currency             String         @default("NGN") @db.Char(3)
   subtotalKobo         BigInt
-  taxKobo              BigInt        @default(0)
-  depositCreditKobo    BigInt        @default(0)
+  taxKobo              BigInt         @default(0)
+  depositCreditKobo    BigInt         @default(0)
   totalKobo            BigInt
-  status               InvoiceStatus @default(DRAFT)
-  version              Int           @default(0)
+  status               InvoiceStatus  @default(DRAFT)
+  version              Int            @default(0)
   issuedAt             DateTime?
   dueAt                DateTime?
   paidAt               DateTime?
   voidedAt             DateTime?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 
   customer           CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: Restrict)
   guest              PurchaseGuest?      @relation(fields: [guestId], references: [id], onDelete: Restrict)
@@ -3446,4 +3474,142 @@ model BookingVisitContinuation {
   request                 BookingRescheduleRequest  @relation(fields: [requestId], references: [id], onDelete: Restrict)
 
   @@unique([bookingId, scheduleVersion])
+}
+
+// Physical collection is separate from work completion and payment requests.
+model ServiceVehicleRelease {
+  id                String   @id @default(uuid()) @db.Uuid
+  bookingId         String   @unique @db.Uuid
+  performedByUserId String   @db.Uuid
+  idempotencyKey    String   @unique @db.Uuid
+  requestHash       String   @db.Char(64)
+  recipientName     String   @db.VarChar(120)
+  verificationNote  String   @db.VarChar(1000)
+  bookingVersion    Int
+  financialSnapshot Json
+  releasedAt        DateTime @default(now())
+  booking           Booking  @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  performedBy       User     @relation(fields: [performedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([performedByUserId, releasedAt])
+}
+
+// Immutable operator estimates, distinct from payment, allocation and actual readyAt.
+model OrderTimingUpdate {
+  id                String   @id @default(uuid()) @db.Uuid
+  orderId           String   @db.Uuid
+  performedByUserId String   @db.Uuid
+  orderVersion      Int
+  idempotencyKey    String   @unique @db.Uuid
+  requestHash       String   @db.Char(64)
+  lines             Json
+  customerNote      String   @db.VarChar(1000)
+  reason            String   @db.VarChar(1000)
+  createdAt         DateTime @default(now())
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  performedBy       User     @relation(fields: [performedByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, orderVersion])
+  @@index([orderId, createdAt])
+}
+
+// Raw pickup secrets are never persisted. Revocation/consumption preserve history.
+model OrderPickupAuthorisation {
+  claim           OrderPickupClaim?
+  id              String               @id @default(uuid()) @db.Uuid
+  orderId         String               @db.Uuid
+  issuedByUserId  String?              @db.Uuid
+  issuedByGuestId String?              @db.Uuid
+  orderVersion    Int
+  idempotencyKey  String               @unique @db.Uuid
+  requestHash     String               @db.Char(64)
+  tokenHash       String               @unique @db.Char(64)
+  lines           Json
+  securityPolicy  Json
+  issuedAt        DateTime             @default(now())
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  consumedAt      DateTime?
+  version         Int                  @default(0)
+  order           Order                @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  issuedByUser    User?                @relation(fields: [issuedByUserId], references: [id], onDelete: Restrict)
+  issuedByGuest   PurchaseGuest?       @relation(fields: [issuedByGuestId], references: [id], onDelete: Restrict)
+  handover        OrderPickupHandover?
+
+  @@index([orderId, issuedAt])
+}
+
+// Physical handover is separate from readiness, stock allocation and payment.
+model OrderPickupHandover {
+  claimId           String?                  @unique @db.Uuid
+  claim             OrderPickupClaim?        @relation(fields: [claimId], references: [id], onDelete: Restrict)
+  id                String                   @id @default(uuid()) @db.Uuid
+  completedOrder    Boolean                  @default(false)
+  orderId           String                   @db.Uuid
+  authorisationId   String                   @unique @db.Uuid
+  performedByUserId String                   @db.Uuid
+  orderVersion      Int
+  idempotencyKey    String                   @unique @db.Uuid
+  requestHash       String                   @db.Char(64)
+  lines             Json
+  collectorName     String                   @db.VarChar(120)
+  verificationNote  String                   @db.VarChar(1000)
+  financialSnapshot Json
+  createdAt         DateTime                 @default(now())
+  order             Order                    @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  authorisation     OrderPickupAuthorisation @relation(fields: [authorisationId], references: [id], onDelete: Restrict)
+  performedBy       User                     @relation(fields: [performedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, createdAt])
+}
+
+// An exclusive physical-review claim is not a handover. No automatic expiry frees
+// ambiguous goods; release requires a current operator's explicit no-handover fact.
+model OrderPickupClaim {
+  id                 String                   @id @default(uuid()) @db.Uuid
+  orderId            String                   @db.Uuid
+  authorisationId    String                   @unique @db.Uuid
+  performedByUserId  String                   @db.Uuid
+  sessionId          String                   @db.Uuid
+  orderVersion       Int
+  selectedLines      Json
+  claimedAt          DateTime                 @default(now())
+  cancelledAt        DateTime?
+  cancelledByUserId  String?                  @db.Uuid
+  cancellationReason String?                  @db.VarChar(1000)
+  consumedAt         DateTime?
+  order              Order                    @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  authorisation      OrderPickupAuthorisation @relation(fields: [authorisationId], references: [id], onDelete: Restrict)
+  performedBy        User                     @relation("PickupClaimant", fields: [performedByUserId], references: [id], onDelete: Restrict)
+  cancelledBy        User?                    @relation("PickupClaimCanceller", fields: [cancelledByUserId], references: [id], onDelete: Restrict)
+  session            Session                  @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  handover           OrderPickupHandover?
+
+  @@index([orderId, claimedAt])
+}
+
+model OrderCollectionEvent {
+  id                    String                 @id @default(uuid()) @db.Uuid
+  orderId               String                 @db.Uuid
+  performedByUserId     String                 @db.Uuid
+  sessionId             String                 @db.Uuid
+  orderVersion          Int
+  readyAt               DateTime
+  kind                  String                 @db.VarChar(30)
+  method                String?                @db.VarChar(20)
+  reason                String                 @db.VarChar(1000)
+  noticeId              String?                @db.Uuid
+  previousCollectByDate DateTime?              @db.Date
+  collectByDate         DateTime?              @db.Date
+  policySnapshot        Json
+  idempotencyKey        String                 @unique @db.Uuid
+  requestHash           String                 @db.Char(64)
+  createdAt             DateTime               @default(now())
+  order                 Order                  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  performedBy           User                   @relation(fields: [performedByUserId], references: [id], onDelete: Restrict)
+  session               Session                @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  notice                OrderCollectionEvent?  @relation("CollectionNoticeExtensions", fields: [noticeId], references: [id], onDelete: Restrict)
+  extensions            OrderCollectionEvent[] @relation("CollectionNoticeExtensions")
+
+  @@index([orderId, readyAt, kind, createdAt])
 }

@@ -11,6 +11,13 @@ import {
   type CustomerOrder,
 } from "../../lib/api/order-payment";
 import type { PaymentRecord } from "../../lib/api/payment-schemas";
+
+it("does not offer payment when the latest sourcing update records an unavailable item", () => {
+  const source = {
+    timingUpdates: [{ lines: [{ sourcingStatus: "UNAVAILABLE" }] }],
+  } as CustomerOrder;
+  expect(orderPaymentUnavailable(source)).toContain("unavailable");
+});
 const id = (n: number) => `e9000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const order = {
   id: id(1),

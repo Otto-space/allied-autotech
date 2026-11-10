@@ -18,6 +18,7 @@ export const workforceFinanceSelect = {
       invoiceNumber: true,
       order: { select: { branch } },
       booking: { select: { branch } },
+      additionalQuote: { select: { booking: { select: { branch } } } },
     },
   },
 } satisfies Prisma.PaymentSelect;
@@ -39,6 +40,7 @@ export function financeScope(branchIds: string[]): Prisma.PaymentWhereInput {
           OR: [
             { order: { branchId: { in: branchIds } } },
             { booking: { branchId: { in: branchIds } } },
+            { additionalQuote: { booking: { branchId: { in: branchIds } } } },
           ],
         },
       },
@@ -64,6 +66,7 @@ export function financeSearchFilters(
             OR: [
               { order: { branchId: { in: branchIds } } },
               { booking: { branchId: { in: branchIds } } },
+              { additionalQuote: { booking: { branchId: { in: branchIds } } } },
             ],
           },
         },
@@ -103,6 +106,7 @@ export function projectWorkforcePayment<T extends FinanceRecord>(
   if (invoice) {
     add("INVOICE", invoice.invoiceNumber, invoice.order?.branch);
     add("INVOICE", invoice.invoiceNumber, invoice.booking?.branch);
+    add("INVOICE", invoice.invoiceNumber, invoice.additionalQuote?.booking.branch);
   }
   // A source moved out of scope between reads must never expose financial facts.
   if (!sources.length) workforceNotFound();

@@ -102,7 +102,7 @@ test("a scoped Staff confirmation crosses the actual browser, CSRF, API and rest
     confirmed: true,
     policyRecorded: true,
     auditCount: 1,
-    reminderCount: 1,
+    reminderCount: 3,
   });
   expect(writes).toHaveLength(2);
   expect(writes.filter((p) => p.endsWith("/auth/csrf"))).toHaveLength(1);

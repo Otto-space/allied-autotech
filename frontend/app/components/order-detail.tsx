@@ -1,4 +1,6 @@
 "use client";
+import { OrderPickup } from "./order-pickup";
+import { OrderTimingSummary } from "./order-timing";
 import { containDialogFocus } from "@/lib/dialog-focus";
 import { usePublicCapabilities } from "@/app/components/public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
@@ -451,6 +453,14 @@ export function OrderDetail({ orderId }: { orderId: string }) {
           </Link>
         </section>
       )}
+      {current && !order.error && !order.refreshError && (
+        <OrderPickup
+          order={current}
+          audience="customer"
+          disabled={busy || order.loading || order.refreshing}
+          onSaved={order.revalidate}
+        />
+      )}
       {order.loading && (
         <p className="order-loading" role="status">
           Checking order…
@@ -659,6 +669,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
               </section>
             </div>
             <div className="order-main">
+              <OrderTimingSummary updates={current.timingUpdates} items={current.items} />
               <section
                 className="order-card order-items"
                 aria-labelledby="order-items-title"

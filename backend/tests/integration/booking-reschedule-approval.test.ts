@@ -43,7 +43,7 @@ async function customer() {
     } as AuthenticatedActor,
   };
 }
-async function fixture() {
+async function fixture(policyEffectiveAt?: Date) {
   const buyer = await customer(),
     sources = await reviewSourceFixtures(buyer.customerId);
   await prisma.service.update({
@@ -62,7 +62,7 @@ async function fixture() {
     mfaVerifiedAt: new Date(),
   };
   const branchId = sources.listing.branchId;
-  const capacity = await testBranchCapacity(branchId, owner.id);
+  const capacity = await testBranchCapacity(branchId, owner.id, 20, policyEffectiveAt);
   const staff = await prisma.staffProfile.create({
     data: {
       firstName: "Synthetic",
@@ -79,7 +79,13 @@ async function fixture() {
       },
     },
   });
-  await testBranchResources(branchId, owner.id, [sources.service.id], [staff.id]);
+  await testBranchResources(
+    branchId,
+    owner.id,
+    [sources.service.id],
+    [staff.id],
+    policyEffectiveAt,
+  );
   const startsAt = new Date(Date.now() + 9 * 86400000);
   startsAt.setUTCHours(8, 0, 0, 0);
   const nextAt = new Date(startsAt.getTime() + 86400000);
@@ -247,7 +253,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         await prisma.bookingReminder.count({
           where: { bookingId: f.booking.id, scheduleVersion: 1, status: "PENDING" },
         }),
-      ).toBe(1);
+      ).toBe(3);
       expect(
         await prisma.bookingRescheduleRequest.findUnique({ where: { id: pending.id } }),
       ).toMatchObject({ status: "APPROVED", decidedByUserId: f.actor.userId });
@@ -457,15 +463,21 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     beforeAll(() => assertIsolatedLoopbackDatabase());
     afterEach(() => vi.useRealTimers());
     async function lateVisit(kind: "ARRIVED" | "LEFT" = "ARRIVED") {
-      // Policies must precede both PostgreSQL's real clock and the simulated
-      // visit clock; continuation still requires the current Lagos date.
-      const realNow = Date.now();
-      const today = new Date(realNow + 3_600_000).toISOString().slice(0, 10);
-      const visitTime = new Date(`${today}T12:00:00Z`);
+      // Keep attendance on PostgreSQL's current Lagos date. Only the application's
+      // clock moves to midday; fixture approvals must be effective on both clocks.
+      const [clock] = await prisma.$queryRaw<Array<{ now: Date }>>`
+        SELECT CURRENT_TIMESTAMP AS now
+      `;
+      const visitDay = new Date(clock!.now.getTime() + 3_600_000)
+        .toISOString()
+        .slice(0, 10);
+      const midday = new Date(`${visitDay}T12:00:00Z`);
+      const policyEffectiveAt = new Date(
+        Math.min(clock!.now.getTime(), midday.getTime()) - 1000,
+      );
       vi.useFakeTimers({ toFake: ["Date"] });
-      vi.setSystemTime(Math.min(realNow, visitTime.getTime()));
-      const f = await fixture();
-      vi.setSystemTime(visitTime);
+      vi.setSystemTime(midday);
+      const f = await fixture(policyEffectiveAt);
       // Keep isolated actors authenticated at the simulated visit time without
       // extending or bypassing the application's session checks.
       f.actor.sessionId = await paymentTestSession(f.actor.userId, f.actor.role);

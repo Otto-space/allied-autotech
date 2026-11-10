@@ -55,6 +55,16 @@ export function InvoiceSheet({ document }: { document: InvoiceDocument }) {
           </dd>
         </div>
       </dl>
+      {document.source.originalInvoiceNumber && (
+        <p className="invoice-note">
+          Original invoice: {document.source.originalInvoiceNumber}
+        </p>
+      )}
+      {document.source.amendmentReason && (
+        <p className="invoice-note">
+          Additional work reason: {document.source.amendmentReason}
+        </p>
+      )}
       {document.status === "VOID" && (
         <Feedback
           message="This invoice is void. Do not use it to make a payment."
@@ -84,6 +94,18 @@ export function InvoiceSheet({ document }: { document: InvoiceDocument }) {
         </tbody>
       </table>
       <InvoiceTotals document={document} />
+      {document.servicePaymentPlan && (
+        <dl className="invoice-meta" aria-label="Agreed payment stages">
+          <div>
+            <dt>Materials stage, including allocated VAT and credits</dt>
+            <dd>{formatKobo(document.servicePaymentPlan.materials.totalKobo)}</dd>
+          </div>
+          <div>
+            <dt>Workmanship and fees stage, including allocated VAT and credits</dt>
+            <dd>{formatKobo(document.servicePaymentPlan.workmanship.totalKobo)}</dd>
+          </div>
+        </dl>
+      )}
       {document.detailBasis === "LEGACY_SUMMARY" && (
         <p className="invoice-note">
           A historical itemized breakdown is unavailable. The recorded invoice subtotal

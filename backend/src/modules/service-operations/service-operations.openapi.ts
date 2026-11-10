@@ -1,3 +1,8 @@
+import { serviceVehicleReleaseReadinessSchema } from "./service-operations.schemas.js";
+import {
+  serviceVehicleReleaseBodySchema,
+  serviceVehicleReleaseReceiptSchema,
+} from "./service-operations.schemas.js";
 import {
   alternativeOptionsQuerySchema,
   alternativeOptionsSchema,
@@ -47,6 +52,7 @@ import {
   quoteCreateBodySchema,
   quoteParamsSchema,
   quoteReplaceBodySchema,
+  quoteDecisionBodySchema,
   quoteTransitionBodySchema,
   serviceCreateBodySchema,
   serviceParamsSchema,
@@ -126,6 +132,30 @@ interface Path {
 
 export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): void {
   const paths: readonly Path[] = [
+    {
+      method: "get",
+      path: "/staff/bookings/{bookingId}/vehicle-release-readiness",
+      summary: "Review current vehicle collection clearance",
+      description:
+        "Current verified Admin/Super Admin only. Rechecks actual completion, all accepted original/additional obligations, verified settled funds, historical credit and financial holds. Returns only a version-bound review fingerprint and checked time, with no private payment identifiers or amounts. This does not release a vehicle or authorise a technician. Confirmation rechecks the same proof; readiness alone is not collection.",
+      params: bookingParamsSchema,
+      secured: true,
+      response: responseSchema.extend({ data: serviceVehicleReleaseReadinessSchema }),
+    },
+
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/vehicle-release",
+      summary: "Record verified physical vehicle collection",
+      description:
+        "Admin/Super Admin with current verified MFA only. Record actual collector identity/authority review after actual booking and work-order completion and verified settlement of every original/additional invoice. Pending, uncertain, adjusted or busy payment proof refuses collection. The source key and reviewed booking version are bound to immutable history. An exact replay returns the existing fact; it never performs another release or charge. Historical unstaged financial records require authorised review. This does not reserve inventory, alter payments or grant technicians release authority.",
+      params: bookingParamsSchema,
+      body: serviceVehicleReleaseBodySchema,
+      response: responseSchema.extend({ data: serviceVehicleReleaseReceiptSchema }),
+      secured: true,
+      csrf: true,
+    },
+
     {
       method: "get",
       path: publicApiPaths.services,
@@ -313,8 +343,10 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "post",
       path: "/customers/bookings/{bookingId}/quotes/{quoteId}/accept",
       summary: "Accept an issued quote",
+      description:
+        "Additional-work acceptance must explicitly acknowledge the displayed original invoice number, quotation version and reason. Cached clients without that acknowledgement are refused. This preserves the original agreement and does not create a payment or authorise vehicle release.",
       params: quoteParamsSchema,
-      body: quoteTransitionBodySchema,
+      body: quoteDecisionBodySchema,
       secured: true,
       csrf: true,
     },
@@ -438,6 +470,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "post",
       path: "/staff/bookings/{bookingId}/quotes",
       summary: "Create a quote draft",
+      description:
+        "When an original service invoice exists, explicit additionalWork intent, a current booking version and a customer-visible reason are required. The server binds the original invoice; the client cannot choose another invoice. Include only additional items. No original amount or payment is replaced and no charge is made.",
       params: bookingParamsSchema,
       body: quoteCreateBodySchema,
       secured: true,
@@ -448,6 +482,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "put",
       path: "/staff/bookings/{bookingId}/quotes/{quoteId}",
       summary: "Create a replacement quote version",
+      description:
+        "A new draft version preserves its original-invoice association. An additional-work reason may be reviewed for the new draft; the old reason/history remain immutable. Issued original invoices are never silently repriced.",
       params: quoteParamsSchema,
       body: quoteReplaceBodySchema,
       secured: true,
@@ -484,6 +520,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "post",
       path: "/staff/bookings/{bookingId}/work-orders",
       summary: "Create a work order",
+      description:
+        "For staged invoices, item identity, quantities and prices must match the saved accepted quotation. Current catalogue changes cannot reprice agreed work. Additional scope needs customer agreement and a reviewed change; issued invoices are not rewritten.",
       params: bookingParamsSchema,
       body: workOrderCreateBodySchema,
       secured: true,
@@ -494,6 +532,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "put",
       path: "/staff/bookings/{bookingId}/work-orders/{workOrderId}",
       summary: "Update work details and append items",
+      description:
+        "Staged-invoice additions must stay within the accepted quotation. Adding quoted materials to already started work requires verified materials settlement. Diagnosis-only updates remain available within existing scope.",
       params: workOrderParamsSchema,
       body: workOrderUpdateBodySchema,
       secured: true,
@@ -503,6 +543,8 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "post",
       path: "/staff/bookings/{bookingId}/work-orders/{workOrderId}/status",
       summary: "Transition a work order",
+      description:
+        "For staged invoices, active work must match accepted scope; work containing quoted materials requires verified materials settlement. Completion requires the whole agreed scope. Labour-only work can proceed without collecting workmanship early. Financial holds or busy proof require rechecking. Completion is not vehicle release.",
       params: workOrderParamsSchema,
       body: workOrderTransitionBodySchema,
       secured: true,
@@ -519,7 +561,11 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       ...(route.path.startsWith("/staff/bookings")
         ? {
             description:
-              "Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied.",
+              "Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied." +
+              (route.description ? ` ${route.description}` : "") +
+              (route.path.endsWith("/status")
+                ? " Staged service invoices require accepted work scope and verified materials for work containing quoted parts, including direct booking start/completion. Completion does not release the vehicle."
+                : ""),
           }
         : {}),
       tags: ["Service operations"],

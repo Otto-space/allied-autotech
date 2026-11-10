@@ -12,7 +12,10 @@ export function registerWorkforceOpenApi(registry: OpenAPIRegistry) {
       security: [{ sessionCookie: [] }],
       summary: `Responsibility-based workspace: ${action}`,
       description:
-        "Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title.",
+        "Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title." +
+        (["work", "quality"].includes(action)
+          ? " For staged service invoices, active work must match accepted scope and quoted materials must have verified settlement. Quality completion requires all agreed work, retains independent review, and does not confer vehicle-release authority. Financial holds or busy proof require rechecking; no financial details are exposed to technicians."
+          : ""),
       request: {
         ...(method === "get"
           ? {}
