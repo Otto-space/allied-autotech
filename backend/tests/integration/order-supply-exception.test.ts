@@ -1178,7 +1178,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       for (const [path, cookie] of [
         [`/api/v1/customers/orders/${f.order.id}`, f.buyer.cookie],
         [`/api/v1/staff/orders/${f.order.id}`, headers.Cookie],
-      ]) {
+      ] as const) {
         const detail = await request(app).get(path).set("Cookie", cookie);
         expect(detail.status, JSON.stringify(detail.body)).toBe(200);
         expect(detail.body.data.supplyConcernCapabilityVersion).toBe(1);

@@ -211,6 +211,9 @@ for (const audience of ["customer", "guest"] as const)
             .analyze()
         ).violations,
       ).toEqual([]);
+      await panel.screenshot({
+        path: info.outputPath(`supply-panel-${audience}-${width}.png`),
+      });
       await page.screenshot({
         path: info.outputPath(`supply-${audience}-${width}.png`),
         fullPage: true,

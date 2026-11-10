@@ -1,3 +1,33 @@
+Integrated native evidence:95/95 supply/refund/pickup cases passed on115 migrations.
+An added vehicle case initially failed before fixture creation because it compared
+the local NAT port with PostgreSQL's internal5432. Its original CI assertions remain;
+local task containers now use the existing exact tmpfs identity/network/port proof.
+A fresh115-migration replay/db:check/restricted-runtime retry passed that vehicle
+case1/1. Both owned databases were removed. Focused integration TypeScript passes
+after preserving endpoint/cookie tuple types; no runtime assertion was removed.
+Logs: TEMP/aat-d03-service-payments-20261109/native-supply-integrated.log and
+native-vehicle-integration-check.log. No populated restore, production migration,
+exact-master CI or public-domain promotion is claimed for this D17 candidate.
+
+### 10 November: integrated supply interface rendered acceptance
+
+Source2abf201f preserves master7af6c51c, including service-card sizing and vehicle
+engine/features work. Only evidence-history conflicts needed manual reconciliation;
+both histories were retained. Held deployment dpl_4N2QUtE4ogEuKhYhGogVZFYgM5sY
+passes7/7 synthetic rendered cases: account/guest request review, cancellation,
+recovery/refresh at320/1440, administrator actual-unit intake at320/1440 and the
+390px verified-capture refund request/link/focus. Six scoped Axe and overflow checks
+pass; screenshots were inspected. Browser plugin unavailable; existing Playwright
+was used. This proves fixture UI, not actual roles/provider settlement or devices.
+The first build passed4/7: guest console assertions misclassified the intentional
+account-session401, now checked by exact endpoint/status separately; a real refund
+focus race with dialog restoration/refresh was reproduced and repaired. All other
+console errors remain failures. Final types/scoped lint/11 interface units and48
+collection/learning/vehicle units pass; secret guard3995 files passes. Prisma client
+was regenerated using isolated test environment defaults. Public domains, production
+DB and capability flags remain unchanged. D17 alternative acceptance and verified
+settlement/resolved-unit fulfilment remain unfinished, with its source held.
+
 ### 10 November: customer and administrator supply interface checkpoint
 
 Owned account and private-guest order details now show actual supply concerns only

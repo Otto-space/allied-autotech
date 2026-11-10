@@ -1,3 +1,22 @@
+### 10 November: integrated supply interface rendered acceptance
+
+Source2abf201f preserves master7af6c51c, including service-card sizing and vehicle
+engine/features work. Only evidence-history conflicts needed manual reconciliation;
+both histories were retained. Held deployment dpl_4N2QUtE4ogEuKhYhGogVZFYgM5sY
+passes7/7 synthetic rendered cases: account/guest request review, cancellation,
+recovery/refresh at320/1440, administrator actual-unit intake at320/1440 and the
+390px verified-capture refund request/link/focus. Six scoped Axe and overflow checks
+pass; screenshots were inspected. Browser plugin unavailable; existing Playwright
+was used. This proves fixture UI, not actual roles/provider settlement or devices.
+The first build passed4/7: guest console assertions misclassified the intentional
+account-session401, now checked by exact endpoint/status separately; a real refund
+focus race with dialog restoration/refresh was reproduced and repaired. All other
+console errors remain failures. Final types/scoped lint/11 interface units and48
+collection/learning/vehicle units pass; secret guard3995 files passes. Prisma client
+was regenerated using isolated test environment defaults. Public domains, production
+DB and capability flags remain unchanged. D17 alternative acceptance and verified
+settlement/resolved-unit fulfilment remain unfinished, with its source held.
+
 ### 10 November: customer and administrator supply interface checkpoint
 
 Owned account and private-guest order details now show actual supply concerns only
