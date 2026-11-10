@@ -215,7 +215,7 @@ export const workforceDestinations = [
     detail: true,
     group: "team",
     order: 80,
-    label: "Responsibility assignments",
+    label: "People",
     feature: "managed-workforce",
     predicate: { scope: "delegation" },
     articleIds: ["access-review"],

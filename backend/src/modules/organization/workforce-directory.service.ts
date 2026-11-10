@@ -179,6 +179,15 @@ export class WorkforceDirectoryService {
       }));
       return {
         items,
+        ...(envelope
+          ? {
+              managementBranches: await tx.branch.findMany({
+                where: { id: { in: envelope.delegatedBranchIds } },
+                select: { id: true, name: true, isActive: true },
+                orderBy: [{ name: "asc" }, { id: "asc" }],
+              }),
+            }
+          : {}),
         ...(rows.length > query.limit ? { nextCursor: items.at(-1)!.userId } : {}),
         generatedAt: now.toISOString(),
       };

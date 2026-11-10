@@ -253,6 +253,16 @@ export const parseWorkforceJobs = (value: unknown) =>
 export const workforceAccountSchema = z.object({
   userId: z.uuid(),
   accountLabel: z.string().min(1),
+  identity: z
+    .object({
+      role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]),
+      status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]),
+      verified: z.boolean(),
+      accountBranch: z
+        .object({ id: z.uuid(), name: z.string(), isActive: z.boolean() })
+        .nullable(),
+    })
+    .optional(),
   branches: z.array(
     z.object({ id: z.uuid(), name: z.string(), code: z.string(), isActive: z.boolean() }),
   ),

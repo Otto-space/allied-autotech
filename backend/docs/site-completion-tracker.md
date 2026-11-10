@@ -1,47 +1,55 @@
-## 10 November 01:54 UTC - reconcile current master and retain exact acceptance limits
+## 10 November 01:56 UTC - People identity and scoped directory group in progress
 
-Reconcile the larger audit candidate with master b1222a11, preserving the approved
-vehicle engine/features authoring, Services card repair and customer confirmation/
-recovery focus fixes. Retain the independent active D17 work without importing its
-unfinished suitable-alternative or settled-unit implementation.
+Both owner-approved briefs remain active. The vehicle group is merged via PR50;
+current combined master is b1222a11, preserving Services and customer-confirmation
+repairs. Its frontend run42736089235 is still running; backend42736089322 and
+secrets42736089238 pass. Older master55/7af frontend runs were automatically
+superseded by concurrent integration, not counted as passing gates.
 
-Combined schema now has 112 migrations. The only additional migration is the
-already reviewed nullable Vehicle.engineDetails column; existing migrations are
-unchanged. Generate the matching Prisma client using unreachable loopback build
-placeholders; no database was connected or changed. Regenerate canonical OpenAPI,
-frontend types and coverage: all previous 465 paths remain and 547 operations are
-inventoried. Backend lint, 28 affected frontend code-file lint, scoped formatting
-and OpenAPI validation pass. Nine affected backend suites pass 76 cases; six
-frontend continuity/vehicle suites pass 27 cases after the newer focus merge.
-The combined browser suite collects 1,111 cases across 63 files, not an execution
-pass. Preserve all individual deadlines/assertions and the serial fixture. The
-prior 1,018-case run took 34.7 minutes, so allow 45 minutes for the larger matrix
-and 65 for its one-build job. Local larger type/build checks remain held by disk
-preflight; exact combined-source CI and 112-migration replay remain required.
+Held production frontend dpl_2GpAoPSuSicrZmGu6J9u16ZkJhmP/source55 has five
+actual public vehicle reads at320/390/768/1024/1440 and seven intercepted editor/
+recovery passes. The distinct power/fuel/drive filter reload/Back check passes on
+its warmed retry. Retain the initial timeout:12/13 passed together, then the one
+filter passed separately. Protected reads forward Next navigation/deployment
+headers; CSP/protection remain unchanged. No real vehicle/business write occurred.
+This held source precedes b122's unrelated customer changes and is not publication
+acceptance. Both branded aliases and the backend have not been promoted by this task.
 
-Earlier exact source 0ae7c201 now passes all three GitHub gates. Frontend run
-42728257444 passes 1,554 units (12 existing skips), production checks, repeated
-WebKit transport/media diagnostics, 13 pickup/sourcing preflight cases and the full
-1,018-case matrix. Engines: Chromium 153.0.8010.12, Firefox 155.0 and WebKit 26.6 on
-Linux. This is synthetic evidence, not real roles, provider delivery or devices.
+Four backend images for b122 were built from its clean exact checkout. The0.75GiB
+post-build growth check stopped wrap-up with about20.75GiB free; all four existing
+image identities were reviewed before writing a small receipt under a separate
+0.01GiB allowance. No additional build bypassed that stop. Packaged tests are
+running. Managed recovery/fresh backup, populated restore, guarded migration,
+registry push, backend readiness and final frontend/alias acceptance remain open.
 
-Services PR54 is merged as 7af6c51c. Its backend/secret gates pass; its frontend
-run was cancelled when newer master b1222a11 superseded it, not a pass or failure.
-New master b1222a11 backend/secret checks pass and frontend 42736089235 is running.
-The production-environment build dpl_HiVvgmMkuxhDHbAknxFnrXbAGCQ9 is READY at
-source 7af6c51c. Authenticated HTTP reaches the real Services page. Both public
-domains still point to dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi; no promotion occurred.
-The held build predates b1222a11 and must not replace its newer customer fixes.
+People work is isolated in allied-team-media-20261110, reusing both verified
+node_modules junctions and the unchanged-schema generated client. New current
+person identity is returned only after existing owner/delegation checks; no phone,
+security or operational fields are added. The owner has one canonical People
+navigation entry, managed managers keep the existing scoped entry, and earlier
+administrator/direct links remain available. The directory separates account
+level/job/branch/duties, avoids repeated email fallback, shows applied filters and
+preserves branch/context. Delegated branch choices come only from that manager's
+existing envelope. Person identity stays above editing; unavailable/uncertain
+identity has an explicit neutral state. Access explanations explicitly identify
+partial coverage and retain independent approval/source rules. Existing open-ended
+temporary cover is flagged for review without changing records.
 
-Computer Use could not establish Chrome's current URL safely and stopped; no
-protected record was edited and role acceptance remains unverified. Automatic
-review rejected both the approved cache-folder deletion and the narrower 38-file
-client compiler-pack deletion before execution. Nothing was deleted. C: is about
-20.8 GiB free; retain the 20 GiB reserve. Owner space assistance is pending.
-Packaged recovery, fresh protected backup/PITR and populated-restore requirements,
-matching release images, D17 completion and whole-audit acceptance remain open.
+Focused evidence so far:48 frontend units before the additional navigation/branch
+cases;32 backend learning units;16 actual HTTP/permission tests across directory
+and effective access on new allied_people_9df004de6ab5_ci. Its non-owner runtime
+role had no DDL/TRUNCATE/role-creation powers. All102 migrations replayed empty;
+only this task's synthetic database and role were removed afterward. Three
+provisioned-workspace cases were conditionally skipped, not acceptance. Initial
+unit failures were stale copy/fixture expectations and a JSX apostrophe lint
+error; corrected and retained. Final types/lint, rendered People checks and CI
+remain pending. No Team/media change or real grant has been published.
 
----
+The full V01-V05/T01-T07 ledger remains authoritative. T01 is partial: identity,
+canonical entry, scoped branch discovery and partial-summary clarity are implemented;
+complete task grouping/account-baseline composition and full rendered/negative
+matrix remain open. T02-T07, Digital Media Manager, media library/placements,
+bulk photos and supported videos are still required; none is dropped.
 
 ## 10 November 01:00 UTC - repair confirmed live Services card stretching
 

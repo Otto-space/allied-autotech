@@ -169,6 +169,9 @@ export const workforceDirectoryQuerySchema = workforceListSchema.extend({
   branchId: z.uuid().optional(),
 });
 export const workforceDirectoryResponseSchema = z.object({
+  managementBranches: z
+    .array(z.object({ id: z.uuid(), name: z.string(), isActive: z.boolean() }))
+    .optional(),
   items: z.array(
     z.object({
       userId: z.uuid(),
@@ -871,6 +874,14 @@ export function workforceResponseSchema(action: string): z.ZodType {
       return z.object({
         userId: z.uuid(),
         accountLabel: z.string(),
+        identity: z.object({
+          role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]),
+          status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]),
+          verified: z.boolean(),
+          accountBranch: z
+            .object({ id: z.uuid(), name: z.string(), isActive: z.boolean() })
+            .nullable(),
+        }),
         branches: z.array(
           z.object({
             id: z.uuid(),

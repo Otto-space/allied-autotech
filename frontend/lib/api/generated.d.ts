@@ -150547,6 +150547,13 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Responsibility-based workspace: directory",
                      *       "data": {
+                     *         "managementBranches": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name",
+                     *             "isActive": true
+                     *           }
+                     *         ],
                      *         "items": [
                      *           {
                      *             "userId": "00000000-0000-4000-8000-000000000001",
@@ -150598,6 +150605,18 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Management Branches validated by this operation's strict request contract. */
+                            managementBranches?: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                isActive: boolean;
+                            }[];
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
                                 /**
@@ -167239,6 +167258,16 @@ export interface operations {
                      *       "data": {
                      *         "userId": "00000000-0000-4000-8000-000000000001",
                      *         "accountLabel": "synthetic-accountlabel",
+                     *         "identity": {
+                     *           "role": "STAFF",
+                     *           "status": "ACTIVE",
+                     *           "verified": true,
+                     *           "accountBranch": {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name",
+                     *             "isActive": true
+                     *           }
+                     *         },
                      *         "branches": [
                      *           {
                      *             "id": "00000000-0000-4000-8000-000000000001",
@@ -167348,6 +167377,33 @@ export interface operations {
                             userId: string;
                             /** @description Account Label validated by this operation's strict request contract. */
                             accountLabel: string;
+                            /** @description Identity validated by this operation's strict request contract. */
+                            identity: {
+                                /**
+                                 * @description Role validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                role: "STAFF" | "ADMIN" | "SUPER_ADMIN";
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
+                                /** @description Verified validated by this operation's strict request contract. */
+                                verified: boolean;
+                                /** @description Account Branch validated by this operation's strict request contract. */
+                                accountBranch: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                    /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                    isActive: boolean;
+                                } | null;
+                            };
                             /** @description Branches validated by this operation's strict request contract. */
                             branches: {
                                 /**

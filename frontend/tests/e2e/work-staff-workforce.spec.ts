@@ -261,10 +261,12 @@ for (const width of [390, 1440])
     await page.setViewportSize({ width, height: 1000 });
     await page.goto(`/admin/staff/${s.f.member.id}`);
     const current = page.getByRole("region", {
-      name: "Effective responsibility access",
+      name: "What this person can access",
       exact: true,
     });
-    await expect(current.getByText("Capabilities and grant sources (4)")).toBeVisible();
+    await expect(
+      current.getByText("Allowed actions and why they are available (4)"),
+    ).toBeVisible();
     const first = section(page).locator(".wf-assignments > li").first();
     await first.getByText("Revoke this responsibility", { exact: true }).click();
     const form = first.locator("form");
@@ -560,7 +562,7 @@ test("owner responsibility directory reuses verified account and hides protected
     canDelegate: false,
   });
   await page.goto("/admin/workforce");
-  await page.getByRole("link", { name: "View/manage Ada Okoro", exact: true }).click();
+  await page.getByRole("link", { name: "View person: Ada Okoro", exact: true }).click();
   await expect(
     section(page).getByText(/Responsibility changes are unavailable/),
   ).toBeVisible();
@@ -624,7 +626,7 @@ test("delegated responsibility workspace assigns through scoped APIs without leg
     ),
   );
   await page.goto("/admin/workforce/access");
-  await page.getByRole("link", { name: "View/manage Ada Okoro", exact: true }).click();
+  await page.getByRole("link", { name: "View person: Ada Okoro", exact: true }).click();
   await section(page).getByText("Assign responsibility", { exact: true }).click();
   const form = section(page).locator("form");
   await expect(

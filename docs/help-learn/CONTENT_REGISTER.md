@@ -536,7 +536,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | mixed-queues            | operations           | 3 / 2026-10-27        | /admin                       | OPERATIONS template and effective assignment union                                                                                          |
 | oversight-scope         | oversight            | 3 / 2026-10-27        | /admin                       | CEO_MD position and permission-filtered overview                                                                                            |
 | customer-account-review | admin                | 3 / 2026-10-27        | /admin/customers             | Customer account lock, session enforcement and audit contract                                                                               |
-| access-review           | access               | 4 / 2026-10-27        | /admin/workforce/access      | Team access security, pinned delegation and reviewed responsibility impact                                                                  |
+| access-review           | access               | 5 / 2026-11-10        | /admin/workforce/access      | People identity, partial access explanation, pinned delegation and reviewed responsibility impact                                           |
 | privileged-recovery     | owner                | 3 / 2026-10-27        | /admin/security              | Existing identity/governance safeguards                                                                                                     |
 
 ## Guides
@@ -733,35 +733,4 @@ Combined service-request v26 retains both the v25 overview vehicle-selection cla
 
 Combined 4 November source: service-request v29 retains both the v28 Month/Schedule calendar navigation and the D07 remaining-work estimate clarification. Existing twelve steps, eligibility and guide targets remain unchanged.
 
-### 9 November: D03 staged invoice source, not published
-
-Service-request v30 preserves the twelve-step public guide while explaining
-materials versus workmanship, uncertain requests, historical invoices and disabled
-payments. Financial-policy-work v6 retains its independent eligibility gate and
-clarifies one saved tax allocation, historical preservation and financial review.
-Semantic targets and feature flags are unchanged. No tutorial grants permissions.
-See [the D03 checkpoint](SERVICE_PAYMENT_STAGES_20261109.md) for actual evidence,
-the synthetic draft and the remaining materials/amendment/vehicle-release work.
-
-### 9 November: accepted service-work source, not published
-
-Service-request v31, financial-policy-work v7, assigned-findings v6 and
-job-assignment v3 explain accepted scope, verified materials, separate labour,
-busy/held financial proof and completion versus vehicle release. Existing gates,
-semantic targets and the twelve-step public bound are preserved. See
-[the work-scope checkpoint](SERVICE_WORK_SCOPE_20261109.md) for the engineering
-timing choice, exact synthetic evidence and the remaining complete journeys.
-
-### 10 November: customer one-time code survives the saved-order background check
-
-Customer parts-collection is v3; staff-parts-collection remains v2. The customer
-guide explains copying the code before Hide code, explicit refresh or reload.
-Successful background revalidation keeps the panel and code visible. Guest failed
-background checks and all access changes discard private data. Account background
-network failures preserve the mounted record with a refresh warning. The customer
-guide gives the common copy/private-sharing advice without promising identical
-temporary-failure behavior. Existing audience eligibility, exact owned
-destinations and publication flags remain unchanged. Five resource-hook cases and
-41 affected learning/pickup backend unit cases pass. Existing guest/customer hosted
-tests now capture only synthetic 390px codes; actual new-source rendered results
-remain pending. This does not establish real-role or physical collection acceptance.
+10 November2026: access-review v5 follows People / View person and the named identity header. It explicitly explains partial account-level and separately approved duty coverage. Existing access eligibility, pinned duties, independent approval rules and all feature flags remain unchanged. Local learning tests and the People acceptance checkpoint are tracked in the existing quality register.

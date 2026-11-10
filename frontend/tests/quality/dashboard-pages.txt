@@ -163,6 +163,7 @@ enquiry-table-responsive.spec.ts
 
 # Revision 4: scoped workforce discovery, filters, failure and access invalidation.
 workforce-directory.spec.ts
+# People identity group includes 1440/1280/1024/768/430/390/360/320 CSS-pixel fixtures.
 # Revision 4 W5: current-access redirects, private draft disposal and cross-tab rechecks.
 workforce-session-revocation.spec.ts
 
