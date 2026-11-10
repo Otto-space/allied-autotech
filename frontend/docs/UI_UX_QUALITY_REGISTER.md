@@ -1,3 +1,47 @@
+## 10 November - review replay focus continuity
+
+The full original-request recovery path reproduced lost focus at1280x720 and320x720
+on candidate a6c8d117: the retry used the original key/body, retained exactly one
+review and removed its recovery button, but focus ended on BODY after history
+refresh. Both failures are retained in TEMP/allied-customer-confirmation-20261110/
+replay-baseline-report.json. No outgoing writes or uncaught page errors occurred.
+
+The Reviews workspace now records the recovery opener and uses its existing
+refresh-aware focus callbacks after replay. Cancellation returns to the recovery
+button; confirmed replay returns to the history heading once the removed opener
+cannot be used. Deliberately moved focus and failed-read handling remain unchanged.
+No replay, marker, request, ownership, permission or policy code changed. Help
+workflow semantics remain accurate; no guide version or feature activation changes.
+
+Full TypeScript and affected ESLint/format checks pass. Three additional engine
+journeys cover settled reads, failed reads and moved focus with cancellation plus
+identical-key/body and single-record assertions.75 customer-confirmation cases
+collect across three engines. New-source compiled acceptance and CI are pending;
+prior48 native passes remain evidence only for their stated source. The two shared
+tracking documents also preserve master's c3028cc1 Home/Services publication records;
+our earlier shared tails were verified whitespace-equivalent to580a1bb5 before
+reconciliation. No application merge conflict or public-domain mutation occurred.
+The complete two-brief, all-modal, role/device and release requirements remain open.
+
+## 10 November 00:53 UTC - recovery focus native acceptance complete
+
+Current source a6c8d117 passes44/44 compiled native Edge/Chrome cases plus4/4
+supplemental desktop/mobile recovery cases. All seven required viewport pairs,
+phone/touch contexts, unknown outcomes, failed/delayed reads, rejected submissions,
+retained drafts, single intercepted writes and keyboard recovery pass. Zero failed,
+skipped/flaky cases or outgoing writes/page errors. Desktop/mobile captures inspected.
+Evidence: TEMP/allied-customer-confirmation-20261110/acceptance.md,
+recovery-held-report.json, uncertain-fixed-report.json and matching results folders.
+
+Held candidate AMf45eVmLiTpvpBLFX23aHtofFtj is READY. Backend42730392704 and
+secrets42730392706 pass; frontend42730392845 is still live. Prior44fe4211 passed
+1,002 browser cases, not proof of this newer hook fallback. Public Home/Services
+source580a1bb5 is now on both aliases at EwTzDsgFUnBkUW6hfM64UeyrqcDi; our candidate
+preserves it and has not been promoted. Keep this evidence with the next coherent
+integration checkpoint instead of restarting active source CI for documentation.
+Full integration/publication, broader route/role/device acceptance and both briefs
+remain open. C: remains above20GiB; no build/install/database write or cleanup here.
+
 ## 10 November - unknown-outcome focus recovery follow-up
 
 Compiled native Edge reproduces BODY focus after closing an unknown Privacy/Review
@@ -8513,18 +8557,18 @@ The current source still has 119 page templates. The existing route/role/state
 inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
 this implementation adds the following ordered status overlay, not a second backlog:
 
-| Group | Scope                                                                          | Implementation / release status                                                                           |
-| ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
-| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                         |
-| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                  |
-| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
-| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
-| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
-| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                  |
-| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                             |
-| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                |
-| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                         |
+| Group | Scope                                                                          | Implementation / release status                                                                             |
+| ----- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt.         |
+| 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt.         |
+| 3     | Shop, filters, product, fitment                                                | Next: reference and read-only 390px baseline reviewed; preserve collection, fitment and timing uncertainty. |
+| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                              |
+| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                   |
+| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                 |
+| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                    |
+| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                               |
+| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                  |
+| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                           |
 
 Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
 The approved editorial workshop/family/parts/showroom family replaces the old
@@ -8727,3 +8771,31 @@ reset its policy for each auth-forms test. Registration now explicitly refreshes
 availability with a filled draft before submitting, preserving all prior success
 assertions. Token URL checks cover all outgoing requests. Runtime source is
 unchanged. Exact-master gates and public verification remain required.
+
+## 10 November - Home and Services mobile release published and verified
+
+Live source 580a1bb5, deployment dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi,
+https://alliedautotech.com/. Both aliases identify this deployment; www redirects
+preserve paths and queries. Exact-master frontend, backend safety and secrets passed.
+Frontend: 1,526 units (12 existing conditional skips), 942 browser cases, including
+all 14 Services and 5 touch regressions. CI: Chromium/Firefox/WebKit on Linux.
+
+The owner's Both/compact-controls feedback is delivered: Home is 560px on desktop
+and about 414px at 390px; Services is about 402px at 390px. Phone carousel controls
+fit one 278x58px row, in matching DOM/keyboard order. Every native-coordinate tap
+keeps scroll 0 and the URL unchanged at five phone/short sizes. Category-only
+Services no longer overlaps the photo; selects stack below 375px. Natural service
+photo proportions, genuine zero values, quotations and gated request copy remain.
+These compact proportions and truthful content intentionally differ from the export.
+
+Public Edge 157.0.4341.42 passed 9 exact sizes on each of Home, catalogue, detail and
+request; 4 slides; 5 touch views; combined filters/detail/Back/reload at 390/1440;
+menu Escape/focus, FAQ and enquiry focus. No page errors or business writes.
+Scoped main/footer Axe at 1440/390 and category 390 found no violations. Exact-
+candidate doubled text reflows at 320px. Enquiry and auth submissions use isolated/
+intercepted fixtures. Physical devices, branded Safari, full screen-reader, actual
+browser zoom, real-role persistence and provider delivery remain untested here.
+
+See the [detailed release receipt](../../backend/docs/site-completion-tracker.md)
+for source/run IDs, evidence paths, backend/recovery and disk safeguards. Groups 1
+and 2 are live; Groups 3-10 and the full 119-template goal remain open. Parts is next.

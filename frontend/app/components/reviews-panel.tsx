@@ -76,6 +76,7 @@ function CustomerReviews({ userId }: { userId: string }) {
   const [status, setStatus] = useState("");
   const [reviewOpen, setReviewOpen] = useState(false);
   const recoveryFocus = useRef<HTMLElement>(null);
+  const recoveryOpener = useRef<HTMLElement | null>(null);
   const [recoveryProposal, setRecoveryProposal] = useState<MutationProposal | null>(null);
   const [formRevision, setFormRevision] = useState(0);
   const [recoveryMessage, setRecoveryMessage] = useState<string>();
@@ -99,6 +100,8 @@ function CustomerReviews({ userId }: { userId: string }) {
   function reviewRecovery() {
     const intent = guard.intent;
     if (!intent || guard.busy || guard.remaining > 0 || reviewOpen) return;
+    recoveryOpener.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setReviewOpen(true);
     setRecoveryProposal({
       title: "Send or recover this review?",
@@ -115,7 +118,7 @@ function CustomerReviews({ userId }: { userId: string }) {
         await guard.recover();
         setStatus("");
         pagination.reset();
-        records.refresh();
+        refreshAfterConfirmation();
         setFormRevision((value) => value + 1);
         setRecoveryMessage(
           "Review confirmed. Check Your submissions for its current moderation status.",
@@ -309,6 +312,10 @@ function CustomerReviews({ userId }: { userId: string }) {
           onClose={() => {
             setRecoveryProposal(null);
             setReviewOpen(false);
+            restoreConfirmationFocus(
+              recoveryOpener.current,
+              guard.pending ? recoveryFocus.current : null,
+            );
           }}
           onSuccess={() => {}}
           confirmLabel="Send or recover review"

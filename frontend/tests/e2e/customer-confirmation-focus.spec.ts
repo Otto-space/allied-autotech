@@ -168,6 +168,60 @@ test.describe("customer confirmation recovery", () => {
       await provide(browserName !== "firefox");
     },
   });
+  for (const outcome of ["settled read", "failed read", "moved focus"] as const) {
+    test(`review replay respects ${outcome} when its opener disappears`, async ({
+      page,
+    }) => {
+      const { state, fixture, dialog, submit, outgoing, errors } = await setup(
+        page,
+        "reviews",
+      );
+      if (!("dropCommitted" in fixture)) throw new Error("Review fixture required");
+      const previousCount = fixture.rows.length;
+      fixture.dropCommitted = true;
+      await submit();
+      await expect(
+        dialog.getByRole("button", { name: "Close & review record", exact: true }),
+      ).toBeEnabled();
+      await page.keyboard.press("Escape");
+      const recoveryOpener = page.getByRole("button", {
+        name: "Review original submission",
+        exact: true,
+      });
+      await recoveryOpener.focus();
+      await recoveryOpener.press("Enter");
+      await page.keyboard.press("Escape");
+      await expect(recoveryOpener).toBeFocused();
+      expect(fixture.writes).toHaveLength(1);
+      fixture.dropCommitted = false;
+      state.failRead = outcome === "failed read";
+      await recoveryOpener.press("Enter");
+      await dialog
+        .getByRole("button", { name: "Send or recover review", exact: true })
+        .click();
+      await expect(dialog).toHaveCount(0);
+      await expect.poll(() => typeof state.release).toBe("function");
+      await expect(recoveryOpener).toHaveCount(0);
+      const link = page.getByRole("link", { name: "Read public reviews", exact: true });
+      if (outcome === "moved focus") await link.focus();
+      state.release!();
+      if (outcome === "moved focus") await expect(link).toBeFocused();
+      else
+        await expect(
+          page.getByRole("heading", { name: "Your submissions", exact: true }),
+        ).toBeFocused();
+      if (outcome === "failed read")
+        await expect(
+          page.getByRole("button", { name: "Review submission", exact: true }),
+        ).toBeDisabled();
+      expect(fixture.writes).toHaveLength(2);
+      expect(fixture.writes[1].key).toBe(fixture.writes[0].key);
+      expect(fixture.writes[1].body).toEqual(fixture.writes[0].body);
+      expect(fixture.rows).toHaveLength(previousCount + 1);
+      expect(outgoing).toEqual([]);
+      expect(errors).toEqual([]);
+    });
+  }
   for (const journey of ["privacy", "reviews"] as const) {
     test(`${journey} unknown outcome returns focus to recovery without resubmitting`, async ({
       page,
