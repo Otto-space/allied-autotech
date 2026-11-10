@@ -1,3 +1,37 @@
+### 10 November: alternative acceptance verified in the integrated held build
+
+Current runtime source04f23adf preserves masterb1222a11 confirmation/recovery focus
+repairs, earlier service-card sizing and vehicle fields. Backend117-migration empty
+replay, empty schema diff, db:check and restricted runtime pass. All112 native cases
+across9 files pass: actual account/guest alternative acceptance and explicit-version
+rejection, current-session SQL proof, exact original refund caps, late-capture
+retention, cancellation/revised offers, ordinary guest quotes, pickup and vehicle
+regressions. Owned tmpfs target was removed; only shared BuildKit remains.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-alternative-integrated.log.
+
+Held deployment dpl_7yKx1ZUtfZnq4ctZ6v3JFrnTefP7 passes25/25 Chromium fixture cases
+across320/360/768/1280/1366/1440: original supply controls, actual alternative reviews,
+administrator quotation authoring, guest ordinary/alternative decisions, interrupted
+acceptance recovery, access removal, expiry, read errors and capability transitions.
+Screenshots were visually inspected; scoped Axe/overflow checks pass where tested.
+The first held run exposed a fixture assumption about enabled initial capabilities;
+it was stopped after confirming that the real restricted server state was preserved.
+Fixtures now explicitly fetch/assert their mocked enabled capability after hydration,
+retaining every interaction/assertion. No real release flag was changed.
+
+Frontend units13/13, learning units48/48, backend/frontend and focused test types,
+scoped lint, secret guard4000 files, canonical OpenAPI470 paths and mounted coverage
+553 operations plus4 infrastructure routes pass. Public domain aliases, application
+DB, financial policy and restricted capability publication remain unchanged. These
+are isolated/fixture results, not provider, actual role or physical-device acceptance.
+
+Next required D17 work: bind verified refund settlement to immutable resolved unit
+ranges, reconcile original financial coverage and remaining physical obligations,
+then support truthful partial pickup/closure without inventing handover, restocking,
+credit or new charges. New alternative payment remains held until that resolution.
+Exact-master CI, fresh populated restore and guarded release safeguards remain
+required before production. Broader returns/warranty is still expressly deferred.
+
 ### 10 November: actual alternative quotation and acceptance binding
 
 D17 reuses the actual Care Parts quotation and existing account/private-guest

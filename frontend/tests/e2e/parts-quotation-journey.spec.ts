@@ -79,6 +79,13 @@ for (const width of [360, 768, 1280])
     await expect(
       page.getByRole("heading", { name: "Parts quotations", exact: true }),
     ).toBeVisible();
+    const availability = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === "/api/v1/public/capabilities" &&
+        response.request().method() === "GET",
+    );
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    expect((await (await availability).json()).data.checkoutEnabled).toBe(true);
     const review = page.getByRole("button", { name: "Review and accept", exact: true });
     await expect(review).toBeEnabled();
     await review.click();

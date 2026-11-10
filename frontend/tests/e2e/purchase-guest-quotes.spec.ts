@@ -3,6 +3,21 @@ import AxeBuilder from "@axe-core/playwright";
 import { purchaseFixture, guestProduct } from "../fixtures/purchase-guest";
 import { branch, id } from "../fixtures/public-account-actions";
 
+// A held production build correctly starts with its real restricted server state.
+// Explicitly read the fixture transport after hydration instead of waiting for the
+// provider's periodic refresh or changing real release configuration.
+async function readFixtureAvailability(page: Page) {
+  await expect(
+    page.getByRole("heading", { name: "Your quotations", exact: true }),
+  ).toBeVisible();
+  const availability = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === "/api/v1/public/capabilities" &&
+      response.request().method() === "GET",
+  );
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  expect((await (await availability).json()).data.checkoutEnabled).toBe(true);
+}
 async function fixture(page: Page) {
   const state = await purchaseFixture(page);
   const quotation = {
@@ -117,6 +132,7 @@ for (const width of [320, 768, 1366])
     await page.setViewportSize({ width, height: 900 });
     const { state } = await fixture(page);
     await page.goto("/purchase");
+    await readFixtureAvailability(page);
     await expect(
       page.getByRole("heading", { name: "Your quotations", exact: true }),
     ).toBeVisible();
@@ -162,6 +178,7 @@ for (const width of [320, 1440])
     extra.quotation.supplyRemedyChoiceId = id(97);
     extra.quotation.alternativeAgreementVersion = "SUPPLY_ALTERNATIVE_20261110_V1";
     await page.goto("/purchase");
+    await readFixtureAvailability(page);
     await enterContact(page);
     await expect(
       page.getByText("This is an alternative for affected original goods.", {
@@ -194,6 +211,7 @@ test("decline needs an explicit review and creates no order or payment", async (
 }) => {
   const { state } = await fixture(page);
   await page.goto("/purchase");
+  await readFixtureAvailability(page);
   await page.getByRole("button", { name: "Review decline", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText("Declining closes this offer");
   expect(state.writes).toHaveLength(0);
@@ -215,6 +233,7 @@ test("same-buyer focus refresh keeps contact drafts but identity change closes a
 }) => {
   const { state } = await fixture(page);
   await page.goto("/purchase");
+  await readFixtureAvailability(page);
   await enterContact(page);
   await page.evaluate(() => dispatchEvent(new Event("focus")));
   await expect(page.getByLabel("Name for collection", { exact: true })).toHaveValue(
@@ -240,6 +259,7 @@ test("lost acceptance response recovers the original order without submitting an
   const { state, extra } = await fixture(page);
   extra.loseResponse = true;
   await page.goto("/purchase");
+  await readFixtureAvailability(page);
   await enterContact(page);
   await page
     .getByRole("button", { name: "Review and accept quotation", exact: true })
@@ -262,6 +282,7 @@ test("changed collection details and expired offers cannot be accepted", async (
   const { state, extra } = await fixture(page);
   extra.branch = null;
   await page.goto("/purchase");
+  await readFixtureAvailability(page);
   await expect(
     page.getByRole("button", { name: "Review and accept quotation", exact: true }),
   ).toBeDisabled();
@@ -281,6 +302,7 @@ test("a quotation-read failure leaves owned order history usable", async ({ page
   extra.failList = true;
   state.saved = true;
   await page.goto("/purchase");
+  await readFixtureAvailability(page);
   await expect(page.getByText(/Quotations could not be loaded/)).toBeVisible();
   await page
     .getByRole("link", {
@@ -297,6 +319,7 @@ test("a confirmation disables itself when availability cannot be checked and res
 }) => {
   const { state } = await fixture(page);
   await page.goto("/purchase");
+  await readFixtureAvailability(page);
   await enterContact(page);
   await page
     .getByRole("button", { name: "Review and accept quotation", exact: true })
