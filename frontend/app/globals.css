@@ -3670,14 +3670,14 @@ html {
   margin-block: 1rem;
   overflow-wrap: anywhere;
 }
-.vehicle-owner-disclosure h3 {
+.vehicle-owner-disclosure :is(h2, h3) {
   display: flex;
   align-items: center;
   gap: 0.45rem;
   font-size: 1rem;
   margin: 0 0 0.5rem;
 }
-.vehicle-owner-disclosure h3:not(:first-child) {
+.vehicle-owner-disclosure :is(h2, h3):not(:first-child) {
   margin-top: 1rem;
 }
 .vehicle-owner-disclosure p {
@@ -3692,7 +3692,7 @@ html {
   line-height: 1.5;
 }
 
-.vehicle-detail .vd-summary .vehicle-owner-disclosure :is(p, h3, small) {
+.vehicle-detail .vd-summary .vehicle-owner-disclosure :is(p, h2, h3, small) {
   color: #292524;
 }
 

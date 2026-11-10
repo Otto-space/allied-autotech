@@ -1,6 +1,6 @@
 {
   "source": "../backend/docs/api/allied-autotech.openapi.json",
-  "sourceSha256": "b9464345a5b80d17226015255458c4b9ac255928c6c2260ac6c9427fd5b8ff2f",
+  "sourceSha256": "3105071226c13451768901208ea657cd34c21ffb2399915ab36e00c89522b9f3",
   "note": "Private contract inventory. Source candidates are search hints, not proof of consumption. Response schemas with additionalProperties may be incomplete; reconcile serializers. Operational routes outside OpenAPI are tracked in the Markdown inventory.",
   "operations": [
     {
@@ -60483,6 +60483,11 @@
                               "type": ["integer", "null"],
                               "description": "Engine Capacity Cc validated by this operation's strict request contract."
                             },
+                            "engineDetails": {
+                              "type": ["string", "null"],
+                              "maxLength": 500,
+                              "description": "Engine Details validated by this operation's strict request contract."
+                            },
                             "engineCode": {
                               "type": ["string", "null"],
                               "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
@@ -62075,6 +62080,11 @@
                                   "type": ["integer", "null"],
                                   "description": "Engine Capacity Cc validated by this operation's strict request contract."
                                 },
+                                "engineDetails": {
+                                  "type": ["string", "null"],
+                                  "maxLength": 500,
+                                  "description": "Engine Details validated by this operation's strict request contract."
+                                },
                                 "engineCode": {
                                   "type": ["string", "null"],
                                   "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
@@ -63422,6 +63432,12 @@
             "maxLength": 4000,
             "description": "Owner Reported Issues validated by this operation's strict request contract."
           },
+          "engineDetails": {
+            "type": ["string", "null"],
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Supplied engine description, up to 500 characters. Separate from capacity, engine code and features; no inferred specifications."
+          },
           "engineSize": {
             "type": ["string", "null"],
             "minLength": 1,
@@ -63829,12 +63845,6 @@
             "enum": ["PETROL", "DIESEL", "HYBRID", "ELECTRIC", "OTHER", null],
             "description": "Fuel Type validated by this operation's strict request contract."
           },
-          "condition": {
-            "type": "string",
-            "enum": ["NEW", "USED", "FOREIGN_USED", "LOCALLY_USED"],
-            "default": "USED",
-            "description": "Condition validated by this operation's strict request contract."
-          },
           "bodyType": {
             "type": ["string", "null"],
             "enum": [
@@ -63904,6 +63914,12 @@
             "maxLength": 4000,
             "description": "Owner Reported Issues validated by this operation's strict request contract."
           },
+          "engineDetails": {
+            "type": ["string", "null"],
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Supplied engine description, up to 500 characters. Separate from capacity, engine code and features; no inferred specifications."
+          },
           "engineSize": {
             "type": ["string", "null"],
             "minLength": 1,
@@ -63959,6 +63975,11 @@
             "type": ["string", "null"],
             "format": "date-time",
             "description": "ISO 8601 timestamp interpreted and validated by the server."
+          },
+          "condition": {
+            "type": "string",
+            "enum": ["NEW", "USED", "FOREIGN_USED", "LOCALLY_USED"],
+            "description": "Condition validated by this operation's strict request contract."
           },
           "expectedVersion": {
             "type": "integer",

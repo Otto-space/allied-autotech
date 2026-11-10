@@ -12244,6 +12244,7 @@ JSON request fields:
 | `cylinders` | integer / null | No | Cylinders validated by this operation's strict request contract. |
 | `ownerReportedCondition` | string / null | No | Owner Reported Condition validated by this operation's strict request contract. |
 | `ownerReportedIssues` | string / null | No | Owner Reported Issues validated by this operation's strict request contract. |
+| `engineDetails` | string / null | No | Supplied engine description, up to 500 characters. Separate from capacity, engine code and features; no inferred specifications. |
 | `engineSize` | string / null | No | Engine Size validated by this operation's strict request contract. |
 | `driveType` | FWD / RWD / AWD / FOUR_WD / OTHER / null | No | Drive Type validated by this operation's strict request contract. |
 | `color` | string / null | No | Color validated by this operation's strict request contract. |
@@ -12345,7 +12346,6 @@ JSON request fields:
 | `mileageKm` | integer / null | No | Mileage Km validated by this operation's strict request contract. |
 | `transmission` | AUTOMATIC / MANUAL / CVT / OTHER / null | No | Transmission validated by this operation's strict request contract. |
 | `fuelType` | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER / null | No | Fuel Type validated by this operation's strict request contract. |
-| `condition` | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition validated by this operation's strict request contract. |
 | `bodyType` | CROSSOVER / MINIVAN / SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER / null | No | Body Type validated by this operation's strict request contract. |
 | `manufactureCountryCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 | `powertrain` | BEV / HEV / PHEV / ICE / null | No | Powertrain validated by this operation's strict request contract. |
@@ -12355,6 +12355,7 @@ JSON request fields:
 | `cylinders` | integer / null | No | Cylinders validated by this operation's strict request contract. |
 | `ownerReportedCondition` | string / null | No | Owner Reported Condition validated by this operation's strict request contract. |
 | `ownerReportedIssues` | string / null | No | Owner Reported Issues validated by this operation's strict request contract. |
+| `engineDetails` | string / null | No | Supplied engine description, up to 500 characters. Separate from capacity, engine code and features; no inferred specifications. |
 | `engineSize` | string / null | No | Engine Size validated by this operation's strict request contract. |
 | `driveType` | FWD / RWD / AWD / FOUR_WD / OTHER / null | No | Drive Type validated by this operation's strict request contract. |
 | `color` | string / null | No | Color validated by this operation's strict request contract. |
@@ -12365,6 +12366,7 @@ JSON request fields:
 | `registrationNumber` | string / null | No | Registration Number validated by this operation's strict request contract. |
 | `acquisitionCostKobo` | string / null | No | Acquisition Cost Kobo validated by this operation's strict request contract. |
 | `acquiredAt` | string / null | No | ISO 8601 timestamp interpreted and validated by the server. |
+| `condition` | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition validated by this operation's strict request contract. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
