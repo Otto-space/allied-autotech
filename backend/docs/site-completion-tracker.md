@@ -1,182 +1,34 @@
-## 10 November - customer confirmation recovery verified for integration
+## 10 November 01:00 UTC - repair confirmed live Services card stretching
 
-Application source `0d22eae3` passes 50/50 compiled native Edge/Chrome cases:
-all seven exact viewport pairs, phone/mobile/touch contexts, centered full-width
-phone dialogs, cancellation, delayed/failed reads, retained input, unknown outcomes
-and recovery replay. Two additional empty-history replay cases pass at 1280x720
-and 320x720: identical request key/body, two intercepted attempts, one record and
-focus on the history heading. Zero outgoing writes or uncaught page errors.
-Desktop/mobile confirmation and recovery captures were inspected.
+Public apex and www now identify deployment dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi,
+master580a1bb5. Backend remainsc3c54414 ACTIVE with no pending/in-progress rollout
+and zero temporary IP rules. Reconciled the master's auth-fixture isolation at
+65ef746e; preserve the full combined candidate and independent D17 work.
 
-Evidence: TEMP/allied-customer-confirmation-20261110/{replay-held-report.json,
-replay-fixed-report.json,replay-loaded-report.json,acceptance.md}. The first
-supplemental desktop attempt timed out before Rating appeared; its failure remains.
-The desktop-only rerun used the normal page-load gate with unchanged interaction
-deadlines and assertions. The 50-case matrix has no failures, skips or flaky cases.
-Local TypeScript and affected lint/format checks pass. Backend42732837656 and
-secrets42732837820 pass; frontend42732838129 was still running at this checkpoint.
+Fresh public API/read-only Edge checks confirm no workbook/import/discount-provenance
+notes in the service descriptions and unchanged approved public prices. Catalogue
+and diagnostics imagery load at390/1440 without horizontal overflow. Anonymous
+401 responses are from /auth/session; no page runtime exception was found.
 
-The two tracking records preserve all master55b96d50 vehicle-release entries;
-only table-delimiter formatting differed in the earlier shared tail. Application
-changes remain limited to customer focus handling and its regression coverage.
-Held candidate GgTWS5qGg7Re5LEzX4YrWZHKGKR7 is READY without public aliases.
-Integration and exact-master CI are next; publication still requires the compatible
-vehicle backend release and final integrated candidate/alias checks. No production
-submission, database/permission change, feature activation or domain promotion.
-The full two-brief, page/role/calendar/modal objective remains active. Real-role
-persistence, physical devices, Safari, virtual keyboards and full screen readers
-are not certified by these fixtures.
+Actual mobile rendering exposed a card-footer regression: horizontal flex plus a
+full-width action squeezed the price text into one-character lines, stretching the
+390px action to1045.34px and the first card to1437.38px. Stack price and action in
+the shared photographic card rules. Add price-before-action and44-96px action-height
+assertions to all nine existing Services discovery viewport cases.
 
-## 10 November - review replay focus continuity
-
-The full original-request recovery path reproduced lost focus at1280x720 and320x720
-on candidate a6c8d117: the retry used the original key/body, retained exactly one
-review and removed its recovery button, but focus ended on BODY after history
-refresh. Both failures are retained in TEMP/allied-customer-confirmation-20261110/
-replay-baseline-report.json. No outgoing writes or uncaught page errors occurred.
-
-The Reviews workspace now records the recovery opener and uses its existing
-refresh-aware focus callbacks after replay. Cancellation returns to the recovery
-button; confirmed replay returns to the history heading once the removed opener
-cannot be used. Deliberately moved focus and failed-read handling remain unchanged.
-No replay, marker, request, ownership, permission or policy code changed. Help
-workflow semantics remain accurate; no guide version or feature activation changes.
-
-Full TypeScript and affected ESLint/format checks pass. Three additional engine
-journeys cover settled reads, failed reads and moved focus with cancellation plus
-identical-key/body and single-record assertions.75 customer-confirmation cases
-collect across three engines. New-source compiled acceptance and CI are pending;
-prior48 native passes remain evidence only for their stated source. The two shared
-tracking documents also preserve master's c3028cc1 Home/Services publication records;
-our earlier shared tails were verified whitespace-equivalent to580a1bb5 before
-reconciliation. No application merge conflict or public-domain mutation occurred.
-The complete two-brief, all-modal, role/device and release requirements remain open.
-
-## 10 November 00:53 UTC - recovery focus native acceptance complete
-
-Current source a6c8d117 passes44/44 compiled native Edge/Chrome cases plus4/4
-supplemental desktop/mobile recovery cases. All seven required viewport pairs,
-phone/touch contexts, unknown outcomes, failed/delayed reads, rejected submissions,
-retained drafts, single intercepted writes and keyboard recovery pass. Zero failed,
-skipped/flaky cases or outgoing writes/page errors. Desktop/mobile captures inspected.
-Evidence: TEMP/allied-customer-confirmation-20261110/acceptance.md,
-recovery-held-report.json, uncertain-fixed-report.json and matching results folders.
-
-Held candidate AMf45eVmLiTpvpBLFX23aHtofFtj is READY. Backend42730392704 and
-secrets42730392706 pass; frontend42730392845 is still live. Prior44fe4211 passed
-1,002 browser cases, not proof of this newer hook fallback. Public Home/Services
-source580a1bb5 is now on both aliases at EwTzDsgFUnBkUW6hfM64UeyrqcDi; our candidate
-preserves it and has not been promoted. Keep this evidence with the next coherent
-integration checkpoint instead of restarting active source CI for documentation.
-Full integration/publication, broader route/role/device acceptance and both briefs
-remain open. C: remains above20GiB; no build/install/database write or cleanup here.
-
-## 10 November - unknown-outcome focus recovery follow-up
-
-Compiled native Edge reproduces BODY focus after closing an unknown Privacy/Review
-submission at1280x720 and320x720: four failures, each with one intercepted write,
-zero outgoing writes and no uncaught page errors. Retain uncertain-report.json and
-its captures under TEMP/allied-customer-confirmation-20261110.
-
-The existing refresh-aware focus hook now accepts an optional recovery fallback.
-Only the two customer forms supply their named recovery region when outcome is
-unknown; after close, focus lands there and Tab reaches the existing recovery
-control. Other callers preserve their existing defaults and explicit focus moves
-still take precedence. Request markers, resubmission restrictions, review replay,
-ownership, policies and launch capabilities are unchanged. This is presentation
-and keyboard continuity; existing Help workflow semantics remain accurate.
-
-Full TypeScript, affected ESLint, formatting and22 existing mutation/account/review
-units pass. Two new recovery journeys collect across all three engines (66 total
-customer-confirmation cases). New compiled/browser verification and exact-source
-CI remain pending; earlier40+4+4 passes do not verify this new fix. At00:42UTC,
-all required checks passed for prior PR51head44fe4211 and master580a1bb5. Public
-promotion remains coordinated with the active Home/Services session, not performed
-here. The full original two-brief and all-modal scope remains open.
-
-## 10 November - customer confirmation native acceptance passes
-
-All 40 compiled Edge/Chrome checks pass for customer Privacy and Reviews: seven
-exact viewport pairs, mobile/touch phone contexts, centering/full phone width,
-Escape, delayed success, failed history reads, deliberately moved focus and rejected
-submissions. No retries, skipped cases, outgoing writes or uncaught page errors.
-Desktop/mobile captures were inspected. Evidence: TEMP/allied-customer-confirmation-
-20261110/acceptance.md, held-report.json and held-results (about 1.3 MB).
-
-Held candidate a39b7089 is READY with public domains unchanged; PR51 head 44fe4211 has
-identical application code and preserves master 580a1bb5's auth-fixture repair.
-Backend/secrets pass for this head; frontend CI remains live. Do not count the
-earlier disconnected-preview failures or registration hydration failures as passes.
-The separate registration recheck passes all four Edge/Chrome desktop/mobile cases
-(registration-held-v2-report.json); the longer authenticated-transport allowance is
-not application performance evidence. Public domains remain on dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV;
-the active Home/Services session retains publication ownership. Full integration,
-exact-master gates, real-role/device acceptance and the original goal remain open.
-Keep this evidence update with the next coherent integration checkpoint, without
-restarting the running source checks solely for documentation.
-
-Four supplemental native Edge long-content checks also pass at1280x720 and320x420:
-full phone width/centering, keyboard scrolling, reachable actions, retained draft
-on cancellation and no outgoing writes/page errors. Both captures were inspected.
-The initial harness expected the wrong Tab destination; correcting its expectation
-to the focusable Review details region required no application change. Evidence:
-TEMP/allied-customer-confirmation-20261110/long-v2-report.json. Physical keyboard
-occlusion remains unverified. Source CI and coordinated publication remain open.
-
-## 10 November - customer confirmation focus correction in verification
-
-Reconciled master580a1bb5's independent registration repair and retained its exact
-auth-forms fixture, including loopback capability reset and explicit refresh checks.
-The overlapping local-only capability response was superseded. Both sets of
-completion/quality evidence are preserved; application changes remain limited to
-the four customer confirmation components. Held candidate a39b7089 has identical
-application code; subsequent reconciliation changes tests and records only.
-
-Master1fc86e65 frontend42720881283 completed941 cases and failed one registration
-fixture because its broad API interceptor treated public/capabilities as register.
-The fixture now responds explicitly to capabilities and only captures registration
-POSTs. No authentication behavior changed. Local formatting/lint pass; compiled
-acceptance is pending. Automatic PR51 preview46899 has BACKEND_NOT_CONFIGURED;
-native checks there completed two focus cases, then stopped with two transport/
-capability-transition failures (36 not run). Registration likewise timed out before
-input. Retain these failures and use a correctly connected held candidate before
-claiming native acceptance. Do not disable capability checks or publish this batch.
-
-Native Edge157.0.4341.42 reproduced lost keyboard focus after a confirmed privacy
-request or review submission, followed by a delayed history read. All four baseline
-cases (both routes at1280x720 and320x720 mobile/touch) landed on BODY. Dialog
-centering/full phone width passed; each submission was intercepted, with zero
-outgoing writes or uncaught page errors. Evidence: TEMP/allied-customer-confirmation-
-20261110/baseline.json and baseline-results. The failing assertions are retained.
-
-The two customer workspaces now reuse existing refresh-aware return focus: restore
-the review button after settled history, use its history heading if the form remains
-unavailable, and preserve deliberately moved focus. No shared dialog/hook, request,
-permission, moderation, recovery or business rule changed. Twenty regressions cover
-seven viewport pairs, cancellation, delayed success, failed reads, deliberately moved
-focus and rejected submissions in the existing three-engine CI configuration.
-Full local TypeScript, scoped ESLint and formatting pass; test discovery lists all
-60 engine cases. Rendered checks, exact-source CI and publication are still pending.
-The separate combined Home/Services release remains owned by its active session.
-
-## 10 November - cart modal native acceptance; existing layout retained
-
-Native Edge157.0.4341.42 verifies the existing cart confirmation at all seven
-requested viewport pairs, plus320x420 after resizing an already-open dialog.
-The24-item fixture covers long text, large totals, centering, full phone width,
-reachable actions, keyboard containment, Escape focus return and retained quantity.
-Five standard-size cases plus the short-height case also scroll to the final item
-and check the thin scrollbar. All eight completed cases have one intercepted write,
-zero outgoing writes and zero uncaught page errors. No application styling changed.
-
-Source3cf5d9cb cart/shared-modal files are unchanged through master1fc86e65.
-Evidence and failed attempts: TEMP/allied-cart-modal-20261109/acceptance.md and
-acceptance.json. Initial malformed-envelope, stale-payload and preview-transition
-failures remain separate; no failed case is counted as a pass. Short-height resizing
-is not physical keyboard/device acceptance. Native zoom, screen readers, other
-page/state/role coverage and the combined release remain open. This evidence-only
-checkpoint should join the next coherent source batch, without restarting the active
-release solely for documentation.
+Exact candidate CSS, served through a local same-origin stylesheet response
+override with CSP preserved, passes320/360/390/430/768/1024/1280/1440/1920 checks:
+all36 links measure44px high; prices precede actions; no horizontal overflow.
+Search diagnostics, reload persistence, visible keyboard focus and Enter-to-detail
+also pass. Visually inspected public before390 and candidate after390/1440 captures.
+This is stylesheet-override evidence, not packaged or published acceptance.
+Affected CSS/test formatting and ESLint pass; all14 Services cases collect.
+Full exact-source hosted execution and publication remain required. Prepare this
+public correction as a separate release batch while retaining the larger backend
+candidate. No customer submission, protected record or provider payment was made.
+The initial live verifier waited on offscreen lazy images; corrected the harness
+to scroll images into view and use bounded loading checks. Its interrupted run is
+not a pass. Inline style injection was blocked by CSP; no CSP setting was changed.
 
 ## 10 November 02:01 Lagos - vehicle CSP test correction and recovery evidence
 
@@ -449,6 +301,186 @@ or remained at session verification; these are failed checks, not acceptance.
 Deployment protection and public aliases are unchanged. PR44 account focus retains
 40 compiled native passes; its final combined GitHub gate remains pending. The
 complete original goal and active backend dependencies are still open.
+
+## 10 November - customer confirmation recovery verified for integration
+
+Application source `0d22eae3` passes 50/50 compiled native Edge/Chrome cases:
+all seven exact viewport pairs, phone/mobile/touch contexts, centered full-width
+phone dialogs, cancellation, delayed/failed reads, retained input, unknown outcomes
+and recovery replay. Two additional empty-history replay cases pass at 1280x720
+and 320x720: identical request key/body, two intercepted attempts, one record and
+focus on the history heading. Zero outgoing writes or uncaught page errors.
+Desktop/mobile confirmation and recovery captures were inspected.
+
+Evidence: TEMP/allied-customer-confirmation-20261110/{replay-held-report.json,
+replay-fixed-report.json,replay-loaded-report.json,acceptance.md}. The first
+supplemental desktop attempt timed out before Rating appeared; its failure remains.
+The desktop-only rerun used the normal page-load gate with unchanged interaction
+deadlines and assertions. The 50-case matrix has no failures, skips or flaky cases.
+Local TypeScript and affected lint/format checks pass. Backend42732837656 and
+secrets42732837820 pass; frontend42732838129 was still running at this checkpoint.
+
+The two tracking records preserve all master55b96d50 vehicle-release entries;
+only table-delimiter formatting differed in the earlier shared tail. Application
+changes remain limited to customer focus handling and its regression coverage.
+Held candidate GgTWS5qGg7Re5LEzX4YrWZHKGKR7 is READY without public aliases.
+Integration and exact-master CI are next; publication still requires the compatible
+vehicle backend release and final integrated candidate/alias checks. No production
+submission, database/permission change, feature activation or domain promotion.
+The full two-brief, page/role/calendar/modal objective remains active. Real-role
+persistence, physical devices, Safari, virtual keyboards and full screen readers
+are not certified by these fixtures.
+
+## 10 November - review replay focus continuity
+
+The full original-request recovery path reproduced lost focus at1280x720 and320x720
+on candidate a6c8d117: the retry used the original key/body, retained exactly one
+review and removed its recovery button, but focus ended on BODY after history
+refresh. Both failures are retained in TEMP/allied-customer-confirmation-20261110/
+replay-baseline-report.json. No outgoing writes or uncaught page errors occurred.
+
+The Reviews workspace now records the recovery opener and uses its existing
+refresh-aware focus callbacks after replay. Cancellation returns to the recovery
+button; confirmed replay returns to the history heading once the removed opener
+cannot be used. Deliberately moved focus and failed-read handling remain unchanged.
+No replay, marker, request, ownership, permission or policy code changed. Help
+workflow semantics remain accurate; no guide version or feature activation changes.
+
+Full TypeScript and affected ESLint/format checks pass. Three additional engine
+journeys cover settled reads, failed reads and moved focus with cancellation plus
+identical-key/body and single-record assertions.75 customer-confirmation cases
+collect across three engines. New-source compiled acceptance and CI are pending;
+prior48 native passes remain evidence only for their stated source. The two shared
+tracking documents also preserve master's c3028cc1 Home/Services publication records;
+our earlier shared tails were verified whitespace-equivalent to580a1bb5 before
+reconciliation. No application merge conflict or public-domain mutation occurred.
+The complete two-brief, all-modal, role/device and release requirements remain open.
+
+## 10 November 00:53 UTC - recovery focus native acceptance complete
+
+Current source a6c8d117 passes44/44 compiled native Edge/Chrome cases plus4/4
+supplemental desktop/mobile recovery cases. All seven required viewport pairs,
+phone/touch contexts, unknown outcomes, failed/delayed reads, rejected submissions,
+retained drafts, single intercepted writes and keyboard recovery pass. Zero failed,
+skipped/flaky cases or outgoing writes/page errors. Desktop/mobile captures inspected.
+Evidence: TEMP/allied-customer-confirmation-20261110/acceptance.md,
+recovery-held-report.json, uncertain-fixed-report.json and matching results folders.
+
+Held candidate AMf45eVmLiTpvpBLFX23aHtofFtj is READY. Backend42730392704 and
+secrets42730392706 pass; frontend42730392845 is still live. Prior44fe4211 passed
+1,002 browser cases, not proof of this newer hook fallback. Public Home/Services
+source580a1bb5 is now on both aliases at EwTzDsgFUnBkUW6hfM64UeyrqcDi; our candidate
+preserves it and has not been promoted. Keep this evidence with the next coherent
+integration checkpoint instead of restarting active source CI for documentation.
+Full integration/publication, broader route/role/device acceptance and both briefs
+remain open. C: remains above20GiB; no build/install/database write or cleanup here.
+
+## 10 November - unknown-outcome focus recovery follow-up
+
+Compiled native Edge reproduces BODY focus after closing an unknown Privacy/Review
+submission at1280x720 and320x720: four failures, each with one intercepted write,
+zero outgoing writes and no uncaught page errors. Retain uncertain-report.json and
+its captures under TEMP/allied-customer-confirmation-20261110.
+
+The existing refresh-aware focus hook now accepts an optional recovery fallback.
+Only the two customer forms supply their named recovery region when outcome is
+unknown; after close, focus lands there and Tab reaches the existing recovery
+control. Other callers preserve their existing defaults and explicit focus moves
+still take precedence. Request markers, resubmission restrictions, review replay,
+ownership, policies and launch capabilities are unchanged. This is presentation
+and keyboard continuity; existing Help workflow semantics remain accurate.
+
+Full TypeScript, affected ESLint, formatting and22 existing mutation/account/review
+units pass. Two new recovery journeys collect across all three engines (66 total
+customer-confirmation cases). New compiled/browser verification and exact-source
+CI remain pending; earlier40+4+4 passes do not verify this new fix. At00:42UTC,
+all required checks passed for prior PR51head44fe4211 and master580a1bb5. Public
+promotion remains coordinated with the active Home/Services session, not performed
+here. The full original two-brief and all-modal scope remains open.
+
+## 10 November - customer confirmation native acceptance passes
+
+All 40 compiled Edge/Chrome checks pass for customer Privacy and Reviews: seven
+exact viewport pairs, mobile/touch phone contexts, centering/full phone width,
+Escape, delayed success, failed history reads, deliberately moved focus and rejected
+submissions. No retries, skipped cases, outgoing writes or uncaught page errors.
+Desktop/mobile captures were inspected. Evidence: TEMP/allied-customer-confirmation-
+20261110/acceptance.md, held-report.json and held-results (about 1.3 MB).
+
+Held candidate a39b7089 is READY with public domains unchanged; PR51 head 44fe4211 has
+identical application code and preserves master 580a1bb5's auth-fixture repair.
+Backend/secrets pass for this head; frontend CI remains live. Do not count the
+earlier disconnected-preview failures or registration hydration failures as passes.
+The separate registration recheck passes all four Edge/Chrome desktop/mobile cases
+(registration-held-v2-report.json); the longer authenticated-transport allowance is
+not application performance evidence. Public domains remain on dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV;
+the active Home/Services session retains publication ownership. Full integration,
+exact-master gates, real-role/device acceptance and the original goal remain open.
+Keep this evidence update with the next coherent integration checkpoint, without
+restarting the running source checks solely for documentation.
+
+Four supplemental native Edge long-content checks also pass at1280x720 and320x420:
+full phone width/centering, keyboard scrolling, reachable actions, retained draft
+on cancellation and no outgoing writes/page errors. Both captures were inspected.
+The initial harness expected the wrong Tab destination; correcting its expectation
+to the focusable Review details region required no application change. Evidence:
+TEMP/allied-customer-confirmation-20261110/long-v2-report.json. Physical keyboard
+occlusion remains unverified. Source CI and coordinated publication remain open.
+
+## 10 November - customer confirmation focus correction in verification
+
+Reconciled master580a1bb5's independent registration repair and retained its exact
+auth-forms fixture, including loopback capability reset and explicit refresh checks.
+The overlapping local-only capability response was superseded. Both sets of
+completion/quality evidence are preserved; application changes remain limited to
+the four customer confirmation components. Held candidate a39b7089 has identical
+application code; subsequent reconciliation changes tests and records only.
+
+Master1fc86e65 frontend42720881283 completed941 cases and failed one registration
+fixture because its broad API interceptor treated public/capabilities as register.
+The fixture now responds explicitly to capabilities and only captures registration
+POSTs. No authentication behavior changed. Local formatting/lint pass; compiled
+acceptance is pending. Automatic PR51 preview46899 has BACKEND_NOT_CONFIGURED;
+native checks there completed two focus cases, then stopped with two transport/
+capability-transition failures (36 not run). Registration likewise timed out before
+input. Retain these failures and use a correctly connected held candidate before
+claiming native acceptance. Do not disable capability checks or publish this batch.
+
+Native Edge157.0.4341.42 reproduced lost keyboard focus after a confirmed privacy
+request or review submission, followed by a delayed history read. All four baseline
+cases (both routes at1280x720 and320x720 mobile/touch) landed on BODY. Dialog
+centering/full phone width passed; each submission was intercepted, with zero
+outgoing writes or uncaught page errors. Evidence: TEMP/allied-customer-confirmation-
+20261110/baseline.json and baseline-results. The failing assertions are retained.
+
+The two customer workspaces now reuse existing refresh-aware return focus: restore
+the review button after settled history, use its history heading if the form remains
+unavailable, and preserve deliberately moved focus. No shared dialog/hook, request,
+permission, moderation, recovery or business rule changed. Twenty regressions cover
+seven viewport pairs, cancellation, delayed success, failed reads, deliberately moved
+focus and rejected submissions in the existing three-engine CI configuration.
+Full local TypeScript, scoped ESLint and formatting pass; test discovery lists all
+60 engine cases. Rendered checks, exact-source CI and publication are still pending.
+The separate combined Home/Services release remains owned by its active session.
+
+## 10 November - cart modal native acceptance; existing layout retained
+
+Native Edge157.0.4341.42 verifies the existing cart confirmation at all seven
+requested viewport pairs, plus320x420 after resizing an already-open dialog.
+The24-item fixture covers long text, large totals, centering, full phone width,
+reachable actions, keyboard containment, Escape focus return and retained quantity.
+Five standard-size cases plus the short-height case also scroll to the final item
+and check the thin scrollbar. All eight completed cases have one intercepted write,
+zero outgoing writes and zero uncaught page errors. No application styling changed.
+
+Source3cf5d9cb cart/shared-modal files are unchanged through master1fc86e65.
+Evidence and failed attempts: TEMP/allied-cart-modal-20261109/acceptance.md and
+acceptance.json. Initial malformed-envelope, stale-payload and preview-transition
+failures remain separate; no failed case is counted as a pass. Short-height resizing
+is not physical keyboard/device acceptance. Native zoom, screen readers, other
+page/state/role coverage and the combined release remain open. This evidence-only
+checkpoint should join the next coherent source batch, without restarting the active
+release solely for documentation.
 
 ## 9 November 21:55 UTC - customer account focus verified in compiled browsers
 
