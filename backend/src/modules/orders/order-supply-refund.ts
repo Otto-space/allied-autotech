@@ -1,3 +1,4 @@
+import { hasAcceptedSupplyAlternative } from "./order-supply-alternative.js";
 import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
 import type { Prisma } from "../../generated/prisma/client.js";
@@ -40,7 +41,11 @@ export async function assertSupplyRefundBinding(
   if (
     !choice ||
     choice.orderId !== order.id ||
-    choice.choice !== "REFUND_REVIEW" ||
+    (choice.choice !== "REFUND_REVIEW" &&
+      !(
+        choice.choice === "SUITABLE_ALTERNATIVE_REVIEW" &&
+        (await hasAcceptedSupplyAlternative(tx, choice.id))
+      )) ||
     choice.supplyException.kind === "USED_INSTALLED_OR_DIAGNOSIS_DISPUTE" ||
     (await tx.orderSupplyRemedyChoice.count({
       where: {

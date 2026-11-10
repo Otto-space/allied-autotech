@@ -108,6 +108,21 @@ export async function supplyExceptionSummary(
           customerNote: true,
           createdAt: true,
           orderVersion: true,
+          partsQuotes: {
+            orderBy: [{ revision: "desc" }, { id: "desc" }],
+            take: 11,
+            select: {
+              id: true,
+              status: true,
+              productName: true,
+              quantity: true,
+              totalKobo: true,
+              currency: true,
+              expiresAt: true,
+              orderId: true,
+              order: { select: { status: true } },
+            },
+          },
           refunds: {
             orderBy: [{ createdAt: "desc" }, { id: "desc" }],
             take: 26,
@@ -136,16 +151,32 @@ export async function supplyExceptionSummary(
       ...record,
       affectedLines: affectedUnitRangesSchema.parse(record.affectedLines),
       state: "CUSTOMER_CARE_REVIEW_REQUIRED" as const,
-      supplyRemedyChoices: record.supplyRemedyChoices.slice(0, 10).map((choice) => ({
-        ...choice,
-        refunds: choice.refunds
-          .slice(0, 25)
-          .map((refund) => ({ ...refund, amountKobo: refund.amountKobo.toString() })),
-        hasMoreRefunds: choice.refunds.length > 25,
-      })),
+      supplyRemedyChoices: record.supplyRemedyChoices.slice(0, 10).map((choice) => {
+        const { partsQuotes, ...saved } = choice;
+        return {
+          ...saved,
+          alternatives: partsQuotes.slice(0, 10).map(({ order, ...quote }) => ({
+            ...quote,
+            totalKobo: quote.totalKobo.toString(),
+            orderStatus: order?.status ?? null,
+          })),
+          hasMoreAlternatives: partsQuotes.length > 10,
+          refunds: choice.refunds
+            .slice(0, 25)
+            .map((refund) => ({ ...refund, amountKobo: refund.amountKobo.toString() })),
+          hasMoreRefunds: choice.refunds.length > 25,
+        };
+      }),
       hasMoreChoices: record.supplyRemedyChoices.length > 10,
       // Intent never means a substitute was accepted, finance approved, or paid.
-      alternativeAccepted: false as const,
+      alternativeAccepted: record.supplyRemedyChoices.some((choice) =>
+        choice.partsQuotes.some(
+          (quote) =>
+            quote.status === "ACCEPTED" &&
+            quote.orderId &&
+            quote.order?.status !== "CANCELLED",
+        ),
+      ),
       financialApproval: false as const,
     })),
     hasMore: records.length > 25,
@@ -419,6 +450,18 @@ export class OrderSupplyExceptionService {
         )
           throw orderConflict(
             "Used, installed or disputed goods need technical assessment. This request cannot approve a general return.",
+          );
+        const acceptedAlternative = await tx.partsQuote.count({
+          where: {
+            supplyRemedyChoice: { supplyExceptionId: concern.id },
+            status: "ACCEPTED",
+            orderId: { not: null },
+            order: { status: { not: "CANCELLED" } },
+          },
+        });
+        if (acceptedAlternative)
+          throw orderConflict(
+            "An alternative order was already accepted. Reconcile or cancel that actual order before changing this request.",
           );
         if (
           await tx.refund.count({

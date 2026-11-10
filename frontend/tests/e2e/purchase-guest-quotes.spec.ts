@@ -7,6 +7,8 @@ async function fixture(page: Page) {
   const state = await purchaseFixture(page);
   const quotation = {
     id: id(95),
+    supplyRemedyChoiceId: null as string | null,
+    alternativeAgreementVersion: undefined as string | undefined,
     enquiryId: id(96),
     revision: 1,
     productName: guestProduct.name,
@@ -149,6 +151,42 @@ for (const width of [320, 768, 1366])
     expect(writes[0]!.csrf).toBe("c".repeat(43));
     expect(writes[0]!.key).toBe(`purchase-quote-accept:${id(95)}:1`);
     expect(state.writes.some((row) => row.path.includes("/payments"))).toBe(false);
+  });
+
+for (const width of [320, 1440])
+  test(`guest actual alternative acceptance retains original financial review at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    const { state, extra } = await fixture(page);
+    extra.quotation.supplyRemedyChoiceId = id(97);
+    extra.quotation.alternativeAgreementVersion = "SUPPLY_ALTERNATIVE_20261110_V1";
+    await page.goto("/purchase");
+    await enterContact(page);
+    await expect(
+      page.getByText("This is an alternative for affected original goods.", {
+        exact: false,
+      }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", { name: "Review and accept quotation", exact: true })
+      .click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText(
+      "No store credit or transfer of the original payment is authorised.",
+    );
+    expect(state.writes.filter((x) => x.path.endsWith("/accept"))).toHaveLength(0);
+    await page.screenshot({
+      path: info.outputPath(`alternative-guest-review-${width}.png`),
+    });
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await dialog.getByRole("button", { name: "Confirm decision", exact: true }).click();
+    await expect(page).toHaveURL(`/purchase/orders/${id(81)}`);
+    expect(state.writes.filter((x) => x.path.endsWith("/accept"))).toHaveLength(1);
+    expect(state.writes.some((x) => x.path.includes("/payments"))).toBe(false);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
   });
 
 test("decline needs an explicit review and creates no order or payment", async ({

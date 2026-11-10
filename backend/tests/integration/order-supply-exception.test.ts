@@ -1,3 +1,4 @@
+import { PartsQuotesService } from "../../src/modules/orders/parts-quotes.service.js";
 import { z } from "zod";
 import { refundQueueRecordSchema } from "../../src/modules/payments/refund-record.js";
 import { enqueueLateOrderRefund } from "../../src/modules/payments/refund-workflow.js";
@@ -264,6 +265,389 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       statementVersion: "SUPPLY_CHOICE_20261110_V1",
       choiceConfirmed: true,
       customerNote: "Please review the affected original portion for a refund.",
+    });
+    async function alternativeFixture(guest = false) {
+      const f = await fixture(guest);
+      const concern = (await f.service.raise(f.actor, f.order.id, f.body, context))
+        .items[0]!;
+      const principal = f.access
+        ? {
+            kind: "guest" as const,
+            sessionToken: f.access.sessionToken,
+            csrfToken: f.access.csrfToken,
+          }
+        : f.principal;
+      const chosen = await f.service.choose(
+        principal,
+        f.order.id,
+        { ...choiceInput(concern.id), choice: "SUITABLE_ALTERNATIVE_REVIEW" },
+        context,
+      );
+      const choice = chosen.items[0]!.supplyRemedyChoices[0]!;
+      const quotes = new PartsQuotesService();
+      const input = {
+        expectedRevision: 0,
+        productId: f.order.items[0]!.productId,
+        quantity: 2,
+        unitPriceKobo: "200",
+        notes:
+          "Synthetic suitable alternative; separate original refund, no store credit or money transfer. Actual compatibility review remains required before payment.",
+      };
+      const key = randomUUID();
+      const offered = (await quotes.issue(
+        f.actor,
+        concern.enquiryId,
+        input,
+        key,
+        context,
+      )) as { id: string; revision: number; supplyRemedyChoiceId: string };
+      const orders = new OrdersService();
+      const accept = () =>
+        f.access
+          ? orders.guestAcceptQuote(
+              { sessionToken: f.access.sessionToken, csrfToken: f.access.csrfToken },
+              offered.id,
+              {
+                revision: offered.revision,
+                alternativeAgreementVersion: "SUPPLY_ALTERNATIVE_20261110_V1",
+                contact: {
+                  name: "Synthetic actual alternative buyer",
+                  phone: "08030000000",
+                },
+              },
+              randomUUID(),
+              context,
+            )
+          : orders.checkout(
+              f.customerActor,
+              { branchId: f.branch.id, fulfillmentMethod: "COLLECTION" },
+              randomUUID(),
+              context,
+              {
+                id: offered.id,
+                revision: offered.revision,
+                alternativeAgreementVersion: "SUPPLY_ALTERNATIVE_20261110_V1",
+              },
+            );
+      return {
+        ...f,
+        principal,
+        concern,
+        choice,
+        quotes,
+        input,
+        key,
+        offered,
+        orders,
+        accept,
+      };
+    }
+    it.each([false, true])(
+      "binds an actual %s guest alternative to its customer choice and explicit accepted unpaid order",
+      async (guest) => {
+        const f = await alternativeFixture(guest);
+        expect(f.offered.supplyRemedyChoiceId).toBe(f.choice.id);
+        expect(
+          (
+            (await f.quotes.issue(
+              f.actor,
+              f.concern.enquiryId,
+              f.input,
+              f.key,
+              context,
+            )) as { id: string }
+          ).id,
+        ).toBe(f.offered.id);
+        expect(
+          (await f.service.read(f.principal, f.order.id)).items[0]!.alternativeAccepted,
+        ).toBe(false);
+        if (f.access)
+          await expect(
+            f.orders.guestAcceptQuote(
+              { sessionToken: f.access.sessionToken, csrfToken: f.access.csrfToken },
+              f.offered.id,
+              {
+                revision: f.offered.revision,
+                contact: { name: "Synthetic actual buyer", phone: "08030000000" },
+              },
+              randomUUID(),
+              context,
+            ),
+          ).rejects.toMatchObject({ statusCode: 409 });
+        else
+          await expect(
+            f.orders.checkout(
+              f.customerActor,
+              { branchId: f.branch.id, fulfillmentMethod: "COLLECTION" },
+              randomUUID(),
+              context,
+              { id: f.offered.id, revision: f.offered.revision },
+            ),
+          ).rejects.toMatchObject({ statusCode: 409 });
+        const result = (await f.accept()) as {
+          order: { id: string; status: string; totalKobo: string };
+          replayed: boolean;
+        };
+        expect(result.order).toMatchObject({ status: "PENDING", totalKobo: "430" });
+        const repeated = (await f.accept()) as typeof result;
+        expect(repeated.order.id).toBe(result.order.id);
+        expect(repeated.replayed).toBe(true);
+        const replacement = await prisma.order.findUniqueOrThrow({
+          where: { id: result.order.id },
+        });
+        expect(replacement.paidAt).toBeNull();
+        await expect(
+          prisma.order.update({
+            where: { id: replacement.id },
+            data: { policySnapshot: {} },
+          }),
+        ).rejects.toThrow();
+
+        expect(replacement.customerId).toBe(f.order.customerId);
+        expect(replacement.guestId).toBe(f.order.guestId);
+        const summary = await f.service.read(f.principal, f.order.id);
+        expect(summary.items[0]!.alternativeAccepted).toBe(true);
+        expect(summary.items[0]!.supplyRemedyChoices[0]!.alternatives[0]).toMatchObject({
+          id: f.offered.id,
+          status: "ACCEPTED",
+          orderId: replacement.id,
+          totalKobo: "430",
+          orderStatus: "PENDING",
+        });
+        expect(await prisma.payment.count({ where: { orderId: replacement.id } })).toBe(
+          0,
+        );
+        await expect(
+          prisma.$transaction((tx) => assertReviewedPurchasePayable(tx, replacement.id)),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        await expect(
+          f.service.choose(
+            f.principal,
+            f.order.id,
+            { ...choiceInput(f.concern.id, 2) },
+            context,
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+      },
+    );
+    it("refuses stale, technical or cross-case alternative binding and protects the actual issued product and price", async () => {
+      const f = await alternativeFixture();
+      const quote = await prisma.partsQuote.findUniqueOrThrow({
+        where: { id: f.offered.id },
+      });
+      for (const change of [
+        { totalKobo: 431n },
+        { quantity: 3 },
+        { enquiryId: randomUUID() },
+        { supplyRemedyChoiceId: null },
+      ])
+        await expect(
+          prisma.partsQuote.update({ where: { id: quote.id }, data: change }),
+        ).rejects.toThrow();
+      await expect(
+        prisma.partsQuote.delete({ where: { id: quote.id } }),
+      ).rejects.toThrow();
+      await expect(
+        prisma.partsQuote.update({
+          where: { id: f.offered.id },
+          data: { status: "ACCEPTED", orderId: f.order.id, decidedAt: new Date() },
+        }),
+      ).rejects.toThrow(/acceptance proof/);
+      const other = await fixture();
+      const concern = (
+        await other.service.raise(
+          other.actor,
+          other.order.id,
+          { ...other.body, kind: "USED_INSTALLED_OR_DIAGNOSIS_DISPUTE" },
+          context,
+        )
+      ).items[0]!;
+      await other.service.choose(
+        other.principal,
+        other.order.id,
+        { ...choiceInput(concern.id), choice: "TECHNICAL_REVIEW" },
+        context,
+      );
+      await expect(
+        f.quotes.issue(
+          other.actor,
+          concern.enquiryId,
+          { ...f.input, productId: other.order.items[0]!.productId },
+          randomUUID(),
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await expect(
+        prisma.partsQuote.create({
+          data: {
+            ...quote,
+            id: randomUUID(),
+            enquiryId: concern.enquiryId,
+            idempotencyKeyHash: randomUUID().replaceAll("-", "").repeat(2),
+            policySnapshot:
+              quote.policySnapshot as import("../../src/generated/prisma/client.js").Prisma.InputJsonValue,
+          },
+        }),
+      ).rejects.toThrow(/current customer request/);
+      await f.service.choose(
+        f.principal,
+        f.order.id,
+        choiceInput(f.concern.id, 2),
+        context,
+      );
+      await expect(f.accept()).rejects.toMatchObject({ statusCode: 409 });
+      await expect(
+        f.quotes.issue(
+          f.actor,
+          f.concern.enquiryId,
+          { ...f.input, expectedRevision: 1 },
+          randomUUID(),
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+    });
+    it("uses independent refund approval only after actual alternative acceptance, and blocks preparing another payment", async () => {
+      const f = await alternativeFixture();
+      const prior = await prisma.businessPolicyVersion.findFirst({
+        where: { key: "manual-refund" },
+        orderBy: { version: "desc" },
+      });
+      await prisma.businessPolicyVersion.create({
+        data: {
+          key: "manual-refund",
+          version: (prior?.version ?? 0) + 1,
+          approvalStatus: "APPROVED",
+          approvedByUserId: f.actor.userId,
+          source:
+            "Synthetic isolated alternative refund fixture, not production approval",
+          sourceQuestion: "D17 isolated alternative acceptance",
+          effectiveAt: new Date(Date.now() - 1000),
+          settings: {},
+        },
+      });
+      const attempt = await captured(f),
+        payments = new PaymentsService();
+      const body = {
+        paymentAttemptId: attempt.id,
+        supplyRemedyChoiceId: f.choice.id,
+        amountKobo: 107n,
+        reason:
+          "Synthetic exact original affected amount; no transfer, fee or store credit",
+      };
+      await expect(
+        payments.requestRefund(f.actor, body, randomUUID(), context),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const accepted = (await f.accept()) as { order: { id: string } };
+      const receipt = refundReceipt(
+        await payments.requestRefund(f.actor, body, randomUUID(), context),
+      );
+      expect(receipt.refund).toMatchObject({
+        supplyRemedyChoiceId: f.choice.id,
+        status: "REQUESTED",
+        amountKobo: "107",
+      });
+      const nextPayment = await prisma.payment.create({
+        data: {
+          orderId: accepted.order.id,
+          customerId: f.order.customerId,
+          paymentNumber: randomUUID(),
+          purpose: "ORDER_PAYMENT",
+          amountKobo: 430n,
+          idempotencyKeyHash: randomUUID().replaceAll("-", "").repeat(2),
+        },
+      });
+      await expect(
+        prisma.paymentAttempt.create({
+          data: {
+            paymentId: nextPayment.id,
+            attemptNumber: 1,
+            internalReference: randomUUID(),
+            provider: "MANUAL",
+            amountKobo: 430n,
+            status: "INITIALIZED",
+          },
+        }),
+      ).rejects.toThrow(/original affected goods financial resolution/);
+      const observed = await prisma.paymentAttempt.create({
+        data: {
+          paymentId: nextPayment.id,
+          attemptNumber: 1,
+          internalReference: randomUUID(),
+          provider: "MANUAL",
+          amountKobo: 430n,
+          status: "SUCCESSFUL",
+          verificationStatus: "VERIFIED",
+          verifiedAmountKobo: 430n,
+          verifiedCurrency: "NGN",
+          paidAt: new Date(),
+          verifiedAt: new Date(),
+        },
+      });
+      expect(observed.status).toBe("SUCCESSFUL"); // actual synthetic capture must remain recorded
+      expect(
+        (await prisma.order.findUniqueOrThrow({ where: { id: accepted.order.id } }))
+          .paidAt,
+      ).toBeNull();
+      await expect(
+        prisma.$transaction((tx) => assertReviewedPurchasePayable(tx, accepted.order.id)),
+      ).rejects.toMatchObject({ statusCode: 409 });
+
+      const choice = await prisma.orderSupplyRemedyChoice.findUniqueOrThrow({
+        where: { id: f.choice.id },
+      });
+      await expect(
+        prisma.orderSupplyRemedyChoice.create({
+          data: {
+            ...choice,
+            id: randomUUID(),
+            orderVersion: 2,
+            idempotencyKey: randomUUID(),
+            choice: "REFUND_REVIEW",
+          },
+        }),
+      ).rejects.toThrow();
+    });
+    it("allows changing the customer preference after the actual unpaid alternative is cancelled without a committed refund", async () => {
+      const f = await alternativeFixture();
+      const accepted = (await f.accept()) as { order: { id: string; version: number } };
+      await f.orders.customerCancel(
+        f.customerActor,
+        accepted.order.id,
+        {
+          expectedVersion: accepted.order.version,
+          reason:
+            "Synthetic buyer cancelled this unpaid replacement before changing remedy",
+        },
+        context,
+      );
+      const updated = await f.service.choose(
+        f.principal,
+        f.order.id,
+        choiceInput(f.concern.id, 2),
+        context,
+      );
+      expect(updated.items[0]!.supplyRemedyChoices[0]!.choice).toBe("REFUND_REVIEW");
+      expect(updated.items[0]!.supplyRemedyChoices[1]!.alternatives[0]!.orderStatus).toBe(
+        "CANCELLED",
+      );
+      expect(updated.items[0]!.alternativeAccepted).toBe(false);
+      const changed = await f.service.choose(
+        f.principal,
+        f.order.id,
+        { ...choiceInput(f.concern.id, 3), choice: "SUITABLE_ALTERNATIVE_REVIEW" },
+        context,
+      );
+      const revised = (await f.quotes.issue(
+        f.actor,
+        f.concern.enquiryId,
+        { ...f.input, expectedRevision: 1 },
+        randomUUID(),
+        context,
+      )) as { revision: number; supplyRemedyChoiceId: string };
+      expect(revised.revision).toBe(2);
+      expect(revised.supplyRemedyChoiceId).toBe(
+        changed.items[0]!.supplyRemedyChoices[0]!.id,
+      );
     });
     it("retains real customer choice and changed-choice history without moving money or releasing the hold", async () => {
       const f = await fixture();

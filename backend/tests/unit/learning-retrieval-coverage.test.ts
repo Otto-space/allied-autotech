@@ -137,7 +137,7 @@ it("keeps collection instructions administrative without granting release permis
 
 it("keeps order sourcing authoring instructions out of public, customer and staff catalogues", () => {
   const guide = learningArticles.find((article) => article.id === "order-sourcing")!;
-  expect([guide.gate, guide.version]).toEqual(["admin", 4]);
+  expect([guide.gate, guide.version]).toEqual(["admin", 5]);
   for (const role of ["PUBLIC", "CUSTOMER", "STAFF"] as const) {
     const catalogue = learningCatalogue({
       ...publicLearningAccess,

@@ -65,6 +65,23 @@ const choice = z.object({
   customerNote: z.string().max(1000),
   createdAt: date,
   orderVersion: z.number().int().nonnegative(),
+  alternatives: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        status: z.enum(["DRAFT", "ISSUED", "ACCEPTED", "REJECTED", "EXPIRED", "VOID"]),
+        productName: z.string(),
+        quantity: z.number().int().positive(),
+        totalKobo: money,
+        currency: z.literal("NGN"),
+        expiresAt: date,
+        orderId: z.uuid().nullable(),
+        orderStatus: z.string().nullable(),
+      }),
+    )
+    .max(10)
+    .default([]),
+  hasMoreAlternatives: z.boolean().default(false),
   refunds: z.array(refund).max(25),
   hasMoreRefunds: z.boolean(),
 });
@@ -84,7 +101,7 @@ export const supplySummarySchema = z.object({
         reason: z.string().max(1000).optional(),
         createdAt: date,
         state: z.literal("CUSTOMER_CARE_REVIEW_REQUIRED"),
-        alternativeAccepted: z.literal(false),
+        alternativeAccepted: z.boolean(),
         financialApproval: z.literal(false),
         monetaryBasis: z.object({
           status: z.enum([
@@ -178,6 +195,16 @@ export const supplyRangeSignature = (lines: z.infer<typeof ranges>) =>
 export function supplyChoiceLocked(row: SupplySummary["items"][number]) {
   return (
     row.hasMoreChoices ||
+    row.supplyRemedyChoices.some(
+      (choice) =>
+        choice.hasMoreAlternatives ||
+        choice.alternatives.some(
+          (quote) =>
+            quote.status === "ACCEPTED" &&
+            quote.orderId &&
+            quote.orderStatus !== "CANCELLED",
+        ),
+    ) ||
     row.supplyRemedyChoices.some(
       (choice) =>
         choice.hasMoreRefunds ||

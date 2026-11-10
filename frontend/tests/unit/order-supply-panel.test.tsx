@@ -206,91 +206,109 @@ describe("owned supply review interface", () => {
     expect(container.querySelector("form")).toBeNull();
     expect(container.textContent).not.toContain(summary.items[0].reason!);
   });
-  it("prepares a real captured-payment refund with exact affected gross, original choice and independent approval", async () => {
-    const order = supplyOrder(),
-      summary = supplySummary(order);
-    order.version = 2;
-    summary.orderVersion = 2;
-    summary.items[0].supplyRemedyChoices = [supplyChoiceRecord()];
-    const payment = paymentRow(0, true);
-    payment.id = order.paymentReferences[0].id;
-    payment.orderId = order.id;
-    payment.invoiceId = null;
-    payment.bookingId = null;
-    payment.purpose = "ORDER_PAYMENT";
-    payment.amountKobo = "320";
-    payment.attempts[0].amountKobo = "320";
-    let sent: Record<string, unknown> | undefined;
-    mocks.account.mockImplementation(
-      async (
-        path: string,
-        options?: { method?: string; body?: Record<string, unknown> },
-      ) => {
-        if (path.startsWith("/staff/payments/") && options?.method !== "POST")
-          return { data: payment };
-        if (options?.method === "POST") {
-          sent = options.body;
-          summary.items[0].supplyRemedyChoices[0].refunds = [
-            {
-              id: supplyId(77),
-              amountKobo: "107",
-              currency: "NGN",
-              status: "REQUESTED",
-              requestedAt: "2026-11-10T09:00:00Z",
-              processedAt: null,
-            },
-          ];
-          return {
-            data: {
-              replayed: false,
-              refund: {
+  it.each(["REFUND_REVIEW", "SUITABLE_ALTERNATIVE_REVIEW"] as const)(
+    "prepares a captured-payment refund for %s with exact affected gross and independent approval",
+    async (choiceKind) => {
+      const order = supplyOrder(),
+        summary = supplySummary(order);
+      order.version = 2;
+      summary.orderVersion = 2;
+      summary.items[0].supplyRemedyChoices = [supplyChoiceRecord()];
+      summary.items[0].supplyRemedyChoices[0].choice = choiceKind;
+      if (choiceKind === "SUITABLE_ALTERNATIVE_REVIEW")
+        summary.items[0].supplyRemedyChoices[0].alternatives = [
+          {
+            id: supplyId(50),
+            status: "ACCEPTED",
+            productName: "Synthetic alternative",
+            quantity: 2,
+            totalKobo: "430",
+            currency: "NGN",
+            expiresAt: "2026-11-17T09:00:00Z",
+            orderId: supplyId(51),
+            orderStatus: "PENDING",
+          },
+        ];
+      const payment = paymentRow(0, true);
+      payment.id = order.paymentReferences[0].id;
+      payment.orderId = order.id;
+      payment.invoiceId = null;
+      payment.bookingId = null;
+      payment.purpose = "ORDER_PAYMENT";
+      payment.amountKobo = "320";
+      payment.attempts[0].amountKobo = "320";
+      let sent: Record<string, unknown> | undefined;
+      mocks.account.mockImplementation(
+        async (
+          path: string,
+          options?: { method?: string; body?: Record<string, unknown> },
+        ) => {
+          if (path.startsWith("/staff/payments/") && options?.method !== "POST")
+            return { data: payment };
+          if (options?.method === "POST") {
+            sent = options.body;
+            summary.items[0].supplyRemedyChoices[0].refunds = [
+              {
                 id: supplyId(77),
-                refundNumber: "REF-SYNTHETIC",
-                paymentAttemptId: payment.attempts[0].id,
-                supplyRemedyChoiceId: supplyId(5),
-                requestedByUserId: owner,
-                approvedByUserId: null,
                 amountKobo: "107",
                 currency: "NGN",
                 status: "REQUESTED",
-                reason: sent!.reason,
-                providerStatus: null,
-                failureCode: null,
                 requestedAt: "2026-11-10T09:00:00Z",
-                approvedAt: null,
                 processedAt: null,
-                failedAt: null,
-                updatedAt: "2026-11-10T09:00:00Z",
               },
-            },
-          };
-        }
-        return { data: structuredClone(summary) };
-      },
-    );
-    await mount({ order, audience: "staff", administrator: true, actorUserId: owner });
-    const select = [...container.querySelectorAll("select")].find((field) =>
-      field.parentElement?.textContent?.includes("Actual original payment"),
-    )!;
-    await act(async () => {
-      select.value = payment.id;
-      select.dispatchEvent(new Event("change", { bubbles: true }));
-    });
-    const form = select.closest("form")!;
-    fill(form, "attempt", payment.attempts[0].id);
-    fill(form, "reason", "Synthetic exact affected gross and capture reviewed");
-    check(form);
-    await submit(form);
-    expect(container.querySelector("dialog")?.textContent).toContain(
-      "A separate authorised operator",
-    );
-    await click("Confirm request");
-    expect(sent).toMatchObject({
-      amountKobo: "107",
-      supplyRemedyChoiceId: supplyId(5),
-      paymentAttemptId: payment.attempts[0].id,
-    });
-    expect(saved).toHaveBeenCalledOnce();
-    expect(container.textContent).toContain("awaiting independent approval");
-  });
+            ];
+            return {
+              data: {
+                replayed: false,
+                refund: {
+                  id: supplyId(77),
+                  refundNumber: "REF-SYNTHETIC",
+                  paymentAttemptId: payment.attempts[0].id,
+                  supplyRemedyChoiceId: supplyId(5),
+                  requestedByUserId: owner,
+                  approvedByUserId: null,
+                  amountKobo: "107",
+                  currency: "NGN",
+                  status: "REQUESTED",
+                  reason: sent!.reason,
+                  providerStatus: null,
+                  failureCode: null,
+                  requestedAt: "2026-11-10T09:00:00Z",
+                  approvedAt: null,
+                  processedAt: null,
+                  failedAt: null,
+                  updatedAt: "2026-11-10T09:00:00Z",
+                },
+              },
+            };
+          }
+          return { data: structuredClone(summary) };
+        },
+      );
+      await mount({ order, audience: "staff", administrator: true, actorUserId: owner });
+      const select = [...container.querySelectorAll("select")].find((field) =>
+        field.parentElement?.textContent?.includes("Actual original payment"),
+      )!;
+      await act(async () => {
+        select.value = payment.id;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      const form = select.closest("form")!;
+      fill(form, "attempt", payment.attempts[0].id);
+      fill(form, "reason", "Synthetic exact affected gross and capture reviewed");
+      check(form);
+      await submit(form);
+      expect(container.querySelector("dialog")?.textContent).toContain(
+        "A separate authorised operator",
+      );
+      await click("Confirm request");
+      expect(sent).toMatchObject({
+        amountKobo: "107",
+        supplyRemedyChoiceId: supplyId(5),
+        paymentAttemptId: payment.attempts[0].id,
+      });
+      expect(saved).toHaveBeenCalledOnce();
+      expect(container.textContent).toContain("awaiting independent approval");
+    },
+  );
 });

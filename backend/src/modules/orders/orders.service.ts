@@ -1,3 +1,5 @@
+import { lockCurrentPaymentCustomer } from "../payments/payments.policy.js";
+import { assertSupplyAlternativeAcceptance } from "./order-supply-alternative.js";
 import { ensureUnavailableSupplyCase } from "./order-supply-exception.service.js";
 import { hasUnavailableSourcing } from "./order-sourcing-availability.js";
 import { orderTimingBodySchema } from "./order-timing.schemas.js";
@@ -115,7 +117,7 @@ export class OrdersService {
     input: CheckoutInput,
     rawKey: string,
     context: RequestSecurityContext,
-    partsQuote?: { id: string; revision: number },
+    partsQuote?: { id: string; revision: number; alternativeAgreementVersion?: string },
   ) {
     assertCustomer(actor);
     return this.checkoutBuyer(
@@ -183,7 +185,13 @@ export class OrdersService {
       { branchId: quote.enquiry.branchId, fulfillmentMethod: "COLLECTION" },
       rawKey,
       context,
-      { id, revision: input.revision },
+      {
+        id,
+        revision: input.revision,
+        ...(input.alternativeAgreementVersion
+          ? { alternativeAgreementVersion: input.alternativeAgreementVersion }
+          : {}),
+      },
     );
   }
 
@@ -270,7 +278,7 @@ export class OrdersService {
     input: CheckoutInput,
     rawKey: string,
     context: RequestSecurityContext,
-    partsQuote?: { id: string; revision: number },
+    partsQuote?: { id: string; revision: number; alternativeAgreementVersion?: string },
   ) {
     if (!productPurchasesEnabled(env))
       throw orderConflict(
@@ -356,6 +364,13 @@ export class OrdersService {
             quote.enquiry.branchId !== input.branchId
           )
             throw orderNotFound();
+          if (quote.supplyRemedyChoiceId && buyer.kind === "account")
+            await lockCurrentPaymentCustomer(transaction, buyer.actor);
+          await assertSupplyAlternativeAcceptance(
+            transaction,
+            quote,
+            partsQuote.alternativeAgreementVersion,
+          );
           await transaction.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${quote.enquiryId}::uuid FOR UPDATE`;
           await transaction.$queryRaw`SELECT "id" FROM "PartsQuote" WHERE "id" = ${quote.id}::uuid FOR UPDATE`;
           quote = await transaction.partsQuote.findUnique({
@@ -370,6 +385,11 @@ export class OrdersService {
             quote.enquiry.branchId !== input.branchId
           )
             throw orderNotFound();
+          await assertSupplyAlternativeAcceptance(
+            transaction,
+            quote,
+            partsQuote.alternativeAgreementVersion,
+          );
           if (quote.revision !== partsQuote.revision) throw orderStale();
           if (quote.status === "ACCEPTED" && quote.orderId) {
             const saved = await ownedOrder(quote.orderId);
@@ -563,6 +583,17 @@ export class OrdersService {
                       revision: quote.revision,
                       notes: quote.notes,
                       finance: quote.policySnapshot,
+                      ...(quote.supplyRemedyChoiceId
+                        ? {
+                            alternativeAcceptance: {
+                              version: partsQuote!.alternativeAgreementVersion!,
+                              choiceId: quote.supplyRemedyChoiceId,
+                              customerSessionId:
+                                buyer.kind === "account" ? buyer.actor.sessionId : null,
+                              guestSessionId: guest?.sessionId ?? null,
+                            },
+                          }
+                        : {}),
                     },
                   }
                 : {}),
@@ -608,7 +639,14 @@ export class OrdersService {
             action: "STATUS_CHANGE",
             entityType: "ENQUIRY",
             entityId: quote.enquiryId,
-            newValues: { status: "ACCEPTED", orderId, revision: quote.revision },
+            newValues: {
+              status: "ACCEPTED",
+              orderId,
+              revision: quote.revision,
+              ...(partsQuote?.alternativeAgreementVersion
+                ? { alternativeAgreementVersion: partsQuote.alternativeAgreementVersion }
+                : {}),
+            },
             context,
           });
         } else if (buyer.kind === "account")

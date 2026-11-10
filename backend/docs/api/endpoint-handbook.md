@@ -5657,12 +5657,14 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `revision` | integer | Yes | Revision validated by this operation's strict request contract. |
+| `alternativeAgreementVersion` | SUPPLY_ALTERNATIVE_20261110_V1 | No | Alternative Agreement Version validated by this operation's strict request contract. |
 
 Synthetic request example:
 
 ```json
 {
-  "revision": 1
+  "revision": 1,
+  "alternativeAgreementVersion": "SUPPLY_ALTERNATIVE_20261110_V1"
 }
 ```
 
@@ -5705,12 +5707,14 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `revision` | integer | Yes | Revision validated by this operation's strict request contract. |
+| `alternativeAgreementVersion` | SUPPLY_ALTERNATIVE_20261110_V1 | No | Alternative Agreement Version validated by this operation's strict request contract. |
 
 Synthetic request example:
 
 ```json
 {
-  "revision": 1
+  "revision": 1,
+  "alternativeAgreementVersion": "SUPPLY_ALTERNATIVE_20261110_V1"
 }
 ```
 
@@ -30880,6 +30884,7 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `revision` | integer | Yes | Revision validated by this operation's strict request contract. |
 | `contact` | object | Yes | Contact validated by this operation's strict request contract. |
+| `alternativeAgreementVersion` | SUPPLY_ALTERNATIVE_20261110_V1 | No | Alternative Agreement Version validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -30889,7 +30894,8 @@ Synthetic request example:
   "contact": {
     "name": "synthetic-name",
     "phone": "+2348000000000"
-  }
+  },
+  "alternativeAgreementVersion": "SUPPLY_ALTERNATIVE_20261110_V1"
 }
 ```
 

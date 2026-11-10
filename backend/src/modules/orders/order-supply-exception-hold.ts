@@ -5,7 +5,15 @@ export async function assertNoSupplyExceptionHold(
   orderId: string,
 ) {
   if (
-    await tx.orderSupplyException.findFirst({ where: { orderId }, select: { id: true } })
+    await tx.orderSupplyException.findFirst({
+      where: {
+        OR: [
+          { orderId },
+          { supplyRemedyChoices: { some: { partsQuotes: { some: { orderId } } } } },
+        ],
+      },
+      select: { id: true },
+    })
   )
     throw orderConflict(
       "A supply concern about unavailable or unsuitable goods needs Customer Care and financial review before payment or collection. Existing money remains recorded.",

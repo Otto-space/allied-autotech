@@ -439,8 +439,9 @@ function SupplyPanel({
               {choice.customerNote && <p>{choice.customerNote}</p>}
               {choice.choice === "SUITABLE_ALTERNATIVE_REVIEW" && (
                 <p>
-                  This asks Care to find an offer. No product, price, store credit or new
-                  payment has been accepted.
+                  An alternative request is separate from accepting an actual quotation.
+                  No store credit or transfer of the original payment is authorised. Read
+                  each offered quotation and its actual acceptance status below.
                 </p>
               )}
               {choice.choice === "REFUND_REVIEW" && (
@@ -448,6 +449,51 @@ function SupplyPanel({
                   A refund review request is not money returned. A separate authorised
                   operator must approve financial action.
                 </p>
+              )}
+              {choice.alternatives.length > 0 && (
+                <ul>
+                  {choice.alternatives.map((quote) => (
+                    <li key={quote.id}>
+                      {quote.productName}, {quote.quantity} units:{" "}
+                      {formatKobo(quote.totalKobo)}. Quotation:{" "}
+                      {quote.status.toLowerCase()}.
+                      {quote.orderId && (
+                        <>
+                          {" "}
+                          Order: {quote.orderStatus?.toLowerCase()}.{" "}
+                          <Link
+                            href={`${staff ? "/admin" : audience === "guest" ? "/purchase" : "/dashboard"}/orders/${quote.orderId}`}
+                          >
+                            Open alternative order
+                          </Link>
+                          .
+                        </>
+                      )}
+                      {quote.status === "ISSUED" && (
+                        <>
+                          {" "}
+                          Valid until {formatBusinessDate(quote.expiresAt)}. Review in{" "}
+                          {audience === "guest" ? (
+                            <Link href="/purchase/quotations">
+                              your private quotations
+                            </Link>
+                          ) : (
+                            "this Care case"
+                          )}
+                          .
+                        </>
+                      )}
+                      <span>
+                        {" "}
+                        Original refund and resolution must be verified before a new
+                        payment; this quotation does not confirm money returned.
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {choice.hasMoreAlternatives && (
+                <p>Additional quotation history requires Customer Care review.</p>
               )}
               {choice.refunds.length > 0 && (
                 <ul>
@@ -830,7 +876,21 @@ function SupplyRefundForm({
       !payment.refreshing &&
       !payment.error &&
       !payment.refreshError;
-  if (!latest || latest.choice !== "REFUND_REVIEW") return null;
+  if (
+    !latest ||
+    (latest.choice !== "REFUND_REVIEW" &&
+      !(
+        latest.choice === "SUITABLE_ALTERNATIVE_REVIEW" &&
+        !latest.hasMoreAlternatives &&
+        latest.alternatives.some(
+          (quote) =>
+            quote.status === "ACCEPTED" &&
+            quote.orderId &&
+            quote.orderStatus !== "CANCELLED",
+        )
+      ))
+  )
+    return null;
   if (amount === null)
     return (
       <p>

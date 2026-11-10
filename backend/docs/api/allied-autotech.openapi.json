@@ -83853,6 +83853,13 @@
                     "type": "integer",
                     "exclusiveMinimum": 0,
                     "description": "Revision validated by this operation's strict request contract."
+                  },
+                  "alternativeAgreementVersion": {
+                    "type": "string",
+                    "enum": [
+                      "SUPPLY_ALTERNATIVE_20261110_V1"
+                    ],
+                    "description": "Alternative Agreement Version validated by this operation's strict request contract."
                   }
                 },
                 "required": [
@@ -83862,7 +83869,8 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
-                "revision": 1
+                "revision": 1,
+                "alternativeAgreementVersion": "SUPPLY_ALTERNATIVE_20261110_V1"
               }
             }
           },
@@ -84170,6 +84178,13 @@
                     "type": "integer",
                     "exclusiveMinimum": 0,
                     "description": "Revision validated by this operation's strict request contract."
+                  },
+                  "alternativeAgreementVersion": {
+                    "type": "string",
+                    "enum": [
+                      "SUPPLY_ALTERNATIVE_20261110_V1"
+                    ],
+                    "description": "Alternative Agreement Version validated by this operation's strict request contract."
                   }
                 },
                 "required": [
@@ -84179,7 +84194,8 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
-                "revision": 1
+                "revision": 1,
+                "alternativeAgreementVersion": "SUPPLY_ALTERNATIVE_20261110_V1"
               }
             }
           },
@@ -90242,6 +90258,13 @@
                     ],
                     "additionalProperties": false,
                     "description": "Contact validated by this operation's strict request contract."
+                  },
+                  "alternativeAgreementVersion": {
+                    "type": "string",
+                    "enum": [
+                      "SUPPLY_ALTERNATIVE_20261110_V1"
+                    ],
+                    "description": "Alternative Agreement Version validated by this operation's strict request contract."
                   }
                 },
                 "required": [
@@ -90256,7 +90279,8 @@
                 "contact": {
                   "name": "synthetic-name",
                   "phone": "+2348000000000"
-                }
+                },
+                "alternativeAgreementVersion": "SUPPLY_ALTERNATIVE_20261110_V1"
               }
             }
           }

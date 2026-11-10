@@ -1,3 +1,29 @@
+### 10 November: actual alternative quotation and acceptance binding
+
+D17 reuses the actual Care Parts quotation and existing account/private-guest
+acceptance. Issuance binds the current alternative request. The immutable offer
+retains separate-original-refund-before-new-payment terms, labelled engineering
+under the D17 delegation. Acceptance explicitly acknowledges that version, creates
+one actual unpaid same-buyer order, and retains current customer/guest session proof
+without storing a token. SQL preserves offer terms and acceptance proof. Stale,
+technical, foreign and unacknowledged offers cannot be accepted. Cancellation of an
+unpaid replacement permits a fresh customer choice/revised alternative; committed
+refunds still require reconciliation. This is not forced credit or a money transfer.
+
+An original affected-portion refund after alternative acceptance uses the existing
+independent approval/provider/cap safeguards. New alternative payment and collection
+stay held pending the original verified financial/resolved-unit workflow. Actual
+late successful capture evidence remains recordable; it does not mark an order paid.
+Broader returns/warranty and real owner/accountant/provider prerequisites remain.
+Forward116/117 replay/schema diff/db:check and35 native cases passed on an isolated
+restricted target, then owned tmpfs cleanup. Final integrated rerun and rendered
+acceptance are pending. First116 run had34 passes/one missing synthetic policy
+sourceQuestion; the fixture was corrected, no guard removed. UI units13/13 and
+learning48/48 pass. Restricted sourcing v5/refund-work v6 and public parts guidance
+v15 reflect the same sequence; publication flags and production data are unchanged.
+D17 is incomplete until verified settlement and truthful resolved-unit fulfilment
+are connected. Do not promote this held source as a complete production workflow.
+
 Integrated native evidence:95/95 supply/refund/pickup cases passed on115 migrations.
 An added vehicle case initially failed before fixture creation because it compared
 the local NAT port with PostgreSQL's internal5432. Its original CI assertions remain;

@@ -12,6 +12,40 @@ import {
   supplyChoiceRecord,
 } from "../fixtures/order-supply-concerns";
 describe("actual owned supply concern projection", () => {
+  it("keeps offered alternatives distinct from actual acceptance and a cancelled replacement", () => {
+    const row = supplySummary().items[0];
+    const selected = {
+      ...supplyChoiceRecord(),
+      choice: "SUITABLE_ALTERNATIVE_REVIEW" as const,
+    };
+    selected.alternatives = [
+      {
+        id: supplyId(50),
+        status: "ISSUED",
+        productName: "Synthetic suitable offer",
+        quantity: 2,
+        totalKobo: "430",
+        currency: "NGN",
+        expiresAt: "2026-11-17T09:00:00Z",
+        orderId: null,
+        orderStatus: null,
+      },
+    ];
+    row.supplyRemedyChoices = [selected];
+    expect(supplyChoiceLocked(row)).toBe(false);
+    selected.alternatives[0] = {
+      ...selected.alternatives[0],
+      status: "ACCEPTED",
+      orderId: supplyId(51),
+      orderStatus: "PENDING",
+    };
+    expect(supplyChoiceLocked(row)).toBe(true);
+    expect(remainingSupplyRefundAmount(row)).toBe("107");
+    selected.alternatives[0].orderStatus = "CANCELLED";
+    expect(supplyChoiceLocked(row)).toBe(false);
+    selected.hasMoreAlternatives = true;
+    expect(supplyChoiceLocked(row)).toBe(true);
+  });
   it("binds the order and every affected range, refusing foreign/malformed or duplicate cases", () => {
     const order = supplyOrder(),
       data = supplySummary(order);

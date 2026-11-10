@@ -56,6 +56,9 @@ export const supplyChoiceRecord = () => ({
   customerNote: "Please review the exact affected original portion for a refund.",
   createdAt: "2026-11-10T09:00:00Z",
   orderVersion: 1,
+  alternatives:
+    [] as SupplySummary["items"][number]["supplyRemedyChoices"][number]["alternatives"],
+  hasMoreAlternatives: false,
   refunds: [] as SupplySummary["items"][number]["supplyRemedyChoices"][number]["refunds"],
   hasMoreRefunds: false,
 });

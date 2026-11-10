@@ -70342,12 +70342,18 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "revision": 1
+                 *       "revision": 1,
+                 *       "alternativeAgreementVersion": "SUPPLY_ALTERNATIVE_20261110_V1"
                  *     }
                  */
                 "application/json": {
                     /** @description Revision validated by this operation's strict request contract. */
                     revision: number;
+                    /**
+                     * @description Alternative Agreement Version validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    alternativeAgreementVersion?: "SUPPLY_ALTERNATIVE_20261110_V1";
                 };
             };
         };
@@ -70610,12 +70616,18 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "revision": 1
+                 *       "revision": 1,
+                 *       "alternativeAgreementVersion": "SUPPLY_ALTERNATIVE_20261110_V1"
                  *     }
                  */
                 "application/json": {
                     /** @description Revision validated by this operation's strict request contract. */
                     revision: number;
+                    /**
+                     * @description Alternative Agreement Version validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    alternativeAgreementVersion?: "SUPPLY_ALTERNATIVE_20261110_V1";
                 };
             };
         };
@@ -75580,7 +75592,8 @@ export interface operations {
                  *       "contact": {
                  *         "name": "synthetic-name",
                  *         "phone": "+2348000000000"
-                 *       }
+                 *       },
+                 *       "alternativeAgreementVersion": "SUPPLY_ALTERNATIVE_20261110_V1"
                  *     }
                  */
                 "application/json": {
@@ -75593,6 +75606,11 @@ export interface operations {
                         /** @description Customer or business phone number in international format. */
                         phone: string;
                     };
+                    /**
+                     * @description Alternative Agreement Version validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    alternativeAgreementVersion?: "SUPPLY_ALTERNATIVE_20261110_V1";
                 };
             };
         };
