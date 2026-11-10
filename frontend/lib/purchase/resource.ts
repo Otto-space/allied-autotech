@@ -2,7 +2,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { purchaseRequest, subscribePurchaseAccess } from "./client";
 
-export function usePurchaseResource<T>(path: string, parse: (value: unknown) => T) {
+export function usePurchaseResource<T>(
+  path: string,
+  parse: (value: unknown) => T,
+  options?: { revalidateOnFocus?: boolean },
+) {
   const [state, setState] = useState<{
     path: string;
     parse: typeof parse;
@@ -72,7 +76,10 @@ export function usePurchaseResource<T>(path: string, parse: (value: unknown) => 
           setState({ path, parse, loading: false, refreshing: false, failed: true });
       });
     const onFocus = () => {
-      if (document.visibilityState === "visible") refresh();
+      if (document.visibilityState === "visible") {
+        if (options?.revalidateOnFocus) revalidate();
+        else refresh();
+      }
     };
     window.addEventListener("focus", onFocus);
     return () => {
@@ -80,7 +87,7 @@ export function usePurchaseResource<T>(path: string, parse: (value: unknown) => 
       unsubscribe();
       window.removeEventListener("focus", onFocus);
     };
-  }, [path, parse, revision, refresh]);
+  }, [path, parse, revision, refresh, revalidate, options?.revalidateOnFocus]);
   const current = state.path === path && state.parse === parse;
   return {
     data: current ? state.data : undefined,

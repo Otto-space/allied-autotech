@@ -217,7 +217,9 @@ export function PurchaseOrderPage({ orderId }: { orderId: string }) {
 }
 function OrderDetail({ orderId }: { orderId: string }) {
   const now = usePurchaseClock();
-  const resource = usePurchaseResource(`/purchase/orders/${orderId}`, parseGuestOrder),
+  const resource = usePurchaseResource(`/purchase/orders/${orderId}`, parseGuestOrder, {
+      revalidateOnFocus: true,
+    }),
     router = useRouter();
   const { checkoutEnabled } = usePublicCapabilities();
   const [busy, setBusy] = useState(false),
@@ -289,6 +291,7 @@ function OrderDetail({ orderId }: { orderId: string }) {
           </button>
         </section>
       )}
+
       {resource.data && (
         <>
           <OrderSummary order={resource.data} />

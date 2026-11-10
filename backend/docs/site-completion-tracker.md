@@ -1,3 +1,35 @@
+## 10 November 00:16 UTC - reconcile collection recovery and focus continuity
+
+Incorporate the committed collection release candidate dab976c7 without its active
+D17 worktree edits. Preserve both evidence histories. Keep this candidate's newer
+reminder settings, sidebar and saved-items repairs, early capture retention, current
+schema111 and access-change protections. No backend runtime or migration changes.
+
+Customer pickup stays mounted during its owned-order recheck. Guest order focus
+uses explicit background revalidation; ordinary resource refreshes still clear.
+Retained records disable actions while checking and clear on failed guest access/
+network reads, destination/parser changes or access changes. Other guest resources
+keep their existing default. The focused browser cases now wait for the order
+recheck to settle before asserting the code and saving the synthetic390px captures.
+Hide, reload, browser-storage and single-write assertions remain.
+
+Retain the collection candidate's responsive field grouping and action-specific
+uncertain-outcome messages. No extra physical handover or financial permission is
+introduced. Local verification:16 resource/suitability cases and3 pickup units pass
+(19 distinct cases), merged frontend TypeScript and affected ESLint/formatting pass;
+six strengthened pickup browser cases collect. Actual merged rendered acceptance
+still requires new exact-source CI. Parent b13d9602 backend42725113034 and secrets
+42725112817 pass; its full frontend matrix was active, not a complete pass.
+
+Read-only provider refresh00:09UTC confirms backendc3c54414 ACTIVE, no pending/
+in-progress deployment, retained four component digests and zero temporary IP
+rules. The independent D17 branch now has committed customer choices plus active
+uncommitted refund linkage; preserve it. Packaging/recovery, exact-master release
+and full audit/role/provider/device acceptance remain open. No production write.
+Work package started00:06UTC; target01:06UTC.
+
+---
+
 ## 10 November 00:00 UTC - hosted pickup preflight passes; guide assertion aligned
 
 Final copy review: account background network failures deliberately retain the
@@ -421,6 +453,27 @@ This evidence update is intentionally uncommitted while exact-master CI runs.
 
 ---
 
+### 10 November: pickup/holding release candidate and retained supply work
+
+Current release worktree remains allied-contact-validation-20261027, now on
+release/collection-hold-20261110. Reconciled schema110 source410fa21c with master
+130556a1, preserving the newer Home/Services phone/carousel, account-action focus,
+recovery and navigation fixes and every hosted project. Only prepended evidence
+histories conflicted; both are retained. No application implementation was replaced
+with an older version. The Desktop owner's dirty hero edit remains untouched.
+
+The separate active D17 source is safely committed at8a2754fe on local branch
+codex/running-work-review-20261104 (79 native cases; schema112). It is intentionally
+held until customer remedy consent, financial linkage and resolved fulfilment are
+connected. Do not publish that unfinished intake or drop it while completing this
+schema110 release. Full D01-D17 scope remains active; the release is a bounded batch.
+
+Latest isolated UI410fa21c run42719802676 is still being verified. Earlier pickup
+runs passed the three staff/legacy cases and exposed a malformed CSRF fixture; its
+correction and code-lifetime continuity require actual browser evidence. No complete
+browser pass or production promotion is inferred. Exact combined-source checks,
+populated restore/migration rehearsal and all production safeguards remain required.
+
 ### 9 November: pickup browser fixture correction
 
 Hosted frontend42707420739 source1cc72541 passed production checks, repeated
@@ -628,6 +681,7 @@ The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work 
 The owner's separate 79-line Desktop hero edit is preserved.
 
 ---
+
 
 ## 9 November 22:17 UTC - recovery status regression and held-release transport
 

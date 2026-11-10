@@ -234,6 +234,7 @@ for (const audience of ["customer", "guest"] as const)
       hasMoreHistory: false,
     };
     const writes: unknown[] = [];
+    let ownedReads = 0;
     await page.route(`**/api/v1/${prefix}/orders/${record.id}**`, async (route) => {
       const req = route.request(),
         url = new URL(req.url());
@@ -246,7 +247,10 @@ for (const audience of ["customer", "guest"] as const)
             meta: { requestId: "synthetic-pickup" },
           },
         });
-      if (!url.pathname.includes("/pickup")) return ok(record);
+      if (!url.pathname.includes("/pickup")) {
+        ownedReads++;
+        return ok(record);
+      }
       if (req.method() === "GET") return ok(summary);
       const body = req.postDataJSON();
       writes.push(body);
@@ -275,6 +279,7 @@ for (const audience of ["customer", "guest"] as const)
             success: true,
             message: "Synthetic CSRF response",
             data: { csrfToken: "c".repeat(43) },
+            message: "Synthetic current-session CSRF",
             meta: { requestId: "synthetic-csrf" },
           },
         }),
@@ -293,12 +298,22 @@ for (const audience of ["customer", "guest"] as const)
     expect(writes).toHaveLength(0);
     await modal.getByRole("button", { name: "Confirm", exact: true }).click();
     await expect(panel.locator("code")).toHaveText("x".repeat(43));
+    expect(writes).toHaveLength(1);
+    const readsBeforeSharing = ownedReads;
+    await page.evaluate(() => {
+      document.dispatchEvent(new Event("visibilitychange"));
+      window.dispatchEvent(new Event("focus"));
+    });
+    await expect.poll(() => ownedReads).toBeGreaterThan(readsBeforeSharing);
+    await expect(
+      panel.getByRole("button", { name: "Create pickup code", exact: true }),
+    ).toBeEnabled();
+    await expect(panel.locator("code")).toHaveText("x".repeat(43));
     await panel.locator("code").scrollIntoViewIfNeeded();
     await page.screenshot({
       path: info.outputPath(`private-pickup-${audience}-390.png`),
       fullPage: false,
     });
-    expect(writes).toHaveLength(1);
     expect(
       await page.evaluate(
         () =>

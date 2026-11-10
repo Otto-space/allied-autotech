@@ -453,6 +453,14 @@ export function OrderDetail({ orderId }: { orderId: string }) {
           </Link>
         </section>
       )}
+      {current && !order.error && !order.refreshError && (
+        <OrderPickup
+          order={current}
+          audience="customer"
+          disabled={busy || order.loading || order.refreshing}
+          onSaved={order.revalidate}
+        />
+      )}
       {order.loading && (
         <p className="order-loading" role="status">
           Checking order…
@@ -662,12 +670,6 @@ export function OrderDetail({ orderId }: { orderId: string }) {
             </div>
             <div className="order-main">
               <OrderTimingSummary updates={current.timingUpdates} items={current.items} />
-              <OrderPickup
-                order={current}
-                audience="customer"
-                disabled={busy}
-                onSaved={order.revalidate}
-              />
               <section
                 className="order-card order-items"
                 aria-labelledby="order-items-title"

@@ -4,7 +4,7 @@
   margin-block: 20px;
   overflow-wrap: anywhere;
 }
-.fields {
+.section .fields {
   display: grid;
   gap: 16px;
   min-width: 0;
@@ -12,23 +12,23 @@
   padding: 16px;
   border: 1px solid var(--color-border, #cbd5df);
 }
-.fields label {
+.section .fields label {
   display: grid;
   gap: 8px;
   min-width: 0;
 }
-.fields :is(input, textarea) {
+.section .fields :is(input, textarea, select) {
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
   min-width: 0;
 }
-.fields .check {
+.section .fields .check {
   display: flex;
   align-items: flex-start;
   gap: 12px;
 }
-.fields .check input {
+.section .fields .check input {
   width: 22px;
   height: 22px;
   flex-shrink: 0;
@@ -46,4 +46,33 @@
   user-select: all;
   font-size: 1rem;
   line-height: 1.8;
+}
+
+.section .fields {
+  max-width: 44rem;
+}
+.section .fields legend {
+  padding-inline: 6px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.section .fields > button {
+  width: fit-content;
+  max-width: 100%;
+}
+.section > ul,
+.section li > ul {
+  list-style: disc;
+  padding-inline-start: 22px;
+  margin-block: 12px;
+  display: grid;
+  gap: 8px;
+}
+.section h3 {
+  margin-block: 20px 8px;
+}
+@media (max-width: 600px) {
+  .section .fields > button {
+    width: 100%;
+  }
 }

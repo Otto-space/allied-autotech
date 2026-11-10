@@ -1,3 +1,35 @@
+## 10 November 00:16 UTC - reconcile collection recovery and focus continuity
+
+Incorporate the committed collection release candidate dab976c7 without its active
+D17 worktree edits. Preserve both evidence histories. Keep this candidate's newer
+reminder settings, sidebar and saved-items repairs, early capture retention, current
+schema111 and access-change protections. No backend runtime or migration changes.
+
+Customer pickup stays mounted during its owned-order recheck. Guest order focus
+uses explicit background revalidation; ordinary resource refreshes still clear.
+Retained records disable actions while checking and clear on failed guest access/
+network reads, destination/parser changes or access changes. Other guest resources
+keep their existing default. The focused browser cases now wait for the order
+recheck to settle before asserting the code and saving the synthetic390px captures.
+Hide, reload, browser-storage and single-write assertions remain.
+
+Retain the collection candidate's responsive field grouping and action-specific
+uncertain-outcome messages. No extra physical handover or financial permission is
+introduced. Local verification:16 resource/suitability cases and3 pickup units pass
+(19 distinct cases), merged frontend TypeScript and affected ESLint/formatting pass;
+six strengthened pickup browser cases collect. Actual merged rendered acceptance
+still requires new exact-source CI. Parent b13d9602 backend42725113034 and secrets
+42725112817 pass; its full frontend matrix was active, not a complete pass.
+
+Read-only provider refresh00:09UTC confirms backendc3c54414 ACTIVE, no pending/
+in-progress deployment, retained four component digests and zero temporary IP
+rules. The independent D17 branch now has committed customer choices plus active
+uncommitted refund linkage; preserve it. Packaging/recovery, exact-master release
+and full audit/role/provider/device acceptance remain open. No production write.
+Work package started00:06UTC; target01:06UTC.
+
+---
+
 ## 10 November 00:00 UTC - hosted pickup preflight passes; guide assertion aligned
 
 Final copy review: account background network failures deliberately retain the
@@ -341,6 +373,73 @@ continuity notes remain uncommitted pending the evidence/release closeout.
 
 ---
 
+### 10 November: pickup/holding release candidate and retained supply work
+
+Current release worktree remains allied-contact-validation-20261027, now on
+release/collection-hold-20261110. Reconciled schema110 source410fa21c with master
+130556a1, preserving the newer Home/Services phone/carousel, account-action focus,
+recovery and navigation fixes and every hosted project. Only prepended evidence
+histories conflicted; both are retained. No application implementation was replaced
+with an older version. The Desktop owner's dirty hero edit remains untouched.
+
+The separate active D17 source is safely committed at8a2754fe on local branch
+codex/running-work-review-20261104 (79 native cases; schema112). It is intentionally
+held until customer remedy consent, financial linkage and resolved fulfilment are
+connected. Do not publish that unfinished intake or drop it while completing this
+schema110 release. Full D01-D17 scope remains active; the release is a bounded batch.
+
+Latest isolated UI410fa21c run42719802676 is still being verified. Earlier pickup
+runs passed the three staff/legacy cases and exposed a malformed CSRF fixture; its
+correction and code-lifetime continuity require actual browser evidence. No complete
+browser pass or production promotion is inferred. Exact combined-source checks,
+populated restore/migration rehearsal and all production safeguards remain required.
+
+### 10 November: preserve private pickup while returning from sharing
+
+Customer pickup now mounts outside the parent order's background-refresh boundary.
+The guest order opts into retaining only its same-path record while refreshing;
+other purchase readers retain their existing clearing behavior. Actions are disabled
+during refresh, failed reads clear data, path changes never retain another order,
+and existing access-change handling clears secrets. Normal parent reconciliation
+is restored after issuance. No browser storage is introduced. Browser regression
+now dispatches visibility/focus revalidation while the code is visible and requires
+it to survive the actual owned-order read before testing hide/reload privacy.
+
+Five focused pickup/resource units pass, including failed-access clearing and the
+default refresh behavior; scoped lint and focused e2e TypeScript pass. New rendered
+acceptance remains required. D17 intake has separate backend evidence and is held
+until actual remedy consent, financial linkage and resolved fulfilment are connected.
+
+### 10 November: pickup evidence review and complete CSRF fixture
+
+Source90feb4e1 hosted42711745848 again passed production/calendar/media and the
+three staff/legacy pickup cases. Its customer trace confirms the actual blocking
+error occurs in the CSRF fixture: the mandatory response message was missing, so
+the client rejected it before any code issuance. The earlier lifetime callback
+change is retained as protection for a completed issuance, not evidence that parent
+refresh caused this particular failure. The test now returns the full CSRF envelope;
+once-only, no-storage and refresh assertions are unchanged.
+
+Inspected the actual 320/1440 panel screenshots from62815e7c. Corrected authored
+punctuation corruption, restored fieldset grouping above dashboard resets, bounded
+desktop form width and retained full mobile action width. Quantity/history lists
+now have readable separation. Unknown outcomes distinguish review/update from actual
+physical handover. These refinements still require new rendered acceptance. No
+production publication or D17 financial capability is claimed.
+
+### 9 November: preserve buyer one-time pickup code after issuance
+
+Hosted62815e7c frontend42708988094 passed production/calendar/media checks and
+three pickup cases: 320/1440 staff review, physical partial handover, persistence,
+keyboard/axe/overflow/console evidence, and older-backend hiding. Customer issuance
+then failed: the successful issue callback refreshed the parent order, whose loading
+boundary unmounted the code before it could be read. Guest refresh used the same
+callback. Issuance now refreshes only its safe pickup summary and keeps the secret
+in private component memory; explicit hide/navigation/access change still clears it.
+Verification also retains its session-bound review. Other completed actions still
+refresh the order. Existing once-only/storage/refresh assertions and deadlines are
+unchanged. New browser acceptance remains required; nine cases did not run.
+
 ### 9 November: pickup browser fixture correction
 
 Hosted frontend42707420739 source1cc72541 passed production checks, repeated
@@ -515,6 +614,7 @@ The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work 
 The owner's separate 79-line Desktop hero edit is preserved.
 
 ---
+
 
 ## 9 November 22:17 UTC - recovery status regression and held-release transport
 

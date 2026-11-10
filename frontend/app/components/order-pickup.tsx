@@ -61,7 +61,8 @@ function PickupPanel({
     [error, setError] = useState<string>(),
     [loading, setLoading] = useState(true),
     [changed, setChanged] = useState(false),
-    [uncertain, setUncertain] = useState(false);
+    [uncertain, setUncertain] = useState(false),
+    [uncertainMessage, setUncertainMessage] = useState("");
   const [secret, setSecret] = useState<z.infer<typeof pickupIssueResultSchema>>(),
     [review, setReview] = useState<PickupReview>(),
     [code, setCode] = useState("");
@@ -337,8 +338,16 @@ function PickupPanel({
               alive.current &&
               sent &&
               !(cause instanceof ApiError && cause.status >= 400 && cause.status < 500)
-            )
+            ) {
               setUncertain(true);
+              setUncertainMessage(
+                action === "handover"
+                  ? "The handover record is uncertain. Do not hand over the goods again. Reopen the order and check history; ask an administrator if goods may already have left."
+                  : action === "verify"
+                    ? "The review may have been saved. Close the dialog, refresh collection details and check your existing review before any handover."
+                    : "The update outcome is uncertain. Close the dialog, refresh collection details and review the saved state before making another change.",
+              );
+            }
             throw cause;
           } finally {
             if (alive.current) onBusyChange?.(false);
@@ -371,9 +380,7 @@ function PickupPanel({
         </div>
       )}
       {notice && <p role="status">{notice}</p>}
-      {uncertain && (
-        <Feedback message="The result is uncertain. Do not repeat a handover. Reopen the order and review the saved history; ask an administrator if goods may already have left." />
-      )}
+      {uncertain && <Feedback message={uncertainMessage} />}
       <button
         type="button"
         className="button secondary"
