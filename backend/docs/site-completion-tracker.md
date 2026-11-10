@@ -10522,3 +10522,15 @@ browse link because search is immediately below the introduction. Product title/
 price precede section links on phones; desktop section links follow the overview.
 Rebuild and compare the repaired candidate; do not count these source changes as
 compiled acceptance. The source branch's existing CI 42735947021 is still running.
+
+All 14 Parts cases passed on compiled 9e179d4a, including the nine sizes, filter/
+history/gallery flows, recovery and native no-jump control case. The overall run
+42735947021 was cancelled when the visual repair source advanced; it is not a
+full release pass. Its preserved screenshots and logs remain partial evidence.
+
+Manual card capture exposed an undefined colour token: View product had white
+text on a transparent background, despite the generic automated scan reporting
+no violation. Correct the new styles to existing --action-primary and --link
+and add a rendered foreground/background contrast assertion for the card action
+at every size. Rebuild and rerun the complete matrix. This defect was confined
+to held candidates; public aliases were not changed by this Parts task.

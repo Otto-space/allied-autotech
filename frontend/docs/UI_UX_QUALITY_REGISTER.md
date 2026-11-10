@@ -9171,3 +9171,9 @@ First compiled 9e179d4a screenshots exposed a dim hero caption and an empty cont
 track. Repair source also restores full-width phone categories, removes the
 redundant phone hero link and puts product identity before section links. Final
 compiled/reference verification remains pending; public aliases are unchanged.
+
+Compiled 9e179d4a passes all 14 focused Parts cases; its overall run was cancelled
+by the repair and is not full release acceptance. Manual card review found an
+undefined colour token hiding the View product text. Use the existing action/link
+tokens and measure rendered action contrast in each size. Rebuilt visual and
+complete exact-source acceptance remain pending.

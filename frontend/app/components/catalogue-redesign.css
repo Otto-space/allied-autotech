@@ -1294,7 +1294,7 @@
   min-height: 44px;
   padding: 10px 12px;
   margin-top: auto;
-  background: var(--red);
+  background: var(--action-primary);
   color: #fff;
   border-radius: 5px;
   font-size: 14px;

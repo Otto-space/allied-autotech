@@ -30,6 +30,34 @@ async function noOverflow(page: Page) {
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
 }
+async function readableCardAction(page: Page) {
+  const action = page.locator(".shop-product-card .product-detail-link").first();
+  await expect(action).toHaveText("View product");
+  const colors = await action.evaluate((element) => ({
+    text: getComputedStyle(element).color,
+    fill: getComputedStyle(element).backgroundColor,
+    card: getComputedStyle(element.closest("article")!).backgroundColor,
+  }));
+  const channels = (value: string) => value.match(/[\d.]+/g)!.map(Number);
+  const fill = channels(colors.fill),
+    card = channels(colors.card);
+  const alpha = fill[3] ?? 1;
+  const background = fill
+    .slice(0, 3)
+    .map((value, index) => value * alpha + card[index] * (1 - alpha));
+  const luminance = (values: number[]) => {
+    const linear = values.slice(0, 3).map((value) => {
+      const channel = value / 255;
+      return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+  };
+  const text = luminance(channels(colors.text)),
+    surface = luminance(background);
+  expect(
+    (Math.max(text, surface) + 0.05) / (Math.min(text, surface) + 0.05),
+  ).toBeGreaterThanOrEqual(4.5);
+}
 async function chooseCategory(page: Page, subcategory = false) {
   await page
     .locator(
@@ -90,6 +118,7 @@ for (const [width, height] of [
     const query = new URL(page.url()).searchParams.toString();
     expect(new URL(page.url()).searchParams.get("availability")).toBe("in_stock");
     await noOverflow(page);
+    await readableCardAction(page);
     if ([1440, 390].includes(width)) {
       expect(
         (
