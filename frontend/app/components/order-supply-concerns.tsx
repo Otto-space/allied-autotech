@@ -84,7 +84,8 @@ function SupplyPanel({
     [changed, setChanged] = useState(false),
     [uncertain, setUncertain] = useState(false),
     [proposal, setProposal] = useState<MutationProposal | null>(null),
-    [revision, setRevision] = useState(0);
+    [revision, setRevision] = useState(0),
+    [focusRefundId, setFocusRefundId] = useState<string>();
   const alive = useRef(true),
     write = useRef<AbortController | null>(null),
     pending = useRef<MutationProposal | null>(null);
@@ -102,6 +103,7 @@ function SupplyPanel({
     pending.current = null;
     setProposal(null);
     setSummary(undefined);
+    setFocusRefundId(undefined);
     setNotice(undefined);
     setError(undefined);
     setChanged(true);
@@ -151,6 +153,20 @@ function SupplyPanel({
     return () => abort.abort();
     // Item identities/quantities are immutable. The actual order version revalidates this view.
   }, [path, request, order, revision, discard]);
+  // Wait for the intentional save's refresh and dialog focus restoration. Passive
+  // reads never set this target, so refresh/navigation cannot steal focus.
+  useEffect(() => {
+    if (!focusRefundId || proposal || loading || disabled || changed || error) return;
+    const frame = requestAnimationFrame(() => {
+      if (!alive.current) return;
+      const link = document.getElementById(`${id}-refund-${focusRefundId}`);
+      if (!link) return;
+      link.focus({ preventScroll: true });
+      link.scrollIntoView({ block: "nearest" });
+      setFocusRefundId(undefined);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [focusRefundId, proposal, loading, disabled, changed, error, summary, id]);
   const blocked =
     disabled ||
     loading ||
@@ -210,13 +226,7 @@ function SupplyPanel({
         if (alive.current) {
           setUncertain(false);
           change.reset?.();
-          if (confirmedRefundId)
-            requestAnimationFrame(() => {
-              if (!alive.current) return;
-              const link = document.getElementById(`${id}-refund-${confirmedRefundId}`);
-              link?.focus({ preventScroll: true });
-              link?.scrollIntoView({ block: "nearest" });
-            });
+          if (confirmedRefundId) setFocusRefundId(confirmedRefundId);
         }
       },
       submit: async () => {

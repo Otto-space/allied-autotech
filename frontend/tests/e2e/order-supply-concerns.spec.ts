@@ -126,15 +126,33 @@ async function setup(
         : `/dashboard/orders/${record.id}`;
   return { record, state, url };
 }
-function consoleCapture(page: Page) {
+function consoleCapture(page: Page, guest = false) {
   const errors: string[] = [],
     warnings: string[] = [];
+  const guestSessionResponses: number[] = [],
+    guestSessionConsole: string[] = [];
+  page.on("response", (response) => {
+    if (guest && new URL(response.url()).pathname === "/api/v1/auth/session")
+      guestSessionResponses.push(response.status());
+  });
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (message.type() === "error") {
+      // A private purchase guest intentionally has no account session. Verify that
+      // exact endpoint/status separately; no other 401 or console error is allowed.
+      if (
+        guest &&
+        message.location().url &&
+        new URL(message.location().url).pathname === "/api/v1/auth/session" &&
+        message.text() ===
+          "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      )
+        guestSessionConsole.push(message.text());
+      else errors.push(message.text());
+    }
     if (message.type() === "warning") warnings.push(message.text());
   });
-  return { errors, warnings };
+  return { errors, warnings, guestSessionResponses, guestSessionConsole };
 }
 for (const audience of ["customer", "guest"] as const)
   for (const width of [320, 1440])
@@ -142,7 +160,7 @@ for (const audience of ["customer", "guest"] as const)
       page,
     }, info) => {
       await page.setViewportSize({ width, height: 900 });
-      const logs = consoleCapture(page),
+      const logs = consoleCapture(page, audience === "guest"),
         f = await setup(page, audience);
       await page.goto(f.url);
       const panel = page.locator("[data-order-supply-concerns]");
@@ -197,6 +215,10 @@ for (const audience of ["customer", "guest"] as const)
         path: info.outputPath(`supply-${audience}-${width}.png`),
         fullPage: true,
       });
+      if (audience === "guest") {
+        expect(logs.guestSessionResponses).toEqual([401, 401]);
+        expect(logs.guestSessionConsole).toHaveLength(2);
+      }
       await verifyConsole(page, logs.errors, logs.warnings);
     });
 for (const width of [320, 1440])
