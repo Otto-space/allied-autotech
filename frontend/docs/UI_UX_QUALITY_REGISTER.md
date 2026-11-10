@@ -1,5 +1,15 @@
 ## 10 November - customer confirmation focus correction in verification
 
+Master1fc86e65 frontend42720881283 completed941 cases and failed one registration
+fixture because its broad API interceptor treated public/capabilities as register.
+The fixture now responds explicitly to capabilities and only captures registration
+POSTs. No authentication behavior changed. Local formatting/lint pass; compiled
+acceptance is pending. Automatic PR51 preview46899 has BACKEND_NOT_CONFIGURED;
+native checks there completed two focus cases, then stopped with two transport/
+capability-transition failures (36 not run). Registration likewise timed out before
+input. Retain these failures and use a correctly connected held candidate before
+claiming native acceptance. Do not disable capability checks or publish this batch.
+
 Native Edge157.0.4341.42 reproduced lost keyboard focus after a confirmed privacy
 request or review submission, followed by a delayed history read. All four baseline
 cases (both routes at1280x720 and320x720 mobile/touch) landed on BODY. Dialog

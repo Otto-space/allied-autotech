@@ -1,11 +1,22 @@
 import { test, expect } from "@playwright/test";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 
 test("registration completes cleanly and clears the password after a successful response", async ({
   page,
 }) => {
   const calls: unknown[] = [];
-  await page.route("**/api/v1/**", async (route) => {
-    expect(new URL(route.request().url()).pathname).toBe("/api/v1/auth/register");
+  await page.route("**/api/v1/public/capabilities", (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        message: "Isolated account capabilities",
+        meta: { requestId: "register-capabilities" },
+        data: { ...publicCapabilitiesFixture(), serverTime: new Date().toISOString() },
+      },
+    }),
+  );
+  await page.route("**/api/v1/auth/register", async (route) => {
+    expect(route.request().method()).toBe("POST");
     calls.push(route.request().postDataJSON());
     await route.fulfill({
       status: 202,
