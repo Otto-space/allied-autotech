@@ -8609,3 +8609,14 @@ backend safety exposed four fixtures freezing JavaScript at tomorrow's noon
 while PostgreSQL uses its real clock. The fixture now uses the most recent past
 UTC noon; allocation guards and all application behavior stay unchanged. All
 three gates must pass the resulting exact master commit before publication.
+
+## 10 November - Authentication fixture refresh isolation (release held)
+
+Master1fc86e65 backend safety and secrets passed. Its frontend matrix passed941
+and failed one registration fixture: its catch-all API mock intercepted a real
+background availability refresh. Limit registration and verification mocks to
+their exact endpoints; route availability to the guarded loopback fixture and
+reset its policy for each auth-forms test. Registration now explicitly refreshes
+availability with a filled draft before submitting, preserving all prior success
+assertions. Token URL checks cover all outgoing requests. Runtime source is
+unchanged. Exact-master gates and public verification remain required.
