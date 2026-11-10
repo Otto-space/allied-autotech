@@ -17,7 +17,10 @@ export default defineConfig({
     },
     ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
       name: `account-modal-${browserName}`,
-      testMatch: ["customer-account-modal.spec.ts"],
+      testMatch: [
+        "customer-account-modal.spec.ts",
+        "customer-confirmation-focus.spec.ts",
+      ],
       use: {
         browserName,
         ...(browserName === "webkit"

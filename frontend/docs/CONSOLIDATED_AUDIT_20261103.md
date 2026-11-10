@@ -1,5 +1,42 @@
 # Allied AutoTech consolidated audit — implementation and acceptance
 
+## 10 November follow-up: customer confirmation and recovery focus
+
+**P2; Customer; /dashboard/privacy and /dashboard/reviews.** After confirming a
+submission, the history refresh disabled the form opener while the dialog closed;
+focus could fall to BODY. Closing an unknown-outcome dialog also lost focus while
+the form remained guarded. On Reviews, successful original-request recovery removed
+its recovery button and again left BODY focused. Desktop 1280x720 and mobile 320x720
+baselines reproduced these distinct states with intercepted requests only.
+
+The existing refresh-aware hook now returns focus to an available opener, a named
+recovery region, or the history heading. Reviews captures the recovery opener and
+uses the same handling after successful replay. Deliberate focus movement wins.
+Relevant owners: customer-privacy.tsx, privacy-request-form.tsx, reviews-panel.tsx,
+review-create-form.tsx and use-account-action-refresh.ts. Request bodies,
+idempotency/replay, moderation, privacy approvals and permissions are unchanged.
+
+Source 0d22eae3 passes 50 compiled native Edge 157.0.4341.42/Chrome 156.0.8078.80 cases
+across 1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800 and 320x720, plus two
+empty-history replay cases at 1280x720/320x720. Assertions cover measured dimensions,
+centering/full phone width, keyboard cancellation/focus, draft retention, delayed
+and failed reads, rejected/unknown responses and identical replay key/body with
+one resulting review. All unmatched submissions are blocked. Desktop/mobile
+screenshots were inspected; no outgoing writes or uncaught page errors occurred.
+The first supplemental desktop attempt timed out before Rating appeared; retain
+that failure separately from the subsequent normal-load-gated pass. The main 50
+cases have no failures, skips or flaky outcomes.
+
+Evidence: TEMP/allied-customer-confirmation-20261110/acceptance.md and its
+replay-held, replay-fixed and replay-loaded reports/results. Local type/lint/format,
+backend safety 42732837656 and secrets 42732837820 pass. Frontend 42732838129 was
+running at this checkpoint. The protected candidate GgTWS5qGg7Re5LEzX4YrWZHKGKR7
+is not public. Master integration, exact-master checks, compatible vehicle-backend
+readiness and integrated publication remain required, in that order. The full
+renewed two-brief scope remains open; the older release below is historical.
+Phone emulation is not physical-device, Safari, virtual-keyboard or screen-reader
+acceptance. Synthetic customer state is not real-account persistence acceptance.
+
 ## 9 November follow-up: Saved items collection return context
 
 - **Finding / severity:** P2, comparison-context loss. `/dashboard/saved`, Customer;
