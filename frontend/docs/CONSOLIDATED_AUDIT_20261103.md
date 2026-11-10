@@ -1,5 +1,20 @@
 # Allied AutoTech consolidated audit — implementation and acceptance
 
+## 10 November - saved-collection focus race found by full CI
+
+PR56 source 7b133943 finished Frontend run 42739997340 with 1,055 runtime
+passes and one WebKit failure. The failed case keeps an open vehicle-removal
+review bound to its original collection while the URL changes to products;
+after successful synthetic removal, the products tab is selected but unfocused.
+The notification retry cases pass. This is a failed release gate, not a pass.
+
+The close handler scheduled focus before React committed removal of the modal
+and enabled the tabs. Move this handoff into a post-commit effect, preserving
+the collection-bound mutation, refresh, session invalidation and opener recovery.
+Add the reverse-direction cancellation case and assert focus survives loaded
+content without any write. Exact-source compiled and three-engine acceptance
+remain required; no production submission or security change was made.
+
 ## 10 November follow-up: mobile sidebar scrollbar
 
 **P3; Admin; /admin/customers; native Edge 390x600.** Open Dashboard navigation.

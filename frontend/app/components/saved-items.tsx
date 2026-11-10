@@ -112,6 +112,7 @@ function SavedCollections() {
   const controller = useRef<AbortController | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const focusAfterRevision = useRef<number | null>(null);
+  const focusCollectionAfterClose = useRef<Collection | null>(null);
   const partTab = useRef<HTMLButtonElement>(null),
     vehicleTab = useRef<HTMLButtonElement>(null);
   const resource = collection === "parts" ? parts : vehicles;
@@ -135,6 +136,18 @@ function SavedCollections() {
     });
     return () => cancelAnimationFrame(frame);
   }, [proposal, resource.settledRevision]);
+  useEffect(() => {
+    if (proposal || focusCollectionAfterClose.current === null) return;
+    // Wait for the dialog to unmount and the selected tab to become enabled.
+    // Scheduling from the close handler can run before React commits that change.
+    const frame = requestAnimationFrame(() => {
+      const target = focusCollectionAfterClose.current;
+      focusCollectionAfterClose.current = null;
+      if (active.current && target)
+        (target === "parts" ? partTab : vehicleTab).current?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [proposal, requestedCollection]);
   useEffect(() => {
     active.current = true;
     function discard() {
@@ -214,10 +227,7 @@ function SavedCollections() {
     }
     if (collection !== requestedCollection) {
       focusAfterRevision.current = null;
-      requestAnimationFrame(() => {
-        if (active.current)
-          (requestedCollection === "parts" ? partTab : vehicleTab).current?.focus();
-      });
+      focusCollectionAfterClose.current = requestedCollection;
     }
   }
   function refreshCollection() {
