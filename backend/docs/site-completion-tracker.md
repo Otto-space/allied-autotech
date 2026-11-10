@@ -9578,9 +9578,9 @@ this implementation adds the following ordered status overlay, not a second back
 
 | Group | Scope                                                                          | Implementation / release status                                                                           |
 | ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
-| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                         |
-| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                  |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt. |
+| 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt. |
+| 3     | Shop, filters, product, fitment                                                | Next: reference and read-only 390px baseline reviewed; preserve collection, fitment and timing uncertainty. |
 | 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
 | 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
 | 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
@@ -9926,3 +9926,78 @@ survives without a submission, then retains every success/password/notification
 assertion. Verification still checks all outgoing request URLs for token leakage.
 No application, auth, capability, permission or database behavior changes. Require
 all three gates on the resulting master before publishing Home/Services.
+
+## 10 November - Home and Services mobile release published and verified
+
+Published master 580a1bb5b24817916c03544a0b205ca5c19bfee5 at 00:41 UTC to
+https://alliedautotech.com/. Both apex and www resolve to deployment
+dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi; apex returns 200 and www redirects 308.
+The www Services redirect preserves its search query. UI PR48 and isolated fixture
+repairs PR49/PR52 are included. Earlier failed/cancelled candidates are superseded.
+
+All exact-master gates passed: frontend 42725610840, backend safety 42725610890 and
+secrets 42725610777. Frontend passed 1,526 unit tests (12 existing conditional skips),
+9 WebKit transport diagnostics, 21 media diagnostics and the full 942-case browser
+matrix in 25.9 minutes. All 14 Services cases and all 5 carousel touch regressions
+passed. CI used Chromium 153.0.8010.12, Firefox 155.0 and WebKit 26.6 on Linux.
+
+Home's desktop/tablet hero is 560px; phones fit their content (about 414px at 390px).
+The unused vertical space is removed. All phones use one 278x58px control pill with
+previous, four slide choices, next and playback in matching DOM/keyboard order.
+Carousel activation opts out of the shared scroll-reveal helper. Live native touch
+on every control retains scroll 0 and an unchanged URL at 320x667, 360x600,
+360x800, 390x844 and 430x932. The discovery heading stays clear of the support dock.
+
+Services follows the photographic introduction, white filter panel and responsive
+cards. Its phone hero is about 402px at 390px; search is visible on the first screen.
+Category-only entry keeps All services below the photograph, and sort/category
+controls stack below 375px. Detail typography, natural authentic photo proportions
+and the existing request/enquiry journey are verified. Nippo/Quicksand, actual facts,
+zero prices, quotation distinctions, permissions and capability gates remain intact.
+Natural portrait framing, truthful content and the owner's requested compact hero
+are intentional departures from the reference's crop, sample claims and height.
+
+Fresh public Edge 157.0.4341.42 checks passed all 9 requested exact viewport pairs
+for Home, catalogue, detail and request (36 checks), all 4 Home slides, the 5 touch
+sizes, category-only entry, natural photo proportions, combined filters/sort/detail/
+Back/reload at 390/1440, menu Escape/focus recovery, FAQ and enquiry-heading focus.
+Scoped main/footer Axe at 1440/390 and category 390 found zero violations. Exact-
+candidate doubled text at 320px reflows on Home and Services. Public checks sent no
+business writes and reported no page errors.
+
+Enquiry review/cancel/receipt uses isolated/intercepted fixtures: the 390/1440 hosted
+journeys at a393f79f retain identical public-form runtime, and all 14 Services cases
+pass on released master. Two auth journeys passed hosted Edge with loopback
+availability and intercepted responses. This does not establish real submissions,
+provider delivery, real-role persistence, full screen-reader, actual browser zoom,
+physical-device or branded Safari acceptance. Groups 3-10 remain open; Parts is next.
+
+Backend c3c54414-0f19-4b21-bf23-b44184e6f43a remained ACTIVE and unchanged at preflight.
+No backend rollout, migration or shared/application database write occurred. Required
+isolated safety stages passed, including all 18 reschedule cases with allocation,
+same-day and session-expiry guards retained. The GET-only managed recovery recheck
+found 8 backups from 2 November 05:22:11 UTC through 9 November 05:22:14 UTC. The
+existing verified strict-TLS restore receipt is dated 21 October 23:07:46.733 UTC,
+with sourceWritten=false; no new restore ran. Compatible recovery G5Yf7J6o/source
+5464e402 and older oe7Yn63U/source160d3b7b remain available.
+
+Evidence under TEMP/aat-stitch-implementation-20261109: frontend-580a-evidence.json,
+backend-580a-evidence.json, public-mobile-580a-publication-preflight.json,
+public-mobile-580a-publication-alias-receipt.json, public-mobile-580a-browser.json,
+public-mobile-580a-live-browser.json, auth-580a-hosted.json and matching live PNGs.
+Temporary preview sharing was revoked; task browsers and loopback API were closed.
+C: passed 21.42 GiB before publication and 21.40 GiB after live checks, with a justified
+0.05 GiB browser allowance above the 20 GiB reserve. Dependencies were reused; no
+local build/install or Docker operation ran. Automatic approval review rejected
+cache and old private preview-access-file deletion as blocked by policy. Those
+files remain; no manual cleanup saving is claimed.
+
+Branch retirement was reviewed for the four completed Home-hero, carousel, clock-
+fixture and auth-fixture branches: remote/local heads are ancestors of released
+580a1bb5, no owning worktrees or open PRs, and none is the provider's production
+branch. Conditional deletion of codex/home-hero-mobile-20261109 was rejected by
+GitHub GH013 repository rules: Cannot delete this branch. Retirement stopped;
+all four remote/local branches remain. No protection rule or source/history was
+changed. The linked release/public-launch-20261022 branch, unique unmerged Services
+variants, active receipt branch and compatible recovery deployments are retained.
+Evidence: retirement-580a-review.json and the rejected native Git command output.

@@ -8406,18 +8406,18 @@ The current source still has 119 page templates. The existing route/role/state
 inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
 this implementation adds the following ordered status overlay, not a second backlog:
 
-| Group | Scope                                                                          | Implementation / release status                                                                           |
-| ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| 1     | Shared brand/header/footer/support and Home                                    | Live: source 5464e402; both aliases and nine public viewport pairs verified. See the 21:19 receipt below. |
-| 2     | Services, detail, existing request                                             | Reference/server review and 1440/390 live baseline complete; implementation next.                         |
-| 3     | Shop, filters, product, fitment                                                | Pending; retain optional sourcing/preparation estimates and uncertainty.                                  |
-| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
-| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
-| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
-| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                  |
-| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                             |
-| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                |
-| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                         |
+| Group | Scope                                                                          | Implementation / release status                                                                             |
+| ----- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt.         |
+| 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt.         |
+| 3     | Shop, filters, product, fitment                                                | Next: reference and read-only 390px baseline reviewed; preserve collection, fitment and timing uncertainty. |
+| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                              |
+| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                   |
+| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                 |
+| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                    |
+| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                               |
+| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                  |
+| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                           |
 
 Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
 The approved editorial workshop/family/parts/showroom family replaces the old
@@ -8620,3 +8620,31 @@ reset its policy for each auth-forms test. Registration now explicitly refreshes
 availability with a filled draft before submitting, preserving all prior success
 assertions. Token URL checks cover all outgoing requests. Runtime source is
 unchanged. Exact-master gates and public verification remain required.
+
+## 10 November - Home and Services mobile release published and verified
+
+Live source 580a1bb5, deployment dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi,
+https://alliedautotech.com/. Both aliases identify this deployment; www redirects
+preserve paths and queries. Exact-master frontend, backend safety and secrets passed.
+Frontend: 1,526 units (12 existing conditional skips), 942 browser cases, including
+all 14 Services and 5 touch regressions. CI: Chromium/Firefox/WebKit on Linux.
+
+The owner's Both/compact-controls feedback is delivered: Home is 560px on desktop
+and about 414px at 390px; Services is about 402px at 390px. Phone carousel controls
+fit one 278x58px row, in matching DOM/keyboard order. Every native-coordinate tap
+keeps scroll 0 and the URL unchanged at five phone/short sizes. Category-only
+Services no longer overlaps the photo; selects stack below 375px. Natural service
+photo proportions, genuine zero values, quotations and gated request copy remain.
+These compact proportions and truthful content intentionally differ from the export.
+
+Public Edge 157.0.4341.42 passed 9 exact sizes on each of Home, catalogue, detail and
+request; 4 slides; 5 touch views; combined filters/detail/Back/reload at 390/1440;
+menu Escape/focus, FAQ and enquiry focus. No page errors or business writes.
+Scoped main/footer Axe at 1440/390 and category 390 found no violations. Exact-
+candidate doubled text reflows at 320px. Enquiry and auth submissions use isolated/
+intercepted fixtures. Physical devices, branded Safari, full screen-reader, actual
+browser zoom, real-role persistence and provider delivery remain untested here.
+
+See the [detailed release receipt](../../backend/docs/site-completion-tracker.md)
+for source/run IDs, evidence paths, backend/recovery and disk safeguards. Groups 1
+and 2 are live; Groups 3-10 and the full 119-template goal remain open. Parts is next.
