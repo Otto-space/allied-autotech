@@ -3,6 +3,7 @@ import { workforceTemplates } from "../../../backend/src/modules/organization/wo
 import { learningArticles } from "../../../backend/src/modules/learning/learning.content";
 import { parseWorkforceAccess, type WorkforceAccess } from "@/lib/api/workforce-schemas";
 import { workforceNavigation } from "@/lib/workforce-navigation";
+import { dashboardNavigation } from "@/lib/dashboard-navigation";
 import {
   workforceAccessKey,
   workforceActionPredicates,
@@ -55,6 +56,36 @@ function access(template: keyof typeof workforceTemplates): WorkforceAccess {
   });
 }
 describe("maintained workforce route and scope policy", () => {
+  it("offers one People entry while retaining the older administrator boundary and denying title-only workers", () => {
+    const owner = dashboardNavigation("SUPER_ADMIN")
+      .flatMap((group) => group.links)
+      .filter((link) => link.label === "People");
+    expect(owner.map((link) => link.href)).toEqual(["/admin/workforce/access"]);
+    expect(
+      dashboardNavigation("ADMIN")
+        .flatMap((group) => group.links)
+        .filter((link) => link.label === "People")
+        .map((link) => link.href),
+    ).toEqual(["/admin/staff"]);
+    for (const role of ["CUSTOMER", "STAFF"] as const)
+      expect(
+        dashboardNavigation(role)
+          .flatMap((group) => group.links)
+          .some((link) => link.label === "People"),
+      ).toBe(false);
+    const worker = access("WORKSHOP_LEAD");
+    expect(workforceNavigation(worker).some((group) => group.id === "team")).toBe(false);
+    worker.canManageAssignments = true;
+    expect(
+      workforceNavigation(worker)
+        .flatMap((group) => group.links)
+        .filter((link) => link.label === "People")
+        .map((link) => link.href),
+    ).toEqual(["/admin/workforce/access"]);
+    worker.canManageAssignments = false;
+    expect(workforceNavigation(worker).some((group) => group.id === "team")).toBe(false);
+    expect(workforceDestination("/admin/workforce/access/" + id(7))?.id).toBe("access");
+  });
   it("keeps explicit grants separate from branch responsibilities and record authority", () => {
     const a = access("ACCOUNTANT");
     expect(

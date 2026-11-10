@@ -372,7 +372,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | mixed-queues            | operations           | 3 / 2026-10-27        | /admin                       | OPERATIONS template and effective assignment union                                                                                          |
 | oversight-scope         | oversight            | 3 / 2026-10-27        | /admin                       | CEO_MD position and permission-filtered overview                                                                                            |
 | customer-account-review | admin                | 3 / 2026-10-27        | /admin/customers             | Customer account lock, session enforcement and audit contract                                                                               |
-| access-review           | access               | 4 / 2026-10-27        | /admin/workforce/access      | Team access security, pinned delegation and reviewed responsibility impact                                                                  |
+| access-review           | access               | 5 / 2026-11-10        | /admin/workforce/access      | People identity, partial access explanation, pinned delegation and reviewed responsibility impact                                           |
 | privileged-recovery     | owner                | 3 / 2026-10-27        | /admin/security              | Existing identity/governance safeguards                                                                                                     |
 
 ## Guides
@@ -568,3 +568,5 @@ Combined service-request v26 retains both the v25 overview vehicle-selection cla
 4 November calendar presentation: service-request v28 adds Month/Schedule navigation and Today in Lagos time, preserving own-record access and the rule that the calendar never offers or reserves new times. Eligibility, practice permissions, guide destinations and live flags are unchanged. The styling/focus changes do not grant new modal actions.
 
 Combined 4 November source: service-request v29 retains both the v28 Month/Schedule calendar navigation and the D07 remaining-work estimate clarification. Existing twelve steps, eligibility and guide targets remain unchanged.
+
+10 November2026: access-review v5 follows People / View person and the named identity header. It explicitly explains partial account-level and separately approved duty coverage. Existing access eligibility, pinned duties, independent approval rules and all feature flags remain unchanged. Local learning tests and the People acceptance checkpoint are tracked in the existing quality register.

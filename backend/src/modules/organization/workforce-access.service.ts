@@ -205,7 +205,14 @@ export class WorkforceAccessService {
         email: true,
         status: true,
         emailVerifiedAt: true,
-        staffProfile: { select: { branchId: true, firstName: true, lastName: true } },
+        staffProfile: {
+          select: {
+            branchId: true,
+            firstName: true,
+            lastName: true,
+            branch: { select: { id: true, name: true, isActive: true } },
+          },
+        },
         workforceAccess: {
           include: { assignments: { orderBy: { createdAt: "desc" } } },
         },
@@ -304,6 +311,12 @@ export class WorkforceAccessService {
         ? `${target.staffProfile.firstName} ${target.staffProfile.lastName}`.trim() ||
           target.email
         : target.email,
+      identity: {
+        role: target.role,
+        status: target.status,
+        verified: target.emailVerifiedAt !== null,
+        accountBranch: target.staffProfile?.branch ?? null,
+      },
       branches,
       management: {
         canEnroll: actor.role === "SUPER_ADMIN" && manageable && eligible,

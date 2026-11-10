@@ -1,0 +1,34 @@
+.wf-person-header {
+  min-width: 0;
+  padding-block: 8px 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line, #d5deea);
+  overflow-wrap: anywhere;
+}
+.wf-person-header h1 {
+  margin-block: 8px 16px;
+}
+.wf-person-header dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-block: 16px;
+}
+.wf-person-header dt {
+  font-size: 13px;
+  color: var(--muted, #536170);
+}
+.wf-person-header dd {
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+@media (max-width: 1024px) {
+  .wf-person-header dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 374px) {
+  .wf-person-header dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

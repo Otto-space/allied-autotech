@@ -8,6 +8,38 @@ import {
   learningGuides,
 } from "../../src/modules/learning/learning.content.js";
 
+it("versions the People explanation without widening access or treating partial checks as complete", () => {
+  const article = learningArticles.find((item) => item.id === "access-review")!;
+  expect(article).toMatchObject({
+    version: 5,
+    gate: "access",
+    href: "/admin/workforce/access",
+    reviewedAt: "2026-11-10",
+  });
+  expect(article.steps.join(" ")).toContain("select View person");
+  expect(article.steps.join(" ")).toContain("partial summary");
+  expect(article.steps.join(" ")).toContain(
+    "An unavailable check does not mean no access",
+  );
+  for (const role of ["PUBLIC", "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"] as const) {
+    const access = {
+      ...publicLearningAccess,
+      role,
+      verified: true,
+      managed: true,
+      canManage: role === "SUPER_ADMIN",
+    };
+    expect(learningEligible(access, article.gate)).toBe(role === "SUPER_ADMIN");
+    expect(
+      learningEligible(
+        { ...access, canManage: ["ADMIN", "SUPER_ADMIN"].includes(role) },
+        article.gate,
+      ),
+    ).toBe(["ADMIN", "SUPER_ADMIN"].includes(role));
+    expect(learningEligible({ ...access, verified: false }, article.gate)).toBe(false);
+  }
+});
+
 it("keeps product estimates in the administrator audience without collection authority", () => {
   const item = learningArticles.find((article) => article.id === "product-timing")!;
   expect(item.version).toBe(1);

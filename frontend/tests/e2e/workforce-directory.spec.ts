@@ -76,6 +76,13 @@ async function setup(page: Page, delegated = false) {
       cursor = u.searchParams.has("cursor");
     return r.fulfill(
       ok({
+        ...(delegated
+          ? {
+              managementBranches: [
+                { id: id(101), name: "Stadium Road workshop", isActive: true },
+              ],
+            }
+          : {}),
         items:
           state.mode === "empty"
             ? []
@@ -129,6 +136,7 @@ async function setup(page: Page, delegated = false) {
   return { ...state, state, f };
 }
 for (const [width, height] of [
+  [1440, 720],
   [1280, 720],
   [1024, 768],
   [768, 1024],
@@ -155,7 +163,7 @@ for (const [width, height] of [
       ]);
       await expect(
         page.getByRole("heading", {
-          name: "Manage workforce & responsibilities",
+          name: "People",
           exact: true,
         }),
       ).toBeVisible();
@@ -165,7 +173,7 @@ for (const [width, height] of [
       });
       await expect(region).toBeVisible();
       await expect(
-        page.getByRole("link", { name: "View/manage Ada Okoro", exact: true }),
+        page.getByRole("link", { name: "View person: Ada Okoro", exact: true }),
       ).toBeAttached();
       await region.locator("tbody tr").first().scrollIntoViewIfNeeded();
       await page.screenshot({ path: info.outputPath("workforce-records.png") });
@@ -229,7 +237,10 @@ for (const [width, height] of [
         (await new AxeBuilder({ page }).include(".workforce-directory").analyze())
           .violations,
       ).toEqual([]);
-      const open = page.getByRole("link", { name: "View/manage Ada Okoro", exact: true });
+      const open = page.getByRole("link", {
+        name: "View person: Ada Okoro",
+        exact: true,
+      });
       await open.focus();
       await expect(open).toBeInViewport();
       await page.keyboard.press("Enter");
@@ -240,6 +251,16 @@ for (const [width, height] of [
         }),
       ).toBeVisible();
       await page.getByText("Review legacy access and enroll", { exact: true }).click();
+      await expect(
+        page.getByRole("heading", { level: 1, name: "Ada Okoro", exact: true }),
+      ).toBeVisible();
+      const identity = page.locator(".wf-person-header");
+      await expect(identity.getByText("Staff", { exact: true })).toBeVisible();
+      await expect(
+        identity.getByText("Stadium Road workshop", { exact: true }),
+      ).toBeVisible();
+      await expect(identity.getByText("Active", { exact: true })).toBeVisible();
+      await expect(page.getByText(/This is a partial access summary/)).toBeVisible();
       await expect(page.getByLabel("Job position", { exact: true })).toBeVisible();
       const review = page.getByRole("button", { name: "Review enrollment", exact: true });
       await review.focus();
@@ -248,9 +269,7 @@ for (const [width, height] of [
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       ).toBe(true);
       await page.screenshot({ path: info.outputPath("workforce-detail.png") });
-      await page
-        .getByRole("link", { name: "Back to workforce directory", exact: true })
-        .click();
+      await page.getByRole("link", { name: "Back to People", exact: true }).click();
       await expect(region).toBeVisible();
       expect(s.errors).toEqual([]);
       expect(s.writes).toEqual([]);
@@ -267,21 +286,17 @@ test("directory filtering, pagination, clear and deep-link context use real cont
   await page.getByRole("link", { name: "First page", exact: true }).click();
   await expect(page).toHaveURL(base);
   await page.getByLabel("Find a person", { exact: true }).fill("Ada");
-  await page
-    .getByLabel("Business position", { exact: true })
-    .selectOption("WORKSHOP_LEAD");
-  await page.getByRole("button", { name: "Search workforce", exact: true }).click();
+  await page.getByLabel("Job position", { exact: true }).selectOption("WORKSHOP_LEAD");
+  await page.getByRole("button", { name: "Search people", exact: true }).click();
   await expect(page).toHaveURL(/q=Ada&position=WORKSHOP_LEAD$/);
-  await page.getByRole("link", { name: "View/manage Ada Okoro", exact: true }).click();
+  await page.getByRole("link", { name: "View person: Ada Okoro", exact: true }).click();
   await expect(
     page.getByRole("heading", {
       name: "Responsibilities & temporary cover",
       exact: true,
     }),
   ).toBeVisible();
-  await page
-    .getByRole("link", { name: "Back to workforce directory", exact: true })
-    .click();
+  await page.getByRole("link", { name: "Back to People", exact: true }).click();
   await expect(page.getByLabel("Find a person", { exact: true })).toHaveValue("Ada");
   await page.getByRole("link", { name: "Clear filters", exact: true }).click();
   await expect(page).toHaveURL(base);
@@ -296,12 +311,12 @@ test("empty, failure and invalid filters provide recovery and clear retained row
     page.locator(".workforce-directory").getByText("Ada Okoro", { exact: true }),
   ).toBeVisible();
   s.state.mode = "error";
-  await page.getByRole("button", { name: "Refresh workforce", exact: true }).click();
+  await page.getByRole("button", { name: "Refresh people", exact: true }).click();
   await expect(page.locator(".workforce-directory").getByRole("alert")).toBeVisible();
   await expect(page.getByRole("region", { name: "Workforce accounts" })).toHaveCount(0);
   s.state.mode = "empty";
-  await page.getByRole("button", { name: "Refresh workforce", exact: true }).click();
-  await expect(page.getByText(/No workforce accounts match/)).toBeVisible();
+  await page.getByRole("button", { name: "Refresh people", exact: true }).click();
+  await expect(page.getByText(/No people are available within/)).toBeVisible();
   await page.goto(`${base}?role=CUSTOMER`);
   await expect(page.getByText(/A directory filter is invalid/)).toBeVisible();
   await expect(page.getByRole("region", { name: "Workforce accounts" })).toHaveCount(0);
@@ -315,7 +330,7 @@ test("delegated administrator loses open directory and copied detail route when 
   const s = await setup(page, true);
   await page.goto(base);
   await expect(page.getByRole("region", { name: "Workforce accounts" })).toBeVisible();
-  await expect(page.getByLabel("Account role", { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel("Account level", { exact: true })).toHaveCount(0);
   s.state.mode = "revoked";
   await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
   await expect(page).toHaveURL(/\/admin\?workAccess=updated$/);

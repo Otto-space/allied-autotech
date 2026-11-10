@@ -722,8 +722,8 @@ export const learningArticles: LearningArticle[] = [
       "Review invitations and responsibility access safely",
       "Existing MFA, password, branch and delegation controls still apply.",
       [
-        "Open the appropriate Team & Access workspace and inspect the intended person. Account role, job position and responsibility assignments are separate.",
-        "Expand Effective responsibility access to check capabilities, branches and grant sources within your permitted view. Account baseline and separately granted permissions keep their existing rules.",
+        "Open People in Team & Access and select View person. Check the selected person's identity, account level, job position, branch and status. A job title does not grant duties.",
+        "Read What this person can access, then expand Allowed actions and why they are available. This is a partial summary: account-level permissions are not itemized, and separately approved duties appear only when your access permits that check. An unavailable check does not mean no access.",
         "Before assigning or revoking a responsibility, review access added, removed and retained. Revoking one grant can leave the same access supplied by another active grant. Scheduled assignments supply no access before their start.",
         "Check the reason and current delegation. If access changes before confirmation, refresh and review again; if a save is uncertain, inspect and reconcile it before retrying.",
         "Do not delegate a capability or scope outside your current permitted delegation. Having permission to act does not by itself give permission to delegate, and a job title does not expand your authority.",
@@ -733,7 +733,8 @@ export const learningArticles: LearningArticle[] = [
       "Team access security, pinned delegation and reviewed responsibility impact",
       "invite staff admin operations permissions access added removed retained grant sources delegate delegation authority privileges",
     ),
-    version: 4,
+    version: 5,
+    reviewedAt: "2026-11-10",
   },
   article(
     "privileged-recovery",

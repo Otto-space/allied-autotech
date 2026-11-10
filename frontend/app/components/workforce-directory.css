@@ -16,7 +16,7 @@
 }
 .wf-directory-filters {
   display: grid;
-  grid-template-columns: minmax(200px, 2fr) repeat(3, minmax(130px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   padding: 20px;
   margin-block: 20px;
@@ -36,6 +36,12 @@
 }
 .wf-directory-filters .wf-directory-actions {
   margin-block: 0;
+}
+.wf-directory-search {
+  grid-column: 1 / -1;
+}
+.wf-directory-branch {
+  flex: 1 1 100%;
 }
 .wf-directory-actions {
   grid-column: 1 / -1;
@@ -88,6 +94,28 @@
   margin-top: 5px;
   font-size: 13px;
   font-weight: 400;
+}
+.wf-directory-applied ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+}
+.wf-directory-applied li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+  border: 1px solid var(--line, #d5deea);
+  padding: 4px 12px;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.wf-directory-applied a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 .wf-directory-table-region .text-link {
   display: inline-flex;

@@ -27959,6 +27959,13 @@ Success: HTTP 200.
   "success": true,
   "message": "Responsibility-based workspace: directory",
   "data": {
+    "managementBranches": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "isActive": true
+      }
+    ],
     "items": [
       {
         "userId": "00000000-0000-4000-8000-000000000001",
@@ -28089,6 +28096,16 @@ Success: HTTP 200.
   "data": {
     "userId": "00000000-0000-4000-8000-000000000001",
     "accountLabel": "synthetic-accountlabel",
+    "identity": {
+      "role": "STAFF",
+      "status": "ACTIVE",
+      "verified": true,
+      "accountBranch": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "isActive": true
+      }
+    },
     "branches": [
       {
         "id": "00000000-0000-4000-8000-000000000001",

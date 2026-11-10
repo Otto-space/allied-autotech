@@ -194,10 +194,10 @@ const operationalGroups: DashboardGroup[] = [
     label: "Team & Access",
     icon: Users,
     links: [
-      adminOnly("/admin/staff", "Staff directory"),
+      adminOnly("/admin/staff", "People"),
       {
         href: "/admin/workforce/access",
-        label: "Responsibilities",
+        label: "People",
         roles: ["SUPER_ADMIN"],
       },
       adminOnly("/admin/staff/invite", "Promotions & invitations"),
@@ -243,6 +243,7 @@ export function dashboardNavigation(
         role === "CUSTOMER" && group.id === "shop" ? "Orders & saved items" : group.label,
       links: group.links.filter(
         (link) =>
+          !(role === "SUPER_ADMIN" && link.href === "/admin/staff") &&
           !(role === "CUSTOMER" && restrictedLaunchPage(link.href)) &&
           (!link.roles ||
             link.roles.includes(role) ||

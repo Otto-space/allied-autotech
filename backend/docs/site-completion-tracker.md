@@ -1,3 +1,56 @@
+## 10 November 01:56 UTC - People identity and scoped directory group in progress
+
+Both owner-approved briefs remain active. The vehicle group is merged via PR50;
+current combined master is b1222a11, preserving Services and customer-confirmation
+repairs. Its frontend run42736089235 is still running; backend42736089322 and
+secrets42736089238 pass. Older master55/7af frontend runs were automatically
+superseded by concurrent integration, not counted as passing gates.
+
+Held production frontend dpl_2GpAoPSuSicrZmGu6J9u16ZkJhmP/source55 has five
+actual public vehicle reads at320/390/768/1024/1440 and seven intercepted editor/
+recovery passes. The distinct power/fuel/drive filter reload/Back check passes on
+its warmed retry. Retain the initial timeout:12/13 passed together, then the one
+filter passed separately. Protected reads forward Next navigation/deployment
+headers; CSP/protection remain unchanged. No real vehicle/business write occurred.
+This held source precedes b122's unrelated customer changes and is not publication
+acceptance. Both branded aliases and the backend have not been promoted by this task.
+
+Four backend images for b122 were built from its clean exact checkout. The0.75GiB
+post-build growth check stopped wrap-up with about20.75GiB free; all four existing
+image identities were reviewed before writing a small receipt under a separate
+0.01GiB allowance. No additional build bypassed that stop. Packaged tests are
+running. Managed recovery/fresh backup, populated restore, guarded migration,
+registry push, backend readiness and final frontend/alias acceptance remain open.
+
+People work is isolated in allied-team-media-20261110, reusing both verified
+node_modules junctions and the unchanged-schema generated client. New current
+person identity is returned only after existing owner/delegation checks; no phone,
+security or operational fields are added. The owner has one canonical People
+navigation entry, managed managers keep the existing scoped entry, and earlier
+administrator/direct links remain available. The directory separates account
+level/job/branch/duties, avoids repeated email fallback, shows applied filters and
+preserves branch/context. Delegated branch choices come only from that manager's
+existing envelope. Person identity stays above editing; unavailable/uncertain
+identity has an explicit neutral state. Access explanations explicitly identify
+partial coverage and retain independent approval/source rules. Existing open-ended
+temporary cover is flagged for review without changing records.
+
+Focused evidence so far:48 frontend units before the additional navigation/branch
+cases;32 backend learning units;16 actual HTTP/permission tests across directory
+and effective access on new allied_people_9df004de6ab5_ci. Its non-owner runtime
+role had no DDL/TRUNCATE/role-creation powers. All102 migrations replayed empty;
+only this task's synthetic database and role were removed afterward. Three
+provisioned-workspace cases were conditionally skipped, not acceptance. Initial
+unit failures were stale copy/fixture expectations and a JSX apostrophe lint
+error; corrected and retained. Final types/lint, rendered People checks and CI
+remain pending. No Team/media change or real grant has been published.
+
+The full V01-V05/T01-T07 ledger remains authoritative. T01 is partial: identity,
+canonical entry, scoped branch discovery and partial-summary clarity are implemented;
+complete task grouping/account-baseline composition and full rendered/negative
+matrix remain open. T02-T07, Digital Media Manager, media library/placements,
+bulk photos and supported videos are still required; none is dropped.
+
 ## 10 November 01:00 UTC - repair confirmed live Services card stretching
 
 Public apex and www now identify deployment dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi,

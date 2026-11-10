@@ -19,7 +19,8 @@ function Grants({ rows }: { rows: EffectiveWorkforceGrant[] }) {
             {row.scope === "BRANCH" ? "Branch-wide work" : "Assigned work only"}
           </p>
           <p className="wf-effective-source">
-            Supplied by: {[...new Set(row.sources.map((s) => s.label))].join("; ")}.
+            Why this access is available:{" "}
+            {[...new Set(row.sources.map((s) => s.label))].join("; ")}.
           </p>
         </li>
       ))}
@@ -30,10 +31,10 @@ function Boundaries({ delegated }: { delegated: boolean }) {
   return (
     <p className="wf-effective-boundary">
       {delegated &&
-        "Only capabilities and branches within your management envelope are shown. Other grant sources stay private. "}
-      This breakdown covers responsibility grants. Account baseline and separately granted
-      permissions keep their existing rules. Independent approval is still required where
-      applicable.
+        "Only allowed actions and branches within what you may manage are shown. Other access sources stay private. "}
+      This is a partial access summary. It lists job duties; account-level permissions are
+      not itemized here. Separately approved duties are shown only when your current
+      access permits that check. Existing independent approval rules still apply.
     </p>
   );
 }
@@ -43,8 +44,8 @@ export function WorkforceEffectiveAccess({
   value: EffectiveWorkforceAccess | undefined;
 }) {
   return (
-    <section className="wf-effective" aria-label="Effective responsibility access">
-      <h3>Effective responsibility access</h3>
+    <section className="wf-effective" aria-label="What this person can access">
+      <h3>What this person can access</h3>
       {!value ? (
         <p>Refresh responsibility access to check the current grant breakdown.</p>
       ) : (
@@ -63,8 +64,8 @@ export function WorkforceEffectiveAccess({
           )}
           {value.baseline === "LEGACY" && (
             <p>
-              This account retains its existing legacy access until an authorised
-              enrollment review. No responsibility is inferred from its position.
+              This account retains its earlier access setup until an authorised enrollment
+              review. No responsibility is inferred from its position.
             </p>
           )}
           <Boundaries delegated={value.visibility === "DELEGATED"} />
@@ -92,7 +93,9 @@ export function WorkforceEffectiveAccess({
           )}
           {value.grants.length ? (
             <details>
-              <summary>Capabilities and grant sources ({value.grants.length})</summary>
+              <summary>
+                Allowed actions and why they are available ({value.grants.length})
+              </summary>
               <Grants rows={value.grants} />
             </details>
           ) : (

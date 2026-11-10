@@ -112,6 +112,10 @@ Keep source-only, launch-restricted, mocked and real acceptance distinct.
 
 ## Design references, truthful content and complete delivery
 
+Expose only current authorized sections, records, fields and actions. Compose
+account/job workspaces around permitted tasks; media-only duties must never imply
+general administration. Follow the existing UI/content rules and quality ledger.
+
 Before changing a page, read its project rules, understand its real purpose,
 information and working behaviour, and inspect the approved visual reference.
 Match the reference closely using Allied's branding, approved facts and existing

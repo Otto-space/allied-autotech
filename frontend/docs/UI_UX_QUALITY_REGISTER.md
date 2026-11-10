@@ -1,3 +1,56 @@
+## 10 November 01:56 UTC - People identity and scoped directory group in progress
+
+Both owner-approved briefs remain active. The vehicle group is merged via PR50;
+current combined master is b1222a11, preserving Services and customer-confirmation
+repairs. Its frontend run42736089235 is still running; backend42736089322 and
+secrets42736089238 pass. Older master55/7af frontend runs were automatically
+superseded by concurrent integration, not counted as passing gates.
+
+Held production frontend dpl_2GpAoPSuSicrZmGu6J9u16ZkJhmP/source55 has five
+actual public vehicle reads at320/390/768/1024/1440 and seven intercepted editor/
+recovery passes. The distinct power/fuel/drive filter reload/Back check passes on
+its warmed retry. Retain the initial timeout:12/13 passed together, then the one
+filter passed separately. Protected reads forward Next navigation/deployment
+headers; CSP/protection remain unchanged. No real vehicle/business write occurred.
+This held source precedes b122's unrelated customer changes and is not publication
+acceptance. Both branded aliases and the backend have not been promoted by this task.
+
+Four backend images for b122 were built from its clean exact checkout. The0.75GiB
+post-build growth check stopped wrap-up with about20.75GiB free; all four existing
+image identities were reviewed before writing a small receipt under a separate
+0.01GiB allowance. No additional build bypassed that stop. Packaged tests are
+running. Managed recovery/fresh backup, populated restore, guarded migration,
+registry push, backend readiness and final frontend/alias acceptance remain open.
+
+People work is isolated in allied-team-media-20261110, reusing both verified
+node_modules junctions and the unchanged-schema generated client. New current
+person identity is returned only after existing owner/delegation checks; no phone,
+security or operational fields are added. The owner has one canonical People
+navigation entry, managed managers keep the existing scoped entry, and earlier
+administrator/direct links remain available. The directory separates account
+level/job/branch/duties, avoids repeated email fallback, shows applied filters and
+preserves branch/context. Delegated branch choices come only from that manager's
+existing envelope. Person identity stays above editing; unavailable/uncertain
+identity has an explicit neutral state. Access explanations explicitly identify
+partial coverage and retain independent approval/source rules. Existing open-ended
+temporary cover is flagged for review without changing records.
+
+Focused evidence so far:48 frontend units before the additional navigation/branch
+cases;32 backend learning units;16 actual HTTP/permission tests across directory
+and effective access on new allied_people_9df004de6ab5_ci. Its non-owner runtime
+role had no DDL/TRUNCATE/role-creation powers. All102 migrations replayed empty;
+only this task's synthetic database and role were removed afterward. Three
+provisioned-workspace cases were conditionally skipped, not acceptance. Initial
+unit failures were stale copy/fixture expectations and a JSX apostrophe lint
+error; corrected and retained. Final types/lint, rendered People checks and CI
+remain pending. No Team/media change or real grant has been published.
+
+The full V01-V05/T01-T07 ledger remains authoritative. T01 is partial: identity,
+canonical entry, scoped branch discovery and partial-summary clarity are implemented;
+complete task grouping/account-baseline composition and full rendered/negative
+matrix remain open. T02-T07, Digital Media Manager, media library/placements,
+bulk photos and supported videos are still required; none is dropped.
+
 ## 10 November 01:00 UTC - repair confirmed live Services card stretching
 
 Public apex and www now identify deployment dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi,
@@ -256,7 +309,7 @@ focused grouping and list controls, with no unrelated visual redesign.
 | V03 Additional features individual entry/edit/remove and public two/one-column list                  | Existing string-array storage retained; form rows preserve commas; 40 items / 80 chars, trims, duplicate/empty checks; existing account-scoped variable-row draft recovery                                                 | Component/helper, seven hosted editor/recovery and isolated boundary HTTP cases pass. Narrow keyboard/focus samples pass; corrected public list/Axe acceptance and production remain pending                                           |
 | V04 truthful content, imports, customer isolation and Help                                           | Optional supplied import fields; private vehicle-operations v3, public vehicle-enquiry v6; audiences/flags unchanged; faults remain separate                                                                               | Relevant units and isolated API/Help privacy/eligibility gates pass at 37bf; current full release and real-account acceptance pending                                                                                                  |
 | V05 complete QA and publication                                                                      | New actual application Playwright suite covers 320/390/768/1024/1440 at 720px height, review/cancel/save/reload and Axe; separate runtime project                                                                          | Eight hosted synthetic cases pass. 37bf frontend matrix failed at public heading order after seven editor passes; preserve the failure. Corrected full matrix, exact-master package and live release pending. No all-role/device claim |
-| T01 canonical People and person identity/access summary                                              | Read source/audit paths identified in attachment; preserve older direct links, manager scope, baseline/independent/temporary provenance and partial-read honesty                                                           | Not implemented; initial source tracing confirms distinct legacy administrator and owner/delegated branch/duty bounds. Complete canonical presentation and negative-access matrix before editing permissions                           |
+| T01 canonical People and person identity/access summary                                              | Existing owner/delegation boundaries; named identity, scoped branch choices, context/filter chips, partial-access honesty and retained earlier links                                                                       | Partially implemented in isolated People group; 16 isolated HTTP/permission cases and focused units pass. Complete rendered matrix, task grouping/baseline composition, CI and publication pending.                                    |
 | T02 duties, cover, invitations, history/reviews                                                      | Require end date for new cover; retain old open-ended records for review; Lagos conversions, retained-grant explanations and current/proposed review; eligibility/MFA/session safeguards                                   | Not implemented; existing policies and complete read/write fixtures must be inspected                                                                                                                                                  |
 | T03 account/job workspaces and effective access                                                      | Navigation/cards/search/tabs/actions/counts/notifications and server fields/branch/assignment scope; fail-closed loading and session/access changes; preserve v1/v2 duties and independent financial checks                | Not implemented; complete expected-visible/absent and read/write allow/deny matrix required for legacy and managed paths                                                                                                               |
 | T04 Digital Media Manager and workspace                                                              | Real job position with separately assigned view/add/edit/prepare/publish/remove duties; minimal identities, no broad administration/private/finance access; library, placements, draft/publish/revert and usage safeguards | Not implemented; no title, duty or real grant added                                                                                                                                                                                    |
