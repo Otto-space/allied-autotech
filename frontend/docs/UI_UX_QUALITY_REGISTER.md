@@ -1,3 +1,53 @@
+## 10 November 02:01 Lagos - vehicle CSP test correction and recovery evidence
+
+Source c9560249 passes Backend 42728953813 and Secrets 42728953579. Frontend
+42728954083 completes the full 960-case matrix: 958 pass and two fail. All 1,538
+units pass (12 existing skips), as do build/types/lint/format, nine WebKit transport
+diagnostics and 21 media diagnostics. The two failures are the 320px BEV/ICE
+text-spacing test adding a style tag without the nonce required by the unchanged
+production CSP. Content, feature columns, owner faults and Axe checks reach that
+step successfully; eight other public cases and every editor/recovery/filter case
+pass. Do not describe the failed overall gate or those two cases as passed.
+
+Correct only the test: reuse the document's existing script nonce for the test
+style, assert that computed spacing was applied, then retain the no-overflow
+assertion. No CSP directive or application runtime changed. The identical new
+spacing block passes on the compiled c956 protected preview at 320x720. That
+checks the harness against real CSP; full engine-page spacing acceptance remains
+for final exact-source/master CI. Local scoped lint, formatting and diff checks
+pass. Ordinary Preview has no connected public listings; two earlier read-only
+listing attempts therefore did not reach their heading assertions. Keep those
+as unavailable, not live or public-data acceptance.
+
+A separate new synthetic PostgreSQL 18 fixture replays all 102 migrations, shows
+no drift and passes db:check. The retained 9c219bc8 API image and current generated
+client both pass actual all-column probes using a SELECT-only, non-owner role.
+The old-image process is read-only and its network guard permits only the fixture
+database. No protected snapshot is used. The first two setup attempts failed on
+internal-network host-port publication and temporary init-server readiness; final
+TCP readiness passes without changing application checks or deadlines. All three
+attempts' own containers/networks are removed; no persistent volumes were created.
+Evidence: TEMP/allied-vehicle-recovery-853b5e14b168/{verified,cleanup}.json. This
+proves schema recovery compatibility, not a new candidate-image or worker pass.
+
+The Vercel dry run identifies Next.js and 1,235 payload files, about 29 MB. Private,
+environment, backend, dependency, build and test-file exclusions pass. An empty
+zero-byte test-results directory placeholder has no included children; it is not
+a test-artifact upload. Nothing is deployed by this inspection. Existing warm
+Docker dependencies/base layers can be reused for a staged four-image build with
+reserve checks before every stage; the prepared runner refuses dirty/non-master
+or changed backend source. It has not built or published a candidate.
+
+Concurrent master c3028cc1 contains only Home/Services release-record updates above
+580a1bb5. Both aliases now serve dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi (published by
+the other task); www retains its 308 apex redirect. Preserve those records and
+source, and use that deployment as the current frontend recovery baseline. This
+task has made no production migration, grant, upload, domain or capability change.
+Backend remains the retained c3c54414 release at its last verified provider read.
+Full vehicle publication and every Team/media requirement remain active.
+
+---
+
 ## 10 November 01:28 Lagos - vehicle persistence and recovery pass; public heading correction
 
 Vehicle PR50 source 37bf3368 passes Backend 42726292636 and Secrets 42726292726.

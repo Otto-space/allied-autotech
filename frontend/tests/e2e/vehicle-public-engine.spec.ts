@@ -83,10 +83,20 @@ for (const width of [320, 390, 768, 1024, 1440]) {
           contentType: "image/png",
         });
       if (width === 320) {
-        await page.addStyleTag({
-          content:
-            "main * { letter-spacing: .12em !important; word-spacing: .16em !important; line-height: 1.5 !important; } main p { margin-bottom: 2em !important; }",
+        const spacingApplied = await page.evaluate(() => {
+          const nonce = document.querySelector<HTMLScriptElement>("script[nonce]")?.nonce;
+          if (!nonce) throw Error("Document nonce is required for text-spacing checks.");
+          const style = document.createElement("style");
+          style.nonce = nonce;
+          style.textContent =
+            "main * { letter-spacing: .12em !important; word-spacing: .16em !important; line-height: 1.5 !important; } main p { margin-bottom: 2em !important; }";
+          document.head.append(style);
+          const heading = document.querySelector("main h1");
+          return (
+            !!heading && Number.parseFloat(getComputedStyle(heading).letterSpacing) > 0
+          );
         });
+        expect(spacingApplied).toBe(true);
         expect(
           await page.evaluate(
             () => document.documentElement.scrollWidth <= innerWidth + 1,
