@@ -8726,18 +8726,18 @@ The current source still has 119 page templates. The existing route/role/state
 inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
 this implementation adds the following ordered status overlay, not a second backlog:
 
-| Group | Scope                                                                          | Implementation / release status                                                                             |
-| ----- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt.         |
-| 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt.         |
-| 3     | Shop, filters, product, fitment                                                | Next: reference and read-only 390px baseline reviewed; preserve collection, fitment and timing uncertainty. |
-| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                              |
-| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                   |
-| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                 |
-| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                    |
-| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                               |
-| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                  |
-| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                           |
+| Group | Scope                                                                          | Implementation / release status                                                                                       |
+| ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt.                   |
+| 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt.                   |
+| 3     | Shop, filters, product, fitment                                                | Implemented; compiled/reference checks and exact-master publication pending. Preserve fitment and timing uncertainty. |
+| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                        |
+| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                             |
+| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                           |
+| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                              |
+| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                                         |
+| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                            |
+| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                                     |
 
 Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
 The approved editorial workshop/family/parts/showroom family replaces the old
@@ -8968,3 +8968,21 @@ browser zoom, real-role persistence and provider delivery remain untested here.
 See the [detailed release receipt](../../backend/docs/site-completion-tracker.md)
 for source/run IDs, evidence paths, backend/recovery and disk safeguards. Groups 1
 and 2 are live; Groups 3-10 and the full 119-template goal remain open. Parts is next.
+
+## 10 November - Parts design group in progress
+
+Current branch starts at c3028cc1, preserving the live 580a1bb5 Home/Services release.
+Shop desktop/mobile and product-detail references and real 1440/390 public baseline
+are reviewed. Photographic introduction, search-first ordering, clearer cards and
+split detail overview are implemented; existing fitment, timing, enquiry, stock and
+capability semantics remain. Keep the advanced desktop sidebar and honest missing
+photo/compatibility states; exclude the reference's unsupported business claims.
+
+Fourteen focused production-build cases cover the nine exact sizes and relevant
+filter/history, gallery, pagination, recovery, empty, long/zero/missing and enlarged
+states. Compiled/browser/reference acceptance and exact-master release gates remain
+pending. See the tracker for scope and source boundaries; Groups 3-10 remain open.
+
+Parts now includes master 7af6c51c's approved vehicle changes and Services card
+repair. Preserve the independent vehicle backend/migration publication boundary;
+matching backend compatibility remains a prerequisite for eventual promotion.

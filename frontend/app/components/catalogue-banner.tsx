@@ -42,8 +42,8 @@ export function CatalogueBanner({
               src={image}
               alt={kind === "services" ? "Inside the Allied AutoTech workshop" : ""}
               fill
-              sizes={kind === "services" ? "100vw" : "(max-width: 700px) 90vw, 36vw"}
-              preload={kind === "services"}
+              sizes="100vw"
+              preload
             />
             {kind === "shop" && (
               <figcaption>Illustrative automotive essentials</figcaption>
