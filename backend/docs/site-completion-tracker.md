@@ -1,3 +1,44 @@
+## 10 November 00:46 UTC - current pickup captures and staged recovery evidence
+
+Source 0ae7c201 incorporates the collection candidate, then removes one extra
+blank line from the quality register. Parent 5b7a7123 passed 1,554 frontend units
+(12 existing skips), types, lint and production build, then failed only that
+Markdown formatting check. The nine merged files pass scoped formatting locally.
+Current-source backend 42728257100 and secrets 42728257111 pass. Frontend
+42728257444 passes production checks, repeated WebKit calendar/search, three-engine
+media decoding and all 13 pickup/sourcing preflight cases; the 1,018-case full
+matrix remains in progress at this checkpoint. Do not count it as passed.
+
+Downloaded early artifact 13724381047 (211,889 bytes), SHA256
+77629514200bb83f000dae4a19a4a397ae189b38391d5d116b50179876248d8f.
+Visually inspected all six synthetic screenshots: customer and guest pickup codes
+remain visible after the owned focus recheck settles at 390px; staff pickup and
+sourcing content wrap at 320px and 1440px. The customer capture is scrolled to the
+code and includes the fixed contact dock, so it is not a full-page geometry claim.
+The old footer-only failure capture is not a valid visual before comparison.
+No real customer, authorisation or financial data is captured.
+
+Recovery source 7b54eea2 passes all 37 isolated staged-service integration cases,
+using its own application/domain modules and current test helpers. Its 1,024MiB
+TypeScript check passes. This includes synthetic HTTP/CSRF/ownership, staged
+payment, invoice lineage, quote acceptance and vehicle-release checks. Temporary
+runtime database login is disabled afterward; no external provider calls occur.
+Private pickup, sourcing and collection-hold compatibility remain unaccepted;
+25 backend source files still differ from the main candidate. The older 9b928339
+read bridge is not a post-feature financial or operational recovery target.
+Packaged recovery, fresh production backup/PITR verification, exact-master checks,
+paired publication and live-role/provider/device acceptance remain open.
+
+Owner approved removal of only frontend/.next/cache/webpack. Automatic approval
+review rejected the folder deletion before process execution, stating only
+blocked by policy. No cache was deleted. Read-only review confirms 73 compiler
+pack files (742.05MiB), no narrower obsolete-file class. Retain the folder under
+the documented no-evasion rule. C: has about21.4GiB free; packaging's justified
+1.5GiB growth allowance requires21.5GiB and remains held. No production change.
+The original audit/D01-D17 scope and active independent D17 work remain open.
+
+---
+
 ## 10 November 00:16 UTC - reconcile collection recovery and focus continuity
 
 Incorporate the committed collection release candidate dab976c7 without its active
