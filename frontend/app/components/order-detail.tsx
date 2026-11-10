@@ -1,4 +1,5 @@
 "use client";
+import { OrderSupplyConcerns } from "./order-supply-concerns";
 import { OrderPickup } from "./order-pickup";
 import { OrderTimingSummary } from "./order-timing";
 import { containDialogFocus } from "@/lib/dialog-focus";
@@ -452,6 +453,15 @@ export function OrderDetail({ orderId }: { orderId: string }) {
             Open original request and quotation
           </Link>
         </section>
+      )}
+      {current && !order.error && !order.refreshError && (
+        <OrderSupplyConcerns
+          order={current}
+          audience="customer"
+          disabled={busy || order.loading || order.refreshing}
+          onSaved={order.revalidate}
+          onBusyChange={setBusy}
+        />
       )}
       {current && !order.error && !order.refreshError && (
         <OrderPickup

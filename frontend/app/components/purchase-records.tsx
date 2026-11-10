@@ -1,4 +1,5 @@
 "use client";
+import { OrderSupplyConcerns } from "./order-supply-concerns";
 import { OrderPickup } from "./order-pickup";
 import { OrderTimingSummary } from "./order-timing";
 import Link from "next/link";
@@ -295,6 +296,13 @@ function OrderDetail({ orderId }: { orderId: string }) {
       {resource.data && (
         <>
           <OrderSummary order={resource.data} />
+          <OrderSupplyConcerns
+            order={resource.data}
+            audience="guest"
+            disabled={busy || resource.loading}
+            onSaved={resource.refresh}
+            onBusyChange={setBusy}
+          />
           <OrderPickup
             order={resource.data}
             audience="guest"

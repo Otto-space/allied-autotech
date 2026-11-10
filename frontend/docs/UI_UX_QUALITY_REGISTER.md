@@ -1,3 +1,25 @@
+### 10 November: customer and administrator supply interface checkpoint
+
+Owned account and private-guest order details now show actual supply concerns only
+when the backend advertises capability version1. Customer requests require explicit
+review; interrupted saves reconcile their original request rather than duplicate it.
+Session/access changes discard private state. Staff cannot enter customer choices.
+Administrator intake selects actual unit ranges and separates public/private notes.
+Refund requests select an actual verified capture, bind the current customer choice
+and exact saved affected amount, then link to the existing independent refund queue.
+Requested/approved is never presented as money returned. No payment gate is enabled.
+
+Actual verification:11 focused frontend tests and focused test TypeScript pass;
+19 native API cases passed with114-migration replay/db:check/restricted runtime and
+owned tmpfs cleanup. Restricted order-sourcing v4 and refund-work v5 guidance plus
+collection calendar/eligibility checks pass46 tests. Seven rendered fixture cases
+are prepared but not yet run. Visual/browser acceptance remains outstanding.
+D17 alternative acceptance and settled-unit fulfilment remain incomplete and held.
+The separate schema110 candidate608d3c0d passed frontend42728871961 (984/984 full
+browser matrix,1549 units;12 pre-existing skips), backend42728871883 and secret
+42728871576. These are candidate checks, not exact-master production approval.
+No production database, alias, feature flag or private owner hero edit changed.
+
 ### 10 November: pickup/holding release candidate and retained supply work
 
 Current release worktree remains allied-contact-validation-20261027, now on

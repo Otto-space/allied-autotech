@@ -1173,7 +1173,22 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .get(`/api/v1/customers/orders/${f.order.id}/supply-exceptions`)
         .set("Cookie", f.buyer.cookie);
       expect(read.status, JSON.stringify(read.body)).toBe(200);
+      expect(read.body.data.orderId).toBe(f.order.id);
       expect(JSON.stringify(read.body)).not.toContain(f.body.reason);
+      for (const [path, cookie] of [
+        [`/api/v1/customers/orders/${f.order.id}`, f.buyer.cookie],
+        [`/api/v1/staff/orders/${f.order.id}`, headers.Cookie],
+      ]) {
+        const detail = await request(app).get(path).set("Cookie", cookie);
+        expect(detail.status, JSON.stringify(detail.body)).toBe(200);
+        expect(detail.body.data.supplyConcernCapabilityVersion).toBe(1);
+      }
+      const g = await fixture(true);
+      const guestDetail = await request(app)
+        .get(`/api/v1/purchase/orders/${g.order.id}`)
+        .set("Cookie", `${purchaseCookieName}=${g.access!.sessionToken}`);
+      expect(guestDetail.status, JSON.stringify(guestDetail.body)).toBe(200);
+      expect(guestDetail.body.data.supplyConcernCapabilityVersion).toBe(1);
     });
   },
 );

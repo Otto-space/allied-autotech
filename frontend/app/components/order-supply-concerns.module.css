@@ -1,0 +1,67 @@
+.section {
+  min-width: 0;
+  padding: 20px;
+  margin-block: 20px;
+  overflow-wrap: anywhere;
+}
+.section .fields {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  max-width: 44rem;
+  padding: 16px;
+  margin-block: 16px;
+  border: 1px solid var(--color-border, #cbd5df);
+}
+.section .fields legend {
+  padding-inline: 6px;
+  font-weight: 700;
+}
+.section .fields label {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.section .fields :is(input, textarea, select) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.section .fields .check {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.section .fields .check input {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.case {
+  border-top: 1px solid var(--color-border, #cbd5df);
+  padding-block: 20px;
+}
+.section ul {
+  display: grid;
+  gap: 8px;
+  list-style: disc;
+  padding-inline-start: 22px;
+  margin-block: 12px;
+}
+.section :is(h3, h4) {
+  margin-block: 16px 8px;
+}
+.section summary {
+  cursor: pointer;
+  padding-block: 12px;
+}
+.section .fields button {
+  width: fit-content;
+  max-width: 100%;
+}
+@media (max-width: 600px) {
+  .section .fields button {
+    width: 100%;
+  }
+}

@@ -129,21 +129,20 @@ export async function supplyExceptionSummary(
     select: { version: true },
   });
   return {
+    orderId: id,
     orderVersion: order.version,
     choiceStatementVersion: "SUPPLY_CHOICE_20261110_V1" as const,
     items: records.slice(0, 25).map((record) => ({
       ...record,
       affectedLines: affectedUnitRangesSchema.parse(record.affectedLines),
       state: "CUSTOMER_CARE_REVIEW_REQUIRED" as const,
-      supplyRemedyChoices: record.supplyRemedyChoices
-        .slice(0, 10)
-        .map((choice) => ({
-          ...choice,
-          refunds: choice.refunds
-            .slice(0, 25)
-            .map((refund) => ({ ...refund, amountKobo: refund.amountKobo.toString() })),
-          hasMoreRefunds: choice.refunds.length > 25,
-        })),
+      supplyRemedyChoices: record.supplyRemedyChoices.slice(0, 10).map((choice) => ({
+        ...choice,
+        refunds: choice.refunds
+          .slice(0, 25)
+          .map((refund) => ({ ...refund, amountKobo: refund.amountKobo.toString() })),
+        hasMoreRefunds: choice.refunds.length > 25,
+      })),
       hasMoreChoices: record.supplyRemedyChoices.length > 10,
       // Intent never means a substitute was accepted, finance approved, or paid.
       alternativeAccepted: false as const,

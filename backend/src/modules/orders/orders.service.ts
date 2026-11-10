@@ -203,6 +203,7 @@ export class OrdersService {
       return jsonSafe({
         ...customerOrderView(order),
         pickupCapabilityVersion: 1,
+        supplyConcernCapabilityVersion: 1,
         purchaseReviews: await purchaseOfferReviews(transaction, order.purchaseReviews),
         paymentId: payment?.id ?? null,
       });
@@ -826,6 +827,7 @@ export class OrdersService {
     return jsonSafe({
       ...customerOrderView(order),
       pickupCapabilityVersion: 1,
+      supplyConcernCapabilityVersion: 1,
       purchaseReviews: await purchaseOfferReviews(this.database, order.purchaseReviews),
     });
   }
@@ -868,6 +870,7 @@ export class OrdersService {
     return jsonSafe({
       ...order,
       pickupCapabilityVersion: 1,
+      supplyConcernCapabilityVersion: 1,
       purchaseReviews: await purchaseOfferReviews(this.database, order.purchaseReviews),
       allowedTransitions: await this.allowedTransitions(order),
       ...(actor.role === "ADMIN" || actor.role === "SUPER_ADMIN"

@@ -96,6 +96,7 @@ export default defineConfig({
         "service-payment-stages.spec.ts",
         "order-timing.spec.ts",
         "order-pickup.spec.ts",
+        "order-supply-concerns.spec.ts",
         "booking-calendar.spec.ts",
         "invoice-modal-responsive.spec.ts",
         "modal-layout.spec.ts",
