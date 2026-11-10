@@ -29,6 +29,32 @@ const modalListing = {
   vehicle: { ...listing.vehicle, images: modalImages("vehicles") },
 };
 
+// Dedicated vehicle-description fixtures; shared catalogue samples stay unchanged.
+const vehicleDetailFixtures = ["BEV", "HEV", "PHEV", "ICE"].map((powertrain, index) => ({
+  ...modalListing,
+  id: id(90200 + index),
+  vehicle: {
+    ...modalListing.vehicle,
+    id: id(91200 + index),
+    make: "Synthetic",
+    model: `Vehicle ${powertrain}`,
+    powertrain,
+    driveType: "RWD",
+    fuelType: powertrain === "BEV" ? "ELECTRIC" : "PETROL",
+    engineCapacityCc: powertrain === "BEV" ? null : 1998,
+    cylinders: powertrain === "BEV" ? null : 4,
+    engineDetails:
+      powertrain === "BEV"
+        ? null
+        : "2.0L I-4 DI, DOHC, VVT, TURBO, PREMIUM, 252HP\n".padEnd(500, "x"),
+    features:
+      powertrain === "BEV"
+        ? []
+        : ["Audio, navigation", "Long supplied equipment description ".padEnd(80, "x")],
+    ownerReportedIssues: "Owner reports broken air conditioning. Diagnosis pending.",
+  },
+}));
+
 const group = {
   id: "37ec8bcf-7edc-4ec7-a185-ec849d71c5de",
   name: "Synthetic wheel maintenance",
@@ -181,6 +207,13 @@ export function createRuntimeCapabilityApi() {
               ? { items: [modalProduct] }
               : { items: [] },
       );
+      return;
+    }
+    const vehicleDetail = vehicleDetailFixtures.find(
+      (record) => url.pathname === `/api/v1/public/vehicles/${record.id}`,
+    );
+    if (vehicleDetail) {
+      success(vehicleDetail);
       return;
     }
     if (url.pathname.startsWith("/api/v1/public/vehicles")) {

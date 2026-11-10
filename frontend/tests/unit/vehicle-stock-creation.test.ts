@@ -37,7 +37,7 @@ describe("stock creation safety and projection", () => {
       model: "Camry",
       year: "2022",
       mileageKm: "0",
-      features: "Sunroof, Rear camera",
+      features: [{ value: "Sunroof" }, { value: "Rear camera" }],
       manufactureCountryCode: "JP",
       powertrain: "HEV",
       acquisitionPrice: "99999999999999.99",

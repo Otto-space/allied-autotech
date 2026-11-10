@@ -3,12 +3,14 @@ import { TriangleAlert } from "lucide-react";
 export function VehicleOwnerDisclosure({
   vehicle,
   compact = false,
+  headingLevel = 3,
 }: {
   vehicle: {
     ownerReportedCondition?: string | null;
     ownerReportedIssues?: string | null;
   };
   compact?: boolean;
+  headingLevel?: 2 | 3;
 }) {
   if (compact) {
     if (!vehicle.ownerReportedIssues) return null;
@@ -21,13 +23,14 @@ export function VehicleOwnerDisclosure({
       </p>
     );
   }
+  const Heading = headingLevel === 2 ? "h2" : "h3";
   return (
     <section className="vehicle-owner-disclosure">
-      <h3>Owner-reported condition</h3>
+      <Heading>Owner-reported condition</Heading>
       <p>{vehicle.ownerReportedCondition || "No owner condition statement recorded."}</p>
-      <h3>
+      <Heading>
         <TriangleAlert size={18} aria-hidden="true" /> Known issues reported by owner
-      </h3>
+      </Heading>
       <p>
         {vehicle.ownerReportedIssues ||
           "No owner issue statement recorded. This does not establish that the vehicle is fault-free."}

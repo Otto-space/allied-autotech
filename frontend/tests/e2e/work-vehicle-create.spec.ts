@@ -104,12 +104,12 @@ for (const role of ["ADMIN", "SUPER_ADMIN", "STAFF"])
     await button(page, "Review new vehicle").click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-    await expect(dialog.locator(".spec-row")).toHaveCount(role === "STAFF" ? 29 : 30);
+    await expect(dialog.locator(".spec-row")).toHaveCount(role === "STAFF" ? 30 : 31);
     for (const label of [
       "Final assembly country",
-      "Powertrain",
+      "Engine / Power type",
       "Engine capacity (cc)",
-      "Recorded features",
+      "Additional features",
     ])
       await expect(dialog.getByText(label, { exact: true })).toBeVisible();
     await expect(dialog.getByText("0 km", { exact: true })).toBeVisible();
