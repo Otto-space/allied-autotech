@@ -1,5 +1,21 @@
 # Allied AutoTech consolidated audit — implementation and acceptance
 
+## 10 November follow-up: notification preview retry focus
+
+**P2; Customer; /dashboard/notifications; 1280x720 and 320x720 mobile/touch.**
+On protected integrated candidate b1222a11, open the notification bell with a failed
+preview request, focus Try again, press Enter and return a successful notification
+response. The retry control disappears and focus falls to BODY outside the modal.
+Both native Edge cases reproduce this; no real request mutation or page error occurs.
+Centered/full-width phone geometry remains intact. Keyboard users lose their place.
+
+Correction in notification-preview.tsx: move focus to the stable Close control
+before replacing the error with loading; preserve later deliberate focus movement.
+The existing unit case and seven-size shared-modal matrix now cover recovery,
+repeat failure and cancellation across rotating Customer/Staff/Admin/Super Admin
+fixtures. New-source verification and publication remain pending. Evidence is in
+TEMP/allied-customer-confirmation-20261110/notification-retry-held-report.json.
+
 ## 10 November follow-up: customer confirmation and recovery focus
 
 **P2; Customer; /dashboard/privacy and /dashboard/reviews.** After confirming a

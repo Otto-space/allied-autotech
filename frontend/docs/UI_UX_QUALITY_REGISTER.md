@@ -335,6 +335,23 @@ Deployment protection and public aliases are unchanged. PR44 account focus retai
 40 compiled native passes; its final combined GitHub gate remains pending. The
 complete original goal and active backend dependencies are still open.
 
+## 10 November - notification preview retry focus follow-up
+
+P2; /dashboard/notifications, Customer, protected b1222a11 candidate. At 1280x720
+and 320x720 mobile/touch, open the bell with a failed preview GET, activate Try again,
+and allow a successful response. The retry button disappears and activeElement
+becomes BODY outside the open modal. Both native Edge baselines fail the containment
+assertion, with zero page errors, outgoing writes or fixture writes. Screenshots
+confirm centered geometry/full phone width; the defect concerns keyboard continuity.
+Evidence: TEMP/allied-customer-confirmation-20261110/notification-retry-held-report.json.
+
+Owner: notification-preview.tsx. Focus the stable Close button before retry replaces
+the error state, with no response-time focus effect. Existing unit and shared-modal
+tests now cover empty recovery and seven exact viewport pairs across four rotating
+roles, repeated failure, populated success, deliberately moved focus and pending
+cancellation. New-source checks/compiled acceptance and publication are pending.
+This fixture evidence does not certify real-role delivery or physical devices.
+
 ## 10 November - customer confirmation recovery verified for integration
 
 Application source `0d22eae3` passes 50/50 compiled native Edge/Chrome cases:

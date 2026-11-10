@@ -129,5 +129,64 @@ for (const [width, height, securityRole] of [
       await expect(opener).toBeFocused();
       expect(state.writes).toEqual([]);
     });
+    test("notification preview retry preserves focus through failure, recovery and cancellation", async ({
+      page,
+    }, info) => {
+      const state = await notificationsFixture(page, securityRole);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.goto(
+        securityRole === "CUSTOMER" ? "/dashboard/notifications" : "/admin/notifications",
+      );
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+        width,
+        height,
+      ]);
+      const opener = page.getByRole("button", {
+        name: "Open notifications, 1 unread",
+        exact: true,
+      });
+      await expect(opener).toBeVisible();
+      state.failInbox = true;
+      await opener.click();
+      const dialog = page.getByRole("dialog", { name: "Notifications", exact: true });
+      const retry = dialog.getByRole("button", { name: "Try again", exact: true });
+      const close = dialog.getByRole("button", { name: "Close notification preview" });
+      const all = dialog.getByRole("link", { name: "View all notifications" });
+      await expect(retry).toBeVisible();
+      state.readDelay = 500;
+      await retry.focus();
+      await page.keyboard.press("Enter");
+      await expect(close).toBeFocused();
+      await expect(dialog.getByRole("status")).toHaveText("Loading recent updates…");
+      await expect(retry).toBeVisible();
+      await expect(close).toBeFocused();
+      state.failInbox = false;
+      await retry.click();
+      await expect(close).toBeFocused();
+      await expect(dialog.getByRole("status")).toHaveText("Loading recent updates…");
+      await all.focus();
+      await expect(dialog.getByRole("link", { name: /Booking update/ })).toBeVisible();
+      await expect(all).toBeFocused();
+      await geometry(dialog, width, height);
+      await page.screenshot({ path: info.outputPath("notification-retry.png") });
+      await page.keyboard.press("Tab");
+      await expect(close).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(opener).toBeFocused();
+
+      state.failInbox = true;
+      await opener.click();
+      await expect(retry).toBeVisible();
+      state.failInbox = false;
+      await retry.click();
+      await expect(close).toBeFocused();
+      await expect(dialog.getByRole("status")).toHaveText("Loading recent updates…");
+      await page.keyboard.press("Escape");
+      await expect(dialog).not.toBeVisible();
+      await expect(opener).toBeFocused();
+      expect(state.writes).toEqual([]);
+      expect(errors).toEqual([]);
+    });
   });
 }

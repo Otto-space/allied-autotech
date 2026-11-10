@@ -302,6 +302,31 @@ Deployment protection and public aliases are unchanged. PR44 account focus retai
 40 compiled native passes; its final combined GitHub gate remains pending. The
 complete original goal and active backend dependencies are still open.
 
+## 10 November - notification preview retry focus follow-up
+
+Current bounded item: notification preview error recovery. Protected integrated
+candidate b1222a11 reproduces focus falling to BODY after Try again replaces its
+button with loaded updates, in native Edge at 1280x720 and mobile/touch 320x720.
+Both failures are retained in TEMP/allied-customer-confirmation-20261110/
+notification-retry-held-report.json; no outgoing writes or page errors occurred.
+
+Move focus to the stable Close control in the retry event before clearing the
+error. Do not move focus again on response completion, so deliberate movement wins.
+Preserve requests, unread counts, destinations, role scope and dismissal safeguards.
+Extend the existing shared-modal matrix at all seven exact pairs, rotating Customer,
+Staff, Admin and Super Admin, through repeat failure, successful retry and pending
+cancellation. Add focus assertions to the existing empty-recovery unit case.
+New-source checks and compiled acceptance remain required before publication.
+
+The previous focus batch is merged at b1222a11; Backend 42736089322 and Secrets
+42736089238 pass while Frontend 42736089235 remains live. Its held candidate is
+dpl_GGEaLfn7hdq3cJk6x6KRtYugjwVQ. Both public aliases still serve dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi.
+The vehicle owner has a live browser-test process; preserve its compatible backend
+release work. Existing 55b96d50 packaged runtime checks pass 10/10, with no skipped
+cases; build receipt still says pushed=false/deployed=false. Do not rebuild merely
+because the frontend master differs. C: has roughly 20.7 GiB free, enough for bounded
+checks but not the 1.5 GiB packaging allowance. The full two-brief goal stays active.
+
 ## 10 November - customer confirmation recovery verified for integration
 
 Application source `0d22eae3` passes 50/50 compiled native Edge/Chrome cases:
