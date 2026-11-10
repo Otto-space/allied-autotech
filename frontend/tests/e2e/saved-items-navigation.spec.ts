@@ -191,6 +191,31 @@ for (const outcome of ["remove", "cancel"] as const)
     });
   });
 
+test("cancelling a removal after a URL change focuses the newly selected collection", async ({
+  page,
+  request,
+}) => {
+  const state = await setup(page, request);
+  await page.goto("/dashboard/saved");
+  await page
+    .getByRole("button", { name: "Remove Engine oil filter from favourite products" })
+    .click();
+  await page.evaluate(() =>
+    window.history.replaceState(null, "", "/dashboard/saved?collection=vehicles"),
+  );
+  await expect(page.getByRole("dialog")).toContainText("Favourite products");
+  await page.getByRole("button", { name: "Go back", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const selected = page.getByRole("tab", { name: "Saved vehicles", exact: true });
+  await expect(selected).toHaveAttribute("aria-selected", "true");
+  await expect(selected).toBeFocused();
+  await expect(
+    page.getByRole("heading", { name: listing.title, exact: true }),
+  ).toBeVisible();
+  await expect(selected).toBeFocused();
+  expect(state.writes).toEqual([]);
+});
+
 test("saving a vehicle opens its vehicle collection from the receipt", async ({
   page,
   request,

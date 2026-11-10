@@ -31,6 +31,7 @@ export function NotificationPreview({
     {},
   );
   const trigger = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const inbox = customer ? "/dashboard/notifications" : "/admin/notifications";
   useEffect(() => {
@@ -136,6 +137,7 @@ export function NotificationPreview({
             </p>
           </div>
           <button
+            ref={closeButton}
             className="np-close"
             aria-label="Close notification preview"
             onClick={close}
@@ -150,6 +152,9 @@ export function NotificationPreview({
               <button
                 className="button secondary"
                 onClick={() => {
+                  // The retry control disappears while loading. Keep focus on a
+                  // stable dialog control without moving it again when data arrives.
+                  closeButton.current?.focus();
                   setState({});
                   setRetry((n) => n + 1);
                 }}

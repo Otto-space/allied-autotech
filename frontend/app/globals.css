@@ -3759,6 +3759,10 @@ html {
   scrollbar-width: thin;
   scrollbar-color: #8999a4 transparent;
 }
+/* Keep the navigation drawer's scrollbar-free treatment alongside modal defaults. */
+:root dialog:modal .dashboard-drawer-content {
+  scrollbar-width: none;
+}
 :root dialog:modal :where(input, select, textarea) {
   max-inline-size: 100%;
 }

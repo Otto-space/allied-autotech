@@ -157,7 +157,7 @@ export function PartsCatalogue({
       </noscript>
       <div className="product-search-panel">
         <div className="product-inventory-heading">
-          <h2 id="product-results-heading" className="sr-only" tabIndex={-1}>
+          <h2 id="product-results-heading" tabIndex={-1}>
             Explore automotive products
           </h2>
           <p role="status" aria-live="polite">
@@ -481,6 +481,7 @@ export function PartsCatalogue({
                   key={product.id}
                   product={product}
                   wide={products.data?.items.length === 1}
+                  compact
                   params={params}
                   vehicleChoicesAvailable={vehicleChoicesAvailable}
                 />

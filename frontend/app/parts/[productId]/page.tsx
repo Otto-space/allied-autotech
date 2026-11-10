@@ -270,30 +270,32 @@ export default async function ProductPage({
               </li>
             </ol>
           </nav>
-          <header className="pd-heading">
-            <h1>{product.name}</h1>
-            <p>
-              {product.brand && <>{product.brand} &middot; </>}
-              {product.category.name}
-            </p>
-            <div className="pd-mobile-price">
-              <strong>{formatKobo(product.priceKobo, { hideZeroDecimals: true })}</strong>
-              {compare && (
-                <span>
-                  <span className="sr-only">Comparison price </span>
-                  <del>{formatKobo(compare, { hideZeroDecimals: true })}</del>
-                </span>
-              )}
-              <span className="pd-unit">Price per item</span>
-            </div>
-          </header>
-          <nav className="pd-section-nav" aria-label="Product sections">
-            <a href="#product-overview">Overview</a>
-            <a href="#product-information">Product information</a>
-            <a href="#product-compatibility">Compatibility</a>
-            <a href="#product-delivery">Collection</a>
-          </nav>
           <div className="pd-top-grid">
+            <header className="pd-heading">
+              <h1>{product.name}</h1>
+              <p>
+                {product.brand && <>{product.brand} &middot; </>}
+                {product.category.name}
+              </p>
+              <div className="pd-mobile-price">
+                <strong>
+                  {formatKobo(product.priceKobo, { hideZeroDecimals: true })}
+                </strong>
+                {compare && (
+                  <span>
+                    <span className="sr-only">Comparison price </span>
+                    <del>{formatKobo(compare, { hideZeroDecimals: true })}</del>
+                  </span>
+                )}
+                <span className="pd-unit">Price per item</span>
+              </div>
+            </header>
+            <nav className="pd-section-nav" aria-label="Product sections">
+              <a href="#product-overview">Overview</a>
+              <a href="#product-information">Product information</a>
+              <a href="#product-compatibility">Compatibility</a>
+              <a href="#product-delivery">Collection</a>
+            </nav>
             <div className="pd-gallery-frame" id="product-overview">
               <ProductGallery
                 key={product.id}
