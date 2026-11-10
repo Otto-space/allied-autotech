@@ -91,8 +91,11 @@ same-origin CSS, every selector constrained to the known footer/fitment-summary 
 
 Customer parts-collection is v3; staff-parts-collection remains v2. The customer
 guide explains copying the code before Hide code, explicit refresh or reload.
-Successful background revalidation keeps the panel and code visible; failed checks
-or access changes discard private data. Existing audience eligibility, exact owned
+Successful background revalidation keeps the panel and code visible. Guest failed
+background checks and all access changes discard private data. Account background
+network failures preserve the mounted record with a refresh warning. The customer
+guide gives the common copy/private-sharing advice without promising identical
+temporary-failure behavior. Existing audience eligibility, exact owned
 destinations and publication flags remain unchanged. Five resource-hook cases and
 41 affected learning/pickup backend unit cases pass. Existing guest/customer hosted
 tests now capture only synthetic 390px codes; actual new-source rendered results

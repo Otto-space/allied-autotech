@@ -1,5 +1,10 @@
 ## 10 November 00:00 UTC - hosted pickup preflight passes; guide assertion aligned
 
+Final copy review: account background network failures deliberately retain the
+mounted record with a warning; guest failures discard it. Keep that difference
+in developer evidence and give customers only common copy/private-sharing advice.
+Customer guide v3 and audience checks remain; no extra restriction is introduced.
+
 Combined sourceb330dda0 frontend42723705205 passes production checks, repeated
 WebKit calendar/search transport, three-engine media decoding and the pickup/
 sourcing preflight. Both390px synthetic customer/guest captures show the issued code

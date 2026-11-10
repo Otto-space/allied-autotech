@@ -80,8 +80,12 @@ describe("authorised server help survives Allie retrieval", () => {
     const article = learningArticles.find((row) => row.id === "parts-collection")!;
     expect(article.version).toBe(3);
     expect(article.gate).toBe("customer");
-    expect(article.steps.join(" ")).toContain("successful background order check");
-    expect(article.steps.join(" ")).toContain("failed check or access change clears it");
+    expect(article.steps.join(" ")).toContain(
+      "Copy it before choosing Hide code, refreshing or reloading",
+    );
+    expect(article.steps.join(" ")).toContain(
+      "Share it privately only with your chosen collector",
+    );
     expect(
       learningCatalogue(publicLearningAccess).articles.some(
         (row) => row.id === article.id,
