@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowRight, RefreshCw, Star } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
 import { parseReviews, reviewLabels, type ReviewRecord } from "@/lib/api/review-schemas";
@@ -75,6 +75,7 @@ export function CustomerReview({
 function CustomerReviews({ userId }: { userId: string }) {
   const [status, setStatus] = useState("");
   const [reviewOpen, setReviewOpen] = useState(false);
+  const recoveryFocus = useRef<HTMLElement>(null);
   const [recoveryProposal, setRecoveryProposal] = useState<MutationProposal | null>(null);
   const [formRevision, setFormRevision] = useState(0);
   const [recoveryMessage, setRecoveryMessage] = useState<string>();
@@ -145,7 +146,12 @@ function CustomerReviews({ userId }: { userId: string }) {
       <Feedback message={guard.storageError} />
       <Feedback message={recoveryMessage} tone="success" />
       {guard.pending && (
-        <section className="cr-recovery" aria-label="Review recovery">
+        <section
+          className="cr-recovery"
+          aria-label="Review recovery"
+          ref={recoveryFocus}
+          tabIndex={-1}
+        >
           <Feedback
             tone="warning"
             message={
@@ -197,7 +203,9 @@ function CustomerReviews({ userId }: { userId: string }) {
           userId={userId}
           guard={guard}
           onReviewChange={setReviewOpen}
-          onReviewClosed={restoreConfirmationFocus}
+          onReviewClosed={(opener) =>
+            restoreConfirmationFocus(opener, guard.pending ? recoveryFocus.current : null)
+          }
           onSaved={() => {
             setStatus("");
             pagination.reset();

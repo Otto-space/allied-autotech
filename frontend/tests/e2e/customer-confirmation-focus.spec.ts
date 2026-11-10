@@ -169,6 +169,47 @@ test.describe("customer confirmation recovery", () => {
     },
   });
   for (const journey of ["privacy", "reviews"] as const) {
+    test(`${journey} unknown outcome returns focus to recovery without resubmitting`, async ({
+      page,
+    }) => {
+      const { fixture, opener, dialog, submit, outgoing, errors } = await setup(
+        page,
+        journey,
+      );
+      if ("outcome" in fixture) fixture.outcome = "unknown";
+      else fixture.unknown = true;
+      await submit();
+      await expect(
+        dialog.getByRole("button", { name: "Close & review record", exact: true }),
+      ).toBeEnabled();
+      await page.keyboard.press("Escape");
+      await expect(dialog).toHaveCount(0);
+      const recovery = page.getByRole("region", {
+        name: journey === "privacy" ? "Request recovery" : "Review recovery",
+        exact: true,
+      });
+      await expect(recovery).toBeFocused();
+      await expect(opener).toBeDisabled();
+      await expect(
+        page.getByLabel(
+          journey === "privacy" ? "Why are you making this request?" : "Your review",
+          { exact: true },
+        ),
+      ).not.toHaveValue("");
+      await page.keyboard.press("Tab");
+      await expect(
+        recovery.getByRole("button", {
+          name:
+            journey === "privacy"
+              ? "Refresh privacy requests"
+              : "Review original submission",
+          exact: true,
+        }),
+      ).toBeFocused();
+      expect(fixture.writes).toHaveLength(1);
+      expect(outgoing).toEqual([]);
+      expect(errors).toEqual([]);
+    });
     for (const outcome of ["failed read", "moved focus"] as const) {
       test(`${journey} respects ${outcome} after saving`, async ({ page }) => {
         const { state, fixture, opener, dialog, submit, outgoing, errors } = await setup(

@@ -1,3 +1,55 @@
+## 10 November - unknown-outcome focus recovery follow-up
+
+Compiled native Edge reproduces BODY focus after closing an unknown Privacy/Review
+submission at1280x720 and320x720: four failures, each with one intercepted write,
+zero outgoing writes and no uncaught page errors. Retain uncertain-report.json and
+its captures under TEMP/allied-customer-confirmation-20261110.
+
+The existing refresh-aware focus hook now accepts an optional recovery fallback.
+Only the two customer forms supply their named recovery region when outcome is
+unknown; after close, focus lands there and Tab reaches the existing recovery
+control. Other callers preserve their existing defaults and explicit focus moves
+still take precedence. Request markers, resubmission restrictions, review replay,
+ownership, policies and launch capabilities are unchanged. This is presentation
+and keyboard continuity; existing Help workflow semantics remain accurate.
+
+Full TypeScript, affected ESLint, formatting and22 existing mutation/account/review
+units pass. Two new recovery journeys collect across all three engines (66 total
+customer-confirmation cases). New compiled/browser verification and exact-source
+CI remain pending; earlier40+4+4 passes do not verify this new fix. At00:42UTC,
+all required checks passed for prior PR51head44fe4211 and master580a1bb5. Public
+promotion remains coordinated with the active Home/Services session, not performed
+here. The full original two-brief and all-modal scope remains open.
+
+## 10 November - customer confirmation native acceptance passes
+
+All 40 compiled Edge/Chrome checks pass for customer Privacy and Reviews: seven
+exact viewport pairs, mobile/touch phone contexts, centering/full phone width,
+Escape, delayed success, failed history reads, deliberately moved focus and rejected
+submissions. No retries, skipped cases, outgoing writes or uncaught page errors.
+Desktop/mobile captures were inspected. Evidence: TEMP/allied-customer-confirmation-
+20261110/acceptance.md, held-report.json and held-results (about 1.3 MB).
+
+Held candidate a39b7089 is READY with public domains unchanged; PR51 head 44fe4211 has
+identical application code and preserves master 580a1bb5's auth-fixture repair.
+Backend/secrets pass for this head; frontend CI remains live. Do not count the
+earlier disconnected-preview failures or registration hydration failures as passes.
+The separate registration recheck passes all four Edge/Chrome desktop/mobile cases
+(registration-held-v2-report.json); the longer authenticated-transport allowance is
+not application performance evidence. Public domains remain on dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV;
+the active Home/Services session retains publication ownership. Full integration,
+exact-master gates, real-role/device acceptance and the original goal remain open.
+Keep this evidence update with the next coherent integration checkpoint, without
+restarting the running source checks solely for documentation.
+
+Four supplemental native Edge long-content checks also pass at1280x720 and320x420:
+full phone width/centering, keyboard scrolling, reachable actions, retained draft
+on cancellation and no outgoing writes/page errors. Both captures were inspected.
+The initial harness expected the wrong Tab destination; correcting its expectation
+to the focusable Review details region required no application change. Evidence:
+TEMP/allied-customer-confirmation-20261110/long-v2-report.json. Physical keyboard
+occlusion remains unverified. Source CI and coordinated publication remain open.
+
 ## 10 November - customer confirmation focus correction in verification
 
 Reconciled master580a1bb5's independent registration repair and retained its exact

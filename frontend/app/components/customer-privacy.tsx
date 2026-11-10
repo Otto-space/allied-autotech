@@ -2,7 +2,7 @@
 
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, RefreshCw, ShieldCheck } from "lucide-react";
 import {
   parsePrivacyPage,
@@ -77,6 +77,7 @@ function CustomerRequests({ userId }: { userId: string }) {
     refreshed: boolean;
   }>();
   const [reviewOpen, setReviewOpen] = useState(false);
+  const recoveryFocus = useRef<HTMLElement>(null);
   const [storageError, setStorageError] = useState<string>();
   useEffect(() => {
     let active = true;
@@ -161,7 +162,12 @@ function CustomerRequests({ userId }: { userId: string }) {
       </header>
       <Feedback message={storageError} />
       {recovery?.uncertain && (
-        <section className="cpv-recovery" aria-label="Request recovery">
+        <section
+          className="cpv-recovery"
+          aria-label="Request recovery"
+          ref={recoveryFocus}
+          tabIndex={-1}
+        >
           <Feedback
             tone="warning"
             message="We could not confirm your request. Refresh your latest requests and check the saved explanation before making another request."
@@ -230,7 +236,12 @@ function CustomerRequests({ userId }: { userId: string }) {
           userId={userId}
           disabled={!recovery || unavailable || !!recovery?.uncertain}
           onReviewChange={setReviewOpen}
-          onReviewClosed={restoreConfirmationFocus}
+          onReviewClosed={(opener) =>
+            restoreConfirmationFocus(
+              opener,
+              recovery?.uncertain ? recoveryFocus.current : null,
+            )
+          }
           onSend={() => {
             try {
               sessionStorage.setItem(marker, "pending");
