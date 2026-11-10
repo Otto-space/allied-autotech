@@ -1,3 +1,37 @@
+## 10 November 01:00 UTC - repair confirmed live Services card stretching
+
+Public apex and www now identify deployment dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi,
+master580a1bb5. Backend remainsc3c54414 ACTIVE with no pending/in-progress rollout
+and zero temporary IP rules. Reconciled the master's auth-fixture isolation at
+65ef746e; preserve the full combined candidate and independent D17 work.
+
+Fresh public API/read-only Edge checks confirm no workbook/import/discount-provenance
+notes in the service descriptions and unchanged approved public prices. Catalogue
+and diagnostics imagery load at390/1440 without horizontal overflow. Anonymous
+401 responses are from /auth/session; no page runtime exception was found.
+
+Actual mobile rendering exposed a card-footer regression: horizontal flex plus a
+full-width action squeezed the price text into one-character lines, stretching the
+390px action to1045.34px and the first card to1437.38px. Stack price and action in
+the shared photographic card rules. Add price-before-action and44-96px action-height
+assertions to all nine existing Services discovery viewport cases.
+
+Exact candidate CSS, served through a local same-origin stylesheet response
+override with CSP preserved, passes320/360/390/430/768/1024/1280/1440/1920 checks:
+all36 links measure44px high; prices precede actions; no horizontal overflow.
+Search diagnostics, reload persistence, visible keyboard focus and Enter-to-detail
+also pass. Visually inspected public before390 and candidate after390/1440 captures.
+This is stylesheet-override evidence, not packaged or published acceptance.
+Affected CSS/test formatting and ESLint pass; all14 Services cases collect.
+Full exact-source hosted execution and publication remain required. Prepare this
+public correction as a separate release batch while retaining the larger backend
+candidate. No customer submission, protected record or provider payment was made.
+The initial live verifier waited on offscreen lazy images; corrected the harness
+to scroll images into view and use bounded loading checks. Its interrupted run is
+not a pass. Inline style injection was blocked by CSP; no CSP setting was changed.
+
+---
+
 ## 9 November 22:17 UTC - recovery status regression and held-release transport
 
 Exact-master 6538f4b5 frontend run42705393145 completed with879 passes and two
