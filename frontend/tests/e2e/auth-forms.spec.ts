@@ -1,22 +1,30 @@
 import { test, expect } from "@playwright/test";
-import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
+
+test.beforeEach(async ({ request, page }) => {
+  const origin = process.env.CAPABILITY_TEST_CONTROL_ORIGIN;
+  if (!origin) return;
+  if (origin !== "http://127.0.0.1:5024")
+    throw new Error("Authentication fixtures require the isolated loopback API");
+  const restored = await request.post(`${origin}/__capabilities`, {
+    data: { mode: "full", fail: false },
+  });
+  expect(restored.ok()).toBe(true);
+  // Background availability checks are independent of the auth response under test.
+  await page.route("**/api/v1/public/capabilities", async (route) => {
+    const response = await route.fetch({
+      url: `${origin}/api/v1/public/capabilities`,
+      maxRedirects: 0,
+    });
+    await route.fulfill({ response });
+  });
+});
 
 test("registration completes cleanly and clears the password after a successful response", async ({
   page,
 }) => {
   const calls: unknown[] = [];
-  await page.route("**/api/v1/public/capabilities", (route) =>
-    route.fulfill({
-      json: {
-        success: true,
-        message: "Isolated account capabilities",
-        meta: { requestId: "register-capabilities" },
-        data: { ...publicCapabilitiesFixture(), serverTime: new Date().toISOString() },
-      },
-    }),
-  );
   await page.route("**/api/v1/auth/register", async (route) => {
-    expect(route.request().method()).toBe("POST");
+    expect(new URL(route.request().url()).pathname).toBe("/api/v1/auth/register");
     calls.push(route.request().postDataJSON());
     await route.fulfill({
       status: 202,
@@ -33,6 +41,18 @@ test("registration completes cleanly and clears the password after a successful 
   await page.getByLabel("Phone number").fill("+2348000000000");
   await page.getByLabel("Email address").fill("registration@example.test");
   await page.getByLabel("Password", { exact: true }).fill("test-only unique passphrase");
+  if (process.env.CAPABILITY_TEST_CONTROL_ORIGIN) {
+    const refreshed = page.waitForResponse("**/api/v1/public/capabilities");
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    expect((await refreshed).ok()).toBe(true);
+    await expect(
+      page.getByRole("button", { name: "Create account", exact: true }),
+    ).toBeEnabled();
+    await expect(page.getByLabel("Password", { exact: true })).toHaveValue(
+      "test-only unique passphrase",
+    );
+    expect(calls).toHaveLength(0);
+  }
   await page.getByRole("button", { name: "Create account", exact: true }).click();
   await expect(
     page.getByText("Check your email for verification instructions before signing in.", {
@@ -92,7 +112,8 @@ test("verification token stays out of requests until explicit form submission", 
 }) => {
   const token = "isolated-verification-token-".repeat(3);
   const bodies: unknown[] = [];
-  await page.route("**/api/v1/**", async (route) => {
+  page.on("request", (request) => expect(request.url()).not.toContain(token));
+  await page.route("**/api/v1/auth/email/verify", async (route) => {
     expect(new URL(route.request().url()).pathname).toBe("/api/v1/auth/email/verify");
     expect(route.request().url()).not.toContain(token);
     bodies.push(route.request().postDataJSON());

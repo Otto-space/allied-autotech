@@ -1,5 +1,12 @@
 ## 10 November - customer confirmation focus correction in verification
 
+Reconciled master580a1bb5's independent registration repair and retained its exact
+auth-forms fixture, including loopback capability reset and explicit refresh checks.
+The overlapping local-only capability response was superseded. Both sets of
+completion/quality evidence are preserved; application changes remain limited to
+the four customer confirmation components. Held candidate a39b7089 has identical
+application code; subsequent reconciliation changes tests and records only.
+
 Master1fc86e65 frontend42720881283 completed941 cases and failed one registration
 fixture because its broad API interceptor treated public/capabilities as register.
 The fixture now responds explicitly to capabilities and only captures registration
@@ -8657,3 +8664,14 @@ backend safety exposed four fixtures freezing JavaScript at tomorrow's noon
 while PostgreSQL uses its real clock. The fixture now uses the most recent past
 UTC noon; allocation guards and all application behavior stay unchanged. All
 three gates must pass the resulting exact master commit before publication.
+
+## 10 November - Authentication fixture refresh isolation (release held)
+
+Master1fc86e65 backend safety and secrets passed. Its frontend matrix passed941
+and failed one registration fixture: its catch-all API mock intercepted a real
+background availability refresh. Limit registration and verification mocks to
+their exact endpoints; route availability to the guarded loopback fixture and
+reset its policy for each auth-forms test. Registration now explicitly refreshes
+availability with a filled draft before submitting, preserving all prior success
+assertions. Token URL checks cover all outgoing requests. Runtime source is
+unchanged. Exact-master gates and public verification remain required.
