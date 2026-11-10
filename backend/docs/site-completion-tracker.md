@@ -10047,7 +10047,7 @@ this implementation adds the following ordered status overlay, not a second back
 | ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
 | 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt. |
 | 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt. |
-| 3     | Shop, filters, product, fitment                                                | Implemented; compiled/reference checks and exact-master publication pending. Preserve fitment and timing uncertainty. |
+| 3     | Shop, filters, product, fitment                                                | Held compiled candidate verified at nine sizes; full exact-master gates and compatible vehicle backend publication remain required. |
 | 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
 | 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
 | 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
@@ -10534,3 +10534,55 @@ no violation. Correct the new styles to existing --action-primary and --link
 and add a rendered foreground/background contrast assertion for the card action
 at every size. Rebuild and rerun the complete matrix. This defect was confined
 to held candidates; public aliases were not changed by this Parts task.
+
+
+## 10 November - Parts compiled candidate verified; publication still held
+
+Compiled source 102b10f48e077bd92f93d9fc5586b63e1521601f is READY as
+ dpl_71x8HzztbJPN1Z2BHrG6WNU6KsQd, with no public domains assigned. The repaired
+caption, empty finder track, full-width phone category and existing action/link
+colour tokens are present in the build. View product is a visible 44px-or-taller
+white-on-red action at all nine exact requested viewport pairs. The catalogue and
+real product detail fit all nine sizes without horizontal overflow. Product-card
+navigation was explicitly awaited through the detail URL and main heading before
+counting the product checks. An earlier observation timed out and an initial
+capture read stale navigation; those attempts are not acceptance evidence.
+
+Read-only Edge 157.0.4341.42 passes combined search/category/in-stock/price sort,
+product/detail/Back and refresh at 390 and 1440. Search is visible on the first
+phone screen. A transient 320px public product read displayed its existing
+unavailable state; Try again recovered the actual product without losing context.
+Mobile navigation Escape restores focus and Compatibility moves focus to its
+section. Scoped main/footer Axe A/AA at 390/1440 on both templates finds no
+violations. No page exception or business write was observed. Real inventory still
+has one product, no photograph and unconfirmed fitment; no sample content was added.
+
+Reference comparison: (1) photo-led introduction and high-contrast copy retained,
+using the approved editorial image instead of an unsupported warehouse claim;
+(2) Allied Nippo/Quicksand and authentic logo replace the export's broken logo;
+(3) white cards, clear prices and red actions follow the reference, with four
+large-screen columns and two phone columns when records exist; (4) photo-present
+detail uses the gallery/identity split while missing photos remain compact;
+(5) small screens reflow controls and preserve the genuine vehicle/fitment modes.
+The advanced desktop sidebar, explanatory fitment uncertainty, natural contain
+framing and enquiry-only actions are intentional functional/truthful departures.
+The earlier 9e179d4a isolated photo/card screenshots are partial reference evidence;
+latest compiled multi-record/gallery acceptance and complete master gates remain
+required. Physical devices, branded Safari, full screen-reader and real-role or
+provider delivery acceptance have not been established.
+
+Evidence: TEMP/aat-stitch-implementation-20261109/parts-readable-browser.json and
+parts-readable-{390,1440}.png, product-readable-{390,1440}.png. Latest branch
+backend safety 42740057193 and secrets 42740057197 pass; frontend 42740057295 has
+passed production checks and is running its browser matrix. These branch results
+do not replace the required three successful exact-master gates before promotion.
+
+The production backend is still c3c54414 ACTIVE at the 02:10:50 UTC GET-only check,
+with no pending rollout. Eight managed snapshots remain available; the retained
+strict-TLS populated restore receipt is 21 October, not a fresh rehearsal in this
+task. The independently approved vehicle engineDetails backend publication remains
+a compatibility prerequisite for the combined master frontend. Do not publish that
+field against the older API or deploy its migration incidentally for this design.
+Home/Services source 580a1bb5 remains live on both aliases. Groups 3-10 stay open.
+No local build/install or Docker operation. C: 20.59 GiB passed the bounded 0.05
+GiB browser preflight; preserve the 20 GiB reserve and recheck before more writes.
