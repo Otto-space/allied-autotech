@@ -10330,3 +10330,15 @@ checkpoint 64b37845c1ae807e49bea5ad73dd296eb6d849e6 until verified publication.
 The intervening engineDetails migration/backend publication belongs to its separate
 approved batch. Do not roll it out incidentally or promote an incompatible frontend;
 recheck its actual backend state before this group's eventual public promotion.
+
+First compiled candidate 9e179d4a is READY as dpl_FEJWw8AZBdzop4JH2h5mLywW72hp,
+held without public aliases. Real product/catalogue reads and 1440/390 screenshots
+load without page errors or horizontal overflow. These initial renders expose a
+dim editorial caption, an unnecessary empty finder row in product mode and a phone
+category control using only half its available row. Source follow-up moves the
+caption above the scrim, removes the empty track, gives category controls full
+width and leaves a phone heading lane beside support. Omit the redundant mobile
+browse link because search is immediately below the introduction. Product title/
+price precede section links on phones; desktop section links follow the overview.
+Rebuild and compare the repaired candidate; do not count these source changes as
+compiled acceptance. The source branch's existing CI 42735947021 is still running.

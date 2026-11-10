@@ -45,10 +45,10 @@ export function CatalogueBanner({
               sizes="100vw"
               preload
             />
-            {kind === "shop" && (
-              <figcaption>Illustrative automotive essentials</figcaption>
-            )}
           </figure>
+        )}
+        {kind === "shop" && (
+          <p className="catalogue-banner__caption">Illustrative automotive essentials</p>
         )}
       </div>
     </section>

@@ -1109,6 +1109,11 @@
   border-radius: 0 0 8px 8px;
   box-shadow: none;
 }
+.pd-top-grid > .pd-section-nav {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  margin: 24px 0 0;
+}
 .pd-price-row strong {
   color: var(--red);
   font-size: clamp(28px, 3vw, 36px);
@@ -1148,6 +1153,11 @@
   .pd-top-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 16px;
+  }
+  .pd-top-grid > .pd-section-nav {
+    grid-column: 1;
+    grid-row: auto;
+    margin: 0;
   }
   .product-detail .pd-top-grid > .pd-heading,
   .pd-top-grid > .pd-gallery-frame,

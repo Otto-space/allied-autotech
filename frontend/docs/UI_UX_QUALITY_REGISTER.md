@@ -8986,3 +8986,8 @@ pending. See the tracker for scope and source boundaries; Groups 3-10 remain ope
 Parts now includes master 7af6c51c's approved vehicle changes and Services card
 repair. Preserve the independent vehicle backend/migration publication boundary;
 matching backend compatibility remains a prerequisite for eventual promotion.
+
+First compiled 9e179d4a screenshots exposed a dim hero caption and an empty control
+track. Repair source also restores full-width phone categories, removes the
+redundant phone hero link and puts product identity before section links. Final
+compiled/reference verification remains pending; public aliases are unchanged.

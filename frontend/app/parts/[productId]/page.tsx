@@ -270,12 +270,6 @@ export default async function ProductPage({
               </li>
             </ol>
           </nav>
-          <nav className="pd-section-nav" aria-label="Product sections">
-            <a href="#product-overview">Overview</a>
-            <a href="#product-information">Product information</a>
-            <a href="#product-compatibility">Compatibility</a>
-            <a href="#product-delivery">Collection</a>
-          </nav>
           <div className="pd-top-grid">
             <header className="pd-heading">
               <h1>{product.name}</h1>
@@ -296,6 +290,12 @@ export default async function ProductPage({
                 <span className="pd-unit">Price per item</span>
               </div>
             </header>
+            <nav className="pd-section-nav" aria-label="Product sections">
+              <a href="#product-overview">Overview</a>
+              <a href="#product-information">Product information</a>
+              <a href="#product-compatibility">Compatibility</a>
+              <a href="#product-delivery">Collection</a>
+            </nav>
             <div className="pd-gallery-frame" id="product-overview">
               <ProductGallery
                 key={product.id}
