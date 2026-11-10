@@ -9229,3 +9229,16 @@ field against the older API or deploy its migration incidentally for this design
 Home/Services source 580a1bb5 remains live on both aliases. Groups 3-10 stay open.
 No local build/install or Docker operation. C: 20.59 GiB passed the bounded 0.05
 GiB browser preflight; preserve the 20 GiB reserve and recheck before more writes.
+
+
+The 102b10f4 run passed 13 Parts cases and failed the 390px full-main Axe scan
+after lightbox Escape. The retained trace identifies Collection's 44px target
+partly under the sticky header at the gallery opener's restored scroll position
+(22.3px exposed). This was not the card contrast assertion. Preserve the complete
+Axe rule set and gallery focus assertions; bring the section navigation fully into
+view to verify every link is at least 44px high and receives its centre hit, then
+position the overview at its start for the full-page scan and reference capture.
+No application or sticky-header rule changes. Final focused and full master
+execution remain required; the cancelled overall run is not a pass. Its 1,538
+units, 9 WebKit and 21 media diagnostics passed. The integrated matrix has 1,049
+cases. Evidence: parts-readable-ci-evidence.json and its 390 error-context receipt.

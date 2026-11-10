@@ -159,6 +159,27 @@ for (const [width, height] of [
       page.getByRole("button", { name: "View photos", exact: true }),
     ).toBeFocused();
     if ([1440, 390].includes(width)) {
+      // Escape restores the gallery opener. Scan the whole overview from its
+      // start, away from section links partly clipped at that scroll position.
+      const sections = page.getByRole("navigation", { name: "Product sections" });
+      await sections.scrollIntoViewIfNeeded();
+      await expect(sections).toBeInViewport({ ratio: 1 });
+      for (const link of await sections.getByRole("link").all()) {
+        const target = await link.boundingBox();
+        expect(target!.height).toBeGreaterThanOrEqual(44);
+        expect(
+          await link.evaluate((element) => {
+            const rect = element.getBoundingClientRect();
+            return element.contains(
+              document.elementFromPoint(
+                rect.x + rect.width / 2,
+                rect.y + rect.height / 2,
+              ),
+            );
+          }),
+        ).toBe(true);
+      }
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
       expect(
         (
           await new AxeBuilder({ page })
