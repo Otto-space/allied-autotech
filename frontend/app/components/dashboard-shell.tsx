@@ -219,7 +219,8 @@ export function DashboardShell({
     function adaptNavigation() {
       const focused = document.activeElement;
       if (mobile.matches) {
-        setSidebarCollapsed(false);
+        // The mobile drawer has its own full navigation. Keep the user's
+        // desktop sidebar choice when a resize crosses this breakpoint.
         if (
           focused?.closest(
             ".dashboard-navigation-container, .dashboard-collapse-toggle, .dashboard-logout",

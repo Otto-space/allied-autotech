@@ -1,6 +1,6 @@
 {
   "source": "../backend/docs/api/allied-autotech.openapi.json",
-  "sourceSha256": "aebd6ff5d47dde42d27b447a12a7f8898a1c81a355552b0704ac8b0b0e1e2828",
+  "sourceSha256": "3105071226c13451768901208ea657cd34c21ffb2399915ab36e00c89522b9f3",
   "note": "Private contract inventory. Source candidates are search hints, not proof of consumption. Response schemas with additionalProperties may be incomplete; reconcile serializers. Operational routes outside OpenAPI are tracked in the Markdown inventory.",
   "operations": [
     {
@@ -33875,6 +33875,394 @@
       "verification": "Browser fixture passed selected branch/part, exact request, explicit review and navigation to the empty stock record"
     },
     {
+      "operationId": "getStaffBookingsByBookingIdVehicleReleaseReadiness",
+      "method": "GET",
+      "path": "/api/v1/staff/bookings/{bookingId}/vehicle-release-readiness",
+      "purpose": "Review current vehicle collection clearance",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the booking resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "bookingId",
+          "in": "path",
+          "description": "Identifier selecting the booking resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Review current vehicle collection clearance.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "bookingId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Identifier of the booking resource; ownership is resolved server-side."
+                  },
+                  "bookingVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "description": "Booking Version validated by this operation's strict request contract."
+                  },
+                  "financialReviewHash": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$",
+                    "description": "Financial Review Hash validated by this operation's strict request contract."
+                  },
+                  "ready": {
+                    "type": "boolean",
+                    "enum": [true],
+                    "description": "Ready validated by this operation's strict request contract."
+                  },
+                  "checkedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  }
+                },
+                "required": [
+                  "bookingId",
+                  "bookingVersion",
+                  "financialReviewHash",
+                  "ready",
+                  "checkedAt"
+                ],
+                "additionalProperties": false,
+                "description": "Data validated by this operation's strict request contract."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "data", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/booking-reschedule-review.tsx",
+        "app/components/booking-timing-review.tsx",
+        "app/components/booking-work-review.tsx",
+        "app/components/service-line-entry.tsx",
+        "app/components/staff-booking-detail.tsx",
+        "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
+        "app/components/staff-work-order.tsx",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/forms/service-lines.ts",
+        "lib/work-booking-query.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postStaffBookingsByBookingIdVehicleRelease",
+      "method": "POST",
+      "path": "/api/v1/staff/bookings/{bookingId}/vehicle-release",
+      "purpose": "Record verified physical vehicle collection",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the booking resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "bookingId",
+          "in": "path",
+          "description": "Identifier selecting the booking resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedBookingVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Expected Booking Version validated by this operation's strict request contract."
+          },
+          "financialReviewHash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Financial Review Hash validated by this operation's strict request contract."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "recipientName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "description": "Recipient Name validated by this operation's strict request contract."
+          },
+          "verificationNote": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "identityAndAuthorityVerified": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "Identity And Authority Verified validated by this operation's strict request contract."
+          }
+        },
+        "required": [
+          "expectedBookingVersion",
+          "financialReviewHash",
+          "idempotencyKey",
+          "recipientName",
+          "verificationNote",
+          "identityAndAuthorityVerified"
+        ],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Record verified physical vehicle collection.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                  },
+                  "bookingId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Identifier of the booking resource; ownership is resolved server-side."
+                  },
+                  "releasedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  },
+                  "recipientName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120,
+                    "description": "Recipient Name validated by this operation's strict request contract."
+                  }
+                },
+                "required": ["id", "bookingId", "releasedAt", "recipientName"],
+                "additionalProperties": false,
+                "description": "Data validated by this operation's strict request contract."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "data", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/booking-reschedule-review.tsx",
+        "app/components/booking-timing-review.tsx",
+        "app/components/booking-work-review.tsx",
+        "app/components/service-line-entry.tsx",
+        "app/components/staff-booking-detail.tsx",
+        "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
+        "app/components/staff-work-order.tsx",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/forms/service-lines.ts",
+        "lib/work-booking-query.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
       "operationId": "getPublicServices",
       "method": "GET",
       "path": "/api/v1/public/services",
@@ -37425,6 +37813,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -37772,6 +38161,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -38126,6 +38516,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -38336,6 +38727,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -38536,6 +38928,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -38782,6 +39175,32 @@
             "minimum": 0,
             "maximum": 2147483647,
             "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "acceptedAdditionalWork": {
+            "type": "object",
+            "properties": {
+              "invoiceNumber": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 50,
+                "description": "Invoice Number validated by this operation's strict request contract."
+              },
+              "quoteVersion": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2147483647,
+                "description": "Quote Version validated by this operation's strict request contract."
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000,
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              }
+            },
+            "required": ["invoiceNumber", "quoteVersion", "reason"],
+            "additionalProperties": false,
+            "description": "Accepted Additional Work validated by this operation's strict request contract."
           }
         },
         "required": ["expectedRevision"],
@@ -39312,6 +39731,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -40032,6 +40452,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -40217,6 +40638,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -40574,6 +40996,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -40754,6 +41177,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -41136,6 +41560,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -41619,6 +42044,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -41815,6 +42241,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -41956,6 +42383,26 @@
             "type": "string",
             "format": "date-time",
             "description": "ISO 8601 timestamp interpreted and validated by the server."
+          },
+          "additionalWork": {
+            "type": "object",
+            "properties": {
+              "expectedBookingVersion": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647,
+                "description": "Expected Booking Version validated by this operation's strict request contract."
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000,
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              }
+            },
+            "required": ["expectedBookingVersion", "reason"],
+            "additionalProperties": false,
+            "description": "Additional Work validated by this operation's strict request contract."
           }
         },
         "required": ["items", "expiresAt"],
@@ -42071,6 +42518,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -42230,6 +42678,12 @@
             "minimum": 0,
             "maximum": 2147483647,
             "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "amendmentReason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
           }
         },
         "required": ["items", "expiresAt", "expectedRevision"],
@@ -42345,6 +42799,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -42531,6 +42986,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -42717,6 +43173,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -42903,6 +43360,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -43160,6 +43618,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -43429,6 +43888,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -43627,6 +44087,7 @@
         "app/components/service-line-entry.tsx",
         "app/components/staff-booking-detail.tsx",
         "app/components/staff-quote-records.tsx",
+        "app/components/staff-vehicle-collection.tsx",
         "app/components/staff-work-order.tsx",
         "lib/api/invoice-source-schemas.ts",
         "lib/forms/service-lines.ts",
@@ -45836,6 +46297,2491 @@
       "screen": "Pending mapping"
     },
     {
+      "operationId": "getCustomersOrdersByOrderIdPickup",
+      "method": "GET",
+      "path": "/api/v1/customers/orders/{orderId}/pickup",
+      "purpose": "Read authorised collection quantities and safe history without secret or financial proof disclosure",
+      "audience": "customer-facing",
+      "accessBoundary": "authenticated-customer",
+      "roles": ["CUSTOMER"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read authorised collection quantities and safe history without secret or financial proof disclosure.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Cursor-paginated result for: Read authorised collection quantities and safe history without secret or financial proof disclosure.",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "description": "Authorized resource projections for this page.",
+                    "items": {
+                      "type": "object",
+                      "description": "Safe item projection returned by Read authorised collection quantities and safe history without secret or financial proof disclosure.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "nextCursor": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Cursor for the next page, or null/omitted when exhausted."
+                  }
+                },
+                "required": ["items"],
+                "additionalProperties": false
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/aftercare-intake.tsx",
+        "app/components/cart-panel.tsx",
+        "app/components/collection-checkout.tsx",
+        "app/components/customer-order-aftercare.tsx",
+        "app/components/order-detail.tsx",
+        "app/components/purchase-suitability.tsx",
+        "lib/api/support-sources.ts",
+        "lib/customer-order-query.ts",
+        "lib/orders/use-aftercare-write.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postCustomersOrdersByOrderIdPickup",
+      "method": "POST",
+      "path": "/api/v1/customers/orders/{orderId}/pickup",
+      "purpose": "Issue or replace an owned ready order's private one-time pickup authorisation",
+      "audience": "customer-facing",
+      "accessBoundary": "authenticated-customer",
+      "roles": ["CUSTOMER"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Identifier of the order item resource; ownership is resolved server-side."
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100000,
+                  "description": "Quantity validated by this operation's strict request contract."
+                }
+              },
+              "required": ["orderItemId", "quantity"],
+              "additionalProperties": false,
+              "description": "Lines Item validated by this operation's strict request contract."
+            },
+            "minItems": 1,
+            "maxItems": 200,
+            "description": "Lines validated by this operation's strict request contract."
+          }
+        },
+        "required": ["expectedVersion", "idempotencyKey", "lines"],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Issue or replace an owned ready order's private one-time pickup authorisation.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Issue or replace an owned ready order's private one-time pickup authorisation.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/aftercare-intake.tsx",
+        "app/components/cart-panel.tsx",
+        "app/components/collection-checkout.tsx",
+        "app/components/customer-order-aftercare.tsx",
+        "app/components/order-detail.tsx",
+        "app/components/purchase-suitability.tsx",
+        "lib/api/support-sources.ts",
+        "lib/customer-order-query.ts",
+        "lib/orders/use-aftercare-write.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postCustomersOrdersByOrderIdPickupRevoke",
+      "method": "POST",
+      "path": "/api/v1/customers/orders/{orderId}/pickup/revoke",
+      "purpose": "Revoke an owned unused pickup authorisation without altering payment or goods",
+      "audience": "customer-facing",
+      "accessBoundary": "authenticated-customer",
+      "roles": ["CUSTOMER"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "authorisationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the authorisation resource; ownership is resolved server-side."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          }
+        },
+        "required": ["expectedVersion", "authorisationId", "reason"],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Revoke an owned unused pickup authorisation without altering payment or goods.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "null",
+                "description": "No data field is returned for: Revoke an owned unused pickup authorisation without altering payment or goods. Completion is expressed by the HTTP status and message."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/aftercare-intake.tsx",
+        "app/components/cart-panel.tsx",
+        "app/components/collection-checkout.tsx",
+        "app/components/customer-order-aftercare.tsx",
+        "app/components/order-detail.tsx",
+        "app/components/purchase-suitability.tsx",
+        "lib/api/support-sources.ts",
+        "lib/customer-order-query.ts",
+        "lib/orders/use-aftercare-write.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "getPurchaseOrdersByOrderIdPickup",
+      "method": "GET",
+      "path": "/api/v1/purchase/orders/{orderId}/pickup",
+      "purpose": "Read authorised collection quantities and safe history without secret or financial proof disclosure",
+      "audience": "administrator-facing",
+      "accessBoundary": "verified-purchase-guest",
+      "roles": ["PURCHASE_GUEST"],
+      "security": [
+        {
+          "purchaseGuestCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read authorised collection quantities and safe history without secret or financial proof disclosure.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Cursor-paginated result for: Read authorised collection quantities and safe history without secret or financial proof disclosure.",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "description": "Authorized resource projections for this page.",
+                    "items": {
+                      "type": "object",
+                      "description": "Safe item projection returned by Read authorised collection quantities and safe history without secret or financial proof disclosure.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "nextCursor": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Cursor for the next page, or null/omitted when exhausted."
+                  }
+                },
+                "required": ["items"],
+                "additionalProperties": false
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/purchase-aftercare.tsx",
+        "app/components/purchase-cart.tsx",
+        "app/components/purchase-invoice.tsx",
+        "app/components/purchase-quotations.tsx",
+        "app/components/purchase-records.tsx",
+        "app/components/purchase-suitability.tsx"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postPurchaseOrdersByOrderIdPickup",
+      "method": "POST",
+      "path": "/api/v1/purchase/orders/{orderId}/pickup",
+      "purpose": "Issue or replace an owned ready order's private one-time pickup authorisation",
+      "audience": "administrator-facing",
+      "accessBoundary": "verified-purchase-guest",
+      "roles": ["PURCHASE_GUEST"],
+      "security": [
+        {
+          "purchaseGuestCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Identifier of the order item resource; ownership is resolved server-side."
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100000,
+                  "description": "Quantity validated by this operation's strict request contract."
+                }
+              },
+              "required": ["orderItemId", "quantity"],
+              "additionalProperties": false,
+              "description": "Lines Item validated by this operation's strict request contract."
+            },
+            "minItems": 1,
+            "maxItems": 200,
+            "description": "Lines validated by this operation's strict request contract."
+          }
+        },
+        "required": ["expectedVersion", "idempotencyKey", "lines"],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Issue or replace an owned ready order's private one-time pickup authorisation.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Issue or replace an owned ready order's private one-time pickup authorisation.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/purchase-aftercare.tsx",
+        "app/components/purchase-cart.tsx",
+        "app/components/purchase-invoice.tsx",
+        "app/components/purchase-quotations.tsx",
+        "app/components/purchase-records.tsx",
+        "app/components/purchase-suitability.tsx"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postPurchaseOrdersByOrderIdPickupRevoke",
+      "method": "POST",
+      "path": "/api/v1/purchase/orders/{orderId}/pickup/revoke",
+      "purpose": "Revoke an owned unused pickup authorisation without altering payment or goods",
+      "audience": "administrator-facing",
+      "accessBoundary": "verified-purchase-guest",
+      "roles": ["PURCHASE_GUEST"],
+      "security": [
+        {
+          "purchaseGuestCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "authorisationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the authorisation resource; ownership is resolved server-side."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          }
+        },
+        "required": ["expectedVersion", "authorisationId", "reason"],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Revoke an owned unused pickup authorisation without altering payment or goods.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "null",
+                "description": "No data field is returned for: Revoke an owned unused pickup authorisation without altering payment or goods. Completion is expressed by the HTTP status and message."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/purchase-aftercare.tsx",
+        "app/components/purchase-cart.tsx",
+        "app/components/purchase-invoice.tsx",
+        "app/components/purchase-quotations.tsx",
+        "app/components/purchase-records.tsx",
+        "app/components/purchase-suitability.tsx"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "getStaffOrdersByOrderIdPickup",
+      "method": "GET",
+      "path": "/api/v1/staff/orders/{orderId}/pickup",
+      "purpose": "Read authorised collection quantities and safe history without secret or financial proof disclosure",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read authorised collection quantities and safe history without secret or financial proof disclosure.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Cursor-paginated result for: Read authorised collection quantities and safe history without secret or financial proof disclosure.",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "description": "Authorized resource projections for this page.",
+                    "items": {
+                      "type": "object",
+                      "description": "Safe item projection returned by Read authorised collection quantities and safe history without secret or financial proof disclosure.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "nextCursor": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Cursor for the next page, or null/omitted when exhausted."
+                  }
+                },
+                "required": ["items"],
+                "additionalProperties": false
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/fulfillment-evidence.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "lib/admin/work-orders.ts",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postStaffOrdersByOrderIdPickupContact",
+      "method": "POST",
+      "path": "/api/v1/staff/orders/{orderId}/pickup/contact",
+      "purpose": "Record actual successful collection notification or a failed contact attempt separately",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "outcome": {
+            "type": "string",
+            "enum": ["NOTIFIED", "NOTIFICATION_FAILED"],
+            "description": "Outcome validated by this operation's strict request contract."
+          },
+          "method": {
+            "type": "string",
+            "enum": ["PHONE_CALL", "IN_PERSON"],
+            "description": "Method validated by this operation's strict request contract."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "actualContactResultConfirmed": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "Actual Contact Result Confirmed validated by this operation's strict request contract."
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "idempotencyKey",
+          "outcome",
+          "method",
+          "reason",
+          "actualContactResultConfirmed"
+        ],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Record actual successful collection notification or a failed contact attempt separately.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Record actual successful collection notification or a failed contact attempt separately.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/fulfillment-evidence.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "lib/admin/work-orders.ts",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postStaffOrdersByOrderIdPickupExtendHold",
+      "method": "POST",
+      "path": "/api/v1/staff/orders/{orderId}/pickup/extend-hold",
+      "purpose": "Extend an actual collection hold with a reason without releasing paid goods",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "collectByDate": {
+            "type": "string",
+            "format": "date",
+            "description": "ISO 8601 timestamp interpreted and validated by the server."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          }
+        },
+        "required": ["expectedVersion", "idempotencyKey", "collectByDate", "reason"],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Extend an actual collection hold with a reason without releasing paid goods.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Extend an actual collection hold with a reason without releasing paid goods.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/fulfillment-evidence.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "lib/admin/work-orders.ts",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postStaffOrdersByOrderIdPickupCancelReview",
+      "method": "POST",
+      "path": "/api/v1/staff/orders/{orderId}/pickup/cancel-review",
+      "purpose": "Resolve a pickup review only after confirming goods were not handed over; revoke its old code",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "claimId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the claim resource; ownership is resolved server-side."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "goodsNotHandedOverConfirmed": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "Goods Not Handed Over Confirmed validated by this operation's strict request contract."
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "claimId",
+          "reason",
+          "goodsNotHandedOverConfirmed"
+        ],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Resolve a pickup review only after confirming goods were not handed over; revoke its old code.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "null",
+                "description": "No data field is returned for: Resolve a pickup review only after confirming goods were not handed over; revoke its old code. Completion is expressed by the HTTP status and message."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/fulfillment-evidence.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "lib/admin/work-orders.ts",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postStaffOrdersByOrderIdPickupVerify",
+      "method": "POST",
+      "path": "/api/v1/staff/orders/{orderId}/pickup/verify",
+      "purpose": "Claim an exclusive session-bound review of private code, exact goods and current payment clearance",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "pickupCode": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$",
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Identifier of the order item resource; ownership is resolved server-side."
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100000,
+                  "description": "Quantity validated by this operation's strict request contract."
+                }
+              },
+              "required": ["orderItemId", "quantity"],
+              "additionalProperties": false,
+              "description": "Lines Item validated by this operation's strict request contract."
+            },
+            "minItems": 1,
+            "maxItems": 200,
+            "description": "Lines validated by this operation's strict request contract."
+          }
+        },
+        "required": ["expectedVersion", "pickupCode", "lines"],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Claim an exclusive session-bound review of private code, exact goods and current payment clearance.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Claim an exclusive session-bound review of private code, exact goods and current payment clearance.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/fulfillment-evidence.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "lib/admin/work-orders.ts",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postStaffOrdersByOrderIdPickupHandover",
+      "method": "POST",
+      "path": "/api/v1/staff/orders/{orderId}/pickup/handover",
+      "purpose": "Consume private authorisation and record confirmed physical handover transactionally",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "pickupCode": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$",
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Identifier of the order item resource; ownership is resolved server-side."
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100000,
+                  "description": "Quantity validated by this operation's strict request contract."
+                }
+              },
+              "required": ["orderItemId", "quantity"],
+              "additionalProperties": false,
+              "description": "Lines Item validated by this operation's strict request contract."
+            },
+            "minItems": 1,
+            "maxItems": 200,
+            "description": "Lines validated by this operation's strict request contract."
+          },
+          "authorisationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the authorisation resource; ownership is resolved server-side."
+          },
+          "claimId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the claim resource; ownership is resolved server-side."
+          },
+          "financialReviewHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Financial Review Hash validated by this operation's strict request contract."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "collectorName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "description": "Collector Name validated by this operation's strict request contract."
+          },
+          "verificationNote": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "physicalHandoverConfirmed": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "Physical Handover Confirmed validated by this operation's strict request contract."
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "pickupCode",
+          "lines",
+          "authorisationId",
+          "claimId",
+          "financialReviewHash",
+          "idempotencyKey",
+          "collectorName",
+          "verificationNote",
+          "physicalHandoverConfirmed"
+        ],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Consume private authorisation and record confirmed physical handover transactionally.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Consume private authorisation and record confirmed physical handover transactionally.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/fulfillment-evidence.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "lib/admin/work-orders.ts",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postAdminOrdersByOrderIdTiming",
+      "method": "POST",
+      "path": "/api/v1/admin/orders/{orderId}/timing",
+      "purpose": "Record a current-access, auditable per-item sourcing estimate without authorising payment or collection",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-admin",
+      "roles": ["ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Identifier of the order item resource; ownership is resolved server-side."
+                },
+                "sourcingStatus": {
+                  "type": "string",
+                  "enum": [
+                    "UNKNOWN",
+                    "IN_STOCK",
+                    "SUPPLIER_CONFIRMED",
+                    "ORDERED",
+                    "IN_TRANSIT",
+                    "ARRIVED",
+                    "UNAVAILABLE"
+                  ],
+                  "description": "Sourcing Status validated by this operation's strict request contract."
+                },
+                "sourcingFrom": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "Sourcing From validated by this operation's strict request contract."
+                },
+                "sourcingUntil": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "Sourcing Until validated by this operation's strict request contract."
+                },
+                "preparationMinutes": {
+                  "type": ["integer", "null"],
+                  "minimum": 0,
+                  "maximum": 525600,
+                  "description": "Preparation Minutes validated by this operation's strict request contract."
+                }
+              },
+              "required": [
+                "orderItemId",
+                "sourcingStatus",
+                "sourcingFrom",
+                "sourcingUntil",
+                "preparationMinutes"
+              ],
+              "additionalProperties": false,
+              "description": "Lines Item validated by this operation's strict request contract."
+            },
+            "minItems": 1,
+            "maxItems": 200,
+            "description": "Lines validated by this operation's strict request contract."
+          },
+          "customerNote": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "idempotencyKey",
+          "lines",
+          "customerNote",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Record a current-access, auditable per-item sourcing estimate without authorising payment or collection.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Record a current-access, auditable per-item sourcing estimate without authorising payment or collection.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/admin-overview.tsx",
+        "app/components/dashboard-shell.tsx",
+        "app/components/notification-attention-queue.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "app/components/staff-orders.tsx",
+        "app/components/staff-reviews.tsx",
+        "lib/admin/work-customer-detail.ts",
+        "lib/admin/work-invoices.ts",
+        "lib/api/audit-schemas.ts",
+        "lib/dashboard-navigation.ts",
+        "lib/notifications/destinations.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
       "operationId": "postCustomersOrdersByOrderIdPurchaseReview",
       "method": "POST",
       "path": "/api/v1/customers/orders/{orderId}/purchase-review",
@@ -46383,6 +49329,7 @@
         "app/components/dashboard-shell.tsx",
         "app/components/notification-attention-queue.tsx",
         "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
         "app/components/purchase-review-decision.tsx",
         "app/components/staff-order-detail.tsx",
         "app/components/staff-orders.tsx",
@@ -48125,10 +51072,12 @@
       "sourceCandidates": [
         "app/components/fulfillment-evidence.tsx",
         "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
         "app/components/purchase-review-decision.tsx",
         "app/components/staff-order-detail.tsx",
         "lib/admin/work-orders.ts",
-        "lib/api/invoice-source-schemas.ts"
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
       ],
       "screen": "/admin/orders; /admin/orders/[orderId]",
       "source": "app/components/staff-orders.tsx; app/components/staff-order-detail.tsx",
@@ -48264,10 +51213,12 @@
       "sourceCandidates": [
         "app/components/fulfillment-evidence.tsx",
         "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
         "app/components/purchase-review-decision.tsx",
         "app/components/staff-order-detail.tsx",
         "lib/admin/work-orders.ts",
-        "lib/api/invoice-source-schemas.ts"
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
       ],
       "screen": "/admin/orders; /admin/orders/[orderId]",
       "source": "app/components/staff-orders.tsx; app/components/staff-order-detail.tsx; app/components/order-delivery-details.tsx",
@@ -48445,10 +51396,12 @@
       "sourceCandidates": [
         "app/components/fulfillment-evidence.tsx",
         "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
         "app/components/purchase-review-decision.tsx",
         "app/components/staff-order-detail.tsx",
         "lib/admin/work-orders.ts",
-        "lib/api/invoice-source-schemas.ts"
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
       ],
       "screen": "/admin/orders; /admin/orders/[orderId]",
       "source": "app/components/staff-orders.tsx; app/components/staff-order-detail.tsx",
@@ -53794,7 +56747,12 @@
                     "properties": {
                       "type": {
                         "type": "string",
-                        "enum": ["ORDER", "BOOKING", "VEHICLE_TRANSACTION"],
+                        "enum": [
+                          "ORDER",
+                          "BOOKING",
+                          "VEHICLE_TRANSACTION",
+                          "SERVICE_ADDITION"
+                        ],
                         "description": "Type validated by this operation's strict request contract."
                       },
                       "id": {
@@ -53813,6 +56771,18 @@
                         "minLength": 1,
                         "maxLength": 1000,
                         "description": "Description validated by this operation's strict request contract."
+                      },
+                      "originalInvoiceNumber": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50,
+                        "description": "Original Invoice Number validated by this operation's strict request contract."
+                      },
+                      "amendmentReason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000,
+                        "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                       }
                     },
                     "required": ["type", "id", "reference", "description"],
@@ -53872,6 +56842,165 @@
                     "type": "string",
                     "enum": ["SNAPSHOT", "SOURCE_RECORDS", "LEGACY_SUMMARY"],
                     "description": "Detail Basis validated by this operation's strict request contract."
+                  },
+                  "servicePaymentPlan": {
+                    "type": "object",
+                    "properties": {
+                      "version": {
+                        "type": "number",
+                        "enum": [1],
+                        "description": "Version validated by this operation's strict request contract."
+                      },
+                      "quoteId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the quote resource; ownership is resolved server-side."
+                      },
+                      "quoteVersion": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "Quote Version validated by this operation's strict request contract."
+                      },
+                      "rule": {
+                        "type": "string",
+                        "enum": ["SAVED_QUOTE_TOTALS_LARGEST_REMAINDER"],
+                        "description": "Rule validated by this operation's strict request contract."
+                      },
+                      "feeTiming": {
+                        "type": "string",
+                        "enum": ["DEFER_UNTIL_WORK_COMPLETED"],
+                        "description": "Fee Timing validated by this operation's strict request contract."
+                      },
+                      "materials": {
+                        "type": "object",
+                        "properties": {
+                          "subtotalKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Subtotal Kobo validated by this operation's strict request contract."
+                          },
+                          "taxKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Tax Kobo validated by this operation's strict request contract."
+                          },
+                          "creditKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Credit Kobo validated by this operation's strict request contract."
+                          },
+                          "totalKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Total Kobo validated by this operation's strict request contract."
+                          }
+                        },
+                        "required": [
+                          "subtotalKobo",
+                          "taxKobo",
+                          "creditKobo",
+                          "totalKobo"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Materials validated by this operation's strict request contract."
+                      },
+                      "workmanship": {
+                        "type": "object",
+                        "properties": {
+                          "subtotalKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Subtotal Kobo validated by this operation's strict request contract."
+                          },
+                          "taxKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Tax Kobo validated by this operation's strict request contract."
+                          },
+                          "creditKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Credit Kobo validated by this operation's strict request contract."
+                          },
+                          "totalKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Total Kobo validated by this operation's strict request contract."
+                          }
+                        },
+                        "required": [
+                          "subtotalKobo",
+                          "taxKobo",
+                          "creditKobo",
+                          "totalKobo"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Workmanship validated by this operation's strict request contract."
+                      },
+                      "lines": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "quoteItemId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the quote item resource; ownership is resolved server-side."
+                            },
+                            "stage": {
+                              "type": "string",
+                              "enum": ["MATERIALS", "WORKMANSHIP"],
+                              "description": "Stage validated by this operation's strict request contract."
+                            },
+                            "subtotalKobo": {
+                              "type": "string",
+                              "pattern": "^(0|[1-9]\\d{0,18})$",
+                              "description": "Subtotal Kobo validated by this operation's strict request contract."
+                            },
+                            "taxKobo": {
+                              "type": "string",
+                              "pattern": "^(0|[1-9]\\d{0,18})$",
+                              "description": "Tax Kobo validated by this operation's strict request contract."
+                            },
+                            "creditKobo": {
+                              "type": "string",
+                              "pattern": "^(0|[1-9]\\d{0,18})$",
+                              "description": "Credit Kobo validated by this operation's strict request contract."
+                            },
+                            "totalKobo": {
+                              "type": "string",
+                              "pattern": "^(0|[1-9]\\d{0,18})$",
+                              "description": "Total Kobo validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "quoteItemId",
+                            "stage",
+                            "subtotalKobo",
+                            "taxKobo",
+                            "creditKobo",
+                            "totalKobo"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Lines Item validated by this operation's strict request contract."
+                        },
+                        "minItems": 1,
+                        "maxItems": 200,
+                        "description": "Lines validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": [
+                      "version",
+                      "quoteId",
+                      "quoteVersion",
+                      "rule",
+                      "feeTiming",
+                      "materials",
+                      "workmanship",
+                      "lines"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Service Payment Plan validated by this operation's strict request contract."
                   },
                   "id": {
                     "type": "string",
@@ -53964,6 +57093,11 @@
                           "type": "string",
                           "pattern": "^\\d{1,19}$",
                           "description": "Refunded Kobo validated by this operation's strict request contract."
+                        },
+                        "serviceStage": {
+                          "type": "string",
+                          "enum": ["MATERIALS", "WORKMANSHIP"],
+                          "description": "Service Stage validated by this operation's strict request contract."
                         }
                       },
                       "required": [
@@ -54015,6 +57149,11 @@
                           "type": ["string", "null"],
                           "format": "date-time",
                           "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "serviceStage": {
+                          "type": "string",
+                          "enum": ["MATERIALS", "WORKMANSHIP"],
+                          "description": "Service Stage validated by this operation's strict request contract."
                         }
                       },
                       "required": [
@@ -54379,7 +57518,12 @@
                     "properties": {
                       "type": {
                         "type": "string",
-                        "enum": ["ORDER", "BOOKING", "VEHICLE_TRANSACTION"],
+                        "enum": [
+                          "ORDER",
+                          "BOOKING",
+                          "VEHICLE_TRANSACTION",
+                          "SERVICE_ADDITION"
+                        ],
                         "description": "Type validated by this operation's strict request contract."
                       },
                       "id": {
@@ -54398,6 +57542,18 @@
                         "minLength": 1,
                         "maxLength": 1000,
                         "description": "Description validated by this operation's strict request contract."
+                      },
+                      "originalInvoiceNumber": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50,
+                        "description": "Original Invoice Number validated by this operation's strict request contract."
+                      },
+                      "amendmentReason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000,
+                        "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                       }
                     },
                     "required": ["type", "id", "reference", "description"],
@@ -54457,6 +57613,165 @@
                     "type": "string",
                     "enum": ["SNAPSHOT", "SOURCE_RECORDS", "LEGACY_SUMMARY"],
                     "description": "Detail Basis validated by this operation's strict request contract."
+                  },
+                  "servicePaymentPlan": {
+                    "type": "object",
+                    "properties": {
+                      "version": {
+                        "type": "number",
+                        "enum": [1],
+                        "description": "Version validated by this operation's strict request contract."
+                      },
+                      "quoteId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Identifier of the quote resource; ownership is resolved server-side."
+                      },
+                      "quoteVersion": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "description": "Quote Version validated by this operation's strict request contract."
+                      },
+                      "rule": {
+                        "type": "string",
+                        "enum": ["SAVED_QUOTE_TOTALS_LARGEST_REMAINDER"],
+                        "description": "Rule validated by this operation's strict request contract."
+                      },
+                      "feeTiming": {
+                        "type": "string",
+                        "enum": ["DEFER_UNTIL_WORK_COMPLETED"],
+                        "description": "Fee Timing validated by this operation's strict request contract."
+                      },
+                      "materials": {
+                        "type": "object",
+                        "properties": {
+                          "subtotalKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Subtotal Kobo validated by this operation's strict request contract."
+                          },
+                          "taxKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Tax Kobo validated by this operation's strict request contract."
+                          },
+                          "creditKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Credit Kobo validated by this operation's strict request contract."
+                          },
+                          "totalKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Total Kobo validated by this operation's strict request contract."
+                          }
+                        },
+                        "required": [
+                          "subtotalKobo",
+                          "taxKobo",
+                          "creditKobo",
+                          "totalKobo"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Materials validated by this operation's strict request contract."
+                      },
+                      "workmanship": {
+                        "type": "object",
+                        "properties": {
+                          "subtotalKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Subtotal Kobo validated by this operation's strict request contract."
+                          },
+                          "taxKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Tax Kobo validated by this operation's strict request contract."
+                          },
+                          "creditKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Credit Kobo validated by this operation's strict request contract."
+                          },
+                          "totalKobo": {
+                            "type": "string",
+                            "pattern": "^(0|[1-9]\\d{0,18})$",
+                            "description": "Total Kobo validated by this operation's strict request contract."
+                          }
+                        },
+                        "required": [
+                          "subtotalKobo",
+                          "taxKobo",
+                          "creditKobo",
+                          "totalKobo"
+                        ],
+                        "additionalProperties": false,
+                        "description": "Workmanship validated by this operation's strict request contract."
+                      },
+                      "lines": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "quoteItemId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the quote item resource; ownership is resolved server-side."
+                            },
+                            "stage": {
+                              "type": "string",
+                              "enum": ["MATERIALS", "WORKMANSHIP"],
+                              "description": "Stage validated by this operation's strict request contract."
+                            },
+                            "subtotalKobo": {
+                              "type": "string",
+                              "pattern": "^(0|[1-9]\\d{0,18})$",
+                              "description": "Subtotal Kobo validated by this operation's strict request contract."
+                            },
+                            "taxKobo": {
+                              "type": "string",
+                              "pattern": "^(0|[1-9]\\d{0,18})$",
+                              "description": "Tax Kobo validated by this operation's strict request contract."
+                            },
+                            "creditKobo": {
+                              "type": "string",
+                              "pattern": "^(0|[1-9]\\d{0,18})$",
+                              "description": "Credit Kobo validated by this operation's strict request contract."
+                            },
+                            "totalKobo": {
+                              "type": "string",
+                              "pattern": "^(0|[1-9]\\d{0,18})$",
+                              "description": "Total Kobo validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "quoteItemId",
+                            "stage",
+                            "subtotalKobo",
+                            "taxKobo",
+                            "creditKobo",
+                            "totalKobo"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Lines Item validated by this operation's strict request contract."
+                        },
+                        "minItems": 1,
+                        "maxItems": 200,
+                        "description": "Lines validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": [
+                      "version",
+                      "quoteId",
+                      "quoteVersion",
+                      "rule",
+                      "feeTiming",
+                      "materials",
+                      "workmanship",
+                      "lines"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Service Payment Plan validated by this operation's strict request contract."
                   },
                   "id": {
                     "type": "string",
@@ -54549,6 +57864,11 @@
                           "type": "string",
                           "pattern": "^\\d{1,19}$",
                           "description": "Refunded Kobo validated by this operation's strict request contract."
+                        },
+                        "serviceStage": {
+                          "type": "string",
+                          "enum": ["MATERIALS", "WORKMANSHIP"],
+                          "description": "Service Stage validated by this operation's strict request contract."
                         }
                       },
                       "required": [
@@ -54600,6 +57920,11 @@
                           "type": ["string", "null"],
                           "format": "date-time",
                           "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "serviceStage": {
+                          "type": "string",
+                          "enum": ["MATERIALS", "WORKMANSHIP"],
+                          "description": "Service Stage validated by this operation's strict request contract."
                         }
                       },
                       "required": [
@@ -54927,6 +58252,11 @@
                     "maxLength": 80,
                     "description": "Method validated by this operation's strict request contract."
                   },
+                  "serviceStage": {
+                    "type": "string",
+                    "enum": ["MATERIALS", "WORKMANSHIP"],
+                    "description": "Service Stage validated by this operation's strict request contract."
+                  },
                   "refundedKobo": {
                     "type": "string",
                     "pattern": "^\\d{1,19}$",
@@ -54956,6 +58286,18 @@
                         "minLength": 1,
                         "maxLength": 1000,
                         "description": "Description validated by this operation's strict request contract."
+                      },
+                      "originalInvoiceNumber": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50,
+                        "description": "Original Invoice Number validated by this operation's strict request contract."
+                      },
+                      "amendmentReason": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000,
+                        "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                       }
                     },
                     "required": ["type", "id", "reference", "description"],
@@ -55198,7 +58540,7 @@
         {
           "schema": {
             "type": "string",
-            "enum": ["ORDER", "BOOKING", "VEHICLE_TRANSACTION"],
+            "enum": ["ORDER", "BOOKING", "VEHICLE_TRANSACTION", "SERVICE_ADDITION"],
             "description": "Source Type validated by this operation's strict request contract."
           },
           "required": true,
@@ -55617,7 +58959,7 @@
         {
           "schema": {
             "type": "string",
-            "enum": ["ORDER", "BOOKING", "VEHICLE_TRANSACTION"],
+            "enum": ["ORDER", "BOOKING", "VEHICLE_TRANSACTION", "SERVICE_ADDITION"],
             "description": "Source Type validated by this operation's strict request contract."
           },
           "required": false,
@@ -55793,7 +59135,7 @@
         "properties": {
           "sourceType": {
             "type": "string",
-            "enum": ["ORDER", "BOOKING", "VEHICLE_TRANSACTION"],
+            "enum": ["ORDER", "BOOKING", "VEHICLE_TRANSACTION", "SERVICE_ADDITION"],
             "description": "Source Type validated by this operation's strict request contract."
           },
           "sourceId": {
@@ -71310,6 +74652,30 @@
                 "type": "string",
                 "enum": ["SERVICE_INVOICE"],
                 "description": "Purpose validated by this operation's strict request contract."
+              },
+              "acceptedServiceStage": {
+                "type": "object",
+                "properties": {
+                  "stage": {
+                    "type": "string",
+                    "enum": ["MATERIALS", "WORKMANSHIP"],
+                    "description": "Stage validated by this operation's strict request contract."
+                  },
+                  "invoiceVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "description": "Invoice Version validated by this operation's strict request contract."
+                  },
+                  "amountKobo": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9]\\d{0,18})$",
+                    "description": "Integer amount in Nigerian kobo; the server remains authoritative."
+                  }
+                },
+                "required": ["stage", "invoiceVersion", "amountKobo"],
+                "additionalProperties": false,
+                "description": "Accepted Service Stage validated by this operation's strict request contract."
               }
             },
             "required": ["targetType", "targetId", "purpose"],
@@ -99991,15 +103357,20 @@
                         "description": "Cancellation Fee Kobo validated by this operation's strict request contract."
                       },
                       "reminderMinutes": {
-                        "type": "number",
-                        "enum": [60],
+                        "type": "null",
                         "description": "Reminder Minutes validated by this operation's strict request contract."
+                      },
+                      "reminderTiming": {
+                        "type": "string",
+                        "enum": ["APPOINTMENT_POLICY"],
+                        "description": "Reminder Timing validated by this operation's strict request contract."
                       }
                     },
                     "required": [
                       "confirmation",
                       "cancellationFeeKobo",
-                      "reminderMinutes"
+                      "reminderMinutes",
+                      "reminderTiming"
                     ],
                     "description": "Booking validated by this operation's strict request contract."
                   },
@@ -105090,6 +108461,17 @@
                     "maximum": 1440,
                     "description": "No Show Grace Minutes validated by this operation's strict request contract."
                   },
+                  "reminderMinutes": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 10080,
+                      "description": "Reminder Minutes Item validated by this operation's strict request contract."
+                    },
+                    "maxItems": 3,
+                    "description": "Reminder Minutes validated by this operation's strict request contract."
+                  },
                   "openingDays": {
                     "type": "array",
                     "items": {
@@ -108755,10 +112137,12 @@
       "sourceCandidates": [
         "app/components/fulfillment-evidence.tsx",
         "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
         "app/components/purchase-review-decision.tsx",
         "app/components/staff-order-detail.tsx",
         "lib/admin/work-orders.ts",
-        "lib/api/invoice-source-schemas.ts"
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
       ],
       "screen": "/admin/orders/[orderId]/aftercare",
       "source": "app/components/order-aftercare.tsx; app/components/aftercare-intake.tsx; app/components/aftercare-review.tsx; app/components/fulfillment-evidence.tsx; lib/api/aftercare-schemas.ts",
@@ -109519,10 +112903,12 @@
       "sourceCandidates": [
         "app/components/fulfillment-evidence.tsx",
         "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
         "app/components/purchase-review-decision.tsx",
         "app/components/staff-order-detail.tsx",
         "lib/admin/work-orders.ts",
-        "lib/api/invoice-source-schemas.ts"
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
       ],
       "screen": "/admin/orders/[orderId]/aftercare",
       "source": "app/components/order-aftercare.tsx; app/components/aftercare-intake.tsx; app/components/aftercare-review.tsx; app/components/fulfillment-evidence.tsx; lib/api/aftercare-schemas.ts",

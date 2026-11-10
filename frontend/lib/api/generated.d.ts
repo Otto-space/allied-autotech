@@ -2412,6 +2412,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/staff/bookings/{bookingId}/vehicle-release-readiness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Review current vehicle collection clearance
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Current verified Admin/Super Admin only. Rechecks actual completion, all accepted original/additional obligations, verified settled funds, historical credit and financial holds. Returns only a version-bound review fingerprint and checked time, with no private payment identifiers or amounts. This does not release a vehicle or authorise a technician. Confirmation rechecks the same proof; readiness alone is not collection. Review current vehicle collection clearance. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffBookingsByBookingIdVehicleReleaseReadiness"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/bookings/{bookingId}/vehicle-release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record verified physical vehicle collection
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Admin/Super Admin with current verified MFA only. Record actual collector identity/authority review after actual booking and work-order completion and verified settlement of every original/additional invoice. Pending, uncertain, adjusted or busy payment proof refuses collection. The source key and reviewed booking version are bound to immutable history. An exact replay returns the existing fact; it never performs another release or charge. Historical unstaged financial records require authorised review. This does not reserve inventory, alter payments or grant technicians release authority. Record verified physical vehicle collection. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffBookingsByBookingIdVehicleRelease"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/services": {
         parameters: {
             query?: never;
@@ -2679,7 +2719,7 @@ export interface paths {
         put?: never;
         /**
          * Review remaining work and actual physical units without moving the visit
-         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Review remaining work and actual physical units without moving the visit. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Requires current booking scope and independent BOOKING_CONFIRM authority. Does not start or complete work, charge money or promise collection. Rechecks the actual remaining occupied period and appends immutable review provenance. Review remaining work and actual physical units without moving the visit. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffBookingsByBookingIdWorkReview"];
         delete?: never;
@@ -2759,7 +2799,7 @@ export interface paths {
         put?: never;
         /**
          * Accept an issued quote
-         * @description Accept an issued quote. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Additional-work acceptance must explicitly acknowledge the displayed original invoice number, quotation version and reason. Cached clients without that acknowledgement are refused. This preserves the original agreement and does not create a payment or authorise vehicle release. Accept an issued quote. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postCustomersBookingsByBookingIdQuotesByQuoteIdAccept"];
         delete?: never;
@@ -2987,7 +3027,7 @@ export interface paths {
         put?: never;
         /**
          * Transition a booking
-         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Transition a booking. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Staged service invoices require accepted work scope and verified materials for work containing quoted parts, including direct booking start/completion. Completion does not release the vehicle. Transition a booking. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffBookingsByBookingIdStatus"];
         delete?: never;
@@ -3007,7 +3047,7 @@ export interface paths {
         put?: never;
         /**
          * Create a quote draft
-         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Create a quote draft. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. When an original service invoice exists, explicit additionalWork intent, a current booking version and a customer-visible reason are required. The server binds the original invoice; the client cannot choose another invoice. Include only additional items. No original amount or payment is replaced and no charge is made. Create a quote draft. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffBookingsByBookingIdQuotes"];
         delete?: never;
@@ -3026,7 +3066,7 @@ export interface paths {
         get?: never;
         /**
          * Create a replacement quote version
-         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Create a replacement quote version. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. A new draft version preserves its original-invoice association. An additional-work reason may be reviewed for the new draft; the old reason/history remain immutable. Issued original invoices are never silently repriced. Create a replacement quote version. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         put: operations["putStaffBookingsByBookingIdQuotesByQuoteId"];
         post?: never;
@@ -3107,7 +3147,7 @@ export interface paths {
         put?: never;
         /**
          * Create a work order
-         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Create a work order. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. For staged invoices, item identity, quantities and prices must match the saved accepted quotation. Current catalogue changes cannot reprice agreed work. Additional scope needs customer agreement and a reviewed change; issued invoices are not rewritten. Create a work order. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffBookingsByBookingIdWorkOrders"];
         delete?: never;
@@ -3126,7 +3166,7 @@ export interface paths {
         get?: never;
         /**
          * Update work details and append items
-         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Update work details and append items. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Staged-invoice additions must stay within the accepted quotation. Adding quoted materials to already started work requires verified materials settlement. Diagnosis-only updates remain available within existing scope. Update work details and append items. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         put: operations["putStaffBookingsByBookingIdWorkOrdersByWorkOrderId"];
         post?: never;
@@ -3147,7 +3187,7 @@ export interface paths {
         put?: never;
         /**
          * Transition a work order
-         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. Transition a work order. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied. For staged invoices, active work must match accepted scope; work containing quoted materials requires verified materials settlement. Completion requires the whole agreed scope. Labour-only work can proceed without collecting workmanship early. Financial holds or busy proof require rechecking. Completion is not vehicle release. Staged service invoices require accepted work scope and verified materials for work containing quoted parts, including direct booking start/completion. Completion does not release the vehicle. Transition a work order. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffBookingsByBookingIdWorkOrdersByWorkOrderIdStatus"];
         delete?: never;
@@ -3286,6 +3326,234 @@ export interface paths {
          * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Display order is an integer from 0 to 1000000; lower values appear first, then name and ID. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Update or archive a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         patch: operations["patchAdminServiceCategoriesByCategoryId"];
+        trace?: never;
+    };
+    "/customers/orders/{orderId}/pickup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read authorised collection quantities and safe history without secret or financial proof disclosure
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Read authorised collection quantities and safe history without secret or financial proof disclosure. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getCustomersOrdersByOrderIdPickup"];
+        put?: never;
+        /**
+         * Issue or replace an owned ready order's private one-time pickup authorisation
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Issue or replace an owned ready order's private one-time pickup authorisation. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postCustomersOrdersByOrderIdPickup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/orders/{orderId}/pickup/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke an owned unused pickup authorisation without altering payment or goods
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Revoke an owned unused pickup authorisation without altering payment or goods. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postCustomersOrdersByOrderIdPickupRevoke"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/purchase/orders/{orderId}/pickup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read authorised collection quantities and safe history without secret or financial proof disclosure
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Read authorised collection quantities and safe history without secret or financial proof disclosure. Access boundary: verified-purchase-guest. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getPurchaseOrdersByOrderIdPickup"];
+        put?: never;
+        /**
+         * Issue or replace an owned ready order's private one-time pickup authorisation
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Issue or replace an owned ready order's private one-time pickup authorisation. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postPurchaseOrdersByOrderIdPickup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/purchase/orders/{orderId}/pickup/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke an owned unused pickup authorisation without altering payment or goods
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Revoke an owned unused pickup authorisation without altering payment or goods. Access boundary: verified-purchase-guest. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postPurchaseOrdersByOrderIdPickupRevoke"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/orders/{orderId}/pickup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read authorised collection quantities and safe history without secret or financial proof disclosure
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Read authorised collection quantities and safe history without secret or financial proof disclosure. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffOrdersByOrderIdPickup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/orders/{orderId}/pickup/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record actual successful collection notification or a failed contact attempt separately
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Record actual successful collection notification or a failed contact attempt separately. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffOrdersByOrderIdPickupContact"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/orders/{orderId}/pickup/extend-hold": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Extend an actual collection hold with a reason without releasing paid goods
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Extend an actual collection hold with a reason without releasing paid goods. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffOrdersByOrderIdPickupExtendHold"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/orders/{orderId}/pickup/cancel-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve a pickup review only after confirming goods were not handed over; revoke its old code
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Resolve a pickup review only after confirming goods were not handed over; revoke its old code. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffOrdersByOrderIdPickupCancelReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/orders/{orderId}/pickup/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Claim an exclusive session-bound review of private code, exact goods and current payment clearance
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Claim an exclusive session-bound review of private code, exact goods and current payment clearance. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffOrdersByOrderIdPickupVerify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/orders/{orderId}/pickup/handover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Consume private authorisation and record confirmed physical handover transactionally
+         * @description Private/no-store and sensitive-rate-limited. Current principal/branch checks are authoritative. Raw pickupCode stays in authenticated response/request memory, never in a URL or stored history. No public order reference is collection authority. Issue/handover use body UUID replay keys; an issuance replay cannot redisplay a secret. Payment, allocation, actual readiness, partial handover and holding deadlines remain separate. Engineering security expiry is not an owner-approved holding deadline. This operation moves no money. Guest mutations require trusted Origin plus the purchase-session CSRF header; account mutations use their current session CSRF protection. Consume private authorisation and record confirmed physical handover transactionally. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffOrdersByOrderIdPickupHandover"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/orders/{orderId}/timing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a current-access, auditable per-item sourcing estimate without authorising payment or collection
+         * @description Record a current-access, auditable per-item sourcing estimate without authorising payment or collection. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postAdminOrdersByOrderIdTiming"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/customers/orders/{orderId}/purchase-review": {
@@ -4241,7 +4509,7 @@ export interface paths {
         };
         /**
          * List minimal eligible invoice sources
-         * @description Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing. List minimal eligible invoice sources. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name, accepted additional-quotation-number or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing. List minimal eligible invoice sources. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getStaffInvoicesSources"];
         put?: never;
@@ -4287,7 +4555,7 @@ export interface paths {
         put?: never;
         /**
          * Create an invoice from a server-owned source
-         * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative. Create an invoice from a server-owned source. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative. SERVICE_ADDITION uses the explicitly accepted additional quotation as its unique source. Only its new items are billed, with no original deposit credit. Original amounts and payments are preserved; invoice issue, payment stages and work authorisation require independent checks. Create an invoice from a server-owned source. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffInvoices"];
         delete?: never;
@@ -5459,7 +5727,7 @@ export interface paths {
         put?: never;
         /**
          * Create a server-priced payment intent
-         * @description Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+         * @description Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Staged service invoices require acceptedServiceStage with the exact stage, invoiceVersion and amountKobo. Materials payment does not settle workmanship. Workmanship requires recorded completion and prior materials settlement; unresolved financial adjustments block another charge. The server derives each stage from the immutable accepted-quote allocation, with one saved tax total. Historical invoices without a plan retain their original payment behavior. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
          */
         post: operations["postCustomersPayments"];
         delete?: never;
@@ -9051,7 +9319,7 @@ export interface paths {
         head?: never;
         /**
          * Responsibility-based workspace: work
-         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: work. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. For staged service invoices, active work must match accepted scope and quoted materials must have verified settlement. Quality completion requires all agreed work, retains independent review, and does not confer vehicle-release authority. Financial holds or busy proof require rechecking; no financial details are exposed to technicians. Responsibility-based workspace: work. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         patch: operations["patchStaffWorkforceJobsByIdWork"];
         trace?: never;
@@ -9067,7 +9335,7 @@ export interface paths {
         put?: never;
         /**
          * Responsibility-based workspace: quality
-         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: quality. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. For staged service invoices, active work must match accepted scope and quoted materials must have verified settlement. Quality completion requires all agreed work, retains independent review, and does not confer vehicle-release authority. Financial holds or busy proof require rechecking; no financial details are exposed to technicians. Responsibility-based workspace: quality. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffWorkforceJobsByIdQuality"];
         delete?: never;
@@ -48057,6 +48325,547 @@ export interface operations {
             };
         };
     };
+    getStaffBookingsByBookingIdVehicleReleaseReadiness: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the booking resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Review current vehicle collection clearance. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Review current vehicle collection clearance",
+                     *       "data": {
+                     *         "bookingId": "00000000-0000-4000-8000-000000000001",
+                     *         "bookingVersion": 0,
+                     *         "financialReviewHash": "synthetic-financialreviewhash",
+                     *         "ready": true,
+                     *         "checkedAt": "2030-01-15T10:00:00.000Z"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the booking resource; ownership is resolved server-side.
+                             */
+                            bookingId: string;
+                            /** @description Booking Version validated by this operation's strict request contract. */
+                            bookingVersion: number;
+                            /** @description Financial Review Hash validated by this operation's strict request contract. */
+                            financialReviewHash: string;
+                            /**
+                             * @description Ready validated by this operation's strict request contract.
+                             * @enum {boolean}
+                             */
+                            ready: true;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            checkedAt: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffBookingsByBookingIdVehicleRelease: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the booking resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedBookingVersion": 0,
+                 *       "financialReviewHash": "synthetic-financialreviewhash",
+                 *       "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+                 *       "recipientName": "synthetic-recipientname",
+                 *       "verificationNote": "synthetic-verificationnote",
+                 *       "identityAndAuthorityVerified": true
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Expected Booking Version validated by this operation's strict request contract. */
+                    expectedBookingVersion: number;
+                    /** @description Financial Review Hash validated by this operation's strict request contract. */
+                    financialReviewHash: string;
+                    /**
+                     * Format: uuid
+                     * @description Retry key that must be reused only with an identical logical request.
+                     */
+                    idempotencyKey: string;
+                    /** @description Recipient Name validated by this operation's strict request contract. */
+                    recipientName: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    verificationNote: string;
+                    /**
+                     * @description Identity And Authority Verified validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    identityAndAuthorityVerified: true;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Record verified physical vehicle collection. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Record verified physical vehicle collection",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "bookingId": "00000000-0000-4000-8000-000000000001",
+                     *         "releasedAt": "2030-01-15T10:00:00.000Z",
+                     *         "recipientName": "synthetic-recipientname"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the booking resource; ownership is resolved server-side.
+                             */
+                            bookingId: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            releasedAt: string;
+                            /** @description Recipient Name validated by this operation's strict request contract. */
+                            recipientName: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getPublicServices: {
         parameters: {
             query?: {
@@ -53887,12 +54696,26 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "expectedRevision": 0
+                 *       "expectedRevision": 0,
+                 *       "acceptedAdditionalWork": {
+                 *         "invoiceNumber": "synthetic-invoicenumber",
+                 *         "quoteVersion": 1,
+                 *         "reason": "synthetic-reason"
+                 *       }
                  *     }
                  */
                 "application/json": {
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedRevision: number;
+                    /** @description Accepted Additional Work validated by this operation's strict request contract. */
+                    acceptedAdditionalWork?: {
+                        /** @description Invoice Number validated by this operation's strict request contract. */
+                        invoiceNumber: string;
+                        /** @description Quote Version validated by this operation's strict request contract. */
+                        quoteVersion: number;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        reason: string;
+                    };
                 };
             };
         };
@@ -58017,7 +58840,11 @@ export interface operations {
                  *       ],
                  *       "taxKobo": "300000",
                  *       "notes": "synthetic-notes",
-                 *       "expiresAt": "2030-01-15T10:00:00.000Z"
+                 *       "expiresAt": "2030-01-15T10:00:00.000Z",
+                 *       "additionalWork": {
+                 *         "expectedBookingVersion": 0,
+                 *         "reason": "synthetic-reason"
+                 *       }
                  *     }
                  */
                 "application/json": {
@@ -58062,6 +58889,13 @@ export interface operations {
                      * @description ISO 8601 timestamp interpreted and validated by the server.
                      */
                     expiresAt: string;
+                    /** @description Additional Work validated by this operation's strict request contract. */
+                    additionalWork?: {
+                        /** @description Expected Booking Version validated by this operation's strict request contract. */
+                        expectedBookingVersion: number;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        reason: string;
+                    };
                 };
             };
         };
@@ -58340,7 +59174,8 @@ export interface operations {
                  *       "taxKobo": "300000",
                  *       "notes": "synthetic-notes",
                  *       "expiresAt": "2030-01-15T10:00:00.000Z",
-                 *       "expectedRevision": 0
+                 *       "expectedRevision": 0,
+                 *       "amendmentReason": "synthetic-amendmentreason"
                  *     }
                  */
                 "application/json": {
@@ -58387,6 +59222,8 @@ export interface operations {
                     expiresAt: string;
                     /** @description Last server version observed by the client; stale writes are rejected. */
                     expectedRevision: number;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    amendmentReason?: string;
                 };
             };
         };
@@ -62655,6 +63492,3606 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getCustomersOrdersByOrderIdPickup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read authorised collection quantities and safe history without secret or financial proof disclosure. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read authorised collection quantities and safe history without secret or financial proof disclosure",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "synthetic-status"
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Cursor-paginated result for: Read authorised collection quantities and safe history without secret or financial proof disclosure. */
+                        data?: {
+                            /** @description Authorized resource projections for this page. */
+                            items: ({
+                                /**
+                                 * Format: uuid
+                                 * @description Public or authorized resource identifier.
+                                 */
+                                id?: string;
+                                /** @description Current server-owned lifecycle state when applicable. */
+                                status?: string;
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            /**
+                             * Format: uuid
+                             * @description Cursor for the next page, or null/omitted when exhausted.
+                             */
+                            nextCursor?: string | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postCustomersOrdersByOrderIdPickup: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+                 *       "lines": [
+                 *         {
+                 *           "orderItemId": "00000000-0000-4000-8000-000000000001",
+                 *           "quantity": 1
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Retry key that must be reused only with an identical logical request.
+                     */
+                    idempotencyKey: string;
+                    /** @description Lines validated by this operation's strict request contract. */
+                    lines: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the order item resource; ownership is resolved server-side.
+                         */
+                        orderItemId: string;
+                        /** @description Quantity validated by this operation's strict request contract. */
+                        quantity: number;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Issue or replace an owned ready order's private one-time pickup authorisation. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Issue or replace an owned ready order's private one-time pickup authorisation",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Issue or replace an owned ready order's private one-time pickup authorisation. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postCustomersOrdersByOrderIdPickupRevoke: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "authorisationId": "00000000-0000-4000-8000-000000000001",
+                 *       "reason": "synthetic-reason"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the authorisation resource; ownership is resolved server-side.
+                     */
+                    authorisationId: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Revoke an owned unused pickup authorisation without altering payment or goods. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Revoke an owned unused pickup authorisation without altering payment or goods",
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description No data field is returned for: Revoke an owned unused pickup authorisation without altering payment or goods. Completion is expressed by the HTTP status and message. */
+                        data?: null;
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getPurchaseOrdersByOrderIdPickup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read authorised collection quantities and safe history without secret or financial proof disclosure. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read authorised collection quantities and safe history without secret or financial proof disclosure",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "synthetic-status"
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Cursor-paginated result for: Read authorised collection quantities and safe history without secret or financial proof disclosure. */
+                        data?: {
+                            /** @description Authorized resource projections for this page. */
+                            items: ({
+                                /**
+                                 * Format: uuid
+                                 * @description Public or authorized resource identifier.
+                                 */
+                                id?: string;
+                                /** @description Current server-owned lifecycle state when applicable. */
+                                status?: string;
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            /**
+                             * Format: uuid
+                             * @description Cursor for the next page, or null/omitted when exhausted.
+                             */
+                            nextCursor?: string | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postPurchaseOrdersByOrderIdPickup: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+                 *       "lines": [
+                 *         {
+                 *           "orderItemId": "00000000-0000-4000-8000-000000000001",
+                 *           "quantity": 1
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Retry key that must be reused only with an identical logical request.
+                     */
+                    idempotencyKey: string;
+                    /** @description Lines validated by this operation's strict request contract. */
+                    lines: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the order item resource; ownership is resolved server-side.
+                         */
+                        orderItemId: string;
+                        /** @description Quantity validated by this operation's strict request contract. */
+                        quantity: number;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Issue or replace an owned ready order's private one-time pickup authorisation. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Issue or replace an owned ready order's private one-time pickup authorisation",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Issue or replace an owned ready order's private one-time pickup authorisation. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postPurchaseOrdersByOrderIdPickupRevoke: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "authorisationId": "00000000-0000-4000-8000-000000000001",
+                 *       "reason": "synthetic-reason"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the authorisation resource; ownership is resolved server-side.
+                     */
+                    authorisationId: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Revoke an owned unused pickup authorisation without altering payment or goods. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Revoke an owned unused pickup authorisation without altering payment or goods",
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description No data field is returned for: Revoke an owned unused pickup authorisation without altering payment or goods. Completion is expressed by the HTTP status and message. */
+                        data?: null;
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStaffOrdersByOrderIdPickup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read authorised collection quantities and safe history without secret or financial proof disclosure. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read authorised collection quantities and safe history without secret or financial proof disclosure",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "synthetic-status"
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Cursor-paginated result for: Read authorised collection quantities and safe history without secret or financial proof disclosure. */
+                        data?: {
+                            /** @description Authorized resource projections for this page. */
+                            items: ({
+                                /**
+                                 * Format: uuid
+                                 * @description Public or authorized resource identifier.
+                                 */
+                                id?: string;
+                                /** @description Current server-owned lifecycle state when applicable. */
+                                status?: string;
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            /**
+                             * Format: uuid
+                             * @description Cursor for the next page, or null/omitted when exhausted.
+                             */
+                            nextCursor?: string | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffOrdersByOrderIdPickupContact: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+                 *       "outcome": "NOTIFIED",
+                 *       "method": "PHONE_CALL",
+                 *       "reason": "synthetic-reason",
+                 *       "actualContactResultConfirmed": true
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Retry key that must be reused only with an identical logical request.
+                     */
+                    idempotencyKey: string;
+                    /**
+                     * @description Outcome validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    outcome: "NOTIFIED" | "NOTIFICATION_FAILED";
+                    /**
+                     * @description Method validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    method: "PHONE_CALL" | "IN_PERSON";
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                    /**
+                     * @description Actual Contact Result Confirmed validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    actualContactResultConfirmed: true;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Record actual successful collection notification or a failed contact attempt separately. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Record actual successful collection notification or a failed contact attempt separately",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Record actual successful collection notification or a failed contact attempt separately. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffOrdersByOrderIdPickupExtendHold: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+                 *       "collectByDate": "2030-01-15T10:00:00.000Z",
+                 *       "reason": "synthetic-reason"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Retry key that must be reused only with an identical logical request.
+                     */
+                    idempotencyKey: string;
+                    /**
+                     * Format: date
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    collectByDate: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Extend an actual collection hold with a reason without releasing paid goods. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Extend an actual collection hold with a reason without releasing paid goods",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Extend an actual collection hold with a reason without releasing paid goods. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffOrdersByOrderIdPickupCancelReview: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "claimId": "00000000-0000-4000-8000-000000000001",
+                 *       "reason": "synthetic-reason",
+                 *       "goodsNotHandedOverConfirmed": true
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the claim resource; ownership is resolved server-side.
+                     */
+                    claimId: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                    /**
+                     * @description Goods Not Handed Over Confirmed validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    goodsNotHandedOverConfirmed: true;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Resolve a pickup review only after confirming goods were not handed over; revoke its old code. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Resolve a pickup review only after confirming goods were not handed over; revoke its old code",
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description No data field is returned for: Resolve a pickup review only after confirming goods were not handed over; revoke its old code. Completion is expressed by the HTTP status and message. */
+                        data?: null;
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffOrdersByOrderIdPickupVerify: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "pickupCode": "synthetic-pickupcode",
+                 *       "lines": [
+                 *         {
+                 *           "orderItemId": "00000000-0000-4000-8000-000000000001",
+                 *           "quantity": 1
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    pickupCode: string;
+                    /** @description Lines validated by this operation's strict request contract. */
+                    lines: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the order item resource; ownership is resolved server-side.
+                         */
+                        orderItemId: string;
+                        /** @description Quantity validated by this operation's strict request contract. */
+                        quantity: number;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Claim an exclusive session-bound review of private code, exact goods and current payment clearance. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Claim an exclusive session-bound review of private code, exact goods and current payment clearance",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Claim an exclusive session-bound review of private code, exact goods and current payment clearance. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffOrdersByOrderIdPickupHandover: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "pickupCode": "synthetic-pickupcode",
+                 *       "lines": [
+                 *         {
+                 *           "orderItemId": "00000000-0000-4000-8000-000000000001",
+                 *           "quantity": 1
+                 *         }
+                 *       ],
+                 *       "authorisationId": "00000000-0000-4000-8000-000000000001",
+                 *       "claimId": "00000000-0000-4000-8000-000000000001",
+                 *       "financialReviewHash": "synthetic-financialreviewhash",
+                 *       "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+                 *       "collectorName": "synthetic-collectorname",
+                 *       "verificationNote": "synthetic-verificationnote",
+                 *       "physicalHandoverConfirmed": true
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    pickupCode: string;
+                    /** @description Lines validated by this operation's strict request contract. */
+                    lines: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the order item resource; ownership is resolved server-side.
+                         */
+                        orderItemId: string;
+                        /** @description Quantity validated by this operation's strict request contract. */
+                        quantity: number;
+                    }[];
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the authorisation resource; ownership is resolved server-side.
+                     */
+                    authorisationId: string;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the claim resource; ownership is resolved server-side.
+                     */
+                    claimId: string;
+                    /** @description Financial Review Hash validated by this operation's strict request contract. */
+                    financialReviewHash: string;
+                    /**
+                     * Format: uuid
+                     * @description Retry key that must be reused only with an identical logical request.
+                     */
+                    idempotencyKey: string;
+                    /** @description Collector Name validated by this operation's strict request contract. */
+                    collectorName: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    verificationNote: string;
+                    /**
+                     * @description Physical Handover Confirmed validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    physicalHandoverConfirmed: true;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Consume private authorisation and record confirmed physical handover transactionally. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Consume private authorisation and record confirmed physical handover transactionally",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Consume private authorisation and record confirmed physical handover transactionally. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postAdminOrdersByOrderIdTiming: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the order resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0,
+                 *       "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+                 *       "lines": [
+                 *         {
+                 *           "orderItemId": "00000000-0000-4000-8000-000000000001",
+                 *           "sourcingStatus": "UNKNOWN",
+                 *           "sourcingFrom": "2030-01-15T10:00:00.000Z",
+                 *           "sourcingUntil": "2030-01-15T10:00:00.000Z",
+                 *           "preparationMinutes": "synthetic-preparationminutes"
+                 *         }
+                 *       ],
+                 *       "customerNote": "synthetic-customernote",
+                 *       "reason": "synthetic-reason"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion: number;
+                    /**
+                     * Format: uuid
+                     * @description Retry key that must be reused only with an identical logical request.
+                     */
+                    idempotencyKey: string;
+                    /** @description Lines validated by this operation's strict request contract. */
+                    lines: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the order item resource; ownership is resolved server-side.
+                         */
+                        orderItemId: string;
+                        /**
+                         * @description Sourcing Status validated by this operation's strict request contract.
+                         * @enum {string}
+                         */
+                        sourcingStatus: "UNKNOWN" | "IN_STOCK" | "SUPPLIER_CONFIRMED" | "ORDERED" | "IN_TRANSIT" | "ARRIVED" | "UNAVAILABLE";
+                        /**
+                         * Format: date-time
+                         * @description Sourcing From validated by this operation's strict request contract.
+                         */
+                        sourcingFrom: string | null;
+                        /**
+                         * Format: date-time
+                         * @description Sourcing Until validated by this operation's strict request contract.
+                         */
+                        sourcingUntil: string | null;
+                        /** @description Preparation Minutes validated by this operation's strict request contract. */
+                        preparationMinutes: number | null;
+                    }[];
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    customerNote: string;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Record a current-access, auditable per-item sourcing estimate without authorising payment or collection. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Record a current-access, auditable per-item sourcing estimate without authorising payment or collection",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Record a current-access, auditable per-item sourcing estimate without authorising payment or collection. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
             };
             /** @description One or more request fields are invalid. */
             422: {
@@ -74340,7 +78777,9 @@ export interface operations {
                      *           "type": "ORDER",
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "reference": "synthetic-reference",
-                     *           "description": "synthetic-description"
+                     *           "description": "synthetic-description",
+                     *           "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+                     *           "amendmentReason": "synthetic-amendmentreason"
                      *         },
                      *         "lines": [
                      *           {
@@ -74371,7 +78810,8 @@ export interface operations {
                      *             "paymentNumber": "synthetic-paymentnumber",
                      *             "amountKobo": "300000",
                      *             "confirmedAt": "2030-01-15T10:00:00.000Z",
-                     *             "refundedKobo": "300000"
+                     *             "refundedKobo": "300000",
+                     *             "serviceStage": "MATERIALS"
                      *           }
                      *         ],
                      *         "paymentRequests": [
@@ -74380,7 +78820,8 @@ export interface operations {
                      *             "paymentNumber": "synthetic-paymentnumber",
                      *             "amountKobo": "300000",
                      *             "status": "REQUIRES_PAYMENT",
-                     *             "succeededAt": "2030-01-15T10:00:00.000Z"
+                     *             "succeededAt": "2030-01-15T10:00:00.000Z",
+                     *             "serviceStage": "MATERIALS"
                      *           }
                      *         ],
                      *         "createdAt": "2030-01-15T10:00:00.000Z",
@@ -74438,7 +78879,7 @@ export interface operations {
                                  * @description Type validated by this operation's strict request contract.
                                  * @enum {string}
                                  */
-                                type: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                                type: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "SERVICE_ADDITION";
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -74448,6 +78889,10 @@ export interface operations {
                                 reference: string;
                                 /** @description Description validated by this operation's strict request contract. */
                                 description: string;
+                                /** @description Original Invoice Number validated by this operation's strict request contract. */
+                                originalInvoiceNumber?: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                amendmentReason?: string;
                             };
                             /** @description Lines validated by this operation's strict request contract. */
                             lines: {
@@ -74469,6 +78914,74 @@ export interface operations {
                              * @enum {string}
                              */
                             detailBasis: "SNAPSHOT" | "SOURCE_RECORDS" | "LEGACY_SUMMARY";
+                            /** @description Service Payment Plan validated by this operation's strict request contract. */
+                            servicePaymentPlan?: {
+                                /**
+                                 * @description Version validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                version: 1;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the quote resource; ownership is resolved server-side.
+                                 */
+                                quoteId: string;
+                                /** @description Quote Version validated by this operation's strict request contract. */
+                                quoteVersion: number;
+                                /**
+                                 * @description Rule validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                rule: "SAVED_QUOTE_TOTALS_LARGEST_REMAINDER";
+                                /**
+                                 * @description Fee Timing validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                feeTiming: "DEFER_UNTIL_WORK_COMPLETED";
+                                /** @description Materials validated by this operation's strict request contract. */
+                                materials: {
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                };
+                                /** @description Workmanship validated by this operation's strict request contract. */
+                                workmanship: {
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                };
+                                /** @description Lines validated by this operation's strict request contract. */
+                                lines: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the quote item resource; ownership is resolved server-side.
+                                     */
+                                    quoteItemId: string;
+                                    /**
+                                     * @description Stage validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    stage: "MATERIALS" | "WORKMANSHIP";
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                }[];
+                            };
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -74529,6 +79042,11 @@ export interface operations {
                                 confirmedAt: string;
                                 /** @description Refunded Kobo validated by this operation's strict request contract. */
                                 refundedKobo: string;
+                                /**
+                                 * @description Service Stage validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                serviceStage?: "MATERIALS" | "WORKMANSHIP";
                             }[];
                             /** @description Payment Requests validated by this operation's strict request contract. */
                             paymentRequests: {
@@ -74551,6 +79069,11 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 succeededAt: string | null;
+                                /**
+                                 * @description Service Stage validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                serviceStage?: "MATERIALS" | "WORKMANSHIP";
                             }[];
                             /**
                              * Format: date-time
@@ -74889,7 +79412,9 @@ export interface operations {
                      *           "type": "ORDER",
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "reference": "synthetic-reference",
-                     *           "description": "synthetic-description"
+                     *           "description": "synthetic-description",
+                     *           "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+                     *           "amendmentReason": "synthetic-amendmentreason"
                      *         },
                      *         "lines": [
                      *           {
@@ -74920,7 +79445,8 @@ export interface operations {
                      *             "paymentNumber": "synthetic-paymentnumber",
                      *             "amountKobo": "300000",
                      *             "confirmedAt": "2030-01-15T10:00:00.000Z",
-                     *             "refundedKobo": "300000"
+                     *             "refundedKobo": "300000",
+                     *             "serviceStage": "MATERIALS"
                      *           }
                      *         ],
                      *         "paymentRequests": [
@@ -74929,7 +79455,8 @@ export interface operations {
                      *             "paymentNumber": "synthetic-paymentnumber",
                      *             "amountKobo": "300000",
                      *             "status": "REQUIRES_PAYMENT",
-                     *             "succeededAt": "2030-01-15T10:00:00.000Z"
+                     *             "succeededAt": "2030-01-15T10:00:00.000Z",
+                     *             "serviceStage": "MATERIALS"
                      *           }
                      *         ]
                      *       },
@@ -74984,7 +79511,7 @@ export interface operations {
                                  * @description Type validated by this operation's strict request contract.
                                  * @enum {string}
                                  */
-                                type: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                                type: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "SERVICE_ADDITION";
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -74994,6 +79521,10 @@ export interface operations {
                                 reference: string;
                                 /** @description Description validated by this operation's strict request contract. */
                                 description: string;
+                                /** @description Original Invoice Number validated by this operation's strict request contract. */
+                                originalInvoiceNumber?: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                amendmentReason?: string;
                             };
                             /** @description Lines validated by this operation's strict request contract. */
                             lines: {
@@ -75015,6 +79546,74 @@ export interface operations {
                              * @enum {string}
                              */
                             detailBasis: "SNAPSHOT" | "SOURCE_RECORDS" | "LEGACY_SUMMARY";
+                            /** @description Service Payment Plan validated by this operation's strict request contract. */
+                            servicePaymentPlan?: {
+                                /**
+                                 * @description Version validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                version: 1;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the quote resource; ownership is resolved server-side.
+                                 */
+                                quoteId: string;
+                                /** @description Quote Version validated by this operation's strict request contract. */
+                                quoteVersion: number;
+                                /**
+                                 * @description Rule validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                rule: "SAVED_QUOTE_TOTALS_LARGEST_REMAINDER";
+                                /**
+                                 * @description Fee Timing validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                feeTiming: "DEFER_UNTIL_WORK_COMPLETED";
+                                /** @description Materials validated by this operation's strict request contract. */
+                                materials: {
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                };
+                                /** @description Workmanship validated by this operation's strict request contract. */
+                                workmanship: {
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                };
+                                /** @description Lines validated by this operation's strict request contract. */
+                                lines: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the quote item resource; ownership is resolved server-side.
+                                     */
+                                    quoteItemId: string;
+                                    /**
+                                     * @description Stage validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    stage: "MATERIALS" | "WORKMANSHIP";
+                                    /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                                    subtotalKobo: string;
+                                    /** @description Tax Kobo validated by this operation's strict request contract. */
+                                    taxKobo: string;
+                                    /** @description Credit Kobo validated by this operation's strict request contract. */
+                                    creditKobo: string;
+                                    /** @description Total Kobo validated by this operation's strict request contract. */
+                                    totalKobo: string;
+                                }[];
+                            };
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -75075,6 +79674,11 @@ export interface operations {
                                 confirmedAt: string;
                                 /** @description Refunded Kobo validated by this operation's strict request contract. */
                                 refundedKobo: string;
+                                /**
+                                 * @description Service Stage validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                serviceStage?: "MATERIALS" | "WORKMANSHIP";
                             }[];
                             /** @description Payment Requests validated by this operation's strict request contract. */
                             paymentRequests: {
@@ -75097,6 +79701,11 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 succeededAt: string | null;
+                                /**
+                                 * @description Service Stage validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                serviceStage?: "MATERIALS" | "WORKMANSHIP";
                             }[];
                         };
                         /** @description Meta validated by this operation's strict request contract. */
@@ -75437,7 +80046,9 @@ export interface operations {
                      *           "type": "ORDER",
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "reference": "synthetic-reference",
-                     *           "description": "synthetic-description"
+                     *           "description": "synthetic-description",
+                     *           "originalInvoiceNumber": "synthetic-originalinvoicenumber",
+                     *           "amendmentReason": "synthetic-amendmentreason"
                      *         }
                      *       },
                      *       "meta": {
@@ -75494,6 +80105,11 @@ export interface operations {
                             confirmedAt: string;
                             /** @description Method validated by this operation's strict request contract. */
                             method: string;
+                            /**
+                             * @description Service Stage validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            serviceStage?: "MATERIALS" | "WORKMANSHIP";
                             /** @description Refunded Kobo validated by this operation's strict request contract. */
                             refundedKobo: string;
                             /** @description Source validated by this operation's strict request contract. */
@@ -75512,6 +80128,10 @@ export interface operations {
                                 reference: string;
                                 /** @description Description validated by this operation's strict request contract. */
                                 description: string;
+                                /** @description Original Invoice Number validated by this operation's strict request contract. */
+                                originalInvoiceNumber?: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                amendmentReason?: string;
                             };
                         };
                         /** @description Meta validated by this operation's strict request contract. */
@@ -75823,7 +80443,7 @@ export interface operations {
                  * @description Source Type used to constrain this request.
                  * @example ORDER
                  */
-                sourceType: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                sourceType: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "SERVICE_ADDITION";
                 /**
                  * @description Source Id used to constrain this request.
                  * @example 00000000-0000-4000-8000-000000000001
@@ -76315,7 +80935,7 @@ export interface operations {
                  * @description Source Type used to constrain this request.
                  * @example ORDER
                  */
-                sourceType?: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                sourceType?: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "SERVICE_ADDITION";
                 /**
                  * @description Source Id used to constrain this request.
                  * @example 00000000-0000-4000-8000-000000000001
@@ -76561,7 +81181,7 @@ export interface operations {
                      * @description Source Type validated by this operation's strict request contract.
                      * @enum {string}
                      */
-                    sourceType: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                    sourceType: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "SERVICE_ADDITION";
                     /**
                      * Format: uuid
                      * @description Identifier of the source resource; ownership is resolved server-side.
@@ -94334,6 +98954,18 @@ export interface operations {
                      * @enum {string}
                      */
                     purpose: "SERVICE_INVOICE";
+                    /** @description Accepted Service Stage validated by this operation's strict request contract. */
+                    acceptedServiceStage?: {
+                        /**
+                         * @description Stage validated by this operation's strict request contract.
+                         * @enum {string}
+                         */
+                        stage: "MATERIALS" | "WORKMANSHIP";
+                        /** @description Invoice Version validated by this operation's strict request contract. */
+                        invoiceVersion: number;
+                        /** @description Integer amount in Nigerian kobo; the server remains authoritative. */
+                        amountKobo: string;
+                    };
                 } | {
                     /**
                      * @description Target Type validated by this operation's strict request contract.
@@ -123398,7 +128030,7 @@ export interface operations {
                      *             "resourceId": "00000000-0000-4000-8000-000000000001",
                      *             "message": "synthetic-message",
                      *             "createdAt": "2030-01-15T10:00:00.000Z",
-                     *             "resolvedAt": "2030-01-15T10:00:00.000Z",
+                     *             "resolvedAt": null,
                      *             "resolvedByUserId": "00000000-0000-4000-8000-000000000001"
                      *           }
                      *         ]
@@ -127269,7 +131901,7 @@ export interface operations {
                      *         },
                      *         "delivery": {
                      *           "enabled": false,
-                     *           "policyVersion": "synthetic-policyversion",
+                     *           "policyVersion": null,
                      *           "zones": [
                      *             {
                      *               "id": "synthetic-id",
@@ -127531,7 +132163,8 @@ export interface operations {
                      *         "booking": {
                      *           "confirmation": "STAFF_REVIEW",
                      *           "cancellationFeeKobo": "0",
-                     *           "reminderMinutes": 60
+                     *           "reminderMinutes": null,
+                     *           "reminderTiming": "APPOINTMENT_POLICY"
                      *         },
                      *         "marketing": {
                      *           "enabled": false
@@ -127630,11 +132263,13 @@ export interface operations {
                                  * @enum {string}
                                  */
                                 cancellationFeeKobo: "0";
+                                /** @description Reminder Minutes validated by this operation's strict request contract. */
+                                reminderMinutes: null;
                                 /**
-                                 * @description Reminder Minutes validated by this operation's strict request contract.
-                                 * @enum {number}
+                                 * @description Reminder Timing validated by this operation's strict request contract.
+                                 * @enum {string}
                                  */
-                                reminderMinutes: 60;
+                                reminderTiming: "APPOINTMENT_POLICY";
                             };
                             /** @description Marketing validated by this operation's strict request contract. */
                             marketing: {
@@ -132613,6 +137248,8 @@ export interface operations {
                         dailyLimit: number;
                         /** @description No Show Grace Minutes validated by this operation's strict request contract. */
                         noShowGraceMinutes?: number;
+                        /** @description Reminder Minutes validated by this operation's strict request contract. */
+                        reminderMinutes?: number[];
                         /** @description Opening Days validated by this operation's strict request contract. */
                         openingDays: number[];
                         /**

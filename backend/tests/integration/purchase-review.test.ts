@@ -1,3 +1,4 @@
+import { OrderPickupService } from "../../src/modules/orders/order-pickup.service.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { createApp } from "../../src/app.js";
@@ -917,6 +918,97 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         );
       return { ...f, actor, commands, payments, context, intent };
     }
+    it("completes reviewed pre-payment purchase, verified capture, allocation and private physical pickup without consuming stock twice", async () => {
+      const f = await payerFixture();
+      await prisma.orderPurchaseReview.update({
+        where: { id: f.review.id },
+        data: f.approval,
+      });
+      const created = (await f.intent()) as { payment: { id: string } };
+      const checkout = await f.payments.initializePaystack(
+        f.actor,
+        created.payment.id,
+        randomUUID(),
+        f.context,
+      );
+      await f.payments.verifyAttempt(
+        f.actor,
+        created.payment.id,
+        checkout.attemptId,
+        f.context,
+      );
+      const owner = await testOwner("unusable-synthetic-review-fixture");
+      const operator = {
+        userId: owner.id,
+        email: owner.email,
+        role: owner.role,
+        sessionId: await paymentTestSession(owner.id, owner.role),
+        mfaRequired: true,
+        mfaVerifiedAt: new Date(),
+      };
+      const orders = new OrdersService();
+      for (const status of ["CONFIRMED", "PROCESSING", "READY"] as const) {
+        const current = await prisma.order.findUniqueOrThrow({
+          where: { id: f.order.id },
+        });
+        await orders.transition(
+          operator,
+          f.order.id,
+          { expectedVersion: current.version, status },
+          f.context,
+        );
+      }
+      const pickup = new OrderPickupService(),
+        ready = await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } });
+      const lines = f.order.items.map((item) => ({
+        orderItemId: item.id,
+        quantity: item.quantity,
+      }));
+      const secret = await pickup.issue(
+        { kind: "account", actor: f.actor },
+        f.order.id,
+        { expectedVersion: ready.version, idempotencyKey: randomUUID(), lines },
+        f.context,
+      );
+      const current = await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } });
+      const preview = await pickup.verify(operator, f.order.id, {
+        expectedVersion: current.version,
+        pickupCode: secret.pickupCode!,
+        lines,
+      });
+      const result = await pickup.handover(
+        operator,
+        f.order.id,
+        {
+          expectedVersion: preview.version,
+          claimId: preview.claimId,
+          pickupCode: secret.pickupCode!,
+          lines,
+          authorisationId: preview.authorisationId,
+          financialReviewHash: preview.financialReviewHash,
+          idempotencyKey: randomUUID(),
+          collectorName: "Synthetic delegated collector",
+          verificationNote: "Authorised code and exact goods checked at actual handover",
+          physicalHandoverConfirmed: true,
+        },
+        f.context,
+      );
+      expect(result.complete).toBe(true);
+      expect(
+        (await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } })).status,
+      ).toBe("COMPLETED");
+      expect(
+        await prisma.inventory.findUnique({
+          where: { id: f.inventory.id },
+          select: { quantity: true, reserved: true },
+        }),
+      ).toEqual({ quantity: 0, reserved: 0 });
+      expect(
+        await prisma.paymentLedgerEntry.count({
+          where: { paymentAttemptId: checkout.attemptId, type: "CAPTURE" },
+        }),
+      ).toBe(1);
+    });
     it("binds account payment creation to the displayed offer and preserves original receipt recovery", async () => {
       const f = await payerFixture();
       await prisma.orderPurchaseReview.update({

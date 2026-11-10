@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { publicCapabilitiesFixture } from "./public-capabilities";
 export const capacityId = (n: number) =>
   `e3000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 export const capacitySettings = {
@@ -54,6 +55,8 @@ export async function workCapacityFixture(page: Page) {
           meta: { requestId: "capacity-work-test" },
         },
       });
+    if (path === "/public/capabilities")
+      return reply(publicCapabilitiesFixture("browse_enquiries"));
     if (path === "/auth/session")
       return reply({
         id: capacityId(2),

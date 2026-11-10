@@ -184,6 +184,10 @@ export function renderFinancialPdf(
         if (document.billTo.address) paragraph(document.billTo.address);
         paragraph(`Account reference: ${document.billTo.reference}`, 9);
         paragraph(`${document.source.description}: ${document.source.reference}`, 10);
+        if (document.source.originalInvoiceNumber)
+          paragraph(`Original invoice: ${document.source.originalInvoiceNumber}`, 10);
+        if (document.source.amendmentReason)
+          paragraph(`Additional work reason: ${document.source.amendmentReason}`, 10);
         if (document.status === "VOID")
           paragraph("This invoice is void. Do not use it to make a payment.", 11, red);
         if (document.status === "DRAFT")
@@ -230,6 +234,20 @@ export function renderFinancialPdf(
         pair("Tax", documentMoney(document.taxKobo));
         pair("Deposit credit applied", documentMoney(document.depositCreditKobo));
         pair("Invoice total", documentMoney(document.totalKobo), true);
+        if (document.servicePaymentPlan) {
+          y += 16;
+          pair(
+            "Materials stage",
+            documentMoney(document.servicePaymentPlan.materials.totalKobo),
+          );
+          pair(
+            "Workmanship and fees stage",
+            documentMoney(document.servicePaymentPlan.workmanship.totalKobo),
+          );
+          paragraph(
+            "These stages split the single invoice total above, including allocated VAT and credits. Materials are paid separately first; workmanship and fees are payable after completion and before vehicle collection. A stage amount is not a second invoice or proof of payment.",
+          );
+        }
         y += 16;
         if (document.detailBasis === "LEGACY_SUMMARY")
           paragraph(
@@ -247,6 +265,11 @@ export function renderFinancialPdf(
         pair("Payment reference", reference);
         pair("Confirmed", date(document.confirmedAt));
         pair("Method", document.method);
+        if (document.serviceStage)
+          pair(
+            "Payment stage",
+            document.serviceStage === "MATERIALS" ? "Materials" : "Workmanship and fees",
+          );
         y += 20;
         space(100);
         pdf.rect(left, y, width, 92).fill(ink);

@@ -4,6 +4,17 @@ import type { CustomerOrderListQuery, StaffOrderListQuery } from "./orders.schem
 
 type DatabaseClient = PrismaClient | Prisma.TransactionClient;
 export const orderSelect = {
+  timingUpdates: {
+    select: {
+      id: true,
+      orderVersion: true,
+      lines: true,
+      customerNote: true,
+      createdAt: true,
+    },
+    orderBy: { orderVersion: "desc" as const },
+    take: 1,
+  },
   purchaseReviews: {
     select: {
       id: true,

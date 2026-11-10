@@ -146,7 +146,9 @@ export async function workInvoiceFixture(page: Page, role = "ADMIN") {
               s.label.toLowerCase().startsWith(q.get("search")!.toLowerCase()) ||
               s.id === q.get("search")) &&
             !state.records.some(
-              (v) => (v.order ?? v.booking ?? v.vehicleTransaction)?.id === s.id,
+              (v) =>
+                (v.order ?? v.booking ?? v.additionalQuote ?? v.vehicleTransaction)
+                  ?.id === s.id,
             ),
         );
       else
@@ -160,9 +162,12 @@ export async function workInvoiceFixture(page: Page, role = "ADMIN") {
                 ? !!v.order
                 : q.get("sourceType") === "BOOKING"
                   ? !!v.booking
-                  : !!v.vehicleTransaction)) &&
+                  : q.get("sourceType") === "SERVICE_ADDITION"
+                    ? !!v.additionalQuote
+                    : !!v.vehicleTransaction)) &&
             (!q.has("sourceId") ||
-              (v.order ?? v.booking ?? v.vehicleTransaction)?.id === q.get("sourceId")),
+              (v.order ?? v.booking ?? v.additionalQuote ?? v.vehicleTransaction)?.id ===
+                q.get("sourceId")),
         );
       if (mode === "empty") rows = [];
       const start = q.has("cursor")
@@ -211,6 +216,23 @@ export async function workInvoiceFixture(page: Page, role = "ADMIN") {
       };
     if (source.sourceType === "BOOKING")
       saved.booking = { id: source.id, status: "CONFIRMED", branch };
+    if (source.sourceType === "SERVICE_ADDITION") {
+      saved.additionalQuote = {
+        id: source.id,
+        quoteNumber: source.reference,
+        amendmentReason: "Synthetic separately agreed extra work",
+        originalInvoice: { invoiceNumber: "INV-ORIGINAL-SYNTHETIC" },
+        booking: { id: id(192001), status: "CONFIRMED", branch },
+      };
+      saved.servicePayment = {
+        materials: { totalKobo: "5375000", recordedKobo: "0" },
+        workmanship: { totalKobo: "5375000", recordedKobo: "0" },
+        workCompleted: false,
+        financialReviewRequired: false,
+        paymentPending: false,
+        nextPayment: null,
+      };
+    }
     if (source.sourceType === "VEHICLE_TRANSACTION")
       saved.vehicleTransaction = {
         id: source.id,

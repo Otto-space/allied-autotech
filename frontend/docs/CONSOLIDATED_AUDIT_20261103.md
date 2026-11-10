@@ -1,5 +1,54 @@
 # Allied AutoTech consolidated audit — implementation and acceptance
 
+## 10 November - saved-collection focus race found by full CI
+
+PR56 source 7b133943 finished Frontend run 42739997340 with 1,055 runtime
+passes and one WebKit failure. The failed case keeps an open vehicle-removal
+review bound to its original collection while the URL changes to products;
+after successful synthetic removal, the products tab is selected but unfocused.
+The notification retry cases pass. This is a failed release gate, not a pass.
+
+The close handler scheduled focus before React committed removal of the modal
+and enabled the tabs. Move this handoff into a post-commit effect, preserving
+the collection-bound mutation, refresh, session invalidation and opener recovery.
+Add the reverse-direction cancellation case and assert focus survives loaded
+content without any write. Exact-source compiled and three-engine acceptance
+remain required; no production submission or security change was made.
+
+## 10 November follow-up: mobile sidebar scrollbar
+
+**P3; Admin; /admin/customers; native Edge 390x600.** Open Dashboard navigation.
+The shared modal descendant scrollbar rule overrides the drawer's existing
+hidden-track treatment; computed scrollbar-width becomes thin. This contradicts
+the owner's sidebar instruction. The existing 18-case table/sidebar/support suite
+passes 17 cases and retains this one failure. Scrollbars on ordinary content modals
+are allowed to remain deliberately styled.
+
+Correction: a scoped drawer exception in globals.css, with no overflow, scrolling,
+permission or layout change. The four-role/seven-size shared-shell suite now
+asserts the intended property. All 28 native Edge prototype cases pass with the
+exact correction supplied through an existing same-origin stylesheet response;
+CSP remains enforced. Compiled-source acceptance/publication are still pending.
+Evidence: TEMP/allied-dashboard-index-7b133943. The wider coverage reconciliation
+is TEMP/allied-master-coverage-b1222a11/coverage-checkpoint.md; a large aggregate
+test count is not treated as complete route/state acceptance.
+
+## 10 November follow-up: notification preview retry focus
+
+**P2; Customer; /dashboard/notifications; 1280x720 and 320x720 mobile/touch.**
+On protected integrated candidate b1222a11, open the notification bell with a failed
+preview request, focus Try again, press Enter and return a successful notification
+response. The retry control disappears and focus falls to BODY outside the modal.
+Both native Edge cases reproduce this; no real request mutation or page error occurs.
+Centered/full-width phone geometry remains intact. Keyboard users lose their place.
+
+Correction in notification-preview.tsx: move focus to the stable Close control
+before replacing the error with loading; preserve later deliberate focus movement.
+The existing unit case and seven-size shared-modal matrix now cover recovery,
+repeat failure and cancellation across rotating Customer/Staff/Admin/Super Admin
+fixtures. New-source verification and publication remain pending. Evidence is in
+TEMP/allied-customer-confirmation-20261110/notification-retry-held-report.json.
+
 ## 10 November follow-up: customer confirmation and recovery focus
 
 **P2; Customer; /dashboard/privacy and /dashboard/reviews.** After confirming a

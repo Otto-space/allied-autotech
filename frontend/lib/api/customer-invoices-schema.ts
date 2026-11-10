@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { invoiceSchema } from "./invoice-schemas";
 
-const customerInvoice = invoiceSchema.extend({
+const customerInvoice = invoiceSchema.safeExtend({
   status: z.enum(["ISSUED", "PAID", "VOID"]),
   issuedAt: z.iso.datetime({ offset: true }).nullable(),
   dueAt: z.iso.datetime({ offset: true }).nullable(),

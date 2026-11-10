@@ -157,31 +157,63 @@ for (const query of [
   });
 }
 
-test("an open removal review stays bound to its collection through a URL change", async ({
+for (const outcome of ["remove", "cancel"] as const)
+  test(`an open removal review stays bound to its collection through a URL change (${outcome})`, async ({
+    page,
+    request,
+  }, info) => {
+    const state = await setup(page, request);
+    await page.goto("/dashboard/saved?collection=vehicles");
+    await page
+      .getByRole("button", { name: `Remove ${listing.title} from saved vehicles` })
+      .click();
+    await page.evaluate(() => window.history.replaceState(null, "", "/dashboard/saved"));
+    await expect(page.getByRole("dialog")).toContainText("Saved vehicles");
+    await expect(
+      page.getByRole("tab", { name: "Saved vehicles", exact: true }),
+    ).toHaveAttribute("aria-selected", "true");
+    if (outcome === "remove")
+      await page.getByRole("button", { name: "Remove item", exact: true }).click();
+    else await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    expect(state.writes.map((write) => write.path)).toEqual(
+      outcome === "remove" ? [`/customers/saved-vehicles/${listing.id}`] : [],
+    );
+    await expect(
+      page.getByRole("tab", { name: "Favourite products", exact: true }),
+    ).toHaveAttribute("aria-selected", "true");
+    await expect(
+      page.getByRole("tab", { name: "Favourite products", exact: true }),
+    ).toBeFocused();
+    await page.screenshot({
+      path: info.outputPath(`saved-review-${outcome}-restored-focus.png`),
+      fullPage: true,
+    });
+  });
+
+test("cancelling a removal after a URL change focuses the newly selected collection", async ({
   page,
   request,
 }) => {
   const state = await setup(page, request);
-  await page.goto("/dashboard/saved?collection=vehicles");
+  await page.goto("/dashboard/saved");
   await page
-    .getByRole("button", { name: `Remove ${listing.title} from saved vehicles` })
+    .getByRole("button", { name: "Remove Engine oil filter from favourite products" })
     .click();
-  await page.evaluate(() => window.history.replaceState(null, "", "/dashboard/saved"));
-  await expect(page.getByRole("dialog")).toContainText("Saved vehicles");
-  await expect(
-    page.getByRole("tab", { name: "Saved vehicles", exact: true }),
-  ).toHaveAttribute("aria-selected", "true");
-  await page.getByRole("button", { name: "Remove item", exact: true }).click();
+  await page.evaluate(() =>
+    window.history.replaceState(null, "", "/dashboard/saved?collection=vehicles"),
+  );
+  await expect(page.getByRole("dialog")).toContainText("Favourite products");
+  await page.getByRole("button", { name: "Go back", exact: true }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  expect(state.writes.map((write) => write.path)).toEqual([
-    `/customers/saved-vehicles/${listing.id}`,
-  ]);
+  const selected = page.getByRole("tab", { name: "Saved vehicles", exact: true });
+  await expect(selected).toHaveAttribute("aria-selected", "true");
+  await expect(selected).toBeFocused();
   await expect(
-    page.getByRole("tab", { name: "Favourite products", exact: true }),
-  ).toHaveAttribute("aria-selected", "true");
-  await expect(
-    page.getByRole("tab", { name: "Favourite products", exact: true }),
-  ).toBeFocused();
+    page.getByRole("heading", { name: listing.title, exact: true }),
+  ).toBeVisible();
+  await expect(selected).toBeFocused();
+  expect(state.writes).toEqual([]);
 });
 
 test("saving a vehicle opens its vehicle collection from the receipt", async ({

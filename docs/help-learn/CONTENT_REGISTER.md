@@ -1,3 +1,166 @@
+## 9 November 22:28 UTC - combined audit candidate; no publication
+
+Reconcile committed pickup/holding/staged-service source62815e7c with reminder
+source27c07434. Preserve its owner-set collection calendar: Monday to Saturday,
+public holidays included, after actual readiness and successful notification,
+including imported/custom parts. Do not reask these values. This source has111
+migrations; no previously applied migration is rewritten. The other worktree's
+unfinished supply-exception/refund edits are untouched and are not included.
+
+Merge service-request guidance as v35, keeping staged invoices, actual vehicle
+release, calendar and saved reminder boundaries. Existing eligibility and flags
+remain unchanged. Pickup CI42708988094 failed after3 preliminary passes because
+the customer test's CSRF fixture omits the mandatory response message; fix the
+fixture envelope while retaining one-time display, browser-storage, refresh and
+exact-write assertions. Clean malformed collection labels/punctuation. Combined
+rendered, database replay/restore, types and exact-source gates are pending.
+
+Reminder source27c07434 backend42708086011 and secrets42708086182 pass; frontend
+42708085978 ended at its25-minute cumulative limit after890 cases. Three-engine
+sidebar and320/768/1440 reminder cases pass; this is not a full matrix pass.
+Individual test deadlines/assertions are unchanged; the combined job now budgets
+35 minutes for its full matrix and55 minutes overall. The other committed source's backend42708988327 and
+secrets42708988374 pass; its full rendered matrix did not run after the early
+pickup failure. Neither independent set proves this combined source.
+
+A separately signed102-schema recovery sourceb4c4c505 passes four native read-only
+repository projections of synthetic NOTICE jobs; temporary read role removed.
+Its old capacity parser rejects custom reminder settings. It is neither packaged
+nor compatible proof for this111-schema candidate. Preserve its verified generated
+client separately; regenerate111 before combined checks. Renew all compatibility,
+populated restore, packaged image and exact-master gates for eventual release.
+
+Disk preflights continue to hold packaging and larger checks. A merge preview
+accidentally ran after a failed20.25GiB preflight; it made no branch/worktree change.
+The actual merge was gated on a successful fresh check at20.75GiB. No production
+records, grants, paid allocations, business settings, capability flags or deployment
+changed. The full original audit and operational/provider/role/device acceptance
+remain active; source integration is not launch readiness.
+
+Combined local verification: generated111 client;111 units in10 suites pass,
+465 OpenAPI paths validate and547 operations are inventoried. Initial merge units
+failed retrieval for service-request in all five audiences: the passage exceeded
+the existing8000-character allowance. Concise v35 wording preserves all12 steps,
+staged-payment and reminder conditions; the unchanged retrieval tests now pass.
+Both backend/frontend types, backend lint and scoped frontend lint pass.
+Rendered acceptance remains pending at this checkpoint. Page composition
+is retained; the pickup UI edit only corrects visible labels and punctuation.
+
+---
+
+## 9 November - configurable appointment reminders
+
+Service-request v31 keeps its public gate, twelve steps and targets. Owner-only
+booking-reminders v1 explains reviewed branch timing, delegated defaults, explicit
+none, saved appointment policy and delivery limits. Its destination is allowlisted
+without broadening eligibility. No practice or feature flag is enabled. See
+REMINDER_SCHEDULE_20261109.md for actual checks and pending acceptance.
+
+---
+
+## 9 November - delayed appointment reminder checks
+
+Service-request v30 retains its public gate, twelve steps, existing semantic targets
+and permission boundaries. It explains current confirmed-future reminder eligibility,
+provider delay and unchanged attendance/cancellation. This does not publish learning
+flags or change reminder timings. See REMINDER_EXPIRY_20261109.md for actual checks.
+
+---
+
+---
+
+### 9 November: collection holding is connected; release acceptance remains open
+
+D12 now records immutable actual phone/in-person contact results separately from
+failed attempts. The first successful contact for the actual ready event anchors
+five Monday-Saturday days in Nigeria time, including public holidays and excluding
+the anchor date; imported/custom parts use the same rule. Later contacts do not
+reset the clock. Authorised current branch/MFA operators may extend to a later
+collection day with a private reason; original dates and history remain. No fee,
+cancellation, refund, resale or paid-stock release follows from overdue status.
+
+Forward migration 110 replayed on a new isolated loopback tmpfs DB. Schema diff,
+db:check and restricted runtime checks passed. Final native run: 68/68 in four
+suites, including repeated successful notification retaining the first anchor.
+The final saved-policy comparison is covered separately for JSONB key ordering and
+unknown-policy refusal; exact combined hosted checks remain required.
+Customer/guest/staff order detail UI shows current holding state and exact date;
+contact/extension controls require the actual backend capability. Pickup/holding
+learning definitions are now v2, server-restricted. No production publication or
+new financial activation is claimed; hosted browser acceptance is still pending.
+
+The earlier 4b6d9ac7 hosted backend 42704388499 passed all stages for schema109.
+Its frontend run42704388600 failed because learningHref rejected the two new exact
+order destinations. The frontend allowlist now contains those existing routes;
+60/60 learning tests pass. No browser or full release pass is inferred from that
+failed build. Exact combined-source checks and production safeguards remain open.
+
+### 9 November: durable private parts pickup source and owner collection calendar
+
+D14 now has forward migrations 108/109, private buyer/guest routes, current branch/
+MFA Staff routes, exclusive session-bound physical review, exact partial quantities,
+financial rechecks and immutable one-time handover. Native 67/67 in four suites
+passed with 109-migration replay, empty schema diff, db:check and restricted runtime;
+owned tmpfs DB removed. Source UI and version-1 restricted learning are connected.
+Browser/real-role/physical acceptance and exact combined-source release gates are
+still open. Token lifetime is engineering security, never business hold policy.
+
+D12 calendar decisions are now settled in the owner decision register: Mon-Sat,
+public holidays count, after both readiness and notification, imported/custom same.
+Date calculator and pending-notification logic are tested; durable hold/extension
+journey remains open. Do not reask these settled values. No new payment activation,
+production migration, real transaction, grant or publication is claimed.
+See docs/help-learn/PARTS_PICKUP_20261109.md for exact evidence and remaining scope.
+
+### 9 November: per-order sourcing guide (unpublished)
+
+Administrative order-sourcing v1 explains actual order/item estimates, Nigeria-time
+arrival ranges, unknown versus zero preparation, separate internal/customer notes,
+review, stale/uncertain recovery and unavailable-item holds. Eligibility checks keep
+it out of public, customer and Staff catalogues. It grants no authority and changes
+no tutorial/practice/AI/commerce flag. Product-timing v1 and service-request v34 are
+preserved. See ORDER_SOURCING_20261109.md for exact acceptance and remaining scope.
+
+### 9 November: combined collection and product guidance retained
+
+Service-request v34, admin-only service-vehicle-collection v1 and product-timing v1
+coexist with existing eligibility/targets and the unchanged retrieval/step budgets.
+The combined 308-case isolated acceptance includes authenticated Help and all-audience
+retrieval checks. Product defaults remain distinct from per-order readiness/holding,
+and vehicle collection is not D14 private parts pickup. No grant, practice/tutorial
+or transaction flag is enabled. See SERVICE_VEHICLE_COLLECTION_20261109.md for failed
+attempts, exact evidence and remaining hosted/real-role/provider/release scope.
+
+### 9 November: separate collection facts and current clearance (unpublished)
+
+Service-request v34 adds the separate collection/balance boundary while retaining
+its twelve-step/8,000-character budget (actual passage 7,909). Administrative
+service-vehicle-collection v1 explains current MFA, completion, all original/additional
+obligations, human identity/authority review, fresh proof and immutable history.
+Public/customer/staff catalogues omit the administrative article. Actual guidance
+checks pass 68/68; no guide target, practice flag or grant changes. See
+SERVICE_VEHICLE_COLLECTION_20261109.md for failures and current held acceptance.
+
+### 9 November: preserve service-request retrieval and original restrictions
+
+Unpublished service-request v33 now fits the existing 8,000-character Allie budget
+at 7,823 characters without changing its twelve-step bound. All-audience retrieval,
+eligibility and related resource/payment/booking guide units pass 67/67; the earlier
+hosted failure is retained in SUPPLEMENTAL_SERVICE_INVOICES_20261109.md. No widened
+audience, guide target, provider access, publication flag or financial approval.
+
+### 9 November: separate accepted additional-work obligations (unpublished)
+
+Service-request v33 and restricted financial-policy-work v9 explain a separately
+reviewed additional invoice, original reference/reason, no reused booking credit,
+materials first and workmanship only after actual completion. Existing eligibility,
+permissions, guide targets and publication flags remain. Closed visits cannot
+authorise new agreement/issue from old completion; rejection remains available.
+Isolated final acceptance includes 32 learning/identifier units within 273 passing
+cases; five provisioned-workspace cases are explicitly skipped. Physical issue/use,
+vehicle release and production/provider acceptance remain separate. See
+SUPPLEMENTAL_SERVICE_INVOICES_20261109.md for failures, evidence and held scope.
+
 ### 10 November: vehicle terminology, engine descriptions and individual features (unpublished)
 
 Vehicle-operations v3 and vehicle-enquiry v6 describe Engine / Power type, Fuel type,
@@ -358,7 +521,8 @@ mean a production publication. Feature flags remain off in committed examples.
 | financial-policy-work   | financial-policy     | 5 / 2026-11-03        | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
 | parts-fitment           | public               | 14 / 2026-11-03       | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02        | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
-| service-request         | public               | 29 / 2026-11-04       | /services                    | Public launch mode and Services page                                                                                                        |
+| booking-reminders       | owner                | 1 / 2026-11-09        | /admin/booking-capacity      | Reviewed branch reminder policy and saved appointment schedule                                                                              |
+| service-request         | public               | 31 / 2026-11-09       | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26        | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
 | no-live-lookup          | public               | 2 / 2026-10-26        | /help                        | Launch restrictions and existing status contracts                                                                                           |
 | own-conversation        | customer             | 4 / 2026-10-27        | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |
