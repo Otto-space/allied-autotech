@@ -108,6 +108,18 @@ export async function supplyExceptionSummary(
           customerNote: true,
           createdAt: true,
           orderVersion: true,
+          refunds: {
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            take: 26,
+            select: {
+              id: true,
+              amountKobo: true,
+              currency: true,
+              status: true,
+              requestedAt: true,
+              processedAt: true,
+            },
+          },
         },
       },
     },
@@ -123,7 +135,15 @@ export async function supplyExceptionSummary(
       ...record,
       affectedLines: affectedUnitRangesSchema.parse(record.affectedLines),
       state: "CUSTOMER_CARE_REVIEW_REQUIRED" as const,
-      supplyRemedyChoices: record.supplyRemedyChoices.slice(0, 10),
+      supplyRemedyChoices: record.supplyRemedyChoices
+        .slice(0, 10)
+        .map((choice) => ({
+          ...choice,
+          refunds: choice.refunds
+            .slice(0, 25)
+            .map((refund) => ({ ...refund, amountKobo: refund.amountKobo.toString() })),
+          hasMoreRefunds: choice.refunds.length > 25,
+        })),
       hasMoreChoices: record.supplyRemedyChoices.length > 10,
       // Intent never means a substitute was accepted, finance approved, or paid.
       alternativeAccepted: false as const,
@@ -400,6 +420,17 @@ export class OrderSupplyExceptionService {
         )
           throw orderConflict(
             "Used, installed or disputed goods need technical assessment. This request cannot approve a general return.",
+          );
+        if (
+          await tx.refund.count({
+            where: {
+              supplyRemedyChoice: { supplyExceptionId: concern.id },
+              status: { notIn: ["FAILED", "CANCELLED"] },
+            },
+          })
+        )
+          throw orderConflict(
+            "A refund is already committed to this choice. Customer Care must reconcile its outcome before another choice.",
           );
         const choice = await tx.orderSupplyRemedyChoice.create({
           data: {

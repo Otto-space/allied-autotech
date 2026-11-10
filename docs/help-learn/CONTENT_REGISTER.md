@@ -1,3 +1,18 @@
+### 10 November: financial linkage verified; complete resolution remains held
+
+Refund-work guidance is now restricted v4. Actual current customer refund choices
+bind the existing independently approved refund workflow to exact saved affected
+gross, discount and tax; no fee or live financial-policy approval is invented.
+Original captures and earlier commitments cap requests; unbound money/unknown
+charges require reconciliation. Used/installed/disputed goods stay in assessment.
+A committed refund prevents a competing choice. Safe owned reads show actual refund
+status, never bank/operator evidence. Requested/approved is not money returned.
+95 native cases across7 suites passed with114-migration replay/db:check/restricted
+runtime and owned tmpfs cleanup. Separate eligibility/session/approval units26/26.
+See site-completion-tracker for failed fixture attempts and exact evidence scope.
+Customer/operator UI, actual alternative acceptance and settled unit resolution
+remain incomplete. No feature flag, financial policy or production record changed.
+
 ### 10 November: actual customer remedy choices verified; resolution remains held
 
 D17 now retains an append-only choice from the actual owned customer or private

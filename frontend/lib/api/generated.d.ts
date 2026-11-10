@@ -103739,6 +103739,7 @@ export interface operations {
                 /**
                  * @example {
                  *       "paymentAttemptId": "00000000-0000-4000-8000-000000000001",
+                 *       "supplyRemedyChoiceId": "00000000-0000-4000-8000-000000000001",
                  *       "amountKobo": "300000",
                  *       "reason": "synthetic-reason"
                  *     }
@@ -103749,6 +103750,11 @@ export interface operations {
                      * @description Identifier of the payment attempt resource; ownership is resolved server-side.
                      */
                     paymentAttemptId: string;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the supply remedy choice resource; ownership is resolved server-side.
+                     */
+                    supplyRemedyChoiceId?: string;
                     /** @description Integer amount in Nigerian kobo; the server remains authoritative. */
                     amountKobo: string;
                     /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
@@ -145014,6 +145020,11 @@ export interface operations {
                              * @description Identifier of the payment attempt resource; ownership is resolved server-side.
                              */
                             paymentAttemptId: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the supply remedy choice resource; ownership is resolved server-side.
+                             */
+                            supplyRemedyChoiceId?: string | null;
                             /** @description Payment Attempt validated by this operation's strict request contract. */
                             paymentAttempt: {
                                 /**
@@ -145410,6 +145421,11 @@ export interface operations {
                              * @description Identifier of the payment attempt resource; ownership is resolved server-side.
                              */
                             paymentAttemptId: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the supply remedy choice resource; ownership is resolved server-side.
+                             */
+                            supplyRemedyChoiceId?: string | null;
                             /** @description Payment Attempt validated by this operation's strict request contract. */
                             paymentAttempt: {
                                 /**
@@ -145800,6 +145816,11 @@ export interface operations {
                                  * @description Identifier of the payment attempt resource; ownership is resolved server-side.
                                  */
                                 paymentAttemptId: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the supply remedy choice resource; ownership is resolved server-side.
+                                 */
+                                supplyRemedyChoiceId?: string | null;
                                 /** @description Payment Attempt validated by this operation's strict request contract. */
                                 paymentAttempt: {
                                     /**

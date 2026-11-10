@@ -128821,6 +128821,11 @@
                     "format": "uuid",
                     "description": "Identifier of the payment attempt resource; ownership is resolved server-side."
                   },
+                  "supplyRemedyChoiceId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Identifier of the supply remedy choice resource; ownership is resolved server-side."
+                  },
                   "amountKobo": {
                     "type": "string",
                     "pattern": "^\\d+$",
@@ -128843,6 +128848,7 @@
               },
               "example": {
                 "paymentAttemptId": "00000000-0000-4000-8000-000000000001",
+                "supplyRemedyChoiceId": "00000000-0000-4000-8000-000000000001",
                 "amountKobo": "300000",
                 "reason": "synthetic-reason"
               }
@@ -187463,6 +187469,14 @@
                           "format": "uuid",
                           "description": "Identifier of the payment attempt resource; ownership is resolved server-side."
                         },
+                        "supplyRemedyChoiceId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the supply remedy choice resource; ownership is resolved server-side."
+                        },
                         "paymentAttempt": {
                           "type": "object",
                           "properties": {
@@ -188016,6 +188030,14 @@
                           "type": "string",
                           "format": "uuid",
                           "description": "Identifier of the payment attempt resource; ownership is resolved server-side."
+                        },
+                        "supplyRemedyChoiceId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the supply remedy choice resource; ownership is resolved server-side."
                         },
                         "paymentAttempt": {
                           "type": "object",
@@ -188590,6 +188612,14 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "description": "Identifier of the payment attempt resource; ownership is resolved server-side."
+                              },
+                              "supplyRemedyChoiceId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "uuid",
+                                "description": "Identifier of the supply remedy choice resource; ownership is resolved server-side."
                               },
                               "paymentAttempt": {
                                 "type": "object",

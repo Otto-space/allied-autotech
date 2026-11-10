@@ -1,3 +1,8 @@
+import { z } from "zod";
+import { refundQueueRecordSchema } from "../../src/modules/payments/refund-record.js";
+import { enqueueLateOrderRefund } from "../../src/modules/payments/refund-workflow.js";
+import { PaymentsService } from "../../src/modules/payments/payments.service.js";
+import { testCapability } from "../helpers/owner-policy.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
 import {
   purchaseCookieName,
@@ -29,7 +34,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   () => {
     beforeAll(assertIsolatedLoopbackDatabase);
     afterAll(() => prisma.$disconnect());
-    async function fixture(guest = false) {
+    async function fixture(
+      guest = false,
+      terms: { legacy?: boolean; deliveryFeeKobo?: bigint; latePayment?: boolean } = {},
+    ) {
       const suffix = randomUUID(),
         owner = await testOwner("unusable-supply-fixture"),
         buyer = await reviewSourceCustomer(),
@@ -89,10 +97,25 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           subtotalKobo: 303n,
           discountAmountKobo: 5n,
           taxKobo: 22n,
-          totalKobo: 320n,
-          policySnapshot: {
-            monetaryAllocation: createOrderMoneyAllocation([item], 5n, 22n),
-          },
+          totalKobo: 320n + (terms.deliveryFeeKobo ?? 0n),
+          deliveryFeeKobo: terms.deliveryFeeKobo ?? 0n,
+          ...(terms.deliveryFeeKobo
+            ? {
+                fulfillmentMethod: "DELIVERY",
+                deliveryAddress: "Synthetic historical delivery only",
+                deliveryName: "Synthetic recipient",
+                deliveryPhone: "08030000000",
+                deliveryCity: "Port Harcourt",
+                deliveryState: "Rivers",
+                deliveryCountry: "Nigeria",
+              }
+            : {}),
+          ...(terms.latePayment ? { paymentDueAt: new Date(Date.now() - 60_000) } : {}),
+          policySnapshot: terms.legacy
+            ? {}
+            : {
+                monetaryAllocation: createOrderMoneyAllocation([item], 5n, 22n),
+              },
           items: {
             create: {
               ...item,
@@ -128,6 +151,109 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         service,
         principal,
         access,
+      };
+    }
+    async function captured(
+      f: Awaited<ReturnType<typeof fixture>>,
+      amountKobo = 320n,
+      provider: "MANUAL" | "PAYSTACK" = "MANUAL",
+    ) {
+      // Real isolated database rows for a synthetic capture, not provider acceptance.
+      const payment = await prisma.payment.create({
+        data: {
+          orderId: f.order.id,
+          customerId: f.order.customerId,
+          paymentNumber: randomUUID(),
+          purpose: "ORDER_PAYMENT",
+          amountKobo,
+          idempotencyKeyHash: randomUUID().replaceAll("-", "").repeat(2),
+        },
+      });
+      return prisma.paymentAttempt.create({
+        data: {
+          paymentId: payment.id,
+          attemptNumber: 1,
+          internalReference: randomUUID(),
+          provider,
+          ...(provider === "PAYSTACK"
+            ? {
+                providerReference: `synthetic-${randomUUID()}`,
+                gatewayTransactionId: `synthetic-${randomUUID()}`,
+              }
+            : {}),
+          amountKobo,
+          status: "SUCCESSFUL",
+          verificationStatus: "VERIFIED",
+          verifiedAmountKobo: amountKobo,
+          verifiedCurrency: "NGN",
+          paidAt: new Date(),
+          verifiedAt: new Date(),
+          createdAt: new Date(Date.now() - 1000),
+          initiatedAt: new Date(Date.now() - 1000),
+        },
+      });
+    }
+    async function refundFixture() {
+      const f = await fixture();
+      const prior = await prisma.businessPolicyVersion.findFirst({
+        where: { key: "manual-refund" },
+        orderBy: { version: "desc" },
+      });
+      await prisma.businessPolicyVersion.create({
+        data: {
+          key: "manual-refund",
+          version: (prior?.version ?? 0) + 1,
+          approvalStatus: "APPROVED",
+          approvedByUserId: f.actor.userId,
+          source: "Synthetic isolated refund fixture; not production owner approval",
+          sourceQuestion: "D17 fixture only",
+          effectiveAt: new Date(Date.now() - 1000),
+          settings: {},
+        },
+      });
+      const concern = (await f.service.raise(f.actor, f.order.id, f.body, context))
+        .items[0]!;
+      const chosen = await f.service.choose(
+        f.principal,
+        f.order.id,
+        choiceInput(concern.id),
+        context,
+      );
+      const choice = chosen.items[0]!.supplyRemedyChoices[0]!;
+      const attempt = await captured(f);
+      const payments = new PaymentsService();
+      const body = {
+        paymentAttemptId: attempt.id,
+        amountKobo: 107n,
+        supplyRemedyChoiceId: choice.id,
+        reason: "Actual affected original unit including its saved discount and tax",
+      };
+      return { ...f, concern, choice, attempt, payments, refundBody: body };
+    }
+    const refundReceipt = (value: unknown) =>
+      z
+        .object({ refund: refundQueueRecordSchema, replayed: z.boolean() })
+        .parse(JSON.parse(JSON.stringify(value)));
+    async function independentApprover() {
+      const user = await prisma.user.create({
+        data: {
+          email: `${randomUUID()}@example.test`,
+          passwordHash: "unusable-synthetic-approver",
+          role: "ADMIN",
+          emailVerifiedAt: new Date(),
+          staffProfile: {
+            create: { firstName: "Synthetic", lastName: "Independent approver" },
+          },
+        },
+      });
+      await testCapability(user.id, "REFUND_APPROVE");
+      return {
+        userId: user.id,
+        email: user.email,
+        role: "ADMIN" as const,
+        sessionId: await paymentTestSession(user.id, "ADMIN"),
+        mfaRequired: true,
+        mfaVerifiedAt: new Date(),
       };
     }
     const choiceInput = (supplyExceptionId: string, expectedVersion = 1) => ({
@@ -400,6 +526,384 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         );
         expect(JSON.stringify(result.body)).not.toContain("sessionId");
       }
+    });
+    it("binds the exact original affected gross to the existing refund request and independent approval", async () => {
+      const f = await refundFixture(),
+        key = randomUUID();
+      const saved = refundReceipt(
+        await f.payments.requestRefund(f.actor, f.refundBody, key, context),
+      );
+      expect(saved.refund).toMatchObject({
+        supplyRemedyChoiceId: f.choice.id,
+        status: "REQUESTED",
+        amountKobo: "107",
+      });
+      const replay = await f.payments.requestRefund(f.actor, f.refundBody, key, context);
+      expect(replay).toMatchObject({ replayed: true, refund: { id: saved.refund.id } });
+      await expect(
+        f.payments.requestRefund(
+          f.actor,
+          { ...f.refundBody, supplyRemedyChoiceId: randomUUID() },
+          key,
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await testCapability(f.actor.userId, "REFUND_APPROVE");
+      await expect(
+        f.payments.decideRefund(
+          f.actor,
+          saved.refund.id,
+          { decision: "APPROVED" },
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const approved = await f.payments.decideRefund(
+        await independentApprover(),
+        saved.refund.id,
+        { decision: "APPROVED" },
+        context,
+      );
+      expect(approved).toMatchObject({
+        status: "NEEDS_ATTENTION",
+        providerStatus: "OFFLINE_PROCESSING_REQUIRED",
+        processedAt: null,
+      });
+      const safe = await f.service.read(f.principal, f.order.id);
+      expect(safe.items[0]!.supplyRemedyChoices[0]!.refunds[0]).toMatchObject({
+        id: saved.refund.id,
+        status: "NEEDS_ATTENTION",
+        amountKobo: "107",
+        processedAt: null,
+      });
+      for (const secret of [
+        "bankReference",
+        "beneficiaryEncrypted",
+        "policySnapshot",
+        "requestedByUserId",
+        "sessionId",
+      ])
+        expect(JSON.stringify(safe)).not.toContain(secret);
+      await expect(
+        prisma.$transaction((tx) => assertReviewedPurchasePayable(tx, f.order.id)),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      expect(
+        (await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } })).totalKobo,
+      ).toBe(320n);
+    });
+    it("caps concurrent scope requests and freezes a financially committed choice in both service and SQL", async () => {
+      const f = await refundFixture();
+      const attempts = await Promise.allSettled(
+        [randomUUID(), randomUUID()].map((key) =>
+          f.payments.requestRefund(f.actor, f.refundBody, key, context),
+        ),
+      );
+      expect(attempts.filter((row) => row.status === "fulfilled")).toHaveLength(1);
+      await expect(
+        f.service.choose(
+          f.principal,
+          f.order.id,
+          { ...choiceInput(f.concern.id, 2), choice: "SUITABLE_ALTERNATIVE_REVIEW" },
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const stored = await prisma.orderSupplyRemedyChoice.findUniqueOrThrow({
+        where: { id: f.choice.id },
+      });
+      await expect(
+        prisma.orderSupplyRemedyChoice.create({
+          data: {
+            ...stored,
+            id: randomUUID(),
+            orderVersion: 2,
+            choice: "SUITABLE_ALTERNATIVE_REVIEW",
+            idempotencyKey: randomUUID(),
+          },
+        }),
+      ).rejects.toThrow(/refund is already committed/);
+      const refund = await prisma.refund.findFirstOrThrow({
+        where: { supplyRemedyChoiceId: f.choice.id },
+      });
+      await expect(
+        prisma.refund.create({
+          data: {
+            paymentAttemptId: f.attempt.id,
+            supplyRemedyChoiceId: f.choice.id,
+            requestedByUserId: f.actor.userId,
+            id: randomUUID(),
+            refundNumber: randomUUID(),
+            idempotencyKeyHash: randomUUID().replaceAll("-", "").repeat(2),
+            amountKobo: 1n,
+            reason: "Synthetic attempt to exceed the affected portion",
+          },
+        }),
+      ).rejects.toThrow(/affected original portion/);
+      await expect(prisma.refund.delete({ where: { id: refund.id } })).rejects.toThrow(
+        /Refund rows cannot be physically deleted/,
+      );
+      await expect(
+        prisma.refund.update({
+          where: { id: refund.id },
+          data: { supplyRemedyChoiceId: null },
+        }),
+      ).rejects.toThrow(/immutable/);
+    });
+    it("supports separate captured-amount requests only up to the exact full affected total and never deducts a fee", async () => {
+      const f = await refundFixture();
+      await f.payments.requestRefund(
+        f.actor,
+        { ...f.refundBody, amountKobo: 50n },
+        randomUUID(),
+        context,
+      );
+      await f.payments.requestRefund(
+        f.actor,
+        { ...f.refundBody, amountKobo: 57n },
+        randomUUID(),
+        context,
+      );
+      await expect(
+        f.payments.requestRefund(
+          f.actor,
+          { ...f.refundBody, amountKobo: 1n },
+          randomUUID(),
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const sum = await prisma.refund.aggregate({
+        where: { supplyRemedyChoiceId: f.choice.id },
+        _sum: { amountKobo: true },
+      });
+      expect(sum._sum.amountKobo).toBe(107n);
+      expect(f.concern.monetaryBasis).toMatchObject({
+        feeKobo: "0",
+        amounts: { totalKobo: "107", taxKobo: "8" },
+      });
+    });
+    it("refuses unbound, foreign, stale-choice and unreviewed historical/charge refunds", async () => {
+      const f = await refundFixture(),
+        other = await refundFixture();
+      const { supplyRemedyChoiceId: _, ...unbound } = f.refundBody;
+      void _;
+      await expect(
+        f.payments.requestRefund(f.actor, unbound, randomUUID(), context),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await expect(
+        f.payments.requestRefund(
+          f.actor,
+          { ...f.refundBody, paymentAttemptId: other.attempt.id },
+          randomUUID(),
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const changed = await f.service.choose(
+        f.principal,
+        f.order.id,
+        { ...choiceInput(f.concern.id, 2), choice: "SUITABLE_ALTERNATIVE_REVIEW" },
+        context,
+      );
+      await expect(
+        f.payments.requestRefund(f.actor, f.refundBody, randomUUID(), context),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await expect(
+        f.payments.requestRefund(
+          f.actor,
+          {
+            ...f.refundBody,
+            supplyRemedyChoiceId: changed.items[0]!.supplyRemedyChoices[0]!.id,
+          },
+          randomUUID(),
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const legacy = await fixture(false, { legacy: true });
+      const concern = (
+        await legacy.service.raise(legacy.actor, legacy.order.id, legacy.body, context)
+      ).items[0]!;
+      const choice = (
+        await legacy.service.choose(
+          legacy.principal,
+          legacy.order.id,
+          choiceInput(concern.id),
+          context,
+        )
+      ).items[0]!.supplyRemedyChoices[0]!;
+      const attempt = await captured(legacy);
+      await expect(
+        new PaymentsService().requestRefund(
+          legacy.actor,
+          {
+            ...f.refundBody,
+            paymentAttemptId: attempt.id,
+            supplyRemedyChoiceId: choice.id,
+          },
+          randomUUID(),
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+    });
+    it("holds attributable charges and used/installed claims for their actual separate review", async () => {
+      for (const kind of ["CHARGES", "USED"] as const) {
+        const f = await fixture(false, kind === "CHARGES" ? { deliveryFeeKobo: 7n } : {});
+        const concern = (
+          await f.service.raise(
+            f.actor,
+            f.order.id,
+            {
+              ...f.body,
+              ...(kind === "USED" ? { kind: "USED_INSTALLED_OR_DIAGNOSIS_DISPUTE" } : {}),
+            },
+            context,
+          )
+        ).items[0]!;
+        const chosen = await f.service.choose(
+          f.principal,
+          f.order.id,
+          {
+            ...choiceInput(concern.id),
+            ...(kind === "USED" ? { choice: "TECHNICAL_REVIEW" } : {}),
+          },
+          context,
+        );
+        const attempt = await captured(f, kind === "CHARGES" ? 327n : 320n);
+        await expect(
+          new PaymentsService().requestRefund(
+            f.actor,
+            {
+              paymentAttemptId: attempt.id,
+              amountKobo: 107n,
+              supplyRemedyChoiceId: chosen.items[0]!.supplyRemedyChoices[0]!.id,
+              reason:
+                "Needs actual financial or technical review, not an invented entitlement",
+            },
+            randomUUID(),
+            context,
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+      }
+    });
+    it("requires reconciliation of earlier unbound money and allows a new choice only after actual cancellation", async () => {
+      const f = await refundFixture();
+      const saved = refundReceipt(
+        await f.payments.requestRefund(f.actor, f.refundBody, randomUUID(), context),
+      );
+      await f.payments.decideRefund(
+        await independentApprover(),
+        saved.refund.id,
+        {
+          decision: "CANCELLED",
+          note: "Customer Care reviewing a different remedy; no money moved",
+        },
+        context,
+      );
+      const changed = await f.service.choose(
+        f.principal,
+        f.order.id,
+        { ...choiceInput(f.concern.id, 2), choice: "SUITABLE_ALTERNATIVE_REVIEW" },
+        context,
+      );
+      expect(changed.items[0]!.supplyRemedyChoices[1]!.refunds[0]!.status).toBe(
+        "CANCELLED",
+      );
+      expect(changed.items[0]!.supplyRemedyChoices[0]!.choice).toBe(
+        "SUITABLE_ALTERNATIVE_REVIEW",
+      );
+      const older = await fixture(),
+        attempt = await captured(older),
+        payments = new PaymentsService();
+      await payments.requestRefund(
+        older.actor,
+        {
+          paymentAttemptId: attempt.id,
+          amountKobo: 5n,
+          reason: "Earlier unbound synthetic refund requires reconciliation",
+        },
+        randomUUID(),
+        context,
+      );
+      const concern = (
+        await older.service.raise(older.actor, older.order.id, older.body, context)
+      ).items[0]!;
+      const choice = (
+        await older.service.choose(
+          older.principal,
+          older.order.id,
+          choiceInput(concern.id),
+          context,
+        )
+      ).items[0]!.supplyRemedyChoices[0]!;
+      await expect(
+        payments.requestRefund(
+          older.actor,
+          {
+            ...f.refundBody,
+            paymentAttemptId: attempt.id,
+            supplyRemedyChoiceId: choice.id,
+          },
+          randomUUID(),
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+    });
+    it("preserves the existing approved full technical late-payment reversal despite a supply concern", async () => {
+      const f = await fixture(false, { latePayment: true });
+      await f.service.raise(f.actor, f.order.id, f.body, context);
+      const prior = await prisma.businessPolicyVersion.findFirstOrThrow({
+        where: { key: "order-payment" },
+        orderBy: { version: "desc" },
+      });
+      const settings = z.record(z.string(), z.json()).parse(prior.settings);
+      const policy = await prisma.businessPolicyVersion.create({
+        data: {
+          key: "order-payment",
+          version: prior.version + 1,
+          approvalStatus: "APPROVED",
+          approvedByUserId: f.actor.userId,
+          source: "Synthetic isolated late-reversal fixture; not production approval",
+          sourceQuestion: "D17 compatibility fixture",
+          effectiveAt: new Date(Date.now() - 1000),
+          settings: { ...settings, lateCaptureAction: "PROVIDER_REVERSAL" },
+        },
+      });
+      try {
+        const attempt = await captured(f, 320n, "PAYSTACK");
+        for (let replay = 0; replay < 2; replay++)
+          await prisma.$transaction(async (tx) => {
+            await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id"=${attempt.id}::uuid FOR UPDATE`;
+            await enqueueLateOrderRefund(tx, attempt.id);
+          });
+        const refunds = await prisma.refund.findMany({
+          where: { paymentAttemptId: attempt.id },
+        });
+        expect(refunds).toHaveLength(1);
+        expect(refunds[0]).toMatchObject({
+          authorizationKind: "SYSTEM_LATE_ORDER",
+          supplyRemedyChoiceId: null,
+          amountKobo: 320n,
+          status: "APPROVED",
+          processedAt: null,
+        });
+      } finally {
+        // Append a restoration; never edit immutable policy history or leak this
+        // fixture's limited settings into later pre-payment/capture regressions.
+        await prisma.businessPolicyVersion.create({
+          data: {
+            key: "order-payment",
+            version: policy.version + 1,
+            approvalStatus: prior.approvalStatus,
+            approvedByUserId: prior.approvedByUserId,
+            source: "Restored isolated test policy state; not production owner approval",
+            sourceQuestion: "D17 isolated restore",
+            effectiveAt: new Date(Date.now() - 1000),
+            settings,
+          },
+        });
+      }
+      const restored = await prisma.businessPolicyVersion.findFirstOrThrow({
+        where: { key: "order-payment" },
+        orderBy: { version: "desc" },
+      });
+      expect(restored.settings).toEqual(prior.settings);
+      expect(restored.approvalStatus).toBe(prior.approvalStatus);
     });
     it("binds exact affected quantities, creates a durable owned Care case and replays without duplicates", async () => {
       const f = await fixture();

@@ -1,3 +1,47 @@
+### 10 November: affected supply refunds use the existing financial kernel
+
+D17 now binds an actual current customer refund-review choice to the existing
+administrator/MFA refund request. Original saved unit-range pricing, discount and
+VAT are revalidated, not repriced. Requested/committed amounts across attempts and
+choices cannot exceed that affected gross or the verified capture. No handling fee,
+credit, payment permission or new tax approval is introduced. Earlier unbound
+refunds and unknown historical/attributable charges require actual reconciliation.
+Used/installed/disputed cases retain technical assessment rather than a general
+return entitlement. Existing human approvals, provider eligibility and evidence
+checks remain authoritative. The guarded full late-order technical reversal remains.
+
+Forward114 adds a nullable immutable Refund choice link and defensive SQL guards.
+A committed refund freezes changing that remedy choice; failed/cancelled requests
+retain history and permit a fresh customer choice. Buyer/guest history shows actual
+bounded refund statuses/amounts without operator, bank, beneficiary or private policy
+records. Approval/NEEDS_ATTENTION is not money returned. Payment and physical holds
+remain until the separate settlement/resolved-quantity workflow is connected.
+
+Actual evidence:95/95 across seven native suites, including existing manual refund
+processing, pre-payment review and pickup regressions;114-migration empty replay,
+empty schema diff, db:check and restricted runtime passed. Owned tmpfs DB removed.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-refund-complete.log.
+Separate session/approval/learning tests26/26 and focused integration test types pass
+(the external test config includes Express declarations and permits existing test
+process.env index-property conventions). Backend/frontend types, scoped lint,
+secret guard3977 files, OpenAPI470 paths and route coverage553 operations plus4
+infrastructure routes passed. Canonical contracts add no paths and change only the
+refund request/read/decision surfaces for the optional binding.
+Earlier native attempts failed3,7 and10 cases due to fixture setup: immutable-record
+mutations, a missing provider parameter, service Date versus HTTP serialization,
+required legacy delivery/provider facts and leaked test payment-window policy.
+Fixtures now construct correct immutable facts, parse the serialized receipt and
+append restored prior policy settings in finally; production guards are unchanged.
+Applied114 is frozen. Refund-work learning is restricted v4; publication flags remain.
+
+D17 still needs its customer/operator interface, actual alternative acceptance and
+verified financial-to-unit fulfilment resolution. This source remains held locally.
+The separate schema110 candidate dab976c7 passed backend/secret and865/984 browser
+cases with zero failures, then hit its30-minute full-matrix limit. Source ae907094
+retains every case/assertion and grants40 minutes to the step/55 to the job. Latest
+master580a1bb5 adds authentication-fixture isolation and must be preserved in the
+candidate before its new exact-source checks. No production publication occurred.
+
 ### 10 November: actual customer remedy choices verified; resolution remains held
 
 D17 now retains an append-only choice from the actual owned customer or private

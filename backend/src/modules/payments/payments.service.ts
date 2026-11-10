@@ -1,3 +1,4 @@
+import { assertSupplyRefundBinding } from "../orders/order-supply-refund.js";
 import {
   additionalInvoiceQuoteSelect,
   assertSupplementalInvoiceCurrent,
@@ -1034,6 +1035,8 @@ export class PaymentsService {
           existing.requestedByUserId !== actor.userId ||
           existing.paymentAttemptId !== input.paymentAttemptId ||
           existing.amountKobo !== input.amountKobo ||
+          (existing.supplyRemedyChoiceId ?? null) !==
+            (input.supplyRemedyChoiceId ?? null) ||
           existing.reason !== input.reason
         )
           throw paymentIdempotencyConflict();
@@ -1056,6 +1059,11 @@ export class PaymentsService {
       )
         throw paymentNotFound();
       await this.assertBranch(actor, attempt.paymentId, tx);
+      await assertSupplyRefundBinding(tx, {
+        orderId: attempt.payment.orderId,
+        choiceId: input.supplyRemedyChoiceId,
+        amountKobo: input.amountKobo,
+      });
       if (
         await tx.paymentDispute.count({
           where: { paymentAttemptId: attempt.id, status: { not: "WON" } },
@@ -1100,6 +1108,7 @@ export class PaymentsService {
           policyVersionId: refundPolicy.id,
           policySnapshot: policySnapshot(refundPolicy),
           paymentAttemptId: input.paymentAttemptId,
+          supplyRemedyChoiceId: input.supplyRemedyChoiceId ?? null,
           requestedByUserId: actor.userId,
           refundNumber: refundNumber(),
           idempotencyKeyHash: keyHash,
@@ -1115,6 +1124,9 @@ export class PaymentsService {
         entityId: refund.id,
         newValues: {
           amountKobo: refund.amountKobo.toString(),
+          ...(input.supplyRemedyChoiceId
+            ? { supplyRemedyChoiceId: input.supplyRemedyChoiceId }
+            : {}),
           paymentAttemptId: input.paymentAttemptId,
         },
         context,

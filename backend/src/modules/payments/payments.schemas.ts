@@ -113,6 +113,7 @@ export const manualReviewBodySchema = z
 export const refundCreateBodySchema = z
   .object({
     paymentAttemptId: uuid,
+    supplyRemedyChoiceId: uuid.optional(),
     amountKobo: z.coerce.bigint().positive(),
     reason: cleanText(1_000),
   })

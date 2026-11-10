@@ -14740,6 +14740,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `paymentAttemptId` | string (uuid) | Yes | Identifier of the payment attempt resource; ownership is resolved server-side. |
+| `supplyRemedyChoiceId` | string (uuid) | No | Identifier of the supply remedy choice resource; ownership is resolved server-side. |
 | `amountKobo` | string | Yes | Integer amount in Nigerian kobo; the server remains authoritative. |
 | `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
@@ -14748,6 +14749,7 @@ Synthetic request example:
 ```json
 {
   "paymentAttemptId": "00000000-0000-4000-8000-000000000001",
+  "supplyRemedyChoiceId": "00000000-0000-4000-8000-000000000001",
   "amountKobo": "300000",
   "reason": "synthetic-reason"
 }
