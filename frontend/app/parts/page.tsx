@@ -59,22 +59,30 @@ export default async function PartsPage({
     <>
       <SiteHeader />
       <main id="main" className="public-site shop-page">
-        <nav className="public-wrap product-breadcrumb" aria-label="Breadcrumb">
-          <ol>
-            <li>
-              <Link href="/">Home</Link>
-            </li>
-            <li>
-              <ChevronRight size={14} aria-hidden="true" />
-              <span aria-current="page">Shop</span>
-            </li>
-          </ol>
-        </nav>
         <CatalogueBanner
           kind="shop"
           title="Parts, oils & automotive essentials"
           description="Browse replacement parts, engine oils and automotive essentials. Check specifications and collection availability with our team."
-        />
+          breadcrumbs={
+            <nav className="product-breadcrumb" aria-label="Breadcrumb">
+              <ol>
+                <li>
+                  <Link href="/">Home</Link>
+                </li>
+                <li>
+                  <ChevronRight size={14} aria-hidden="true" />
+                  <span aria-current="page">Shop</span>
+                </li>
+              </ol>
+            </nav>
+          }
+        >
+          <div className="parts-hero-actions">
+            <a className="button" href="#products">
+              Browse products <ArrowUpRight size={18} aria-hidden="true" />
+            </a>
+          </div>
+        </CatalogueBanner>
         <section
           className="public-wrap product-inventory"
           id="products"
