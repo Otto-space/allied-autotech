@@ -6,6 +6,14 @@ const base = "/admin/workforce/access",
   stamp = "2026-10-26T18:00:00.000Z";
 async function setup(page: Page, delegated = false) {
   const f = await workStaffDetailFixture(page, delegated ? "ADMIN" : "SUPER_ADMIN");
+  f.workforce.effectiveAccess = {
+    baseline: "LEGACY",
+    visibility: delegated ? "DELEGATED" : "FULL",
+    evaluatedAt: stamp,
+    grants: [],
+    responsibilityGrantsOnly: true,
+    ...(delegated ? {} : { independentCapabilities: [] }),
+  };
   const state = {
     mode: "normal",
     reads: [] as URL[],
