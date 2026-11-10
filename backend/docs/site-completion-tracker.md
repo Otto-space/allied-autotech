@@ -10043,18 +10043,18 @@ The current source still has 119 page templates. The existing route/role/state
 inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
 this implementation adds the following ordered status overlay, not a second backlog:
 
-| Group | Scope                                                                          | Implementation / release status                                                                           |
-| ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt. |
-| 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt. |
+| Group | Scope                                                                          | Implementation / release status                                                                                                     |
+| ----- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt.                                 |
+| 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt.                                 |
 | 3     | Shop, filters, product, fitment                                                | Held compiled candidate verified at nine sizes; full exact-master gates and compatible vehicle backend publication remain required. |
-| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
-| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
-| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
-| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                  |
-| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                             |
-| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                |
-| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                         |
+| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                                      |
+| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                                           |
+| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                                         |
+| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                                            |
+| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                                                       |
+| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                                          |
+| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                                                   |
 
 Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
 The approved editorial workshop/family/parts/showroom family replaces the old
@@ -10535,11 +10535,10 @@ and add a rendered foreground/background contrast assertion for the card action
 at every size. Rebuild and rerun the complete matrix. This defect was confined
 to held candidates; public aliases were not changed by this Parts task.
 
-
 ## 10 November - Parts compiled candidate verified; publication still held
 
 Compiled source 102b10f48e077bd92f93d9fc5586b63e1521601f is READY as
- dpl_71x8HzztbJPN1Z2BHrG6WNU6KsQd, with no public domains assigned. The repaired
+dpl_71x8HzztbJPN1Z2BHrG6WNU6KsQd, with no public domains assigned. The repaired
 caption, empty finder track, full-width phone category and existing action/link
 colour tokens are present in the build. View product is a visible 44px-or-taller
 white-on-red action at all nine exact requested viewport pairs. The catalogue and
@@ -10587,7 +10586,6 @@ Home/Services source 580a1bb5 remains live on both aliases. Groups 3-10 stay ope
 No local build/install or Docker operation. C: 20.59 GiB passed the bounded 0.05
 GiB browser preflight; preserve the 20 GiB reserve and recheck before more writes.
 
-
 The 102b10f4 run passed 13 Parts cases and failed the 390px full-main Axe scan
 after lightbox Escape. The retained trace identifies Collection's 44px target
 partly under the sticky header at the gallery opener's restored scroll position
@@ -10599,3 +10597,34 @@ No application or sticky-header rule changes. Final focused and full master
 execution remain required; the cancelled overall run is not a pass. Its 1,538
 units, 9 WebKit and 21 media diagnostics passed. The integrated matrix has 1,049
 cases. Evidence: parts-readable-ci-evidence.json and its 390 error-context receipt.
+
+## 10 November - Parts integrated; concurrent vehicle publication reconciled
+
+PR55 merged at master e7681995. Its held production-environment frontend is
+dpl_4hAPGMeQyG5cJYKKVEb8q8JGJCr7; it has not been promoted. During the upload,
+the existing release guard detected a separate authorised publication and stopped.
+Read-only reconciliation identifies both public aliases at dpl_EdMgppUipQ81msnEmHCef4jZxx6m,
+source b1222a11, and backend 2c40bd63-b8a7-4a45-9429-4e03734e581c ACTIVE. Preserve
+that release as the current compatible recovery baseline. Parts made no alias,
+backend, migration, grant or business-data change.
+
+All four active image digests match the clean b1222a11 build/release receipts.
+Backend source/schema/package files are unchanged between b1222a11 and e7681995.
+The separate batch's verified production preflight records 102 migrations, matching
+checksums, strict TLS and runtime least privilege. Its 02:08 UTC verified backup
+matches the separate populated restore: 100-to-102 guarded forward migration,
+original-column counts/hashes and prior successful/rolled-back history preserved,
+with no production write by the restore. Eight managed snapshots remain available.
+This is a read of the other authorised batch's actual receipts, not a claim that
+Parts performed a new migration or restore. Evidence: parts-backend-concurrent.json
+and parts-backend-compatibility.json under the existing task TEMP directory.
+The vehicle backend compatibility hold is resolved; final Parts gates remain.
+
+The exact e7681995 held candidate passes all nine real catalogue/detail viewport
+pairs against the new backend with no horizontal overflow, page error or business
+write. Source/runtime is identical to compiled 102b10f4; only verification records
+and the complete-target scan setup differ. Final master frontend run 42743078645
+passed its build and units but failed formatting of this newly appended quality
+record; browser stages did not run. Format the record, retain the strengthened
+scan and rerun all three gates on the resulting exact master. Do not publish the
+failed commit or describe it as a complete frontend pass.
