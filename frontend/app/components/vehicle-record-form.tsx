@@ -97,8 +97,9 @@ export function VehicleRecordForm({
           }
         : undefined,
       title: vehicle ? "Save this vehicle record?" : "Create this stock record?",
-      description:
-        "This saves the permitted vehicle details. It does not create or publish a sale listing. Empty optional fields are recorded as not set.",
+      description: vehicle
+        ? "Public vehicle details update every existing listing for this stock record. Saving does not create a listing or change its status. Empty optional fields are recorded as not set."
+        : "This saves the permitted vehicle details. It does not create or publish a sale listing. Empty optional fields are recorded as not set.",
       facts: [
         { label: "Stock number", value: values.stockNumber.toUpperCase() },
         ...(vehicle ? [{ label: "Workshop branch", value: vehicle.branch.name }] : []),

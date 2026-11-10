@@ -1,3 +1,48 @@
+## 10 November 00:55 Lagos - vehicle held application passes; stronger checks pending
+
+Previous goal turn made source/CI progress; this package continues the complete
+vehicle and Team & Access/media objective. Draft PR50 source21c7e0b8 passes five
+actual built-editor flows on its protected Preview at320/390/768/1024/1440x720,
+using synthetic API responses and blocked unmatched writes. No real role or stock
+acceptance is inferred. Ephemeral origin-scoped OIDC used the existing verified
+Vercel identity/project; no protection change or share link. Current apex/www still
+resolve to dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV. No production publication.
+
+Backend42721820281 passes102 migrations, schema/db:check and stages through vehicle,
+customer, finance and private-access regressions, then fails the remaining public
+vehicle-enquiry v5 HTTP assertion (article nowv6). Correct that exact assertion;
+retain all privacy/eligibility checks. Frontend42721820652 completed successfully, including1534 units and947 runtime
+browser cases; diagnostic repeats are not extra coverage. Secret42721820287 passes. Do not replace a running job solely
+because observation expires, and do not call the failed backend run a release pass.
+
+Source now extends actual application coverage to18 cases, including public known/
+unknown ICE/BEV views at five widths, filters through refresh/Back, failed/uncertain
+save recovery, long descriptions/features and text-spacing checks. Isolated API
+regressions require500-character engine text, precise1998cc and exact comma-bearing
+feature arrays to round-trip, with invalid inputs leaving state/version unchanged.
+Selected frontend45/45, both compilers/scoped lint/format checks and direct four-
+record loopback fixture projection checks pass; the18 rendered and expanded database
+cases remain unexecuted. New filter-chip capitalization and truthful existing-listing
+review text need the new application run. No runtime permission or policy changed.
+
+Current page/account/scope/state matrix and the single complete requirement ledger
+are in the existing UI_UX_QUALITY_REGISTER.md. Finish this coherent vehicle group
+through final exact-source CI, populated recovery/package and live verification
+before publishing it. All Team/media work, real-role/device evidence and the full
+original scope remain active. Reuse the isolated source worktree; preserve the
+restoration checkout's unrelated unfinished merge. Disk checkpoints/evidence there.
+
+Focused held-preview captures of the engine and feature groups also pass at320 and
+1440px. Reviewed screenshots show separate, labelled feature rows, retained commas
+and supplied text; long input values scroll within their controls. A first capture
+attempt failed to load its synthetic seed; corrected bounded500-character fixtures
+pass2/2 without changing application guards. These are two visual samples, not
+extra unique workflow cases. Tall element screenshots intersect sticky chrome,
+so they do not establish complete mobile visual acceptance. New source still needs
+its own exact-source application and database run.
+
+---
+
 ## 10 November 00:36 Lagos - preserve the approved clock/session fixture fix
 
 Master1fc86e65 (PR49) landed while vehicle CI was being corrected. Reconciled its

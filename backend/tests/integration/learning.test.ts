@@ -240,10 +240,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const vehicle = await read(null, "/public/learning/articles/vehicle-enquiry");
       expect(vehicle.status).toBe(200);
-      expect(vehicle.body.data).toMatchObject({ version: 5, href: "/vehicles" });
+      expect(vehicle.body.data).toMatchObject({ version: 6, href: "/vehicles" });
       expect(vehicle.body.data.steps.join(" ")).toContain(
         "only when the listing offers it",
       );
+      expect(vehicle.body.data.steps.join(" ")).toContain("Engine / Power type");
+      expect(vehicle.body.data.steps.join(" ")).toContain("not a certification");
       expect(
         (await read(null, "/public/learning/articles/vehicle-operations")).status,
       ).toBe(404);

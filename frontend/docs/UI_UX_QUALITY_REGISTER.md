@@ -1,3 +1,92 @@
+## 10 November 00:55 Lagos - vehicle application verification and remaining boundaries
+
+Current package started9 November23:37UTC; target10 November00:37UTC. The full
+V01-V05/T01-T07 ledger below stays active. No Team/media requirement is dropped.
+Source remains `allied-vehicle-media-20261109`, draft PR50. Production aliases still
+serve dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV at this turn's authenticated Vercel read;
+www redirects to apex. No deployment or domain setting was changed.
+
+Held Preview dpl_FW58DXkUcMCMxtTZBFzvkCLUqenM is READY at source21c7e0b8. Its
+committed five-case actual vehicle-editor suite passes5/5 in installed Edge at
+320/390/768/1024/1440, each720px tall. This exercises real built application code
+with synthetic API responses: review/Go back, one exact save, refresh/reopen,
+comma-bearing feature preservation, retained1998cc after BEV selection, supplied
+engine text and separate owner-reported faults. Sampled Axe checks and no-overflow
+assertions pass. These are emulated viewports and mocked writes, not real role,
+production persistence, physical-device or whole-site acceptance. Exact source21c
+only: later filter/review wording and stronger boundary tests need new proof.
+
+Used existing Vercel CLI65.4 identity and the verified linked project, with ephemeral
+development OIDC headers scoped to the exact preview origin. No protection rule or
+share link was created. No token was printed or persisted. Private runner traces
+are off, all unmatched API writes abort, and specific later synthetic handlers
+fulfil test writes. Evidence/runner: `%TEMP%/allied-vehicle-preview-21c7e0b8/`.
+The first CLI invocation through its PowerShell shim lost the command separator;
+the existing native `.cmd` entry point ran the same authorised command successfully.
+
+Current21c backend42721820281 passes all102 migration/schema/db:check gates and
+stages through the customer/vehicle/finance/private-access regressions. It stops
+at the public Help HTTP assertion still expecting vehicle-enquiry v5 (15 pass/1 fail
+in that final step); source intentionally uses v6. Corrected the exact assertion
+and added the new power/feature wording checks, retaining all privacy exclusions.
+Frontend42721820652 completed successfully:221 test files pass (2 existing skips),
+1534 unit cases pass (12 existing skips),9 WebKit diagnostics,21 media diagnostics
+and947 runtime browser cases pass. Those separate groups overlap the full runtime
+matrix and are not summed. Never restart solely on observation timeout. Secret42721820287 passes. No failed
+run is a release pass, and later source needs complete exact-source checks.
+
+Verification extensions now in source: API round-trip of the full500-character
+multiline engine description, exact1998cc, unchanged comma-bearing/80-character
+feature items and FOREIGN_USED classification through edit/save/public reload;
+rejected501/81/41/duplicate inputs must leave version/data unchanged. Four stored
+power labels and legacy fuel/drive separation pass component/helper units.
+Dedicated loopback public vehicle records keep independent identities and known
+versus unknown BEV facts; direct fixture HTTP checks pass for all four power values,
+500-character known descriptions and80-character items. That is fixture-protocol
+evidence, not database acceptance.
+
+Expanded actual-route project lists18 cases: five editor widths, rejected/uncertain
+save recovery, ten public ICE/BEV views and combined power/fuel/drive filters through
+refresh/Back. It checks readable separate lists, supplied500-character text, missing
+combustion values/features for BEV, retained reported faults, column reflow, reduced
+motion and sampled text spacing/Axe. These18 cases are registered, not yet passed.
+Selected frontend units pass45/45 across five suites; both compilers, scoped lint,
+format and diff checks pass at this checkpoint. Counts overlap the earlier70.
+
+One applied-filter defect was found in source: passing the display phrase through
+the generic label formatter changed Power to lowercase. Use the established typed
+label key instead, including Fuel type. Edit review now states that public facts
+update existing listings while preserving listing status. Both changes need the
+new application run. No permission, price, migration, stored value or actual stock
+record changed in this extension. The new sole vehicle migration remains additive.
+
+The page/account/scope/state evidence for this active group is maintained here:
+
+| Page                                  | Account fixture / scope                     | Visible and allowed                                               | Absent or denied                                                            | State / viewport                                                  | Actual evidence                                                      |
+| ------------------------------------- | ------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------- |
+| /admin/vehicles/{id}                  | Synthetic Admin, branch101 stock            | Engine & drive; feature rows; explicit review and synthetic PATCH | Unmatched real API writes aborted; no real grants tested                    | Populated, cancel/review/save/reload;320/390/768/1024/1440x720    | Hosted21c5/5, component5/5; newer wording pending                    |
+| /admin/vehicles/{id}                  | Same owned synthetic stock                  | Keep field input; reconcile a lost result                         | Duplicate/replayed write while uncertain                                    | 409 rejection/lost response;390x844                               | Test source registered; execution pending                            |
+| /vehicles/{id}                        | Anonymous, dedicated public ICE/BEV records | Supplied facts, feature list and separate fault statement         | No fabricated combustion facts, no absent-feature claims; GET only          | Known/unknown, long text; five widths x720                        | Loopback projection4/4; ten rendered cases pending                   |
+| /vehicles                             | Anonymous public discovery                  | Separate power/fuel/drive controls and named chips                | No reinterpretation of legacy fuel into power                               | Combined query, refresh and Back                                  | Helper/component unit evidence; rendered case pending                |
+| Vehicle HTTP create/patch/public read | Isolated Admin/Staff/customer fixtures      | Role/branch-scoped known fields                                   | Anonymous/customer/foreign branch writes; invalid values and stale versions | Real API/database earlier normal values; expanded boundary inputs | 21c CI vehicle stages pass; expanded500/80/40 boundary proof pending |
+
+No local dependency installation, full Next build, Docker resource, shared database
+write, invitation, upload or production publication. Local dependencies match the
+declared core versions (Next16.4.3, React19.2.8, Zod4.6.6, Prisma7.10.0). Reserve
+checks passed at21.25 and21.38GiB with justified0.1/0.15GiB bounded allowances.
+Keep useful source, dependencies, generated client and small synthetic evidence.
+
+Focused held-preview captures of the engine and feature groups also pass at320 and
+1440px. Reviewed screenshots show separate, labelled feature rows, retained commas
+and supplied text; long input values scroll within their controls. A first capture
+attempt failed to load its synthetic seed; corrected bounded500-character fixtures
+pass2/2 without changing application guards. These are two visual samples, not
+extra unique workflow cases. Tall element screenshots intersect sticky chrome,
+so they do not establish complete mobile visual acceptance. New source still needs
+its own exact-source application and database run.
+
+---
+
 ## 10 November 2026 - vehicle details and Team & Access/media implementation
 
 Owner confirmed both supplied briefs on 10 November Lagos time: the attachment

@@ -39,6 +39,9 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       .click();
     const review = page.getByRole("dialog");
     await expect(review).toContainText(engineDetails);
+    await expect(review).toContainText(
+      "Public vehicle details update every existing listing",
+    );
     await expect(review).toContainText("Audio, navigation");
     await expect(review).toContainText("Fully electric (EV)");
     expect(fixture.detail.writes).toHaveLength(0);
@@ -74,5 +77,77 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
     ).toBe(true);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  });
+}
+
+for (const mode of ["reject", "lost"]) {
+  test(`engine details and feature draft survive a ${mode} save without replay`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const fixture = await workVehicleDetailFixture(page);
+    fixture.detail.record.features = ["Audio, navigation"];
+    const originalEngine = fixture.detail.record.engineDetails;
+    fixture.detail.writeMode = mode;
+    await page.goto(`/admin/vehicles/${bookingId(7000)}`);
+    await page.getByText("Edit vehicle specifications", { exact: true }).click();
+    await page.getByLabel("Engine details (optional)").fill(engineDetails);
+    await page
+      .getByLabel("Feature 1", { exact: true })
+      .fill("Audio, navigation retained");
+    await page
+      .getByRole("button", { name: "Review vehicle changes", exact: true })
+      .click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Confirm change", exact: true })
+      .click();
+    if (mode === "reject") {
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: "Go back", exact: true })
+        .click();
+      await expect(page.getByLabel("Engine details (optional)")).toHaveValue(
+        engineDetails,
+      );
+      await expect(page.getByLabel("Feature 1", { exact: true })).toHaveValue(
+        "Audio, navigation retained",
+      );
+      expect(fixture.detail.record.features).toEqual(["Audio, navigation"]);
+      expect(fixture.detail.record.engineDetails).toBe(originalEngine);
+    } else {
+      await page
+        .getByRole("button", { name: "Close & review record", exact: true })
+        .click();
+      await expect(
+        page.getByRole("heading", {
+          name: "A vehicle change needs reconciliation",
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Review vehicle changes", exact: true }),
+      ).toBeDisabled();
+      await page.reload();
+      await page
+        .getByRole("button", { name: "Load current vehicle", exact: true })
+        .click();
+      await expect(
+        page.getByRole("button", { name: "Load current vehicle", exact: true }),
+      ).toHaveCount(0);
+      await page.getByText("Edit vehicle specifications", { exact: true }).click();
+      await expect(page.getByLabel("Engine details (optional)")).toHaveValue(
+        engineDetails,
+      );
+      await expect(page.getByLabel("Feature 1", { exact: true })).toHaveValue(
+        "Audio, navigation retained",
+      );
+    }
+    expect(fixture.detail.writes).toHaveLength(1);
+    expect(fixture.detail.writes[0]).toMatchObject({
+      expectedVersion: 0,
+      engineDetails,
+      features: ["Audio, navigation retained"],
+    });
   });
 }

@@ -6,7 +6,15 @@ process.env.CAPABILITY_TEST_TRANSPORT = "loopback";
 export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
-    { name: "vehicle-engine-features", testMatch: ["vehicle-engine-features.spec.ts"] },
+    {
+      name: "vehicle-engine-features",
+      testMatch: [
+        "vehicle-engine-features.spec.ts",
+        "vehicle-public-engine.spec.ts",
+        "vehicles-quality.spec.ts",
+      ],
+      grep: /vehicle engine|engine details and feature draft|public (BEV|ICE) engine|power, legacy fuel/,
+    },
     ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
       name: `account-modal-${browserName}`,
       testMatch: ["customer-account-modal.spec.ts"],

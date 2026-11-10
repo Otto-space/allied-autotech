@@ -19,6 +19,8 @@ import { vehicleLabel } from "@/lib/vehicle-discovery";
 
 afterEach(() => {
   cleanup();
+  sessionStorage.clear();
+  setDraftIdentity(null);
   vi.unstubAllGlobals();
 });
 const description = "2.0L I-4 DI, DOHC, VVT, TURBO, PREMIUM, 252HP";
@@ -202,4 +204,24 @@ it("restores added and removed feature rows through the existing account-scoped 
     ),
   );
   expect(screen.queryByLabelText("Feature 2")).toBeNull();
+});
+
+it.each([
+  ["BEV", "Fully electric (EV)"],
+  ["HEV", "Hybrid (HEV)"],
+  ["PHEV", "Plug-in hybrid (PHEV)"],
+  ["ICE", "Internal combustion (ICE)"],
+])("keeps the stored %s classification and displays %s", (stored, label) => {
+  expect(vehicleLabel(stored)).toBe(label);
+  const values = recordSchema.parse({
+    ...vehicleDefaults(stockRecord()),
+    powertrain: stored,
+    fuelType: "HYBRID",
+    driveType: "AWD",
+  });
+  expect(vehicleRecordBody(values)).toMatchObject({
+    powertrain: stored,
+    fuelType: "HYBRID",
+    driveType: "AWD",
+  });
 });

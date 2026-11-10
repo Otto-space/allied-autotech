@@ -17,6 +17,9 @@ it("keeps vehicle operation guidance private to current administrators without g
   expect(article.steps.join(" ")).toContain("commas within an item are preserved");
   expect(article.steps.join(" ")).toContain("Choose View details");
   expect(article.steps.join(" ")).toContain("Opening an editor saves nothing");
+  expect(article.steps.join(" ")).toContain(
+    "updates existing listings without creating a listing or changing its status",
+  );
   for (const role of ["PUBLIC", "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"] as const) {
     for (const managed of [true, false]) {
       const access = { ...publicLearningAccess, role, managed, verified: true };
