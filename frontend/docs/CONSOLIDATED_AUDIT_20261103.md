@@ -1,5 +1,23 @@
 # Allied AutoTech consolidated audit — implementation and acceptance
 
+## 10 November follow-up: mobile sidebar scrollbar
+
+**P3; Admin; /admin/customers; native Edge 390x600.** Open Dashboard navigation.
+The shared modal descendant scrollbar rule overrides the drawer's existing
+hidden-track treatment; computed scrollbar-width becomes thin. This contradicts
+the owner's sidebar instruction. The existing 18-case table/sidebar/support suite
+passes 17 cases and retains this one failure. Scrollbars on ordinary content modals
+are allowed to remain deliberately styled.
+
+Correction: a scoped drawer exception in globals.css, with no overflow, scrolling,
+permission or layout change. The four-role/seven-size shared-shell suite now
+asserts the intended property. All 28 native Edge prototype cases pass with the
+exact correction supplied through an existing same-origin stylesheet response;
+CSP remains enforced. Compiled-source acceptance/publication are still pending.
+Evidence: TEMP/allied-dashboard-index-7b133943. The wider coverage reconciliation
+is TEMP/allied-master-coverage-b1222a11/coverage-checkpoint.md; a large aggregate
+test count is not treated as complete route/state acceptance.
+
 ## 10 November follow-up: notification preview retry focus
 
 **P2; Customer; /dashboard/notifications; 1280x720 and 320x720 mobile/touch.**

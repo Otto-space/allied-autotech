@@ -335,6 +335,31 @@ Deployment protection and public aliases are unchanged. PR44 account focus retai
 40 compiled native passes; its final combined GitHub gate remains pending. The
 complete original goal and active backend dependencies are still open.
 
+## 10 November - mobile navigation scrollbar regression
+
+P3; /admin/customers; Admin; native Edge 390x600. Opening Dashboard navigation
+reproduces a visible thin scrollbar where the owner requested hidden sidebar
+scrollbars. The existing dedicated test fails: computed scrollbar-width is thin,
+not none. The other 17 customer/sidebar/support-table cases pass, including equal
+row heights across sidebar toggles, reachable row controls, clipboard fallback,
+keyboard scrolling, and sampled Axe checks. No application write was made.
+
+Cause: the new shared `:root dialog:modal :where(*)` rule outranks the drawer's
+existing class rule. Add only `:root dialog:modal .dashboard-drawer-content`
+with scrollbar-width:none; retain overflow and ordinary modal thin scrollbars.
+The existing shared-shell regression now asserts the drawer treatment for every
+role/phone/tablet combination. A same-origin stylesheet override passes 28/28
+native Edge cases across all four roles and seven exact viewport pairs. CSP is
+unchanged; this is prototype evidence, not compiled-source publication.
+
+Evidence: TEMP/allied-dashboard-index-7b133943/{report.json,sidebar-fixed-report.json}.
+The broader coverage comparison expands 468 dashboard-index cases and finds 154
+represented in the successful 1,035-case b122 runtime job. Other cases require
+reconciliation/execution, not an assumption of failure. Three paid-provider cases
+remain intentionally gated. See TEMP/allied-master-coverage-b1222a11/coverage-checkpoint.md.
+New-source compiled acceptance and release remain required; existing production
+b122 and concurrent Parts master e768 are preserved.
+
 ## 10 November - notification preview retry focus follow-up
 
 P2; /dashboard/notifications, Customer, protected b1222a11 candidate. At 1280x720

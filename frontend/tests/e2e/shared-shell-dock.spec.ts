@@ -94,6 +94,10 @@ for (const [width, height] of sizes)
             name: "Dashboard navigation",
             exact: true,
           });
+          const navigation = drawer.locator(".dashboard-drawer-content");
+          await expect(navigation).toHaveCSS("scrollbar-width", "none");
+          if (role === "CUSTOMER")
+            await page.screenshot({ path: info.outputPath("dashboard-drawer.png") });
           await expect(
             drawer.getByRole("button", { name: "Sign out", exact: true }),
           ).toBeVisible();

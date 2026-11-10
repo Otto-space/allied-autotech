@@ -302,6 +302,41 @@ Deployment protection and public aliases are unchanged. PR44 account focus retai
 40 compiled native passes; its final combined GitHub gate remains pending. The
 complete original goal and active backend dependencies are still open.
 
+## 10 November - dashboard coverage and mobile scrollbar regression
+
+Reconciled the successful b1222a11 runtime job's 1,035 numbered test results against
+the actual expanded dashboard quality index on 7b133943. Of 468 selected distinct
+cases, 154 are represented in that run; 314 are not established by it. Seven are
+the subsequently verified notification retry cases; three are intentionally gated
+real-provider cases. This is a coverage gap, not proof of missing implementation.
+See TEMP/allied-master-coverage-b1222a11/coverage-checkpoint.md and the collected
+case comparison. The optional artifact download timed out; completed job logs
+provide the case-level evidence without a retained archive.
+
+The next existing 18-case native Edge customer/sidebar/support-table batch passes
+17 cases and reproduces one failure: at 390x600, mobile navigation computes
+scrollbar-width:thin. The shared modal descendant rule overrides its established
+scrollbar-width:none. Preserve the requested sidebar treatment with a narrowly
+scoped modal-drawer exception in globals.css; scrolling/overflow stay unchanged.
+Add the assertion to the existing four-role/seven-size shared shell suite.
+
+The exact CSS correction passes 28/28 native Edge shared-shell cases at all seven
+requested viewport pairs and all four roles, with phone mobile/touch contexts.
+This is same-origin stylesheet-response override evidence with CSP retained,
+not a new compiled build. Source lint/format pass; compiled acceptance, integration
+and exact-master publication remain required. Baseline and prototype reports are
+in TEMP/allied-dashboard-index-7b133943. Do not count the failed baseline as a pass.
+
+The vehicle workstream published compatible b1222a11: both public aliases now
+identify READY dpl_EdMgppUipQ81msnEmHCef4jZxx6m; backend 2c40bd63 is ACTIVE with no
+pending rollout at the latest provider read. Its publication preflight reports
+102 migrations, matching four images and removed temporary operator access.
+Concurrent master e7681995 adds reviewed Parts work and must be preserved. PR56
+notification retry remains separate; its native 14 cases/backend/secrets pass and
+frontend 42739997340 finished with 1,055 passes and one WebKit saved-items
+focus failure. Investigate that regression before publication. Keep the full
+two-brief objective active.
+
 ## 10 November - notification preview retry focus follow-up
 
 Current bounded item: notification preview error recovery. Protected integrated
