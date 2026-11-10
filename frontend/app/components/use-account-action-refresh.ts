@@ -14,10 +14,17 @@ export function useAccountActionRefresh({
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const changedAt = useRef<number | null | undefined>(undefined);
-  const [target, setTarget] = useState<HTMLElement | null>();
-  const onReviewClosed = useCallback((opener: HTMLElement | null) => {
-    if (changedAt.current !== undefined) setTarget(opener);
-  }, []);
+  const [target, setTarget] = useState<{
+    opener: HTMLElement | null;
+    fallback?: HTMLElement | null;
+  }>();
+  const onReviewClosed = useCallback(
+    (opener: HTMLElement | null, fallback?: HTMLElement | null) => {
+      // An unknown outcome can disable the opener without refreshing history.
+      if (changedAt.current !== undefined || fallback) setTarget({ opener, fallback });
+    },
+    [],
+  );
 
   useEffect(() => {
     if (target === undefined || refreshing || settledRevision === changedAt.current)
@@ -31,14 +38,15 @@ export function useAccountActionRefresh({
         (focused &&
           focused !== document.body &&
           focused !== document.documentElement &&
-          focused !== target)
+          focused !== target.opener)
       )
         return;
       const available =
-        target?.isConnected &&
-        !target.matches(":disabled, [aria-disabled='true']") &&
-        target.getClientRects().length > 0;
-      (available ? target : heading.current)?.focus();
+        target.opener?.isConnected &&
+        !target.opener.matches(":disabled, [aria-disabled='true']") &&
+        target.opener.getClientRects().length > 0;
+      const fallback = target.fallback?.isConnected ? target.fallback : heading.current;
+      (available ? target.opener : fallback)?.focus();
     });
     return () => cancelAnimationFrame(frame);
   }, [refreshing, settledRevision, target]);
