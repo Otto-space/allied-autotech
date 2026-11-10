@@ -10604,3 +10604,19 @@ Its visit date remains today's Lagos date, and new isolated sessions are created
 at that visit time. Boundary arithmetic checks before noon, after noon and at
 23:00UTC verify policyTime<=realNow, policyTime<=visitTime and matching Lagos day;
 only actual-current-time isolated CI is database-backed evidence.
+
+## 10 November - Background availability isolation in authentication tests
+
+Exact master 1fc86e65 backend safety42720881545 and secrets42720881255 passed.
+Frontend42720881283 passed941 browser cases, but registration's broad API
+interceptor mistook a background public/capabilities refresh for a registration
+submission. This is failed release evidence; public aliases remain unchanged.
+
+The two auth response interceptors now match only their own endpoints. In the
+isolated runtime matrix, auth-forms resets the loopback policy fixture and routes
+availability reads to that same loopback process. Registration explicitly forces
+a focus refresh with a filled draft, verifies availability succeeds and the draft
+survives without a submission, then retains every success/password/notification
+assertion. Verification still checks all outgoing request URLs for token leakage.
+No application, auth, capability, permission or database behavior changes. Require
+all three gates on the resulting master before publishing Home/Services.
