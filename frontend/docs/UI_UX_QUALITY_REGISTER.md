@@ -1,3 +1,62 @@
+## 10 November 01:28 Lagos - vehicle persistence and recovery pass; public heading correction
+
+Vehicle PR50 source 37bf3368 passes Backend 42726292636 and Secrets 42726292726.
+All 102 migration replay, drift, database, runtime privilege, access, vehicle and
+learning gates pass. The expanded real HTTP case preserves 500-character multiline
+engine text, 1998cc, FOREIGN_USED and exact comma-bearing and 80-character feature
+items through save and public reload. Invalid 501-character, 81-character, 41-item and duplicate inputs leave
+version and data unchanged. No production stock was used for these assertions.
+
+Frontend 42726292411 passes 1,538 units (12 existing skips), build/types/lint/format,
+9 WebKit diagnostics and 21 media diagnostics. The full 960-case matrix stops after
+7 editor/rejected/uncertain-save passes and 5 public-page heading-order failures;
+948 cases did not run. This failed run is not a release pass. The new public
+fixtures expose an existing h1-to-h3 skip in owner statements before the main h2.
+Public detail now requests h2 owner-statement headings, retaining the component's
+default h3 elsewhere and its existing style. Keep the full Axe assertion. Revised
+source still requires the complete matrix; do not count parent 947-case run as this pass.
+
+Hosted 37bf preview dpl_CHLiwavZVum2ZNhur3TKiHobA7zZ passes the 7 editor/recovery
+cases in installed Edge with synthetic responses and blocked unmatched API writes.
+The added filter setup exposed obsolete page-count wording and an always-open
+desktop panel being closed by an unconditional click. Align the precise 4-match/
+3-visible count and open only when closed; no application filter guard is changed.
+Private capture setup also encountered a shell-encoded separator; use its exact
+Unicode escape. The corrected filter scenario passes on the hosted 37bf application, including
+all three query values, named chips, refresh and Back. It waits for the existing
+layout-ready marker before reading the panel state after refresh. Earlier setup
+attempts failed without altering application controls. The 7 editor cases plus
+this distinct filter case are 8 unique hosted cases; repeated attempts are not
+extra coverage. Corrected public-page rendered acceptance remains pending.
+Earlier held 21c focus samples pass at 320/1440: keyboard Tab reaches Fuel type and
+Remove feature 1, and focused controls are not occluded at their centres. Actual
+viewport captures show readable groups and visible focus. These are emulations.
+
+A new protected isolated restore allied_vehicle_restore_c47d898ae573_ci on the
+verified loopback PostgreSQL 18 target passed guarded 100-to-102 migration and final
+db:check. Original-column counts/hashes and all prior successful/rolled-back
+migration history match the verified backup snapshot; new engine descriptions
+remain null. This is a logical rehearsal from an existing verified production
+backup, not a fresh production-release backup. Keep the protected snapshot; do
+not use it for synthetic business submissions or routine cleanup. Receipts are
+TEMP/allied-vehicle-release-37bf3368/populated-restore-1794269708682-*.json.
+
+At 00:13 UTC the provider reports ACTIVE backend c3c54414, no pending rollout and
+8 managed backups (latest 9 November at 05:22 UTC); four component digests were read.
+That is a current provider read, not a new PITR rehearsal or runtime rollout.
+Production aliases and business/capability/grant data are unchanged by this task.
+No new Docker image/container, dependency install or full local frontend build.
+Existing other-task Docker/PostgreSQL resources are retained. C: preflights remain
+above 21.2 GiB with justified bounded allowances; no machine-wide guarantee is made.
+
+Team/media scope is still active. Source tracing confirms the owner and delegated
+workforce directory has branch/duty limits distinct from the older administrator
+directory. Pinned duty versions 1/2, independent permissions, session revision and
+protected owner baseline must survive canonical People/person presentation. No
+Team/media implementation, real grant or new position has been published.
+
+---
+
 ## 10 November 00:55 Lagos - vehicle application verification and remaining boundaries
 
 Current package started9 November23:37UTC; target10 November00:37UTC. The full

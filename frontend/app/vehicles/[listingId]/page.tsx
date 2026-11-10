@@ -296,7 +296,7 @@ export default async function ListingPage({
                     </div>
                   ))}
                 </dl>
-                <VehicleOwnerDisclosure vehicle={vehicle} />
+                <VehicleOwnerDisclosure vehicle={vehicle} headingLevel={2} />
                 <p className="vd-branch">
                   <MapPin size={19} aria-hidden="true" />
                   <span>

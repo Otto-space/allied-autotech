@@ -159,7 +159,9 @@ async function fixture(page: Page) {
   await expect(page).toHaveURL(/search=QA/);
   await expect.poll(() => state.requests.at(-1)?.searchParams.get("search")).toBe("QA");
   await expect(
-    page.getByRole("status").filter({ hasText: "3 vehicles on this page" }),
+    page
+      .getByRole("status")
+      .filter({ hasText: "4 vehicles \u00b7 Showing 3 on this page" }),
   ).toBeVisible();
   return state;
 }
@@ -734,7 +736,19 @@ test("power, legacy fuel and drive filters remain distinct through reload and Ba
   page,
 }) => {
   const state = await fixture(page);
-  await page.getByRole("button", { name: /^Filters/ }).click();
+  const openFilters = async () => {
+    const panel = page.locator("#vehicle-filter-panel");
+    await expect(panel).toHaveAttribute("data-layout-ready", "true");
+    const trigger = page.getByRole("button", { name: /^Filters/ });
+    await expect(trigger).toBeEnabled();
+    if ((await trigger.getAttribute("aria-expanded")) !== "true") await trigger.click();
+    await expect(panel).toBeVisible();
+  };
+  await openFilters();
+  await page
+    .locator("summary")
+    .filter({ hasText: /^More specifications$/ })
+    .click();
   await page.getByRole("checkbox", { name: /^Hybrid \(HEV\)/ }).check();
   await page.getByLabel("Fuel type", { exact: true }).selectOption("HYBRID");
   await page.getByLabel("Drive system", { exact: true }).selectOption("AWD");
@@ -776,7 +790,7 @@ test("power, legacy fuel and drive filters remain distinct through reload and Ba
   ).toBeVisible();
   await page.reload();
   await assertFilters();
-  await page.getByRole("button", { name: /^Filters/ }).click();
+  await openFilters();
   await expect(page.getByRole("checkbox", { name: /^Hybrid \(HEV\)/ })).toBeChecked();
   await expect(page.getByLabel("Fuel type", { exact: true })).toHaveValue("HYBRID");
   await expect(page.getByLabel("Drive system", { exact: true })).toHaveValue("AWD");
