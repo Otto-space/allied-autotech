@@ -1,3 +1,20 @@
+### 10 November: full-matrix allowance and latest master preserved
+
+The schema110 collection release now preserves master580a1bb5 authentication-fixture
+isolation, as well as its earlier Home/Services and account-focus fixes. Runtime
+backend source is unchanged from dab976c7. That run passed backend/secret checks,
+production checks, all13 focused sourcing/pickup cases and865/984 full browser cases
+with zero failed tests, then hit the30-minute step limit. The119 remaining cases
+are unverified; this is not a release pass. Keep every case/assertion and existing
+per-test timeout: full step now40 minutes, job55 including setup/evidence upload.
+
+The independent D17 source is retained locally atdd2d9054, including verified
+financial linkage/source44380bff (95 native cases; schema114). It remains excluded
+from this schema110 candidate until the customer/operator UI, actual alternative
+acceptance and settled unit resolution are complete. Do not lose it during release.
+Fresh exact-source checks and all populated-restore/guarded-migration/provider and
+alias safeguards remain required; no production publication or finance activation.
+
 ### 10 November: pickup/holding release candidate and retained supply work
 
 Current release worktree remains allied-contact-validation-20261027, now on
