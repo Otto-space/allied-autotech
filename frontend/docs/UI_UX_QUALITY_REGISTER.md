@@ -335,6 +335,63 @@ Deployment protection and public aliases are unchanged. PR44 account focus retai
 40 compiled native passes; its final combined GitHub gate remains pending. The
 complete original goal and active backend dependencies are still open.
 
+## 10 November - saved-collection focus race found by full CI
+
+PR56 source 7b133943 finished Frontend run 42739997340 with 1,055 runtime
+passes and one WebKit failure. The failed case keeps an open vehicle-removal
+review bound to its original collection while the URL changes to products;
+after successful synthetic removal, the products tab is selected but unfocused.
+The notification retry cases pass. This is a failed release gate, not a pass.
+
+The close handler scheduled focus before React committed removal of the modal
+and enabled the tabs. Move this handoff into a post-commit effect, preserving
+the collection-bound mutation, refresh, session invalidation and opener recovery.
+Add the reverse-direction cancellation case and assert focus survives loaded
+content without any write. Exact-source compiled and three-engine acceptance
+remain required; no production submission or security change was made.
+
+## 10 November - mobile navigation scrollbar regression
+
+P3; /admin/customers; Admin; native Edge 390x600. Opening Dashboard navigation
+reproduces a visible thin scrollbar where the owner requested hidden sidebar
+scrollbars. The existing dedicated test fails: computed scrollbar-width is thin,
+not none. The other 17 customer/sidebar/support-table cases pass, including equal
+row heights across sidebar toggles, reachable row controls, clipboard fallback,
+keyboard scrolling, and sampled Axe checks. No application write was made.
+
+Cause: the new shared `:root dialog:modal :where(*)` rule outranks the drawer's
+existing class rule. Add only `:root dialog:modal .dashboard-drawer-content`
+with scrollbar-width:none; retain overflow and ordinary modal thin scrollbars.
+The existing shared-shell regression now asserts the drawer treatment for every
+role/phone/tablet combination. A same-origin stylesheet override passes 28/28
+native Edge cases across all four roles and seven exact viewport pairs. CSP is
+unchanged; this is prototype evidence, not compiled-source publication.
+
+Evidence: TEMP/allied-dashboard-index-7b133943/{report.json,sidebar-fixed-report.json}.
+The broader coverage comparison expands 468 dashboard-index cases and finds 154
+represented in the successful 1,035-case b122 runtime job. Other cases require
+reconciliation/execution, not an assumption of failure. Three paid-provider cases
+remain intentionally gated. See TEMP/allied-master-coverage-b1222a11/coverage-checkpoint.md.
+New-source compiled acceptance and release remain required; existing production
+b122 and concurrent Parts master e768 are preserved.
+
+## 10 November - notification preview retry focus follow-up
+
+P2; /dashboard/notifications, Customer, protected b1222a11 candidate. At 1280x720
+and 320x720 mobile/touch, open the bell with a failed preview GET, activate Try again,
+and allow a successful response. The retry button disappears and activeElement
+becomes BODY outside the open modal. Both native Edge baselines fail the containment
+assertion, with zero page errors, outgoing writes or fixture writes. Screenshots
+confirm centered geometry/full phone width; the defect concerns keyboard continuity.
+Evidence: TEMP/allied-customer-confirmation-20261110/notification-retry-held-report.json.
+
+Owner: notification-preview.tsx. Focus the stable Close button before retry replaces
+the error state, with no response-time focus effect. Existing unit and shared-modal
+tests now cover empty recovery and seven exact viewport pairs across four rotating
+roles, repeated failure, populated success, deliberately moved focus and pending
+cancellation. New-source checks/compiled acceptance and publication are pending.
+This fixture evidence does not certify real-role delivery or physical devices.
+
 ## 10 November - customer confirmation recovery verified for integration
 
 Application source `0d22eae3` passes 50/50 compiled native Edge/Chrome cases:

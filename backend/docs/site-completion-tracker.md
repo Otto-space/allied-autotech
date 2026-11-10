@@ -302,6 +302,81 @@ Deployment protection and public aliases are unchanged. PR44 account focus retai
 40 compiled native passes; its final combined GitHub gate remains pending. The
 complete original goal and active backend dependencies are still open.
 
+## 10 November - saved-collection focus race found by full CI
+
+PR56 source 7b133943 finished Frontend run 42739997340 with 1,055 runtime
+passes and one WebKit failure. The failed case keeps an open vehicle-removal
+review bound to its original collection while the URL changes to products;
+after successful synthetic removal, the products tab is selected but unfocused.
+The notification retry cases pass. This is a failed release gate, not a pass.
+
+The close handler scheduled focus before React committed removal of the modal
+and enabled the tabs. Move this handoff into a post-commit effect, preserving
+the collection-bound mutation, refresh, session invalidation and opener recovery.
+Add the reverse-direction cancellation case and assert focus survives loaded
+content without any write. Exact-source compiled and three-engine acceptance
+remain required; no production submission or security change was made.
+
+## 10 November - dashboard coverage and mobile scrollbar regression
+
+Reconciled the successful b1222a11 runtime job's 1,035 numbered test results against
+the actual expanded dashboard quality index on 7b133943. Of 468 selected distinct
+cases, 154 are represented in that run; 314 are not established by it. Seven are
+the subsequently verified notification retry cases; three are intentionally gated
+real-provider cases. This is a coverage gap, not proof of missing implementation.
+See TEMP/allied-master-coverage-b1222a11/coverage-checkpoint.md and the collected
+case comparison. The optional artifact download timed out; completed job logs
+provide the case-level evidence without a retained archive.
+
+The next existing 18-case native Edge customer/sidebar/support-table batch passes
+17 cases and reproduces one failure: at 390x600, mobile navigation computes
+scrollbar-width:thin. The shared modal descendant rule overrides its established
+scrollbar-width:none. Preserve the requested sidebar treatment with a narrowly
+scoped modal-drawer exception in globals.css; scrolling/overflow stay unchanged.
+Add the assertion to the existing four-role/seven-size shared shell suite.
+
+The exact CSS correction passes 28/28 native Edge shared-shell cases at all seven
+requested viewport pairs and all four roles, with phone mobile/touch contexts.
+This is same-origin stylesheet-response override evidence with CSP retained,
+not a new compiled build. Source lint/format pass; compiled acceptance, integration
+and exact-master publication remain required. Baseline and prototype reports are
+in TEMP/allied-dashboard-index-7b133943. Do not count the failed baseline as a pass.
+
+The vehicle workstream published compatible b1222a11: both public aliases now
+identify READY dpl_EdMgppUipQ81msnEmHCef4jZxx6m; backend 2c40bd63 is ACTIVE with no
+pending rollout at the latest provider read. Its publication preflight reports
+102 migrations, matching four images and removed temporary operator access.
+Concurrent master e7681995 adds reviewed Parts work and must be preserved. PR56
+notification retry remains separate; its native 14 cases/backend/secrets pass and
+frontend 42739997340 finished with 1,055 passes and one WebKit saved-items
+focus failure. Investigate that regression before publication. Keep the full
+two-brief objective active.
+
+## 10 November - notification preview retry focus follow-up
+
+Current bounded item: notification preview error recovery. Protected integrated
+candidate b1222a11 reproduces focus falling to BODY after Try again replaces its
+button with loaded updates, in native Edge at 1280x720 and mobile/touch 320x720.
+Both failures are retained in TEMP/allied-customer-confirmation-20261110/
+notification-retry-held-report.json; no outgoing writes or page errors occurred.
+
+Move focus to the stable Close control in the retry event before clearing the
+error. Do not move focus again on response completion, so deliberate movement wins.
+Preserve requests, unread counts, destinations, role scope and dismissal safeguards.
+Extend the existing shared-modal matrix at all seven exact pairs, rotating Customer,
+Staff, Admin and Super Admin, through repeat failure, successful retry and pending
+cancellation. Add focus assertions to the existing empty-recovery unit case.
+New-source checks and compiled acceptance remain required before publication.
+
+The previous focus batch is merged at b1222a11; Backend 42736089322 and Secrets
+42736089238 pass while Frontend 42736089235 remains live. Its held candidate is
+dpl_GGEaLfn7hdq3cJk6x6KRtYugjwVQ. Both public aliases still serve dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi.
+The vehicle owner has a live browser-test process; preserve its compatible backend
+release work. Existing 55b96d50 packaged runtime checks pass 10/10, with no skipped
+cases; build receipt still says pushed=false/deployed=false. Do not rebuild merely
+because the frontend master differs. C: has roughly 20.7 GiB free, enough for bounded
+checks but not the 1.5 GiB packaging allowance. The full two-brief goal stays active.
+
 ## 10 November - customer confirmation recovery verified for integration
 
 Application source `0d22eae3` passes 50/50 compiled native Edge/Chrome cases:
