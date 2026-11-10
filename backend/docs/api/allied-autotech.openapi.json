@@ -94476,6 +94476,14 @@
                                     ],
                                     "description": "Engine Capacity Cc validated by this operation's strict request contract."
                                   },
+                                  "engineDetails": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "maxLength": 500,
+                                    "description": "Engine Details validated by this operation's strict request contract."
+                                  },
                                   "engineCode": {
                                     "type": [
                                       "string",
@@ -96823,6 +96831,14 @@
                                         ],
                                         "description": "Engine Capacity Cc validated by this operation's strict request contract."
                                       },
+                                      "engineDetails": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ],
+                                        "maxLength": 500,
+                                        "description": "Engine Details validated by this operation's strict request contract."
+                                      },
                                       "engineCode": {
                                         "type": [
                                           "string",
@@ -98918,6 +98934,15 @@
                     "maxLength": 4000,
                     "description": "Owner Reported Issues validated by this operation's strict request contract."
                   },
+                  "engineDetails": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "Supplied engine description, up to 500 characters. Separate from capacity, engine code and features; no inferred specifications."
+                  },
                   "engineSize": {
                     "type": [
                       "string",
@@ -99644,17 +99669,6 @@
                     ],
                     "description": "Fuel Type validated by this operation's strict request contract."
                   },
-                  "condition": {
-                    "type": "string",
-                    "enum": [
-                      "NEW",
-                      "USED",
-                      "FOREIGN_USED",
-                      "LOCALLY_USED"
-                    ],
-                    "default": "USED",
-                    "description": "Condition validated by this operation's strict request contract."
-                  },
                   "bodyType": {
                     "type": [
                       "string",
@@ -99754,6 +99768,15 @@
                     "maxLength": 4000,
                     "description": "Owner Reported Issues validated by this operation's strict request contract."
                   },
+                  "engineDetails": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "Supplied engine description, up to 500 characters. Separate from capacity, engine code and features; no inferred specifications."
+                  },
                   "engineSize": {
                     "type": [
                       "string",
@@ -99846,6 +99869,16 @@
                     ],
                     "format": "date-time",
                     "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  },
+                  "condition": {
+                    "type": "string",
+                    "enum": [
+                      "NEW",
+                      "USED",
+                      "FOREIGN_USED",
+                      "LOCALLY_USED"
+                    ],
+                    "description": "Condition validated by this operation's strict request contract."
                   },
                   "expectedVersion": {
                     "type": "integer",

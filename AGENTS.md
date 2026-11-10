@@ -120,6 +120,9 @@ controls. Use everyday language and preserve accessibility, account separation,
 security and working journeys. Apply `docs/UI_UX_AND_CONTENT_RULES.md` and record
 scope, visual departures and evidence in `frontend/docs/UI_UX_QUALITY_REGISTER.md`
 and `backend/docs/site-completion-tracker.md`.
+Only current authorised sections, records, fields and actions may be exposed.
+Account/job workspaces must support their actual tasks; media-only duties never
+grant general administration. Follow the established access and quality records.
 
 Finish and check one coherent page group at a time. For the owner-approved design
 implementation, publish each completed, verified group through the existing

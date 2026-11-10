@@ -1,3 +1,291 @@
+## 10 November 02:01 Lagos - vehicle CSP test correction and recovery evidence
+
+Source c9560249 passes Backend 42728953813 and Secrets 42728953579. Frontend
+42728954083 completes the full 960-case matrix: 958 pass and two fail. All 1,538
+units pass (12 existing skips), as do build/types/lint/format, nine WebKit transport
+diagnostics and 21 media diagnostics. The two failures are the 320px BEV/ICE
+text-spacing test adding a style tag without the nonce required by the unchanged
+production CSP. Content, feature columns, owner faults and Axe checks reach that
+step successfully; eight other public cases and every editor/recovery/filter case
+pass. Do not describe the failed overall gate or those two cases as passed.
+
+Correct only the test: reuse the document's existing script nonce for the test
+style, assert that computed spacing was applied, then retain the no-overflow
+assertion. No CSP directive or application runtime changed. The identical new
+spacing block passes on the compiled c956 protected preview at 320x720. That
+checks the harness against real CSP; full engine-page spacing acceptance remains
+for final exact-source/master CI. Local scoped lint, formatting and diff checks
+pass. Ordinary Preview has no connected public listings; two earlier read-only
+listing attempts therefore did not reach their heading assertions. Keep those
+as unavailable, not live or public-data acceptance.
+
+A separate new synthetic PostgreSQL 18 fixture replays all 102 migrations, shows
+no drift and passes db:check. The retained 9c219bc8 API image and current generated
+client both pass actual all-column probes using a SELECT-only, non-owner role.
+The old-image process is read-only and its network guard permits only the fixture
+database. No protected snapshot is used. The first two setup attempts failed on
+internal-network host-port publication and temporary init-server readiness; final
+TCP readiness passes without changing application checks or deadlines. All three
+attempts' own containers/networks are removed; no persistent volumes were created.
+Evidence: TEMP/allied-vehicle-recovery-853b5e14b168/{verified,cleanup}.json. This
+proves schema recovery compatibility, not a new candidate-image or worker pass.
+
+The Vercel dry run identifies Next.js and 1,235 payload files, about 29 MB. Private,
+environment, backend, dependency, build and test-file exclusions pass. An empty
+zero-byte test-results directory placeholder has no included children; it is not
+a test-artifact upload. Nothing is deployed by this inspection. Existing warm
+Docker dependencies/base layers can be reused for a staged four-image build with
+reserve checks before every stage; the prepared runner refuses dirty/non-master
+or changed backend source. It has not built or published a candidate.
+
+Concurrent master c3028cc1 contains only Home/Services release-record updates above
+580a1bb5. Both aliases now serve dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi (published by
+the other task); www retains its 308 apex redirect. Preserve those records and
+source, and use that deployment as the current frontend recovery baseline. This
+task has made no production migration, grant, upload, domain or capability change.
+Backend remains the retained c3c54414 release at its last verified provider read.
+Full vehicle publication and every Team/media requirement remain active.
+
+---
+
+## 10 November 01:28 Lagos - vehicle persistence and recovery pass; public heading correction
+
+Vehicle PR50 source 37bf3368 passes Backend 42726292636 and Secrets 42726292726.
+All 102 migration replay, drift, database, runtime privilege, access, vehicle and
+learning gates pass. The expanded real HTTP case preserves 500-character multiline
+engine text, 1998cc, FOREIGN_USED and exact comma-bearing and 80-character feature
+items through save and public reload. Invalid 501-character, 81-character, 41-item and duplicate inputs leave
+version and data unchanged. No production stock was used for these assertions.
+
+Frontend 42726292411 passes 1,538 units (12 existing skips), build/types/lint/format,
+9 WebKit diagnostics and 21 media diagnostics. The full 960-case matrix stops after
+7 editor/rejected/uncertain-save passes and 5 public-page heading-order failures;
+948 cases did not run. This failed run is not a release pass. The new public
+fixtures expose an existing h1-to-h3 skip in owner statements before the main h2.
+Public detail now requests h2 owner-statement headings, retaining the component's
+default h3 elsewhere and its existing style. Keep the full Axe assertion. Revised
+source still requires the complete matrix; do not count parent 947-case run as this pass.
+
+Hosted 37bf preview dpl_CHLiwavZVum2ZNhur3TKiHobA7zZ passes the 7 editor/recovery
+cases in installed Edge with synthetic responses and blocked unmatched API writes.
+The added filter setup exposed obsolete page-count wording and an always-open
+desktop panel being closed by an unconditional click. Align the precise 4-match/
+3-visible count and open only when closed; no application filter guard is changed.
+Private capture setup also encountered a shell-encoded separator; use its exact
+Unicode escape. The corrected filter scenario passes on the hosted 37bf application, including
+all three query values, named chips, refresh and Back. It waits for the existing
+layout-ready marker before reading the panel state after refresh. Earlier setup
+attempts failed without altering application controls. The 7 editor cases plus
+this distinct filter case are 8 unique hosted cases; repeated attempts are not
+extra coverage. Corrected public-page rendered acceptance remains pending.
+Earlier held 21c focus samples pass at 320/1440: keyboard Tab reaches Fuel type and
+Remove feature 1, and focused controls are not occluded at their centres. Actual
+viewport captures show readable groups and visible focus. These are emulations.
+
+A new protected isolated restore allied_vehicle_restore_c47d898ae573_ci on the
+verified loopback PostgreSQL 18 target passed guarded 100-to-102 migration and final
+db:check. Original-column counts/hashes and all prior successful/rolled-back
+migration history match the verified backup snapshot; new engine descriptions
+remain null. This is a logical rehearsal from an existing verified production
+backup, not a fresh production-release backup. Keep the protected snapshot; do
+not use it for synthetic business submissions or routine cleanup. Receipts are
+TEMP/allied-vehicle-release-37bf3368/populated-restore-1794269708682-*.json.
+
+At 00:13 UTC the provider reports ACTIVE backend c3c54414, no pending rollout and
+8 managed backups (latest 9 November at 05:22 UTC); four component digests were read.
+That is a current provider read, not a new PITR rehearsal or runtime rollout.
+Production aliases and business/capability/grant data are unchanged by this task.
+No new Docker image/container, dependency install or full local frontend build.
+Existing other-task Docker/PostgreSQL resources are retained. C: preflights remain
+above 21.2 GiB with justified bounded allowances; no machine-wide guarantee is made.
+
+Team/media scope is still active. Source tracing confirms the owner and delegated
+workforce directory has branch/duty limits distinct from the older administrator
+directory. Pinned duty versions 1/2, independent permissions, session revision and
+protected owner baseline must survive canonical People/person presentation. No
+Team/media implementation, real grant or new position has been published.
+
+---
+
+## 10 November 00:55 Lagos - vehicle application verification and remaining boundaries
+
+Current package started9 November23:37UTC; target10 November00:37UTC. The full
+V01-V05/T01-T07 ledger below stays active. No Team/media requirement is dropped.
+Source remains `allied-vehicle-media-20261109`, draft PR50. Production aliases still
+serve dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV at this turn's authenticated Vercel read;
+www redirects to apex. No deployment or domain setting was changed.
+
+Held Preview dpl_FW58DXkUcMCMxtTZBFzvkCLUqenM is READY at source21c7e0b8. Its
+committed five-case actual vehicle-editor suite passes5/5 in installed Edge at
+320/390/768/1024/1440, each720px tall. This exercises real built application code
+with synthetic API responses: review/Go back, one exact save, refresh/reopen,
+comma-bearing feature preservation, retained1998cc after BEV selection, supplied
+engine text and separate owner-reported faults. Sampled Axe checks and no-overflow
+assertions pass. These are emulated viewports and mocked writes, not real role,
+production persistence, physical-device or whole-site acceptance. Exact source21c
+only: later filter/review wording and stronger boundary tests need new proof.
+
+Used existing Vercel CLI65.4 identity and the verified linked project, with ephemeral
+development OIDC headers scoped to the exact preview origin. No protection rule or
+share link was created. No token was printed or persisted. Private runner traces
+are off, all unmatched API writes abort, and specific later synthetic handlers
+fulfil test writes. Evidence/runner: `%TEMP%/allied-vehicle-preview-21c7e0b8/`.
+The first CLI invocation through its PowerShell shim lost the command separator;
+the existing native `.cmd` entry point ran the same authorised command successfully.
+
+Current21c backend42721820281 passes all102 migration/schema/db:check gates and
+stages through the customer/vehicle/finance/private-access regressions. It stops
+at the public Help HTTP assertion still expecting vehicle-enquiry v5 (15 pass/1 fail
+in that final step); source intentionally uses v6. Corrected the exact assertion
+and added the new power/feature wording checks, retaining all privacy exclusions.
+Frontend42721820652 completed successfully:221 test files pass (2 existing skips),
+1534 unit cases pass (12 existing skips),9 WebKit diagnostics,21 media diagnostics
+and947 runtime browser cases pass. Those separate groups overlap the full runtime
+matrix and are not summed. Never restart solely on observation timeout. Secret42721820287 passes. No failed
+run is a release pass, and later source needs complete exact-source checks.
+
+Verification extensions now in source: API round-trip of the full500-character
+multiline engine description, exact1998cc, unchanged comma-bearing/80-character
+feature items and FOREIGN_USED classification through edit/save/public reload;
+rejected501/81/41/duplicate inputs must leave version/data unchanged. Four stored
+power labels and legacy fuel/drive separation pass component/helper units.
+Dedicated loopback public vehicle records keep independent identities and known
+versus unknown BEV facts; direct fixture HTTP checks pass for all four power values,
+500-character known descriptions and80-character items. That is fixture-protocol
+evidence, not database acceptance.
+
+Expanded actual-route project lists18 cases: five editor widths, rejected/uncertain
+save recovery, ten public ICE/BEV views and combined power/fuel/drive filters through
+refresh/Back. It checks readable separate lists, supplied500-character text, missing
+combustion values/features for BEV, retained reported faults, column reflow, reduced
+motion and sampled text spacing/Axe. These18 cases are registered, not yet passed.
+Selected frontend units pass45/45 across five suites; both compilers, scoped lint,
+format and diff checks pass at this checkpoint. Counts overlap the earlier70.
+
+One applied-filter defect was found in source: passing the display phrase through
+the generic label formatter changed Power to lowercase. Use the established typed
+label key instead, including Fuel type. Edit review now states that public facts
+update existing listings while preserving listing status. Both changes need the
+new application run. No permission, price, migration, stored value or actual stock
+record changed in this extension. The new sole vehicle migration remains additive.
+
+The page/account/scope/state evidence for this active group is maintained here:
+
+| Page                                  | Account fixture / scope                     | Visible and allowed                                               | Absent or denied                                                            | State / viewport                                                  | Actual evidence                                                      |
+| ------------------------------------- | ------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------- |
+| /admin/vehicles/{id}                  | Synthetic Admin, branch101 stock            | Engine & drive; feature rows; explicit review and synthetic PATCH | Unmatched real API writes aborted; no real grants tested                    | Populated, cancel/review/save/reload;320/390/768/1024/1440x720    | Hosted21c5/5, component5/5; newer wording pending                    |
+| /admin/vehicles/{id}                  | Same owned synthetic stock                  | Keep field input; reconcile a lost result                         | Duplicate/replayed write while uncertain                                    | 409 rejection/lost response;390x844                               | Test source registered; execution pending                            |
+| /vehicles/{id}                        | Anonymous, dedicated public ICE/BEV records | Supplied facts, feature list and separate fault statement         | No fabricated combustion facts, no absent-feature claims; GET only          | Known/unknown, long text; five widths x720                        | Loopback projection4/4; ten rendered cases pending                   |
+| /vehicles                             | Anonymous public discovery                  | Separate power/fuel/drive controls and named chips                | No reinterpretation of legacy fuel into power                               | Combined query, refresh and Back                                  | Helper/component unit evidence; rendered case pending                |
+| Vehicle HTTP create/patch/public read | Isolated Admin/Staff/customer fixtures      | Role/branch-scoped known fields                                   | Anonymous/customer/foreign branch writes; invalid values and stale versions | Real API/database earlier normal values; expanded boundary inputs | 21c CI vehicle stages pass; expanded500/80/40 boundary proof pending |
+
+No local dependency installation, full Next build, Docker resource, shared database
+write, invitation, upload or production publication. Local dependencies match the
+declared core versions (Next16.4.3, React19.2.8, Zod4.6.6, Prisma7.10.0). Reserve
+checks passed at21.25 and21.38GiB with justified0.1/0.15GiB bounded allowances.
+Keep useful source, dependencies, generated client and small synthetic evidence.
+
+Focused held-preview captures of the engine and feature groups also pass at320 and
+1440px. Reviewed screenshots show separate, labelled feature rows, retained commas
+and supplied text; long input values scroll within their controls. A first capture
+attempt failed to load its synthetic seed; corrected bounded500-character fixtures
+pass2/2 without changing application guards. These are two visual samples, not
+extra unique workflow cases. Tall element screenshots intersect sticky chrome,
+so they do not establish complete mobile visual acceptance. New source still needs
+its own exact-source application and database run.
+
+---
+
+## 10 November 2026 - vehicle details and Team & Access/media implementation
+
+Owner confirmed both supplied briefs on 10 November Lagos time: the attachment
+`ccb2b5e1-8ead-490c-a50b-e4fc48c94fe5/pasted-text-1.txt` (Team & Access/media),
+and `C:/Users/PC/Downloads/ALLIED_AUTOTECH_VEHICLE_DETAILS_PROMPT.md`. The exact
+filename in the original goal was unavailable; this confirmation resolves scope.
+The complete original requirements remain active, including safe publication.
+
+Current package began 9 November approximately 22:35 UTC; one-hour target 23:35 UTC.
+Source is isolated at `allied-vehicle-media-20261109`, branch
+`codex/vehicle-media-20261109`, base `3cf5d9cb2`. The original restoration checkout
+has an unrelated unfinished service/pickup merge; it is preserved. Read the latest
+release records before integrating either line of work. Both public aliases were
+read from Vercel this turn: `dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV`; www redirects to
+apex. This read verifies alias identity, not acceptance of this new source.
+
+This is the single requirement/coverage ledger for both briefs. No role grants,
+position assignments, production vehicle edits or capability activation are part
+of testing. Existing approved reference is retained; the vehicle brief asks for
+focused grouping and list controls, with no unrelated visual redesign.
+
+| ID / scope                                                                                           | Implementation and authoritative evidence                                                                                                                                                                                  | Status / next proof                                                                                                                                                                                                                    |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| V01 terminology throughout editor/review, staff/preview, public filters/detail and applied summaries | Shared power labels preserve BEV/HEV/PHEV/ICE and old URLs; Fuel type and Drive system remain separate                                                                                                                     | Implemented; hosted 37bf combined-filter chips/query/refresh/Back pass. Corrected public heading hierarchy and final-source full-page acceptance pending                                                                               |
+| V02 Engine & drive and supplied Engine details                                                       | Shared editor/summary; optional 500-character description in schema/validation/repository/public contracts/import/form/review; new additive `20261110010000_vehicle_engine_details` migration                              | Generated client, isolated 102-migration replay/db:check and boundary storage/public round-trip pass at 37bf. Separate populated 100-to-102 preservation rehearsal passes. Packaged compatible release remains pending                 |
+| V03 Additional features individual entry/edit/remove and public two/one-column list                  | Existing string-array storage retained; form rows preserve commas; 40 items / 80 chars, trims, duplicate/empty checks; existing account-scoped variable-row draft recovery                                                 | Component/helper, seven hosted editor/recovery and isolated boundary HTTP cases pass. Narrow keyboard/focus samples pass; corrected public list/Axe acceptance and production remain pending                                           |
+| V04 truthful content, imports, customer isolation and Help                                           | Optional supplied import fields; private vehicle-operations v3, public vehicle-enquiry v6; audiences/flags unchanged; faults remain separate                                                                               | Relevant units and isolated API/Help privacy/eligibility gates pass at 37bf; current full release and real-account acceptance pending                                                                                                  |
+| V05 complete QA and publication                                                                      | New actual application Playwright suite covers 320/390/768/1024/1440 at 720px height, review/cancel/save/reload and Axe; separate runtime project                                                                          | Eight hosted synthetic cases pass. 37bf frontend matrix failed at public heading order after seven editor passes; preserve the failure. Corrected full matrix, exact-master package and live release pending. No all-role/device claim |
+| T01 canonical People and person identity/access summary                                              | Read source/audit paths identified in attachment; preserve older direct links, manager scope, baseline/independent/temporary provenance and partial-read honesty                                                           | Not implemented; initial source tracing confirms distinct legacy administrator and owner/delegated branch/duty bounds. Complete canonical presentation and negative-access matrix before editing permissions                           |
+| T02 duties, cover, invitations, history/reviews                                                      | Require end date for new cover; retain old open-ended records for review; Lagos conversions, retained-grant explanations and current/proposed review; eligibility/MFA/session safeguards                                   | Not implemented; existing policies and complete read/write fixtures must be inspected                                                                                                                                                  |
+| T03 account/job workspaces and effective access                                                      | Navigation/cards/search/tabs/actions/counts/notifications and server fields/branch/assignment scope; fail-closed loading and session/access changes; preserve v1/v2 duties and independent financial checks                | Not implemented; complete expected-visible/absent and read/write allow/deny matrix required for legacy and managed paths                                                                                                               |
+| T04 Digital Media Manager and workspace                                                              | Real job position with separately assigned view/add/edit/prepare/publish/remove duties; minimal identities, no broad administration/private/finance access; library, placements, draft/publish/revert and usage safeguards | Not implemented; no title, duty or real grant added                                                                                                                                                                                    |
+| T05 bulk vehicle photos                                                                              | Multi-file stable-ID queue, per-photo descriptions/captions/order/main, capacity/version/ticket binding, partial/uncertain recovery, cancellation, visible editor and focus return                                         | Not implemented; preserve 20-photo/10 MiB limits and last-published-photo protection                                                                                                                                                   |
+| T06 complete supported videos                                                                        | Infrastructure/format/size/duration validation, safe processing/errors, poster, captions/transcript, accessible mobile controls, no automatic sound; no incidental paid provisioning                                       | Not implemented; no video support claimed                                                                                                                                                                                              |
+| T07 full access, responsive/accessibility and regression acceptance                                  | All specified role/branch/date/delegation/private-field/stale-account/media boundaries and widths 1280x720,1024x768,768x1024,430x932,390x844,360x800,320x720,1440-wide                                                     | Not implemented or certified; maintain page/account/job/scope/visible/allowed/denied/state/viewport/evidence matrix as each group is inspected                                                                                         |
+
+Additional discovered regression: the update schema inherited the creation default
+`condition: USED` when a patch omitted condition. Removed that default from update
+validation; the focused backend test requires exactly the supplied fields. No real
+record was repaired or silently altered.
+
+Initial focused checks: frontend 33/33 across four suites (includes component
+rendering, exact commas/limits, duplicate feedback, source defaults/import and
+account-scoped added/removed-row recovery); backend 17/17 across two suites.
+Frontend and backend TypeScript pass at their recorded checkpoints; later changes
+need final checks. These are synthetic/component/source results, not application
+browser or production passes. Initial backend run failed the newly detected
+condition-default assertion and old Help version assertion; both were corrected
+without weakening the access checks. Initial draft-row recovery failed because the
+remove control lacked its named row group; corrected using the existing protocol.
+The first test invocation used the repository root instead of the frontend test
+root and found no tests; it is not counted as a pass.
+
+No dependency installation, Docker resource, shared database, provider message or
+production write. Source worktree and dependencies are reused through junctions;
+new isolation was necessary because the original checkout is mid-merge. Disk
+preflight passed 21.87 GiB for 0.35 GiB expected source growth; later checkpoints
+21.56,21.49,21.45 GiB pass the requested 20 GiB reserve with bounded allowances.
+These point-in-time readings are not an OS guarantee. No existing cleanup target
+was deleted. Larger builds remain subject to their own successful preflight.
+
+Final local checkpoint: 70/70 frontend cases across seven suites and18/18 backend
+cases across three suites pass (earlier counts overlap). Frontend and backend
+TypeScript, scoped frontend lint, repository backend lint, OpenAPI452-path validation,
+secret guard3899 files, Prisma format and diff checks pass. API inventory was
+regenerated from a stale514-operation baseline to the current532; this is contract
+metadata, not18 newly implemented endpoints or acceptance of those endpoints.
+
+Browser component fixture: Edge157, actual emulated widths320/390/768/1024/1440,
+all720px tall, passes5/5. Imported real engine/features controls, summaries, source
+CSS and local fonts; measured Quicksand, main widths and no overflow. Duplicate
+feedback, per-item edits, exact comma-bearing output, retained1998cc after BEV
+selection, Remove focus return, page identity, framework-overlay absence, console
+and Axe checks pass in these sampled synthetic states. Screenshots/results:
+`C:/Users/PC/AppData/Local/Temp/allied-vehicle-component-20261110/`.
+Phone/desktop captures were inspected. This is a component fixture with no server
+writes, not the full application route, actual role or storage round-trip. Initial
+fixture failures were a missing parent heading, favicon, shell-column placement
+and missing root font bindings; the harness was corrected, with all assertions
+retained. The full application5-width Playwright project lists successfully but
+has not run. Full-page contrast/reflow/state and physical-device acceptance remain.
+
+Latest master advanced to130556a1 with Home/Services work during verification;
+retain and reconcile it before exact-source CI/integration. No production change.
+The Vite process is task-owned and will be stopped after evidence capture; keep
+small synthetic evidence and the useful generated client. No Docker or database
+cleanup is needed or authorised by this package. Last reserve check21.39GiB.
+
+---
+
 ## 9 November 22:17 UTC - recovery status regression and held-release transport
 
 Exact-master 6538f4b5 frontend run42705393145 completed with879 passes and two

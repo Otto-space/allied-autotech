@@ -1,4 +1,6 @@
 "use client";
+import { VehicleEngineFields } from "./vehicle-engine-fields";
+import { VehicleFeatureFields } from "./vehicle-feature-fields";
 import { VehicleOwnerFields } from "./vehicle-owner-fields";
 import { CountryField } from "./country-field";
 import { vehicleLabel } from "@/lib/vehicle-discovery";
@@ -36,11 +38,6 @@ const fields = [
   ["year", "Model year", 4],
   ["trim", "Trim (optional)", 80],
   ["mileageKm", "Mileage (optional, km)", 8],
-  ["engineCapacityCc", "Engine capacity (optional, cc)", 5],
-  ["features", "Recorded features (optional, comma separated)", 3239],
-  ["engineCode", "Engine code (optional)", 40],
-  ["cylinders", "Cylinders (optional)", 2],
-  ["engineSize", "Engine size (optional)", 40],
   ["color", "Colour (optional)", 40],
   ["doors", "Doors (optional)", 2],
   ["seats", "Seats (optional)", 3],
@@ -100,8 +97,9 @@ export function VehicleRecordForm({
           }
         : undefined,
       title: vehicle ? "Save this vehicle record?" : "Create this stock record?",
-      description:
-        "This saves the permitted vehicle details. It does not create or publish a sale listing. Empty optional fields are recorded as not set.",
+      description: vehicle
+        ? "Public vehicle details update every existing listing for this stock record. Saving does not create a listing or change its status. Empty optional fields are recorded as not set."
+        : "This saves the permitted vehicle details. It does not create or publish a sale listing. Empty optional fields are recorded as not set.",
       facts: [
         { label: "Stock number", value: values.stockNumber.toUpperCase() },
         ...(vehicle ? [{ label: "Workshop branch", value: vehicle.branch.name }] : []),
@@ -118,16 +116,17 @@ export function VehicleRecordForm({
                 transmission: "Transmission",
                 fuelType: "Fuel type",
                 bodyType: "Body type",
-                driveType: "Drive type",
+                driveType: "Drive system",
                 engineCode: "Engine code",
                 cylinders: "Cylinders",
                 ownerReportedCondition: "Owner-reported condition",
                 ownerReportedIssues: "Owner-reported known issues",
+                engineDetails: "Engine details",
                 engineSize: "Engine size",
                 manufactureCountryCode: "Final assembly country",
-                powertrain: "Powertrain",
+                powertrain: "Engine / Power type",
                 engineCapacityCc: "Engine capacity (cc)",
-                features: "Recorded features",
+                features: "Additional features",
                 color: "Colour",
                 doors: "Doors",
                 seats: "Seats",
@@ -148,7 +147,8 @@ export function VehicleRecordForm({
                   : key === "mileageKm"
                     ? `${Number(value).toLocaleString("en-NG")} km`
                     : Array.isArray(value)
-                      ? value.join(", ") || "Not recorded"
+                      ? value.map((item, index) => `${index + 1}. ${item}`).join("\n") ||
+                        "Not recorded"
                       : [
                             "manufactureCountryCode",
                             "powertrain",
@@ -156,7 +156,7 @@ export function VehicleRecordForm({
                             "driveType",
                           ].includes(key)
                         ? vehicleLabel(String(value))
-                        : String(value).replaceAll("_", " "),
+                        : String(value),
         })),
       ],
       onConfirmed: () => {
@@ -284,6 +284,8 @@ export function VehicleRecordForm({
                   )}
                 </div>
               ))}
+            <VehicleEngineFields form={form} />
+            <VehicleFeatureFields form={form} />
             <VehicleOwnerFields form={form} />
             <div className="field">
               <label htmlFor="vehicle-record-country">
@@ -316,60 +318,64 @@ export function VehicleRecordForm({
                 infer it from the brand or import route.
               </small>
             </div>
-            {Object.entries(vehicleEnums).map(([name, options]) => (
-              <Controller
-                key={name}
-                name={z
-                  .enum([
-                    "condition",
-                    "transmission",
-                    "fuelType",
-                    "bodyType",
-                    "driveType",
-                    "powertrain",
-                  ])
-                  .parse(name)}
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <div className="field">
-                    <label htmlFor={`vehicle-record-${name}`}>
-                      {name === "bodyType"
-                        ? "Body type"
-                        : name === "driveType"
-                          ? "Drive type"
-                          : name === "fuelType"
-                            ? "Fuel type"
-                            : name[0].toUpperCase() + name.slice(1)}
-                      {name === "condition" ? "" : " (optional)"}
-                    </label>
-                    <select
-                      {...field}
-                      id={`vehicle-record-${name}`}
-                      aria-invalid={!!fieldState.error}
-                      aria-describedby={
-                        fieldState.error ? `vehicle-record-${name}-error` : undefined
-                      }
-                    >
-                      {name !== "condition" && <option value="">Not set</option>}
-                      {options.map((value) => (
-                        <option key={value} value={value}>
-                          {vehicleLabel(value)}
-                        </option>
-                      ))}
-                    </select>
-                    {fieldState.error && (
-                      <p
-                        role="alert"
-                        className="field-error"
-                        id={`vehicle-record-${name}-error`}
+            {Object.entries(vehicleEnums)
+              .filter(([name]) => name === "condition" || name === "bodyType")
+              .map(([name, options]) => (
+                <Controller
+                  key={name}
+                  name={z
+                    .enum([
+                      "condition",
+                      "transmission",
+                      "fuelType",
+                      "bodyType",
+                      "driveType",
+                      "powertrain",
+                    ])
+                    .parse(name)}
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <div className="field">
+                      <label htmlFor={`vehicle-record-${name}`}>
+                        {name === "bodyType"
+                          ? "Body type"
+                          : name === "driveType"
+                            ? "Drive system"
+                            : name === "fuelType"
+                              ? "Fuel type"
+                              : name === "powertrain"
+                                ? "Engine / Power type"
+                                : name[0].toUpperCase() + name.slice(1)}
+                        {name === "condition" ? "" : " (optional)"}
+                      </label>
+                      <select
+                        {...field}
+                        id={`vehicle-record-${name}`}
+                        aria-invalid={!!fieldState.error}
+                        aria-describedby={
+                          fieldState.error ? `vehicle-record-${name}-error` : undefined
+                        }
                       >
-                        {fieldState.error.message}
-                      </p>
-                    )}
-                  </div>
-                )}
-              />
-            ))}
+                        {name !== "condition" && <option value="">Not set</option>}
+                        {options.map((value) => (
+                          <option key={value} value={value}>
+                            {vehicleLabel(value)}
+                          </option>
+                        ))}
+                      </select>
+                      {fieldState.error && (
+                        <p
+                          role="alert"
+                          className="field-error"
+                          id={`vehicle-record-${name}-error`}
+                        >
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+              ))}
           </div>
           <button className="button">
             {vehicle ? "Review vehicle changes" : "Review new vehicle"}
