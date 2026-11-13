@@ -1,3 +1,49 @@
+### 13 November: remaining original goods integrated; native regression verified
+
+Source d5fde376 integrates remaining-goods implementation 1841a467 with master
+6a9318a6. Newer People context/access, invoice hierarchy, Parts gallery spacing and
+migration-package byte guards are retained. The two evidence-register conflicts
+were resolved by retaining both distinct histories. Owner's Desktop hero edit is
+untouched. No public alias, production database or financial capability changed.
+
+D17 now revalidates exact original receipts/refunds, current financial anomalies,
+actual saved unit exclusions and current compatibility before fulfilling goods
+still owed. Original contract money remains unchanged. Active original stock
+holds are replaced with the exact remaining hold before consumption, preserving
+old rows/journals and never restocking consumed goods. Private collection records
+exact remaining positions around refunded gaps. Original payment cannot charge
+again. Historical acceptance/refund survives cancellation of an unpaid replacement.
+No-goods, cancelled/zero-capture and legacy/technical-reversal financial closure
+remain unfinished, explicit review paths; generic cancellation must not restock them.
+
+Final native proof: 138/138 across 11 files, including separate partial/full
+collection cases; 122-migration replay, empty schema diff, db:check, restricted
+runtime and owned tmpfs cleanup pass. The earlier focused run passed 68/68.
+Source/focused test types, scoped lint, OpenAPI 471 paths/554 mounted operations
+plus 4 infrastructure routes pass. Integrated learning/calendar tests pass 41/41,
+and the new migration-input guard tests pass 5/5. Final integrated secret scanning
+passes 4028 files. Durable refund approval/transfer/check and actual order/pickup
+events now use database time; future-date/independent-finance guards remain.
+Customer parts-collection v4, staff-parts-collection v3, admin order-sourcing v7
+and restricted refund-work v8 retain eligibility/guide targets/flags. See docs/help-learn/
+RESOLVED_SUPPLY_FULFILMENT_20261113.md for exact scope and acceptance boundaries.
+Receipts: TEMP/aat-d03-service-payments-20261109/native-supply-remaining-final.log
+and native-supply-remaining-clock.log. Prior rendered fixtures cover concern/
+resolution controls, not this new API journey. Both apex/www remain on
+dpl_EdMgppUipQ81msnEmHCef4jZxx6m (live Vercel alias verification).
+
+The new byte guard found one older LF checkout of additional_service_quotations
+whose established Git-filtered checkout is CRLF. Restored those filtered bytes
+only: SQL blob and production history unchanged. Canonical 122-file checkout guard
+and fresh empty replay/schema diff/db:check pass; its owned tmpfs database was removed. Receipt: TEMP/aat-d03-service-payments-
+20261109/canonical-supply-migrations-replay.log.
+
+Final integrated CI, compatible backend/worker migration package, verified fresh
+backup/off-device recovery/restore rehearsal and actual provider/role acceptance
+remain release gates. Purchasing activation also needs real invoice identifiers/
+accountant applicability and unfinished D17 closure; booking operating readiness is
+separate. The approved Mon-Sat holiday-inclusive collection calendar stays settled.
+
 ## 13 November - release input integrity repair and populated recovery evidence
 
 At 19:04 UTC, both aliases still identify the b122 frontend and the backend is
@@ -341,12 +387,13 @@ Browser plugin unavailable; existing Playwright was used. These are intercepted
 synthetic APIs and emulated sizes, not actual role/provider/bank/device acceptance.
 
 Receipts under TEMP/aat-d03-service-payments-20261109/:
+
 - native-supply-resolution-final.log (134/134;120 migrations; owned cleanup)
 - resolution-held-browser-final.log (10/10 on173cce6d)
 - resolution-final-held-browser.log (3/3 on3746fe79)
 - resolution-final-held-results/.../supply-resolution-320.png and1440.png
-Temporary held-access cookie files were removed after the runs. No real money,
-application database, role/grant, policy activation or public-domain change.
+  Temporary held-access cookie files were removed after the runs. No real money,
+  application database, role/grant, policy activation or public-domain change.
 
 Remaining implementation: connect current verified resolution to net original
 financial coverage and exact remaining pickup/fulfilment/closure; handle actual
@@ -538,8 +585,7 @@ collection calendar/eligibility checks pass46 tests. Seven rendered fixture case
 are prepared but not yet run. Visual/browser acceptance remains outstanding.
 D17 alternative acceptance and settled-unit fulfilment remain incomplete and held.
 The separate schema110 candidate608d3c0d passed frontend42728871961 (984/984 full
-browser matrix,1549 units;12 pre-existing skips), backend42728871883 and secret
-42728871576. These are candidate checks, not exact-master production approval.
+browser matrix,1549 units;12 pre-existing skips), backend42728871883 and secret 42728871576. These are candidate checks, not exact-master production approval.
 No production database, alias, feature flag or private owner hero edit changed.
 
 ### 10 November: affected supply refunds use the existing financial kernel
@@ -676,6 +722,7 @@ Forward112 repairs that function; applied111 is untouched. Owned tmpfs DB remove
 Separate four-file units/learning/routing: 37/37; backend types/scoped lint pass.
 Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-exception-forward-fix.log.
 Order-sourcing learning is admin-only v2; existing publication/commerce flags remain.
+
 ## 10 November 01:56 UTC - People identity and scoped directory group in progress
 
 Both owner-approved briefs remain active. The vehicle group is merged via PR50;

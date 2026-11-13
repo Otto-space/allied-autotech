@@ -114,6 +114,7 @@ export const learningArticles: LearningArticle[] = [
         "Holding lasts five collection days, Monday-Saturday including public holidays, after both actual readiness and successful customer notification. Imported/custom parts follow the same rule. A failed contact attempt does not start the clock. Check the saved Collect by date and any reasoned extension; overdue does not cancel paid goods, charge storage fees or release allocation.",
         "Open the actual ready order and Physical parts collection. Current verified staff access and actual branch scope are required. Enter the private code and exact goods for this pickup. Check actual goods and authority; omit ID numbers or copies from notes.",
         "Review pickup authorisation and confirm. The review is exclusively bound to your current session. Another operator must not release the same goods. Financial proof and remaining quantities are checked again; a review never marks goods collected.",
+        "After actual supply settlement and goods review, exclude only the verified refunded unfulfilled positions. Previously collected goods keep their history. Check the current remaining-goods list and financial proof; an original gross amount is not another payment due. A cancelled unpaid replacement does not undo its actual original refund. No-goods financial closure belongs with authorised Care and financial review, never a zero-quantity handover.",
         "Only after the listed goods have physically been handed over, enter the collector name and verification note, confirm that physical fact and review the handover record. The code is consumed once, immutable history is retained and any partial remainder stays outstanding. This takes no payment and does not consume stock again.",
         "If no goods left, the current reviewer or an authorised administrator can resolve the review with a reason and explicit no-handover confirmation. Its code is revoked; the buyer needs a new one. Never confirm no handover if goods may have left. Preserve uncertainty for authorised reconciliation, inspect the same order history and do not hand goods over again.",
       ],
@@ -121,8 +122,8 @@ export const learningArticles: LearningArticle[] = [
       "OrderPickupService current MFA, branch scope, exclusive review claim and immutable handover",
       "staff parts pickup collection exclusive review physical handover",
     ),
-    version: 2,
-    reviewedAt: "2026-11-09",
+    version: 3,
+    reviewedAt: "2026-11-13",
   },
   {
     ...article(

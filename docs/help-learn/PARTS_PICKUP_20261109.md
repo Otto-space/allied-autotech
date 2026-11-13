@@ -1,6 +1,7 @@
 ### 13 November: remaining-goods learning checkpoint (source)
 
-Customer parts-collection v4, administrator order-sourcing v7 and restricted
+Customer parts-collection v4, staff-parts-collection v3, administrator
+order-sourcing v7 and restricted
 refund-work v8 now explain current resolved refund coverage, exact remaining goods,
 private partial collection and preservation of original money/physical history.
 Audience checks, guide targets and publication flags remain unchanged. See
@@ -97,6 +98,7 @@ stages passed; full matrix 304 passed, five CSS-preload verifier failures, 484 n
 run. No full-matrix pass is claimed. The shared footer preload now requires exact
 same-origin CSS, every selector constrained to the known footer/fitment-summary chunk and actual
 104px bottom clearance where a footer is rendered. Unknown warnings/errors still fail. No production change.
+
 ### 10 November: customer one-time code survives the saved-order background check
 
 Customer parts-collection is v3; staff-parts-collection remains v2. The customer

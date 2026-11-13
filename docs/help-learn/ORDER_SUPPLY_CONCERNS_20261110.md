@@ -1,6 +1,7 @@
 ### 13 November: remaining-goods learning checkpoint (source)
 
-Customer parts-collection v4, administrator order-sourcing v7 and restricted
+Customer parts-collection v4, staff-parts-collection v3, administrator
+order-sourcing v7 and restricted
 refund-work v8 now explain current resolved refund coverage, exact remaining goods,
 private partial collection and preservation of original money/physical history.
 Audience checks, guide targets and publication flags remain unchanged. See
@@ -35,12 +36,13 @@ Browser plugin unavailable; existing Playwright was used. These are intercepted
 synthetic APIs and emulated sizes, not actual role/provider/bank/device acceptance.
 
 Receipts under TEMP/aat-d03-service-payments-20261109/:
+
 - native-supply-resolution-final.log (134/134;120 migrations; owned cleanup)
 - resolution-held-browser-final.log (10/10 on173cce6d)
 - resolution-final-held-browser.log (3/3 on3746fe79)
 - resolution-final-held-results/.../supply-resolution-320.png and1440.png
-Temporary held-access cookie files were removed after the runs. No real money,
-application database, role/grant, policy activation or public-domain change.
+  Temporary held-access cookie files were removed after the runs. No real money,
+  application database, role/grant, policy activation or public-domain change.
 
 Remaining implementation: connect current verified resolution to net original
 financial coverage and exact remaining pickup/fulfilment/closure; handle actual
@@ -186,8 +188,7 @@ collection calendar/eligibility checks pass46 tests. Seven rendered fixture case
 are prepared but not yet run. Visual/browser acceptance remains outstanding.
 D17 alternative acceptance and settled-unit fulfilment remain incomplete and held.
 The separate schema110 candidate608d3c0d passed frontend42728871961 (984/984 full
-browser matrix,1549 units;12 pre-existing skips), backend42728871883 and secret
-42728871576. These are candidate checks, not exact-master production approval.
+browser matrix,1549 units;12 pre-existing skips), backend42728871883 and secret 42728871576. These are candidate checks, not exact-master production approval.
 No production database, alias, feature flag or private owner hero edit changed.
 
 ### 10 November: financial linkage verified; complete resolution remains held

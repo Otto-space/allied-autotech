@@ -30,6 +30,7 @@ original gross again. Payment/provider callbacks still retain actual late captur
 ## Learning and acceptance checkpoints
 
 - Customer `parts-collection` v4: goods still owed and private reissued authority.
+- Staff `staff-parts-collection` v3: current remaining positions and no fake handover.
 - Administrator `order-sourcing` v7: remaining allocation and physical history.
 - Restricted `refund-work` v8: exact independent settlement and historical acceptance.
 - Existing audience checks, semantic guide targets and publication flags remain.
@@ -37,8 +38,12 @@ original gross again. Payment/provider callbacks still retain actual late captur
 - Source/test types, scoped lint, OpenAPI 471 paths, mounted 554 operations plus
   four infrastructure routes and secret scanning pass. Focused native run: 68/68,
   with 122-migration empty replay, schema diff, db:check and owned tmpfs cleanup.
-- Final expanded native regression, including separate partial/full collection
-  around refunded gaps, is pending. Earlier rendered fixture screenshots cover the
+- Final expanded native regression passes 138/138 across 11 files, including
+  separate partial/full collection around refunded gaps. Integrated learning and
+  calendar tests pass 41/41. Migration-input guard tests pass 5/5. Restored an older
+  migration checkout to its established Git-filtered CRLF bytes without changing
+  its SQL blob. Canonical 122-file checkout guard and fresh empty replay/schema
+  diff/db:check pass; the owned tmpfs target was removed. Earlier rendered fixture screenshots cover the
   concern/resolution controls only; they are not a browser test of this new journey.
 
 ## Exact unfinished work and release boundaries
