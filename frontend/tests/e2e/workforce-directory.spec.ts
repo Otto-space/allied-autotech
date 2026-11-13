@@ -302,6 +302,11 @@ for (const [width, height] of [
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       ).toBe(true);
       await page.screenshot({ path: info.outputPath("workforce-detail.png") });
+      if (width === 320 || width === 1440)
+        expect(
+          (await new AxeBuilder({ page }).include(".workforce-panel").analyze())
+            .violations,
+        ).toEqual([]);
       await page.getByRole("link", { name: "Back to People", exact: true }).click();
       await expect(region).toBeVisible();
       expect(s.errors).toEqual([]);
@@ -333,6 +338,7 @@ for (const width of [320, 1440]) {
       await selected.evaluate((element) => element.getBoundingClientRect().height),
     ).toBeLessThan(720 / 2);
     await expect(review).toBeInViewport();
+    await page.screenshot({ path: info.outputPath("person-long-identity.png") });
     await expect
       .poll(() =>
         review.evaluate((element) => {
@@ -340,14 +346,23 @@ for (const width of [320, 1440]) {
           const bar = document
             .querySelector(".wf-person-context")!
             .getBoundingClientRect();
-          const front = document.elementFromPoint(
-            box.left + box.width / 2,
-            box.top + box.height / 2,
-          );
-          return box.top >= bar.bottom && (front === element || element.contains(front));
+          // Sample painted edge midpoints; bounding-box corners can fall
+          // outside the button's rounded border even with nothing over it.
+          const occludingElements = [
+            [box.left + box.width / 2, box.top + 2],
+            [box.left + box.width / 2, box.bottom - 2],
+            [box.left + 2, box.top + box.height / 2],
+            [box.right - 2, box.top + box.height / 2],
+          ].flatMap(([x, y]) => {
+            const front = document.elementFromPoint(x, y);
+            return front === element || element.contains(front)
+              ? []
+              : [front ? `${front.tagName}.${front.className}` : "outside viewport"];
+          });
+          return { belowIdentity: box.top >= bar.bottom, occludingElements };
         }),
       )
-      .toBe(true);
+      .toEqual({ belowIdentity: true, occludingElements: [] });
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);

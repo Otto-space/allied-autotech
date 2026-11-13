@@ -12,6 +12,33 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
     const panel = bar?.closest<HTMLElement>(".workforce-panel");
     if (!bar || !panel) return;
     const chrome = document.querySelector<HTMLElement>(".dashboard-top");
+    let focusFrame: number | undefined;
+    const keepFocusClear = () => {
+      if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
+      focusFrame = requestAnimationFrame(() => {
+        const target = document.activeElement;
+        if (
+          !(target instanceof HTMLElement) ||
+          !panel.contains(target) ||
+          bar.contains(target) ||
+          !target.matches("input, textarea, select, button")
+        )
+          return;
+        const box = target.getBoundingClientRect();
+        const top = Math.max(
+          chrome?.getBoundingClientRect().bottom ?? 0,
+          bar.getBoundingClientRect().bottom,
+        );
+        const bottom =
+          innerHeight - (parseFloat(getComputedStyle(target).scrollMarginBlockEnd) || 0);
+        if (box.top < top + 8 || box.bottom > bottom)
+          target.scrollIntoView({
+            block: "start",
+            inline: "nearest",
+            behavior: "instant",
+          });
+      });
+    };
     const update = () => {
       if (chrome)
         panel.style.setProperty(
@@ -22,6 +49,7 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
         "--wf-person-sticky-height",
         `${bar.getBoundingClientRect().height}px`,
       );
+      keepFocusClear();
     };
     update();
     const observer =
@@ -29,9 +57,12 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
     observer?.observe(bar);
     if (chrome) observer?.observe(chrome);
     window.addEventListener("resize", update);
+    panel.addEventListener("focusin", keepFocusClear);
     return () => {
+      if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
       observer?.disconnect();
       window.removeEventListener("resize", update);
+      panel.removeEventListener("focusin", keepFocusClear);
       panel.style.removeProperty("--wf-person-sticky-top");
       panel.style.removeProperty("--wf-person-sticky-height");
     };
