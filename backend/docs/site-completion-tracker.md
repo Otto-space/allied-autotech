@@ -1,3 +1,30 @@
+Privacy regression execution: the existing 27-case work-privacy suite is now an
+explicit privacy-review project in playwright.runtime.config.ts. CI runs the full
+runtime configuration; discovery confirms27 cases. The quality index alone only
+selected long-content accessibility and did not execute cancellation assertions.
+
+## 13 November - privacy and moderation acceptance; cancellation focus defect
+
+Compiled application53bd8dc8 passes59 existing Edge privacy/moderation cases with
+isolated fixtures, including role/grant denial, long-content accessibility,
+filter/history, guarded writes and uncertain-result reconciliation. No live writes.
+Supplemental exact-size modal checks reproduce lost opener focus on privacy review
+cancellation at1280x720 and1024x768. Geometry/scroll assertions passed before each
+focus failure;12 later cases did not run. Evidence is retained under
+TEMP/allied-privacy-moderation-20261113/{report,geometry-report}.json.
+
+Cause: work-privacy refreshes the queue on every modal close, disabling the opener
+during focus restoration. Successful submissions already refresh and every new
+submission rechecks permission, current record and holds. Removed only close-time
+refresh. Added pointer and Escape cancellation assertions for focus, no extra read
+and draft preservation. Rendered regression and new-source CI remain pending.
+
+Suppression final heading passes7/7 exact-size compiled Edge checks; desktop/320px
+captures inspected. Evidence TEMP/allied-suppression-final-20261113/report.json.
+Backend database safety43509650083 and secrets43509650082 pass for2e3da127;
+frontend43509650116 remains running. Earlier failed opt-in tests remain recorded.
+No publication or schema change. Full original briefs and D01-D17 remain active.
+
 ## 13 November - isolated diagnostic fixture correction
 
 Backend run43508328971 failed three unknown/unrelated-event cases because their

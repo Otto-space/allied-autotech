@@ -7,6 +7,10 @@ export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
     {
+      name: "privacy-review",
+      testMatch: ["work-privacy.spec.ts"],
+    },
+    {
       name: "processing-job-suppression",
       testMatch: ["work-processing-jobs.spec.ts"],
     },
