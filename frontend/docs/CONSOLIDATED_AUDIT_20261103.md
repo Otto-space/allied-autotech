@@ -31,7 +31,6 @@ Public domains have not been promoted by this task. Compatible backend release,
 exact-master gates and post-publication checks remain prerequisites. Preserve
 all other active work and the full two-brief route/state and role/device backlog.
 
-
 ## 13 November 18:00 UTC - invoice acceptance and focused hierarchy correction
 
 Protected candidate 33WpkwzMd4mGR4HSmfGQ3kU2kkPe/source 96159a9 passes all
