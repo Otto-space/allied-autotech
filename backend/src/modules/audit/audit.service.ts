@@ -24,6 +24,7 @@ import type {
   OperationalRetryInput,
 } from "./audit.schemas.js";
 import type { AppendAuditEvent } from "./audit.types.js";
+import { currentAccessHistoryContext } from "./access-history.js";
 
 export async function appendAuditEvent(
   transaction: Prisma.TransactionClient,
@@ -73,6 +74,10 @@ export class AuditOperationsService {
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
       const result = page(await this.repository.list(query, transaction), query.limit);
+      const history =
+        query.view === "ACCESS_CHANGES"
+          ? await currentAccessHistoryContext(transaction, actor, result.items)
+          : undefined;
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "READ",
@@ -81,7 +86,7 @@ export class AuditOperationsService {
         newValues: { resource: "AUDIT_LOG", resultCount: result.items.length },
         context,
       });
-      return result;
+      return history ? { ...result, items: history } : result;
     });
   }
 

@@ -233,7 +233,7 @@ function InvitationWorkspace() {
               <Link className="text-link" href="/admin/staff">
                 People
               </Link>
-              <Link className="text-link" href="/admin/audit">
+              <Link className="text-link" href="/admin/team/history">
                 Access-change audit history
               </Link>
             </div>

@@ -139,6 +139,8 @@ export default defineConfig({
         "work-staff-workforce.spec.ts",
         "workforce-care-policy.spec.ts",
         "work-staff-invitations.spec.ts",
+        "access-history.spec.ts",
+        "work-audit.spec.ts",
         "saved-items-navigation.spec.ts",
         "saved-items-quality.spec.ts",
         "customer-profile-quality.spec.ts",

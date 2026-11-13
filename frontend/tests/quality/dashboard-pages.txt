@@ -247,3 +247,22 @@ saved-items-navigation.spec.ts > saved navigation 360x800 > vehicle collection s
 saved-items-navigation.spec.ts > saved navigation 320x720 > vehicle collection survives detail, Back, Forward and reload
 saved-items-navigation.spec.ts > an open removal review stays bound to its collection through a URL change
 saved-items-navigation.spec.ts > saving a vehicle opens its vehicle collection from the receipt
+
+access-history.spec.ts > recorded access history fits 320
+access-history.spec.ts > recorded access history fits 360
+access-history.spec.ts > recorded access history fits 390
+access-history.spec.ts > recorded access history fits 430
+access-history.spec.ts > recorded access history fits 768
+access-history.spec.ts > recorded access history fits 1024
+access-history.spec.ts > recorded access history fits 1280
+access-history.spec.ts > recorded access history fits 1440
+access-history.spec.ts > missing historical facts stay missing while current names remain explicitly current
+access-history.spec.ts > history filters retain the scoped view and full audit keeps the original response
+access-history.spec.ts > an unrelated server event is rejected instead of being counted as an access change
+access-history.spec.ts > denial clears recorded identities and ordinary staff never fetches history
+access-history.spec.ts > ordinary staff cannot fetch the history view
+access-history.spec.ts > long current names and enlarged history text preserve keyboard inspection at 320
+access-history.spec.ts > long current names and enlarged history text preserve keyboard inspection at 1440
+access-history.spec.ts > the owner can open the current history destination
+access-history.spec.ts > history cursor paging retains its scoped view without putting references in the URL
+access-history.spec.ts > history distinguishes an unavailable read from no recorded changes and recovers

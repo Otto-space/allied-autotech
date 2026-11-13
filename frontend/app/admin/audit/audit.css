@@ -15,6 +15,44 @@
 .work-audit p {
   line-height: 1.7;
 }
+.wa-history-note {
+  margin-bottom: 20px;
+  max-width: 920px;
+}
+.wa-history-note a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.wa-change-overview {
+  max-width: 960px;
+}
+.wa-current-people {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+  margin: 8px 0 16px;
+}
+.wa-current-people dt {
+  font-size: 12px;
+  color: #42576b;
+  line-height: 1.6;
+}
+.wa-current-people dd {
+  margin: 4px 0 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.wa-recorded-change {
+  margin: 0 0 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #d4dde6;
+}
+@media (max-width: 600px) {
+  .wa-current-people {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .wa-breadcrumb ol,
 .wa-breadcrumb li {
   display: flex;
@@ -190,6 +228,9 @@
   font-size: 12px;
   overflow-wrap: anywhere;
   line-height: 1.6;
+}
+.wa-recorded-change .wa-metadata dd {
+  font-size: 14px;
 }
 .wa-inspection > .text-link {
   display: inline-flex;

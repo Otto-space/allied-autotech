@@ -10,6 +10,80 @@ checks for the combined source and exact master before publication. The access-
 history implementation draft is preserved separately in the existing worktree's
 labelled stash/branch; it is not part of this release batch.
 
+## 13 November - readable recorded access history
+
+Current item: T02 history, in allied-team-media-20261110 on
+codex/team-history-20261113, based on consolidated PR71/source29008f19. Both
+approved briefs remain active. This package adds /admin/team/history for the
+existing audit-reader interface: owner and legacy Admin composition. Managed
+workforce navigation/person-specific composition remain explicit T01/T03 follow-ups;
+no new managed authority or general Staff audit access is granted. Expiring-access
+reviews and the rest of T03-T07 are still required.
+
+The existing audit endpoint has an opt-in ACCESS_CHANGES view for recorded duty,
+position/delegation, account-level, branch and invitation events. Reads/previews
+and other activity remain in the full log. Its original response stays unchanged
+without the opt-in. Current staff names and branch names are minimal, explicitly
+current context, not identities at event time. Customer profiles/contact/security
+fields are never selected. Invitation recipient lookup preserves Admin-own and
+owner-all visibility. The actor lock, MFA/session checks, no-store response and
+minimal READ audit remain in the same transaction. No schema/migration is added.
+
+Default rows now explain the recorded change and current person/operator. Event
+details show human-readable duty/scope/Lagos dates/reason before secondary IDs
+and escaped original JSON. Unknown definitions and missing older dates/session
+effects stay unavailable rather than being invented. Removing one assignment
+does not claim all access ended. New assignment/removal audits record dates and
+position setup records earlier position/session effects going forward; old audit
+records are preserved. Restricted access-review help is v9; eligibility and all
+feature flags remain unchanged. Existing full audit and deep links are retained.
+
+Evidence: 13 focused frontend units, 16 restricted learning units, frontend build
+and type checks, backend types, scoped lint/format, 465-path OpenAPI validation
+and regenerated 547-operation inventory pass. A fresh isolated 112-migration
+replay initially passed 75 original audit/duty cases but the new suite setup hit
+the active-invitation email uniqueness guard. Corrected the fixture to use two
+cancelled historical links without weakening the constraint. A second fresh
+replay passes all 16 history/learning HTTP cases, including five new history cases.
+Both task-created databases/roles were removed only after identity/idle checks;
+non-owner runtime credentials have no DDL/TRUNCATE privileges. Protected populated
+restores and application databases remain untouched. Receipts: TEMP/allied-people-
+tests-4281d78da4f3 (setup failure retained) and allied-people-tests-cf4b76ce5edd.
+
+The new HTTP checks prove current versus recorded roles, separate user/profile
+ID namespaces, exclusion of a customer's stale staff profile, recipient own/all
+visibility, raw-history preservation, exact filters/keyset paging, old DTO
+compatibility and anonymous/Staff/Customer/unassured/revoked denial.
+
+Initial production-browser history/full-log run passes all 23 cases. Visual review
+raised new human fact values to the normal 14px reading size. The refined run
+passes 16 cases; two added enlarged-text cases were blocked by the test's inline
+style injection under CSP. Direct CSS-property test changes preserve CSP and both
+targeted keyboard cases now pass. The final combined 28-case run passes all cases with no skips.
+Eight required viewport pairs, history/full-log navigation, no outer overflow,
+Axe, preserved false/zero evidence, missing facts, exact scoped filters/cursor
+paging, owner/legacy Admin/ordinary Staff states, temporary failure/empty/recovery,
+denial clearing and 320/1440 long-name/text-spacing focus are covered.
+
+Artifacts: TEMP/allied-team-history-20261113: final-report (23 pass), readable-report
+(16 pass and two harness failures), enlarged-report (two pass), readable-build.log
+and the final verified-report/results. Reviewed 320/1440 overview and fact captures
+retain current-name labels. Browser plugin is unavailable; installed Edge with
+intercepted fixtures is the fallback, not physical-device, branded Safari, full
+screen-reader or authenticated production acceptance. The 27 local standalone
+trace exclusions from reused dependencies remain a packaging limitation; publish
+only clean-source provider artifacts. A root-level formatter accidentally rewrote
+the generated API types; canonical api:types regeneration restored a focused
+48-line addition and TypeScript passes. No generated-file formatting change remains.
+
+PR71 backend43504898900 and secrets43504898784 pass; frontend43504898759 is still
+running. This history package is not yet published or merged. Preserve PR71's
+source and current compatible source6a release/recovery evidence; require matching
+backend/frontend, exact-master gates and fresh live checks before publication.
+Fresh 21:31 provider reads still show both aliases on dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5,
+with www-to-apex308. C: checks remained above20GiB; latest small-write preflight22.45GiB. No cache/image
+cleanup was performed or physical reclamation claimed in this package.
+
 ## 13 November - explicit invitation tasks and current release reconciliation
 
 Both approved briefs remain active. Continue T02 in allied-team-media-20261110,

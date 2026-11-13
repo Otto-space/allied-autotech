@@ -1,6 +1,6 @@
 {
   "source": "../backend/docs/api/allied-autotech.openapi.json",
-  "sourceSha256": "c8e5ae0e39600d819b330dc1c998b66010c1afa911666789cec737e0ecb1309d",
+  "sourceSha256": "19940ccb89344182ceb97410ff4709221b91574dec06096197b560c82b3bb576",
   "note": "Private contract inventory. Source candidates are search hints, not proof of consumption. Response schemas with additionalProperties may be incomplete; reconcile serializers. Operational routes outside OpenAPI are tracked in the Markdown inventory.",
   "operations": [
     {
@@ -98393,6 +98393,18 @@
         {
           "schema": {
             "type": "string",
+            "enum": ["ACCESS_CHANGES"],
+            "description": "Opt-in recorded duty, account-level, branch and invitation changes with minimal current staff context. Other activity remains in the full audit log."
+          },
+          "required": false,
+          "description": "Opt-in recorded duty, account-level, branch and invitation changes with minimal current staff context. Other activity remains in the full audit log.",
+          "name": "view",
+          "in": "query",
+          "example": "ACCESS_CHANGES"
+        },
+        {
+          "schema": {
+            "type": "string",
             "format": "uuid",
             "description": "Identifier of the user resource; ownership is resolved server-side."
           },
@@ -98671,6 +98683,85 @@
                           "format": "date-time",
                           "description": "ISO 8601 timestamp interpreted and validated by the server."
                         },
+                        "currentContext": {
+                          "type": "object",
+                          "properties": {
+                            "actor": {
+                              "type": ["object", "null"],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "name": {
+                                  "type": ["string", "null"],
+                                  "minLength": 1,
+                                  "maxLength": 500,
+                                  "description": "Name validated by this operation's strict request contract."
+                                },
+                                "role": {
+                                  "type": "string",
+                                  "enum": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+                                  "description": "Role validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": ["id", "name", "role"],
+                              "additionalProperties": false,
+                              "description": "Actor validated by this operation's strict request contract."
+                            },
+                            "subject": {
+                              "type": ["object", "null"],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "name": {
+                                  "type": ["string", "null"],
+                                  "minLength": 1,
+                                  "maxLength": 500,
+                                  "description": "Name validated by this operation's strict request contract."
+                                },
+                                "role": {
+                                  "type": "string",
+                                  "enum": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+                                  "description": "Role validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": ["id", "name", "role"],
+                              "additionalProperties": false,
+                              "description": "Subject validated by this operation's strict request contract."
+                            },
+                            "branches": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Name validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": ["id", "name"],
+                                "additionalProperties": false,
+                                "description": "Branches Item validated by this operation's strict request contract."
+                              },
+                              "maxItems": 42,
+                              "description": "Branches validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": ["actor", "subject", "branches"],
+                          "additionalProperties": false,
+                          "description": "Included only for ACCESS_CHANGES view. Minimal current staff names and roles, not identities at event time; unavailable or ineligible identities are null. Invitation recipients retain existing own/all visibility. No customer profiles or contact/security fields."
+                        },
                         "user": {
                           "type": ["object", "null"],
                           "properties": {
@@ -98776,7 +98867,6 @@
       "sourceCandidates": [
         "app/components/audit-log.tsx",
         "app/components/dashboard-shell.tsx",
-        "app/components/staff-invitation-form.tsx",
         "lib/api/audit-schemas.ts",
         "lib/dashboard-navigation.ts"
       ],

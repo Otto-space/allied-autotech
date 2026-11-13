@@ -363,7 +363,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const accessReview = await read(f.scopedAdmin, "/learning/articles/access-review");
       expect(accessReview.status).toBe(200);
-      expect(accessReview.body.data).toMatchObject({ version: 8 });
+      expect(accessReview.body.data).toMatchObject({ version: 9 });
       expect(accessReview.body.data.steps.join(" ")).toContain(
         "Open People in Team & Access and select View person.",
       );

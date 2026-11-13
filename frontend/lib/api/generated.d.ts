@@ -127684,6 +127684,11 @@ export interface operations {
                  */
                 limit?: number;
                 /**
+                 * @description Opt-in recorded duty, account-level, branch and invitation changes with minimal current staff context. Other activity remains in the full audit log.
+                 * @example ACCESS_CHANGES
+                 */
+                view?: "ACCESS_CHANGES";
+                /**
                  * @description User Id used to constrain this request.
                  * @example 00000000-0000-4000-8000-000000000001
                  */
@@ -127805,6 +127810,49 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 createdAt: string;
+                                /** @description Included only for ACCESS_CHANGES view. Minimal current staff names and roles, not identities at event time; unavailable or ineligible identities are null. Invitation recipients retain existing own/all visibility. No customer profiles or contact/security fields. */
+                                currentContext?: {
+                                    /** @description Actor validated by this operation's strict request contract. */
+                                    actor: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description Name validated by this operation's strict request contract. */
+                                        name: string | null;
+                                        /**
+                                         * @description Role validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        role: "STAFF" | "ADMIN" | "SUPER_ADMIN";
+                                    } | null;
+                                    /** @description Subject validated by this operation's strict request contract. */
+                                    subject: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description Name validated by this operation's strict request contract. */
+                                        name: string | null;
+                                        /**
+                                         * @description Role validated by this operation's strict request contract.
+                                         * @enum {string}
+                                         */
+                                        role: "STAFF" | "ADMIN" | "SUPER_ADMIN";
+                                    } | null;
+                                    /** @description Branches validated by this operation's strict request contract. */
+                                    branches: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description Name validated by this operation's strict request contract. */
+                                        name: string;
+                                    }[];
+                                };
                                 /** @description User validated by this operation's strict request contract. */
                                 user: {
                                     /**

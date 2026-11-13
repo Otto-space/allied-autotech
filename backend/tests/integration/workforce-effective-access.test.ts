@@ -108,6 +108,18 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         });
       expect(accepted.status).toBe(200);
       expect(accepted.body.data).toMatchObject({ temporary: true, startsAt, expiresAt });
+      const recorded = await prisma.auditLog.findFirstOrThrow({
+        where: {
+          entityType: "USER",
+          entityId: target.user.id,
+          newValues: { path: ["assignmentId"], equals: accepted.body.data.id },
+        },
+      });
+      expect(recorded.newValues).toMatchObject({
+        workforceAction: "ASSIGN",
+        startsAt,
+        expiresAt,
+      });
       const regularPreview = await preview(owner, target.user.id, {
         ...grant("WORKSHOP_LEAD", f.home.id),
         startsAt,

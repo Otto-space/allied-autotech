@@ -11,7 +11,7 @@ import {
 it("versions the People explanation without widening access or treating partial checks as complete", () => {
   const article = learningArticles.find((item) => item.id === "access-review")!;
   expect(article).toMatchObject({
-    version: 8,
+    version: 9,
     gate: "access",
     href: "/admin/workforce/access",
     reviewedAt: "2026-11-13",
@@ -25,6 +25,8 @@ it("versions the People explanation without widening access or treating partial 
   expect(article.steps.join(" ")).toContain("partial summary");
   expect(article.steps.join(" ")).toContain("choose Give a customer staff access");
   expect(article.steps.join(" ")).toContain("does not remove existing account access");
+  expect(article.steps.join(" ")).toContain("not names at event time");
+  expect(article.steps.join(" ")).toContain("help does not grant audit access");
   expect(article.steps.join(" ")).toContain(
     "An unavailable check does not mean no access",
   );

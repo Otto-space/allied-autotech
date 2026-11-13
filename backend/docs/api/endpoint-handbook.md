@@ -27166,6 +27166,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `view` | query | ACCESS_CHANGES | No | Opt-in recorded duty, account-level, branch and invitation changes with minimal current staff context. Other activity remains in the full audit log. |
 | `userId` | query | string (uuid) | No | User Id used to constrain this request. |
 | `action` | query | READ / CREATE / UPDATE / DELETE / LOGIN / LOGOUT / LOGIN_FAILED / PASSWORD_RESET / EMAIL_VERIFIED / MFA_ENABLED / MFA_DISABLED / ROLE_CHANGE / ACCOUNT_SUSPENDED / ACCOUNT_DEACTIVATED / SESSION_REVOKED / STATUS_CHANGE / INVENTORY_ADJUSTED / PAYMENT_INITIALIZED / PAYMENT_VERIFIED / MANUAL_PAYMENT_APPROVED / REFUND_REQUESTED / REFUND_APPROVED / PAYMENT_REFUNDED / DISPUTE_UPDATED / VEHICLE_RESERVED / VEHICLE_RELEASED / INVITATION_CREATED / INVITATION_ACCEPTED / BRANCH_ASSIGNED | No | Action used to constrain this request. |
 | `entityType` | query | FITMENT_MAKE / FITMENT_MODEL / PRODUCT_FITMENT / USER / BRANCH / PRIVILEGED_INVITATION / SESSION / MFA_FACTOR / CUSTOMER_PROFILE / STAFF_PROFILE / CUSTOMER_VEHICLE / SERVICE / SERVICE_CATEGORY / BOOKING_SLOT / BOOKING / QUOTE / WORK_ORDER / PRODUCT / INVENTORY / ORDER / PAYMENT / PAYMENT_ATTEMPT / REFUND / DISPUTE / VEHICLE / VEHICLE_LISTING / VEHICLE_TRANSACTION / INSPECTION / REVIEW / ENQUIRY / COMPLAINT / PROMOTION / INVOICE | No | Entity Type used to constrain this request. |

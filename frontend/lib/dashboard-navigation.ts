@@ -201,6 +201,7 @@ const operationalGroups: DashboardGroup[] = [
         roles: ["SUPER_ADMIN"],
       },
       adminOnly("/admin/staff/invite", "Invitations & staff access"),
+      adminOnly("/admin/team/history", "Change history"),
       adminOnly("/admin/audit", "Audit log"),
     ],
   },
