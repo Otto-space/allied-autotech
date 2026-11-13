@@ -1,3 +1,196 @@
+## 14 November - release gate corrections and current calendar acceptance
+
+Held combined source2e492b81 passes16/16 booking-calendar cases in dedicated Edge:
+all seven requested viewports plus1366/1440, centered/full-phone-width layout,
+keyboard/date selection, close/focus return, failed/inconsistent reads, session
+invalidation, offline recovery, stale-month rejection and touch detail navigation.
+Desktop and320px month captures were reviewed. This is hosted rendering with
+isolated fixtures, not real bookings or physical-device acceptance. Evidence:
+TEMP/allied-calendar-held-2e492b81/report.json. Prior held diagnostic/privacy8/8
+also remains valid for2e. Neither candidate is published.
+
+Frontend43517656682 failed one of1267 cases: at320px an enlarged selected-person
+identity caused the password field to be covered by the support dock. CI screenshot
+and trace are retained under TEMP/allied-c48-ci-focus. Ordinary local Edge and
+Chromium checks each passed2/2, so timing alone did not reproduce the failure.
+A native scrollIntoView(start) differential reproduced the exact CI occluders with
+old CSS; the corrected CSS passes at320/1440. The document already reserves the
+header with scroll-padding; person controls now add only the sticky person bar to
+scroll-margin. The existing regression explicitly exercises that native alignment.
+TEMP/allied-workforce-scroll-differential-retry-2e492b81/report.json records one
+intentional baseline failure and two corrected passes, not a clean three-case pass.
+An earlier comparison was interrupted by the disk guard and is not acceptance.
+
+Newer frontend43520835587 failed before browser tests: ubuntu-latest resolved to
+Ubuntu26.04 with package sources unable to locate browser libraries. Pin the
+frontend runner to supported Ubuntu24.04. Parsed workflow comparison confirms
+only runs-on changed; all gates/steps/permissions remain. Scoped lint/format and
+final compiled/new-source CI remain the appropriate release checks. No permission,
+capability, database or provider setting changed. Full brief scope remains active.
+
+## 13 November - Vehicles gallery touch-target follow-up before publication
+
+Compiled follow-up source3b5c0457, held deploymentdpl_btSK2rd1tPCdX9sdYFmPdhiebuya,
+passes four actual public BMW native-touch cases at320/390/850/930. Previous/next,
+thumbnail selection and the44px expand control are unobstructed at the dock height
+and keep scroll unchanged; modal arrows, Escape and focus restoration pass. Scoped
+main/footer Axe at320 reports zero violations. No page errors or application writes.
+Reviewed320 and settled390 captures; the first390 image capture was progressive
+loading, so a separate decoded-photo capture is retained. Evidence:
+vehicle-gallery-3b5-compiled-qa.json and vehicle-gallery-3b5-*.png in the same TEMP folder.
+Source lint/format/types/diff pass. PR75 incorporates current masterc48cf7b1 while
+preserving both journals; gallery source files are identical to the reviewed build.
+The8e frontend run was cancelled externally and is not a pass. Backend release work
+has advanced to release-backend-c48cf7b1-20261113; older64064 runtime equivalence below
+applies only to8e, not the newer audit diagnostic contract. Final exact-master gates,
+matching backend and live publication remain outstanding. Do not publish held8e.
+
+PR73 is integrated at master8e4325f9. Exact-master Backend43515502226 and
+Secrets43515502628 passed; Frontend43515502392 is running its full runtime matrix.
+Clean production-environment candidate dpl_6gc8dzEBamgjvrEumHHmKoEibHqc is held,
+with public domains still on verifiede002/dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y.
+The candidate passed nine catalogue geometries and two scoped Axe scans, but a
+real320px BMW detail review exposed the compact WhatsApp dock covering part of
+View photos. The right-edge native hit is obstructed. This prevents Group4
+publication despite the earlier catalogue and gallery-focus observations.
+
+Evidence: TEMP/aat-stitch-implementation-20261109/vehicle-gallery-8e-overlap-baseline.json
+and vehicles-master-8e-bmw-320.png. Continue in the same worktree on
+codex/vehicle-gallery-clearance-20261113. Source reserves the dock rail for gallery
+controls/thumbnails, gives the compact expand action its existing accessible name,
+and uses the shared carousel marker for updates that should keep the page still.
+Four native-touch regression cases cover320/390/850/930 in the existing isolated
+vehicle-engine runtime project. Final compiled, exact-master and live checks remain.
+
+The other backend task has live packaging processes for64064fe9 in
+TEMP/aat-attendance-20261104/package-master-64064fe9-20261113. Its backend runtime
+matches8e4325; their only backend-path difference is this tracker. Do not duplicate
+its rollout or claim it completed. Account-reference inspection is read-only
+preparation only (auth-current-preparation.json); no Group5 implementation started.
+Keep Groups4-10/full119-template and all stated role/device limits open.
+
+## 13 November 22:35 UTC - master checks preserved; remaining acceptance boundaries
+
+CI-only PR 76 is merged as 5f9c5921. New master pushes now leave the active
+frontend gate running and retain the latest pending candidate. Feature/PR runs
+still cancel superseded work. YAML parses; comparison confirms all jobs, steps,
+triggers, permissions and the concurrency group are unchanged. Four ref cases,
+Prettier and git diff --check pass. After merge, c48cf7b1 frontend run 43517656682
+remains in progress and 5f9c5921 run 43519935664 is pending. This is observed queue
+behavior, not a completed matrix or permission to publish unchecked application
+source. Backend and secrets pass for c48; its frontend gate remains outstanding.
+
+The prepared 8e4325f9 backend package passed all nine actual-image runtime probes,
+canonical migration-image checksum guards and six current/recovery image read-only
+checks against the separate restored schema-112 database. The temporary SELECT-only
+probe role was removed. All four immutable images were pushed; no production rollout
+is claimed. Its frontend run 43515502392 was cancelled by the next master push,
+so that package is not a qualified release. Newer c48 includes email/privacy
+backend changes and must not be treated as runtime-identical to 8e4 or relabelled
+with that package. Existing production/recovery resources remain preserved.
+
+Two further owned-browser background-tab probes did not establish hidden state.
+The first used separate contexts with Playwright's focus override; the corrected
+same-context headed Edge probe disabled that override but still observed visible
+instead of hidden. These are failed acceptance attempts, not proof of a carousel
+regression or successful background lifecycle coverage. The owned browser closed.
+Actual background-tab suspension remains unverified; no synthetic event is counted.
+Evidence: TEMP/aat-attendance-20261104/live-hero-native-tab-visibility-20261113.json.
+
+The connected-browser inventory reports browser access host unavailable and native
+pipe unavailable. No owner browser, session or private records were accessed.
+Authorised read-only real-role acceptance awaits the normal browser connection;
+no authentication bypass or replacement private profile was used. The owner has
+been asked once to restore the connection when available. Isolated fixtures,
+public Edge emulation, provider test mode and physical-device acceptance remain
+separate. No capability flag, real business record or database permission changed.
+
+C: measures 21.27 GiB free. The specifically approved compiler cache remains
+retained because automatic approval review rejected deletion earlier; there was
+no alternative deletion attempt. The full original briefs and D01-D17 remain
+active. Preserve the separate dirty D17 financial-exception/migration work; this
+CI/documentation batch does not complete or publish it. No new business decision
+is required for the scheduling repair.
+
+## 13 November 21:53 UTC - public search and Services controls verified live
+
+Published application source e0021792 combines the search draft-load repair d9c733aa
+with the independently implemented Services support-rail/native-focus repair.
+All exact-master gates passed: Frontend 43504882640, Backend 43504882711 and
+Secrets 43504882729. Frontend reports 1,575 unit passes and 12 existing conditional
+skips; the main production-build browser matrix passes 1,163 cases in 39.4 minutes.
+Focused 15 WebKit, 21 media, 13 order and 15 Parts passes overlap that matrix; do not
+sum them as unique whole-site coverage. Scoped lint/format, full local TypeScript
+and nine search units also passed. The d9 frontend run was superseded/cancelled,
+not passed; source e002 is the qualified release.
+
+Initial loading now preserves a typed public-search query and selected catalogue.
+The form resets only persisted pageshow history, while existing popstate and
+back_forward reconciliation remain. Native slow-logo cases were added at 320/1280
+in the existing cross-browser recovery suite. Real live baseline: the initially
+hydrated form lost diagnostics when the held logo finished. The first intercept
+missed its deployment query suffix; the corrected wildcard reproduced the defect.
+
+Held production input-preservation passes 320/390/1280/1440. The authenticated HTTP
+relay cannot replay native redirects: Playwright follows the next hop outside the
+handler. Failed protected navigation attempts remain failed/inconclusive; server
+reads independently verify the correct 307 and Services 200. A separate same-project
+Preview uses existing short-lived development OIDC, scoped only to that origin;
+no Trusted Sources rule, share link or token file was created. All four native
+preview search/destination checks pass after document/fonts settle. Earlier short
+readiness/unsuccessful navigation and pre-style overflow checks remain recorded;
+the settled 320 layout passes. Preview filter preconditions had no service rows;
+no real or sample inventory was created to satisfy them.
+
+Before promotion, source, all three gates, production-environment READY candidate,
+unchanged backend application, four current backend digests and public health were
+verified. A concurrent Services workstream promoted production deployment
+dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y from the same exact source e002. Both apex and www
+identify that READY release. Our accepted candidate-promotion request targeted
+dpl_DX3mdpBrExSCyNPfmDiw7sgi5uwu; observed domain identity is authoritative and no
+second reassignment was made. Backend 36687b08/source 6a/schema 112 remains compatible;
+this UI batch made no database, capability-setting or business-record mutation.
+
+Direct public Edge checks then pass all four search widths, including real delayed
+logo load, retained input/scope, native submission, destination heading and settled
+no-overflow layout. Services passes 320x720, 390x844, 850x720 and 930x430: 12 native touch
+edge selections, URL/selected state, no tap-induced scroll jump, keyboard arrows,
+focus visibility and page overflow. These use actual public services; earlier held
+category/filter readiness failures are not counted as hosted interaction passes.
+At 390/1440, actual combined search/detail/Back/reload/two-Escape-return checks pass,
+including an unsent edit being reconciled to the applied diagnostics query.
+No page exceptions or real submissions occurred. Native touch is browser emulation.
+
+On source 6a, six direct public supplemental hero cases pass: offscreen pause/return, persistent
+manual and focus pause, reduced motion/manual navigation and the no-JavaScript first
+slide. Retain the later owner preference that laptop hover continues autoplay.
+The earlier three real-time loops and slow/all-failed-image checks remain applicable
+to unchanged hero source. Actual background-tab suspension remains unverified:
+headless Edge kept the old tab visible after another tab was activated. No synthetic
+visibility event is presented as real lifecycle acceptance. Pre-release source 6a passed sixteen public page/viewport checks and fourteen
+internal header/footer GET destinations.
+
+Evidence is in TEMP/aat-attendance-20261104/: live-search-native-e002-20261113.json,
+live-services-e002-clearance-20261113.json, live-search-history-e002-20261113.json,
+held-search-e0021792-preservation-20261113.json, preview-search-native-ready-e002-
+20261113.json, live-hero-supplemental-final-20261113.json and live-public-navigation-
+20261113.json. Safe before: search-load-reset-reproduced-390-20261113.png; live after:
+search-load-reset-public-after-390-20261113.png. Reviewed phone captures show the
+preserved query and clear native Services controls. Loading captures remain labelled
+as loading, not settled catalogue acceptance.
+
+This public UI batch is published and verified. The full original audit/D01-D17 goal
+remains active: D17 integration/financial exception work, authorised real-role and
+provider acceptance, physical-device/Safari and genuine operator information remain
+separate. D17's latest separate branch is d8c90263; preserve its active work and 123-
+migration recovery requirements. Current master 64064fe9 adds independently approved
+staff-access work; it is incorporated locally and must receive its own exact-source,
+compatible-backend and publication checks. This entry does not publish that newer
+staff workflow or claim whole-site readiness. No new owner decision is needed for
+this UI repair. The configured signing requirement stays enabled; native Windows
+ssh-keygen uses the existing SSH agent successfully. The compiler cache remains
+retained after the earlier automatic approval rejection; no alternate delete ran.
+
 ## 13 November - verified privacy, promotions and delivery checkpoint
 
 Candidate source: 4d3c72e4ccfe80e32a11dee3dc91a5e16af341ae (PR 70).
