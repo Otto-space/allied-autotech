@@ -1,3 +1,136 @@
+## 13 November - consolidated T02 integration checkpoint
+
+PR71 now contains the dated-cover and invitation-task changes as one coherent
+access-management batch and supersedes PR69 for integration. Both original commit
+histories and all test evidence remain retained; the cover branch is not retired.
+Merge current master d9c733aa's public-search input repair and d2dcc1ab's completed
+compatible-release evidence without losing either journal. Earlier running or
+superseded frontend checks are not passing exact-source gates. Require fresh
+checks for the combined source and exact master before publication. The access-
+history implementation draft is preserved separately in the existing worktree's
+labelled stash/branch; it is not part of this release batch.
+
+## 13 November - explicit invitation tasks and current release reconciliation
+
+Both approved briefs remain active. Continue T02 in allied-team-media-20261110,
+branch codex/team-invitations-20261113, based on dated-cover PR69/head11231149.
+The invitation page now separates giving an existing customer staff access from
+inviting existing staff to administrator access. Neither task is preselected.
+Search begins after a choice; switching clears the prior account, branch and
+password. Server-returned eligibility and all existing mutation/preflight, MFA,
+password, delegation and uncertain-result safeguards remain authoritative.
+
+Reviews keep the selected person above scrolling details and show current and
+proposed account levels and actual session effects. Cancel unused invitation
+disables only the unused link, preserving existing access. Accepted is explicitly
+historical and queued email does not claim delivery. Existing routes and API
+contracts are preserved. Restricted access-review help is v8; eligibility and
+production flags remain unchanged. No grant, invitation or business write was
+made against production.
+
+Verification: 19 focused frontend units, 16 backend learning units, frontend
+production build/types, backend types and scoped lint/format pass. All 32 final
+production-build Edge fixture journeys pass at 320x720, 360x800, 390x844, 430x932,
+768x1024, 1024x768, 1280x720 and 1440x900. Eight Axe scans find no violations; both
+task controls have comfortable label targets and unobstructed native radio hits
+in the initial viewport. Checks include task switching, wrong account type,
+server-declared ineligibility, owner/all versus Admin/own records, ordinary Staff
+denial, fresh identity/eligibility checks, exact request bodies, cancellation,
+filter/cursor reload/Back, lost/malformed responses, storage failure and no
+automatic resubmission. These are intercepted fixtures, not real role mutations.
+
+Evidence: TEMP/allied-team-invitations-20261113/compact-report.json, compact-results
+and compact-build.log. The earlier 32-case final-report also passes; its 320px
+capture exposed long hints that hid the second task below the first screen.
+Shorter task hints keep both choices visible; full consequences remain beside
+lookup and review. Baseline two-case evidence is retained. The initial fixture
+port was occupied, so dedicated loopback 5027/3127 and a task-owned launcher were
+used without touching the other process. Browser plugin is unavailable; installed
+Edge is the Playwright fallback. Physical devices, branded Safari, full screen
+reader and authenticated live role acceptance remain unverified. Local dependency
+junctions still cause 27 standalone trace warnings; do not publish that artifact.
+
+A concurrent compatible release completed at 20:28 UTC: both aliases now identify
+READY dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5, preserving the www-to-apex 308. Fresh provider
+reads confirm those identities. The release worktree records exact source6a9318a6,
+all three exact-master gates, protected populated 102-to-112 restore, guarded live
+migration and ACTIVE backend36687b08 with 13 healthy heartbeats. Preserve its new
+release/recovery receipts and pending documentation commit; older b122-only state
+notes are historical. Vehicle b122 is an ancestor of6a, so its completed brief is
+preserved. People PR63 is now included in published source, while real-role
+acceptance remains separate. Cover and this invitation follow-up are not live.
+
+PR69's corrected backend43499155122 and secrets43499154991 pass; frontend43499155174
+is still running. It must integrate without losing the current release; exact-master
+gates and verified matching artifacts are required before another publication.
+Remaining T02 history/access reviews and T01 sections, then T03-T07 workspaces,
+media boundaries/library, bulk photos, videos and the full acceptance matrix stay
+open. No requirement is dropped or counted complete by this bounded package.
+
+## 13 November - temporary-cover end dates and truthful access reviews
+
+Both approved briefs remain active. People PR63 is merged at34cb9f02, whose
+Frontend43477360114, Backend43477360092 and Secrets43477360202 all passed.
+Continue T02 in the existing allied-team-media-20261110 worktree on
+codex/team-cover-20261113. Preserve the later e393b7d3 invoice/Parts evidence and
+the active backend-release-evidence worktree; do not publish ahead of its
+compatible-backend and migration-package integrity work.
+
+New temporary-cover requests require an end date at the client and server.
+Regular duties may remain open-ended. Existing historical null-end assignments
+and revocation/read schemas are unchanged; no existing assignment is rewritten.
+Date fields explicitly use Africa/Lagos and convert using that zone rather than
+the device zone. Los Angeles/Tokyo fixtures verify midnight/year rollover through
+review and save. Future cover remains inactive before its recorded start.
+
+Access review now keeps the selected person outside its scrolling details.
+First enrollment explains revoked sessions and cancelled unused access invitations,
+with Staff and retained Admin account-level effects distinguished. Position-only
+updates correctly explain kept sessions/duties and cancelled unused invitations.
+No role, authority, historical duty definition or independent approval is changed.
+Restricted access-review help advances to v7 with eligibility/flags unchanged.
+
+Evidence so far:31 focused frontend units,16 learning units, frontend build/types,
+backend types, scoped lint and465-path OpenAPI validation pass. Regenerate canonical
+handbook/types and547-operation inventory; the inventory also catches the existing
+People identity/management-branch projections. Fresh112-migration replay and28
+isolated HTTP/learning cases pass with a non-owner runtime role and no DDL/TRUNCATE.
+Three provisioned-workspace cases remain skipped. An extended single policy case
+also verifies regular duties without an end; its other30 filtered cases are not
+new passes. All task-created synthetic databases/roles were explicitly cleaned up.
+Protected populated snapshots and application databases remain untouched.
+
+The first isolated run exposed disabled learning-fixture flags and an old scheduled
+cover without an end; only the isolated test environment and fixture were corrected.
+Browser coverage had33/36 initial passes; two old source-label assertions and an
+ambiguous account/duty Active locator were corrected. The delegated form's initial
+collapsed disclosure was retained and did not recur in three fresh targeted runs.
+A clean36-case production-browser run then passed. The final persistent-review
+subject build also passes all36 cases, including visible end-date/target checks.
+Add both full form/Care suites to existing runtime CI and effective-access HTTP
+tests to the existing fresh Admin CI database. Keep timeouts and safety checks.
+
+PR69's first backend gate exposed two older workforce-access fixtures whose
+temporary cover omitted an end date. They stopped at validation before password,
+delegation and concurrency checks. Added valid end dates without changing the
+403/200/409 assertions. All 52 cases in the same five-file CI group then passed
+on a fresh isolated 112-migration database with non-owner runtime privileges;
+cleanup is verified in TEMP/allied-people-tests-325b41594c00. The initial failed
+hosted run 43497279114 is retained and is not a passing release gate.
+
+Artifacts: TEMP/allied-team-cover-20261113; isolated receipts in
+allied-people-tests-465d2f8fa1bf and allied-people-tests-c5dfc405f82f. Failed setup
+receipts in allied-people-tests-2f7b57eba532 are retained, including cleanup proof.
+No production migration, grant, invitation, business-record write or rollout is
+claimed by this cycle. Final browser evidence is subject-report.json with reviewed
+320/1440 date-review captures. Local dependency-junction standalone warnings remain a
+local artifact limitation; publish only verified clean-source provider artifacts.
+
+T01 and the rest of T02 remain partial; invitations, history/reviews, full account/job
+composition and T03-T07 media/workspace/bulk-photo/video scope are still required.
+Reuse the existing ledger and matrix. Latest C: preflight22.22GiB; preserve20GiB
+and all active releases/recovery resources. This checker is not a machine-wide quota.
+
 ## 13 November 20:42 UTC - public search load-race repair
 
 Current published source6a remains live on both domains with compatible backend112.

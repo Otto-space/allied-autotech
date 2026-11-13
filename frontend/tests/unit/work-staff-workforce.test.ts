@@ -11,7 +11,8 @@ const actor = id(302),
 it("rejects invalid dates, reversed intervals and short reasons without accepting password metadata in receipts", () => {
   expect(() => workforceLocalTime("2026-02-30T10:00")).toThrow();
   expect(() => workforceLocalTime("not a date")).toThrow();
-  expect(workforceLocalTime("2026-10-19T10:15")).toMatch(/^2026-10-19T/);
+  expect(workforceLocalTime("2026-10-19T10:15")).toBe("2026-10-19T09:15:00.000Z");
+  expect(workforceLocalTime("2026-10-19T00:15")).toBe("2026-10-18T23:15:00.000Z");
   expect(() =>
     workforceBody("assign", {
       currentPassword: "synthetic",
@@ -31,6 +32,27 @@ it("rejects invalid dates, reversed intervals and short reasons without acceptin
       expectedVersion: 1,
     }),
   ).toThrow();
+});
+it("requires an end only for new temporary cover", () => {
+  const input = {
+    currentPassword: "synthetic",
+    reason: "Reviewed temporary coverage",
+    expectedVersion: 0,
+    template: "WORKSHOP_LEAD",
+    branchId: id(101),
+    temporary: true,
+    startsAt: stamp,
+    expiresAt: null,
+  };
+  expect(() => workforceBody("assign", input)).toThrow(
+    /Choose an end date and time for temporary cover/,
+  );
+  expect(workforceBody("assign", { ...input, temporary: false })).toMatchObject({
+    expiresAt: null,
+  });
+  expect(
+    workforceBody("assign", { ...input, expiresAt: "2026-10-20T08:00:00.000Z" }),
+  ).toMatchObject({ expiresAt: "2026-10-20T08:00:00.000Z" });
 });
 it("validates target, actor, version and preserved delegation in enrollment and delegation receipts", () => {
   const r = staffWorkforceRecord(),

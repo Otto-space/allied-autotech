@@ -31,6 +31,22 @@ const searchSchema = z.object({
   email: z.email("Enter the account’s exact email address.").max(254),
 });
 const defaults: InvitationValues = { currentPassword: "", branchId: "" };
+type AccessTask = "staff-access" | "administrator-invitation";
+const invitationStatus = {
+  PENDING: "Pending",
+  ACCEPTED: "Accepted",
+  REVOKED: "Cancelled",
+  EXPIRED: "Expired",
+};
+const invitationExplanation = {
+  PENDING: "Awaiting acceptance. Queued email does not confirm delivery.",
+  ACCEPTED:
+    "Accepted previously. Check the person's current access before relying on this history.",
+  REVOKED:
+    "Unused link cancelled. Cancelling this invitation did not remove existing account access.",
+  EXPIRED:
+    "This link has expired and cannot grant access. Existing account access is unchanged.",
+};
 export function StaffInvitationForm() {
   const session = useAccountSession();
   if (!session) return null;
@@ -57,6 +73,7 @@ function InvitationWorkspace() {
     defaultValues: defaults,
   });
   const [email, setEmail] = useState("");
+  const [task, setTask] = useState<AccessTask>();
   const [branchLabel, setBranchLabel] = useState("");
   const [message, setMessage] = useState<string>();
   const [passwordShown, setPasswordShown] = useState(false);
@@ -108,7 +125,21 @@ function InvitationWorkspace() {
     setPasswordShown(false);
   }, [form, search]);
   const mutation = useAccountMutation(reset);
-  const candidate = candidates.data?.items[0];
+  const found = candidates.data?.items[0];
+  const candidate =
+    found &&
+    ((task === "staff-access" && found.role === "CUSTOMER") ||
+      (task === "administrator-invitation" && found.role === "STAFF"))
+      ? found
+      : undefined;
+  const candidateName = candidate
+    ? [
+        candidate.profile?.firstName ?? candidate.staffProfile?.firstName,
+        candidate.profile?.lastName ?? candidate.staffProfile?.lastName,
+      ]
+        .filter(Boolean)
+        .join(" ") || candidate.email
+    : undefined;
   const baseDisabled =
     mutation.busy ||
     mutation.sessionChanged ||
@@ -144,7 +175,7 @@ function InvitationWorkspace() {
   if (!allowed)
     return (
       <>
-        <h1>Promotions & invitations</h1>
+        <h1>Invitations & staff access</h1>
         <Feedback
           message={
             own.error ||
@@ -174,6 +205,7 @@ function InvitationWorkspace() {
       {(coordinator, recovery) => {
         const disabled = baseDisabled || coordinator.locked;
         const searchDisabled =
+          !task ||
           coordinator.locked ||
           mutation.busy ||
           mutation.sessionChanged ||
@@ -189,18 +221,17 @@ function InvitationWorkspace() {
                 </li>
                 <li>
                   <ChevronRight size={14} aria-hidden="true" />
-                  <span aria-current="page">Promotions & invitations</span>
+                  <span aria-current="page">Invitations & staff access</span>
                 </li>
               </ol>
             </nav>
-            <h1>Promotions & invitations</h1>
+            <h1>Invitations & staff access</h1>
             <p className="wsi-intro">
-              Promote a verified customer to branch staff, or invite an existing staff
-              member to become an administrator.
+              Choose the access change, then find and review the existing account.
             </p>
             <div className="wsi-links">
               <Link className="text-link" href="/admin/staff">
-                Staff directory
+                People
               </Link>
               <Link className="text-link" href="/admin/audit">
                 Access-change audit history
@@ -210,8 +241,59 @@ function InvitationWorkspace() {
             {recovery}
             <div className="wsi-top">
               <section className="detail-section wsi-lookup">
-                <h2>Find an existing account</h2>
-                <p className="muted">Search using the account’s exact email address.</p>
+                <fieldset
+                  className="wsi-tasks"
+                  disabled={
+                    coordinator.locked || mutation.busy || mutation.sessionChanged
+                  }
+                >
+                  <legend>1. Choose an access change</legend>
+                  {(
+                    [
+                      [
+                        "staff-access",
+                        "Give a customer staff access",
+                        "Immediate staff access",
+                      ],
+                      [
+                        "administrator-invitation",
+                        "Invite staff to administrator access",
+                        "Invitation and acceptance",
+                      ],
+                    ] as const
+                  ).map(([value, label, hint]) => (
+                    <label className="wsi-task" key={value}>
+                      <input
+                        type="radio"
+                        name="access-task"
+                        value={value}
+                        checked={task === value}
+                        onChange={() => {
+                          reset();
+                          setTask(value);
+                        }}
+                        aria-labelledby={`task-${value}-label`}
+                        aria-describedby={`task-${value}-help`}
+                      />
+                      <span>
+                        <strong id={`task-${value}-label`}>{label}</strong>
+                        <span id={`task-${value}-help`}>{hint}</span>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
+                <p className="muted">
+                  Switching tasks clears the account search and password. Access changes
+                  only after you confirm a review.
+                </p>
+                <h2>2. Find the existing account</h2>
+                <p className="muted">
+                  {task === "staff-access"
+                    ? "Find an active, verified customer using their exact email. Choose an active staff branch and review the immediate access change. This does not create a new account."
+                    : task === "administrator-invitation"
+                      ? "Find existing staff using their exact email. Eligibility is checked against your current authority. Administrator access starts only after they sign in, complete MFA and accept. This does not create a new account."
+                      : "Choose an access change to begin the account search."}
+                </p>
                 <form
                   data-draft-key="staff-invitation-form:1"
                   noValidate
@@ -260,29 +342,23 @@ function InvitationWorkspace() {
                 {email &&
                   !candidates.loading &&
                   !candidates.error &&
-                  candidates.data?.items.length === 0 && (
+                  candidates.data &&
+                  !candidate && (
                     <p>
-                      No active, verified customer or staff account matches this email.
+                      No eligible {task === "staff-access" ? "customer" : "staff"} account
+                      matches this task and email. Check the selected task and exact
+                      email.
                     </p>
                   )}
                 {candidate && !candidates.error && !candidates.loading && (
                   <>
                     <div className="wsi-candidate">
                       <div>
-                        <h3>
-                          {[
-                            candidate.profile?.firstName ??
-                              candidate.staffProfile?.firstName,
-                            candidate.profile?.lastName ??
-                              candidate.staffProfile?.lastName,
-                          ]
-                            .filter(Boolean)
-                            .join(" ") || candidate.email}
-                        </h3>
-                        <p>{candidate.email}</p>
+                        <h3>{candidateName}</h3>
+                        {candidateName !== candidate.email && <p>{candidate.email}</p>}
                       </div>
                       <div>
-                        <span>Current role</span>
+                        <span>Current account level</span>
                         <strong>
                           {candidate.role === "CUSTOMER" ? "Customer" : "Staff"}
                         </strong>
@@ -301,8 +377,8 @@ function InvitationWorkspace() {
                     {!candidate.management.canPromote &&
                       !candidate.management.canInvite && (
                         <p className="notice">
-                          This account is not currently eligible for promotion or an
-                          administrator invitation.
+                          This account is not currently eligible for the selected access
+                          change. Its access has not changed.
                         </p>
                       )}
                     {(candidate.management.canPromote ||
@@ -326,14 +402,35 @@ function InvitationWorkspace() {
                             {
                               title:
                                 candidate.role === "CUSTOMER"
-                                  ? "Promote this customer to staff?"
-                                  : "Invite this staff member to ADMIN?",
+                                  ? "Give this customer staff access?"
+                                  : "Invite this staff member to administrator access?",
+                              subject: `Selected person: ${candidateName}`,
                               description:
                                 candidate.role === "CUSTOMER"
                                   ? "This grants branch operational access and revokes existing sessions. The account keeps its credentials and must complete MFA when signing in as staff."
-                                  : "This queues a private invitation and replaces earlier unused invitations for this account. Administrator access is granted only after the intended staff member signs in, completes MFA and accepts. Queued email does not confirm delivery.",
+                                  : "This queues a private invitation and replaces earlier unused invitations for this account. Their access and sessions stay unchanged until acceptance. Administrator access is granted only after the intended staff member signs in, completes MFA and accepts. Acceptance revokes their sessions and requires a new sign-in. Queued email does not confirm delivery.",
                               facts: [
                                 { label: "Account", value: candidate.email },
+                                {
+                                  label: "Current account level",
+                                  value:
+                                    candidate.role === "CUSTOMER" ? "Customer" : "Staff",
+                                },
+                                {
+                                  label: "Proposed account level",
+                                  value:
+                                    candidate.role === "CUSTOMER"
+                                      ? "Staff, immediately after confirmation"
+                                      : "Administrator, only after acceptance",
+                                },
+                                ...(candidate.staffProfile?.branch
+                                  ? [
+                                      {
+                                        label: "Current branch",
+                                        value: candidate.staffProfile.branch.name,
+                                      },
+                                    ]
+                                  : []),
                                 {
                                   label: "Access",
                                   value:
@@ -365,7 +462,7 @@ function InvitationWorkspace() {
                                   )
                                     throw new Error("Unexpected promotion result");
                                   setMessage(
-                                    "Staff promotion recorded. Existing sessions were revoked.",
+                                    "Staff access recorded. Existing sessions were revoked.",
                                   );
                                 } else {
                                   const result = parseQueuedInvitation(
@@ -475,7 +572,7 @@ function InvitationWorkspace() {
                           </div>
                           <button className="button">
                             {candidate.role === "CUSTOMER"
-                              ? "Review staff promotion"
+                              ? "Review staff access"
                               : "Review administrator invitation"}
                           </button>
                         </fieldset>
@@ -512,7 +609,7 @@ function InvitationWorkspace() {
                     {session?.user.role === "SUPER_ADMIN"
                       ? "All administrator invitations."
                       : "Invitations you created."}{" "}
-                    Accepted, revoked and expired links cannot grant access.
+                    Accepted, cancelled and expired links cannot grant further access.
                   </p>
                 </div>
                 <div className="wsi-toolbar">
@@ -531,7 +628,7 @@ function InvitationWorkspace() {
                       <option value="">All statuses</option>
                       {["PENDING", "ACCEPTED", "REVOKED", "EXPIRED"].map((value) => (
                         <option key={value} value={value}>
-                          {value.charAt(0) + value.slice(1).toLowerCase()}
+                          {invitationStatus[value as keyof typeof invitationStatus]}
                         </option>
                       ))}
                     </select>
@@ -592,7 +689,7 @@ function InvitationWorkspace() {
                         className={`wsi-status wsi-status-${item.status.toLowerCase()}`}
                         data-status={item.status}
                       >
-                        {item.status.charAt(0) + item.status.slice(1).toLowerCase()}
+                        {invitationStatus[item.status]}
                       </span>
                       <dl>
                         <div>
@@ -628,19 +725,22 @@ function InvitationWorkspace() {
                             </dd>
                           </div>
                           <div>
-                            <dt>Revoked</dt>
+                            <dt>Cancelled</dt>
                             <dd>
                               {item.revokedAt
                                 ? formatBusinessDate(item.revokedAt)
-                                : "Not revoked"}
+                                : "Not cancelled"}
                             </dd>
                           </div>
                         </dl>
                       </details>
                     </div>
+                    <p className="wsi-status-explanation">
+                      {invitationExplanation[item.status]}
+                    </p>
                     {(item.status === "PENDING" || item.status === "EXPIRED") && (
                       <details className="wsi-revoke">
-                        <summary>Revoke invitation</summary>
+                        <summary>Cancel unused invitation</summary>
                         <p>
                           This disables the unused link. Existing account roles are
                           retained.
@@ -651,7 +751,8 @@ function InvitationWorkspace() {
                           onReview={(password) =>
                             coordinator.review(
                               {
-                                title: "Revoke this invitation?",
+                                title: "Cancel this unused invitation?",
+                                subject: `Invitation for: ${item.email}`,
                                 description:
                                   "The invitation link will no longer grant access. This does not change an existing account role.",
                                 facts: [
@@ -691,7 +792,9 @@ function InvitationWorkspace() {
                                     result.expiresAt !== item.expiresAt
                                   )
                                     throw new Error("Unexpected revocation result");
-                                  setMessage("Invitation revoked.");
+                                  setMessage(
+                                    "Unused invitation cancelled. Existing account access is unchanged.",
+                                  );
                                   invitations.refresh();
                                 },
                               },
@@ -799,7 +902,9 @@ function RevokeInvitation({
       })}
     >
       <fieldset disabled={disabled}>
-        <label htmlFor={inputId}>Your current password to revoke {email}</label>
+        <label htmlFor={inputId}>
+          Your current password to cancel the invitation for {email}
+        </label>
         <div className="wsi-password">
           <input
             id={inputId}
@@ -829,7 +934,7 @@ function RevokeInvitation({
             {form.formState.errors.currentPassword.message}
           </p>
         )}
-        <button className="button secondary">Review revocation</button>
+        <button className="button secondary">Review invitation cancellation</button>
       </fieldset>
     </form>
   );

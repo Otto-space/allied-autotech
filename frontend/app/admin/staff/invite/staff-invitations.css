@@ -105,6 +105,66 @@
   margin: 16px 0 0;
   border: 0;
 }
+.wsi-tasks {
+  border: 0;
+  padding: 0;
+  margin: 0 0 24px;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.wsi-tasks legend {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.wsi-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  min-height: 44px;
+  border: 1px solid #c4cfd9;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.wsi-task:has(input:checked) {
+  border-color: var(--red, #ba0807);
+  background: #fff7f6;
+}
+.wsi-task:focus-within {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+.wsi-task input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--red, #ba0807);
+}
+.wsi-task > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.wsi-task strong,
+.wsi-task span span {
+  display: block;
+  line-height: 1.6;
+}
+.wsi-task span span {
+  margin-top: 4px;
+  color: #536579;
+}
+.wsi-tasks:disabled .wsi-task {
+  cursor: default;
+}
+.wsi-status-explanation {
+  margin: 12px 0 0;
+  max-width: 760px;
+  color: #405166;
+}
 .wsi-search > button {
   margin-top: 29px;
 }
