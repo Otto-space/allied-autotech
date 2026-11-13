@@ -1,101 +1,61 @@
-## 13 November 18:00 UTC - invoice acceptance and focused hierarchy correction
+## 13 November 17:50 UTC - person-context acceptance; integration continues
 
-Protected candidate 33WpkwzMd4mGR4HSmfGQ3kU2kkPe/source 96159a9 passes all
-73 existing invoice list/detail cases and 14 supplemental exact-viewport dialog
-cases. The latter cover draft review/cancel, issue review/cancel, private sharing,
-keyboard containment, Escape and restored focus at all seven required pairs.
-All writes were isolated fixtures; unmatched submissions were blocked. No real
-invoice, payment, message or permission was changed. Evidence is under
-TEMP/allied-invoice-acceptance-20261113/{report,geometry-report}.json.
+Both approved briefs remain active. PR57 is merged at65f14086;
+the unfinished person-context work is preserved on codex/team-media-context-20261113
+in the existing allied-team-media-20261110 worktree. Integrate current source
+without overwriting intervening Parts, booking, payment or invitation work.
+One stale learning assertion conflicted on restore: retain master's stronger
+People-entry assertion, then advance the revised guide to version6. The recovery
+stash is retained until the new batch is committed and verified.
 
-Rendered inspection nevertheless found excessive invoice-header height and a
-redundant Draft badge on /admin/invoices/:invoiceId (Admin fixture, 320x720 and
-1280x720). The large boxed progress panel displaced the invoice document/value.
-The focused correction retains the accessible current-stage badge and all stages,
-uses compact wrapping rows, and removes only the duplicate header badge. It is
-scoped to invoice detail; no API, amount, permission or lifecycle change. The
-existing issue/void test now asserts the retained semantic status badge.
-Seven before/prototype viewport comparisons pass, with smaller progress height,
-earlier invoice value, no horizontal overflow and unchanged review/cancel focus.
-This is CSS/DOM prototype evidence, not a compiled-source pass. A final specificity
-refinement accounts for existing dashboard spacing; its rerun and the compiled
-candidate remain required before publication. Scoped lint and formatting pass.
+Fresh provider reads confirm both public aliases still identify
+dpl_EdMgppUipQ81msnEmHCef4jZxx6m, the vehicle b1222a11 release. PR57's source
+merge is not production People acceptance. Vehicle publication evidence remains
+in TEMP/allied-vehicle-production-b1222a11, allied-vehicle-package-b1222a11,
+allied-vehicle-populated-b1222a11 and allied-vehicle-live-b1222a11/settled-report.json.
+No new backend rollout, migration or real account/grant write occurred this cycle.
 
-Branch b07cb009 Frontend 43468581713 now passes, alongside backend and secrets.
-These gates precede the invoice edit. Master has advanced to 34cb9f02 with People
-identity/focus changes; preserve that work and the Parts clearance correction.
-Reconcile the complete source and require exact-master gates before publication.
-The separate release owner continues backend package/restore work. This checkpoint
-does not claim production publication, real-role persistence, physical-device
-coverage or completion of the broader two-brief page register.
+Current batch: keep Selected person visible during long edits, offer a keyboard
+Overview return, group only server-reported allowed actions by task and show
+recorded dates for visible assignment sources in Lagos time. Earlier account
+setup no longer claims access is active for an inactive account. Account-level
+and separately approved access coverage remains explicitly partial. Learning
+access-review v6 describes the changed target without changing eligibility/flags.
+52 focused frontend units and16 learning cases pass. Frontend/backend TypeScript,
+scoped lint/format and the production build pass. Final runtimee32332f8 has14/14
+isolated production-build journeys: all eight requested widths, long names at
+320/1440 with selected-name text doubled and spacing enlarged, filter/return and
+failure recovery, delegated loss/copied-route denial and saved collection cancel
+focus. Person-page Axe at320/1440 and the existing directory scans pass. Two
+additional long-name checks exercise focused password input and review button.
+Evidence: TEMP/allied-team-context-20261113/focus-report.json and controls-report.json.
+No physical device, branded Safari, full screen-reader or real-role write is claimed.
 
-## 13 November 17:35 UTC - inventory acceptance and next invoice batch
+Retain the initial runner cwd failure, development chunk error and pre-fix captures.
+The first production assertions passed but visual review exposed a tall phone
+identity bar. Full phone width improves wrapping; stronger hit tests then found
+real320px focus occlusion. A local focus/resize handler now scrolls form controls
+clear of the measured bar and support clearance. Rounded button corners were
+excluded from geometric hit samples; painted edge midpoints remain required.
+Failed traces and original screenshots remain under the same task artifact root.
 
-Inventory list/detail completed 59 compiled Edge cases: 58 passed and one customer
-redirect timed out. A separate two-case run warmed the protected dashboard assets;
-both original customer-denial tests then passed unchanged, with no inventory reads.
-Retain the initial timeout; no application change was needed or inferred from it.
-All 14 exact-size review/cancel cases passed, including centered dialogs, full-width
-phone dialogs, preserved drafts, zero outgoing writes and restored opener focus.
-Long-record accessibility, stock-change recovery, stale facts, storage failure and
-revocation cases passed. Desktop and 320px review captures were inspected.
-Evidence: TEMP/allied-inventory-acceptance-20261113/{report,denial-report}.json.
-These intercepted scenarios do not establish real account/API authorization or
-database persistence. The next 73 existing invoice list/detail cases are running.
+PR63 contains this bounded follow-up. Reconcile current43170836, preserving the
+separate saved-removal correction and mobile product gallery/support clearance.
+Exact integrated-master gates and compatible publication remain pending. The
+local standalone trace warning comes from verified dependency junctions; this
+local package is not a portable deployment artifact. A separate112-schema Prisma
+client was generated offline at an unreachable loopback target after unlinking
+only this worktree's old client junction; the vehicle target remains untouched.
 
-Master advanced to 43170836 with a scoped mobile product-gallery clearance fix.
-Frontend 43469678572 was superseded/cancelled, not passed; current-master checks
-are 43473406595 (frontend), 43473406404 (backend) and 43473407181 (secrets).
-The earlier candidate remains useful evidence for unchanged shell/inventory code,
-but is not the final combined publication candidate. Preserve the release owner's
-112-migration recovery/package work and all unrelated active changes.
+Temporary-cover validation/timezone work is draft only, preserved in
+TEMP/allied-team-context-20261113/cover-draft.patch (three files; not applied).
+Next inspect/apply-check that draft and complete UI, authoritative request checks,
+historical open-ended preservation, contracts and isolated/browser evidence.
 
-## 13 November 17:28 UTC - compiled shell and saved-items acceptance
-
-Protected candidate dpl_33WpkwzMd4mGR4HSmfGQ3kU2kkPe/source 96159a9 passes all
-41 native cases: 28 role-by-viewport shell cases, one short-screen drawer case,
-and 12 saved-collection removal/cancellation cases across installed Edge and
-Chrome at 1280x720/320x720. No skips, failures or retries. Desktop shell, 320px
-drawer and 320px saved-vehicle captures were visually reviewed. Exact dimensions,
-phone/touch emulation, focus restoration and intercepted writes are test evidence;
-physical devices, real accounts and database persistence are not established.
-Evidence: TEMP/allied-dashboard-focus-20261113/report.json and results/. Installed
-Edge 157.0.4341.46 and Chrome 157.0.8103.51 were identified from their executables.
-
-Master 6e910f9b independently integrates the identical locator fix via a490589c.
-Git diff confirms its app/backend inputs and saved-navigation test match the
-candidate source. Preserve both documentation histories; PR61 remains draft for
-reconciliation, not another functional repair. Exact-master Frontend 43469678572
-is running; Backend 43469678576 passes. No public publication by this task.
-
-The reminder release workstream owns four 65f14086 backend images and 112 migrations;
-its packaged isolated replay/drift/separate-restore test passes. This does not
-replace compatible recovery, managed backup/PITR or populated production restore.
-Inventory list/detail acceptance is running 59 cases with synthetic intercepted
-APIs. Its first customer-redirect timeout remains unresolved; a separately warmed
-destination diagnostic preserves the original assertion. No inventory pass is
-inferred from source or collection. Full two-brief scope remains active.
-
-## 13 November - release reconciliation and saved-items test correction
-
-Current master 65f14086 contains the merged dashboard, Parts, reminder and People
-batches. Production aliases still identify dpl_EdMgppUipQ81msnEmHCef4jZxx6m at
-this read. Preserve all intervening source and the compatible backend release
-requirements; do not promote the older dashboard-only candidate.
-
-Frontend run 42820223870/job 129843578787 completed with 1,147 runtime passes and
-three failures, all the same cancellation test across Chromium, Firefox and
-WebKit. The test requests a button named "Remove Engine oil filter from favourite
-products"; actual rendered and source accessible name ends "from favourites".
-Correct that exact locator while preserving every navigation, focus, loaded-state
-and zero-write assertion. The earlier native run on 229a9298 passed 29 shell/drawer
-cases and two removal cases, then failed this locator twice; four Chrome cases
-were skipped by the failure cap. Those failures/skips remain recorded.
-
-Backend 42820223736 and Secrets 42820223809 passed for 65f14086. Corrected compiled
-acceptance, new-source/master CI, compatible backend rollout and public acceptance
-remain outstanding. The full two-brief goal and its remaining page/state coverage
-are active; no business facts, transactions or permissions were changed.
+T01 remains partial; T02-T07 are still required, including expiring cover,
+invitations/history, account/job workspaces, Digital Media Manager, public media,
+bulk vehicle photos and supported video. C: preflight25.51GiB with2GiB budget;
+latest check23.41GiB. Preserve the20GiB reserve and all existing recovery resources.
 
 ## 10 November 01:56 UTC - People identity and scoped directory group in progress
 
@@ -1170,7 +1130,7 @@ Exact-master 6538f4b5 frontend run42705393145 completed with879 passes and two
 failures. Both assertions ambiguously matched the global availability notice and
 the recovery result. Scope each status to its named result region; deliberately
 show a503 availability notice so the collision stays covered. All eight compiled
-Edge/Chrome desktop and 320px mobile/touch cases pass with unchanged application
+Edge/Chrome desktop and320px mobile/touch cases pass with unchanged application
 code. Evidence: TEMP/allied-auth-status-recheck-20261109/report.json. Secret
 clearing, generic copy, focus, session events and accessibility assertions remain.
 
@@ -11933,3 +11893,65 @@ Evidence: parts-grid-geometry-diagnostic.json. The earlier matcher omitted the
 stylesheet query and did not apply; that attempt is excluded. Application data,
 permissions, timing and enquiry behaviour are unchanged. Public remains b1222a11;
 source 2537650d's checked-format gate is superseded by this necessary visual repair.
+
+## 13 November - resume Parts acceptance on current master
+
+Revalidated the saved work against current providers and source. Both public aliases
+still identify dpl_EdMgppUipQ81msnEmHCef4jZxx6m, source b1222a11. Backend deployment
+2c40bd63-b8a7-4a45-9429-4e03734e581c remains ACTIVE with the same four image digests
+and no pending rollout. Preserve that release and all compatible recovery resources.
+The prior Parts master 103fd467 frontend was cancelled and its backend gate failed
+an isolated session-expiry fixture; neither is a release pass. Current master65f14086
+contains its Parts correction plus the approved dashboard, collection/reminder,
+payment and scoped People work. Fast-forwarded the existing clean design worktree
+without replacing those changes or creating another dependency installation.
+
+Current master backend safety42820223736 and secrets42820223809 pass. Frontend
+42820223870 passes 1,573 units (12 conditional skips), production checks, WebKit,
+media and pickup/sourcing preflight, then reports1,147/1,150 browser passes. All14
+Parts cases pass, including the repaired desktop title/price adjacency, nine sizes,
+contrast, full overview Axe, fitment/history/recovery and native no-jump gallery.
+The three failures are the same new saved-navigation case in Chromium, Firefox
+and WebKit: its first locator asks for a removal label the application does not
+render. Match the established exact accessible name, Remove Engine oil filter
+from favourites. Preserve every dialog, URL, selected collection, focus and no-write
+assertion; no application behaviour or permission is changed by this fixture repair.
+Scoped formatting/lint pass. Rendered focused acceptance and all three final-master
+gates remain required before publication.
+
+The current master has112 migration directories while the active backend release
+has102. The ten newer migrations and their collection/payment/workforce rollout
+belong to separate approved batches. This visual implementation does not deploy
+them incidentally. Verify compatibility and actual provider state again before
+promoting the combined frontend. Parts and Groups4-10 remain open until their
+verified public receipts exist. C: passed25.51GiB with a bounded0.25GiB allowance;
+reuse warm Next16.4.3/Playwright1.63.0 dependencies and existing fixture mechanisms.
+
+## 13 November - keep product gallery controls clear of the support dock
+
+Downloaded master65f14086's retained browser artifact13768174570 (93,282,077bytes)
+in memory and verified SHA256e30fc38f2cbfb29243c34eb2cec40e74fddb4649fab9e7291851aecaf6385932.
+Only four explicitly named Parts PNGs were extracted; no archive was retained.
+Desktop photo-filled detail confirms the identity/price gap is closed. The390px
+capture exposes a separate visible defect: Next photo can sit beneath the fixed
+support buttons. The passing generic scan did not establish this control's access
+at that scroll position. Preserve the successful14-case evidence as partial;
+this obstruction still needs correction before publication.
+
+Reserve horizontal clearance for inline gallery controls and thumbnails through
+the single-column breakpoint, including the right safe-area inset. Keep full
+photo width and leave the native modal layout unchanged. Extend the existing
+native gallery regression to320 and390: align Next photo vertically with the
+fixed support launcher, prove its centre receives input, tap next/previous and
+verify photo state changes with unchanged scroll. The project now has15 Parts
+cases. Keep every complete-matrix assertion; a bounded Parts preflight uploads
+its own captures before the later full matrix clears the output directory, so
+visual acceptance can be reviewed while the full run continues.
+
+The saved-review fixture correction is merged via PR62 at6e910f9b. That source's
+checks are superseded by this necessary visual fix, not counted as final success.
+Existing data, fitment/timing, checkout gates and support behaviour are preserved.
+Source lint/format and collection are checked separately from compiled acceptance.
+Evidence: parts-master65f-ci-evidence.json and matching PNGs in the established TEMP
+folder. New compiled captures, all final-master gates and a compatible backend
+remain prerequisites for Parts publication. Groups4-10 remain open.
