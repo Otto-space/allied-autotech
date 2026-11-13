@@ -297,11 +297,14 @@ function WorkforcePanel({ userId, personPage }: { userId: string; personPage: bo
     coordinator.review(
       {
         title,
+        subject: `Selected person: ${data.accountLabel}`,
         workforceAccessChange: preview,
         description:
           action === "enroll" && !data.access
-            ? "Enrollment replaces broad legacy operational access with explicit responsibilities and revokes existing sessions. No assignments are created automatically. Existing financial grants and business histories are retained. Review previously approved duties before confirming."
-            : "Current MFA, password, delegation, target and version will be checked on the server. No system role is changed.",
+            ? "First enrollment revokes existing sessions, requiring a fresh sign-in, and cancels unused access invitations. Staff accounts replace earlier broad operational access with explicit duties; Admin accounts retain their account-level administration access. No duties are assigned automatically. Separately approved duties and business history are retained."
+            : action === "enroll"
+              ? "This position-only update keeps existing sessions and duties, and cancels unused access invitations. A job position does not change the account level or grant duties. Current MFA, password, target and version will be checked on the server."
+              : "Current MFA, password, delegation, target and version will be checked on the server. The account level is unchanged. Existing sessions stay signed in; current duties are checked on protected requests.",
         facts: [
           { label: "Account", value: data.accountLabel },
           ...facts,
@@ -482,6 +485,7 @@ function WorkforceEditors({
     [error, setError] = useState<string>();
   const [branchId, setBranchId] = useState(""),
     [branchLabel, setBranchLabel] = useState("");
+  const [temporaryCover, setTemporaryCover] = useState(false);
   const [delegated, setDelegated] = useState(data.access?.delegatedBranchIds ?? []),
     [labels, setLabels] = useState<Record<string, string>>({});
   const changed = draftVersion !== (data.access?.version ?? null),
@@ -634,11 +638,11 @@ function WorkforceEditors({
                       <dd>{formatBusinessDate(a.startsAt)}</dd>
                     </div>
                     <div>
-                      <dt>Expires</dt>
+                      <dt>Ends</dt>
                       <dd>
                         {a.expiresAt
                           ? formatBusinessDate(a.expiresAt)
-                          : "No expiry specified"}
+                          : "No end date recorded"}
                       </dd>
                     </div>
                     <div>
@@ -765,10 +769,10 @@ function WorkforceEditors({
                     },
                     { label: "Starts", value: formatBusinessDate(startsAt) },
                     {
-                      label: "Expires",
+                      label: "Ends",
                       value: expiresAt
                         ? formatBusinessDate(expiresAt)
-                        : "No expiry specified",
+                        : "No end date (regular duty)",
                     },
                   ],
                 );
@@ -820,22 +824,38 @@ function WorkforceEditors({
                 )}
               </div>
               <div className="field">
-                <label htmlFor="workforce-starts">Starts at (your device time)</label>
+                <label htmlFor="workforce-starts">Starts at (Lagos time, required)</label>
                 <input
                   id="workforce-starts"
                   name="startsAt"
                   type="datetime-local"
                   required
+                  aria-describedby="workforce-dates-help"
                 />
               </div>
               <div className="field">
                 <label htmlFor="workforce-expires">
-                  Expires at (optional, your device time)
+                  Ends at (Lagos time, {temporaryCover ? "required" : "optional"})
                 </label>
-                <input id="workforce-expires" name="expiresAt" type="datetime-local" />
+                <input
+                  id="workforce-expires"
+                  name="expiresAt"
+                  type="datetime-local"
+                  required={temporaryCover}
+                  aria-describedby="workforce-dates-help"
+                />
               </div>
+              <p className="muted wf-wide" id="workforce-dates-help">
+                Dates use Lagos time (Africa/Lagos), regardless of this device&apos;s time
+                zone. Temporary cover needs an end date.
+              </p>
               <label className="wf-check wf-wide">
-                <input type="checkbox" name="temporary" />
+                <input
+                  type="checkbox"
+                  name="temporary"
+                  checked={temporaryCover}
+                  onChange={(event) => setTemporaryCover(event.target.checked)}
+                />
                 Temporary cover
               </label>
               <PasswordReason passwordEpoch={passwordEpoch} prefix="workforce-assign" />
