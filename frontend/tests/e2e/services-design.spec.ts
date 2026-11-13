@@ -48,6 +48,8 @@ test.describe("Services native filter clearance", () => {
       await page.setViewportSize({ width, height });
       await page.goto("/services");
       await expect(page.locator(".services-row").first()).toBeVisible();
+      await expect(page.getByLabel("Service category", { exact: true })).toBeEnabled();
+      await page.evaluate(() => document.fonts.ready);
       expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
         width,
         height,
