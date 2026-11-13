@@ -230,6 +230,55 @@ full 119-template goal remain open.
 Keep the independently observed 390px Services filter/support edge overlap in
 the next relevant quality cycle; it is not covered by the Parts clearance fix.
 
+## 13 November - Services filters beside support and stable native focus
+
+Follow-up to the 390px Services overlap above: PR68 reserves a narrow discovery
+panel rail, keeps 320px radio labels at 44px, and corrects both scripted reveal
+geometry and native public scroll padding. The dock's full height no longer
+acts as a full-width obstruction. Custom radio/checkbox visibility uses its
+painted label. Deliberate anchors, linked fields, carousel exceptions and the
+dashboard's full-width native padding remain intact.
+
+The initial source ebe728da still failed all four no-jump assertions. Preserve
+those failures and the local prototype distinguishing native scroll padding
+from scripted scrolling. Corrected compiled source 3208037d/candidate
+dpl_E7iaPLY2PnHqfXrMuE9uPE5XtS43 passes all four native cases at 320x720,
+390x844, 850x720 and 930x430. They verify painted-edge taps, checked and URL state,
+unchanged scroll, 44px targets, keyboard arrows/focus, no overflow and no business
+writes. The 320/390 captures were visually reviewed. Actual public-data 390px
+Fixed-price selection also keeps scroll unchanged; scoped main/footer Axe has
+zero violations and no page exception/business write is observed.
+
+Installed Edge 157.0.4341.46 is used because the Browser plugin is unavailable;
+these are emulated viewports, not physical-device or full accessibility evidence.
+Final compiled checks use no CSS injection/DOM replacement or weakened CSP.
+Artifacts are in TEMP/aat-stitch-implementation-20261109/hosted-services-clearance-
+20261113, including final-native-result.json and final-native-results screenshots.
+
+Shared verification: five native Home cases pass. The original hosted 19-case
+run fails on two remote-SSR synthetic product records and six stale scrollbar
+expectations, then times out before six remaining cases. Update only the older
+viewport test to match the shared thin-scrollbar rule unchanged since 4d505639;
+all six support cases then pass, retaining overflow, scrolling, focus and Axe.
+Both linked-field cases pass separately. All four Contact fragment checks fail
+identically on unchanged live b1222a11 with the same synthetic client fixture.
+Preserve this fixture discrepancy for the Contact group and retain all original
+assertions. Actual public-data candidate 390px refreshes pass twice; fresh 1440x900
+baseline and candidate contexts pass entry/refresh with identical target bounds.
+The earlier resized-context probe retained a prior reading position and does not
+count as fresh-entry acceptance. Retain failures and corrected helper attempts.
+Seventeen relevant hosted cases pass across the focused runs; the original
+19-case suite remains failed and is never counted as complete acceptance.
+
+Exact-source CI Parts preflight passes; verified artifact 14072077003 retains
+both completed 320/390 native gallery screenshots, visually reviewed, alongside
+four other safe PNGs. Its 936,434-byte ZIP passes SHA256 verification and is not
+retained. See services-3208037d-parts-ci-evidence.json. All final master gates
+remain pending. This repair is not yet live: retain the current
+Home/Services release until the compatible backend and exact-master requirements
+pass. Preserve current master 6a9318a6's backend safeguards and all remaining
+page groups, role/provider/device limits and the full 119-template goal.
+
 ## 13 November 18:56 UTC - compiled invoice correction verified
 
 Combined source e8ea33573f2c96b1453921c923b201f37aae5d52 is built as protected
