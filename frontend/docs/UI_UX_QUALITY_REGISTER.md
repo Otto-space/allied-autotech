@@ -1,3 +1,27 @@
+## 13 November - verified privacy, promotions and delivery checkpoint
+
+Candidate source: 4d3c72e4ccfe80e32a11dee3dc91a5e16af341ae (PR 70).
+The corrected privacy suite and supplemental privacy/moderation geometry checks
+pass 41/41 cases. This supersedes the pending rendered status below, while the
+original two focus failures remain preserved as reproduction evidence.
+
+Existing promotion list, creation, editing and delivery-policy workflows pass
+90/90 cases. Supplemental checks pass 28/28 across 1280x720, 1024x768,
+768x1024, 430x932, 390x844, 360x800 and 320x720. Actual viewport dimensions,
+phone/touch emulation, horizontal overflow, centered review dialogs, full phone
+width, keyboard scrolling, cancellation focus and draft preservation are checked.
+Eight desktop/320px captures were visually reviewed. No further application
+change was justified in these pages. All results have zero skipped, flaky or
+unexpected cases; isolated fixtures do not prove real-role/provider acceptance.
+No production records were changed, and no physical-device testing is claimed.
+
+Evidence: TEMP/allied-privacy-moderation-20261113/corrected-report.json and
+TEMP/allied-promotions-delivery-20261113/{report,geometry-report}.json, with
+screenshots under geometry-results. Backend safety 43511487295 and secrets
+43511487392 pass for this candidate; frontend 43511487263 remains live in its
+runtime browser matrix. No candidate publication is claimed. Full brief scope,
+independent D01-D17 work and missing approved business facts remain open.
+
 ## 13 November - privacy and moderation acceptance; cancellation focus defect
 
 Compiled application53bd8dc8 passes59 existing Edge privacy/moderation cases with
