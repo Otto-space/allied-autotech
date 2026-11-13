@@ -102,7 +102,13 @@ export async function workJobsFixture(page: Page, role = "ADMIN") {
       const items = rows.slice(0, 25).map((row) => {
         const rest = Object.fromEntries(
           Object.entries(row).filter(
-            ([key]) => !["publishedAt", "processedAt", "failedAt"].includes(key),
+            ([key]) =>
+              ![
+                "publishedAt",
+                "processedAt",
+                "failedAt",
+                "deliverySuppressionReason",
+              ].includes(key),
           ),
         );
         if (row.source === "OUTBOX") {

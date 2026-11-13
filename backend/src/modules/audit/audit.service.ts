@@ -13,6 +13,7 @@ import { lockAccessActor } from "../organization/team-access-security.js";
 import { auditBadRequest, auditConflict, auditNotFound } from "./audit.errors.js";
 import { assertAuditAdministrator } from "./audit.policy.js";
 import { AuditRepository } from "./audit.repository.js";
+import { unsuppressedJobPredicate } from "./job-delivery-diagnostic.js";
 import { anomalySelect } from "./anomaly-record.js";
 import type {
   AnomalyListQuery,
@@ -262,6 +263,7 @@ export class AuditOperationsService {
                 attempts: input.expectedAttempts,
                 ...revision,
                 status: { in: ["FAILED", "DEAD_LETTER"] },
+                AND: [unsuppressedJobPredicate],
               },
               data: {
                 status: "PENDING",

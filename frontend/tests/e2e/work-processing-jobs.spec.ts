@@ -20,6 +20,32 @@ async function review(page: Page) {
 }
 const confirm = (page: Page) =>
   page.getByRole("dialog").getByRole("button", { name: "Confirm change", exact: true });
+test("consent suppression is explained without offering an ordinary retry", async ({
+  page,
+}) => {
+  const f = await workJobsFixture(page);
+  const row = jobRow(1);
+  if (row.source !== "OUTBOX") throw Error("Expected outbox fixture");
+  f.rows = [
+    {
+      ...row,
+      eventType: "support.customer-email.requested",
+      aggregateType: "SupportCustomerEmail",
+      status: "DEAD_LETTER",
+      deliverySuppressionReason: "CONSENT_WITHDRAWN",
+    },
+  ];
+  await page.goto("/admin/processing-jobs");
+  await openFirst(page);
+  await expect(page.locator(".wj-retry")).toContainText(
+    "Operational email consent is off.",
+  );
+  await expect(page.locator(".wj-retry")).toContainText("Do not change consent");
+  await expect(
+    page.getByRole("button", { name: "Review job retry", exact: true }),
+  ).toHaveCount(0);
+  expect(f.writes).toEqual([]);
+});
 for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
   test(`processing jobs directory and inspection at ${width}`, async ({ page }) => {
     const f = await workJobsFixture(page),

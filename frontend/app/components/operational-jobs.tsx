@@ -16,6 +16,7 @@ import {
 import { formatStockInstant } from "@/lib/admin/work-vehicle-detail";
 import {
   jobAttempts,
+  jobSuppressionExplanation,
   jobKey,
   jobName,
   jobPageParams,
@@ -715,7 +716,14 @@ function JobWorkspace({
                     <JobFacts row={row} />
                     <section className="wj-retry">
                       <h3>Review a retry</h3>
-                      {!["FAILED", "DEAD_LETTER"].includes(row.status) ? (
+                      {jobSuppressionExplanation(row) ? (
+                        <p className="notice">
+                          Delivery is suppressed: {jobSuppressionExplanation(row)} A
+                          manual retry is unavailable. Review the authorised support
+                          delivery history and resolve the recorded restriction through
+                          its normal workflow. Do not change consent to resend this job.
+                        </p>
+                      ) : !["FAILED", "DEAD_LETTER"].includes(row.status) ? (
                         <p className="notice">
                           {row.status === "PROCESSING"
                             ? "Processing is already in progress. Refresh to check its outcome; a manual retry is unavailable."

@@ -1,3 +1,68 @@
+## 13 November - safe job suppression implementation candidate
+
+Implemented an optional allowlisted support-email suppression reason in current-job
+inspection only. Raw errors and payloads never leave the repository layer. Matching
+requires the exact support event/aggregate and failed/dead-letter lifecycle; null,
+unknown reasons and unrelated jobs are not classified from attempt counts. The
+atomic retry predicate excludes those recorded restrictions, including concurrent
+changes. UI explains the reason and removes ordinary retry; other jobs retain their
+existing review/reconciliation controls. Care-triage v4 preserves care eligibility.
+
+Backend unit/learning suites30 pass; frontend job contracts4 pass; scoped frontend
+ESLint and backend oxlint pass. Backend typecheck passes after regenerating the
+worktree-local stale Prisma client. Initial generation/export attempts lacked DB
+configuration; generation-only loopback placeholders resolved this without database
+access. OpenAPI and frontend types regenerated. New database rejection and browser
+suppression cases are written but NOT executed yet. Frontend typecheck handle77531
+was still running at this checkpoint. No schema migration or production change.
+
+Publish the compatible frontend first: older strict clients reject the added
+inspection field. Updated clients accept the old API. Local packaging preflight
+fails at20.85GiB versus21.5GiB required; no build was started. Preserve the20GiB
+reserve and use checked CI/hosted acceptance before publication. PR70's earlier
+ce9dce459 checks apply only to its test/docs version, not this new implementation.
+
+## 13 November - processing jobs and retention acceptance; diagnostic gap remains
+
+Public production application source 6a9318a6 passes 38 existing processing-job
+and retention-policy scenarios in dedicated installed Edge contexts with isolated
+API fixtures. Coverage includes source/status/cursor/history, exact retry revision,
+uncertain receipts and independent reconciliation, permission revocation, recovery
+storage failure, version/identity preflight, retained drafts, rule edits and limits,
+empty/error/denied states and role restrictions. No real retry, approval, deletion,
+message, permission or business-record write occurred. Context routing rejects
+unintercepted non-GET/HEAD requests. This is production-build fixture acceptance,
+not actual account/backend persistence or provider delivery acceptance.
+
+Fourteen additional review dialogs pass at the exact seven required viewport pairs:
+1280x720,1024x768,768x1024,430x932,390x844,360x800,320x720. Actual viewport,
+centering, full phone width, bounded scroll, keyboard focus, Escape/opener recovery
+and retained draft checks pass. Phone contexts use mobile/touch emulation. Reviewed
+320px retry and desktop retention screenshots; actions remain outside the bounded
+scrolling content. No physical-device or complete screen-reader claim.
+Evidence: TEMP/allied-jobs-retention-acceptance-20261113/report.json,
+geometry-report.json and geometry-results. Both runs terminal:38/38 and14/14;
+zero skipped, unexpected or flaky cases. No application correction was justified
+by these general workflow checks.
+
+F02 scope correction: the historical incident is classified as intentional consent
+suppression, but the brief also requires safe diagnostic explanation before retry.
+Current operational-job-record.ts excludes raw diagnostics; audit.repository.ts
+and currentJobSchema supply no safe suppression reason. JobFacts directs operators
+to logs and JobRetry gives generic retry guidance. The existing branch-authorised
+support-email summary already maps reviewed reasons to NOT_SENT, including
+CONSENT_WITHDRAWN. This is an unresolved contract/UI requirement, not a renewed
+claim of worker failure. Implement a narrow allowlisted diagnostic with permission,
+legacy/unknown-reason and retry safeguards; do not expose raw errors/payloads or
+infer suppression from zero attempts. Generic38 checks do not close this gap.
+
+The compatible backend/frontend source6a9318a6 release is recorded complete by its
+20:28 handoff: backend36687b08, frontendE6JTTbEE8ruFUsNv2YiupLWBXrq5, both aliases,
+112 migrations and13 healthy workers. Provider ACTIVE/no-pending independently
+observed20:28. PR70 ce9dce459 is ready for review; frontend43501825293 and backend
+43501825502 still running at this checkpoint, secrets43501825411 passed. New evidence
+is uncommitted for the next bounded correction; preserve the exact-source CI run.
+
 ## 13 November - dispute handling acceptance and exact-master CI success
 
 Protected compiled candidate G5 passes all 48 existing dispute-handling/policy

@@ -401,6 +401,47 @@ describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
         ids.slice(25),
       );
     });
+    it("reports safe suppression and prevents its retry without clearing the recorded restriction", async () => {
+      for (const reason of [
+        "CONSENT_WITHDRAWN",
+        "CHANNEL_DISABLED",
+        "NO_RECIPIENT",
+        "SUPPORT_REPLY_ADDRESS_MISSING",
+      ]) {
+        const record = await prisma.outboxEvent.create({
+          data: {
+            eventId: randomUUID(),
+            aggregateType: "SupportCustomerEmail",
+            aggregateId: randomUUID(),
+            eventType: "support.customer-email.requested",
+            status: "DEAD_LETTER",
+            attempts: 0,
+            lastError: reason,
+            payload: { synthetic: true },
+          },
+        });
+        const inspected = await read("outbox", record.id);
+        expect(inspected.status).toBe(200);
+        expect(inspected.body.data.deliverySuppressionReason).toBe(reason);
+        expect(inspected.body.data).not.toHaveProperty("lastError");
+        expect(inspected.body.data).not.toHaveProperty("payload");
+        expect(
+          (
+            await retry("outbox", record.id, {
+              expectedAttempts: 0,
+              expectedUpdatedAt: record.updatedAt.toISOString(),
+              reason: "Synthetic suppression guard",
+            })
+          ).status,
+        ).toBe(409);
+        const after = await prisma.outboxEvent.findUniqueOrThrow({
+          where: { id: record.id },
+        });
+        expect(after.status).toBe("DEAD_LETTER");
+        expect(after.lastError).toBe(reason);
+        expect(after.updatedAt).toEqual(record.updatedAt);
+      }
+    });
     it("checks inspected revision and attempts, permits zero and queues once under competing retries", async () => {
       for (const source of ["outbox", "webhook"]) {
         const current = await read(source, ids[0]!);
