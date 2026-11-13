@@ -20,7 +20,8 @@ permissions:
 
 concurrency:
   group: frontend-release-${{ github.ref }}
-  cancel-in-progress: true
+  # Let the active master gate finish while the latest candidate waits.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 jobs:
   check:
