@@ -329,6 +329,9 @@ for (const width of [320, 1440]) {
     const review = page.getByRole("button", { name: "Review enrollment", exact: true });
     await review.focus();
     await expect(selected.getByText(name, { exact: true })).toBeInViewport();
+    expect(
+      await selected.evaluate((element) => element.getBoundingClientRect().height),
+    ).toBeLessThan(720 / 2);
     await expect(review).toBeInViewport();
     await expect
       .poll(() =>
