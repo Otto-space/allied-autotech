@@ -1,0 +1,61 @@
+.workforce-panel[data-person-page="true"] {
+  --wf-person-sticky-top: 70px;
+  --wf-person-sticky-height: 66px;
+}
+.wf-person-context {
+  position: sticky;
+  top: var(--wf-person-sticky-top);
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  min-width: 0;
+  padding: 8px 12px;
+  margin-block: 0 20px;
+  border: 1px solid var(--line, #d5deea);
+  background: var(--canvas, #f5f7f9);
+  overflow-wrap: anywhere;
+}
+.wf-person-context p {
+  display: contents;
+}
+.wf-person-context p span {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 12px;
+  color: #42596b;
+}
+.wf-person-context strong {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  font-size: 14px;
+}
+.wf-person-context a {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.workforce-panel[data-person-page="true"]
+  :is(input, textarea, select, button, [tabindex="-1"], [id]) {
+  scroll-margin-block-start: calc(
+    var(--wf-person-sticky-top) + var(--wf-person-sticky-height) + 16px
+  );
+  scroll-margin-block-end: 96px;
+}
+@media (max-width: 900px) {
+  .workforce-panel[data-person-page="true"] {
+    --wf-person-sticky-top: 132px;
+  }
+}
+@media (max-width: 430px) {
+  .wf-person-context a {
+    grid-row: 1;
+  }
+  .wf-person-context strong {
+    grid-column: 1 / -1;
+  }
+}
