@@ -41,8 +41,10 @@
 }
 .workforce-panel[data-person-page="true"]
   :is(input, textarea, select, button, [tabindex="-1"], [id]) {
+  /* The root already reserves the header; do not count it twice on focus. */
   scroll-margin-block-start: calc(
-    var(--wf-person-sticky-top) + var(--wf-person-sticky-height) + 16px
+    var(--wf-person-sticky-top) + var(--wf-person-sticky-height) + 16px -
+      var(--viewport-header-offset, 96px)
   );
   scroll-margin-block-end: 96px;
 }

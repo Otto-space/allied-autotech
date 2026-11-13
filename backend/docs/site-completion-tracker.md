@@ -1,3 +1,64 @@
+## 13 November 23:13 UTC - workforce focus repair; native hero lifecycle verified
+
+Frontend source c48cf7b1 is not release-qualified. Its exact-master runtime run
+43517656682 ended with 1,266 passes and one failure: at320px, enlarged selected
+identity text pushed the focused password control beneath the support dock.
+Safe failing fixture capture: TEMP/aat-attendance-20261104/workforce-selector-
+c48-ci-before/test-failed-1.png. The failing test and its hit-testing assertion
+remain; no flaky pass or source publication is claimed.
+
+Cause: root scroll-padding already includes the measured header, while the shared
+WorkforcePersonContext scroll margin added it again. Deduct that existing root
+inset in workforce-person-context.css. Keep the identity, font sizes, header,
+support controls, form state and permissions intact. Strengthen the existing
+stress regression with actual Tab through Show password to Review enrollment,
+plus tablet and collapsed-sidebar laptop coverage.
+
+Exact candidate CSS, appended through same-origin stylesheet responses to the
+held c48 production build with CSP preserved, passes4/4 cases:320x720,768x720,
+1440x720 expanded and1440x720 collapsed sidebar. Assertions cover enlarged-text
+identity visibility/height, password and review action hit testing, keyboard
+focus, overflow, no page errors and no fixture writes. Phone and laptop captures
+were visually inspected. Prior2-case passes overlap; do not sum them. This is
+source-stylesheet/isolated-fixture evidence, not final packaged or live-role
+acceptance. Evidence: TEMP/aat-workforce-clearance-20261113/{report.json,results}.
+Scoped ESLint, formatting and full TypeScript checking pass; final source gates
+remain required. Browser plugin is unavailable; regular Playwright is used.
+
+The later2e492b81 run43520835587 failed earlier at browser dependency installation:
+its Ubuntu26.04 AWS image20261111.82.6 exposed only the Microsoft package source
+and could not locate required fonts/media/GTK packages. The earlier Azure26.04
+image reached the runtime matrix, so26.04 is not classified as unsupported.
+Pin this frontend workflow to supported ubuntu-24.04. All engines, dependencies,
+test steps, triggers, permissions and protected master scheduling remain unchanged;
+YAML comparison verifies only runs-on changed. The new hosted install is pending.
+
+Hero background acceptance now passes3/3 public cases on e002 deployment4gNT:
+actual hidden-tab pause for8.5s, visible return with a fresh interval/no immediate
+catch-up, and persistent manual pause through tab switching. Native headless Edge
+157.0.4341.46 uses a fresh owned profile and supported connectOverCDP noDefaults:true,
+so Playwright never enables focus overrides. No synthetic visibility event or
+application change is involved. Earlier headed/override attempts remain failed.
+The browser endpoint closed. This supersedes the earlier unverified browser-engine
+lifecycle status; physical-device acceptance remains separate. Receipt:
+TEMP/aat-attendance-20261104/live-hero-native-headless-visibility-20261113.json.
+
+Held production dpl_AxqGAwVKevJsieyrU6P68AKmA6BK is READY, exact source c48, with
+no apex/www assignment. Its7 suppression viewport checks and1 privacy cancellation/
+focus/guarded-save fixture check pass8/8; these overlap existing suite scenarios.
+Its failed source gate prohibits promotion. The prepared backend rollout was never
+executed. New candidate checks, matching packages and release review are required.
+Automated backup read confirms8 retained backups, newest under24h; the separate
+schema112 restore and6 read-only current/recovery image probes remain preserved.
+
+C: was20.39GiB free after these checks. No local build/dependency install ran.
+Automatic approval review rejected deletion of the two task-owned native browser
+profiles as blocked by policy; they and the previously approved compiler cache
+remain, with no alternate deletion attempt. Authenticated browser host access,
+real-role/provider/device acceptance, genuine operator facts and the separate
+active D17 work remain open. Full original briefs/D01-D17 stay active; no flags,
+real records, schema, grants or financial policies changed in this batch.
+
 ## 13 November - Vehicles gallery touch-target follow-up before publication
 
 Compiled follow-up source3b5c0457, held deploymentdpl_btSK2rd1tPCdX9sdYFmPdhiebuya,

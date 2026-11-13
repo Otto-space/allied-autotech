@@ -25,7 +25,8 @@ concurrency:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # Keep browser system dependencies on an explicit supported LTS image.
+    runs-on: ubuntu-24.04
     # One production build, followed by the existing Chromium suite and the
     # bounded Firefox/WebKit responsive matrix. The fixture API is serial.
     # The 1,018-case matrix took 34.7 minutes. Vehicle and confirmation suites
