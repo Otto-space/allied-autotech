@@ -1,3 +1,38 @@
+## 13 November - blocked Vehicles gallery touch target before publication
+
+Compiled correction3b5c0457/deploymentdpl_btSK2rd1tPCdX9sdYFmPdhiebuya passes
+four actual BMW native-touch checks at320/390/850/930: right-edge hits clear the
+dock, next/previous/thumbnail changes keep page position,44px expand opens the
+gallery, modal arrows work and Escape restores focus. Scoped320 main/footer Axe
+reports zero violations; no page errors or application writes. Reviewed320 and
+settled390 captures. A progressive first390 photo capture is retained separately
+from the decoded-image follow-up. Evidence: vehicle-gallery-3b5-compiled-qa.json
+and vehicle-gallery-3b5-*.png in the same TEMP folder. Source lint/format/types pass.
+PR75 preserves incomingc48 audit/privacy work and both journals; reviewed gallery
+files remain byte-identical. Cancelled8e frontend is unqualified. Final integrated
+gates, compatible updated backend and public acceptance still prevent publication.
+
+Exact-master8e4325 candidate dpl_6gc8dzEBamgjvrEumHHmKoEibHqc remains held. Nine
+catalogue geometry checks and two scoped Axe scans pass, but real BMW detail at
+320x720 shows WhatsApp covering the right edge of View photos. Native hit testing
+confirms obstruction; earlier modal/focus checks did not cover this fixed-dock
+intersection. Evidence: TEMP/aat-stitch-implementation-20261109/
+vehicle-gallery-8e-overlap-baseline.json and vehicles-master-8e-bmw-320.png.
+
+Follow-up source keeps gallery controls and the thumbnail rail clear at compact
+dock breakpoints, retains a44px named expand control, and marks frame-changing
+controls with the existing shared carousel exception. Four meaningful native-touch
+cases in vehicle-public-engine.spec.ts test edge hits, next/previous/thumbnail
+selection, unchanged scroll, modal arrows/Escape/focus and no application writes.
+They use the existing loopback vehicle fixture and runtime project. Compiled and
+exact-master acceptance are pending; do not publish the obstructed8e candidate.
+
+The existing public mobile release remains e002. Backend43515502226 and
+Secrets43515502628 passed; Frontend43515502392 is still running. Another task is
+packaging compatible dated-cover backend64064fe9. Group5 reference/live baselines
+are preparation only, with no authentication submissions or source implementation.
+Remaining119-template/state and role/device acceptance is unchanged.
+
 ## 13 November 22:35 UTC - master checks preserved; remaining acceptance boundaries
 
 CI-only PR 76 is merged as 5f9c5921. New master pushes now leave the active

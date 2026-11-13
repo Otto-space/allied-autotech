@@ -1343,3 +1343,34 @@
   gap: 0.75rem;
   margin-block: 1rem;
 }
+
+/* Keep photo navigation outside the compact support dock's touch area. Modal
+   controls retain their full layout above the dock in the browser top layer. */
+@media (max-width: 850px),
+  (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) {
+  .vd-gallery > .vd-gallery-controls,
+  .vd-gallery > .vd-thumbnails {
+    margin-inline-end: calc(56px + env(safe-area-inset-right, 0px));
+  }
+  .vd-gallery > .vd-gallery-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    max-width: 360px;
+    gap: 4px;
+  }
+  .vd-gallery > .vd-gallery-controls:has(> .icon-button) {
+    grid-template-columns: 44px minmax(0, 1fr) 44px 44px;
+  }
+  .vd-gallery > .vd-gallery-controls > [role="status"] {
+    text-align: center;
+  }
+  .vd-gallery > .vd-gallery-controls .vd-expand {
+    width: 44px;
+    padding: 0;
+    margin: 0;
+    justify-content: center;
+  }
+  .vd-gallery > .vd-gallery-controls .vd-expand-label {
+    display: none;
+  }
+}

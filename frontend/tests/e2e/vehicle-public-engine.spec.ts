@@ -1,8 +1,125 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { id } from "../fixtures/public-account-actions";
 
 const origin = process.env.CAPABILITY_TEST_CONTROL_ORIGIN;
+
+test.describe("vehicle engine gallery touch controls", () => {
+  test.use({ hasTouch: true, isMobile: true, reducedMotion: "reduce" });
+  for (const [width, height] of [
+    [320, 720],
+    [390, 844],
+    [850, 720],
+    [930, 430],
+  ]) {
+    test(`photo navigation clears support and stays in place at ${width}x${height}`, async ({
+      page,
+      request,
+    }, info) => {
+      test.skip(origin !== "http://127.0.0.1:5024", "Requires the isolated loopback API");
+      const control = await request.post(`${origin}/__capabilities`, {
+        data: { mode: "browse_enquiries" },
+      });
+      expect(control.ok()).toBe(true);
+      const errors: string[] = [];
+      const writes: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.route("**/api/v1/**", async (route) => {
+        if (route.request().method() !== "GET") {
+          writes.push(route.request().method());
+          await route.abort();
+          return;
+        }
+        const url = new URL(route.request().url());
+        if (url.pathname === "/api/v1/auth/session")
+          return route.fulfill({
+            status: 401,
+            json: { success: false, error: { code: "UNAUTHORIZED" } },
+          });
+        const response = await route.fetch({
+          url: origin + url.pathname + url.search,
+          maxRedirects: 0,
+        });
+        await route.fulfill({ response });
+      });
+      await page.setViewportSize({ width, height });
+      await page.goto(`/vehicles/${id(90203)}`);
+      await expect(page.getByRole("heading", { level: 1 })).toContainText(
+        "Synthetic Vehicle ICE",
+      );
+      await page.evaluate(() => document.fonts.ready);
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+        width,
+        height,
+      ]);
+      const gallery = page.locator(".vd-gallery");
+      const controls = gallery.locator(":scope > .vd-gallery-controls");
+      const status = controls.getByRole("status");
+      await expect(status).toHaveText("Photo 1 of 2");
+
+      async function tapAtDock(button: Locator) {
+        const dock = await page.locator(".support-controls > button").boundingBox();
+        expect(dock).not.toBeNull();
+        await button.evaluate(
+          (element, center) => {
+            const box = element.getBoundingClientRect();
+            scrollTo({
+              top: scrollY + box.top + box.height / 2 - center,
+              behavior: "instant",
+            });
+          },
+          dock!.y + dock!.height / 2,
+        );
+        const box = await button.boundingBox();
+        expect(box!.width).toBeGreaterThanOrEqual(44);
+        expect(box!.height).toBeGreaterThanOrEqual(44);
+        expect(
+          await button.evaluate((element) => {
+            const box = element.getBoundingClientRect();
+            return element.contains(
+              document.elementFromPoint(box.right - 8, box.top + box.height / 2),
+            );
+          }),
+        ).toBe(true);
+        const before = await page.evaluate(() => scrollY);
+        await page.touchscreen.tap(box!.x + box!.width - 8, box!.y + box!.height / 2);
+        await page.evaluate(async () => {
+          for (let frame = 0; frame < 3; frame++)
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        });
+        expect(await page.evaluate(() => scrollY)).toBe(before);
+      }
+
+      await tapAtDock(controls.getByRole("button", { name: "Next photo", exact: true }));
+      await expect(status).toHaveText("Photo 2 of 2");
+      await tapAtDock(
+        controls.getByRole("button", { name: "Previous photo", exact: true }),
+      );
+      await expect(status).toHaveText("Photo 1 of 2");
+      const second = gallery.getByRole("button", { name: /^Show photo 2:/ });
+      await second.scrollIntoViewIfNeeded();
+      await tapAtDock(second);
+      await expect(second).toHaveAttribute("aria-pressed", "true");
+      await expect(status).toHaveText("Photo 2 of 2");
+      const expand = controls.getByRole("button", { name: "View photos", exact: true });
+      await tapAtDock(expand);
+      const dialog = page.getByRole("dialog", { name: "Vehicle photos", exact: true });
+      await expect(dialog).toBeVisible();
+      await page.keyboard.press("ArrowRight");
+      await expect(dialog.getByRole("status")).toHaveText("Photo 1 of 2");
+      await page.keyboard.press("Escape");
+      await expect(dialog).not.toBeVisible();
+      await expect(expand).toBeFocused();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
+      ).toBe(false);
+      expect(errors).toEqual([]);
+      expect(writes).toEqual([]);
+      await page.screenshot({ path: info.outputPath(`vehicle-gallery-${width}.png`) });
+    });
+  }
+});
+
 for (const width of [320, 390, 768, 1024, 1440]) {
   for (const power of ["BEV", "ICE"] as const) {
     test(`public ${power} engine and supplied features at ${width}px`, async ({
