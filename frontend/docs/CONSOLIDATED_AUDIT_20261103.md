@@ -1,5 +1,135 @@
 # Allied AutoTech consolidated audit — implementation and acceptance
 
+## 13 November 18:56 UTC - compiled invoice correction verified
+
+Combined source e8ea33573f2c96b1453921c923b201f37aae5d52 is built as protected
+candidate dpl_G5YH7fvUPKDB1yqukd8wAPyXeUzu (READY). All 11 focused compiled
+invoice checks pass: selected-source creation and versioned issue/void, Admin and
+Super Admin facts, cancel/focus, and seven responsive serious-Axe cases. All 14
+supplemental exact viewport cases also pass for draft/issue review and private
+sharing, phone-width centered dialogs, keyboard containment, Escape and focus.
+No CSS injection or DOM replacement is used in these compiled runs. Synthetic
+mutations are intercepted; unmatched writes are blocked. Desktop/320px compiled
+captures were reviewed and retain document status, amounts and lifecycle controls.
+Evidence: TEMP/allied-invoice-acceptance-20261113/compiled-report.json,
+compiled-geometry-report.json and their results directories. Playwright used the
+installed Edge browser because the Browser plugin is unavailable. Phone contexts
+are emulation, not physical devices. This does not establish real API/account,
+provider-payment or complete accessibility acceptance.
+
+The invoice-only header correction removes the duplicate badge and compresses
+progress while retaining each stage and the current-stage label. At 320x720 the
+refined comparison moves invoice value from about797px to533px and reduces the
+progress region from272px to72px. Shared dashboard rules remain unchanged.
+The existing financial test now follows the retained semantic status badge.
+
+Signed merge496da205 preserves current master34cb9f02, including People and Parts.
+Scoped lint/formatting and the hosted production build pass. Source e8ea3357
+Frontend43485975421 and Backend43485975372 remain running; Secrets43485975443
+passes. Do not substitute earlier green gates for this source or final master.
+Public domains have not been promoted by this task. Compatible backend release,
+exact-master gates and post-publication checks remain prerequisites. Preserve
+all other active work and the full two-brief route/state and role/device backlog.
+
+## 13 November 18:00 UTC - invoice acceptance and focused hierarchy correction
+
+Protected candidate 33WpkwzMd4mGR4HSmfGQ3kU2kkPe/source 96159a9 passes all
+73 existing invoice list/detail cases and 14 supplemental exact-viewport dialog
+cases. The latter cover draft review/cancel, issue review/cancel, private sharing,
+keyboard containment, Escape and restored focus at all seven required pairs.
+All writes were isolated fixtures; unmatched submissions were blocked. No real
+invoice, payment, message or permission was changed. Evidence is under
+TEMP/allied-invoice-acceptance-20261113/{report,geometry-report}.json.
+
+Rendered inspection nevertheless found excessive invoice-header height and a
+redundant Draft badge on /admin/invoices/:invoiceId (Admin fixture, 320x720 and
+1280x720). The large boxed progress panel displaced the invoice document/value.
+The focused correction retains the accessible current-stage badge and all stages,
+uses compact wrapping rows, and removes only the duplicate header badge. It is
+scoped to invoice detail; no API, amount, permission or lifecycle change. The
+existing issue/void test now asserts the retained semantic status badge.
+Seven before/prototype viewport comparisons pass, with smaller progress height,
+earlier invoice value, no horizontal overflow and unchanged review/cancel focus.
+This is CSS/DOM prototype evidence, not a compiled-source pass. A final specificity
+refinement accounts for existing dashboard spacing; its seven-case rerun passed.
+Compiled acceptance is recorded in the later checkpoint. Scoped lint and formatting pass.
+
+Branch b07cb009 Frontend 43468581713 now passes, alongside backend and secrets.
+These gates precede the invoice edit. Master has advanced to 34cb9f02 with People
+identity/focus changes; preserve that work and the Parts clearance correction.
+Reconcile the complete source and require exact-master gates before publication.
+The separate release owner continues backend package/restore work. This checkpoint
+does not claim production publication, real-role persistence, physical-device
+coverage or completion of the broader two-brief page register.
+
+## 13 November 17:35 UTC - inventory list/detail acceptance
+
+Routes: `/admin/inventory` and `/admin/inventory/[inventoryId]`. Installed Edge
+157.0.4341.46 on Windows; synthetic Admin, Super Admin, Staff and denied Customer
+fixtures. Candidate 33WpkwzMd4mGR4HSmfGQ3kU2kkPe uses source 96159a9.
+
+- Existing 45 cases cover scoped controls, filters/cursors/reload, invalid queries,
+  long records, loading/error/denied/malformed states, creation, stock movement,
+  reservations/releases, stale review facts, revoked access, unavailable storage,
+  ambiguous responses, persistent recovery locks and no duplicate submissions.
+- Fourteen supplemental cases exercise creation and movement review/cancel at
+  1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800 and 320x720. Actual inner
+  dimensions are attached. Phone contexts use mobile/touch emulation. All dialogs
+  are centered within 2px; phone dialogs fill the exact viewport width. Draft values
+  and focus return survive cancellation; the page does not overflow horizontally.
+- Initial result: 58 passes, one customer-redirect timeout, zero skips. The two
+  original customer-denial cases pass in a separate diagnostic after destination
+  assets were warmed; no private inventory reads occurred. This is consistent with
+  protected-preview transport delay, not proof of a production redirect defect.
+  No assertions or application code were changed to obtain the diagnostic passes.
+- Visual review: 320px movement review and 1280px creation review show readable
+  facts, separated actions and unobstructed centered surfaces. Captures and reports
+  are under `TEMP/allied-inventory-acceptance-20261113`.
+
+No new inventory defect was reproduced. Preserve the existing implementation.
+Server authorization, database persistence, other browsers and physical devices
+remain separate acceptance requirements. The 73-case invoice batch is running.
+Master 43170836 now adds a separately verified product-gallery fix; current-master
+CI and compatible backend publication are still required before final promotion.
+
+## 13 November 17:28 UTC - compiled acceptance checkpoint
+
+Native Edge/Chrome acceptance on protected candidate 33WpkwzMd4mGR4HSmfGQ3kU2kkPe
+passes 41/41 with no skips/retries: 28 role/viewport shell cases, one short-screen
+drawer case and 12 saved-collection removal/cancellation/focus cases. Desktop,
+320px drawer and320px saved-list screenshots were inspected. Evidence is retained
+under TEMP/allied-dashboard-focus-20261113. The candidate application and corrected
+saved test match master 6e910f9b by Git diff; the latter independently integrated
+the same locator correction. These are synthetic compiled-browser results, not
+real-account, backend persistence, physical-device or production acceptance.
+
+Inventory's 59-case batch is in progress. Its customer redirect timed out; a focused
+diagnostic warms the protected destination while retaining the original assertion.
+The initial failure is preserved. Current-master frontend checks, compatible backend
+recovery/publication and the broader page/state matrix remain open. No production
+forms, data, permissions, messages or public domains were changed by this task.
+
+## 13 November - release reconciliation and saved-items test correction
+
+Current master 65f14086 contains the merged dashboard, Parts, reminder and People
+batches. Production aliases still identify dpl_EdMgppUipQ81msnEmHCef4jZxx6m at
+this read. Preserve all intervening source and the compatible backend release
+requirements; do not promote the older dashboard-only candidate.
+
+Frontend run 42820223870/job 129843578787 completed with 1,147 runtime passes and
+three failures, all the same cancellation test across Chromium, Firefox and
+WebKit. The test requests a button named "Remove Engine oil filter from favourite
+products"; actual rendered and source accessible name ends "from favourites".
+Correct that exact locator while preserving every navigation, focus, loaded-state
+and zero-write assertion. The earlier native run on 229a9298 passed 29 shell/drawer
+cases and two removal cases, then failed this locator twice; four Chrome cases
+were skipped by the failure cap. Those failures/skips remain recorded.
+
+Backend 42820223736 and Secrets 42820223809 passed for 65f14086. Corrected compiled
+acceptance, new-source/master CI, compatible backend rollout and public acceptance
+remain outstanding. The full two-brief goal and its remaining page/state coverage
+are active; no business facts, transactions or permissions were changed.
+
 ## 10 November - saved-collection focus race found by full CI
 
 PR56 source 7b133943 finished Frontend run 42739997340 with 1,055 runtime

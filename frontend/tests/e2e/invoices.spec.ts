@@ -309,12 +309,16 @@ test("invoice creation uses the selected source, server credit and versioned iss
   ).toContainText("102.03");
   await page.getByRole("button", { name: "Review invoice issue" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".wid-heading .wid-status")).toHaveText("Issued");
+  await expect(
+    page.locator(".wid-heading .workflow-progress-heading .aat-status"),
+  ).toHaveText("Issued");
   expect(writes[1].body).toEqual({ expectedVersion: 0 });
   await page.getByRole("button", { name: "Review invoice void" }).click();
   await expect(page.getByRole("dialog")).toContainText("does not refund a payment");
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".wid-heading .wid-status")).toHaveText("Void");
+  await expect(
+    page.locator(".wid-heading .workflow-progress-heading .aat-status"),
+  ).toHaveText("Void");
   expect(writes[2].body).toEqual({ expectedVersion: 1 });
   await expect(page.getByRole("button", { name: "Review invoice issue" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Review invoice void" })).toHaveCount(0);

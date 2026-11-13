@@ -482,17 +482,7 @@ function InvoiceWorkspace({
       <header className="wid-heading">
         <div>
           <h1>{current?.invoiceNumber ?? "Invoice details"}</h1>
-          {current && (
-            <>
-              <WorkflowProgress workflow="invoice" status={current.status} />
-              <span
-                className={`wid-status wid-status-${current.status.toLowerCase()}`}
-                data-status={current.status}
-              >
-                {invoiceStatusLabels[current.status]}
-              </span>
-            </>
-          )}
+          {current && <WorkflowProgress workflow="invoice" status={current.status} />}
           <p>Review the source, document and recorded payments before issuing.</p>
         </div>
         <div className="wid-refresh">
