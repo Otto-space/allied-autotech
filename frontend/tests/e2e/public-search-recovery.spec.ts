@@ -29,6 +29,50 @@ for (const [width, height] of [
       },
       hasTouch: width === 320,
     });
+    test("initial slow image loading preserves the visitor's unsent search", async ({
+      page,
+    }, info) => {
+      let releaseLogo!: () => void;
+      const logoReady = new Promise<void>((resolve) => {
+        releaseLogo = resolve;
+      });
+      let heldLogoReads = 0;
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.route("**/brand/r2/mark-red.png*", async (route) => {
+        heldLogoReads++;
+        await logoReady;
+        await route.continue();
+      });
+      try {
+        await page.goto("/search", { waitUntil: "domcontentloaded" });
+        await expect(
+          page.getByRole("button", { name: "Close search", exact: true }),
+        ).toBeEnabled();
+        await expect.poll(() => heldLogoReads).toBeGreaterThan(0);
+        expect(await page.evaluate(() => document.readyState)).not.toBe("complete");
+        const query = page.getByLabel("Search for", { exact: true });
+        const scope = page.getByLabel("Search in", { exact: true });
+        await query.fill("Synthetic");
+        await scope.selectOption("services");
+        releaseLogo();
+        await page.waitForLoadState("load");
+        await page.evaluate(
+          () =>
+            new Promise<void>((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+            ),
+        );
+        await expect(query).toHaveValue("Synthetic");
+        await expect(scope).toHaveValue("services");
+        await page.screenshot({ path: info.outputPath("search-keeps-unsent-query.png") });
+        await query.press("Enter");
+        await expect(page).toHaveURL(/\/services\?search=Synthetic$/);
+        expect(errors).toEqual([]);
+      } finally {
+        releaseLogo();
+      }
+    });
     test("one failed catalogue remains distinct from no matches and retry preserves the query", async ({
       page,
       request,
