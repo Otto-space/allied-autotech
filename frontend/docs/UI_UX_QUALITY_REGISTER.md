@@ -91,6 +91,43 @@ resolved-unit/financial fulfilment work, real-role/provider acceptance, identifi
 and genuinely missing operator inputs stay open. Public hero/Services acceptance
 is not whole-site readiness. The full original audit and D01-D17 goal remain active.
 
+## 13 November - Parts integrated acceptance; publication held
+
+Parts catalogue, filters, product detail and gallery retain the approved Stitch
+composition with Allied typography, actual inventory, truthful missing photos,
+unconfirmed compatibility, collection/enquiry policy and existing permissions.
+PR64 adds inline gallery/support clearance through 899px; native 320/390 taps
+verify unobstructed next/previous controls without section jumps. PR62 repairs
+the saved-removal fixture's accessible name while retaining its safety checks.
+
+Exact master 34cb9f02 passed all three required gates: 1,575 units, 12 conditional
+skips and 1,153 browser cases including 15 Parts cases. Compiled Linux Chromium,
+Firefox and WebKit are synthetic evidence, not physical-device or branded Safari
+acceptance. Protected source 34cb9f02 is READY; read-only installed Edge checks
+320x720, 390x844, 1440x900 catalogue/detail, 44px card actions, no overflow or gated
+cart, and 390px search/sort/detail/Back/reload. Filtered catalogue main/footer Axe
+reports zero violations. No page exception or business write was observed.
+Previous 43170836 hosted evidence covers all nine pairs and combined filters at
+390/1440; Parts source is unchanged. Retain the corrected harness attempts and
+the distinction between actual one-item inventory and synthetic photo galleries.
+390px catalogue and 1440px detail captures were visually reviewed.
+
+Artifacts: TEMP/aat-stitch-implementation-20261109/parts-34cb-gates.json,
+parts-34cb-browser.json, parts-4317-browser.json and related screenshots/CI receipts.
+Review shares were revoked and the browser closed. Full accessibility, real-role,
+provider and device acceptance are not established by these checks.
+
+Public Home/Services fixes remain live; Parts is not yet published. The backend
+still serves b1222a11 at the 18:58:46 UTC GET-only read. A separate backend-release
+branch has recent preparation evidence but no completed rollout. Hold current
+frontend controls until the API is compatible. Master 467d9c2c preserves Parts and
+adds invoice work; its frontend check failed audit-document formatting after the
+build. The invoice task merged the formatting repair as40bcfe38. Require new
+exact-master gates and final compatible hosted/alias checks. Groups 3-10 and the
+full 119-template goal remain open.
+Keep the independently observed 390px Services filter/support edge overlap in
+the next relevant quality cycle; it is not covered by the Parts clearance fix.
+
 ## 13 November 18:56 UTC - compiled invoice correction verified
 
 Combined source e8ea33573f2c96b1453921c923b201f37aae5d52 is built as protected

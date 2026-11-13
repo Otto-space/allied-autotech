@@ -91,6 +91,60 @@ resolved-unit/financial fulfilment work, real-role/provider acceptance, identifi
 and genuinely missing operator inputs stay open. Public hero/Services acceptance
 is not whole-site readiness. The full original audit and D01-D17 goal remain active.
 
+## 13 November 19:02 UTC - Parts acceptance and compatible release dependency
+
+The Stitch Parts group is integrated through PR64 and preserved by People PR63
+and the subsequent invoice merge 467d9c2c. Exact master 34cb9f02 passed Frontend
+43477360114, Backend 43477360092 and Secrets 43477360202: 1,575 frontend units,
+12 existing conditional skips and the full 1,153-case browser matrix, including
+all 15 Parts cases. Earlier cancelled runs remain superseded, not passing gates.
+PR62 corrected the saved-item fixture's accessible-name assertion without
+weakening cancellation, focus, URL or write checks. PR64 keeps mobile gallery
+controls/thumbnails clear of fixed support through 899px and verifies native
+next/previous taps at 320/390 without page scrolling or URL changes.
+
+Protected candidate dpl_Du6cHKaZ31c4bpbLSWeFRY9126v1/source 34cb9f02 is READY,
+not published. Read-only installed Edge 157.0.4341.46 checks catalogue/detail at
+320x720, 390x844 and 1440x900, with no horizontal overflow, 44px card actions and
+no gated cart control. Search/sort/detail/Back/reload passes at 390; filtered
+catalogue main/footer Axe finds no violations. No page exception or business
+write occurred. Retain corrected harness attempts: reading href from a button,
+navigation readiness and entering search before hydration had settled.
+Earlier 43170836 hosted evidence covers all nine requested viewport pairs, two
+combined-filter journeys and four scoped Axe scans; Parts source is unchanged
+between 43170836 and 34cb9f02. Missing photographs and unconfirmed fitment remain
+truthful; no sample inventory was published. Six latest captures were saved;
+390px catalogue and 1440px detail were visually reviewed. Synthetic CI gallery
+captures cover photo-present controls; the real public item has no photograph.
+
+Evidence remains in TEMP/aat-stitch-implementation-20261109:
+parts-34cb-gates.json, parts-34cb-browser.json, parts-4317-browser.json,
+parts-master4317-ci-evidence.json and backend-task-status-20261113.json.
+Both temporary review shares were revoked and the owned browser closed.
+
+The public b1222a11 release remains live. A GET-only backend read at 18:58:46 UTC
+still identifies ACTIVE 2c40bd63 with no pending/in-progress deployment. Current
+frontend includes additional-work controls unsupported by that older API; do
+not promote it ahead of the compatible backend. The separate restoration
+worktree is on codex/backend-release-evidence-20261113 with recent package and
+migration-input verification receipts. This is evidence of preparation, not
+proof of a completed rollout or fresh populated restore. Preserve that task's
+work, all database safeguards and its rejected-image evidence. No backend or
+database write was performed by this Parts cycle.
+
+Master 467d9c2c adds the separately verified invoice correction. Its frontend
+43487250623 passed lint, types, units and build but failed the final formatting
+check on frontend/docs/CONSOLIDATED_AUDIT_20261103.md before browser execution.
+The concurrent invoice task merged that formatting repair as40bcfe38; preserve
+its fix and require all exact-master gates again. The older 34cb candidate and
+checks cannot qualify a newer source.
+Parts publication, final hosted/alias checks and Groups 4-10/full 119-template
+completion remain open. Home/Services hero and carousel fixes remain live;
+their native mobile control checks are in the existing public20261113 receipts.
+The Services filter/support edge overlap observed at 390px remains an independent
+follow-up; this entry does not claim all fixed controls are unobstructed.
+C: latest preflight 22.73 GiB; preserve the 20 GiB reserve and recovery resources.
+
 ## 13 November 18:56 UTC - compiled invoice correction verified
 
 Combined source e8ea33573f2c96b1453921c923b201f37aae5d52 is built as protected
