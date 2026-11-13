@@ -1,3 +1,158 @@
+## 13 November - dispute handling acceptance and exact-master CI success
+
+Protected compiled candidate G5 passes all 48 existing dispute-handling/policy
+scenarios in installed Edge. Coverage includes assigned Staff/Admin/Super Admin,
+missing/revoked capabilities, selection/draft/focus preservation, URL/cursor/history,
+conditional acknowledgement, stale facts, closed history, private-host rejection,
+uncertain receipts and independent reconciliation, contact search/paging, policy
+versions/contacts/identity/grant preflights, exact receipts and failed refreshes.
+All submitted requests were intercepted fixtures; no real dispute, policy,
+permission, evidence file or provider state was changed.
+
+Twenty-one additional acknowledgement, assignment and policy review dialogs pass
+at 1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800 and 320x720. They verify
+actual viewport sizes, centered geometry, full phone width, no horizontal overflow,
+keyboard scrolling where content overflows, contained focus, Escape/opener recovery,
+preserved notes/operator choices and zero writes/page errors. Reviewed desktop
+acknowledgement/policy and 320px assignment/policy captures. Scrolled captures show
+later content; clipping above the scroll position is not missing review content.
+
+Evidence: TEMP/allied-dispute-workflow-acceptance-20261113/report.json,
+geometry-report.json and geometry-results. The initial Chrome run passed the assigned-Staff receipt case but failed the
+partial-chargeback case on two console404s. A diagnostic identified both as
+/public/capabilities, which the legacy fixture's catch-all incorrectly rejected.
+The repository test fixture now delegates that public endpoint to the configured
+transport, consistent with existing order fixtures. Launch policy, production code,
+console checks and all assertions remain unchanged. Scoped ESLint and formatting
+pass. Both corrected Chrome cases now pass (2/2), including console health and exact provider-receipt assertions. Retain the initial failure and diagnostic; evidence is chrome-fixed-report.json and chrome-fixed-captures.
+Its temporary copy initially failed module resolution; explicit paths to existing
+shared dependencies fixed that discovery error without installs or assertion changes.
+Browser plugin absent; existing dedicated Playwright contexts and synthetic APIs
+are not physical-device, full screen-reader, real-role or external provider acceptance.
+No application defect was proven in this batch; existing working code is preserved.
+
+Remote master was rechecked at 6a9318a6b04c481b10bc0a52ff1ba7e45790248d. All three
+required exact-source checks now pass: Frontend43491294033, Backend43491294226,
+Secrets43491294056. Receipt: the same TEMP directory/master-gates.json. Read-only
+Vercel inspections of both apex/www still identify READY EdMgppUipQ81msnEmHCef4jZxx6m.
+These inspections did not supply a Git SHA. Do not describe G5/E6 as published.
+Compatible backend recovery/migration/cutover and final alias acceptance remain
+with the release owner. Evidence notes remain local to preserve the checked release
+source during publication; integrate them at the next coordinated checkpoint.
+
+## 13 November - financial policy and refund-calendar acceptance
+
+Protected compiled candidate G5YH7fvUPKDB1yqukd8wAPyXeUzu passes all 40 existing
+financial-policy and refund-timing scenarios in installed Edge. Coverage includes
+responsive rendering, approval review, draft preservation, effective/scheduled
+versions, validation, stale reads, revoked permissions, session changes, lost or
+wrong-actor receipts, reload reconciliation without replay, failed refresh and
+Staff/Admin/Customer restrictions. All API mutations use isolated fixtures;
+no real policy, banking calendar, transaction or permission was changed.
+
+Fourteen supplemental dialogs pass at the exact pairs 1280x720, 1024x768,
+768x1024, 430x932, 390x844, 360x800 and 320x720. Assertions verify actual inner
+viewport, centering within 2px, full phone width, no horizontal overflow, focus
+containment, Escape/opener focus recovery and preserved unsent evidence. Desktop
+refund-timing and 320px financial-policy captures were visually reviewed: actions
+remain visible below a bounded reading region. These checks found no reason to
+redesign the existing policy pages. Four additional keyboard-scroll checks pass at 320x720 and 360x800: both review regions accept End, scroll to later content and close with Escape without submission or losing draft evidence.
+
+Evidence: TEMP/allied-finance-policy-acceptance-20261113/report.json,
+geometry-report.json, scroll-report.json and corresponding captures. Browser plugin unavailable;
+existing Playwright uses a dedicated Edge context, mobile/touch emulation and
+an authenticated read-only candidate transport. Physical devices, complete manual
+screen-reader coverage and actual-role backend approval are not established by
+these fixtures. The policy calendar is distinct from the booking calendar.
+
+PR67 is merged at master 6a9318a6. Frontend 43491294033 and backend safety
+43491294226 are running; secrets 43491294056 passed. The previous e393 frontend
+run was superseded/cancelled and is not a passing gate. A source comparison from
+e393 to 6a9318a6 shows no frontend app/lib or backend src/prisma changes. New
+candidate E6JTTbEE8ruFUsNv2YiupLWBXrq5 is owned by the compatible backend release
+workflow and is not public according to its preparation receipt. Preserve that
+owner's packaging and fresh recovery checks. This acceptance note remains local
+until the next integration checkpoint to avoid cancelling the current CI matrix.
+
+Payment investigation continuation: all 14 exact-viewport exception-review and
+read-only dispute-disclosure cases pass at the same seven pairs. Desktop dispute
+and 320px exception captures were inspected. Keyboard scrolling, focus and zero
+fixture writes pass. The original core run finished with 43 passes, two failures
+and 15 unrun cases; retain that result rather than presenting a clean first run.
+Both failures reported extra queue reads after URL-only selection/disclosure.
+
+Two diagnostics reproduced document reloads. The installed Next.js navigation
+client checks x-nextjs-deployment-id against its initialized deployment identity;
+the temporary authenticated bridge discarded this actual server response header.
+A direct candidate probe returned 200 text/x-component with that deployment header.
+A scoped bridge copy now forwards the original request deployment ID and retains
+the actual response navigation headers, without substituting identity values,
+changing CSP, weakening application safeguards or modifying test assertions.
+Both original failing cases now pass (2/2). No application change was warranted.
+All 15 previously unrun cases now pass with the corrected bridge. Thus all 60 scenarios are covered across retained runs (43 original passes, two corrected navigation passes and 15 remaining passes), not a clean initial 60-case run.
+
+Evidence: TEMP/allied-payment-investigation-acceptance-20261113/report.json,
+geometry-report.json, navigation-diagnostic-report.json,
+transport-diagnostic-report.json, navigation-header-evidence.json,
+corrected-navigation-report.json and remaining-report.json.
+The first wrapper invocation failed discovery on duplicate titles; grouping the
+unchanged original suites in named describes fixed that separate harness issue.
+Use authenticated-read-navigation.cjs for subsequent hosted navigation checks.
+The header correction does not establish real-role/backend persistence, physical
+device or provider acceptance. Earlier geometry evidence remains scoped to its
+actual assertions; do not infer uninterrupted navigation from page loading alone.
+Backend 43491294226 and secrets 43491294056 pass; frontend43491294033 remains live.
+
+## 2026-11-13T19:17:44.428Z - refund acceptance and release-gate correction
+
+Compiled candidate G5YH7fvUPKDB1yqukd8wAPyXeUzu/application source e8ea3357
+covers all 42 existing refund scenarios across retained runs: initial 9 passed;
+two navigation assertions timed out; those two passed separately with unchanged
+state assertions and a 120s protected-transport allowance; remaining 31 passed.
+Measured authenticated transport requests exceeded 30s. Keep the initial failures
+and 31 initially unrun cases as historical results, not a clean 42-case first run.
+
+All 21 exact-size refund decision, transfer-record and independent-check dialog
+cases pass across 1280x720, 1024x768, 768x1024, 430x932, 390x844, 360x800, 320x720.
+Initial desktop decision passed; upload/access failed because storage.invalid is
+not a configured hosted storage destination. The temporary fixture copy replaces
+only that hostname with a host read from the candidate's connect-src. Every
+storage request remains intercepted; no real upload, refund or message occurred.
+The two corrected desktop evidence cases and 18 remaining geometry cases pass.
+Both 320x720/360x800 keyboard-scroll cases pass, with centered full-phone-width
+modals, reachable actions, retained values, focus containment and opener recovery.
+No CSP, permission, host-validation or financial guard was weakened. Existing
+unsafe-host rejection, independent actor checks, receipt validation, uncertainty
+locks, stale facts, revoked capabilities and malformed/error states pass.
+
+Desktop and 320px list/handling and transfer-dialog captures were visually reviewed.
+Evidence: TEMP/allied-refund-acceptance-20261113/{report,navigation-diagnostic-report,
+hosted-core-report,geometry-report,hosted-geometry-report,
+hosted-remaining-geometry-report,scroll-report}.json and corresponding captures.
+The unchanged core layout cases use 1050px height; supplemental geometry uses the
+exact required pairs. Installed Edge, phone/touch emulation, synthetic APIs and
+serious/critical Axe checks do not establish physical-device, full screen-reader,
+real account/server isolation or actual bank/provider acceptance. No refund app
+change was justified by these checks. Preserve the full remaining page register.
+
+Master 467d9c2c failed only audit Markdown formatting after lint/types, 1575 executed
+units (12 skipped) and production build passed. PR65 removes one extra blank line;
+its fix 40bcfe38 is preserved in current master e393b7d3. Current frontend 43489227603
+has passed check:production and is in browser verification; backend 43489227484 and
+secrets 43489227461 pass. Do not count superseded/cancelled runs as passes.
+The documentation-only acceptance checkpoint is held locally while the current
+master browser matrix runs, avoiding another unnecessary cancellation. Integrate
+these notes with the next necessary release checkpoint; application is unchanged.
+
+The release owner marked 43170836 backend images ineligible because four packaged
+migration checksums differed from established checkout bytes. The later checkout
+repair does not validate those images. A subsequent guard receipt rejects them.
+This worktree independently matches all 112 Git-filtered migration files, read-only
+(receipt TEMP/allied-invoice-checkout-migration-bytes-20261113.json). Production
+provider receipt 19:04 still identifies ACTIVE 2c40bd63 with no pending rollout.
+Preserve the owner's corrected-package/recovery work; do not overwrite published
+source tags or bypass migration checks. No public promotion by this task.
+
 ## 13 November 19:02 UTC - Parts acceptance and compatible release dependency
 
 The Stitch Parts group is integrated through PR64 and preserved by People PR63
