@@ -438,12 +438,13 @@ for (const width of [320, 768, 1440])
       .click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toContainText("Record verified supply resolution?");
-    await expect(dialog).toContainText("?1.07");
+    await expect(dialog).toContainText("\u20a61.07");
     expect(f.state.writes).toHaveLength(0);
     await dialog.getByRole("button", { name: "Confirm request", exact: true }).click();
     await expect(dialog).not.toBeVisible();
     await expect(panel).toContainText("Refund and affected quantities reconciled");
     await expect(panel).toContainText("Unfulfilled units: 1");
+    await expect(panel).not.toContainText("The affected amount is already committed");
     expect(f.state.writes).toHaveLength(1);
     expect(f.state.writes[0].path).toMatch(/supply-exceptions\/resolve$/);
     await page.reload();

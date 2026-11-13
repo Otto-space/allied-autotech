@@ -723,7 +723,7 @@ function SupplyPanel({
                 : "A financial request or additional history needs reconciliation before another choice. Contact this Care case to discuss a change."}
             </p>
           )}
-          {staff && administrator && actorUserId && (
+          {staff && administrator && actorUserId && !row.resolution && (
             <SupplyRefundForm
               order={order}
               row={row}
