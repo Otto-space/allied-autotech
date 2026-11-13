@@ -16,6 +16,7 @@ import {
   auditListQuerySchema,
   disputeListQuerySchema,
   operationalJobParamsSchema,
+  operationalJobQuerySchema,
   operationalJobsQuerySchema,
   operationalRetryBodySchema,
   refundListQuerySchema,
@@ -57,9 +58,12 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
     tags: ["Audit and operations"],
     summary: "Inspect a current processing job",
     description:
-      "Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404; query parameters are rejected.",
+      "Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404. The optional diagnostics=safe_delivery query adds an allowlisted suppression reason; omitted queries preserve the legacy response. Other query values are rejected.",
     security: [{ sessionCookie: [] }],
-    request: { params: operationalJobParamsSchema as never },
+    request: {
+      params: operationalJobParamsSchema as never,
+      query: operationalJobQuerySchema,
+    },
     responses: {
       "200": {
         description: "Current job",

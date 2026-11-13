@@ -7581,7 +7581,7 @@ export interface paths {
         };
         /**
          * Inspect a current processing job
-         * @description Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404; query parameters are rejected. Inspect a current processing job. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404. The optional diagnostics=safe_delivery query adds an allowlisted suppression reason; omitted queries preserve the legacy response. Other query values are rejected. Inspect a current processing job. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getAdminOperationsJobsBySourceByJobId"];
         put?: never;
@@ -127389,7 +127389,13 @@ export interface operations {
     };
     getAdminOperationsJobsBySourceByJobId: {
         parameters: {
-            query?: never;
+            query?: {
+                /**
+                 * @description Diagnostics used to constrain this request.
+                 * @example safe_delivery
+                 */
+                diagnostics?: "safe_delivery";
+            };
             header?: never;
             path: {
                 /**
@@ -127497,6 +127503,11 @@ export interface operations {
                              * @description ISO 8601 timestamp interpreted and validated by the server.
                              */
                             publishedAt: string | null;
+                            /**
+                             * @description Plain-text business context; HTML is not accepted or rendered as trusted markup.
+                             * @enum {string|null}
+                             */
+                            deliverySuppressionReason?: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | null;
                         } | {
                             /**
                              * Format: uuid

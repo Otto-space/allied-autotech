@@ -8,6 +8,24 @@ import {
   learningGuides,
 } from "../../src/modules/learning/learning.content.js";
 
+it("keeps suppression guidance in care scope without authorising a bypass", () => {
+  const item = learningArticles.find((article) => article.id === "care-triage")!;
+  expect(item).toMatchObject({
+    version: 4,
+    gate: "care",
+    href: "/admin/workforce/enquiries",
+  });
+  expect(item.steps.join(" ")).toContain("Do not change consent");
+  expect(item.steps.join(" ")).toContain("queued retry never proves delivery");
+  expect(learningEligible(publicLearningAccess, item.gate)).toBe(false);
+  expect(
+    learningEligible(
+      { ...publicLearningAccess, role: "CUSTOMER", verified: true },
+      item.gate,
+    ),
+  ).toBe(false);
+});
+
 it("versions the People explanation without widening access or treating partial checks as complete", () => {
   const article = learningArticles.find((item) => item.id === "access-review")!;
   expect(article).toMatchObject({
