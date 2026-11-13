@@ -1,3 +1,95 @@
+## 13 November - published mobile controls; Vehicles held verification
+
+Update: corrected compiled Vehicles source124bbfe6/deployment
+dpl_3vbKctFBeeBbjaKgSe3JVqFccbbg passes nine geometry sizes, two scoped Axe
+scans and doubled320 hero clearance (6px, no overflow). Reviewed390/1440 viewport
+and doubled320 captures. Evidence: vehicles-124-candidate-qa.json and associated
+screenshots in the same TEMP folder. Fixed support may overlay noninteractive
+content until scrolling; this does not establish full screen-reader/device acceptance.
+Incoming master64064fe9 staff-access changes and both journals are preserved;
+Vehicles source files match reviewed124bbfe6 exactly. PR73 still needs combined
+exact-master gates, a clean final candidate and compatible dated-cover backend.
+
+Mobile-control sourcee0021792 is published on both domains as
+dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y. All three exact-master gates passed
+(43504882640/43504882711/43504882729):1575 units,12 existing conditional skips,
+1163 browser cases and15 Parts cases. Exact log count corrected the receipt helper's
+initial1159 assumption before gate acceptance. No policy/backend/database change.
+
+Held candidate:12 passing focused observations across four native touch Services
+layouts, Home320/390, natural slow-logo Search320/1280, scoped Home/Services Axe,
+explicit availability recovery and actual Parts section-focus/detail/Back/reload.
+Live repeat: Services320/390/850/930 and Home320/390 retain page position with compact
+targets; actual www pricing query canonicalizes and renders correctly. No page errors
+or business submissions observed. Reviewed Home390 and recovered Services390 captures.
+Evidence: TEMP/aat-stitch-implementation-20261109/mobile-e002-{master-gates,
+candidate-qa,promotion-preflight,live-acceptance}.json and mobile-e002-live-*.png.
+Unprefixed Home/Services captures were overwritten by the identical-source live
+repeat after candidate visual review; the live-prefixed copies retain that outcome.
+
+Limitations retained: initial DNS/document/readiness deadlines; a transient capability
+warning cleared by explicit retry; an initial www probe had no query and its Fixed
+expectation was invalid. Rapid mixed tap/keyboard timing showed transient native/query
+disagreement; a fresh settled All-services-to-ArrowRight probe passed persisted URL
+and checked state. Physical devices and exhaustive keyboard timing remain unaccepted.
+
+Vehicles sourceb41bf24b/held deploymentdpl_2EapGiLe76JHy2dbsNbS5jkinqUn:
+17 passing observations cover nine catalogue sizes, two scoped Axe scans, actual
+mobile modal cancellation/invalid budget/focus, BMW query/detail/Back/reload, both
+real galleries with Escape/focus, desktop query recovery and enquiry context,
+isolated503/retry/empty/large price and long doubled text/unavailable photo/full
+owner fault disclosure. No overflow or business submissions. Compiled desktop blank
+band reduced120px to36px. Reviewed390/1440 catalogue captures against references;
+actual listing photos and material BMW fault remain intact. Evidence:
+vehicles-b41-candidate-qa.json in the same TEMP folder.
+
+Doubled hero text exposed4px caption overlap. This prevents final acceptance;
+source increases copy bottom space to64px and caption to12px, pending a fresh compiled
+comparison. An initial enquiry assertion used the wrong parameter; actual existing
+vehicle_listingId and preserved search were confirmed. Earlier source-only rows below
+are superseded by this evidence, with final caption verification still outstanding.
+Group4 publication and remaining Groups5-10/full119-template/state coverage are open.
+
+## 13 November - Parts live acceptance; Vehicles reference implementation
+
+Group3 Parts is now live on both domains at source6a9318a6 and deployment
+dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5, with all three exact-master gates passed
+(43491294033/43491294226/43491294056). Actual public read-only Edge acceptance:
+catalogue and real Engine Oil Filter detail at320,360,390,430,768,1024,1280,1440,1920;
+no overflow;44px product actions; phone search visible in first screen; category,
+search, stock and sort survive detail/Back/reload at390/1440; www journey, mobile
+menu Escape/focus and compatibility target clearance pass. Four scoped main/footer
+Axe A/AA scans report zero violations. Evidence: TEMP/aat-stitch-implementation-20261109/
+parts-live-6a-browser.json and parts-live-6a-{catalogue,product}-{390,1440}.png.
+Reviewed390 catalogue and1440 detail. No business submissions. Physical-device,
+full screen-reader and real-stock photo/gallery/pagination acceptance are unclaimed;
+isolated CI supplies photo-present and pagination coverage. Excluded pre-readiness
+tap and stale menu-name harness attempts remain documented in the receipt.
+
+Group4 Vehicles is the current bounded package. Reference fidelity ledger:
+
+| Reference point                               | Current change                                                                               | Evidence/status                                                                         |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Photographic navy introduction and breadcrumb | Approved showroom editorial image, explicit illustration caption, integrated real breadcrumb | Source only; compiled review pending                                                    |
+| Compact mobile discovery                      | Existing search,44px chips and filter/sort controls retained                                 | Baseline390 reviewed; changed rendering pending                                         |
+| Results close to controls                     | Content-sized grid rows replace stretched empty tracks; existing results heading visible     | Local CSS prototype reduced desktop heading-to-card gap120px to36px; not compiled proof |
+| Clear photo, price and action hierarchy       | Actual un-cropped listing photos retained, readable specs, full-width View vehicle treatment | Source only; no fake listings or nested controls                                        |
+| Honest condition information                  | Existing BMW owner-reported AC fault and unknown inspection/condition states preserved       | Actual two-listing baseline reviewed                                                    |
+
+Baseline screenshots vehicles-baseline-6a-{1440,390}.png were visually reviewed.
+The supplied marketplace desktop/mobile references were reviewed; the detail
+reference supplies HTML only. Reference certification, warranties, sample stock,
+VIN search and booking claims are not approved product facts or actions. Preserve
+all working filters, URL/Back/reload, modal focus, real gallery and enquiry policy.
+Compiled/reference comparison, detail and state verification remain outstanding.
+This styling batch changes no permissions, policy or learning-guide semantic IDs.
+
+PR68 Services native radio/dock fix is integrated in mastere0021792, preserving
+the concurrent public Search initial-pageshow repair. Exact-master Frontend
+43504882640 remains running; Backend43504882711 and Secrets43504882729 passed.
+Neither that correction nor this Vehicles package is claimed live yet. Full119
+template coverage and remaining Groups4-10 remain open.
+
 ## 13 November - consolidated T02 integration checkpoint
 
 PR71 now contains the dated-cover and invitation-task changes as one coherent
