@@ -1,3 +1,29 @@
+## 13 November - Vehicles gallery touch-target follow-up before publication
+
+PR73 is integrated at master8e4325f9. Exact-master Backend43515502226 and
+Secrets43515502628 passed; Frontend43515502392 is running its full runtime matrix.
+Clean production-environment candidate dpl_6gc8dzEBamgjvrEumHHmKoEibHqc is held,
+with public domains still on verifiede002/dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y.
+The candidate passed nine catalogue geometries and two scoped Axe scans, but a
+real320px BMW detail review exposed the compact WhatsApp dock covering part of
+View photos. The right-edge native hit is obstructed. This prevents Group4
+publication despite the earlier catalogue and gallery-focus observations.
+
+Evidence: TEMP/aat-stitch-implementation-20261109/vehicle-gallery-8e-overlap-baseline.json
+and vehicles-master-8e-bmw-320.png. Continue in the same worktree on
+codex/vehicle-gallery-clearance-20261113. Source reserves the dock rail for gallery
+controls/thumbnails, gives the compact expand action its existing accessible name,
+and uses the shared carousel marker for updates that should keep the page still.
+Four native-touch regression cases cover320/390/850/930 in the existing isolated
+vehicle-engine runtime project. Final compiled, exact-master and live checks remain.
+
+The other backend task has live packaging processes for64064fe9 in
+TEMP/aat-attendance-20261104/package-master-64064fe9-20261113. Its backend runtime
+matches8e4325; their only backend-path difference is this tracker. Do not duplicate
+its rollout or claim it completed. Account-reference inspection is read-only
+preparation only (auth-current-preparation.json); no Group5 implementation started.
+Keep Groups4-10/full119-template and all stated role/device limits open.
+
 ## 13 November - mobile control release published; Vehicles verification
 
 Update: corrected Vehicles source124bbfe6 compiled as

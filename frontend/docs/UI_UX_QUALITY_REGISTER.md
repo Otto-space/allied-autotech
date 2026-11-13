@@ -1,3 +1,26 @@
+## 13 November - blocked Vehicles gallery touch target before publication
+
+Exact-master8e4325 candidate dpl_6gc8dzEBamgjvrEumHHmKoEibHqc remains held. Nine
+catalogue geometry checks and two scoped Axe scans pass, but real BMW detail at
+320x720 shows WhatsApp covering the right edge of View photos. Native hit testing
+confirms obstruction; earlier modal/focus checks did not cover this fixed-dock
+intersection. Evidence: TEMP/aat-stitch-implementation-20261109/
+vehicle-gallery-8e-overlap-baseline.json and vehicles-master-8e-bmw-320.png.
+
+Follow-up source keeps gallery controls and the thumbnail rail clear at compact
+dock breakpoints, retains a44px named expand control, and marks frame-changing
+controls with the existing shared carousel exception. Four meaningful native-touch
+cases in vehicle-public-engine.spec.ts test edge hits, next/previous/thumbnail
+selection, unchanged scroll, modal arrows/Escape/focus and no application writes.
+They use the existing loopback vehicle fixture and runtime project. Compiled and
+exact-master acceptance are pending; do not publish the obstructed8e candidate.
+
+The existing public mobile release remains e002. Backend43515502226 and
+Secrets43515502628 passed; Frontend43515502392 is still running. Another task is
+packaging compatible dated-cover backend64064fe9. Group5 reference/live baselines
+are preparation only, with no authentication submissions or source implementation.
+Remaining119-template/state and role/device acceptance is unchanged.
+
 ## 13 November - published mobile controls; Vehicles held verification
 
 Update: corrected compiled Vehicles source124bbfe6/deployment
