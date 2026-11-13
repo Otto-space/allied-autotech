@@ -127497,6 +127497,11 @@ export interface operations {
                              * @description ISO 8601 timestamp interpreted and validated by the server.
                              */
                             publishedAt: string | null;
+                            /**
+                             * @description Plain-text business context; HTML is not accepted or rendered as trusted markup.
+                             * @enum {string|null}
+                             */
+                            deliverySuppressionReason?: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | null;
                         } | {
                             /**
                              * Format: uuid
