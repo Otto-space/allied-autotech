@@ -198,7 +198,10 @@ test("cancelling a removal after a URL change focuses the newly selected collect
   const state = await setup(page, request);
   await page.goto("/dashboard/saved");
   await page
-    .getByRole("button", { name: "Remove Engine oil filter from favourite products" })
+    .getByRole("button", {
+      name: "Remove Engine oil filter from favourites",
+      exact: true,
+    })
     .click();
   await page.evaluate(() =>
     window.history.replaceState(null, "", "/dashboard/saved?collection=vehicles"),
