@@ -1,10 +1,10 @@
-#At 19:04 UTC, both aliases still identify the b122 frontend and the backend is
+## 13 November - release input integrity repair and populated recovery evidence
+
+At 19:04 UTC, both aliases still identify the b122 frontend and the backend is
 ACTIVE at 2c40bd63, with no pending rollout and zero temporary IP rules. The earlier
 backup is now outside the one-hour migration-receipt window: retain its recovery
 evidence, but obtain a fresh backup and matching populated restore before any
 production migration. No production migration or deployment occurred in this batch.
-
-# 13 November - release input integrity repair and populated recovery evidence
 
 Implemented shared release-helper checks for established migration checkout bytes
 before/after builds and for the actual immutable migration-image SQL before registry
@@ -24,14 +24,14 @@ Remote source tags are preserved and must not be overwritten. Its nine image pro
 passed, demonstrating why those probes alone do not establish migration readiness.
 
 The new guard passes all five regression tests. Actual Docker execution accepts the
-canonical 6e migration image's112 files and rejects the held431 image. Evidence:
+canonical 6e migration image's 112 files and rejects the held 431 image. Evidence:
 TEMP/aat-attendance-20261104/migration-input-guard-actual-images-20261113.json.
 All 59 deployment/input/spec/cutover regression cases pass, including the five new
 cases; these counts overlap. Source lint and affected formatting pass after
 correcting unsafe-finally warnings.
 New-source hosted checks and exact-master integration remain required.
 
-Canonical6e and compatible 135 packages each pass nine image/security/runtime probes.
+Canonical 6e and compatible 135 packages each pass nine image/security/runtime probes.
 The packaged synthetic database test passes empty 112 replay, schema/history checks,
 actual separate-target restore and deliberate drift rejection. All 112 canonical
 migration files match Git-filtered checksum bytes. Four task-created intermediate 65
@@ -43,7 +43,7 @@ because both earlier deletion attempts were rejected by automatic approval revie
 A fresh strict-TLS read-only production snapshot verifies 102 applied checksums,
 one prior rolled-back entry and existing runtime/default privileges. The 930,943-byte
 archive passes the existing receipt guard. Its separate populated restore migrates
-102-to-112 through the guarded runner: all original-column counts/hashes, complete
+from 102 to 112 through the guarded runner: all original-column counts/hashes, complete
 prior history and genuine existing product inputs remain unchanged. The target is
 allied_combined_restore_694da4ccfa74_ci on the recorded loopback-only 63888 profile;
 it contains a protected snapshot and must never receive fixture submissions or
@@ -80,8 +80,8 @@ Normal exact-master publication requirements remain. Older 102 API images cannot
 read newly created NOTICE kinds and are not a complete post-feature rollback.
 
 Both public aliases and backend remain the compatible b122 release at the last read.
-Source431 frontend run43473406595 was superseded/cancelled by newer master 34cb9f02;
-source 6e run43469678572 was also cancelled, not passed. Preserve newer People/Parts
+Source 431 frontend run 43473406595 was superseded/cancelled by newer master 34cb9f02;
+source 6e run 43469678572 was also cancelled, not passed. Preserve newer People/Parts
 work. Prepare a new exact-source package after this guard integrates; do not repair
 or overwrite the held immutable tag. Require successful exact-master gates, fresh
 backup/restore evidence and a reviewed consumer-before-producer rollout with actual
