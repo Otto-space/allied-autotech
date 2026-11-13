@@ -1,3 +1,25 @@
+### 13 November: settled collection calendar and refund CI fixture repair
+
+The repeated owner calendar answer matches the recorded immutable D12 policy:
+five Monday-Saturday days; holidays count; exclude the later actual readiness /
+successful-notification date; imported/custom parts use the same rule. No policy
+revision, deadline backfill or production write is needed for this confirmation.
+
+Exact-source backend run 43510111594 on 3835e818 stopped at three unit failures
+in refund-approval-atomicity.test.ts: its SQL mock returned lock IDs for the newly
+required authoritative clock query. Runtime clock enforcement is preserved.
+The fixture now returns a distinct known database timestamp only for the clock
+query, asserts that saved approvals use it, and verifies that unavailable clock
+proof prevents refund and audit writes. All 19 cases across that file, refund
+session boundaries and collection calendar pass; focused strict TypeScript,
+Oxlint, formatting and diff checks pass. Existing backend runtime/123 migrations
+and held frontend runtime remain unchanged. Secret run 43510111501 passed;
+frontend run 43510111503 remains running at this checkpoint, not accepted as pass.
+The corrected source requires its own hosted checks before publication. Current
+master e0021792 is an ancestor; the owner's dirty Desktop hero remains untouched.
+D17 technical/no-capture reconciliation and the recorded release gates below
+remain active. No stock, payment, role, production alias or database was changed.
+
 ### 13 November: actual no-goods closure and current-master integration
 
 Runtime source 8f868a2a integrates master e0021792 search draft-load and native service

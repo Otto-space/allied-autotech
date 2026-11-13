@@ -12,6 +12,7 @@ const actor: AuthenticatedActor = {
   mfaVerifiedAt: new Date(),
 };
 const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
+const recordedAt = new Date("2026-11-02T12:00:00.000Z");
 
 function refundWorkspace(
   provider: "MANUAL" | "PAYSTACK",
@@ -44,7 +45,9 @@ function refundWorkspace(
   const transaction = {
     ...authorization,
     $executeRaw: vi.fn().mockResolvedValue(0),
-    $queryRaw: vi.fn().mockResolvedValue([{ id }]),
+    $queryRaw: vi.fn(async (query: TemplateStringsArray) =>
+      query.join("?").includes("clock_timestamp()") ? [{ recordedAt }] : [{ id }],
+    ),
     session: {
       findFirst: vi
         .fn()
@@ -101,6 +104,23 @@ describe("refund approval publication", () => {
     expect(current().status).toBe("REQUESTED");
   });
 
+  it("refuses approval without a verified database clock before publishing any change", async () => {
+    const { id, transaction, service, current } = refundWorkspace(
+      "PAYSTACK",
+      "captured-id",
+    );
+    transaction.$queryRaw.mockImplementation(async (query: TemplateStringsArray) =>
+      query.join("?").includes("clock_timestamp()") ? [] : [{ id }],
+    );
+
+    await expect(
+      service.decideRefund(actor, id, { decision: "APPROVED" }, context),
+    ).rejects.toThrow("The authoritative database clock could not be verified");
+    expect(transaction.refund.update).not.toHaveBeenCalled();
+    expect(transaction.auditLog.create).not.toHaveBeenCalled();
+    expect(current().status).toBe("REQUESTED");
+  });
+
   it.each([
     { provider: "MANUAL" as const, gatewayTransactionId: null },
     { provider: "PAYSTACK" as const, gatewayTransactionId: null },
@@ -122,6 +142,7 @@ describe("refund approval publication", () => {
       expect(current()).toMatchObject({
         status: "NEEDS_ATTENTION",
         approvedByUserId: actor.userId,
+        approvedAt: recordedAt,
       });
       expect(transaction.refund.update).toHaveBeenCalledOnce();
       expect(transaction.auditLog.create).toHaveBeenCalledOnce();
@@ -136,6 +157,7 @@ describe("refund approval publication", () => {
       service.decideRefund(actor, id, { decision: "APPROVED" }, context),
     ).resolves.toMatchObject({ id, status: "APPROVED" });
     expect(current().providerStatus).toBeNull();
+    expect(current().approvedAt).toEqual(recordedAt);
     expect(database.refund.update).not.toHaveBeenCalled();
   });
 });
