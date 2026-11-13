@@ -7,6 +7,14 @@ export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
     {
+      name: "privacy-review",
+      testMatch: ["work-privacy.spec.ts"],
+    },
+    {
+      name: "processing-job-suppression",
+      testMatch: ["work-processing-jobs.spec.ts"],
+    },
+    {
       name: "parts-design",
       testMatch: ["parts-design.spec.ts"],
     },
@@ -137,6 +145,9 @@ export default defineConfig({
         "customer-overview-attention.spec.ts",
         "shared-shell-dock.spec.ts",
         "workforce-directory.spec.ts",
+        "work-staff-workforce.spec.ts",
+        "workforce-care-policy.spec.ts",
+        "work-staff-invitations.spec.ts",
         "saved-items-navigation.spec.ts",
         "saved-items-quality.spec.ts",
         "customer-profile-quality.spec.ts",

@@ -44,7 +44,9 @@ describe("provider-observed role guidance regressions", () => {
       const article = view.articles.find((a) => a.id === "care-triage")!;
       expect(article.summary).toContain("do not permit customer replies");
       expect(article.steps.join(" ")).toContain("do not establish staffed live chat");
-      expect(article.version).toBe(3);
+      expect(article.version).toBe(4);
+      expect(article.steps.join(" ")).toContain("Do not change consent");
+      expect(article.steps.join(" ")).toContain("queued retry never proves delivery");
       expect(article.steps.join(" ")).toContain("does not create another inbox");
       expect(article.steps.join(" ")).toContain("does not mark a notification as read");
       expect(article.steps.join(" ")).toContain(

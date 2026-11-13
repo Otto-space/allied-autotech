@@ -8,17 +8,41 @@ import {
   learningGuides,
 } from "../../src/modules/learning/learning.content.js";
 
+it("keeps suppression guidance in care scope without authorising a bypass", () => {
+  const item = learningArticles.find((article) => article.id === "care-triage")!;
+  expect(item).toMatchObject({
+    version: 4,
+    gate: "care",
+    href: "/admin/workforce/enquiries",
+  });
+  expect(item.steps.join(" ")).toContain("Do not change consent");
+  expect(item.steps.join(" ")).toContain("queued retry never proves delivery");
+  expect(learningEligible(publicLearningAccess, item.gate)).toBe(false);
+  expect(
+    learningEligible(
+      { ...publicLearningAccess, role: "CUSTOMER", verified: true },
+      item.gate,
+    ),
+  ).toBe(false);
+});
+
 it("versions the People explanation without widening access or treating partial checks as complete", () => {
   const article = learningArticles.find((item) => item.id === "access-review")!;
   expect(article).toMatchObject({
-    version: 6,
+    version: 8,
     gate: "access",
     href: "/admin/workforce/access",
     reviewedAt: "2026-11-13",
   });
   expect(article.steps.join(" ")).toContain("select View person");
   expect(article.steps.join(" ")).toContain("Use Overview");
+  expect(article.steps.join(" ")).toContain("New temporary cover needs an end date");
+  expect(article.steps.join(" ")).toContain(
+    "Lagos time, regardless of this device's time zone",
+  );
   expect(article.steps.join(" ")).toContain("partial summary");
+  expect(article.steps.join(" ")).toContain("choose Give a customer staff access");
+  expect(article.steps.join(" ")).toContain("does not remove existing account access");
   expect(article.steps.join(" ")).toContain(
     "An unavailable check does not mean no access",
   );

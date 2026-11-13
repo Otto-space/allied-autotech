@@ -145,8 +145,18 @@ test("cancel sends nothing; held exact review disables all writes and saves once
   await open(page);
   await select(page);
   await review(page);
+  const readsBeforeCancel = f.privacy.reads.length;
   await btn(page, "Go back").click();
+  await expect(btn(page, "Review response")).toBeFocused();
+  expect(f.privacy.reads).toHaveLength(readsBeforeCancel);
+  await expect(page.getByLabel("Response visible to the customer")).toHaveValue(
+    "Exact reviewed customer response\nWith the full second line",
+  );
   expect(f.privacy.writes).toHaveLength(0);
+  await review(page);
+  await page.keyboard.press("Escape");
+  await expect(btn(page, "Review response")).toBeFocused();
+  expect(f.privacy.reads).toHaveLength(readsBeforeCancel);
   await btn(page, "Review response").click();
   f.privacy.writeMode = "hold";
   await save(page).click();
