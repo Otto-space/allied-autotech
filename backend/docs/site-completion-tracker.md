@@ -52,6 +52,73 @@ The Services filter/support edge overlap observed at 390px remains an independen
 follow-up; this entry does not claim all fixed controls are unobstructed.
 C: latest preflight 22.73 GiB; preserve the 20 GiB reserve and recovery resources.
 
+## 13 November 19:54 UTC - Services filter clearance and native focus repair
+
+PR68 addresses the remaining Services filter/support overlap verified at 390px.
+Reserve a narrow rail around the discovery panel at the compact dock breakpoints;
+reduce only narrow radio padding/gap so all three labels remain 44px high at 320px.
+The shared reveal handler now measures horizontal overlap and the visible label
+of custom radios/checkboxes. Public native scroll padding is 16px: the previous
+128px full-width allowance made browser label focus jump even after the scripted
+visibility handler was corrected. Dashboard full-width padding remains unchanged.
+Existing carousel exceptions, deliberate anchors and linked-field targets remain.
+
+Initial source ebe728da correctly cleared the dock but all four native assertions
+still failed the no-jump requirement. Preserve those failures and the 320px
+214-to483 scroll trace. A local CSS prototype isolated native scroll padding as
+the second cause; do not count that prototype as compiled acceptance. Corrected
+source 3208037d is READY as protected production-environment candidate
+dpl_E7iaPLY2PnHqfXrMuE9uPE5XtS43. Its four unchanged native regression cases pass
+at 320x720, 390x844, 850x720 and 930x430: painted-edge taps, checked/URL state,
+unchanged scroll, 44px targets, keyboard arrows/focus and no overflow or business
+writes. The 320/390 compiled captures were visually reviewed. Installed Edge is
+157.0.4341.46; phone views are emulation, not physical-device acceptance.
+
+A separate read-only 390px journey using actual public service data selects Fixed
+price without moving the page; scoped main/footer Axe finds no violations, with
+no page exception or business write. Browser plugin is unavailable, so installed
+Edge Playwright is used. The initial inline prototype style was correctly rejected
+by CSP; no policy was weakened. Subsequent prototypes intercepted a stylesheet
+only; final compiled assertions use no CSS injection or DOM replacement.
+
+Evidence: TEMP/aat-stitch-implementation-20261109/services-clearance-prototype-
+20261113.json, held-services-clearance-v2-20261113.json and
+hosted-services-clearance-20261113/{native-failed-result,final-native-result}.json,
+plus final-native-results screenshots and services-clearance-v2-public-390.png.
+The initial 19-case hosted guard run is not a pass: five native Home cases pass,
+two synthetic Parts records are unavailable to remote SSR, six older scrollbar
+expectations fail, and the outer 10-minute timeout leaves six cases unexecuted.
+Shared modal rules have used thin scrollbars since 4d505639; correct only that
+stale viewport-test expectation. All six reviewed support cases then pass with
+their fixed-position, actual scrolling, focus, heading and Axe assertions intact.
+A separate six-case navigation run passes both linked-field cases but fails four
+Contact fragment cases. All four fail identically on unchanged live b1222a11 with
+the same synthetic client fixture; retain the fixture discrepancy for the Contact
+group without weakening its assertions. Actual public-data candidate refreshes
+pass twice at 390px. Fresh 1440x900 contexts on both baseline and candidate pass
+entry and refresh with identical target bounds 195.70-235.70px below the 78px header.
+Discard the earlier resized-context probe as fresh-entry acceptance: it retained
+the prior reading position. Preserve failed probes and corrected helper attempts.
+These results establish seventeen relevant passing hosted cases across focused
+runs, not a passing 19-case suite or complete accessibility/platform acceptance.
+
+Exact-source CI Parts preflight passed. Its artifact 14072077003 is 936,434 bytes,
+SHA-256 2b6836be6319e16a0c33d8841fd1a5b60679a2400a77ef45b10ff829d59c8ee5.
+The verified archive was read in memory; six whitelisted PNGs were retained,
+including both completed 320/390 native gallery cases, and the ZIP was not saved.
+Both gallery captures were visually reviewed. Evidence is
+services-3208037d-parts-ci-evidence.json and its safe PNGs. Full CI release gates
+remain pending; neither a successful preflight nor corrected hosted fixture
+coverage proves full master or real-role/device acceptance.
+
+Scoped lint, frontend TypeScript and formatting pass. Evidence also includes
+support-reviewed-result.json, linked-navigation-result.json and the four original
+baseline failure receipts under the same hosted task directory. Reconcile current master
+6a9318a6 without losing the separate migration-input safeguards. Publication
+still requires all exact-master gates, compatible backend readiness and final
+public alias/journey checks. No frontend publication or backend/database write
+occurred in this batch. The full 119-template goal and remaining groups stay open.
+
 ## 13 November 18:56 UTC - compiled invoice correction verified
 
 Combined source e8ea33573f2c96b1453921c923b201f37aae5d52 is built as protected
