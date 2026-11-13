@@ -1,3 +1,71 @@
+## 13 November 20:28 UTC - verified compatible release published
+
+This entry supersedes the earlier 19:04 pre-release state. Exact master
+6a9318a6b04c481b10bc0a52ff1ba7e45790248d integrated PR67 and retained the newer
+People, Parts and invoice changes. All three exact-master gates passed:
+Frontend 43491294033, Backend database safety 43491294226 and Secrets 43491294056.
+The shared migration-input guard and all 59 affected regression cases pass;
+the five new cases are included in that count. Bad source431 packages remain held.
+
+A fresh 932,194-byte strict-TLS production snapshot was separately restored to
+allied_combined_restore_838feafd344f_ci on the recorded loopback-only 63888
+profile. The native populated rehearsal verified preservation of original data,
+complete prior migration history and existing product inputs through 102 to112.
+All six current/recovery API and worker image schema probes passed. Protected
+snapshots and restore databases remain retained; no fixture submissions occurred.
+Current managed snapshot inventory, provider retention/PITR/encryption documentation
+and the historical managed-cluster restore are separate from this fresh logical
+restore. No new managed-cloud restore is claimed.
+
+Production then migrated from102 to112 through npm run db:migrate. Existing
+history, checksums, runtime least privilege and defaults remain intact. Migrator
+db:check and the actual runtime scalar-column schema probe passed. Runtime ledger
+access remains denied by design; no grants were broadened. Only reviewed schema
+and migration-history writes occurred; no demonstration/customer/stock/price or
+financial submissions were made. Every scoped temporary IP rule was removed and
+verified, preserving original and concurrent rules.
+
+Consumer deployment793cd04d became ACTIVE before the new API producer was deployed.
+All provider build/deploy/finalize steps succeeded; the predecessor is SUPERSEDED
+and no pending deployment remained. Fresh post-probe reminder heartbeats passed.
+This establishes provider-managed replacement and readiness; historic termination
+logs were unavailable, so individual old-process exit was not directly observed.
+Final backend36687b08-0c0c-4c24-a80e-69dc572c1822 is ACTIVE with all four verified
+source6a digests. Actual spec comparison verifies that only intended image digests
+changed. Both public API health endpoints return200. All13 worker task heartbeats
+are healthy, including fresh booking and identity progress after the probe began.
+Heartbeats do not prove customer-message or provider-delivery acceptance.
+
+Frontend dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5 was held until the matching backend was
+ready, then promoted. Both apex and www resolve to that READY deployment; CLI
+metadata confirms source6a. Actual held Services geometry/imagery passed nine widths.
+Direct public Services checks then passed320/360/390/430/768/1024/1280/1440/1920:
+all36 actions are44px high, with no horizontal overflow; search, reload, visible
+keyboard focus, Enter and the correct diagnostics detail/form load passed. Four
+anonymous session401s were expected; no page exceptions occurred. No submission.
+390/1440 screenshots were visually reviewed. Earlier direct public hero tests pass
+three real-time loops, pause/resume, keyboard and slow/all-failed media. About
+320/390/1440 preserves the full seven-person team photo. Hero/About source is
+unchanged by this release. These are resized desktop Edge checks, not physical
+phone, Safari, authenticated role or provider test-mode acceptance.
+
+Evidence: TEMP/aat-attendance-20261104/release-backend-6a9318a6-20261113,
+held-6a9318a6-services-rendered-20261113.json,
+live-6a9318a6-public-service-final-20261113.json,
+live-home-hero-acceptance-final-20261113.json and live-about-whole-team-20261113.json.
+Safe before: live-service-card-before-390-20261110.png; after:
+live-6a9318a6-service-card-final-390-20261113.png and1440 counterpart.
+
+Readiness: this compatible public/backend release is published and health-checked.
+Payments, booking activation and other capability flags remain unchanged. Full
+operational acceptance, real-role persistence, provider test-mode and physical-device
+checks remain distinct and open. D17's active resolved-unit/financial fulfilment
+work remains separate; preserve its dirty worktree. Outstanding genuine operator
+inputs/identifiers and the Services filter/support overlap remain recorded follow-ups.
+The original full audit/D01-D17 goal is active, not complete. At completion of these
+small checks C: remains above20GiB; the approved compiler cache is retained because
+automatic approval review blocked its deletion. No alternate deletion was attempted.
+
 ## 13 November - release input integrity repair and populated recovery evidence
 
 At 19:04 UTC, both aliases still identify the b122 frontend and the backend is
