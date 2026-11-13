@@ -1,3 +1,35 @@
+## 13 November 23:22 UTC - compiled workforce acceptance and concurrent repair preserved
+
+PR77 merged while this branch was being prepared. Preserve its shared CSS fix and
+Ubuntu24.04 workflow exactly; this follow-up adds only regression coverage and
+completion evidence. Keep the native scrollIntoView(start) assertion as well as
+actual Tab through Show password to Review enrollment. Add768px tablet and1440px
+collapsed-sidebar coverage alongside320px and1440px expanded.
+
+The final compiled master9bf8a26e preview dpl_7JkQ4W7gtutG86xfikzLmbZrxiPo passes
+all4 cases in25.0s, with zero skipped/flaky/unexpected cases. No stylesheet override
+is used. Existing short-lived Vercel OIDC is scoped to this preview origin only;
+no token is logged/persisted and no Trusted Sources rule changed. All data are
+isolated fixtures and unintercepted submissions are refused. This proves compiled
+rendering/focus/geometry, not real-role, backend persistence or physical devices.
+Evidence is separately retained under TEMP/aat-workforce-compiled-9bf8a26e-20261113/
+{source.json,report.json,results}. The stylesheet matches master exactly.
+
+The earlier source-CSS prototype passed4/4 in terminal session82703. Its shared
+local report was overwritten by final-CSS relay attempt99548, which timed out
+fetching an asset before rendering:1 infrastructure failure,3 not run. That report
+is failure evidence and must not be cited as four passes. The compiled run above
+uses a distinct output folder and supersedes that attempt's acceptance limit.
+The original failing CI screenshot remains preserved in its separate folder.
+
+Master9bf frontend43525367353 has passed browser installation and WebKit transport
+checks and entered the full runtime matrix on the pinned runner. It remains live,
+not passed. Preserve this specific run while the latest follow-up waits. Failed
+c48/2e gates remain failed; the c48 backend apply was never executed and its held
+frontend remains ineligible. No application publication or capability activation
+is claimed. The full original briefs, D01-D17, real-role/provider/device acceptance
+and genuine missing operator facts remain open.
+
 ## 13 November 23:13 UTC - workforce focus repair; native hero lifecycle verified
 
 Frontend source c48cf7b1 is not release-qualified. Its exact-master runtime run
@@ -58,6 +90,36 @@ remain, with no alternate deletion attempt. Authenticated browser host access,
 real-role/provider/device acceptance, genuine operator facts and the separate
 active D17 work remain open. Full original briefs/D01-D17 stay active; no flags,
 real records, schema, grants or financial policies changed in this batch.
+
+## 14 November - release gate corrections and current calendar acceptance
+
+Held combined source2e492b81 passes16/16 booking-calendar cases in dedicated Edge:
+all seven requested viewports plus1366/1440, centered/full-phone-width layout,
+keyboard/date selection, close/focus return, failed/inconsistent reads, session
+invalidation, offline recovery, stale-month rejection and touch detail navigation.
+Desktop and320px month captures were reviewed. This is hosted rendering with
+isolated fixtures, not real bookings or physical-device acceptance. Evidence:
+TEMP/allied-calendar-held-2e492b81/report.json. Prior held diagnostic/privacy8/8
+also remains valid for2e. Neither candidate is published.
+
+Frontend43517656682 failed one of1267 cases: at320px an enlarged selected-person
+identity caused the password field to be covered by the support dock. CI screenshot
+and trace are retained under TEMP/allied-c48-ci-focus. Ordinary local Edge and
+Chromium checks each passed2/2, so timing alone did not reproduce the failure.
+A native scrollIntoView(start) differential reproduced the exact CI occluders with
+old CSS; the corrected CSS passes at320/1440. The document already reserves the
+header with scroll-padding; person controls now add only the sticky person bar to
+scroll-margin. The existing regression explicitly exercises that native alignment.
+TEMP/allied-workforce-scroll-differential-retry-2e492b81/report.json records one
+intentional baseline failure and two corrected passes, not a clean three-case pass.
+An earlier comparison was interrupted by the disk guard and is not acceptance.
+
+Newer frontend43520835587 failed before browser tests: ubuntu-latest resolved to
+Ubuntu26.04 with package sources unable to locate browser libraries. Pin the
+frontend runner to supported Ubuntu24.04. Parsed workflow comparison confirms
+only runs-on changed; all gates/steps/permissions remain. Scoped lint/format and
+final compiled/new-source CI remain the appropriate release checks. No permission,
+capability, database or provider setting changed. Full brief scope remains active.
 
 ## 13 November - blocked Vehicles gallery touch target before publication
 

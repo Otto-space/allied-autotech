@@ -25,7 +25,8 @@ concurrency:
 
 jobs:
   check:
-    # Keep browser system dependencies on an explicit supported LTS image.
+    # Keep the browser dependency baseline stable; ubuntu-latest moved to
+    # 26.04, where the runner's package sources could not resolve required libs.
     runs-on: ubuntu-24.04
     # One production build, followed by the existing Chromium suite and the
     # bounded Firefox/WebKit responsive matrix. The fixture API is serial.

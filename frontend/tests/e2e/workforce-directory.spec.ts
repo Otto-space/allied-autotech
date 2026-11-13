@@ -357,6 +357,11 @@ for (const { width, collapsed } of [
         await control.focus();
       }
       await expect(control).toBeFocused();
+      // The person-context resize/focus handler uses this native alignment.
+      // Exercise it explicitly so event timing cannot mask doubled header space.
+      await control.evaluate((element) =>
+        element.scrollIntoView({ block: "start", behavior: "instant" }),
+      );
       await expect(selected.getByText(name, { exact: true })).toBeInViewport();
       expect(
         await selected.evaluate((element) => element.getBoundingClientRect().height),
