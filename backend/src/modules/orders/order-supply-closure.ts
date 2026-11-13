@@ -1,3 +1,4 @@
+import { recordCancelledSupplyReconciliation } from "./order-cancelled-supply-reconciliation.js";
 import type { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -44,6 +45,15 @@ export async function recordSupplyClosure(
     return { closure: prior, replayed: true };
   }
   if (order.version !== input.expectedVersion) throw orderStale();
+  if (order.status === "CANCELLED")
+    return recordCancelledSupplyReconciliation(
+      tx,
+      actor,
+      order,
+      input,
+      requestHash,
+      context,
+    );
   if (order.fulfillmentMethod !== "COLLECTION" || !order.paidAt)
     throw orderConflict("Review the actual paid collection order before supply closure.");
   const supply = await assertNoSupplyExceptionHold(tx, order.id);
@@ -71,10 +81,7 @@ export async function recordSupplyClosure(
     );
   const collected = collectedPickupUnitRanges(original, history);
   const handedUnits = collected.reduce((sum, row) => sum + row.quantity, 0);
-  if (
-    (order.status === "COMPLETED" && !handedUnits) ||
-    (order.status === "CANCELLED" && handedUnits)
-  )
+  if (order.status === "COMPLETED" && !handedUnits)
     throw orderConflict(
       "Reconcile the historical order status and actual physical handover before closure.",
     );
@@ -138,7 +145,7 @@ export async function recordSupplyClosure(
       status: resultingStatus,
       ...(resultingStatus === "CANCELLED"
         ? {
-            ...(order.status === "CANCELLED" ? {} : { cancelledAt: now }),
+            cancelledAt: now,
             cancellationReason:
               "Original supply refunded; no goods remain for collection",
           }

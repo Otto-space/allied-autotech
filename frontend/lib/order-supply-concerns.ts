@@ -91,6 +91,35 @@ export const supplySummarySchema = z.object({
   resolutionCapabilityVersion: z.literal(1).optional(),
   closureCapabilityVersion: z.literal(1).optional(),
   closureReviewAvailable: z.boolean().default(false),
+  cancelledReconciliationCapabilityVersion: z.literal(1).optional(),
+  cancelledReconciliationReviewAvailable: z.boolean().default(false),
+  cancelledReconciliationPreview: z
+    .object({
+      outcome: z.enum(["NO_CAPTURE_RECORDED", "CAPTURED_FUNDS_RETURNED"]),
+      originalKobo: money,
+      capturedKobo: money,
+      refundedKobo: money,
+      cancelledUnits: z.number().int().positive(),
+    })
+    .nullable()
+    .default(null),
+  reconciliations: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        orderVersion: z.number().int().nonnegative(),
+        createdAt: date,
+        outcome: z.enum(["NO_CAPTURE_RECORDED", "CAPTURED_FUNDS_RETURNED"]),
+        originalKobo: money,
+        capturedKobo: money,
+        refundedKobo: money,
+        cancelledUnits: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+        reason: z.string().max(1000).optional(),
+      }),
+    )
+    .max(10)
+    .default([]),
+  hasMoreReconciliations: z.boolean().default(false),
   closures: z
     .array(
       z.object({
@@ -186,6 +215,29 @@ export function parseSupplySummary(value: unknown, order: SupplyOrder) {
   if (new Set(data.closures.map((row) => row.id)).size !== data.closures.length)
     throw Error("Unexpected duplicate supply closure");
   const originalUnits = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  if (
+    new Set(data.reconciliations.map((row) => row.id)).size !==
+    data.reconciliations.length
+  )
+    throw Error("Unexpected duplicate cancelled-order reconciliation");
+  if (
+    data.reconciliations.some((row) => row.orderVersion >= data.orderVersion) ||
+    new Set([...data.closures, ...data.reconciliations].map((row) => row.id)).size !==
+      data.closures.length + data.reconciliations.length
+  )
+    throw Error("Unexpected cancelled-order review identity or version");
+  for (const row of [
+    ...data.reconciliations,
+    ...(data.cancelledReconciliationPreview ? [data.cancelledReconciliationPreview] : []),
+  ]) {
+    if (
+      row.cancelledUnits !== originalUnits ||
+      row.capturedKobo !== row.refundedKobo ||
+      BigInt(row.originalKobo) <= BigInt(0) ||
+      (row.outcome === "NO_CAPTURE_RECORDED") !== (row.capturedKobo === "0")
+    )
+      throw Error("Unexpected cancelled-order amounts or actual quantities");
+  }
   for (const closure of data.closures) {
     if (
       closure.orderVersion >= data.orderVersion ||

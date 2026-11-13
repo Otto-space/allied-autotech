@@ -62,6 +62,7 @@ async function setup(
       writes: [] as { path: string; body: Record<string, unknown>; key?: string }[],
       failRead: false,
       closureHandedUnits: 0,
+      cancelledOutcome: null as "NO_CAPTURE_RECORDED" | "CAPTURED_FUNDS_RETURNED" | null,
       interruptClosureResponse: false,
     };
   if (empty) state.summary.items = [];
@@ -87,7 +88,24 @@ async function setup(
     expect(request.headers()["x-csrf-token"]).toBeTruthy();
     expect(body.expectedVersion).toBe(state.summary.orderVersion);
     expect(String(body.idempotencyKey)).toMatch(/^[0-9a-f-]{36}$/i);
-    if (url.pathname.endsWith("/close")) {
+    if (url.pathname.endsWith("/close") && state.cancelledOutcome) {
+      expect(body.noGoodsOutstandingAndSettlementReviewed).toBe(true);
+      state.summary.cancelledReconciliationReviewAvailable = false;
+      state.summary.reconciliations = [
+        {
+          id: supplyId(91),
+          orderVersion: state.summary.orderVersion,
+          createdAt: "2026-11-13T12:00:00Z",
+          outcome: state.cancelledOutcome,
+          originalKobo: "320",
+          capturedKobo: state.cancelledOutcome === "NO_CAPTURE_RECORDED" ? "0" : "320",
+          refundedKobo: state.cancelledOutcome === "NO_CAPTURE_RECORDED" ? "0" : "320",
+          cancelledUnits: 3,
+          reason: String(body.reason),
+        },
+      ];
+      record.status = "CANCELLED";
+    } else if (url.pathname.endsWith("/close")) {
       expect(body.noGoodsOutstandingAndSettlementReviewed).toBe(true);
       state.summary.closureReviewAvailable = false;
       state.summary.closures = [
@@ -723,3 +741,141 @@ for (const audience of ["customer", "guest"] as const)
       }
       await verifyConsole(page, logs.errors, logs.warnings);
     });
+
+for (const width of [320, 768, 1440])
+  for (const outcome of ["NO_CAPTURE_RECORDED", "CAPTURED_FUNDS_RETURNED"] as const)
+    test(`cancelled original financial review ${outcome} at ${width}px`, async ({
+      page,
+    }, info) => {
+      await page.setViewportSize({ width, height: 900 });
+      const f = await setup(page, "staff"),
+        interrupted = width === 320 && outcome === "NO_CAPTURE_RECORDED";
+      const logs = consoleCapture(
+        page,
+        false,
+        interrupted
+          ? `/api/v1/staff/orders/${f.record.id}/supply-exceptions/close`
+          : undefined,
+      );
+      f.record.status = "CANCELLED";
+      f.record.version = 2;
+      f.state.summary.orderVersion = 2;
+      f.state.cancelledOutcome = outcome;
+      f.state.interruptClosureResponse = interrupted;
+      f.state.summary.cancelledReconciliationCapabilityVersion = 1;
+      f.state.summary.cancelledReconciliationReviewAvailable = true;
+      f.state.summary.cancelledReconciliationPreview = {
+        outcome,
+        originalKobo: "320",
+        capturedKobo: outcome === "NO_CAPTURE_RECORDED" ? "0" : "320",
+        refundedKobo: outcome === "NO_CAPTURE_RECORDED" ? "0" : "320",
+        cancelledUnits: 3,
+      };
+      f.state.summary.items[0].monetaryBasis.status = "HISTORICAL_BREAKDOWN_REVIEW_REQUIRED";
+      f.state.summary.items[0].monetaryBasis.amounts = null;
+      await page.goto(f.url);
+      const panel = page.locator("[data-order-supply-concerns]"),
+        group = panel.getByRole("group", {
+          name: "Review financial closure",
+          exact: true,
+        });
+      await group
+        .getByRole("textbox")
+        .fill("Synthetic actual cancelled original and payment evidence reviewed");
+      await group.getByRole("checkbox").check();
+      await group
+        .getByRole("button", { name: "Review financial closure", exact: true })
+        .click();
+      const dialog = page.getByRole("dialog");
+      await expect(dialog).toContainText("Record cancelled-order payment review?");
+      expect(f.state.writes).toHaveLength(0);
+      await dialog.getByRole("button", { name: "Confirm request", exact: true }).click();
+      const history = panel.locator("[data-cancelled-supply-history]");
+      await expect(history).toContainText(
+        outcome === "NO_CAPTURE_RECORDED"
+          ? "No captured payment recorded"
+          : "Captured funds returned",
+      );
+      await expect(history).toContainText(
+        "3 original units cancelled; no physical pickup was recorded",
+      );
+      await expect(history).toContainText("The original order remains cancelled");
+      await expect(group).toHaveCount(0);
+      expect(f.state.writes).toHaveLength(1);
+      await page.reload();
+      await expect(history).toBeVisible();
+      expect(f.state.writes).toHaveLength(1);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
+      ).toBe(false);
+      expect(
+        (
+          await new AxeBuilder({ page })
+            .include("[data-order-supply-concerns]")
+            .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+            .analyze()
+        ).violations,
+      ).toEqual([]);
+      await page.screenshot({
+        path: info.outputPath(`cancelled-review-${outcome}-${width}.png`),
+        fullPage: true,
+      });
+      expect(logs.closureRequestFailures).toEqual(interrupted ? ["net::ERR_FAILED"] : []);
+      await verifyConsole(page, logs.errors, logs.warnings);
+    });
+for (const audience of ["customer", "guest"] as const)
+  for (const width of [320, 1440])
+    for (const outcome of ["NO_CAPTURE_RECORDED", "CAPTURED_FUNDS_RETURNED"] as const)
+      test(`${audience} reads private-safe cancelled original ${outcome} at ${width}px`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 900 });
+        const f = await setup(page, audience),
+          logs = consoleCapture(page, audience === "guest");
+        f.record.status = "CANCELLED";
+        f.record.version = 3;
+        f.state.summary.orderVersion = 3;
+        f.state.summary.cancelledReconciliationCapabilityVersion = 1;
+        f.state.summary.cancelledReconciliationReviewAvailable = true;
+        f.state.summary.reconciliations = [
+          {
+            id: supplyId(91),
+            orderVersion: 2,
+            createdAt: "2026-11-13T12:00:00Z",
+            outcome,
+            originalKobo: "320",
+            capturedKobo: outcome === "NO_CAPTURE_RECORDED" ? "0" : "320",
+            refundedKobo: outcome === "NO_CAPTURE_RECORDED" ? "0" : "320",
+            cancelledUnits: 3,
+            reason: "Private synthetic cancelled-order administrator note",
+          },
+        ];
+        await page.goto(f.url);
+        const panel = page.locator("[data-order-supply-concerns]"),
+          history = panel.locator("[data-cancelled-supply-history]");
+        await expect(history).toContainText(
+          outcome === "NO_CAPTURE_RECORDED"
+            ? "No refund was created"
+            : "refunds already independently verified",
+        );
+        await expect(history).not.toContainText(
+          "Private synthetic cancelled-order administrator note",
+        );
+        await expect(
+          panel.getByRole("group", { name: "Review financial closure", exact: true }),
+        ).toHaveCount(0);
+        await expect(panel.getByRole("button", { name: "Review my choice" })).toHaveCount(
+          0,
+        );
+        await page.reload();
+        await expect(history).toBeVisible();
+        expect(f.state.writes).toHaveLength(0);
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
+        ).toBe(false);
+        if (audience === "guest") {
+          expect(logs.guestSessionResponses).toEqual([401, 401]);
+          expect(logs.guestSessionConsole).toHaveLength(2);
+        }
+        await verifyConsole(page, logs.errors, logs.warnings);
+      });

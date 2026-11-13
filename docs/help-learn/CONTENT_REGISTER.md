@@ -1,3 +1,11 @@
+### 13 November: cancelled original reconciliation (prepared source)
+
+Customer parts-collection v6, staff-parts-collection v5, administrator order-sourcing
+v9 and restricted refund-work v10 distinguish no captured payment recorded from
+actual full return of every capture, preserve unknown bank evidence and separate
+replacement acceptance. Eligibility, semantic targets and feature flags remain.
+See [reconciliation checkpoint](CANCELLED_SUPPLY_RECONCILIATION_20261113.md).
+
 ### 13 November: distinct no-goods financial closure (source)
 
 Customer parts-collection v5, staff-parts-collection v4, admin order-sourcing v8

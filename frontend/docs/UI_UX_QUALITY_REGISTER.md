@@ -1,3 +1,23 @@
+### 13 November: cancelled original payment review (prepared source)
+
+D17 now has a distinct existing-order financial review for actual uncaptured
+cancellations and fully returned whole-order legacy/technical captures. It keeps
+positive unit-refund closure separate, preserves actual cancellation and all
+money/stock history, and rechecks original proof before replacement payment or
+fulfilment. Unknown attempts and financial/physical/technical concerns stay held.
+Forward SQL124-127 preserves earlier replayed files. The narrow cancellation
+refund recovery requests money only; general pending terms and independent
+financial approval/transfer/checking are not bypassed.
+
+52 guide/calendar/timing/role units and22 supply UI units pass. Native full127
+empty replay/schema diff/db:check and148/148 cases across11 files pass; owned
+tmpfs cleanup verified. Rendered held-candidate acceptance remains pending;
+no production publication, migration or purchasing activation occurred. See
+../../docs/help-learn/CANCELLED_SUPPLY_RECONCILIATION_20261113.md for the exact
+source journey and acceptance limits. Current remote master8e4325f9 vehicle/card
+and dated staff invitation repairs were inspected and will be preserved during
+integration. The owner's Desktop hero edit remains untouched.
+
 ### 13 November: actual no-goods closure and current-master integration
 
 Runtime source 8f868a2a integrates master e0021792 search draft-load and native service

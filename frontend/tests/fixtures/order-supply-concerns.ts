@@ -18,6 +18,10 @@ export function supplySummary(order: SupplyOrder = supplyOrder()): SupplySummary
     choiceStatementVersion: "SUPPLY_CHOICE_20261110_V1",
     hasMore: false,
     closures: [],
+    reconciliations: [],
+    hasMoreReconciliations: false,
+    cancelledReconciliationReviewAvailable: false,
+    cancelledReconciliationPreview: null,
     hasMoreClosures: false,
     closureReviewAvailable: false,
     items: [

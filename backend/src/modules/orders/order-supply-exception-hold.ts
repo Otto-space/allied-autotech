@@ -1,3 +1,4 @@
+import { currentCancelledSupplyReconciliation } from "./order-cancelled-supply-reconciliation.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { orderConflict } from "./orders.errors.js";
 import { currentSupplyResolution } from "./order-supply-resolution.js";
@@ -52,6 +53,17 @@ export async function assertNoSupplyExceptionHold(
     if (!locked)
       throw orderConflict("Original supply evidence is busy. Recheck before continuing.");
     const order = await lockSupplyOrder(tx, parentId);
+    if (order.status === "CANCELLED") {
+      const reconciliation = await currentCancelledSupplyReconciliation(tx, parentId);
+      if (reconciliation) {
+        if (parentId === orderId)
+          throw orderConflict(
+            "This original order remains cancelled; use its separately accepted alternative.",
+          );
+        related.push({ orderId: parentId, resolutionIds: [] });
+        continue;
+      }
+    }
     const current: Awaited<ReturnType<typeof currentSupplyResolution>>[] = [];
     // Reconcile every case of the original, not just the one linked to an offer.
     const all = await tx.orderSupplyException.findMany({

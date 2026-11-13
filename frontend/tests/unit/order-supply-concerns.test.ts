@@ -238,3 +238,46 @@ it("rejects closure amounts and quantities that misrepresent actual obligations"
     parseSupplySummary({ ...data, closures: [closure, closure] }, order),
   ).toThrow();
 });
+
+describe("cancelled original payment reconciliation projection", () => {
+  it.each(["NO_CAPTURE_RECORDED", "CAPTURED_FUNDS_RETURNED"] as const)(
+    "reads %s without inventing per-unit refund or handover",
+    (outcome) => {
+      const order = supplyOrder(),
+        data = supplySummary(order);
+      data.orderVersion = 3;
+      data.reconciliations = [
+        {
+          id: supplyId(90),
+          orderVersion: 2,
+          createdAt: "2026-11-13T10:00:00Z",
+          outcome,
+          originalKobo: "320",
+          capturedKobo: outcome === "NO_CAPTURE_RECORDED" ? "0" : "640",
+          refundedKobo: outcome === "NO_CAPTURE_RECORDED" ? "0" : "640",
+          cancelledUnits: 3,
+        },
+      ];
+      expect(parseSupplySummary(data, order).reconciliations[0].outcome).toBe(outcome);
+      expect(parseSupplySummary(data, order).closures).toEqual([]);
+      for (const change of [
+        { refundedKobo: "1" },
+        { cancelledUnits: 2 },
+        { orderVersion: 3 },
+        { originalKobo: "0" },
+        {
+          outcome:
+            outcome === "NO_CAPTURE_RECORDED"
+              ? "CAPTURED_FUNDS_RETURNED"
+              : "NO_CAPTURE_RECORDED",
+        },
+      ]) {
+        const bad = structuredClone(data);
+        Object.assign(bad.reconciliations[0], change);
+        expect(() => parseSupplySummary(bad, order)).toThrow();
+      }
+      data.reconciliations.push({ ...data.reconciliations[0] });
+      expect(() => parseSupplySummary(data, order)).toThrow();
+    },
+  );
+});

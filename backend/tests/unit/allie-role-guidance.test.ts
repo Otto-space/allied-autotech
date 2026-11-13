@@ -179,7 +179,7 @@ describe("provider-observed role guidance regressions", () => {
     });
     const refund = entitled.articles.find((a) => a.id === "refund-work")!;
     expect(refund.href).toBe("/admin/refunds");
-    expect(refund.version).toBe(6);
+    expect(refund.version).toBe(10);
     expect(refund.steps.join(" ")).toContain("creating a request does not settle it");
     expect(refund.steps.join(" ")).toContain("actual current customer remedy request");
     expect(refund.steps.join(" ")).toContain("not money returned");

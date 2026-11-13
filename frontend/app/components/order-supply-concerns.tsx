@@ -190,7 +190,7 @@ function SupplyPanel({
         : { ...change.body, expectedVersion: expected, idempotencyKey: nonce };
     const confirmed = (data: SupplySummary) =>
       change.action === "close"
-        ? data.closures.some(
+        ? [...data.closures, ...data.reconciliations].some(
             (row) => row.orderVersion === expected && row.reason === body.reason,
           )
         : change.action === "choice"
@@ -227,7 +227,7 @@ function SupplyPanel({
       title: change.title,
       description:
         change.action === "close"
-          ? "The server must verify every original refund and actual unit. This records financial closure with no goods outstanding; it creates no physical handover, stock return, new charge or credit."
+          ? "The server rechecks actual cancellation or collection history and all recorded payment evidence. This review creates no physical handover, stock return, new charge or credit, and does not send a refund."
           : change.action === "resolve"
             ? "Review the actual original refund and affected goods. The server must verify settlement and physical history. This records reconciliation; collection still requires current clearance."
             : "Review this order and actual affected goods. This request does not accept a substitute, approve money, confirm a bank receipt or authorise collection.",
@@ -408,6 +408,44 @@ function SupplyPanel({
           </button>
         )}
       </div>
+      {!!summary?.reconciliations.length && (
+        <div className={styles.case} data-cancelled-supply-history>
+          <h3>Cancelled order payment review</h3>
+          {summary.reconciliations.map((row) => (
+            <div key={row.id}>
+              <p>
+                <strong>
+                  {row.outcome === "NO_CAPTURE_RECORDED"
+                    ? "No captured payment recorded"
+                    : "Captured funds returned"}
+                </strong>{" "}
+                Reviewed {formatBusinessDate(row.createdAt)}.
+              </p>
+              <p>
+                {row.cancelledUnits} original unit{row.cancelledUnits === 1 ? "" : "s"}{" "}
+                cancelled; no physical pickup was recorded.
+              </p>
+              <p>
+                Original order: {formatKobo(row.originalKobo)}. Actual captured payments:{" "}
+                {formatKobo(row.capturedKobo)}. Verified refunds:{" "}
+                {formatKobo(row.refundedKobo)}.
+              </p>
+              <p>
+                {row.outcome === "NO_CAPTURE_RECORDED"
+                  ? "No refund was created or claimed by this review. Contact Customer Care if you paid or see a bank debit."
+                  : "This review records refunds already independently verified; it does not send another payment."}{" "}
+                The original order remains cancelled. Any alternative needs your separate
+                acceptance and its own checks and payment. New or conflicting payment
+                evidence requires another review.
+              </p>
+              {administrator && row.reason && <p>Internal review note: {row.reason}</p>}
+            </div>
+          ))}
+          {summary.hasMoreReconciliations && (
+            <p>Customer Care can review earlier cancellation history.</p>
+          )}
+        </div>
+      )}
       {!!summary?.closures.length && (
         <div className={styles.case} data-supply-closure-history>
           <h3>Supply settlement and collection history</h3>
@@ -443,8 +481,10 @@ function SupplyPanel({
         </div>
       )}
       {administrator &&
-        summary?.closureCapabilityVersion === 1 &&
-        summary.closureReviewAvailable && (
+        ((summary?.closureCapabilityVersion === 1 && summary.closureReviewAvailable) ||
+          (summary?.cancelledReconciliationCapabilityVersion === 1 &&
+            summary.cancelledReconciliationReviewAvailable &&
+            summary.cancelledReconciliationPreview)) && (
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -456,20 +496,47 @@ function SupplyPanel({
                 z.literal("on").parse(form.get("closureConfirmed"));
                 review({
                   action: "close",
-                  title: "Record no-goods financial closure?",
+                  title: summary.cancelledReconciliationReviewAvailable
+                    ? "Record cancelled-order payment review?"
+                    : "Record no-goods financial closure?",
                   reset: () => element.reset(),
                   body: { reason, noGoodsOutstandingAndSettlementReviewed: true },
                   facts: [
                     {
                       label: "Goods outstanding",
-                      value:
-                        "No units remain after actual handover and verified refunded-unit review; the server rechecks this.",
+                      value: summary.cancelledReconciliationReviewAvailable
+                        ? "The original order is already cancelled with no recorded handover. The server rechecks every payment and refund."
+                        : "No units remain after actual handover and verified refunded-unit review; the server rechecks this.",
                     },
                     {
                       label: "Original money",
                       value:
-                        "Preserved with independently verified refunds; no new payment or credit.",
+                        "Original records are preserved. Any captured funds must already be fully returned; no new payment, refund or credit is created.",
                     },
+                    ...(summary.cancelledReconciliationPreview
+                      ? [
+                          {
+                            label: "Current payment review",
+                            value:
+                              summary.cancelledReconciliationPreview.outcome ===
+                              "NO_CAPTURE_RECORDED"
+                                ? "No captured payment recorded"
+                                : "Captured funds returned",
+                          },
+                          {
+                            label: "Actual captured payments",
+                            value: formatKobo(
+                              summary.cancelledReconciliationPreview.capturedKobo,
+                            ),
+                          },
+                          {
+                            label: "Verified refunds",
+                            value: formatKobo(
+                              summary.cancelledReconciliationPreview.refundedKobo,
+                            ),
+                          },
+                        ]
+                      : []),
                     { label: "Internal closure note", value: reason! },
                   ],
                 });
@@ -481,9 +548,10 @@ function SupplyPanel({
             <fieldset className={styles.fields} disabled={blocked}>
               <legend>Review financial closure</legend>
               <p>
-                Review the actual original settlement and collection history when no goods
-                remain. This releases only active stock holds; consumed goods are not
-                returned to stock.
+                Review the actual original payments and goods history when no goods
+                remain. Cancelled orders require closed payment intents and full verified
+                return of any captured funds. This review never returns consumed goods to
+                stock.
               </p>
               <label>
                 Internal closure note (12-1,000 characters)
@@ -497,8 +565,8 @@ function SupplyPanel({
               </label>
               <label className={styles.check}>
                 <input type="checkbox" name="closureConfirmed" required />I reviewed
-                settled original refunds and actual goods history. No goods remain
-                outstanding.
+                actual payment outcomes, cancellation or collection, and goods history. No
+                goods remain outstanding.
               </label>
               <button className="button" type="submit">
                 Review financial closure
@@ -749,7 +817,7 @@ function SupplyPanel({
                 </fieldset>
               </form>
             )}
-          {!staff && !supplyChoiceLocked(row) && (
+          {!staff && !summary.reconciliations.length && !supplyChoiceLocked(row) && (
             <form
               onSubmit={(event) => {
                 event.preventDefault();

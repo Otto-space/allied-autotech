@@ -1,3 +1,5 @@
+import { isDeepStrictEqual } from "node:util";
+import { cancelledSupplySnapshot } from "./order-cancelled-supply-reconciliation.js";
 import { savedSupplyExclusions } from "./order-supply-exception-hold.js";
 import { AppError } from "../../common/errors/app-error.js";
 import { recordSupplyClosure } from "./order-supply-closure.js";
@@ -164,10 +166,61 @@ export async function supplyExceptionSummary(
   });
   const order = await tx.order.findUniqueOrThrow({
     where: { id },
-    select: { version: true, items: { select: { id: true, quantity: true } } },
+    select: {
+      version: true,
+      status: true,
+      items: { select: { id: true, quantity: true } },
+    },
   });
+  const reconciliations = await tx.orderSupplyClosure.findMany({
+    where: {
+      orderId: id,
+      financialSnapshot: {
+        path: ["version"],
+        equals: "ORDER_CANCELLED_SUPPLY_RECONCILIATION_V1",
+      },
+    },
+    orderBy: [{ orderVersion: "desc" }, { id: "desc" }],
+    take: 11,
+    select: {
+      id: true,
+      orderVersion: true,
+      createdAt: true,
+      financialSnapshot: true,
+      reason: administrator,
+    },
+  });
+  let cancelledReconciliationReviewAvailable = false;
+  let cancelledReconciliationPreview: {
+    outcome: string;
+    originalKobo: string;
+    capturedKobo: string;
+    refundedKobo: string;
+    cancelledUnits: number;
+  } | null = null;
+  if (administrator && order.status === "CANCELLED" && records.length) {
+    try {
+      const actual = await cancelledSupplySnapshot(tx, id);
+      cancelledReconciliationReviewAvailable = !reconciliations.some((row) =>
+        isDeepStrictEqual(row.financialSnapshot, actual),
+      );
+      if (cancelledReconciliationReviewAvailable)
+        cancelledReconciliationPreview = {
+          outcome: actual.outcome,
+          originalKobo: actual.originalKobo,
+          capturedKobo: actual.capturedKobo,
+          refundedKobo: actual.refundedKobo,
+          cancelledUnits: actual.cancelledUnits,
+        };
+    } catch (error) {
+      if (!(error instanceof AppError && error.statusCode === 409)) throw error;
+    }
+  }
   const closures = await tx.orderSupplyClosure.findMany({
-    where: { orderId: id },
+    where: {
+      orderId: id,
+      financialSnapshot: { path: ["version"], equals: "ORDER_SUPPLY_CLOSURE_V1" },
+    },
     orderBy: [{ orderVersion: "desc" }, { id: "desc" }],
     take: 11,
     select: {
@@ -211,6 +264,27 @@ export async function supplyExceptionSummary(
     orderId: id,
     orderVersion: order.version,
     closureReviewAvailable,
+    cancelledReconciliationCapabilityVersion: 1 as const,
+    cancelledReconciliationReviewAvailable,
+    cancelledReconciliationPreview,
+    reconciliations: reconciliations.slice(0, 10).map(({ financialSnapshot, ...row }) => {
+      const saved = financialSnapshot as {
+        outcome: string;
+        originalKobo: string;
+        capturedKobo: string;
+        refundedKobo: string;
+        cancelledUnits: number;
+      };
+      return {
+        ...row,
+        outcome: saved.outcome,
+        originalKobo: saved.originalKobo,
+        capturedKobo: saved.capturedKobo,
+        refundedKobo: saved.refundedKobo,
+        cancelledUnits: saved.cancelledUnits,
+      };
+    }),
+    hasMoreReconciliations: reconciliations.length > 10,
     resolutionCapabilityVersion: 1 as const,
     closureCapabilityVersion: 1 as const,
     closures: closures.slice(0, 10).map(({ financialSnapshot, ...row }) => {
@@ -529,6 +603,20 @@ export class OrderSupplyExceptionService {
             );
           return supplyExceptionSummary(tx, id);
         }
+        if (
+          await tx.orderSupplyClosure.count({
+            where: {
+              orderId: id,
+              financialSnapshot: {
+                path: ["version"],
+                equals: "ORDER_CANCELLED_SUPPLY_RECONCILIATION_V1",
+              },
+            },
+          })
+        )
+          throw orderConflict(
+            "The original order is cancelled and its payment review is recorded. Contact Customer Care for a new concern rather than changing this historical request.",
+          );
         if (input.expectedVersion !== order.version) throw orderStale();
         const concern = await tx.orderSupplyException.findFirst({
           where: { id: input.supplyExceptionId, orderId: id },

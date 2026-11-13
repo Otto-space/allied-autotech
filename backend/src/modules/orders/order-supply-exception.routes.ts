@@ -102,7 +102,7 @@ export function registerStaffSupplyRoutes(router: Router) {
     async (req, res) =>
       res.set("Cache-Control", "private, no-store").json(
         successResponse(
-          "Actual supply settlement reviewed; no goods outstanding",
+          "Original supply and financial history reviewed; no goods outstanding",
           req.id,
           await service.close(actor(req), id(res), value(res, "body"), {
             requestId: String(req.id),
