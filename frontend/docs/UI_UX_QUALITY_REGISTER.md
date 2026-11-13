@@ -1,3 +1,37 @@
+## 13 November 20:42 UTC - public search load-race repair
+
+Current published source6a remains live on both domains with compatible backend112.
+Read-only acceptance reproduced a real public search draft-loss defect: hold only
+the actual logo response, type diagnostics into the hydrated form, then release
+the image. The browser's natural initial pageshow resets the query to empty.
+The first diagnostic failed to intercept the deployment query suffix (zero held
+requests); corrected wildcard reproduces the loss with one held image. Evidence:
+TEMP/aat-attendance-20261104/search-load-reset-reproduced-20261113.json and safe390
+screenshot. No customer, financial or account records were submitted.
+
+PublicSearchForm now reconciles pageshow only for a document restored from the
+back/forward cache. Initial loading preserves the visitor's query and chosen scope;
+existing popstate and back_forward-navigation handling remain. Added real-browser
+slow-logo cases at320/1280 to the existing runtime recovery suite, retaining native
+load events and subsequent submission. Source lint/format and nine existing search
+units pass; compiled/browser and exact-source release gates remain pending.
+
+Supplemental live checks pass offscreen pause, return/resume, persistent manual
+pause across hover/leave, and focus pause until explicit Play. Reduced-motion
+initialisation exceeded the harness's five-second deadline; a diagnostic with
+settled document loading confirms true reduced-motion state and working controls.
+Do not count the incomplete supplemental run as a full pass. A separate combined
+search attempt failed before the controlled load-race diagnosis; keep that evidence.
+The later owner preference that laptop hover continues autoplay supersedes the
+older audit hover-pause proposal; no carousel behavior was changed.
+
+The Windows SSH agent contains the existing signing key. The native Windows
+ssh-keygen program successfully signed evidence commitd2dcc1ab without disabling
+signing, changing global Git settings or requesting any secret. The earlier signing
+failure used Git's different default program. Existing release evidence is committed;
+this additional source batch is not yet published. Full original audit/D01-D17,
+real-role/provider/device acceptance and independent active D17 work remain open.
+
 ## 13 November 20:28 UTC - verified compatible release published
 
 This entry supersedes the earlier 19:04 pre-release state. Exact master
