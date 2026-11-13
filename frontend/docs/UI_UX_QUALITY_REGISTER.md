@@ -10383,3 +10383,32 @@ them incidentally. Verify compatibility and actual provider state again before
 promoting the combined frontend. Parts and Groups4-10 remain open until their
 verified public receipts exist. C: passed25.51GiB with a bounded0.25GiB allowance;
 reuse warm Next16.4.3/Playwright1.63.0 dependencies and existing fixture mechanisms.
+
+## 13 November - keep product gallery controls clear of the support dock
+
+Downloaded master65f14086's retained browser artifact13768174570 (93,282,077bytes)
+in memory and verified SHA256e30fc38f2cbfb29243c34eb2cec40e74fddb4649fab9e7291851aecaf6385932.
+Only four explicitly named Parts PNGs were extracted; no archive was retained.
+Desktop photo-filled detail confirms the identity/price gap is closed. The390px
+capture exposes a separate visible defect: Next photo can sit beneath the fixed
+support buttons. The passing generic scan did not establish this control's access
+at that scroll position. Preserve the successful14-case evidence as partial;
+this obstruction still needs correction before publication.
+
+Reserve horizontal clearance for inline gallery controls and thumbnails through
+the single-column breakpoint, including the right safe-area inset. Keep full
+photo width and leave the native modal layout unchanged. Extend the existing
+native gallery regression to320 and390: align Next photo vertically with the
+fixed support launcher, prove its centre receives input, tap next/previous and
+verify photo state changes with unchanged scroll. The project now has15 Parts
+cases. Keep every complete-matrix assertion; a bounded Parts preflight uploads
+its own captures before the later full matrix clears the output directory, so
+visual acceptance can be reviewed while the full run continues.
+
+The saved-review fixture correction is merged via PR62 at6e910f9b. That source's
+checks are superseded by this necessary visual fix, not counted as final success.
+Existing data, fitment/timing, checkout gates and support behaviour are preserved.
+Source lint/format and collection are checked separately from compiled acceptance.
+Evidence: parts-master65f-ci-evidence.json and matching PNGs in the established TEMP
+folder. New compiled captures, all final-master gates and a compatible backend
+remain prerequisites for Parts publication. Groups4-10 remain open.

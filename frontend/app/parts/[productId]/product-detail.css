@@ -1151,6 +1151,10 @@
   }
 }
 @media (max-width: 899px) {
+  .pd-gallery > .pd-gallery-controls,
+  .pd-gallery > .pd-thumbnails {
+    margin-inline-end: calc(56px + env(safe-area-inset-right, 0px));
+  }
   .pd-top-grid {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
