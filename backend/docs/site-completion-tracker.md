@@ -372,6 +372,95 @@ provider receipt 19:04 still identifies ACTIVE 2c40bd63 with no pending rollout.
 Preserve the owner's corrected-package/recovery work; do not overwrite published
 source tags or bypass migration checks. No public promotion by this task.
 
+## 13 November - mobile control release published; Vehicles verification
+
+Update: corrected Vehicles source124bbfe6 compiled as
+dpl_3vbKctFBeeBbjaKgSe3JVqFccbbg. Nine viewport geometry checks, two scoped Axe
+scans and doubled320 hero verification pass; caption clearance is6px with doubled
+text and no horizontal overflow. Reviewed390/1440 viewport and doubled320 captures.
+Evidence: vehicles-124-candidate-qa.json and vehicles-124-*.png in the TEMP folder.
+The compact fixed support dock may overlay noninteractive content until scrolling;
+physical-device/full screen-reader acceptance is not claimed. Incoming master64064fe9
+staff-access changes and both evidence journals are preserved in the Vehicles branch.
+The four Vehicles implementation files are byte-identical to reviewed124bbfe6.
+PR73 remains unpublished pending combined exact-master checks, a clean final
+provider candidate and compatible backend for the incoming dated-cover policy.
+
+PR68 and concurrent public-search recovery are now live at exact master
+e0021792bae1bd8fd2f26605bf01748a0adf8a59, deployment
+dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y on apex and www. Exact-master Frontend43504882640,
+Backend43504882711 and Secrets43504882729 passed:1575 units,12 existing conditional
+skips and1163 browser cases, including15 Parts cases. The first receipt parser
+assumed1159; actual complete log1163 was verified before writing the gate receipt.
+Backend36687b08 remains ACTIVE with no pending deployment; approved policy unchanged.
+Compatible6a/E6 frontend recovery is retained. No backend/database changes by this task.
+
+Held-source acceptance recorded12 focused checks: four native-touch Services widths,
+two Home carousel widths, two natural slow-logo Search cases, two scoped Axe scans,
+availability retry recovery and actual Parts detail/section-focus/Back/reload. Live
+acceptance repeated four touch widths320/390/850/930 and Home320/390, with unchanged
+scroll positions, no page errors or business submissions, and explicit www FIXED
+query recovery. Evidence: TEMP/aat-stitch-implementation-20261109/mobile-e002-
+{master-gates,promotion-preflight,candidate-qa,live-acceptance}.json. Screenshot review
+covered compact Home and recovered Services. Retain DNS/document/readiness deadlines,
+the recovered transient availability warning and the invalid empty-query www probe.
+Rapid mixed tap/keyboard harness showed a transient native/query disagreement; a fresh
+settled All-services-to-ArrowRight probe passed URL and checked state. This is not
+physical-device or exhaustive keyboard timing acceptance.
+
+Vehicles remains held. Signed sourceb41bf24b and compiled deployment
+dpl_2EapGiLe76JHy2dbsNbS5jkinqUn passed17 focused observations: catalogue geometry at
+nine widths320-1920, two scoped Axe scans, real mobile filter cancellation/validation,
+BMW budget/search/body/sort/detail/Back/reload, actual BMW and Genesis gallery modal
+Escape/focus, desktop query recovery and enquiry context, isolated503/retry/empty/
+large-price states, and doubled long text/unavailable image/full fault disclosure.
+Desktop heading-to-card gap is36px versus120px baseline. Both catalogue screenshots
+were reviewed against supplied references; no business submissions occurred.
+
+The doubled-text stress exposed4px hero description/caption overlap. Source now
+reserves64px below the copy and uses a12px caption; final compiled verification is
+pending. The initial enquiry test assumed vehicleId; the actual existing
+vehicle_listingId contract and retained search were verified. Do not publishb41 as
+complete. Evidence: vehicles-b41-candidate-qa.json and associated screenshots in the
+same TEMP folder. Remaining Groups4-10/full119-template and real-role/device coverage
+remain open; earlier source-only/CI-pending entries below are superseded by this entry.
+
+## 13 November - Stitch Parts live acceptance and Vehicles package
+
+Group 3 Parts is live at exact master
+6a9318a6b04c481b10bc0a52ff1ba7e45790248d on both public domains:
+deployment dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5. Exact-master Frontend
+43491294033, Backend 43491294226 and Secrets 43491294056 passed. The owner
+backend task completed compatible schema112 and deployment36687b08, with guarded
+migration, populated restore and runtime checks recorded separately above/below.
+This UI task performed no database or business writes.
+
+TEMP/aat-stitch-implementation-20261109/parts-live-6a-browser.json records actual
+public catalogue and Engine Oil Filter detail at nine widths320-1920, no horizontal
+overflow,44px product actions, combined category/search/stock/sort recovery through
+detail, Back and reload at390/1440, www canonical journey and mobile menu recovery.
+Four scoped main/footer Axe scans had no A/AA violations. The390 catalogue and1440
+detail screenshots were visually reviewed. This is resized installed Edge evidence;
+physical devices, all-role/screen-reader acceptance, real photo-present product
+gallery and pagination remain separate. Fixture gallery/pagination evidence is CI.
+
+Current design item is Group 4 Vehicles. Reviewed supplied desktop/mobile marketplace
+screens and current public two-listing catalogue. Fidelity points: photographic
+introduction with integrated breadcrumb; compact search-first mobile flow; visible
+results heading without stretched empty rows; sidebar/chip filters retained; factual
+photo/price/specification cards with a clear full-width action. Use approved labelled
+editorial imagery only in the introduction, actual photos on listings, and keep
+owner-reported faults fully visible. Unsupported reference stock, certification,
+warranties, address and booking claims are excluded. Existing enquiry/inspection
+policy and all query/filter semantics are retained. Implementation is not yet
+compiled, visually accepted or published; detail/gallery and state coverage remain.
+
+PR68 is merged as e0021792bae1bd8fd2f26605bf01748a0adf8a59, preserving concurrent
+public-search load-race fixes. Its Services native-focus/dock correction remains
+unpublished pending exact-master43504882640 (Frontend); Backend43504882711 and
+Secrets43504882729 passed. Keep current6a frontend as compatible recovery. Groups4-10
+and full119-template/state acceptance remain open.
+
 ## 13 November - consolidated T02 integration checkpoint
 
 PR71 now contains the dated-cover and invitation-task changes as one coherent
