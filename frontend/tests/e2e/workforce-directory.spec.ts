@@ -382,8 +382,8 @@ for (const [width, tallerHeader] of [
     ]) {
       await control.focus();
       await expect(control).toBeFocused();
-      // The person-context resize/focus handler uses this native alignment.
-      // Exercise it explicitly so event timing cannot mask doubled header space.
+      // Exercise browser-native alignment after measured focus recovery as well.
+      // Event timing must not mask a duplicated header or focus gap.
       await control.evaluate((element) =>
         element.scrollIntoView({ block: "start", behavior: "instant" }),
       );

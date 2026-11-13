@@ -41,10 +41,10 @@
 }
 .workforce-panel[data-person-page="true"]
   :is(input, textarea, select, button, [tabindex="-1"], [id]) {
-  /* The document's scroll-padding already reserves the dashboard header.
-     Count only this additional sticky bar, so enlarged names do not push
-     focused controls down behind the fixed support dock. */
-  scroll-margin-block-start: calc(var(--wf-person-sticky-height) + 16px);
+  /* Document scroll-padding includes the header and the 16px focus gap.
+     Add only the measured sticky identity height so native and measured
+     focus alignment reserve the same space above the support dock. */
+  scroll-margin-block-start: var(--wf-person-sticky-height);
   scroll-margin-block-end: 96px;
 }
 @media (max-width: 900px) {
