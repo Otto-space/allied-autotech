@@ -1,3 +1,22 @@
+## 13 November 23:30 UTC - current public content and remaining operator facts
+
+Anonymous current API pages contain4 services and1 product, with no next cursor.
+No workbook/spreadsheet/Codex/development notes occur in service descriptions or
+short descriptions, or in the product description. Three service records have no
+managed image, but approved frontend photo fallbacks already cover those services;
+this metadata observation alone is not a rendered-image defect.
+
+The sole public product, Engine Oil Filter, currently has no brand, manufacturer
+part number, image or compatibility entries. Its Port Harcourt branch is listed
+in stock. Those genuine product facts need operator evidence; do not substitute
+workshop imagery, invent identifiers/fitment or infer suitability from stock.
+Public quantities/reservations remain private. Receipt: TEMP/aat-attendance-20261104/
+public-content-readiness-20261113.json. No price or business record changed.
+
+The normal connected-browser inventory was rechecked: native pipe and browser host
+remain unavailable. No owner tab/session was accessed and no login bypass used.
+The existing restoration question remains pending; do not ask it again.
+
 ## 13 November 23:22 UTC - compiled workforce acceptance and concurrent repair preserved
 
 PR77 merged while this branch was being prepared. Preserve its shared CSS fix and
