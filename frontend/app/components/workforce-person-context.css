@@ -41,9 +41,10 @@
 }
 .workforce-panel[data-person-page="true"]
   :is(input, textarea, select, button, [tabindex="-1"], [id]) {
-  scroll-margin-block-start: calc(
-    var(--wf-person-sticky-top) + var(--wf-person-sticky-height) + 16px
-  );
+  /* The document's scroll-padding already reserves the dashboard header.
+     Count only this additional sticky bar, so enlarged names do not push
+     focused controls down behind the fixed support dock. */
+  scroll-margin-block-start: calc(var(--wf-person-sticky-height) + 16px);
   scroll-margin-block-end: 96px;
 }
 @media (max-width: 900px) {
