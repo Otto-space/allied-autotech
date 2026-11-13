@@ -460,6 +460,10 @@ it.each([false, true])(
     expect(container.textContent).toContain(
       "0 units actually collected; 3 unfulfilled units refunded",
     );
+    expect(container.textContent).toContain("Financial closure is recorded above");
+    expect(container.textContent).not.toContain(
+      "Collection still requires current financial and physical clearance",
+    );
     expect(container.querySelector('[name="closureReason"]')).toBeNull();
   },
 );

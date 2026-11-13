@@ -544,6 +544,21 @@ for (const width of [320, 768, 1440])
       f.state.summary.items[0].affectedLines = [
         { orderItemId: f.record.items[0].id, offset: handed, quantity: 3 - handed },
       ];
+      f.state.summary.items[0].monetaryBasis.amounts = handed
+        ? {
+            currency: "NGN",
+            subtotalKobo: "202",
+            discountKobo: "3",
+            taxKobo: "14",
+            totalKobo: "213",
+          }
+        : {
+            currency: "NGN",
+            subtotalKobo: "303",
+            discountKobo: "5",
+            taxKobo: "22",
+            totalKobo: "320",
+          };
       f.state.summary.items[0].resolution = {
         id: supplyId(82),
         orderVersion: 0,
@@ -587,6 +602,15 @@ for (const width of [320, 768, 1440])
         "not a new amount due or replacement-order credit",
       );
       await expect(group).toHaveCount(0);
+      await expect(panel).toContainText("Financial closure is recorded above");
+      await expect(panel).not.toContainText(
+        "Collection still requires current financial and physical clearance",
+      );
+      await expect(panel).toContainText(
+        handed
+          ? "Original affected amount: \u20a62.13"
+          : "Original affected amount: \u20a63.20",
+      );
       expect(logs.closureRequestFailures).toEqual(interrupted ? ["net::ERR_FAILED"] : []);
       expect(
         logs.expectedClosureConsole.every(
@@ -634,6 +658,23 @@ for (const audience of ["customer", "guest"] as const)
       f.state.summary.orderVersion = 2;
       f.state.summary.closureCapabilityVersion = 1;
       f.state.summary.closureReviewAvailable = true;
+      f.state.summary.items[0].affectedLines = [
+        { orderItemId: f.record.items[0].id, offset: 0, quantity: 3 },
+      ];
+      f.state.summary.items[0].monetaryBasis.amounts = {
+        currency: "NGN",
+        subtotalKobo: "303",
+        discountKobo: "5",
+        taxKobo: "22",
+        totalKobo: "320",
+      };
+      f.state.summary.items[0].resolution = {
+        id: supplyId(82),
+        orderVersion: 0,
+        createdAt: "2026-11-13T11:00:00Z",
+        unfulfilledLines: f.state.summary.items[0].affectedLines,
+        previouslyHandedLines: [],
+      };
       f.state.summary.closures = [
         {
           id: supplyId(90),
@@ -653,6 +694,10 @@ for (const audience of ["customer", "guest"] as const)
       const panel = page.locator("[data-order-supply-concerns]"),
         history = panel.locator("[data-supply-closure-history]");
       await expect(history).toContainText("No goods outstanding");
+      await expect(panel).toContainText("Financial closure is recorded above");
+      await expect(panel).not.toContainText(
+        "Collection still requires current financial and physical clearance",
+      );
       await expect(history).toContainText(
         "0 units actually collected; 3 unfulfilled units refunded",
       );

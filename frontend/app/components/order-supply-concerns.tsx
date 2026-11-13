@@ -672,12 +672,18 @@ function SupplyPanel({
                   (sum, line) => sum + line.quantity,
                   0,
                 )}
-                . Previously collected units:{" "}
+                . Affected units previously collected:{" "}
                 {row.resolution.previouslyHandedLines.reduce(
                   (sum, line) => sum + line.quantity,
                   0,
                 )}
-                . Collection still requires current financial and physical clearance.
+                .{" "}
+                {summary.closures.some(
+                  (closure) =>
+                    closure.orderVersion > (row.resolution?.orderVersion ?? Infinity),
+                )
+                  ? "Financial closure is recorded above. This review created no additional physical handover."
+                  : "Collection still requires current financial and physical clearance."}
               </p>
             </div>
           )}
