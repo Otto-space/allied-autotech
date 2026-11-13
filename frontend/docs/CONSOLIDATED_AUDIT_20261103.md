@@ -1,3 +1,26 @@
+## 13 November - suppression regression execution paths corrected
+
+The first database rejection case was in a provisioned-workspace suite skipped by
+ordinary CI. Added a standalone eight-case job-suppression integration suite to the
+existing isolated PostgreSQL release step. It verifies exact TEST_DB_NAME, test/ci
+suffix and loopback host before synthetic writes; preserves history and only makes
+task-owned pending fixtures terminal. Cases cover four recorded restrictions,
+null/unknown reasons, stale legacy retry and unrelated-event/lower-role boundaries.
+Backend typecheck and scoped lint pass; database execution is still pending CI.
+
+The runtime project now selects22 processing-job browser cases. Seven exercise the
+new explanation at the exact requested viewport pairs with mobile/touch emulation,
+actual-size/no-overflow assertions, no retry action, zero fixture writes and desktop/
+mobile captures. The other15 retain directory, navigation, retry and uncertainty
+regressions. ESLint and Playwright --list pass; discovery is NOT execution evidence.
+
+Source and generated contracts are signed/pushed. GitHub verified both generated
+artifact signatures. Large GraphQL uploads failed (one HTTP499); Windows OpenSSH
+signed with the existing matching agent identity using per-command settings only.
+No key/passphrase/protection change. PR70 requires new exact-source checks; previous
+passing checks do not certify this implementation. Last disk reserve20.61GiB passes
+reserve-only but cannot fund the1.5GiB build allowance. No new production release.
+
 ## 13 November - safe job suppression implementation candidate
 
 Implemented an optional allowlisted support-email suppression reason in current-job

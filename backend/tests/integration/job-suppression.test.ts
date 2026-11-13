@@ -17,12 +17,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       userAgent: null,
     };
     let actor: AuthenticatedActor;
+    let verifiedTarget = false;
     beforeAll(async () => {
       const target = await prisma.$queryRaw<
         { database: string; host: string }[]
       >`SELECT current_database() AS database, host(inet_server_addr()) AS host`;
       expect(target[0]?.database).toMatch(/_(test|ci)$/);
+      expect(target[0]?.database).toBe(process.env.TEST_DB_NAME);
       expect(["127.0.0.1", "::1"]).toContain(target[0]?.host);
+      verifiedTarget = true;
       const user = await prisma.user.create({
         data: {
           email: `suppression-${randomUUID()}@example.test`,
@@ -56,6 +59,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       };
     });
     afterEach(async () => {
+      if (!verifiedTarget) return;
       // Only task-owned synthetic jobs in the verified isolated target; keep history.
       await prisma.outboxEvent.updateMany({
         where: { id: { in: jobs }, status: "PENDING" },
