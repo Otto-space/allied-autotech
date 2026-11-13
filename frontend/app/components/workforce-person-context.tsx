@@ -21,20 +21,35 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
           !(target instanceof HTMLElement) ||
           !panel.contains(target) ||
           bar.contains(target) ||
+          target.closest("dialog[open]") ||
           !target.matches("input, textarea, select, button")
         )
           return;
-        const box = target.getBoundingClientRect();
+        const controlBox = target.getBoundingClientRect();
+        const fieldBox = target.closest(".field")?.getBoundingClientRect();
+        // Keep the label with a normal-sized field, while oversized groups
+        // continue to reveal only their focused control.
+        const box =
+          fieldBox && fieldBox.height > 0 && fieldBox.height <= innerHeight / 2
+            ? fieldBox
+            : controlBox;
         const top = Math.max(
           chrome?.getBoundingClientRect().bottom ?? 0,
           bar.getBoundingClientRect().bottom,
         );
-        const bottom =
+        let bottom =
           innerHeight - (parseFloat(getComputedStyle(target).scrollMarginBlockEnd) || 0);
+        const dock = document.querySelector<HTMLElement>(".support-controls");
+        if (dock && getComputedStyle(dock).position === "fixed") {
+          const dockBox = dock.getBoundingClientRect();
+          if (box.right > dockBox.left - 8 && box.left < dockBox.right + 8)
+            bottom = Math.min(bottom, dockBox.top - 12);
+        }
         if (box.top < top + 8 || box.bottom > bottom)
-          target.scrollIntoView({
-            block: "start",
-            inline: "nearest",
+          // The sticky identity height already includes the shell offset.
+          // scrollIntoView would add the root scroll padding a second time.
+          window.scrollTo({
+            top: Math.max(0, scrollY + box.top - top - 8),
             behavior: "instant",
           });
       });

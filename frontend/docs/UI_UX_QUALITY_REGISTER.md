@@ -1,3 +1,26 @@
+## 14 November - reproduced release-blocking workforce focus overlap
+
+Failed masterc48 frontend43517656682: one of1267 cases fails the enlarged selected
+identity test at320, with WhatsApp/support navigation over the focused control.
+The other1266 cases pass; this is not a passing gate. Current2e492b81 has the same
+component/global source and remains unqualified despite passed backend/secret gates.
+Vehicles and the corrected gallery remain held; public e002 stays unchanged.
+
+An isolated hosted repeat reproduces the identical320 failure and passes1440.
+Evidence: TEMP/aat-stitch-implementation-20261109/workforce-focus-20261114/
+baseline-result.json, baseline-results and release-failure-evidence.json. Only
+synthetic account fixtures were used; no real permissions or records were changed.
+The CI archive request timed out with no archive retained; the actual hosted
+failure capture was inspected instead.
+
+Source correction uses measured field/sticky/dock geometry rather than native
+scrollIntoView adding root padding twice, keeps labels with normal-size fields,
+and excludes open dialogs from background scrolling. The stronger320px identity
+fixture prepared in the parallel T02 worktree is preserved here without modifying
+that worktree. Existing hit tests, identity visibility, permissions and no-write
+assertions remain. Corrected compiled acceptance and exact-master checks are pending.
+This bounded regression fix does not start the wider workforce redesign or Group5.
+
 ## 13 November - blocked Vehicles gallery touch target before publication
 
 Compiled correction3b5c0457/deploymentdpl_btSK2rd1tPCdX9sdYFmPdhiebuya passes

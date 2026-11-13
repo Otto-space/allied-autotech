@@ -1,3 +1,31 @@
+## 14 November - release-blocking workforce focus clearance
+
+The preceding masterc48 frontend43517656682 failed one of1267 runtime cases:
+workforce-directory enlarged selected identity at320. The support dock obscures the
+focused field/action. Its1266 passing cases do not qualify that release. Current
+master2e492b81 frontend43520835587 has started; backend43520835546 and
+secrets43520835586 passed, but the same unchanged focus component remains unqualified.
+The public e002 mobile release remains live. Vehicles publication is still held.
+
+In the existing release worktree, branch codex/workforce-focus-clearance-20261114
+reproduced the exact test on an existing compiled candidate with byte-identical
+person-context/global files:320 fails with the same occluders,1440 passes. Both use
+intercepted account fixtures and submit no real grant or business change. Evidence:
+TEMP/aat-stitch-implementation-20261109/workforce-focus-20261114/baseline-result.json,
+baseline-results and release-failure-evidence.json. The large CI artifact download
+aborted at90s; no archive was retained. Hosted failure captures replace that missing
+artifact evidence, without claiming that the archive was inspected.
+
+The local correction aligns the focused field below the measured sticky identity
+directly, avoiding root scroll padding being counted twice. It retains normal field
+labels, respects the fixed dock and leaves open dialogs to their own scroll handling.
+Reused the parallel T02 task's stronger320px identity fixture in this branch without
+editing that worktree. Existing occlusion, identity, permissions and no-write checks
+remain intact. Final types/compiled tests, integration and exact-master gates are
+pending. This repairs a verified release regression; it is not a Group9 redesign.
+No backend/database/policy/capability change is introduced. Groups4-10/full119-template
+scope remains active; Group5 remains read-only preparation.
+
 ## 13 November - Vehicles gallery touch-target follow-up before publication
 
 Compiled follow-up source3b5c0457, held deploymentdpl_btSK2rd1tPCdX9sdYFmPdhiebuya,

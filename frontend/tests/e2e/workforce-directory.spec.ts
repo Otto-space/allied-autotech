@@ -331,6 +331,12 @@ for (const width of [320, 1440]) {
       element.style.letterSpacing = "0.12em";
       element.style.wordSpacing = "0.16em";
     });
+    if (width === 320)
+      await selected.evaluate((element) => {
+        // Exercise a larger valid identity band independently of font metrics.
+        // It still leaves room for the focused control above the support dock.
+        element.style.minHeight = "320px";
+      });
     const review = page.getByRole("button", { name: "Review enrollment", exact: true });
     for (const control of [
       page.getByLabel("Your current password", { exact: true }),
