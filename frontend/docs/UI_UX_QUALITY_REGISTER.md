@@ -80,6 +80,117 @@ the concurrent public Search initial-pageshow repair. Exact-master Frontend
 Neither that correction nor this Vehicles package is claimed live yet. Full119
 template coverage and remaining Groups4-10 remain open.
 
+## 13 November - consolidated T02 integration checkpoint
+
+PR71 now contains the dated-cover and invitation-task changes as one coherent
+access-management batch and supersedes PR69 for integration. Both original commit
+histories and all test evidence remain retained; the cover branch is not retired.
+Merge current master d9c733aa's public-search input repair and d2dcc1ab's completed
+compatible-release evidence without losing either journal. Earlier running or
+superseded frontend checks are not passing exact-source gates. Require fresh
+checks for the combined source and exact master before publication. The access-
+history implementation draft is preserved separately in the existing worktree's
+labelled stash/branch; it is not part of this release batch.
+
+## 13 November - explicit invitation tasks and current release reconciliation
+
+Both approved briefs remain active. Continue T02 in allied-team-media-20261110,
+branch codex/team-invitations-20261113, based on dated-cover PR69/head11231149.
+The invitation page now separates giving an existing customer staff access from
+inviting existing staff to administrator access. Neither task is preselected.
+Search begins after a choice; switching clears the prior account, branch and
+password. Server-returned eligibility and all existing mutation/preflight, MFA,
+password, delegation and uncertain-result safeguards remain authoritative.
+
+Reviews keep the selected person above scrolling details and show current and
+proposed account levels and actual session effects. Cancel unused invitation
+disables only the unused link, preserving existing access. Accepted is explicitly
+historical and queued email does not claim delivery. Existing routes and API
+contracts are preserved. Restricted access-review help is v8; eligibility and
+production flags remain unchanged. No grant, invitation or business write was
+made against production.
+
+Verification: 19 focused frontend units, 16 backend learning units, frontend
+production build/types, backend types and scoped lint/format pass. All 32 final
+production-build Edge fixture journeys pass at 320x720, 360x800, 390x844, 430x932,
+768x1024, 1024x768, 1280x720 and 1440x900. Eight Axe scans find no violations; both
+task controls have comfortable label targets and unobstructed native radio hits
+in the initial viewport. Checks include task switching, wrong account type,
+server-declared ineligibility, owner/all versus Admin/own records, ordinary Staff
+denial, fresh identity/eligibility checks, exact request bodies, cancellation,
+filter/cursor reload/Back, lost/malformed responses, storage failure and no
+automatic resubmission. These are intercepted fixtures, not real role mutations.
+
+Evidence: TEMP/allied-team-invitations-20261113/compact-report.json, compact-results
+and compact-build.log. The earlier 32-case final-report also passes; its 320px
+capture exposed long hints that hid the second task below the first screen.
+Shorter task hints keep both choices visible; full consequences remain beside
+lookup and review. Baseline two-case evidence is retained. The initial fixture
+port was occupied, so dedicated loopback 5027/3127 and a task-owned launcher were
+used without touching the other process. Browser plugin is unavailable; installed
+Edge is the Playwright fallback. Physical devices, branded Safari, full screen
+reader and authenticated live role acceptance remain unverified. Local dependency
+junctions still cause 27 standalone trace warnings; do not publish that artifact.
+
+A concurrent compatible release completed at 20:28 UTC: both aliases now identify
+READY dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5, preserving the www-to-apex 308. Fresh provider
+reads confirm those identities. The release worktree records exact source6a9318a6,
+all three exact-master gates, protected populated 102-to-112 restore, guarded live
+migration and ACTIVE backend36687b08 with 13 healthy heartbeats. Preserve its new
+release/recovery receipts and pending documentation commit; older b122-only state
+notes are historical. Vehicle b122 is an ancestor of6a, so its completed brief is
+preserved. People PR63 is now included in published source, while real-role
+acceptance remains separate. Cover and this invitation follow-up are not live.
+
+PR69's corrected backend43499155122 and secrets43499154991 pass; frontend43499155174
+is still running. It must integrate without losing the current release; exact-master
+gates and verified matching artifacts are required before another publication.
+Remaining T02 history/access reviews and T01 sections, then T03-T07 workspaces,
+media boundaries/library, bulk photos, videos and the full acceptance matrix stay
+open. No requirement is dropped or counted complete by this bounded package.
+
+## 13 November - new cover end dates and visible review identity
+
+T02 follow-up builds on merged People PR63/source34cb9f02 and preserves e393b7d3
+invoice/Parts work. Both briefs and the full T01-T07 ledger remain active. This
+batch does not claim production publication or change existing duties/roles.
+
+Require an end for new temporary cover only; keep regular duties and historical
+open-ended records compatible. Label and convert date entry in Africa/Lagos,
+independent of device zone. Keep the selected person outside the review's scrolling
+body so reading an end date never hides the target. Explain actual first-enrollment,
+position-only update, invitation cancellation and existing-session effects using
+the current server implementation. Update access-review v7 without activating flags.
+
+31 focused frontend units,16 learning cases, frontend build/types, backend types,
+scoped lint and canonical contracts pass.28 isolated HTTP/learning cases pass after
+a fresh112-migration replay;3 provisioned-workspace cases are explicitly skipped.
+An extended policy case proves required-ended cover, regular null-ended duties
+and unchanged old open-ended cover. Runtime role rights and synthetic cleanup
+receipts are retained. No live protected-account mutation occurred.
+
+The first browser run had33/36 passes. Correct old source-label expectations and
+scope duty Active status away from the new account header. Retain the one collapsed
+disclosure attempt; it did not recur in three fresh delegated workflows. A clean
+36-case production run passed before the final persistent-subject refinement;
+the final subject build also passes all36 cases. Los Angeles/Tokyo cases verify exact UTC payloads,
+midnight/year rollover, future inactivity and readable reviewed end dates. Existing
+Care version1/2 definitions, delegated scope, stale/unknown saves, form Axe and
+all eight People widths remain included. Add the23 form/Care cases to runtime CI;
+do not widen timeouts. The existing server CI gains the effective-access suite.
+
+PR69's first backend run 43497279114 found two earlier temporary-cover fixtures
+without end dates. Corrected their inputs while retaining password/delegation
+denials and concurrent 200/409 assertions. A fresh isolated replay and all 52
+cases in the five-file CI group pass; runtime privileges and cleanup are recorded
+in TEMP/allied-people-tests-325b41594c00. Hosted checks must pass again.
+
+Evidence: TEMP/allied-team-cover-20261113 and the isolated receipts named in the
+completion tracker. Test flags are isolated only; production flags remain unchanged.
+Physical devices, branded Safari, full screen-reader and real-role acceptance
+remain unverified. Backend publication also depends on the separate compatible
+release and migration-image integrity safeguards; no bypass or promotion is implied.
+
 ## 13 November 20:42 UTC - public search load-race repair
 
 Current published source6a remains live on both domains with compatible backend112.
@@ -499,11 +610,13 @@ full screen-reader, branded Safari or real protected-account acceptance.
 Learning access-review advances to v6 with unchanged eligibility and feature flags.
 T01 stays partial; all T02-T07 requirements in the existing ledger remain active.
 
-| Page                         | Account fixture and scope                                | Visible and absent                                                                               | Allowed and denied evidence                                                                                         | State                            | Viewport                                                            | Actual evidence                                              | Limit                                                           |
-| ---------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------- |
-| People and person            | Super Admin; synthetic permitted directory/person        | Identity, account facts, allowed actions, existing enrollment; no invented baseline completeness | Search, page, clear, return, keyboard Overview, unobscured edit/review; zero mutation requests                      | Records, long names, editing     | 1440x720,1280x720,1024x768,768x1024,430x932,390x844,360x800,320x720 | focus-report14 passes; controls-report2 extended focus cases | Browser responses intercepted; no real grant/invitation         |
-| People and copied person URL | Delegated Admin; supplied existing management envelope   | Permitted scoped entry initially; protected directory/person heading absent after loss           | Open-directory loss redirects; copied person URL denied by current route                                            | Revoked while open               | Default desktop fixture                                             | Final production delegated-loss case; no page error          | Does not substitute for server/real-role acceptance             |
-| People and person            | Owner fixture with failed, invalid or uncertain response | Failed list rows and uncertain selected identity absent; explicit failure/partial message        | Refresh recovery; invalid customer role filter is not requested; source unit checks clear identity on refresh/error | Empty, failure, invalid, loading | Desktop fixture; unit states have no rendered viewport              | focus-report plus52 focused units                            | Full account/job/media and server allow/deny matrix remains T07 |
+| Page                              | Account fixture and scope                                | Visible and absent                                                                               | Allowed and denied evidence                                                                                         | State                                              | Viewport                                                            | Actual evidence                                              | Limit                                                                               |
+| --------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| People and person                 | Super Admin; synthetic permitted directory/person        | Identity, account facts, allowed actions, existing enrollment; no invented baseline completeness | Search, page, clear, return, keyboard Overview, unobscured edit/review; zero mutation requests                      | Records, long names, editing                       | 1440x720,1280x720,1024x768,768x1024,430x932,390x844,360x800,320x720 | focus-report14 passes; controls-report2 extended focus cases | Browser responses intercepted; no real grant/invitation                             |
+| People and copied person URL      | Delegated Admin; supplied existing management envelope   | Permitted scoped entry initially; protected directory/person heading absent after loss           | Open-directory loss redirects; copied person URL denied by current route                                            | Revoked while open                                 | Default desktop fixture                                             | Final production delegated-loss case; no page error          | Does not substitute for server/real-role acceptance                                 |
+| People and person                 | Owner fixture with failed, invalid or uncertain response | Failed list rows and uncertain selected identity absent; explicit failure/partial message        | Refresh recovery; invalid customer role filter is not requested; source unit checks clear identity on refresh/error | Empty, failure, invalid, loading                   | Desktop fixture; unit states have no rendered viewport              | focus-report plus52 focused units                            | Full account/job/media and server allow/deny matrix remains T07                     |
+| Person duty review                | Owner and delegated synthetic permitted scope            | Selected person stays above scrolling dates; future duties absent until start                    | Missing new-cover end rejected; reviewed save allowed; regular null end and old cover preserved in isolated HTTP    | New, future, regular and existing open-ended cover | 320px Los Angeles;1440px Tokyo; existing People/Care matrix         | subject-report36; isolated28 plus extended policy case       | Intercepted browser and isolated HTTP only; no production writes                    |
+| Person enrollment/position review | Owner fixture, actual existing server policy             | Named target and accurate session/invitation consequences; no title-based authority              | First enrollment and position-only effects distinguished; unused invitation cancellation explained                  | First enrollment versus existing position          | Unit states; rendered form/review coverage above                    | 31 focused units and subject-report                          | Session explanations traced to unchanged server service; no real-account acceptance |
 
 ## 10 November 01:56 UTC - People identity and scoped directory group in progress
 
@@ -1467,20 +1580,20 @@ position assignments, production vehicle edits or capability activation are part
 of testing. Existing approved reference is retained; the vehicle brief asks for
 focused grouping and list controls, with no unrelated visual redesign.
 
-| ID / scope                                                                                           | Implementation and authoritative evidence                                                                                                                                                                                  | Status / next proof                                                                                                                                                                                                                          |
-| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| V01 terminology throughout editor/review, staff/preview, public filters/detail and applied summaries | Shared power labels preserve BEV/HEV/PHEV/ICE and old URLs; Fuel type and Drive system remain separate                                                                                                                     | Implemented; hosted 37bf combined-filter chips/query/refresh/Back pass. Corrected public heading hierarchy and final-source full-page acceptance pending                                                                                     |
-| V02 Engine & drive and supplied Engine details                                                       | Shared editor/summary; optional 500-character description in schema/validation/repository/public contracts/import/form/review; new additive `20261110010000_vehicle_engine_details` migration                              | Generated client, isolated 102-migration replay/db:check and boundary storage/public round-trip pass at 37bf. Separate populated 100-to-102 preservation rehearsal passes. Packaged compatible release remains pending                       |
-| V03 Additional features individual entry/edit/remove and public two/one-column list                  | Existing string-array storage retained; form rows preserve commas; 40 items / 80 chars, trims, duplicate/empty checks; existing account-scoped variable-row draft recovery                                                 | Component/helper, seven hosted editor/recovery and isolated boundary HTTP cases pass. Narrow keyboard/focus samples pass; corrected public list/Axe acceptance and production remain pending                                                 |
-| V04 truthful content, imports, customer isolation and Help                                           | Optional supplied import fields; private vehicle-operations v3, public vehicle-enquiry v6; audiences/flags unchanged; faults remain separate                                                                               | Relevant units and isolated API/Help privacy/eligibility gates pass at 37bf; current full release and real-account acceptance pending                                                                                                        |
-| V05 complete QA and publication                                                                      | New actual application Playwright suite covers 320/390/768/1024/1440 at 720px height, review/cancel/save/reload and Axe; separate runtime project                                                                          | Eight hosted synthetic cases pass. 37bf frontend matrix failed at public heading order after seven editor passes; preserve the failure. Corrected full matrix, exact-master package and live release pending. No all-role/device claim       |
-| T01 canonical People and person identity/access summary                                              | Existing owner/delegation boundaries; named identity, scoped branch choices, context/filter chips, partial-access honesty and retained earlier links                                                                       | Partial: person context/task grouping locally verified with14 production-browser journeys,2 extended focus cases and52 units; prior16 isolated HTTP cases retained. Remaining person sections, role composition, CI and publication pending. |
-| T02 duties, cover, invitations, history/reviews                                                      | Require end date for new cover; retain old open-ended records for review; Lagos conversions, retained-grant explanations and current/proposed review; eligibility/MFA/session safeguards                                   | Not implemented; existing policies and complete read/write fixtures must be inspected                                                                                                                                                        |
-| T03 account/job workspaces and effective access                                                      | Navigation/cards/search/tabs/actions/counts/notifications and server fields/branch/assignment scope; fail-closed loading and session/access changes; preserve v1/v2 duties and independent financial checks                | Not implemented; complete expected-visible/absent and read/write allow/deny matrix required for legacy and managed paths                                                                                                                     |
-| T04 Digital Media Manager and workspace                                                              | Real job position with separately assigned view/add/edit/prepare/publish/remove duties; minimal identities, no broad administration/private/finance access; library, placements, draft/publish/revert and usage safeguards | Not implemented; no title, duty or real grant added                                                                                                                                                                                          |
-| T05 bulk vehicle photos                                                                              | Multi-file stable-ID queue, per-photo descriptions/captions/order/main, capacity/version/ticket binding, partial/uncertain recovery, cancellation, visible editor and focus return                                         | Not implemented; preserve 20-photo/10 MiB limits and last-published-photo protection                                                                                                                                                         |
-| T06 complete supported videos                                                                        | Infrastructure/format/size/duration validation, safe processing/errors, poster, captions/transcript, accessible mobile controls, no automatic sound; no incidental paid provisioning                                       | Not implemented; no video support claimed                                                                                                                                                                                                    |
-| T07 full access, responsive/accessibility and regression acceptance                                  | All specified role/branch/date/delegation/private-field/stale-account/media boundaries and widths 1280x720,1024x768,768x1024,430x932,390x844,360x800,320x720,1440-wide                                                     | Not implemented or certified; maintain page/account/job/scope/visible/allowed/denied/state/viewport/evidence matrix as each group is inspected                                                                                               |
+| ID / scope                                                                                           | Implementation and authoritative evidence                                                                                                                                                                                  | Status / next proof                                                                                                                                                                                                                                                                                                                               |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| V01 terminology throughout editor/review, staff/preview, public filters/detail and applied summaries | Shared power labels preserve BEV/HEV/PHEV/ICE and old URLs; Fuel type and Drive system remain separate                                                                                                                     | Released in b1222a11 on 10 November and preserved by published 6a9318a6. Combined-filter chips, URL, refresh/Back and public labels pass the recorded hosted/live checks; broader role/device acceptance is distinct.                                                                                                                             |
+| V02 Engine & drive and supplied Engine details                                                       | Shared editor/summary; optional 500-character description in schema/validation/repository/public contracts/import/form/review; new additive `20261110010000_vehicle_engine_details` migration                              | Released in b1222a11 after isolated replay, populated 100-to-102 preservation and guarded production migration. Current compatible 6a release advances safely to 112; retain both release receipts and protected restores.                                                                                                                        |
+| V03 Additional features individual entry/edit/remove and public two/one-column list                  | Existing string-array storage retained; form rows preserve commas; 40 items / 80 chars, trims, duplicate/empty checks; existing account-scoped variable-row draft recovery                                                 | Released in b1222a11. Individual feature rows, embedded commas, validation, draft recovery and public responsive lists pass source, isolated and hosted fixture checks. No real inventory edits were used for QA.                                                                                                                                 |
+| V04 truthful content, imports, customer isolation and Help                                           | Optional supplied import fields; private vehicle-operations v3, public vehicle-enquiry v6; audiences/flags unchanged; faults remain separate                                                                               | Released with b1222a11: approved imports/content, truthful unknowns/faults and restricted vehicle learning definitions. Eligibility and capability flags remain unchanged; no real-role or provider acceptance is implied.                                                                                                                        |
+| V05 complete QA and publication                                                                      | New actual application Playwright suite covers 320/390/768/1024/1440 at 720px height, review/cancel/save/reload and Axe; separate runtime project                                                                          | Vehicle brief completed and released in b1222a11 with all three exact-source gates. Anonymous 320/1440 apex/www search/detail/Back/reload and Axe pass; five held widths and seven editor fixtures are retained. Not full device/role certification.                                                                                              |
+| T01 canonical People and person identity/access summary                                              | Existing owner/delegation boundaries; named identity, scoped branch choices, context/filter chips, partial-access honesty and retained earlier links                                                                       | Partial: PR63 is included in published 6a9318a6. Person context/task groups have 14 production-browser fixtures, two extended focus cases, 52 units and prior isolated HTTP evidence. Remaining sections, role composition and authenticated live acceptance stay open.                                                                           |
+| T02 duties, cover, invitations, history/reviews                                                      | Require end date for new cover; retain old open-ended records for review; Lagos conversions, retained-grant explanations and current/proposed review; eligibility/MFA/session safeguards                                   | Partial: dated-cover PR69 passes corrected backend CI; frontend CI is running. Explicit invitation tasks, named reviews and cancellation semantics pass an initial 32 production-browser fixtures; all 32 compact production-browser journeys pass, including eight Axe and initial task-hit checks. History/reviews and publication remain open. |
+| T03 account/job workspaces and effective access                                                      | Navigation/cards/search/tabs/actions/counts/notifications and server fields/branch/assignment scope; fail-closed loading and session/access changes; preserve v1/v2 duties and independent financial checks                | Not implemented; complete expected-visible/absent and read/write allow/deny matrix required for legacy and managed paths                                                                                                                                                                                                                          |
+| T04 Digital Media Manager and workspace                                                              | Real job position with separately assigned view/add/edit/prepare/publish/remove duties; minimal identities, no broad administration/private/finance access; library, placements, draft/publish/revert and usage safeguards | Not implemented; no title, duty or real grant added                                                                                                                                                                                                                                                                                               |
+| T05 bulk vehicle photos                                                                              | Multi-file stable-ID queue, per-photo descriptions/captions/order/main, capacity/version/ticket binding, partial/uncertain recovery, cancellation, visible editor and focus return                                         | Not implemented; preserve 20-photo/10 MiB limits and last-published-photo protection                                                                                                                                                                                                                                                              |
+| T06 complete supported videos                                                                        | Infrastructure/format/size/duration validation, safe processing/errors, poster, captions/transcript, accessible mobile controls, no automatic sound; no incidental paid provisioning                                       | Not implemented; no video support claimed                                                                                                                                                                                                                                                                                                         |
+| T07 full access, responsive/accessibility and regression acceptance                                  | All specified role/branch/date/delegation/private-field/stale-account/media boundaries and widths 1280x720,1024x768,768x1024,430x932,390x844,360x800,320x720,1440-wide                                                     | Not implemented or certified; maintain page/account/job/scope/visible/allowed/denied/state/viewport/evidence matrix as each group is inspected                                                                                                                                                                                                    |
 
 Additional discovered regression: the update schema inherited the creation default
 `condition: USED` when a patch omitted condition. Removed that default from update

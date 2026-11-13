@@ -52,6 +52,85 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       startsAt: new Date(Date.now() - 1000).toISOString(),
       expiresAt: null,
     });
+    it("requires an end for new temporary cover without altering existing open-ended cover", async () => {
+      const target = await f.account("CUSTOMER_SERVICE");
+      const existing = await f.assignment(target.user.id, "WORKSHOP_LEAD", true);
+      const startsAt = new Date(Date.now() - 1000).toISOString();
+      const expiresAt = new Date(Date.now() + 3_600_000).toISOString();
+      const input = {
+        receiptVersion: 2,
+        expectedVersion: 0,
+        expectedTemplateVersion: 1,
+        template: "WORKSHOP_LEAD",
+        branchId: f.home.id,
+        startsAt,
+        temporary: true,
+        expiresAt: null,
+        reason: "Reviewed synthetic temporary cover",
+        currentPassword: fixturePassword,
+      };
+      const count = await prisma.workforceAssignment.count({
+        where: { userId: target.user.id },
+      });
+      const rejected = await request(app)
+        .post(`/api/v1/admin/workforce/accounts/${target.user.id}/assignments`)
+        .set(owner.headers)
+        .send(input);
+      expect(rejected.status).toBe(422);
+      expect(
+        await prisma.workforceAssignment.count({ where: { userId: target.user.id } }),
+      ).toBe(count);
+      const current = await read(owner, target.user.id);
+      expect(current.status).toBe(200);
+      expect(current.body.data.assignments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: existing.id,
+            temporary: true,
+            expiresAt: null,
+            revokedAt: null,
+          }),
+        ]),
+      );
+      const impact = await preview(owner, target.user.id, {
+        ...grant("WORKSHOP_LEAD", f.home.id),
+        startsAt,
+        expiresAt,
+      });
+      expect(impact.status).toBe(200);
+      const accepted = await request(app)
+        .post(`/api/v1/admin/workforce/accounts/${target.user.id}/assignments`)
+        .set(owner.headers)
+        .send({
+          ...input,
+          expiresAt,
+          expectedAccessPreview: impact.body.data.fingerprint,
+        });
+      expect(accepted.status).toBe(200);
+      expect(accepted.body.data).toMatchObject({ temporary: true, startsAt, expiresAt });
+      const regularPreview = await preview(owner, target.user.id, {
+        ...grant("WORKSHOP_LEAD", f.home.id),
+        startsAt,
+        expectedVersion: 1,
+      });
+      expect(regularPreview.status).toBe(200);
+      const regular = await request(app)
+        .post(`/api/v1/admin/workforce/accounts/${target.user.id}/assignments`)
+        .set(owner.headers)
+        .send({
+          ...input,
+          temporary: false,
+          expectedVersion: 1,
+          expectedAccessPreview: regularPreview.body.data.fingerprint,
+        });
+      expect(regular.status).toBe(200);
+      expect(regular.body.data).toMatchObject({ temporary: false, expiresAt: null });
+      expect(
+        await prisma.workforceAssignment.findUniqueOrThrow({
+          where: { id: existing.id },
+        }),
+      ).toMatchObject({ temporary: true, expiresAt: null, revokedAt: null });
+    });
     it("explains branch and assigned-work overlap using the pinned server definitions", async () => {
       const target = await f.account("MECHANICAL_TECHNICIAN");
       const lead = await f.assignment(target.user.id, "WORKSHOP_LEAD");
@@ -336,6 +415,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const input = {
         ...grant("MECHANICAL_TECHNICIAN", f.home.id),
         startsAt: new Date(Date.now() + 3600000).toISOString(),
+        expiresAt: new Date(Date.now() + 2 * 3600000).toISOString(),
       };
       const auditBefore = await prisma.auditLog.count({
         where: { entityId: target.user.id },

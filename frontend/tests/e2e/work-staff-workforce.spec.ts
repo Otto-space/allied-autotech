@@ -70,6 +70,16 @@ async function setup(page: Page, enrolled = false, admin = false, role = "SUPER_
     };
   }
   function projection() {
+    const now = new Date();
+    w.activeAssignmentIds = assignments()
+      .filter(
+        (assignment) =>
+          !assignment.revokedAt &&
+          assignment.startsAt <= now &&
+          (!assignment.expiresAt || assignment.expiresAt > now) &&
+          definitionForAssignment(assignment),
+      )
+      .map((assignment) => assignment.id);
     w.assignmentDefinitions = Object.fromEntries(
       assignments().map((a) => [a.id, definitionForAssignment(a) ?? null]),
     );
@@ -282,7 +292,9 @@ for (const width of [390, 1440])
     await expect(
       dialog.getByText("Handle Customer Care enquiries", { exact: true }),
     ).toBeVisible();
-    await expect(dialog).toContainText("Supplied by: Customer Service Officer.");
+    await expect(dialog).toContainText(
+      "Why this access is available: Customer Service Officer.",
+    );
     await expect(page).toHaveURL(new RegExp(`/admin/staff/${s.f.member.id}$`));
     expect(await page.title()).not.toBe("");
     expect(
@@ -332,7 +344,7 @@ test("unavailable access preview never opens confirmation or creates an uncertai
     .locator("form");
   await form.getByLabel("Responsibility", { exact: true }).selectOption("WORKSHOP_LEAD");
   await form.getByLabel("Branch", { exact: true }).selectOption(id(101));
-  await form.getByLabel("Starts at (your device time)").fill("2026-10-26T09:00");
+  await form.getByLabel("Starts at (Lagos time, required)").fill("2026-10-26T09:00");
   await fillProof(form);
   await form.getByRole("button", { name: "Review responsibility assignment" }).click();
   await expect(section(page).getByRole("alert")).toContainText(
@@ -445,18 +457,23 @@ test("assignment rejects reverse dates and records exact cover before a separate
     .locator("form");
   await form.getByLabel("Responsibility", { exact: true }).selectOption("WORKSHOP_LEAD");
   await form.getByLabel("Branch", { exact: true }).selectOption(id(101));
-  await form.getByLabel("Starts at (your device time)").fill("2026-10-19T09:00");
-  await form
-    .getByLabel("Expires at (optional, your device time)")
-    .fill("2026-10-18T09:00");
+  await form.getByLabel("Starts at (Lagos time, required)").fill("2026-10-19T09:00");
+  await form.getByLabel("Ends at (Lagos time, optional)").fill("2026-10-18T09:00");
   await fillProof(form);
   await form.getByRole("button", { name: "Review responsibility assignment" }).click();
   await expect(
     section(page).getByText("Expiry must be after the start time."),
   ).toBeVisible();
   expect(s.writes).toHaveLength(0);
-  await form.getByLabel("Expires at (optional, your device time)").fill("");
+  await form.getByLabel("Ends at (Lagos time, optional)").fill("");
   await form.getByLabel("Temporary cover", { exact: true }).check();
+  await form.getByRole("button", { name: "Review responsibility assignment" }).click();
+  const end = form.getByLabel("Ends at (Lagos time, required)");
+  await expect(end).toBeFocused();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(s.previews).toHaveLength(0);
+  expect(s.writes).toHaveLength(0);
+  await end.fill(`${new Date().getUTCFullYear() + 1}-10-20T09:00`);
   await form.getByRole("button", { name: "Review responsibility assignment" }).click();
   await expect(page.getByRole("dialog")).toContainText("Stadium Road workshop");
   await confirm(page);
@@ -483,6 +500,67 @@ test("assignment rejects reverse dates and records exact cover before a separate
   ).toBeVisible();
   expect(s.writes.map((w) => w.body.expectedVersion)).toEqual([0, 1]);
 });
+
+for (const [width, timezoneId] of [
+  [320, "America/Los_Angeles"],
+  [1440, "Asia/Tokyo"],
+] as const) {
+  test.describe(`Lagos temporary cover at ${width}px from ${timezoneId}`, () => {
+    test.use({ viewport: { width, height: 800 }, timezoneId });
+    test("reviews and saves Lagos dates independently of the device timezone", async ({
+      page,
+    }, info) => {
+      const s = await setup(page, true);
+      const year = new Date().getUTCFullYear() + 1;
+      const startsAt = `${year - 1}-12-31T23:15:00.000Z`;
+      const expiresAt = `${year}-01-01T01:15:00.000Z`;
+      await page.goto(`/admin/workforce/access/${s.f.member.id}`);
+      await section(page).getByText("Assign responsibility", { exact: true }).click();
+      const form = section(page)
+        .locator("details")
+        .filter({ has: page.locator("#workforce-template") })
+        .locator("form");
+      await form
+        .getByLabel("Responsibility", { exact: true })
+        .selectOption("WORKSHOP_LEAD");
+      await form.getByLabel("Branch", { exact: true }).selectOption(id(101));
+      await form
+        .getByLabel("Starts at (Lagos time, required)")
+        .fill(`${year}-01-01T00:15`);
+      await form.getByLabel("Temporary cover", { exact: true }).check();
+      await form.getByLabel("Ends at (Lagos time, required)").fill(`${year}-01-01T02:15`);
+      await fillProof(form);
+      await form
+        .getByRole("button", { name: "Review responsibility assignment" })
+        .click();
+      const dialog = page.getByRole("dialog");
+      await expect(dialog).toContainText("Lagos time");
+      expect(s.previews.at(-1)).toMatchObject({ startsAt, expiresAt });
+      expect(s.writes).toEqual([]);
+      await page.screenshot({ path: info.outputPath("cover-lagos-review.png") });
+      const endFact = dialog.getByText(`1 Jan ${year}, 02:15 (Lagos time)`, {
+        exact: true,
+      });
+      await endFact.scrollIntoViewIfNeeded();
+      await expect(endFact).toBeInViewport();
+      await expect(
+        dialog.getByText("Selected person: Ada Okoro", { exact: true }),
+      ).toBeInViewport();
+      await page.screenshot({ path: info.outputPath("cover-lagos-dates-reviewed.png") });
+      await confirm(page);
+      await expect(dialog).toHaveCount(0);
+      expect(s.writes).toHaveLength(1);
+      expect(s.writes[0].body).toMatchObject({ temporary: true, startsAt, expiresAt });
+      await expect(
+        section(page).getByText("Not currently active · Temporary cover", {
+          exact: true,
+        }),
+      ).toBeVisible();
+      expect(s.f.workforce.activeAssignmentIds).toEqual([]);
+      expect(s.f.workforce.effectiveAccess?.grants).toEqual([]);
+    });
+  });
+}
 test("delegation preserves off-page branches and reviews later-page additions", async ({
   page,
 }) => {
@@ -629,6 +707,7 @@ test("delegated responsibility workspace assigns through scoped APIs without leg
   await page.getByRole("link", { name: "View person: Ada Okoro", exact: true }).click();
   await section(page).getByText("Assign responsibility", { exact: true }).click();
   const form = section(page).locator("form");
+  await expect(form).toBeVisible();
   await expect(
     form.getByLabel("Responsibility", { exact: true }).locator("option"),
   ).toHaveCount(2);
@@ -637,12 +716,14 @@ test("delegated responsibility workspace assigns through scoped APIs without leg
   );
   await form.getByLabel("Responsibility", { exact: true }).selectOption("WORKSHOP_LEAD");
   await form.getByLabel("Branch", { exact: true }).selectOption(id(101));
-  await form.getByLabel("Starts at (your device time)").fill("2026-10-19T09:00");
+  await form.getByLabel("Starts at (Lagos time, required)").fill("2026-10-19T09:00");
   await fillProof(form);
   await form.getByRole("button", { name: "Review responsibility assignment" }).click();
   await confirm(page);
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(section(page).getByText("Active", { exact: true })).toBeVisible();
+  await expect(
+    section(page).locator(".wf-assignments").getByText("Active", { exact: true }),
+  ).toBeVisible();
   expect(s.writes).toHaveLength(1);
   expect(legacyReads).toEqual([]);
 });

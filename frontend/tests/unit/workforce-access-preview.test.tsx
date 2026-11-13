@@ -138,6 +138,52 @@ beforeEach(() => {
   state.resource = { data: record(), loading: false, refreshing: false };
 });
 afterEach(cleanup);
+for (const enrolled of [false, true])
+  it(`reviews actual enrollment session effects with enrolled=${enrolled}`, () => {
+    const account = record();
+    if (!enrolled) {
+      account.access = null;
+      account.effectiveAccess!.baseline = "LEGACY";
+    }
+    Object.assign(account.management, {
+      canEnroll: true,
+      canAssign: false,
+      canRevoke: false,
+      canDelegate: false,
+    });
+    state.resource = { data: account, loading: false, refreshing: false };
+    render(<WorkforceAccessPanel userId={account.userId} />);
+    fireEvent.click(
+      screen.getByText(
+        enrolled ? "Update job position" : "Review legacy access and enroll",
+        { exact: true },
+      ),
+    );
+    const form = screen
+      .getByRole("button", { name: enrolled ? "Review position" : "Review enrollment" })
+      .closest("form")!;
+    fireEvent.change(within(form).getByLabelText("Job position", { exact: true }), {
+      target: { value: "WORKSHOP_LEAD" },
+    });
+    fireEvent.change(within(form).getByLabelText("Reason", { exact: true }), {
+      target: { value: "Reviewed synthetic position change" },
+    });
+    fireEvent.change(
+      within(form).getByLabelText("Your current password", { exact: true }),
+      { target: { value: secret } },
+    );
+    fireEvent.submit(form);
+    const proposal = state.review.mock.calls[0]?.[0];
+    expect(proposal.subject).toBe("Selected person: Ada Okoro");
+    expect(proposal.description).toContain("cancels unused access invitations");
+    expect(proposal.description).toContain(
+      enrolled ? "keeps existing sessions and duties" : "revokes existing sessions",
+    );
+    if (!enrolled)
+      expect(proposal.description).toContain(
+        "Admin accounts retain their account-level administration access",
+      );
+  });
 it("keeps the selected person's current identity above access editing and clears it during uncertainty", () => {
   const account = record();
   state.resource = { data: account, loading: false, refreshing: false };
@@ -313,7 +359,7 @@ function submit() {
   fireEvent.change(within(form).getByLabelText("Branch", { exact: true }), {
     target: { value: id(101) },
   });
-  fireEvent.change(within(form).getByLabelText("Starts at (your device time)"), {
+  fireEvent.change(within(form).getByLabelText("Starts at (Lagos time, required)"), {
     target: { value: "2026-10-26T10:00" },
   });
   fireEvent.change(within(form).getByLabelText("Reason", { exact: true }), {
