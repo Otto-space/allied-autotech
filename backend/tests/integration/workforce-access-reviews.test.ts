@@ -197,6 +197,36 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           .data.items,
       ).toEqual([]);
     });
+    it("retains assigned-record scope for sales and technician cover in the review contract", async () => {
+      for (const [person, template] of [
+        [f.cashier, "SALES_CASHIER"],
+        [f.electrical, "ELECTRICAL_TECHNICIAN"],
+        [f.mechanical1, "MECHANICAL_TECHNICIAN"],
+      ] as const) {
+        const assignment = await f.assignment(
+          person.user.id,
+          template,
+          true,
+          f.home.id,
+          new Date(Date.now() + 3600000),
+        );
+        const r = await read(owner, { q: person.user.email, review: "COVER_ENDING" });
+        expect(r.status).toBe(200);
+        expect(r.body.data.items).toHaveLength(1);
+        expect(r.body.data.items[0].reviewMatches).toEqual([
+          expect.objectContaining({
+            assignmentId: assignment.id,
+            template,
+            templateVersion: 1,
+            scope: "ASSIGNED",
+          }),
+        ]);
+        expect(
+          (await read(f.scopedAdmin, { q: person.user.email, review: "COVER_ENDING" }))
+            .body.data.items,
+        ).toEqual([]);
+      }
+    });
     it("separates managed Staff with no active in-scope duties from earlier Staff setup and protected baselines", async () => {
       const empty = await read(owner, { review: "UNASSIGNED", q: noDuties.user.email });
       expect(empty.status).toBe(200);

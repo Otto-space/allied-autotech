@@ -138,3 +138,21 @@ it("requires explicit Staff-only setup states and excludes legitimate administra
     expect(() => parseWorkforceReview(p, kind, true)).toThrow();
   }
 });
+it("accepts pinned assigned-record sales and technician duties without accepting branch-wide scope", () => {
+  for (const template of [
+    "SALES_CASHIER",
+    "ELECTRICAL_TECHNICIAN",
+    "MECHANICAL_TECHNICIAN",
+  ]) {
+    for (const templateVersion of [1, 2]) {
+      const p = page(),
+        a = p.items[0]!.reviewMatches[0]!;
+      a.template = template;
+      a.templateVersion = templateVersion;
+      a.scope = "ASSIGNED";
+      expect(parseWorkforceReview(p, "COVER_ENDING", true).items).toHaveLength(1);
+      a.scope = "BRANCH";
+      expect(() => parseWorkforceReview(p, "COVER_ENDING", true)).toThrow();
+    }
+  }
+});

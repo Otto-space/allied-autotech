@@ -536,7 +536,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | mixed-queues            | operations           | 3 / 2026-10-27        | /admin                       | OPERATIONS template and effective assignment union                                                                                          |
 | oversight-scope         | oversight            | 3 / 2026-10-27        | /admin                       | CEO_MD position and permission-filtered overview                                                                                            |
 | customer-account-review | admin                | 3 / 2026-10-27        | /admin/customers             | Customer account lock, session enforcement and audit contract                                                                               |
-| access-review           | access               | 9 / 2026-11-13        | /admin/workforce/access      | Selected-person context, Lagos date entry, required end for new temporary cover, preserved earlier records and reviewed access impact       |
+| access-review           | access               | 10 / 2026-11-13        | /admin/workforce/access      | Selected-person context, Lagos date entry, required end for new temporary cover, preserved earlier records and reviewed access impact       |
 | privileged-recovery     | owner                | 3 / 2026-10-27        | /admin/security              | Existing identity/governance safeguards                                                                                                     |
 
 ## Guides

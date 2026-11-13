@@ -638,7 +638,35 @@ template coverage and remaining Groups4-10 remain open.
 
 ## 13 November - consolidated T02 integration checkpoint
 
-### 13 November 23:50 UTC - review integration and focus regression checkpoint
+### 2026-11-13 23:53 UTC - assigned-record review correction and disk review
+
+Final contract review found a real client mismatch: valid Sales Representative /
+Cashier cover uses ASSIGNED scope in both pinned definitions, while the new review
+parser only recognized the two technician duties as assigned-record duties. The
+new focused case failed before the correction; the corrected parser now accepts
+all three assigned-record duties in versions1/2 and rejects forged branch scope.
+All27 combined history/registry/review units pass. Fresh isolated112 replay and
+37 HTTP cases pass under non-owner runtime credentials without DDL/TRUNCATE,
+including actual assigned sales/technician responses and delegated-template denial.
+Only the task-created synthetic database and role were cleaned up. Evidence:
+TEMP/allied-people-tests-af396ea0be30. Earlier36-case receipts remain valid for
+their source and do not certify this later test addition. Backend runtime unchanged.
+
+PR80 combines history and current access reviews; PR72 is closed as superseded,
+with its source branch, signed commits and original evidence retained. New head
+checks must finish before publication. Earlier passing/running source checks do
+not certify the corrected candidate. The full remaining Team/media scope stays open.
+
+Disk retention review confirmed the four task-built64064fe9 local image references
+are superseded, never published and unused by all running/stopped containers or
+current/pending cloud deployments. Removed exactly those four references using
+native Docker without force. Retained current6a, recovery135d, held8e4 images,
+registry artifacts, source, receipts, useful cache and all containers/volumes.
+Measured C:20.380GiB before and20.381GiB after; no useful host-space gain is claimed.
+Receipt: TEMP/allied-team-reviews-20261113/superseded-640-image-cleanup.json.
+The fresh-build disk constraint remains; no extra build or broad cleanup followed.
+
+### 13 November 23:44 UTC - review integration and focus regression checkpoint
 
 Integrated current master9bf8a26e into the history/reviews branch without losing
 public gallery, privacy/suppression, release-journal or master-queue changes.

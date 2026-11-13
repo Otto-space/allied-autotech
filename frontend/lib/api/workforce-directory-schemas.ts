@@ -154,7 +154,8 @@ export function parseWorkforceReview(
           ![1, 2].includes(a.templateVersion) ||
           (a.templateVersion === 1 && a.template.startsWith("CARE_")) ||
           a.scope !==
-            (a.template === "MECHANICAL_TECHNICIAN" ||
+            (a.template === "SALES_CASHIER" ||
+            a.template === "MECHANICAL_TECHNICIAN" ||
             a.template === "ELECTRICAL_TECHNICIAN"
               ? "ASSIGNED"
               : "BRANCH") ||
