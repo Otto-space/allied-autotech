@@ -21,6 +21,7 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
           !(target instanceof HTMLElement) ||
           !panel.contains(target) ||
           bar.contains(target) ||
+          target.closest("dialog[open]") ||
           !target.matches("input, textarea, select, button")
         )
           return;
@@ -29,14 +30,18 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
           chrome?.getBoundingClientRect().bottom ?? 0,
           bar.getBoundingClientRect().bottom,
         );
-        const bottom =
-          innerHeight - (parseFloat(getComputedStyle(target).scrollMarginBlockEnd) || 0);
+        const dock = document.querySelector<HTMLElement>(".support-controls");
+        const bottom = Math.min(
+          innerHeight - (parseFloat(getComputedStyle(target).scrollMarginBlockEnd) || 0),
+          dock && getComputedStyle(dock).position === "fixed"
+            ? dock.getBoundingClientRect().top - 12
+            : innerHeight,
+        );
         if (box.top < top + 8 || box.bottom > bottom)
-          target.scrollIntoView({
-            block: "start",
-            inline: "nearest",
-            behavior: "instant",
-          });
+          // scrollIntoView adds global scroll-padding to the existing sticky
+          // scroll-margin. That can put a focused action under the bottom dock.
+          // Align to the measured sticky identity once; dialog focus stays local.
+          window.scrollBy({ top: box.top - (top + 16), behavior: "instant" });
       });
     };
     const update = () => {

@@ -717,5 +717,9 @@ for (const audience of ["customer", "guest"] as const)
         path: info.outputPath(`safe-supply-closure-${audience}-${width}.png`),
         fullPage: true,
       });
+      if (audience === "guest") {
+        expect(logs.guestSessionResponses).toEqual([401, 401]);
+        expect(logs.guestSessionConsole).toHaveLength(2);
+      }
       await verifyConsole(page, logs.errors, logs.warnings);
     });

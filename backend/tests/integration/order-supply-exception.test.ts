@@ -1291,7 +1291,58 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(
           await prisma.inventoryReservation.findUnique({ where: { id: reservation.id } }),
         ).toMatchObject({ status, quantity: 3 });
-        const closed = await f.service.close(f.actor, f.order.id, input, context);
+        let closed: unknown;
+        if (status === "ACTIVE") {
+          const app = createApp({
+            checkReadiness: async () => undefined,
+            rateLimit: 10000,
+          });
+          const token = randomUUID(),
+            csrf = randomUUID().repeat(2),
+            now = await prisma.$transaction((tx) => databaseClock(tx));
+          const expiresAt = new Date(now.getTime() + 3600000);
+          await prisma.session.create({
+            data: {
+              userId: f.actor.userId,
+              tokenHash: hashToken("session", token),
+              csrfTokenHash: hashToken("csrf", csrf),
+              createdAt: new Date(now.getTime() - 1000),
+              expiresAt,
+              idleExpiresAt: expiresAt,
+              mfaRequired: true,
+              mfaVerifiedAt: now,
+            },
+          });
+          const path = `/api/v1/staff/orders/${f.order.id}/supply-exceptions/close`;
+          const headers = {
+            Cookie: `${sessionCookieName}=${token}`,
+            Origin: env.FRONTEND_URL[0]!,
+          };
+          expect((await request(app).post(path).set(headers).send(input)).status).toBe(
+            403,
+          );
+          expect(
+            (
+              await request(app)
+                .post(path)
+                .set("Cookie", f.buyer.cookie)
+                .set("Origin", env.FRONTEND_URL[0]!)
+                .set("x-csrf-token", f.buyer.csrf)
+                .send(input)
+            ).status,
+          ).toBe(403);
+          expect(
+            await prisma.orderSupplyClosure.count({ where: { orderId: f.order.id } }),
+          ).toBe(0);
+          const response = await request(app)
+            .post(path)
+            .set(headers)
+            .set("x-csrf-token", csrf)
+            .send(input);
+          expect(response.status, JSON.stringify(response.body)).toBe(200);
+          expect(response.headers["cache-control"]).toContain("no-store");
+          closed = response.body.data;
+        } else closed = await f.service.close(f.actor, f.order.id, input, context);
         expect(closed).toMatchObject({
           orderVersion: 4,
           replayed: false,

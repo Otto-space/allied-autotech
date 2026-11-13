@@ -314,8 +314,12 @@ for (const [width, height] of [
     });
   });
 }
-for (const width of [320, 1440]) {
-  test(`long selected identity at ${width}px wraps at enlarged text without covering actions`, async ({
+for (const [width, tallerHeader] of [
+  [320, false],
+  [1440, false],
+  [320, true],
+] as const) {
+  test(`long selected identity at ${width}px wraps at enlarged text without covering actions${tallerHeader ? " with a taller dashboard header" : ""}`, async ({
     page,
   }, info) => {
     await page.setViewportSize({ width, height: 720 });
@@ -324,6 +328,12 @@ for (const width of [320, 1440]) {
     s.f.workforce.accountLabel = name;
     await page.goto(`${base}/${s.f.member.id}`);
     await page.getByText("Review legacy access and enroll", { exact: true }).click();
+    // Model a larger shell after text/header reflow. Keep the actual sticky
+    // header, measured identity and bottom dock; do not hide an occluding control.
+    if (tallerHeader)
+      await page.locator(".dashboard-top").evaluate((element) => {
+        (element as HTMLElement).style.minHeight = "148px";
+      });
     const selected = page.getByRole("complementary", { name: "Selected person" });
     await selected.locator("strong").evaluate((element) => {
       element.style.fontSize = "28px";
