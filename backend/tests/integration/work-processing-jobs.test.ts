@@ -420,7 +420,9 @@ describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
             payload: { synthetic: true },
           },
         });
-        const inspected = await read("outbox", record.id);
+        const inspected = await read("outbox", record.id).query({
+          diagnostics: "safe_delivery",
+        });
         expect(inspected.status).toBe(200);
         expect(inspected.body.data.deliverySuppressionReason).toBe(reason);
         expect(inspected.body.data).not.toHaveProperty("lastError");

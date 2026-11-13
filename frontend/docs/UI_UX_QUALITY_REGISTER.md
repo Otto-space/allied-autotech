@@ -1,3 +1,20 @@
+## 13 November - compatible diagnostic opt-in correction
+
+Current-job inspection now adds the safe allowlisted delivery diagnostic only for
+`?diagnostics=safe_delivery`. Legacy requests keep their exact response shape;
+invalid/repeated query values are rejected and raw errors remain private. The
+atomic retry guard applies to old and new callers. This supersedes the earlier
+frontend-first proposal: publish the compatible backend before frontend promotion,
+as required by the integration workflow. No migration or capability change.
+
+Focused backend tests pass 47 cases and backend type/scoped lint checks pass.
+The prior a168fb92 backend database CI run 43506686051 completed successfully;
+it does not certify this subsequent query-contract correction. New exact-source
+CI and compiled browser acceptance remain required before publication. The browser
+fixture now requires the opt-in query and its screenshot test-info binding is fixed.
+C: preflight passed at 23.55 GiB with a 1.5 GiB growth allowance; compilation is
+in progress using existing dependencies. No production changes in this batch.
+
 ## 13 November - CI version assertion repaired; audit and branch acceptance
 
 Exact candidate20dafbc3 backend run43505390581 failed in allie-role-guidance:

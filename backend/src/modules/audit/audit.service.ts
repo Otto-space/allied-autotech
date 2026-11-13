@@ -132,11 +132,17 @@ export class AuditOperationsService {
     source: "outbox" | "webhook",
     id: string,
     context: RequestSecurityContext,
+    safeDeliveryDiagnostic = false,
   ) {
     assertAuditAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
-      const record = await this.repository.job(source, id, transaction);
+      const record = await this.repository.job(
+        source,
+        id,
+        transaction,
+        safeDeliveryDiagnostic,
+      );
       if (!record) throw auditNotFound();
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,

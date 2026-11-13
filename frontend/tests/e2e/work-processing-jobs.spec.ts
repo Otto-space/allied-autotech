@@ -37,7 +37,7 @@ for (const [width, height] of [
     });
     test("consent suppression is explained without offering an ordinary retry", async ({
       page,
-    }) => {
+    }, info) => {
       const f = await workJobsFixture(page);
       const row = jobRow(1);
       if (row.source !== "OUTBOX") throw Error("Expected outbox fixture");

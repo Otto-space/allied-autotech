@@ -3,6 +3,7 @@ import {
   jobDeliveryDiagnostic,
   supportDeliverySuppressionReasons,
 } from "../../src/modules/audit/job-delivery-diagnostic.js";
+import { operationalJobQuerySchema } from "../../src/modules/audit/audit.schemas.js";
 
 const row = {
   eventType: "support.customer-email.requested",
@@ -11,6 +12,19 @@ const row = {
   lastError: "CONSENT_WITHDRAWN",
 };
 describe("safe support delivery diagnostic", () => {
+  it("requires an explicit bounded opt-in without changing legacy requests", () => {
+    expect(operationalJobQuerySchema.parse({})).toEqual({});
+    expect(operationalJobQuerySchema.parse({ diagnostics: "safe_delivery" })).toEqual({
+      diagnostics: "safe_delivery",
+    });
+    for (const query of [
+      { diagnostics: "raw" },
+      { diagnostics: ["safe_delivery"] },
+      { diagnostics: "safe_delivery", payload: true },
+    ]) {
+      expect(operationalJobQuerySchema.safeParse(query).success).toBe(false);
+    }
+  });
   it.each(supportDeliverySuppressionReasons)(
     "returns only the recorded %s reason",
     (lastError) => {

@@ -160,7 +160,7 @@ function JobWorkspace({
     [key],
   );
   const selected = useResource(
-    target ? `${endpoint}/${target.source}/${target.id}` : null,
+    target ? `${endpoint}/${target.source}/${target.id}?diagnostics=safe_delivery` : null,
     parseSelected,
   );
   const active = useRef(true),
@@ -252,8 +252,12 @@ function JobWorkspace({
       throw new ApiError(403, { error: { code: "FORBIDDEN" } });
     }
     const record = parseCurrentJob(
-      (await apiRequest(`${endpoint}/${selection.source}/${selection.id}`, { signal }))
-        .data,
+      (
+        await apiRequest(
+          `${endpoint}/${selection.source}/${selection.id}?diagnostics=safe_delivery`,
+          { signal },
+        )
+      ).data,
       `${selection.source}:${selection.id}`,
     );
     identity(signal);

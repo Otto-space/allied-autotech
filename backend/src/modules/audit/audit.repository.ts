@@ -121,7 +121,12 @@ export class AuditRepository {
       .slice(0, take);
   }
 
-  async job(source: "outbox" | "webhook", id: string, client: Prisma.TransactionClient) {
+  async job(
+    source: "outbox" | "webhook",
+    id: string,
+    client: Prisma.TransactionClient,
+    safeDeliveryDiagnostic = false,
+  ) {
     if (source === "outbox") {
       const record = await client.outboxEvent.findUnique({
         where: { id },
@@ -132,7 +137,9 @@ export class AuditRepository {
       return {
         ...safeRecord,
         source: "OUTBOX" as const,
-        deliverySuppressionReason: jobDeliveryDiagnostic(record),
+        ...(safeDeliveryDiagnostic
+          ? { deliverySuppressionReason: jobDeliveryDiagnostic(record) }
+          : {}),
       };
     }
     const record = await client.paymentWebhookEvent.findUnique({

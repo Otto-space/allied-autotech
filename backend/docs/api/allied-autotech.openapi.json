@@ -161751,7 +161751,7 @@
           "Audit and operations"
         ],
         "summary": "Inspect a current processing job",
-        "description": "Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404; query parameters are rejected. Inspect a current processing job. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404. The optional diagnostics=safe_delivery query adds an allowlisted suppression reason; omitted queries preserve the legacy response. Other query values are rejected. Inspect a current processing job. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -161784,6 +161784,20 @@
             "in": "path",
             "description": "Identifier selecting the job resource.",
             "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "safe_delivery"
+              ],
+              "description": "Diagnostics validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "diagnostics",
+            "in": "query",
+            "description": "Diagnostics used to constrain this request.",
+            "example": "safe_delivery"
           }
         ],
         "responses": {
