@@ -9,14 +9,17 @@ Forward SQL124-127 preserves earlier replayed files. The narrow cancellation
 refund recovery requests money only; general pending terms and independent
 financial approval/transfer/checking are not bypassed.
 
-52 guide/calendar/timing/role units and22 supply UI units pass. Native full127
+52 guide/calendar/timing/role units and29 combined supply/review UI units pass. Native full127
 empty replay/schema diff/db:check and148/148 cases across11 files pass; owned
 tmpfs cleanup verified. Rendered held-candidate acceptance remains pending;
 no production publication, migration or purchasing activation occurred. See
 ../../docs/help-learn/CANCELLED_SUPPLY_RECONCILIATION_20261113.md for the exact
-source journey and acceptance limits. Current remote master8e4325f9 vehicle/card
-and dated staff invitation repairs were inspected and will be preserved during
-integration. The owner's Desktop hero edit remains untouched.
+source journey and acceptance limits. Integrated master c48cf7b1 preserves vehicle/card, dated staff invitation,
+privacy focus and suppressed-job diagnostics repairs. Financial runtime and SQL
+are unchanged by that integration. API contracts validate472 paths/555 mounted
+operations plus4 infrastructure routes; client types/inventory regenerated.
+Both public aliases now independently identify READY dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y;
+this work did not publish it or change public aliases. The owner's Desktop hero edit remains untouched.
 
 ### 13 November: actual no-goods closure and current-master integration
 

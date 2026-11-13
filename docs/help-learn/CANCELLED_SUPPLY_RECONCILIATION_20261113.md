@@ -68,7 +68,7 @@ restricted refund-work v10 explain these differences. Guide gates, semantic targ
 practice permissions and publication flags are unchanged. Broader policy stays
 pending and bank-refund calendars are not inferred from the collection calendar.
 
-52 learning/calendar/timing/role cases and 22 supply UI units pass. Source and
+52 learning/calendar/timing/role cases and 29 combined supply/review UI units pass. Source and
 focused frontend types/lint pass at their recorded checkpoints. Fresh 127-migration empty replay/schema diff/db:check and 148/148 native cases
 across 11 files pass; owned tmpfs cleanup verified. Rendered held-candidate verification, integrated exact-source checks,
 fresh backup/off-device recovery/restore/migration/runtime gates remain pending at
