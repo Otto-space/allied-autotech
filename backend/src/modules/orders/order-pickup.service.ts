@@ -1,4 +1,5 @@
-import { orderCollectionHold } from "./order-collection-hold.js";
+import { planPickupUnitRanges } from "./order-pickup-units.js";
+import { orderCollectionHold, collectionDatabaseClock } from "./order-collection-hold.js";
 import { collectionHoldPolicy } from "./order-collection-clock.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -35,6 +36,7 @@ import {
   originalPickupLines,
   pickupFinancialProof,
   pickupSummary,
+  pickupUnitHistory,
   type PickupOrder,
 } from "./order-pickup.repository.js";
 import {
@@ -350,7 +352,7 @@ export class OrderPickupService {
             policySnapshot: collectionHoldPolicy,
             idempotencyKey: input.idempotencyKey,
             requestHash,
-            createdAt: new Date(),
+            createdAt: await collectionDatabaseClock(tx),
           },
         });
         const changed = await tx.order.update({
@@ -604,6 +606,11 @@ export class OrderPickupService {
           throw orderConflict(
             "Financial clearance changed. Verify the current order before handover.",
           );
+        const unitRanges = planPickupUnitRanges(
+          originalPickupLines(order),
+          await pickupUnitHistory(tx, id),
+          plan.lines,
+        );
         const now = new Date();
         assertPickupEntitlement(authorisation, id, pickupCode, now);
         await tx.orderPickupClaim.update({
@@ -634,6 +641,7 @@ export class OrderPickupService {
             idempotencyKey: input.idempotencyKey,
             requestHash,
             lines: plan.lines,
+            unitRanges,
             completedOrder: plan.complete,
             collectorName: input.collectorName,
             verificationNote: input.verificationNote,

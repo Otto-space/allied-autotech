@@ -1,3 +1,30 @@
+### 13 November: actual settlement proof and physical unit evidence
+
+D17 now has a read-only settlement verifier bound to the current affected case,
+actual customer choice, original saved kobo allocation and original captured payment.
+It requires successful settlement, its exact canonical debit and current anomaly/
+dispute checks. Manual settlement retains independent request, approval, transfer
+and bank-check duties; approval or recording a transfer alone cannot clear money.
+The returned proof excludes bank references, encrypted beneficiary and storage keys.
+
+Additive migration118 preserves old handovers and records exact unit positions for
+new handovers. Legacy quantity evidence is reconstructed in immutable order; corrupt,
+overlapping or foreign positions remain held. No missing goods become a handover.
+A native test exposed application/database clock skew for collection contact;
+collection events and default hold calculations now use the database clock while
+the future-date guard and approved Monday-Saturday calendar remain unchanged.
+
+Verification: 133/133 tests across11 files passed on a new owned tmpfs test target,
+with118-migration empty replay, schema diff, db:check and restricted runtime checks.
+The target was removed afterward. Receipt: TEMP/aat-d03-service-payments-20261109/
+native-supply-settlement-evidence.log. Earlier clock-failing run is retained as
+superseded evidence. No customer records or production database were used.
+
+Next D17 work remains immutable resolution, net financial coverage, exact remaining
+physical quantities and truthful partial pickup/closure. This batch does not release
+any supply hold or activate purchasing. Actual role/provider acceptance, financial
+identifiers and guarded integrated publication remain separate requirements.
+
 ### 10 November: alternative acceptance verified in the integrated held build
 
 Current runtime source04f23adf preserves masterb1222a11 confirmation/recovery focus

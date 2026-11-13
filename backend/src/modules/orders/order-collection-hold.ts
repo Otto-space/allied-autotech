@@ -9,10 +9,25 @@ export function assertCollectionHoldPolicySnapshot(snapshot: unknown) {
       "The saved holding policy needs authorised review; no replacement deadline was calculated.",
     );
 }
+/** Durable contact facts and SQL validation share this authoritative clock. */
+export async function collectionDatabaseClock(tx: Prisma.TransactionClient) {
+  const [row] = await tx.$queryRaw<
+    { recordedAt: Date }[]
+  >`SELECT clock_timestamp() AS "recordedAt"`;
+  if (
+    !row ||
+    !(row.recordedAt instanceof Date) ||
+    !Number.isFinite(row.recordedAt.getTime())
+  )
+    throw orderConflict(
+      "The collection clock could not be verified. Retry before recording contact.",
+    );
+  return row.recordedAt;
+}
 export async function orderCollectionHold(
   tx: Prisma.TransactionClient,
   order: Pick<PickupOrder, "id" | "readyAt" | "status">,
-  now = new Date(),
+  now?: Date,
 ) {
   const notice = order.readyAt
     ? await tx.orderCollectionEvent.findFirst({
@@ -22,6 +37,7 @@ export async function orderCollectionHold(
       })
     : null;
   if (notice) assertCollectionHoldPolicySnapshot(notice.policySnapshot);
+  now ??= await collectionDatabaseClock(tx);
   const clock = collectionHoldClock({
     readyAt: order.readyAt,
     notifiedAt: notice?.createdAt ?? null,

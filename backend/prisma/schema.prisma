@@ -3553,6 +3553,7 @@ model OrderPickupAuthorisation {
 
 // Physical handover is separate from readiness, stock allocation and payment.
 model OrderPickupHandover {
+  unitRanges        Json?
   claimId           String?                  @unique @db.Uuid
   claim             OrderPickupClaim?        @relation(fields: [claimId], references: [id], onDelete: Restrict)
   id                String                   @id @default(uuid()) @db.Uuid

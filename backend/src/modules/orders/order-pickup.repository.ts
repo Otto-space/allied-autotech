@@ -48,6 +48,14 @@ export async function collectedPickupTotals(
     PickupLine[]
   >`SELECT (line->>'orderItemId')::uuid AS "orderItemId", sum((line->>'quantity')::integer)::integer AS "quantity" FROM "OrderPickupHandover" h CROSS JOIN LATERAL jsonb_array_elements(h."lines") line WHERE h."orderId"=${orderId}::uuid GROUP BY line->>'orderItemId'`;
 }
+/** Actual immutable physical records, ordered by the parent version, not a browser total. */
+export async function pickupUnitHistory(tx: Prisma.TransactionClient, orderId: string) {
+  return tx.orderPickupHandover.findMany({
+    where: { orderId },
+    orderBy: [{ orderVersion: "asc" }, { id: "asc" }],
+    select: { lines: true, unitRanges: true },
+  });
+}
 export async function pickupSummary(tx: Prisma.TransactionClient, order: PickupOrder) {
   const [collected, authorisation, history, handoverReview] = await Promise.all([
     collectedPickupTotals(tx, order.id),

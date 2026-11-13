@@ -1,3 +1,7 @@
+import {
+  collectedPickupUnitRanges,
+  pickupUnitRangeDifference,
+} from "./order-pickup-units.js";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
@@ -25,9 +29,8 @@ import {
   assertNoSupplyOverlap,
   assertSupplyExceptionRanges,
   supplyExceptionMoneyBasis,
-  uncoveredSupplyRanges,
 } from "./order-supply-exception.engine.js";
-import { collectedPickupTotals } from "./order-pickup.repository.js";
+import { pickupUnitHistory } from "./order-pickup.repository.js";
 import {
   supplyExceptionRaiseSchema,
   supplyRemedyChoiceSchema,
@@ -223,18 +226,17 @@ export async function recordSupplyException(
       throw orderConflict(
         "A completed order needs actual wrong-supply or technical assessment, not an unfulfilled-goods claim.",
       );
-    const collected = await collectedPickupTotals(tx, order.id);
-    if (
-      input.affectedLines.some(
-        (line) =>
-          line.offset <
-          (collected.find((total) => total.orderItemId === line.orderItemId)?.quantity ??
-            0),
-      )
-    )
+    const collected = collectedPickupUnitRanges(
+      order.items.map((item) => ({ orderItemId: item.id, quantity: item.quantity })),
+      await pickupUnitHistory(tx, order.id),
+    );
+    try {
+      assertNoSupplyOverlap(input.affectedLines, collected);
+    } catch {
       throw orderConflict(
         "Already collected goods need an actual wrong-supply or technical assessment; do not label them unfulfilled.",
       );
+    }
   }
   let basis: Prisma.InputJsonValue;
   try {
@@ -332,15 +334,20 @@ export async function ensureUnavailableSupplyCase(
   if (!source.lines.some((line) => line.sourcingStatus === "UNAVAILABLE")) return null;
   const order = await lockSupplyOrder(tx, id),
     covered = await openRanges(tx, id),
-    collected = await collectedPickupTotals(tx, id);
+    collected = collectedPickupUnitRanges(
+      order.items.map((item) => ({ orderItemId: item.id, quantity: item.quantity })),
+      await pickupUnitHistory(tx, id),
+    );
   const ranges = source.lines
     .filter((line) => line.sourcingStatus === "UNAVAILABLE")
     .flatMap((line) => {
       const original = order.items.find((item) => item.id === line.orderItemId);
       if (!original) throw orderConflict("Review actual order items.");
-      return uncoveredSupplyRanges(
-        original,
-        collected.find((total) => total.orderItemId === line.orderItemId)?.quantity ?? 0,
+      return pickupUnitRangeDifference(
+        pickupUnitRangeDifference(
+          [{ orderItemId: original.id, offset: 0, quantity: original.quantity }],
+          collected,
+        ),
         covered,
       );
     });

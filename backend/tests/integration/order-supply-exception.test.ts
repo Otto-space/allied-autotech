@@ -1,3 +1,8 @@
+import { vi } from "vitest";
+import { readSupplyRefundSettlement } from "../../src/modules/orders/order-supply-refund-settlement.js";
+import { ManualRefundsService } from "../../src/modules/payments/manual-refunds.service.js";
+import { objectStorage } from "../../src/providers/storage/s3-object-storage.adapter.js";
+import { issuePaymentEvidenceTicket } from "../../src/common/security/payment-evidence-tickets.js";
 import { PartsQuotesService } from "../../src/modules/orders/parts-quotes.service.js";
 import { z } from "zod";
 import { refundQueueRecordSchema } from "../../src/modules/payments/refund-record.js";
@@ -235,7 +240,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       z
         .object({ refund: refundQueueRecordSchema, replayed: z.boolean() })
         .parse(JSON.parse(JSON.stringify(value)));
-    async function independentApprover() {
+    async function independentApprover(capability = "REFUND_APPROVE") {
       const user = await prisma.user.create({
         data: {
           email: `${randomUUID()}@example.test`,
@@ -247,7 +252,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           },
         },
       });
-      await testCapability(user.id, "REFUND_APPROVE");
+      await testCapability(user.id, capability);
       return {
         userId: user.id,
         email: user.email,
@@ -973,6 +978,85 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(
         (await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } })).totalKobo,
       ).toBe(320n);
+    });
+    it("verifies affected settlement only after real independent manual checking and its ledger, keeping physical holds", async () => {
+      const f = await refundFixture();
+      const saved = refundReceipt(
+        await f.payments.requestRefund(f.actor, f.refundBody, randomUUID(), context),
+      );
+      await expect(
+        prisma.$transaction((tx) =>
+          readSupplyRefundSettlement(tx, f.order.id, f.concern.id),
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      await f.payments.decideRefund(
+        await independentApprover(),
+        saved.refund.id,
+        { decision: "APPROVED" },
+        context,
+      );
+      const transfer = await independentApprover("REFUND_TRANSFER"),
+        checker = await independentApprover("REFUND_CHECK");
+      const ticket = issuePaymentEvidenceTicket({
+        actorUserId: transfer.userId,
+        paymentId: saved.refund.id,
+        mimeType: "application/pdf",
+        sizeBytes: 1,
+        checksumSha256: "a".repeat(64),
+      });
+      const storage = vi.spyOn(objectStorage, "verifyObject").mockResolvedValue(true);
+      try {
+        const manual = new ManualRefundsService();
+        await manual.recordTransfer(
+          transfer,
+          saved.refund.id,
+          {
+            bankReference: "synthetic-affected-bank-reference",
+            transferredAt: new Date().toISOString(),
+            evidenceToken: ticket.ticket,
+            beneficiary: {
+              bankName: "Synthetic bank",
+              accountName: "Synthetic actual recipient",
+              accountNumber: "0000000000",
+            },
+          },
+          context,
+        );
+        await expect(
+          prisma.$transaction((tx) =>
+            readSupplyRefundSettlement(tx, f.order.id, f.concern.id),
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        await manual.check(
+          checker,
+          saved.refund.id,
+          true,
+          "Synthetic independent evidence and beneficiary checked",
+          context,
+        );
+        const proof = await prisma.$transaction((tx) =>
+          readSupplyRefundSettlement(tx, f.order.id, f.concern.id),
+        );
+        expect(proof).toMatchObject({
+          amountKobo: "107",
+          supplyExceptionId: f.concern.id,
+          choiceId: f.choice.id,
+        });
+        expect(proof.refunds).toHaveLength(1);
+        expect(JSON.stringify(proof)).not.toMatch(
+          /synthetic-affected-bank|Synthetic bank|accountNumber|evidenceObjectKey/,
+        );
+        await expect(
+          prisma.$transaction((tx) => assertReviewedPurchasePayable(tx, f.order.id)),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        await expect(
+          prisma.$transaction((tx) =>
+            readSupplyRefundSettlement(tx, f.order.id, randomUUID()),
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+      } finally {
+        storage.mockRestore();
+      }
     });
     it("caps concurrent scope requests and freezes a financially committed choice in both service and SQL", async () => {
       const f = await refundFixture();

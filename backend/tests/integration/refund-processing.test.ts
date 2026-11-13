@@ -1,3 +1,7 @@
+import {
+  refundSettlementSelect,
+  verifiedOrderRefundSettlement,
+} from "../../src/modules/payments/refund-settlement-evidence.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
@@ -64,7 +68,7 @@ async function account(role: "CUSTOMER" | "STAFF" | "ADMIN" = "STAFF", assured =
   };
 }
 type Account = Awaited<ReturnType<typeof account>>;
-const post = (actor: Account, path: string, body: unknown) =>
+const post = (actor: Account, path: string, body: object) =>
   request(app).post(`/api/v1/staff/refunds/${path}`).set(actor.headers).send(body);
 const get = (actor: Account, query = "") =>
   request(app).get(`/api/v1/staff/refunds${query}`).set(actor.headers);
@@ -416,6 +420,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             where: { refundId: f.refund.id, type: "REFUND" },
           }),
         ).toBe(1);
+        const settled = await prisma.refund.findUniqueOrThrow({
+          where: { id: f.refund.id },
+          select: refundSettlementSelect,
+        });
+        const proof = verifiedOrderRefundSettlement(f.order.id, f.refund.amountKobo, [
+          settled,
+        ]);
+        expect(proof.amountKobo).toBe(f.refund.amountKobo.toString());
+        expect(proof.refunds).toHaveLength(1);
+        expect(JSON.stringify(proof)).not.toContain(body.bankReference);
         expect(await prisma.order.findUnique({ where: { id: f.order.id } })).toEqual(
           f.order,
         );

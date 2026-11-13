@@ -57,38 +57,7 @@ export async function assertSupplyRefundBinding(
     throw paymentConflict(
       "Review the actual current customer refund request before requesting money.",
     );
-  let total: bigint;
-  try {
-    const basis = z
-      .object({
-        status: z.literal("SAVED_ORDER_ALLOCATION"),
-        feeKobo: z.literal("0"),
-        financialApproval: z.literal(false),
-        reviewOnly: z.literal(true),
-        provenance: z.literal("ENGINEERING_UNDER_OWNER_D17_DELEGATION"),
-        amounts: z
-          .object({
-            currency: z.literal("NGN"),
-            totalKobo: z.string().regex(/^[1-9][0-9]*$/),
-          })
-          .passthrough(),
-      })
-      .parse(choice.supplyException.monetaryBasis);
-    const expected = supplyExceptionMoneyBasis(
-      order,
-      affectedUnitRangesSchema.parse(choice.supplyException.affectedLines),
-    );
-    if (
-      expected.status !== "SAVED_ORDER_ALLOCATION" ||
-      !isDeepStrictEqual(expected.amounts, basis.amounts)
-    )
-      throw Error("Original monetary evidence changed");
-    total = BigInt(basis.amounts.totalKobo);
-  } catch {
-    throw paymentConflict(
-      "Reconcile the original monetary allocation and attributable charges before requesting a refund. Do not reprice historical goods or deduct a fee.",
-    );
-  }
+  const total = savedSupplyRefundAmount(order, choice.supplyException);
   if (
     await tx.refund.count({
       where: {
@@ -115,4 +84,42 @@ export async function assertSupplyRefundBinding(
     throw paymentConflict(
       "The refund exceeds the remaining affected original portion, including its saved tax. No handling deduction is authorised.",
     );
+}
+
+/** Reuse the same immutable original allocation for request and settlement review. */
+export function savedSupplyRefundAmount(
+  order: Awaited<ReturnType<typeof lockSupplyOrder>>,
+  concern: { monetaryBasis: unknown; affectedLines: unknown },
+) {
+  try {
+    const basis = z
+      .object({
+        status: z.literal("SAVED_ORDER_ALLOCATION"),
+        feeKobo: z.literal("0"),
+        financialApproval: z.literal(false),
+        reviewOnly: z.literal(true),
+        provenance: z.literal("ENGINEERING_UNDER_OWNER_D17_DELEGATION"),
+        amounts: z
+          .object({
+            currency: z.literal("NGN"),
+            totalKobo: z.string().regex(/^[1-9][0-9]*$/),
+          })
+          .passthrough(),
+      })
+      .parse(concern.monetaryBasis);
+    const expected = supplyExceptionMoneyBasis(
+      order,
+      affectedUnitRangesSchema.parse(concern.affectedLines),
+    );
+    if (
+      expected.status !== "SAVED_ORDER_ALLOCATION" ||
+      !isDeepStrictEqual(expected.amounts, basis.amounts)
+    )
+      throw Error("Original monetary evidence changed");
+    return BigInt(basis.amounts.totalKobo);
+  } catch {
+    throw paymentConflict(
+      "Reconcile the original monetary allocation and attributable charges before requesting a refund. Do not reprice historical goods or deduct a fee.",
+    );
+  }
 }
