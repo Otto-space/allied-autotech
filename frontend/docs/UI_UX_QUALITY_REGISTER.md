@@ -1,3 +1,45 @@
+## 13 November - published mobile controls; Vehicles held verification
+
+Mobile-control sourcee0021792 is published on both domains as
+dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y. All three exact-master gates passed
+(43504882640/43504882711/43504882729):1575 units,12 existing conditional skips,
+1163 browser cases and15 Parts cases. Exact log count corrected the receipt helper's
+initial1159 assumption before gate acceptance. No policy/backend/database change.
+
+Held candidate:12 passing focused observations across four native touch Services
+layouts, Home320/390, natural slow-logo Search320/1280, scoped Home/Services Axe,
+explicit availability recovery and actual Parts section-focus/detail/Back/reload.
+Live repeat: Services320/390/850/930 and Home320/390 retain page position with compact
+targets; actual www pricing query canonicalizes and renders correctly. No page errors
+or business submissions observed. Reviewed Home390 and recovered Services390 captures.
+Evidence: TEMP/aat-stitch-implementation-20261109/mobile-e002-{master-gates,
+candidate-qa,promotion-preflight,live-acceptance}.json and mobile-e002-live-*.png.
+Unprefixed Home/Services captures were overwritten by the identical-source live
+repeat after candidate visual review; the live-prefixed copies retain that outcome.
+
+Limitations retained: initial DNS/document/readiness deadlines; a transient capability
+warning cleared by explicit retry; an initial www probe had no query and its Fixed
+expectation was invalid. Rapid mixed tap/keyboard timing showed transient native/query
+disagreement; a fresh settled All-services-to-ArrowRight probe passed persisted URL
+and checked state. Physical devices and exhaustive keyboard timing remain unaccepted.
+
+Vehicles sourceb41bf24b/held deploymentdpl_2EapGiLe76JHy2dbsNbS5jkinqUn:
+17 passing observations cover nine catalogue sizes, two scoped Axe scans, actual
+mobile modal cancellation/invalid budget/focus, BMW query/detail/Back/reload, both
+real galleries with Escape/focus, desktop query recovery and enquiry context,
+isolated503/retry/empty/large price and long doubled text/unavailable photo/full
+owner fault disclosure. No overflow or business submissions. Compiled desktop blank
+band reduced120px to36px. Reviewed390/1440 catalogue captures against references;
+actual listing photos and material BMW fault remain intact. Evidence:
+vehicles-b41-candidate-qa.json in the same TEMP folder.
+
+Doubled hero text exposed4px caption overlap. This prevents final acceptance;
+source increases copy bottom space to64px and caption to12px, pending a fresh compiled
+comparison. An initial enquiry assertion used the wrong parameter; actual existing
+vehicle_listingId and preserved search were confirmed. Earlier source-only rows below
+are superseded by this evidence, with final caption verification still outstanding.
+Group4 publication and remaining Groups5-10/full119-template/state coverage are open.
+
 ## 13 November - Parts live acceptance; Vehicles reference implementation
 
 Group3 Parts is now live on both domains at source6a9318a6 and deployment

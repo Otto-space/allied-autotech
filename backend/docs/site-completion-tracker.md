@@ -1,3 +1,44 @@
+## 13 November - mobile control release published; Vehicles verification
+
+PR68 and concurrent public-search recovery are now live at exact master
+e0021792bae1bd8fd2f26605bf01748a0adf8a59, deployment
+dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y on apex and www. Exact-master Frontend43504882640,
+Backend43504882711 and Secrets43504882729 passed:1575 units,12 existing conditional
+skips and1163 browser cases, including15 Parts cases. The first receipt parser
+assumed1159; actual complete log1163 was verified before writing the gate receipt.
+Backend36687b08 remains ACTIVE with no pending deployment; approved policy unchanged.
+Compatible6a/E6 frontend recovery is retained. No backend/database changes by this task.
+
+Held-source acceptance recorded12 focused checks: four native-touch Services widths,
+two Home carousel widths, two natural slow-logo Search cases, two scoped Axe scans,
+availability retry recovery and actual Parts detail/section-focus/Back/reload. Live
+acceptance repeated four touch widths320/390/850/930 and Home320/390, with unchanged
+scroll positions, no page errors or business submissions, and explicit www FIXED
+query recovery. Evidence: TEMP/aat-stitch-implementation-20261109/mobile-e002-
+{master-gates,promotion-preflight,candidate-qa,live-acceptance}.json. Screenshot review
+covered compact Home and recovered Services. Retain DNS/document/readiness deadlines,
+the recovered transient availability warning and the invalid empty-query www probe.
+Rapid mixed tap/keyboard harness showed a transient native/query disagreement; a fresh
+settled All-services-to-ArrowRight probe passed URL and checked state. This is not
+physical-device or exhaustive keyboard timing acceptance.
+
+Vehicles remains held. Signed sourceb41bf24b and compiled deployment
+dpl_2EapGiLe76JHy2dbsNbS5jkinqUn passed17 focused observations: catalogue geometry at
+nine widths320-1920, two scoped Axe scans, real mobile filter cancellation/validation,
+BMW budget/search/body/sort/detail/Back/reload, actual BMW and Genesis gallery modal
+Escape/focus, desktop query recovery and enquiry context, isolated503/retry/empty/
+large-price states, and doubled long text/unavailable image/full fault disclosure.
+Desktop heading-to-card gap is36px versus120px baseline. Both catalogue screenshots
+were reviewed against supplied references; no business submissions occurred.
+
+The doubled-text stress exposed4px hero description/caption overlap. Source now
+reserves64px below the copy and uses a12px caption; final compiled verification is
+pending. The initial enquiry test assumed vehicleId; the actual existing
+vehicle_listingId contract and retained search were verified. Do not publishb41 as
+complete. Evidence: vehicles-b41-candidate-qa.json and associated screenshots in the
+same TEMP folder. Remaining Groups4-10/full119-template and real-role/device coverage
+remain open; earlier source-only/CI-pending entries below are superseded by this entry.
+
 ## 13 November - Stitch Parts live acceptance and Vehicles package
 
 Group 3 Parts is live at exact master
