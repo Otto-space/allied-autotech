@@ -87,6 +87,19 @@ jobs:
             frontend/test-results/runtime-capabilities/order-timing-*/
           retention-days: 7
           if-no-files-found: error
+      - name: Verify Parts discovery and unobstructed gallery controls before the full matrix
+        timeout-minutes: 3
+        run: npx --no-install playwright test --config playwright.runtime.config.ts --project=parts-design --max-failures=1
+      - name: Preserve Parts acceptance captures
+        # Keep the focused evidence before the full matrix clears its output.
+        if: ${{ always() }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@v5
+        with:
+          name: parts-design-browser
+          path: frontend/test-results/runtime-capabilities/parts-design-*/
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Verify independent runtime availability in the production build
         # A step timeout leaves the job alive to upload its synthetic evidence.
         # The 915-case source reached case 890 at the old 25-minute ceiling.
