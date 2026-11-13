@@ -627,6 +627,70 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         (tx) =>
           tx.$queryRaw`SELECT aat_assert_order_supply_clearance(${f.order.id}::uuid)::text`,
       );
+      const secondAt = await prisma.$transaction((tx) => databaseClock(tx));
+      const duplicate = await prisma.paymentAttempt.create({
+        data: {
+          paymentId: attempt.paymentId,
+          attemptNumber: 2,
+          internalReference: randomUUID(),
+          provider: "MANUAL",
+          amountKobo: 320n,
+          status: "SUCCESSFUL",
+          verificationStatus: "VERIFIED",
+          verifiedAmountKobo: 320n,
+          verifiedCurrency: "NGN",
+          paidAt: secondAt,
+          verifiedAt: secondAt,
+        },
+      });
+      await prisma.paymentLedgerEntry.create({
+        data: {
+          paymentAttemptId: duplicate.id,
+          sourceKey: `capture:${duplicate.id}`,
+          type: "CAPTURE",
+          direction: "CREDIT",
+          amountKobo: 320n,
+          occurredAt: secondAt,
+        },
+      });
+      await cancelOriginal(f);
+      const duplicateRefund = await prisma.refund.findFirstOrThrow({
+        where: { paymentAttemptId: duplicate.id },
+      });
+      await finishActualManualRefund(duplicateRefund.id);
+      // Even returned money cannot silently turn an unreviewed manual capture
+      // into verified gross history. Actual receipt selection remains unchanged.
+      await expect(
+        f.service.close(f.actor, f.order.id, cancelledReview(3), context),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      const reviewer = await independentApprover();
+      await prisma.manualPaymentReview.create({
+        data: {
+          paymentAttemptId: duplicate.id,
+          submittedByUserId: f.customerActor.userId,
+          reviewedByUserId: reviewer.userId,
+          status: "APPROVED",
+          reviewedAt: await prisma.$transaction((tx) => databaseClock(tx)),
+          reviewerNote:
+            "Synthetic independently reviewed duplicate manual receipt; not provider acceptance",
+        },
+      });
+      const reconciled = await f.service.close(
+        f.actor,
+        f.order.id,
+        cancelledReview(3),
+        context,
+      );
+      expect(reconciled.reconciliations).toHaveLength(2);
+      expect(reconciled.reconciliations[0]).toMatchObject({
+        originalKobo: "320",
+        capturedKobo: "640",
+        refundedKobo: "640",
+      });
+      expect(
+        (await prisma.payment.findUniqueOrThrow({ where: { id: attempt.paymentId } }))
+          .settledAttemptId,
+      ).toBe(attempt.id);
       // Actual later discrepancy invalidates clearance without destroying history.
       await prisma.paymentAnomaly.create({
         data: {
@@ -643,7 +707,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).rejects.toThrow();
       expect(
         (await f.service.readStaff(f.actor, f.order.id, context)).reconciliations,
-      ).toHaveLength(1);
+      ).toHaveLength(2);
     });
     async function alternativeFixture(guest = false) {
       const f = await fixture(guest);

@@ -1,3 +1,42 @@
+### 13 November: cancelled-order reconciliation verified batch
+
+Integrated source preserves master c48cf7b1 vehicle, dated access, privacy-focus and
+job-diagnostic repairs. Held READY frontend dpl_C3SFP4jtDNhiXZBVKHV684nGdsWr uses
+runtime4729e4bd, with no public domain assigned. All27 rendered cases pass:
+14 new cancellation/payment reviews,10 prior unit/refund closures and3 People
+focus cases including320px enlarged text/tall header. Source review and an actual
+RED held test reproduced contradictory legacy refund copy; corrected source passes.
+Screenshot review found unpaid fixtures inheriting paid dates/references. Those
+fixtures now match actual no-capture data; the14 new cases pass again with no
+fabricated payment/invoice history. Corrected desktop and phone captures and the
+People viewport were inspected. Scoped Axe/overflow and lost-response recovery
+checks pass where asserted. Temporary share links were revoked and cookie files
+removed. These are emulated/intercepted fixtures, not real role/provider/device
+acceptance.
+
+Fresh128 empty migration replay/schema diff/db:check pass on owned loopback tmpfs
+storage. The full native run passes147 cases; the expanded duplicate-refund case
+reached its final retained-history assertion and found two actual immutable reviews
+instead of the obsolete expected one. The corrected one-case focused rerun passes
+with process exit0 and verified owned cleanup. Thus148 unique native cases are
+verified across those runs; this is not described as one all-green128 full run.
+The new128 guard requires an approved review for every manual capture, including
+captures not selected as the original receipt, and holds dispute-linked anomalies.
+The actual duplicate journey preserves the original320-kobo contract and receipt,
+records640 actual captured/refunded kobo separately, rejects an unreviewed manual
+capture even after its refund, and retains both actual reviews after later concern.
+No per-unit allocation, stock return, fake handover or broad policy approval.
+
+52 guide/calendar/timing/role and29 supply/review UI units pass. Integrated API
+checks validate472 paths /555 mounted operations plus4 infrastructure routes;
+client types/inventory regenerated without dropping any prior operation or coverage
+status. The owner's Desktop hero remains untouched. Exact-source hosted checks,
+reviewed master integration and fresh production recovery/migration/runtime gates
+still precede publication. Remaining D17 code includes authoritative negative
+attempt evidence, historical partial-allocation and operator/guest full-cancellation
+recovery; actual invoice/operating/provider/role inputs remain separately recorded.
+No production alias, database, real financial record, stock or permission changed.
+
 ### 13 November: cancelled original payment review (prepared source)
 
 D17 now has a distinct existing-order financial review for actual uncaptured

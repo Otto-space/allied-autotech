@@ -47,7 +47,7 @@ financial facts remain with their existing authorised Care/finance workflow.
 
 ## Storage and compatibility
 
-Forward SQL migrations 124-127 extend existing immutable OrderSupplyClosure JSON
+Forward SQL migrations 124-128 extend existing immutable OrderSupplyClosure JSON
 with ORDER_CANCELLED_SUPPLY_RECONCILIATION_V1. Earlier replayed migration files are
 unchanged; successive forward corrections preserve that history. No Prisma model
 or generated-client shape changes. V1 positive-refund/unit closure remains distinct.
@@ -76,3 +76,29 @@ this source checkpoint. Native tests use only newly created loopback _test targe
 reused postgres:18 and owned tmpfs storage with verified cleanup. Provider responses
 and original captures in fixtures are synthetic, not real bank/provider acceptance.
 No production database, alias, stock, permission or real financial record changed.
+
+
+## Final bounded verification
+
+The current128 replay/schema diff/db:check passes. The expanded native run passes
+147 cases and reaches the final duplicate-history assertion in the remaining case;
+updating that expected count from1 to2 yields a passing focused rerun with exit0.
+These establish148 unique verified native cases across the runs, not one all-green
+full128 command. The duplicate test uses actual separate approval/transfer/check
+services, preserves the original320-kobo contract/selected receipt, records640
+actual captured/refunded kobo separately and retains both immutable reviews.
+Manual captures require their own actual approved review; unknown/busy/disputed
+money stays held even when an apparent refund has been recorded.
+
+Held runtime4729e4bd / dpl_C3SFP4jtDNhiXZBVKHV684nGdsWr passes27 rendered cases.
+A source/held RED regression verified the misleading legacy refund copy; the final
+copy and recovery pass. Corrected no-capture dates/payment references/invoice
+fixtures pass14 further checks of the same14 new cases; they are not counted as
+additional unique coverage. Screenshots were inspected. Temporary access revoked
+and cookie files removed. Receipts are under TEMP/aat-d03-service-payments-20261109:
+native-cancelled-supply-128.log, native-cancelled-duplicate-focused.log,
+cancelled-final-held-browser.log, cancelled-truth-held-browser.log and
+cancelled-copy-baseline.log. The corrected screenshots are under
+cancelled-truth-held-results; People focus captures remain under
+cancelled-final-held-results. Protected fixtures do not prove real users, bank or
+provider acceptance, physical devices, or purchasing readiness.

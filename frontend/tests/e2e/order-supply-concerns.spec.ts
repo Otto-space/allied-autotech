@@ -179,6 +179,32 @@ async function setup(
         : `/dashboard/orders/${record.id}`;
   return { record, state, url };
 }
+function cancelledRecord(
+  record: object,
+  outcome: "NO_CAPTURE_RECORDED" | "CAPTURED_FUNDS_RETURNED",
+) {
+  Object.assign(record, {
+    status: "CANCELLED",
+    cancelledAt: "2026-11-13T11:00:00Z",
+    cancellationReason: "Synthetic whole original cancellation before confirmation",
+    confirmedAt: null,
+    processingAt: null,
+    readyAt: null,
+    completedAt: null,
+    invoice: null,
+    paidAt: outcome === "NO_CAPTURE_RECORDED" ? null : "2026-11-13T11:10:00Z",
+    paymentReferences:
+      outcome === "NO_CAPTURE_RECORDED"
+        ? []
+        : [
+            {
+              id: supplyId(6),
+              paymentNumber: "PAY-SYNTHETIC-ORIGINAL",
+              status: "SUCCEEDED",
+            },
+          ],
+  });
+}
 function consoleCapture(page: Page, guest = false, interruptedClosurePath?: string) {
   const errors: string[] = [],
     warnings: string[] = [];
@@ -757,7 +783,7 @@ for (const width of [320, 768, 1440])
           ? `/api/v1/staff/orders/${f.record.id}/supply-exceptions/close`
           : undefined,
       );
-      f.record.status = "CANCELLED";
+      cancelledRecord(f.record, outcome);
       f.record.version = 2;
       f.state.summary.orderVersion = 2;
       f.state.cancelledOutcome = outcome;
@@ -807,6 +833,8 @@ for (const width of [320, 768, 1440])
       );
       await expect(history).toContainText("The original order remains cancelled");
       await expect(group).toHaveCount(0);
+      if (outcome === "NO_CAPTURE_RECORDED")
+        await expect(page.getByText("Not recorded", { exact: true })).toBeVisible();
       await expect(panel).toContainText("no per-unit refund amount is inferred");
       await expect(panel).not.toContainText(
         "Finance must review the original invoice and any attributable charges before a refund amount can be requested",
@@ -842,7 +870,7 @@ for (const audience of ["customer", "guest"] as const)
         await page.setViewportSize({ width, height: 900 });
         const f = await setup(page, audience),
           logs = consoleCapture(page, audience === "guest");
-        f.record.status = "CANCELLED";
+        cancelledRecord(f.record, outcome);
         f.record.version = 3;
         f.state.summary.orderVersion = 3;
         f.state.summary.cancelledReconciliationCapabilityVersion = 1;
