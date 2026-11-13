@@ -12,7 +12,7 @@ export function WorkforcePersonHeader({
   const identity = account?.identity;
   const position = account?.access?.position;
   return (
-    <header className="wf-person-header">
+    <header className="wf-person-header" id="workforce-person-overview" tabIndex={-1}>
       <p>Team &amp; Access / Person</p>
       <h1>{account?.accountLabel ?? "Person"}</h1>
       {account ? (

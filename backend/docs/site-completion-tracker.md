@@ -1,3 +1,36 @@
+## 13 November 17:05 UTC - resume both briefs on current integrated source
+
+Both approved briefs remain active. PR57 is now merged at master65f14086;
+the unfinished person-context work is preserved on codex/team-media-context-20261113
+in the existing allied-team-media-20261110 worktree. Integrate current source
+without overwriting intervening Parts, booking, payment or invitation work.
+One stale learning assertion conflicted on restore: retain master's stronger
+People-entry assertion, then advance the revised guide to version6. The recovery
+stash is retained until the new batch is committed and verified.
+
+Fresh provider reads confirm both public aliases still identify
+dpl_EdMgppUipQ81msnEmHCef4jZxx6m, the vehicle b1222a11 release. PR57's source
+merge is not production People acceptance. Vehicle publication evidence remains
+in TEMP/allied-vehicle-production-b1222a11, allied-vehicle-package-b1222a11,
+allied-vehicle-populated-b1222a11 and allied-vehicle-live-b1222a11/settled-report.json.
+No new backend rollout, migration or real account/grant write occurred this cycle.
+
+Current batch: keep Selected person visible during long edits, offer a keyboard
+Overview return, group only server-reported allowed actions by task and show
+recorded dates for visible assignment sources in Lagos time. Earlier account
+setup no longer claims access is active for an inactive account. Account-level
+and separately approved access coverage remains explicitly partial. Learning
+access-review v6 describes the changed target without changing eligibility/flags.
+52 focused frontend units and16 learning cases pass. Rendered eight-width
+People/edit-context checks and final types/style checks are in progress; do not
+count them as complete yet. The first temporary runner failed because its cwd
+was the artifact directory; explicit frontend cwd corrected the runner only.
+
+T01 remains partial; T02-T07 are still required, including expiring cover,
+invitations/history, account/job workspaces, Digital Media Manager, public media,
+bulk vehicle photos and supported video. C: preflight25.51GiB with2GiB budget;
+mid-check25.23GiB. Preserve the20GiB reserve and all existing recovery resources.
+
 ## 10 November 01:56 UTC - People identity and scoped directory group in progress
 
 Both owner-approved briefs remain active. The vehicle group is merged via PR50;
@@ -809,8 +842,6 @@ The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work 
 The owner's separate 79-line Desktop hero edit is preserved.
 
 ---
-
-
 
 ## 10 November 02:01 Lagos - vehicle CSP test correction and recovery evidence
 

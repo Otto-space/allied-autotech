@@ -1,3 +1,28 @@
+## 13 November - person context and task-based access explanation
+
+T01 follow-up uses current master65f14086 (PR57 merged), preserving intervening
+source. Public apex/www still resolve to vehicle deployment
+dpl_EdMgppUipQ81msnEmHCef4jZxx6m on fresh13 November provider reads; no People
+publication is claimed. Vehicle release evidence remains in the existing
+TEMP/allied-vehicle-production-b1222a11 and live settled-report artifacts.
+
+Scope: /admin/workforce/access/:userId; owner and delegated People routes retain
+their existing server boundaries. Add a compact Selected person bar measured
+against the actual shell toolbar, a keyboard Overview anchor, task groups from
+current allowed actions and Lagos start/end dates for their visible assignment
+sources. Hide empty task groups, preserve partial-summary warnings and clear
+identity on refresh/error. An inactive account's earlier setup is no longer
+described as active. This presentation adds no permission or request.
+
+Evidence in progress:52 focused frontend units and16 learning cases pass;
+local Playwright uses isolated fixtures because the Browser plugin is unavailable.
+Eight viewport journeys check records, scoped actions, person identity during
+scrolled editing, unobscured review controls and keyboard Overview return.
+The first runner cwd error was corrected without an application change. Final
+rendered/type/style outcomes must be recorded before this batch is accepted.
+Learning access-review advances to v6 with unchanged eligibility and feature flags.
+T01 stays partial; all T02-T07 requirements in the existing ledger remain active.
+
 ## 10 November 01:56 UTC - People identity and scoped directory group in progress
 
 Both owner-approved briefs remain active. The vehicle group is merged via PR50;
