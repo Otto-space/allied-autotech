@@ -1,4 +1,25 @@
-# Allied AutoTech consolidated audit — implementation and acceptance
+### 13 November - release reconciliation and saved-items test correction
+
+Current master 65f14086 contains the merged dashboard, Parts, reminder and People
+batches. Production aliases still identify dpl_EdMgppUipQ81msnEmHCef4jZxx6m at
+this read. Preserve all intervening source and the compatible backend release
+requirements; do not promote the older dashboard-only candidate.
+
+Frontend run 42820223870/job 129843578787 completed with 1,147 runtime passes and
+three failures, all the same cancellation test across Chromium, Firefox and
+WebKit. The test requests a button named "Remove Engine oil filter from favourite
+products"; actual rendered and source accessible name ends "from favourites".
+Correct that exact locator while preserving every navigation, focus, loaded-state
+and zero-write assertion. The earlier native run on 229a9298 passed 29 shell/drawer
+cases and two removal cases, then failed this locator twice; four Chrome cases
+were skipped by the failure cap. Those failures/skips remain recorded.
+
+Backend 42820223736 and Secrets 42820223809 passed for 65f14086. Corrected compiled
+acceptance, new-source/master CI, compatible backend rollout and public acceptance
+remain outstanding. The full two-brief goal and its remaining page/state coverage
+are active; no business facts, transactions or permissions were changed.
+
+Allied AutoTech consolidated audit — implementation and acceptance
 
 ## 10 November - saved-collection focus race found by full CI
 
