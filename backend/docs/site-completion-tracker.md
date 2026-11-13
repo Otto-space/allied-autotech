@@ -1,3 +1,33 @@
+### 14 November: current gallery/focus fixes integrated and verified
+
+Merged master9bf8a26e, preserving the mobile vehicle gallery dock-clearance repair,
+reviewed source journals, Ubuntu24.04 browser runner pin and master CI scheduling.
+Exact bd2b0870 backend43526065290 and secrets43526065165 pass; frontend43526065153
+is running at this checkpoint. D17 service/financial SQL remain unchanged.
+
+Held bd2 candidate dpl_BXefKdEyrZ1npw4VbC4i9rKzvdin passes14/15 supplemental
+checks: all four touch/landscape photo-navigation cases use actual published
+public vehicle data with GET-only protection; eight directory widths and ordinary
+enlarged identities pass. The320px taller-header case genuinely fails: a painted
+edge is occluded by A.whatsapp-control after explicit native scrollIntoView.
+Current root scroll-padding already includes the header plus16px focus gap; the
+merged local margin added that gap again. Source9bf16582 retains the upstream
+single-header correction and counts only the measured sticky identity height.
+Native browser, local measured and shared focus reveal then use the same inset.
+No window scroll listener, assertion reduction, hidden dock or extra timeout.
+
+Corrected source9bf16582 is READY at held deployment
+dpl_HvuykgSyBLJXKGNrKS2Y8TD2WKDs. All11 People checks pass at eight widths
+320-1440px, including enlarged identities and the320px taller-header native focus
+case. The focused action is fully above the dock; its safe fixture screenshot was
+visually inspected. Four real public-gallery touch cases from bd2 remain applicable
+because this correction changes only People CSS/test comments. The earlier14/15
+red result is retained as regression evidence, not counted as a pass.
+All supplemental scoped links/cookie state were revoked/removed. The preceding
+D17 fixtures/native evidence and the owner Desktop hero remain preserved. New
+exact-source CI and production safeguards still precede publication; no public
+alias, application data, stock, bank action or permission was changed.
+
 ### 13 November: cancelled-order reconciliation verified batch
 
 Integrated source preserves master c48cf7b1 vehicle, dated access, privacy-focus and
