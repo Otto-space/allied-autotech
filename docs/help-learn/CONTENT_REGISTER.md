@@ -1,3 +1,12 @@
+### 13 November: remaining-goods learning checkpoint (source)
+
+Customer parts-collection v4, administrator order-sourcing v7 and restricted
+refund-work v8 now explain current resolved refund coverage, exact remaining goods,
+private partial collection and preservation of original money/physical history.
+Audience checks, guide targets and publication flags remain unchanged. See
+[remaining-goods checkpoint](RESOLVED_SUPPLY_FULFILMENT_20261113.md) for evidence,
+acceptance boundaries and the distinct unfinished financial-closure paths.
+
 ### 13 November: integrated supply resolution review verified; D17 remains active
 
 Runtime source 3746fe79290c22f8c11e6788cc07a2e2cdd3f106 preserves master 6e910f9b,

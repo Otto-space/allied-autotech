@@ -56,6 +56,7 @@ const select = {
   discountAmountKobo: true,
   taxKobo: true,
   totalKobo: true,
+  currency: true,
   deliveryFeeKobo: true,
   policySnapshot: true,
   items: {

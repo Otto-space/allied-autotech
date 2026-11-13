@@ -1,3 +1,4 @@
+import { databaseClock } from "../../common/database/clock.js";
 import { assertSupplyRefundBinding } from "../orders/order-supply-refund.js";
 import {
   additionalInvoiceQuoteSelect,
@@ -1201,7 +1202,7 @@ export class PaymentsService {
             "Reconcile the dispute and any chargeback before approving this refund",
           );
       }
-      const now = new Date();
+      const now = await databaseClock(tx);
       const requiresOfflineProcessing =
         input.decision === "APPROVED" &&
         (refund.paymentAttempt.provider === "MANUAL" ||

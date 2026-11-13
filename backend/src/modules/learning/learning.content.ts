@@ -91,6 +91,7 @@ export const learningArticles: LearningArticle[] = [
       [
         "Holding lasts five collection days, Monday-Saturday including public holidays, after both actual readiness and successful customer notification. Imported/custom parts follow the same rule. A failed contact attempt does not start the clock. Check the saved Collect by date and any reasoned extension; overdue does not cancel paid goods, charge storage fees or release allocation.",
         "Open the actual ready order and Collect your parts. Choose quantities, review them and confirm. The server checks readiness and verified financial clearance; payment alone is not collection authority.",
+        "After Care records a verified refund and reviews the affected goods, collection shows only the goods still owed. Goods already collected keep their own history, and the original order amount and refund record stay visible. Create and privately share a fresh code for the remaining goods; unused old codes are revoked. The workshop checks the actual goods and current financial clearance. If no goods remain, ask Care to confirm financial closure rather than requesting a pickup.",
         "The code is shown once. Copy it before choosing Hide code, refreshing or reloading. Share it privately only with your chosen collector. Its security expiry is separate from the collection holding period. Replacing or revoking an unused code does not cancel the order or move money.",
         "If staff have begun a pickup review, ask the workshop to resolve it before replacing the code. A review is not handover. Each physical pickup consumes its code; exact remaining goods need a new code.",
         "For an uncertain result, reopen the same order and inspect its history. Do not request a second physical handover. A public order number never authorises collection.",
@@ -99,8 +100,8 @@ export const learningArticles: LearningArticle[] = [
       "OrderPickupService buyer ownership and private one-time authorisation",
       "parts pickup collection private code remaining quantities",
     ),
-    version: 3,
-    reviewedAt: "2026-11-10",
+    version: 4,
+    reviewedAt: "2026-11-13",
   },
   {
     ...article(
@@ -393,6 +394,7 @@ export const learningArticles: LearningArticle[] = [
         "An affected-part refund must bind the actual current customer remedy request and its original saved amount, discount and tax. Asking for an alternative is not accepting one. Earlier unbound refunds or unknown historical charges need reconciliation. No handling deduction or fresh price is invented. A financially committed request must be reconciled before another customer choice; failed/cancelled requests retain their history. A requested or approved refund is not money returned. Read actual processing, failed, needs-attention or successful settlement evidence separately.",
         "For an affected-part request, open its actual order and Supply concerns. Only a current administrator can record a concern for checked units and request a refund from a verified captured payment. Review the saved customer choice, affected amount and reason before confirming. Open the resulting refund record to follow independent approval and processing; creating a request does not settle it.",
         "When the customer requested an alternative, the original affected-portion refund can be requested only after their actual current quotation acceptance creates the linked unpaid replacement order. Do not transfer the original payment or force store credit. The original financial and unit resolution must be verified before a replacement payment; its compatibility and availability review remains required.",
+        "Read current original, returned and remaining amounts separately. Remaining means retained original payment coverage, including any goods already collected, not a new amount to pay or credit for a replacement. Only the exact independently settled original refund and its canonical debit can clear a recorded affected portion; pending, unknown, disputed or busy proof remains held. Refunded unfulfilled units are separate from goods already collected. The original order is never repriced or transferred to a replacement, and cancelling an unpaid replacement does not erase its historical acceptance or the actual original refund. An administrator may reconcile the remaining goods, while each financial duty keeps its separate grant and independence. Do not treat a refund as a stock return or a physical handover.",
         "A checker must be independent of the requester, approver and transfer recorder. A responsibility template or Admin title does not bypass this rule.",
         "After successful original settlement, only the actual administrator can use Reconcile the refunded goods in Supply concerns. Review the original refund record and actual collection history, enter the internal reconciliation note and confirm review. The server requires the exact canonical debit and independent manual checking or provider evidence. Approval, a transfer record or a processing status cannot resolve money. It separates unfulfilled units from previously collected goods, retains immutable history and revokes unused pickup codes. Resolve any active pickup review first. This does not return stock or grant collection; later clearance must recheck current anomalies, disputes and actual remaining goods. For an uncertain save, review the original request and saved history before retrying.",
         "Review and confirm explicitly. If a request's result is uncertain, inspect its saved recovery state before sending anything again. Allie cannot approve or transfer money.",
@@ -401,7 +403,7 @@ export const learningArticles: LearningArticle[] = [
       "ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery",
       "refund approve approval transfer independent checker payment evidence uncertain",
     ),
-    version: 7,
+    version: 8,
     reviewedAt: "2026-11-13",
   },
   article(
@@ -706,13 +708,14 @@ export const learningArticles: LearningArticle[] = [
         "Open Supply concerns on the actual order. An administrator can expand Record a supply concern, check the actual items and affected units, and record a customer-facing explanation separately from the private reason. Review before confirming. Staff read access does not grant authoring. The customer or private purchase guest records their own remedy request; never enter a choice on their behalf.",
         "Use the linked Care case Parts quotations to issue an actual alternative against the customer current alternative request. The server binds that request and retains the actual quoted product, price and expiry. Customer acceptance creates a separate unpaid order; staff cannot accept it on the customer behalf. A changed request makes an earlier unaccepted alternative stale. An accepted replacement must be reconciled or cancelled before changing the remedy. New payment remains held pending original financial and affected-unit resolution; no credit or transfer is inferred.",
         "After successful original settlement, only the actual administrator can use Reconcile the refunded goods in Supply concerns. Review the original refund record and actual collection history, enter the internal reconciliation note and confirm review. The server requires the exact canonical debit and independent manual checking or provider evidence. Approval, a transfer record or a processing status cannot resolve money. It separates unfulfilled units from previously collected goods, retains immutable history and revokes unused pickup codes. Resolve any active pickup review first. This does not return stock or grant collection; later clearance must recheck current anomalies, disputes and actual remaining goods. For an uncertain save, review the original request and saved history before retrying.",
+        "Once the original affected refund and physical disposition are recorded, fulfil only the actual remaining quantities. Confirmation releases old active holds and reallocates only remaining goods; it does not restock consumed or wrongly supplied items. A source line still marked unavailable cannot proceed unless all its unfulfilled units were actually refunded and removed from collection. Current suitability, receipts, refunds, disputes and anomalies are rechecked; a saved resolution is not permanent clearance. Each collection records actual units and a fresh private code, including a partial handover around refunded units. A fully refunded order with no remaining goods needs separate financial closure, not a zero-quantity handover.",
         "A customer remedy request is separate immutable evidence. Refund review is not financial approval or money returned. Asking for a suitable alternative does not accept a product, price, store credit or another payment. Changed requests retain their history. Used, installed or disputed goods stay in technical assessment; no general returns or warranty terms are approved. The existing supply hold remains until the authorised resolution workflow verifies the outcome.",
       ],
       "/admin",
       "OrdersService.updateTiming current-access and OrderTimingUpdate immutable history",
       "order sourcing supplier import arrival preparation estimate unavailable",
     ),
-    version: 6,
+    version: 7,
     reviewedAt: "2026-11-13",
   },
   article(

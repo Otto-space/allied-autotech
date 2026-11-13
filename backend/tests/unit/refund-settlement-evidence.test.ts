@@ -73,6 +73,28 @@ function fixture(): RefundSettlementEvidence {
   };
 }
 describe("actual order refund settlement evidence", () => {
+  it("caps the sum of distinct refunds against one actual captured attempt", () => {
+    const first = fixture(),
+      second = structuredClone(first);
+    first.amountKobo = 60n;
+    first.ledgerEntries[0]!.amountKobo = 60n;
+    first.paymentAttempt.amountKobo = 80n;
+    first.paymentAttempt.verifiedAmountKobo = 80n;
+    first.paymentAttempt.payment.amountKobo = 80n;
+    second.id = id(21);
+    second.amountKobo = 47n;
+    second.ledgerEntries[0] = {
+      ...second.ledgerEntries[0]!,
+      id: id(22),
+      refundId: second.id,
+      sourceKey: `refund:${second.id}`,
+      amountKobo: 47n,
+    };
+    second.paymentAttempt = structuredClone(first.paymentAttempt);
+    expect(() =>
+      verifiedOrderRefundSettlement(id(10), 107n, [first, second], now),
+    ).toThrow();
+  });
   it("retains only exact settled amount and ledger identities, excluding private bank/operator fields", () => {
     const proof = verifiedOrderRefundSettlement(id(10), 107n, [fixture()], now);
     expect(proof.amountKobo).toBe("107");

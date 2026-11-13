@@ -1,3 +1,12 @@
+### 13 November: remaining-goods learning checkpoint (source)
+
+Customer parts-collection v4, administrator order-sourcing v7 and restricted
+refund-work v8 now explain current resolved refund coverage, exact remaining goods,
+private partial collection and preservation of original money/physical history.
+Audience checks, guide targets and publication flags remain unchanged. See
+[remaining-goods checkpoint](RESOLVED_SUPPLY_FULFILMENT_20261113.md) for evidence,
+acceptance boundaries and the distinct unfinished financial-closure paths.
+
 ### 9 November: collection holding is connected; release acceptance remains open
 
 D12 now records immutable actual phone/in-person contact results separately from

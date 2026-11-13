@@ -1,3 +1,5 @@
+import { AppError } from "../../common/errors/app-error.js";
+import { databaseClock } from "../../common/database/clock.js";
 import { lockCurrentPaymentCustomer } from "../payments/payments.policy.js";
 import { assertSupplyAlternativeAcceptance } from "./order-supply-alternative.js";
 import { ensureUnavailableSupplyCase } from "./order-supply-exception.service.js";
@@ -1091,6 +1093,7 @@ export class OrdersService {
           );
         const purchaseReview = await assertReviewedPurchaseFulfilment(transaction, id);
         if (input.status === "CONFIRMED") {
+          let resolvedQuoteAllocation = false;
           const quote = await transaction.partsQuote.findUnique({
             where: { orderId: order.id },
             include: { enquiry: { select: { customerId: true } } },
@@ -1103,6 +1106,9 @@ export class OrdersService {
             },
           });
           if (quote && activeHolds === 0) {
+            const remainingQuoteQuantity =
+              purchaseReview.quantities.get(purchaseReview.items[0]!.id) ??
+              quote.quantity;
             if (!input.reason || input.reason.trim().length < 10)
               throw orderConflict(
                 purchaseReview.legacy
@@ -1127,12 +1133,12 @@ export class OrdersService {
             )[0];
             if (
               !inventory ||
-              inventory.quantity - inventory.reserved < quote.quantity ||
+              inventory.quantity - inventory.reserved < remainingQuoteQuantity ||
               !inventory.product.isActive ||
               !inventory.branch.isActive
             )
               throw checkoutStockUnavailable();
-            const nextReserved = inventory.reserved + quote.quantity;
+            const nextReserved = inventory.reserved + remainingQuoteQuantity;
             if (
               (
                 await this.repository.updateInventory(
@@ -1152,13 +1158,13 @@ export class OrdersService {
             const fingerprint = orderFingerprint({
               orderId: order.id,
               quoteId: quote.id,
-              quantity: quote.quantity,
+              quantity: remainingQuoteQuantity,
             });
             await transaction.inventoryReservation.create({
               data: {
                 inventoryId: inventory.id,
                 customerId: order.customerId,
-                quantity: quote.quantity,
+                quantity: remainingQuoteQuantity,
                 expiresAt: new Date(Date.now() + 3600000),
                 idempotencyKey: key,
                 requestHash: fingerprint,
@@ -1172,7 +1178,7 @@ export class OrdersService {
                 performedById: actor.userId,
                 type: "RESERVATION",
                 quantityDelta: 0,
-                reservedDelta: quote.quantity,
+                reservedDelta: remainingQuoteQuantity,
                 quantityBefore: inventory.quantity,
                 quantityAfter: inventory.quantity,
                 reservedBefore: inventory.reserved,
@@ -1194,10 +1200,19 @@ export class OrdersService {
               },
               context,
             });
+            resolvedQuoteAllocation = true;
           }
+          if (purchaseReview.supply.resolutions.length && !resolvedQuoteAllocation)
+            await this.reconcileSupplyReservations(
+              actor.userId,
+              { ...order, items: purchaseReview.items },
+              purchaseReview.quantities,
+              purchaseReview.supply.resolutions.map((row) => row.resolutionId),
+              transaction,
+            );
           await this.consumeReservations(actor.userId, order.id, transaction);
         }
-        const now = new Date();
+        const now = await databaseClock(transaction);
         const result = await this.repository.updateOrder(
           id,
           input.expectedVersion,
@@ -1246,13 +1261,42 @@ export class OrdersService {
           where: { orderId: order.id, kind: "CANCELLATION", status: "APPROVED" },
           select: { id: true },
         })) !== null);
+    let fulfilmentAllowed =
+      order.paidAt !== null && !hasUnavailableSourcing(order.timingUpdates?.[0]?.lines);
+    if (
+      order.paidAt &&
+      ["PENDING", "CONFIRMED", "PROCESSING"].includes(order.status) &&
+      (await this.database.orderSupplyException.count({
+        where: {
+          OR: [
+            { orderId: order.id },
+            {
+              supplyRemedyChoices: {
+                some: { partsQuotes: { some: { orderId: order.id } } },
+              },
+            },
+          ],
+        },
+      }))
+    ) {
+      try {
+        await withTransactionRetry(
+          this.database,
+          (tx) => assertReviewedPurchaseFulfilment(tx, order.id),
+          { isolationLevel: "Serializable" },
+        );
+        fulfilmentAllowed = true;
+      } catch (error) {
+        if (!(error instanceof AppError) || error.statusCode !== 409) throw error;
+        fulfilmentAllowed = false;
+      }
+    }
     return (transitions[order.status] as readonly string[]).filter((status) =>
       status === "COMPLETED"
         ? false
         : status === "CANCELLED"
           ? cancellationAllowed
-          : order.paidAt !== null &&
-            !hasUnavailableSourcing(order.timingUpdates?.[0]?.lines),
+          : fulfilmentAllowed,
     );
   }
   async expireDue(
@@ -1324,6 +1368,174 @@ export class OrdersService {
     if (actor.role === "STAFF" && (allowed === null || branchId !== allowed))
       throw orderForbidden();
   }
+  private async reconcileSupplyReservations(
+    userId: string,
+    order: {
+      id: string;
+      customerId: string | null;
+      branchId: string | null;
+      items: { id: string; productId: string; quantity: number }[];
+    },
+    quantities: ReadonlyMap<string, number>,
+    resolutionIds: string[],
+    tx: Prisma.TransactionClient,
+  ) {
+    const reservations = await this.repository.reservations(order.id, ["ACTIVE"], tx);
+    const inventories = await this.repository.lockInventoryIds(
+      reservations.map((row) => row.inventoryId),
+      tx,
+    );
+    const original = new Map<string, number>(),
+      needed = new Map<string, number>();
+    for (const item of order.items) {
+      original.set(item.productId, (original.get(item.productId) ?? 0) + item.quantity);
+      needed.set(
+        item.productId,
+        (needed.get(item.productId) ?? 0) + (quantities.get(item.id) ?? item.quantity),
+      );
+    }
+    if (
+      !inventories.length ||
+      inventories.some(
+        (inventory) =>
+          inventory.branchId !== order.branchId || !original.has(inventory.productId),
+      ) ||
+      [...original].some(([productId, count]) =>
+        (() => {
+          const actual = reservations
+            .filter(
+              (row) =>
+                inventories.find((i) => i.id === row.inventoryId)?.productId ===
+                productId,
+            )
+            .reduce((sum, row) => sum + row.quantity, 0);
+          return (needed.get(productId) ?? 0) > 0
+            ? actual !== count
+            : actual !== 0 && actual !== count;
+        })(),
+      )
+    )
+      throw orderConflict(
+        "Reconcile the actual original stock reservations before allocating remaining goods.",
+      );
+    const now = await databaseClock(tx);
+    for (const inventory of inventories) {
+      const held = reservations.filter((row) => row.inventoryId === inventory.id),
+        heldCount = held.reduce((sum, row) => sum + row.quantity, 0),
+        required = needed.get(inventory.productId) ?? 0;
+      if (required === heldCount) continue;
+      if (required < 0 || required > heldCount || inventory.reserved < heldCount)
+        throw checkoutStockUnavailable();
+      for (const prior of held) {
+        const next = inventory.reserved - prior.quantity;
+        if (
+          (
+            await this.repository.updateInventory(
+              inventory.id,
+              inventory.version,
+              inventory.quantity,
+              next,
+              tx,
+            )
+          ).count !== 1 ||
+          (
+            await this.repository.transitionReservation(
+              prior.id,
+              "ACTIVE",
+              "RELEASED",
+              now,
+              tx,
+            )
+          ).count !== 1
+        )
+          throw orderStale();
+        await tx.inventoryTransaction.create({
+          data: {
+            inventoryId: inventory.id,
+            performedById: userId,
+            type: "RESERVATION_RELEASE",
+            quantityDelta: 0,
+            reservedDelta: -prior.quantity,
+            quantityBefore: inventory.quantity,
+            quantityAfter: inventory.quantity,
+            reservedBefore: inventory.reserved,
+            reservedAfter: next,
+            idempotencyKey: hashToken(
+              "order-inventory",
+              `${order.id}:${prior.id}:supply-release`,
+            ),
+            requestHash: orderFingerprint({
+              orderId: order.id,
+              reservationId: prior.id,
+              resolutionIds,
+            }),
+            referenceType: "ORDER",
+            referenceId: order.id,
+          },
+        });
+        inventory.reserved = next;
+        inventory.version++;
+      }
+      if (!required) continue;
+      if (inventory.quantity - inventory.reserved < required)
+        throw checkoutStockUnavailable();
+      const next = inventory.reserved + required,
+        allocation = {
+          orderId: order.id,
+          inventoryId: inventory.id,
+          priorReservations: held.map((row) => row.id),
+          resolutionIds,
+          quantity: required,
+        };
+      if (
+        (
+          await this.repository.updateInventory(
+            inventory.id,
+            inventory.version,
+            inventory.quantity,
+            next,
+            tx,
+          )
+        ).count !== 1
+      )
+        throw orderStale();
+      await tx.inventoryReservation.create({
+        data: {
+          inventoryId: inventory.id,
+          customerId: order.customerId,
+          quantity: required,
+          expiresAt: new Date(now.getTime() + 3600000),
+          idempotencyKey: hashToken(
+            "order-reservation",
+            `resolved:${order.id}:${inventory.id}`,
+          ),
+          requestHash: orderFingerprint(allocation),
+          referenceType: "ORDER",
+          referenceId: order.id,
+        },
+      });
+      await tx.inventoryTransaction.create({
+        data: {
+          inventoryId: inventory.id,
+          performedById: userId,
+          type: "RESERVATION",
+          quantityDelta: 0,
+          reservedDelta: required,
+          quantityBefore: inventory.quantity,
+          quantityAfter: inventory.quantity,
+          reservedBefore: inventory.reserved,
+          reservedAfter: next,
+          idempotencyKey: hashToken(
+            "order-inventory",
+            `resolved:${order.id}:${inventory.id}:reserve`,
+          ),
+          requestHash: orderFingerprint(allocation),
+          referenceType: "ORDER",
+          referenceId: order.id,
+        },
+      });
+    }
+  }
   private async consumeReservations(
     userId: string,
     orderId: string,
@@ -1340,7 +1552,7 @@ export class OrdersService {
       transaction,
     );
     const inventoryById = new Map(inventories.map((item) => [item.id, item]));
-    const now = new Date();
+    const now = await databaseClock(transaction);
     for (const reservation of reservations) {
       const inventory = inventoryById.get(reservation.inventoryId);
       if (

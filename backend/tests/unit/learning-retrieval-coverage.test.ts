@@ -78,7 +78,7 @@ afterEach(() => {
 describe("authorised server help survives Allie retrieval", () => {
   it("keeps pickup display and clearing guidance restricted to verified customers", () => {
     const article = learningArticles.find((row) => row.id === "parts-collection")!;
-    expect(article.version).toBe(3);
+    expect(article.version).toBe(4);
     expect(article.gate).toBe("customer");
     expect(article.steps.join(" ")).toContain(
       "Copy it before choosing Hide code, refreshing or reloading",
@@ -96,7 +96,7 @@ describe("authorised server help survives Allie retrieval", () => {
         ...publicLearningAccess,
         role: "CUSTOMER",
         verified: true,
-      }).articles.some((row) => row.id === article.id && row.version === 3),
+      }).articles.some((row) => row.id === article.id && row.version === 4),
     ).toBe(true);
   });
   it("keeps reminder-policy guidance and actions restricted to the owner", () => {
@@ -175,7 +175,7 @@ it("keeps collection instructions administrative without granting release permis
 
 it("keeps order sourcing authoring instructions out of public, customer and staff catalogues", () => {
   const guide = learningArticles.find((article) => article.id === "order-sourcing")!;
-  expect([guide.gate, guide.version]).toEqual(["admin", 6]);
+  expect([guide.gate, guide.version]).toEqual(["admin", 7]);
   for (const role of ["PUBLIC", "CUSTOMER", "STAFF"] as const) {
     const catalogue = learningCatalogue({
       ...publicLearningAccess,
@@ -191,9 +191,9 @@ it("keeps actual supply settlement resolution restricted and separate from physi
   const refund = learningArticles.find((article) => article.id === "refund-work")!;
   expect([source.gate, source.version, refund.gate, refund.version]).toEqual([
     "admin",
-    6,
-    "refunds",
     7,
+    "refunds",
+    8,
   ]);
   for (const topic of [source, refund]) {
     const content = JSON.stringify(topic);
@@ -202,4 +202,22 @@ it("keeps actual supply settlement resolution restricted and separate from physi
     expect(content).toContain("does not return stock or grant collection");
     expect(content).toContain("active pickup review");
   }
+});
+
+it("explains actual remaining collection without granting payment or stock authority", () => {
+  const pickup = learningArticles.find((row) => row.id === "parts-collection")!;
+  const sourcing = learningArticles.find((row) => row.id === "order-sourcing")!;
+  const refund = learningArticles.find((row) => row.id === "refund-work")!;
+  expect([
+    pickup.version,
+    pickup.gate,
+    sourcing.version,
+    sourcing.gate,
+    refund.version,
+    refund.gate,
+  ]).toEqual([4, "customer", 7, "admin", 8, "refunds"]);
+  expect(pickup.steps.join(" ")).toContain("only the goods still owed");
+  expect(sourcing.steps.join(" ")).toContain("does not restock consumed");
+  expect(refund.steps.join(" ")).toContain("does not erase its historical acceptance");
+  expect(refund.steps.join(" ")).toContain("separate grant and independence");
 });

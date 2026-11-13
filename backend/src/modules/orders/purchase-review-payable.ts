@@ -26,7 +26,7 @@ export async function assertReviewedPurchasePayable(
   now = new Date(),
 ) {
   const order = await lockPurchaseReviewOrder(tx, id);
-  await assertNoSupplyExceptionHold(tx, id);
+  await assertNoSupplyExceptionHold(tx, id, "PAYMENT");
   await assertOrderSourcingAvailable(tx, id);
   if (
     order.status !== "PENDING" ||

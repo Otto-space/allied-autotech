@@ -1,3 +1,4 @@
+import { databaseClock } from "../../src/common/database/clock.js";
 import {
   refundSettlementSelect,
   verifiedOrderRefundSettlement,
@@ -106,6 +107,7 @@ async function fixture(provider: "MANUAL" | "PAYSTACK" = "MANUAL") {
       idempotencyKeyHash: randomUUID().replaceAll("-", "").repeat(2),
     },
   });
+  const capturedAt = await prisma.$transaction((tx) => databaseClock(tx));
   const attempt = await prisma.paymentAttempt.create({
     data: {
       paymentId: payment.id,
@@ -117,8 +119,8 @@ async function fixture(provider: "MANUAL" | "PAYSTACK" = "MANUAL") {
       verificationStatus: "VERIFIED",
       verifiedAmountKobo: 100000n,
       verifiedCurrency: "NGN",
-      paidAt: new Date(),
-      verifiedAt: new Date(),
+      paidAt: capturedAt,
+      verifiedAt: capturedAt,
       createdAt: new Date(Date.now() - 1000),
       initiatedAt: new Date(Date.now() - 1000),
     },
@@ -174,7 +176,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           f.refund.id,
           {
             bankReference: "synthetic-reference",
-            transferredAt: new Date().toISOString(),
+            transferredAt: (
+              await prisma.$transaction((tx) => databaseClock(tx))
+            ).toISOString(),
             evidenceToken: ticket.ticket,
             beneficiary: {
               bankName: "Synthetic bank",
@@ -333,7 +337,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(uploadMock).toHaveBeenCalledTimes(1);
         const body = {
           bankReference: `SYNTHETIC-${randomUUID()}`,
-          transferredAt: new Date().toISOString(),
+          transferredAt: (
+            await prisma.$transaction((tx) => databaseClock(tx))
+          ).toISOString(),
           evidenceToken: upload.body.data.evidenceToken,
           beneficiary: {
             bankName: "Synthetic bank",

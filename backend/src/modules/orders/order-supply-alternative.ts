@@ -43,43 +43,48 @@ export async function supplyAlternativeChoice(
 export async function hasAcceptedSupplyAlternative(
   tx: Prisma.TransactionClient,
   choiceId: string,
+  includeCancelledHistory = false,
 ) {
   const quotes = await tx.partsQuote.findMany({
     where: {
       supplyRemedyChoiceId: choiceId,
       status: "ACCEPTED",
       orderId: { not: null },
-      order: { status: { not: "CANCELLED" } },
+      ...(includeCancelledHistory ? {} : { order: { status: { not: "CANCELLED" } } }),
     },
-    take: 2,
+    take: includeCancelledHistory ? 101 : 2,
     select: {
       policySnapshot: true,
       supplyRemedyChoice: { select: { orderId: true } },
       order: { select: { policySnapshot: true } },
     },
   });
-  if (quotes.length !== 1) return false;
-  const quote = quotes[0]!,
-    terms = readSupplyAlternativeTerms(quote.policySnapshot);
-  const policy = quote.order?.policySnapshot;
-  const linked =
-    policy && typeof policy === "object" && !Array.isArray(policy)
-      ? policy["partsQuote"]
-      : null;
-  const ack =
-    linked && typeof linked === "object" && !Array.isArray(linked)
-      ? linked["alternativeAcceptance"]
-      : null;
-  return (
-    !!terms &&
-    terms.choiceId === choiceId &&
-    terms.originalOrderId === quote.supplyRemedyChoice?.orderId &&
-    !!ack &&
-    typeof ack === "object" &&
-    !Array.isArray(ack) &&
-    ack["version"] === supplyAlternativeAgreementVersion &&
-    ack["choiceId"] === choiceId
-  );
+  if (
+    includeCancelledHistory ? !quotes.length || quotes.length > 100 : quotes.length !== 1
+  )
+    return false;
+  return quotes.some((quote) => {
+    const terms = readSupplyAlternativeTerms(quote.policySnapshot);
+    const policy = quote.order?.policySnapshot;
+    const linked =
+      policy && typeof policy === "object" && !Array.isArray(policy)
+        ? policy["partsQuote"]
+        : null;
+    const ack =
+      linked && typeof linked === "object" && !Array.isArray(linked)
+        ? linked["alternativeAcceptance"]
+        : null;
+    return (
+      !!terms &&
+      terms.choiceId === choiceId &&
+      terms.originalOrderId === quote.supplyRemedyChoice?.orderId &&
+      !!ack &&
+      typeof ack === "object" &&
+      !Array.isArray(ack) &&
+      ack["version"] === supplyAlternativeAgreementVersion &&
+      ack["choiceId"] === choiceId
+    );
+  });
 }
 
 /** Explicit acceptance must acknowledge the immutable offered commercial handling,

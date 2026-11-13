@@ -35,7 +35,7 @@ export async function readSupplyRefundSettlement(
     (choice.choice !== "REFUND_REVIEW" &&
       !(
         choice.choice === "SUITABLE_ALTERNATIVE_REVIEW" &&
-        (await hasAcceptedSupplyAlternative(tx, choice.id))
+        (await hasAcceptedSupplyAlternative(tx, choice.id, true))
       ))
   )
     throw paymentConflict(

@@ -1,15 +1,11 @@
-import { assertNoSupplyExceptionHold } from "./order-supply-exception-hold.js";
+import { savedSupplyExclusions } from "./order-supply-exception-hold.js";
 import { orderCollectionHold } from "./order-collection-hold.js";
 import { Prisma } from "../../generated/prisma/client.js";
-import { confirmedReceipt, receiptPaymentSelect } from "../billing/documents.service.js";
-import { hasServiceFinancialHold } from "../billing/service-payment-plan.js";
+import { orderFinancialCoverage } from "./order-financial-coverage.js";
+import { remainingPickupUnitRanges } from "./order-pickup-units.js";
 import { assertReviewedPurchaseFulfilment } from "./purchase-review-fulfilment.js";
 import { orderConflict, orderNotFound } from "./orders.errors.js";
-import {
-  pickupLinesSchema,
-  remainingPickupQuantities,
-  type PickupLine,
-} from "./order-pickup.engine.js";
+import { pickupLinesSchema, type PickupLine } from "./order-pickup.engine.js";
 import { orderFingerprint } from "./orders.types.js";
 
 const select = {
@@ -56,6 +52,23 @@ export async function pickupUnitHistory(tx: Prisma.TransactionClient, orderId: s
     select: { lines: true, unitRanges: true },
   });
 }
+export async function remainingPickupLines(
+  tx: Prisma.TransactionClient,
+  order: PickupOrder,
+) {
+  const remaining = remainingPickupUnitRanges(
+    originalPickupLines(order),
+    await pickupUnitHistory(tx, order.id),
+    await savedSupplyExclusions(tx, order.id),
+  );
+  const quantities = new Map<string, number>();
+  for (const range of remaining)
+    quantities.set(
+      range.orderItemId,
+      (quantities.get(range.orderItemId) ?? 0) + range.quantity,
+    );
+  return [...quantities].map(([orderItemId, quantity]) => ({ orderItemId, quantity }));
+}
 export async function pickupSummary(tx: Prisma.TransactionClient, order: PickupOrder) {
   const [collected, authorisation, history, handoverReview] = await Promise.all([
     collectedPickupTotals(tx, order.id),
@@ -82,7 +95,7 @@ export async function pickupSummary(tx: Prisma.TransactionClient, order: PickupO
     version: order.version,
     status: order.status,
     legacyCompleted: order.status === "COMPLETED" && collected.length === 0,
-    remaining: remainingPickupQuantities(originalPickupLines(order), collected),
+    remaining: await remainingPickupLines(tx, order),
     authorisation: authorisation && {
       ...authorisation,
       lines: pickupLinesSchema.parse(authorisation.lines),
@@ -112,8 +125,7 @@ export async function pickupFinancialProof(
     throw orderConflict(
       "The actual paid order must be ready at an active collection branch before pickup.",
     );
-  await assertReviewedPurchaseFulfilment(tx, order.id);
-  await assertNoSupplyExceptionHold(tx, order.id);
+  const review = await assertReviewedPurchaseFulfilment(tx, order.id);
   const holds = await tx.orderAftercareRequest.findFirst({
     where: { orderId: order.id, status: { not: "REJECTED" } },
     select: { id: true },
@@ -122,85 +134,34 @@ export async function pickupFinancialProof(
     throw orderConflict(
       "An aftercare decision needs review before collection. Existing payments remain recorded.",
     );
-  const locked = await tx.$queryRaw<
-    { id: string }[]
-  >`SELECT a."id" FROM "PaymentAttempt" a JOIN "Payment" p ON p."settledAttemptId"=a."id" WHERE p."orderId"=${order.id}::uuid ORDER BY a."id" FOR SHARE OF a SKIP LOCKED`;
-  const lockedIds = new Set(locked.map((row) => row.id));
-  const payments = await tx.payment.findMany({
-    where: { orderId: order.id },
-    orderBy: { id: "asc" },
-    select: {
-      ...receiptPaymentSelect,
-      anomalies: {
-        where: { status: { in: ["OPEN", "INVESTIGATING"] } },
-        select: { status: true },
-      },
-      attempts: {
-        select: {
-          id: true,
-          status: true,
-          anomalies: {
-            where: { status: { in: ["OPEN", "INVESTIGATING"] } },
-            select: { status: true },
-          },
-        },
-      },
-      settledAttempt: {
-        select: {
-          ...receiptPaymentSelect.settledAttempt.select,
-          id: true,
-          refunds: { select: { status: true, amountKobo: true } },
-          disputes: { select: { status: true } },
-        },
-      },
-    },
-  });
-  if (
-    hasServiceFinancialHold(payments) ||
-    payments.some(
-      (payment) =>
-        ["REQUIRES_PAYMENT", "PROCESSING", "REQUIRES_REVIEW"].includes(payment.status) ||
-        payment.attempts.some(
-          (attempt) =>
-            attempt.anomalies.length > 0 ||
-            (attempt.status === "SUCCESSFUL"
-              ? attempt.id !== payment.settledAttempt?.id
-              : !["FAILED", "CANCELLED", "ABANDONED"].includes(attempt.status)),
-        ) ||
-        (payment.settledAttempt && !lockedIds.has(payment.settledAttempt.id)),
-    )
-  )
-    throw orderConflict(
-      "Resolve pending verification, financial adjustments or busy payment proof before collection.",
-    );
-  const cleared = payments.filter((payment) => payment.status === "SUCCEEDED");
-  if (
-    cleared.length === 0 ||
-    cleared.some(
-      (payment) =>
-        !confirmedReceipt(payment) ||
-        BigInt(confirmedReceipt(payment)!.refundedKobo) !== 0n ||
-        payment.invoiceId ||
-        payment.bookingId ||
-        payment.vehicleTransactionId,
-    ) ||
-    cleared.reduce((sum, payment) => sum + payment.amountKobo, 0n) !== order.totalKobo
-  )
-    throw orderConflict(
-      "Verified receipts must reconcile exactly to this order before collection. Ask for authorised financial review.",
-    );
+  const coverage = review.supply.coverage ?? (await orderFinancialCoverage(tx, order));
+  const cleared = coverage.payments;
   const snapshot = {
-    version: "ORDER_PICKUP_CLEARANCE_V1",
+    version:
+      review.supply.resolutions.length || review.supply.related.length
+        ? "ORDER_PICKUP_CLEARANCE_V2"
+        : "ORDER_PICKUP_CLEARANCE_V1",
     orderId: order.id,
     orderVersion: order.version,
     totalKobo: order.totalKobo.toString(),
     currency: order.currency,
     payments: cleared.map((payment) => ({
       id: payment.id,
-      settledAttemptId: payment.settledAttempt!.id,
-      amountKobo: payment.amountKobo.toString(),
-      confirmedAt: payment.succeededAt!.toISOString(),
+      settledAttemptId: payment.settledAttemptId,
+      amountKobo: payment.amountKobo,
+      confirmedAt: payment.confirmedAt,
     })),
+    ...(review.supply.resolutions.length || review.supply.related.length
+      ? {
+          coverage,
+          supplyResolutions: review.supply.resolutions.map((row) => ({
+            id: row.resolutionId,
+            unfulfilledLines: row.unfulfilledLines,
+            refunds: row.settlementProof.refunds,
+          })),
+          relatedSupplyResolutions: review.supply.related,
+        }
+      : {}),
   };
   return { snapshot, financialReviewHash: orderFingerprint(snapshot) };
 }

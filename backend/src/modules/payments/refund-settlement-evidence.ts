@@ -102,6 +102,7 @@ export function verifiedOrderRefundSettlement(
   const active = rows.filter((row) => !["FAILED", "CANCELLED"].includes(row.status));
   if (!active.length) unresolved();
   let total = 0n;
+  const returnedByAttempt = new Map<string, bigint>();
   const proof = active.map((row) => {
     const attempt = row.paymentAttempt,
       payment = attempt.payment;
@@ -191,6 +192,9 @@ export function verifiedOrderRefundSettlement(
       ledger.occurredAt < row.approvedAt
     )
       unresolved();
+    const cumulative = (returnedByAttempt.get(attempt.id) ?? 0n) + row.amountKobo;
+    if (cumulative > attempt.amountKobo) unresolved();
+    returnedByAttempt.set(attempt.id, cumulative);
     total += row.amountKobo;
     return {
       refundId: row.id,
