@@ -1,3 +1,39 @@
+## 13 November - disk hold cleared and public Services repair verified
+
+C: has 25.51 GiB free at the current read. The approved compiler-cache deletion
+and the narrower pack-file deletion were both rejected by automatic approval
+review before execution. No compiler cache was removed. Retain it; the former
+space hold has cleared through independently available free space. The 0.25 GiB
+public-browser preflight passed. Recheck before packaging or other substantial writes.
+
+Fast-forwarded the clean reminder worktree to current master 65f14086, preserving
+merged reminder/pickup, Parts, dashboard and People work. Both production aliases
+still identify READY deployment dpl_EdMgppUipQ81msnEmHCef4jZxx6m/source b1222a11.
+The backend remains ACTIVE at 2c40bd63 with the four recorded b122 image digests,
+no pending rollout and zero temporary IP rules. No deployment or database write
+was performed during this verification. The separate release-reconciliation
+worktree already records the current favourite-cancellation locator correction;
+do not duplicate or overwrite that active batch.
+
+Direct public Edge acceptance passes at 320/360/390/430/768/1024/1280/1440/1920:
+all 36 service actions measure 44px high; prices precede actions without page
+overflow. Actual workshop imagery loads in the 390/1440 card captures. Search
+for diagnostics produces one result; reload preserves the query; visible keyboard
+focus and Enter open the correct detail; the customer name field loads. The detail
+retains its PDF description and has no workbook/discount-provenance notes.
+No page exception occurred; four anonymous auth-session 401 responses were expected.
+No customer submission or protected record was read or changed. Visually inspected
+both safe public card captures. Browser plugin unavailable; existing Playwright
+with installed Edge was used, without a relay, fixture or stylesheet override.
+
+Evidence: TEMP/aat-attendance-20261104/live-b122-public-service-final-20261113.json
+and live-b122-service-card-final-{390,1440}-20261113.png. This supersedes the
+inconclusive protected-relay journey attempts for the public Services flow only.
+It does not establish slow/failed-image, full-carousel, real-role, provider,
+physical-device or whole-site acceptance. Current-master full frontend checks,
+compatible backend recovery/migration/package publication and remaining D17 scope
+are still open. The full goal is active; this is not whole-site launch approval.
+
 ## 10 November 01:56 UTC - People identity and scoped directory group in progress
 
 Both owner-approved briefs remain active. The vehicle group is merged via PR50;
