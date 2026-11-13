@@ -91,6 +91,16 @@ or bypass facility. Never use it for another failure, populated schema or target
 
 ## Release and recovery requirements
 
+The release helper checks every committed migration's checkout bytes against Git's
+filters before and after building. A clean Git status alone is insufficient:
+normalised LF and CRLF files can represent the same Git blob but have different
+Prisma checksums. Before registry authentication or pushes, the helper also reads
+the migration SQL checksums from the recorded immutable migration image in a
+network-disabled, read-only container. Missing, extra or changed inputs stop the
+push. These checks never rewrite SQL or database history. Restore the established
+checkout bytes and build a new reviewed candidate; do not overwrite a published
+source tag to conceal a rejected image.
+
 - Commit schema and new migration files together; never edit applied migrations.
   CI replays the complete history on empty PostgreSQL and rejects Prisma schema drift.
   Run custom constraint/trigger and business integration tests on isolated databases.
