@@ -1,3 +1,33 @@
+## 14 November - release gate corrections and current calendar acceptance
+
+Held combined source2e492b81 passes16/16 booking-calendar cases in dedicated Edge:
+all seven requested viewports plus1366/1440, centered/full-phone-width layout,
+keyboard/date selection, close/focus return, failed/inconsistent reads, session
+invalidation, offline recovery, stale-month rejection and touch detail navigation.
+Desktop and320px month captures were reviewed. This is hosted rendering with
+isolated fixtures, not real bookings or physical-device acceptance. Evidence:
+TEMP/allied-calendar-held-2e492b81/report.json. Prior held diagnostic/privacy8/8
+also remains valid for2e. Neither candidate is published.
+
+Frontend43517656682 failed one of1267 cases: at320px an enlarged selected-person
+identity caused the password field to be covered by the support dock. CI screenshot
+and trace are retained under TEMP/allied-c48-ci-focus. Ordinary local Edge and
+Chromium checks each passed2/2, so timing alone did not reproduce the failure.
+A native scrollIntoView(start) differential reproduced the exact CI occluders with
+old CSS; the corrected CSS passes at320/1440. The document already reserves the
+header with scroll-padding; person controls now add only the sticky person bar to
+scroll-margin. The existing regression explicitly exercises that native alignment.
+TEMP/allied-workforce-scroll-differential-retry-2e492b81/report.json records one
+intentional baseline failure and two corrected passes, not a clean three-case pass.
+An earlier comparison was interrupted by the disk guard and is not acceptance.
+
+Newer frontend43520835587 failed before browser tests: ubuntu-latest resolved to
+Ubuntu26.04 with package sources unable to locate browser libraries. Pin the
+frontend runner to supported Ubuntu24.04. Parsed workflow comparison confirms
+only runs-on changed; all gates/steps/permissions remain. Scoped lint/format and
+final compiled/new-source CI remain the appropriate release checks. No permission,
+capability, database or provider setting changed. Full brief scope remains active.
+
 ## 13 November - blocked Vehicles gallery touch target before publication
 
 Compiled correction3b5c0457/deploymentdpl_btSK2rd1tPCdX9sdYFmPdhiebuya passes
