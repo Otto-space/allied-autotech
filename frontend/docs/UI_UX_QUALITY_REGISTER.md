@@ -1,3 +1,82 @@
+## 13 November 21:53 UTC - public search and Services controls verified live
+
+Published application source e0021792 combines the search draft-load repair d9c733aa
+with the independently implemented Services support-rail/native-focus repair.
+All exact-master gates passed: Frontend 43504882640, Backend 43504882711 and
+Secrets 43504882729. Frontend reports 1,575 unit passes and 12 existing conditional
+skips; the main production-build browser matrix passes 1,163 cases in 39.4 minutes.
+Focused 15 WebKit, 21 media, 13 order and 15 Parts passes overlap that matrix; do not
+sum them as unique whole-site coverage. Scoped lint/format, full local TypeScript
+and nine search units also passed. The d9 frontend run was superseded/cancelled,
+not passed; source e002 is the qualified release.
+
+Initial loading now preserves a typed public-search query and selected catalogue.
+The form resets only persisted pageshow history, while existing popstate and
+back_forward reconciliation remain. Native slow-logo cases were added at 320/1280
+in the existing cross-browser recovery suite. Real live baseline: the initially
+hydrated form lost diagnostics when the held logo finished. The first intercept
+missed its deployment query suffix; the corrected wildcard reproduced the defect.
+
+Held production input-preservation passes 320/390/1280/1440. The authenticated HTTP
+relay cannot replay native redirects: Playwright follows the next hop outside the
+handler. Failed protected navigation attempts remain failed/inconclusive; server
+reads independently verify the correct 307 and Services 200. A separate same-project
+Preview uses existing short-lived development OIDC, scoped only to that origin;
+no Trusted Sources rule, share link or token file was created. All four native
+preview search/destination checks pass after document/fonts settle. Earlier short
+readiness/unsuccessful navigation and pre-style overflow checks remain recorded;
+the settled 320 layout passes. Preview filter preconditions had no service rows;
+no real or sample inventory was created to satisfy them.
+
+Before promotion, source, all three gates, production-environment READY candidate,
+unchanged backend application, four current backend digests and public health were
+verified. A concurrent Services workstream promoted production deployment
+dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y from the same exact source e002. Both apex and www
+identify that READY release. Our accepted candidate-promotion request targeted
+dpl_DX3mdpBrExSCyNPfmDiw7sgi5uwu; observed domain identity is authoritative and no
+second reassignment was made. Backend 36687b08/source 6a/schema 112 remains compatible;
+this UI batch made no database, capability-setting or business-record mutation.
+
+Direct public Edge checks then pass all four search widths, including real delayed
+logo load, retained input/scope, native submission, destination heading and settled
+no-overflow layout. Services passes 320x720, 390x844, 850x720 and 930x430: 12 native touch
+edge selections, URL/selected state, no tap-induced scroll jump, keyboard arrows,
+focus visibility and page overflow. These use actual public services; earlier held
+category/filter readiness failures are not counted as hosted interaction passes.
+At 390/1440, actual combined search/detail/Back/reload/two-Escape-return checks pass,
+including an unsent edit being reconciled to the applied diagnostics query.
+No page exceptions or real submissions occurred. Native touch is browser emulation.
+
+On source 6a, six direct public supplemental hero cases pass: offscreen pause/return, persistent
+manual and focus pause, reduced motion/manual navigation and the no-JavaScript first
+slide. Retain the later owner preference that laptop hover continues autoplay.
+The earlier three real-time loops and slow/all-failed-image checks remain applicable
+to unchanged hero source. Actual background-tab suspension remains unverified:
+headless Edge kept the old tab visible after another tab was activated. No synthetic
+visibility event is presented as real lifecycle acceptance. Pre-release source 6a passed sixteen public page/viewport checks and fourteen
+internal header/footer GET destinations.
+
+Evidence is in TEMP/aat-attendance-20261104/: live-search-native-e002-20261113.json,
+live-services-e002-clearance-20261113.json, live-search-history-e002-20261113.json,
+held-search-e0021792-preservation-20261113.json, preview-search-native-ready-e002-
+20261113.json, live-hero-supplemental-final-20261113.json and live-public-navigation-
+20261113.json. Safe before: search-load-reset-reproduced-390-20261113.png; live after:
+search-load-reset-public-after-390-20261113.png. Reviewed phone captures show the
+preserved query and clear native Services controls. Loading captures remain labelled
+as loading, not settled catalogue acceptance.
+
+This public UI batch is published and verified. The full original audit/D01-D17 goal
+remains active: D17 integration/financial exception work, authorised real-role and
+provider acceptance, physical-device/Safari and genuine operator information remain
+separate. D17's latest separate branch is d8c90263; preserve its active work and 123-
+migration recovery requirements. Current master 64064fe9 adds independently approved
+staff-access work; it is incorporated locally and must receive its own exact-source,
+compatible-backend and publication checks. This entry does not publish that newer
+staff workflow or claim whole-site readiness. No new owner decision is needed for
+this UI repair. The configured signing requirement stays enabled; native Windows
+ssh-keygen uses the existing SSH agent successfully. The compiler cache remains
+retained after the earlier automatic approval rejection; no alternate delete ran.
+
 ## 13 November - consolidated T02 integration checkpoint
 
 PR71 now contains the dated-cover and invitation-task changes as one coherent
