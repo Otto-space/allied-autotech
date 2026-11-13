@@ -1129,9 +1129,21 @@
     justify-content: center;
   }
 }
+/* Match the compact support dock's public breakpoints. The existing page and
+   panel gutters plus this rail leave controls clear of its 48px buttons. */
+@media (max-width: 850px),
+  (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) {
+  .services-page .services-discovery-panel {
+    margin-inline-end: calc(36px + env(safe-area-inset-right, 0px));
+  }
+}
 @media (max-width: 374px) {
   .services-page .services-discovery-controls {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .services-page .services-pricing label > span {
+    gap: 4px;
+    padding-inline: 4px;
   }
 }
 

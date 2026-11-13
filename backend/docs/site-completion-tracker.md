@@ -240,6 +240,108 @@ provider receipt 19:04 still identifies ACTIVE 2c40bd63 with no pending rollout.
 Preserve the owner's corrected-package/recovery work; do not overwrite published
 source tags or bypass migration checks. No public promotion by this task.
 
+## 13 November 20:42 UTC - public search load-race repair
+
+Current published source6a remains live on both domains with compatible backend112.
+Read-only acceptance reproduced a real public search draft-loss defect: hold only
+the actual logo response, type diagnostics into the hydrated form, then release
+the image. The browser's natural initial pageshow resets the query to empty.
+The first diagnostic failed to intercept the deployment query suffix (zero held
+requests); corrected wildcard reproduces the loss with one held image. Evidence:
+TEMP/aat-attendance-20261104/search-load-reset-reproduced-20261113.json and safe390
+screenshot. No customer, financial or account records were submitted.
+
+PublicSearchForm now reconciles pageshow only for a document restored from the
+back/forward cache. Initial loading preserves the visitor's query and chosen scope;
+existing popstate and back_forward-navigation handling remain. Added real-browser
+slow-logo cases at320/1280 to the existing runtime recovery suite, retaining native
+load events and subsequent submission. Source lint/format and nine existing search
+units pass; compiled/browser and exact-source release gates remain pending.
+
+Supplemental live checks pass offscreen pause, return/resume, persistent manual
+pause across hover/leave, and focus pause until explicit Play. Reduced-motion
+initialisation exceeded the harness's five-second deadline; a diagnostic with
+settled document loading confirms true reduced-motion state and working controls.
+Do not count the incomplete supplemental run as a full pass. A separate combined
+search attempt failed before the controlled load-race diagnosis; keep that evidence.
+The later owner preference that laptop hover continues autoplay supersedes the
+older audit hover-pause proposal; no carousel behavior was changed.
+
+The Windows SSH agent contains the existing signing key. The native Windows
+ssh-keygen program successfully signed evidence commitd2dcc1ab without disabling
+signing, changing global Git settings or requesting any secret. The earlier signing
+failure used Git's different default program. Existing release evidence is committed;
+this additional source batch is not yet published. Full original audit/D01-D17,
+real-role/provider/device acceptance and independent active D17 work remain open.
+
+## 13 November 20:28 UTC - verified compatible release published
+
+This entry supersedes the earlier 19:04 pre-release state. Exact master
+6a9318a6b04c481b10bc0a52ff1ba7e45790248d integrated PR67 and retained the newer
+People, Parts and invoice changes. All three exact-master gates passed:
+Frontend 43491294033, Backend database safety 43491294226 and Secrets 43491294056.
+The shared migration-input guard and all 59 affected regression cases pass;
+the five new cases are included in that count. Bad source431 packages remain held.
+
+A fresh 932,194-byte strict-TLS production snapshot was separately restored to
+allied_combined_restore_838feafd344f_ci on the recorded loopback-only 63888
+profile. The native populated rehearsal verified preservation of original data,
+complete prior migration history and existing product inputs through 102 to112.
+All six current/recovery API and worker image schema probes passed. Protected
+snapshots and restore databases remain retained; no fixture submissions occurred.
+Current managed snapshot inventory, provider retention/PITR/encryption documentation
+and the historical managed-cluster restore are separate from this fresh logical
+restore. No new managed-cloud restore is claimed.
+
+Production then migrated from102 to112 through npm run db:migrate. Existing
+history, checksums, runtime least privilege and defaults remain intact. Migrator
+db:check and the actual runtime scalar-column schema probe passed. Runtime ledger
+access remains denied by design; no grants were broadened. Only reviewed schema
+and migration-history writes occurred; no demonstration/customer/stock/price or
+financial submissions were made. Every scoped temporary IP rule was removed and
+verified, preserving original and concurrent rules.
+
+Consumer deployment793cd04d became ACTIVE before the new API producer was deployed.
+All provider build/deploy/finalize steps succeeded; the predecessor is SUPERSEDED
+and no pending deployment remained. Fresh post-probe reminder heartbeats passed.
+This establishes provider-managed replacement and readiness; historic termination
+logs were unavailable, so individual old-process exit was not directly observed.
+Final backend36687b08-0c0c-4c24-a80e-69dc572c1822 is ACTIVE with all four verified
+source6a digests. Actual spec comparison verifies that only intended image digests
+changed. Both public API health endpoints return200. All13 worker task heartbeats
+are healthy, including fresh booking and identity progress after the probe began.
+Heartbeats do not prove customer-message or provider-delivery acceptance.
+
+Frontend dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5 was held until the matching backend was
+ready, then promoted. Both apex and www resolve to that READY deployment; CLI
+metadata confirms source6a. Actual held Services geometry/imagery passed nine widths.
+Direct public Services checks then passed320/360/390/430/768/1024/1280/1440/1920:
+all36 actions are44px high, with no horizontal overflow; search, reload, visible
+keyboard focus, Enter and the correct diagnostics detail/form load passed. Four
+anonymous session401s were expected; no page exceptions occurred. No submission.
+390/1440 screenshots were visually reviewed. Earlier direct public hero tests pass
+three real-time loops, pause/resume, keyboard and slow/all-failed media. About
+320/390/1440 preserves the full seven-person team photo. Hero/About source is
+unchanged by this release. These are resized desktop Edge checks, not physical
+phone, Safari, authenticated role or provider test-mode acceptance.
+
+Evidence: TEMP/aat-attendance-20261104/release-backend-6a9318a6-20261113,
+held-6a9318a6-services-rendered-20261113.json,
+live-6a9318a6-public-service-final-20261113.json,
+live-home-hero-acceptance-final-20261113.json and live-about-whole-team-20261113.json.
+Safe before: live-service-card-before-390-20261110.png; after:
+live-6a9318a6-service-card-final-390-20261113.png and1440 counterpart.
+
+Readiness: this compatible public/backend release is published and health-checked.
+Payments, booking activation and other capability flags remain unchanged. Full
+operational acceptance, real-role persistence, provider test-mode and physical-device
+checks remain distinct and open. D17's active resolved-unit/financial fulfilment
+work remains separate; preserve its dirty worktree. Outstanding genuine operator
+inputs/identifiers and the Services filter/support overlap remain recorded follow-ups.
+The original full audit/D01-D17 goal is active, not complete. At completion of these
+small checks C: remains above20GiB; the approved compiler cache is retained because
+automatic approval review blocked its deletion. No alternate deletion was attempted.
+
 ## 13 November - release input integrity repair and populated recovery evidence
 
 At 19:04 UTC, both aliases still identify the b122 frontend and the backend is
@@ -386,6 +488,73 @@ their native mobile control checks are in the existing public20261113 receipts.
 The Services filter/support edge overlap observed at 390px remains an independent
 follow-up; this entry does not claim all fixed controls are unobstructed.
 C: latest preflight 22.73 GiB; preserve the 20 GiB reserve and recovery resources.
+
+## 13 November 19:54 UTC - Services filter clearance and native focus repair
+
+PR68 addresses the remaining Services filter/support overlap verified at 390px.
+Reserve a narrow rail around the discovery panel at the compact dock breakpoints;
+reduce only narrow radio padding/gap so all three labels remain 44px high at 320px.
+The shared reveal handler now measures horizontal overlap and the visible label
+of custom radios/checkboxes. Public native scroll padding is 16px: the previous
+128px full-width allowance made browser label focus jump even after the scripted
+visibility handler was corrected. Dashboard full-width padding remains unchanged.
+Existing carousel exceptions, deliberate anchors and linked-field targets remain.
+
+Initial source ebe728da correctly cleared the dock but all four native assertions
+still failed the no-jump requirement. Preserve those failures and the 320px
+214-to483 scroll trace. A local CSS prototype isolated native scroll padding as
+the second cause; do not count that prototype as compiled acceptance. Corrected
+source 3208037d is READY as protected production-environment candidate
+dpl_E7iaPLY2PnHqfXrMuE9uPE5XtS43. Its four unchanged native regression cases pass
+at 320x720, 390x844, 850x720 and 930x430: painted-edge taps, checked/URL state,
+unchanged scroll, 44px targets, keyboard arrows/focus and no overflow or business
+writes. The 320/390 compiled captures were visually reviewed. Installed Edge is
+157.0.4341.46; phone views are emulation, not physical-device acceptance.
+
+A separate read-only 390px journey using actual public service data selects Fixed
+price without moving the page; scoped main/footer Axe finds no violations, with
+no page exception or business write. Browser plugin is unavailable, so installed
+Edge Playwright is used. The initial inline prototype style was correctly rejected
+by CSP; no policy was weakened. Subsequent prototypes intercepted a stylesheet
+only; final compiled assertions use no CSS injection or DOM replacement.
+
+Evidence: TEMP/aat-stitch-implementation-20261109/services-clearance-prototype-
+20261113.json, held-services-clearance-v2-20261113.json and
+hosted-services-clearance-20261113/{native-failed-result,final-native-result}.json,
+plus final-native-results screenshots and services-clearance-v2-public-390.png.
+The initial 19-case hosted guard run is not a pass: five native Home cases pass,
+two synthetic Parts records are unavailable to remote SSR, six older scrollbar
+expectations fail, and the outer 10-minute timeout leaves six cases unexecuted.
+Shared modal rules have used thin scrollbars since 4d505639; correct only that
+stale viewport-test expectation. All six reviewed support cases then pass with
+their fixed-position, actual scrolling, focus, heading and Axe assertions intact.
+A separate six-case navigation run passes both linked-field cases but fails four
+Contact fragment cases. All four fail identically on unchanged live b1222a11 with
+the same synthetic client fixture; retain the fixture discrepancy for the Contact
+group without weakening its assertions. Actual public-data candidate refreshes
+pass twice at 390px. Fresh 1440x900 contexts on both baseline and candidate pass
+entry and refresh with identical target bounds 195.70-235.70px below the 78px header.
+Discard the earlier resized-context probe as fresh-entry acceptance: it retained
+the prior reading position. Preserve failed probes and corrected helper attempts.
+These results establish seventeen relevant passing hosted cases across focused
+runs, not a passing 19-case suite or complete accessibility/platform acceptance.
+
+Exact-source CI Parts preflight passed. Its artifact 14072077003 is 936,434 bytes,
+SHA-256 2b6836be6319e16a0c33d8841fd1a5b60679a2400a77ef45b10ff829d59c8ee5.
+The verified archive was read in memory; six whitelisted PNGs were retained,
+including both completed 320/390 native gallery cases, and the ZIP was not saved.
+Both gallery captures were visually reviewed. Evidence is
+services-3208037d-parts-ci-evidence.json and its safe PNGs. Full CI release gates
+remain pending; neither a successful preflight nor corrected hosted fixture
+coverage proves full master or real-role/device acceptance.
+
+Scoped lint, frontend TypeScript and formatting pass. Evidence also includes
+support-reviewed-result.json, linked-navigation-result.json and the four original
+baseline failure receipts under the same hosted task directory. Reconcile current master
+6a9318a6 without losing the separate migration-input safeguards. Publication
+still requires all exact-master gates, compatible backend readiness and final
+public alias/journey checks. No frontend publication or backend/database write
+occurred in this batch. The full 119-template goal and remaining groups stay open.
 
 ## 13 November 18:56 UTC - compiled invoice correction verified
 

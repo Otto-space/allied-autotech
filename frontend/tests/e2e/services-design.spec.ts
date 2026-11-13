@@ -30,6 +30,86 @@ async function choosePricing(page: Page, name: string) {
   await expect(radio).toBeChecked();
 }
 
+test.describe("Services native filter clearance", () => {
+  test.use({ hasTouch: true, isMobile: true, reducedMotion: "reduce" });
+  for (const [width, height] of [
+    [320, 720],
+    [390, 844],
+    [850, 720],
+    [930, 430],
+  ])
+    test(`filters stay beside support without jumping at ${width}x${height}`, async ({
+      page,
+      request,
+    }, info) => {
+      const state = await servicesDesignFixture(request, page);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.setViewportSize({ width, height });
+      await page.goto("/services");
+      await expect(page.locator(".services-row").first()).toBeVisible();
+      await expect(page.getByLabel("Service category", { exact: true })).toBeEnabled();
+      await page.evaluate(() => document.fonts.ready);
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+        width,
+        height,
+      ]);
+      for (const name of ["All services", "Fixed price", "Quotation required"]) {
+        const radio = page.getByRole("radio", { name, exact: true });
+        const label = page.locator(".services-pricing label").filter({ has: radio });
+        const dock = await page.locator(".support-controls > button").boundingBox();
+        await label.evaluate(
+          (element, dockCenter) => {
+            const box = element.getBoundingClientRect();
+            window.scrollTo({
+              top: scrollY + box.top + box.height / 2 - dockCenter,
+              behavior: "instant",
+            });
+          },
+          dock!.y + dock!.height / 2,
+        );
+        // Native coordinates preserve the captured overlap. Locator clicking
+        // could scroll the control away from the dock before testing the tap.
+        expect(
+          await label.evaluate((element) => {
+            const box = element.getBoundingClientRect();
+            return element.contains(
+              document.elementFromPoint(box.right - 3, box.top + box.height / 2),
+            );
+          }),
+        ).toBe(true);
+        const box = await label.boundingBox();
+        expect(box!.height).toBeGreaterThanOrEqual(44);
+        const before = await page.evaluate(() => scrollY);
+        await page.touchscreen.tap(box!.x + box!.width - 8, box!.y + box!.height / 2);
+        await expect(radio).toBeChecked();
+        expect(new URL(page.url()).searchParams.get("pricingType")).toBe(
+          (await radio.getAttribute("value")) || null,
+        );
+        await page.evaluate(async () => {
+          for (let frame = 0; frame < 3; frame++)
+            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        });
+        expect(await page.evaluate(() => scrollY)).toBe(before);
+      }
+      const all = page.getByRole("radio", { name: "All services", exact: true });
+      await all.focus();
+      await page.keyboard.press("ArrowRight");
+      const fixed = page.getByRole("radio", { name: "Fixed price", exact: true });
+      await expect(fixed).toBeChecked();
+      await expect(fixed).toBeFocused();
+      const fixedLabel = page.locator(".services-pricing label").filter({ has: fixed });
+      await expect(fixedLabel).toBeInViewport({ ratio: 1 });
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+      expect(errors).toEqual([]);
+      expect(state.writes).toEqual([]);
+      expect(state.unexpectedWrites).toEqual([]);
+      await page.screenshot({ path: info.outputPath(`services-clearance-${width}.png`) });
+    });
+});
+
 for (const [width, height] of [
   [1920, 1080],
   [1440, 900],
