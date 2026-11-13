@@ -64,13 +64,20 @@ export const workforceAssignmentSchema = z
     branchId: z.uuid(),
     temporary: z.boolean(),
     startsAt: z.iso.datetime({ offset: true }),
-    expiresAt: z.iso.datetime({ offset: true }).nullable(),
+    expiresAt: z.iso
+      .datetime({ offset: true })
+      .nullable()
+      .describe("Optional for regular duties; required for new temporary cover."),
     reason,
     expectedVersion: version,
     currentPassword: z.string().min(1).max(256),
   })
   .refine((v) => !v.expiresAt || new Date(v.expiresAt) > new Date(v.startsAt), {
     message: "Expiry must follow the start time",
+    path: ["expiresAt"],
+  })
+  .refine((v) => !v.temporary || v.expiresAt !== null, {
+    message: "Choose an end date and time for temporary cover.",
     path: ["expiresAt"],
   });
 export const workforceRevocationSchema = z.strictObject({

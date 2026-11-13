@@ -232,7 +232,8 @@ jobs:
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/integration/workforce-access.test.ts tests/integration/workforce-session-policy.test.ts \
-            tests/integration/workforce-role-transition.test.ts tests/integration/workforce-directory.test.ts --maxWorkers=1
+            tests/integration/workforce-role-transition.test.ts tests/integration/workforce-directory.test.ts \
+            tests/integration/workforce-effective-access.test.ts --maxWorkers=1
       - name: Prove missing-column protection against isolated PostgreSQL
         env:
           TEST_DB_NAME: allied_autotech_schema_ci

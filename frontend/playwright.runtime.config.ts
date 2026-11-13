@@ -136,6 +136,8 @@ export default defineConfig({
         "customer-overview-attention.spec.ts",
         "shared-shell-dock.spec.ts",
         "workforce-directory.spec.ts",
+        "work-staff-workforce.spec.ts",
+        "workforce-care-policy.spec.ts",
         "saved-items-navigation.spec.ts",
         "saved-items-quality.spec.ts",
         "customer-profile-quality.spec.ts",

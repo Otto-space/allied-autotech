@@ -1,3 +1,59 @@
+## 13 November - temporary-cover end dates and truthful access reviews
+
+Both approved briefs remain active. People PR63 is merged at34cb9f02, whose
+Frontend43477360114, Backend43477360092 and Secrets43477360202 all passed.
+Continue T02 in the existing allied-team-media-20261110 worktree on
+codex/team-cover-20261113. Preserve the later e393b7d3 invoice/Parts evidence and
+the active backend-release-evidence worktree; do not publish ahead of its
+compatible-backend and migration-package integrity work.
+
+New temporary-cover requests require an end date at the client and server.
+Regular duties may remain open-ended. Existing historical null-end assignments
+and revocation/read schemas are unchanged; no existing assignment is rewritten.
+Date fields explicitly use Africa/Lagos and convert using that zone rather than
+the device zone. Los Angeles/Tokyo fixtures verify midnight/year rollover through
+review and save. Future cover remains inactive before its recorded start.
+
+Access review now keeps the selected person outside its scrolling details.
+First enrollment explains revoked sessions and cancelled unused access invitations,
+with Staff and retained Admin account-level effects distinguished. Position-only
+updates correctly explain kept sessions/duties and cancelled unused invitations.
+No role, authority, historical duty definition or independent approval is changed.
+Restricted access-review help advances to v7 with eligibility/flags unchanged.
+
+Evidence so far:31 focused frontend units,16 learning units, frontend build/types,
+backend types, scoped lint and465-path OpenAPI validation pass. Regenerate canonical
+handbook/types and547-operation inventory; the inventory also catches the existing
+People identity/management-branch projections. Fresh112-migration replay and28
+isolated HTTP/learning cases pass with a non-owner runtime role and no DDL/TRUNCATE.
+Three provisioned-workspace cases remain skipped. An extended single policy case
+also verifies regular duties without an end; its other30 filtered cases are not
+new passes. All task-created synthetic databases/roles were explicitly cleaned up.
+Protected populated snapshots and application databases remain untouched.
+
+The first isolated run exposed disabled learning-fixture flags and an old scheduled
+cover without an end; only the isolated test environment and fixture were corrected.
+Browser coverage had33/36 initial passes; two old source-label assertions and an
+ambiguous account/duty Active locator were corrected. The delegated form's initial
+collapsed disclosure was retained and did not recur in three fresh targeted runs.
+A clean36-case production-browser run then passed. The final persistent-review
+subject build also passes all36 cases, including visible end-date/target checks.
+Add both full form/Care suites to existing runtime CI and effective-access HTTP
+tests to the existing fresh Admin CI database. Keep timeouts and safety checks.
+
+Artifacts: TEMP/allied-team-cover-20261113; isolated receipts in
+allied-people-tests-465d2f8fa1bf and allied-people-tests-c5dfc405f82f. Failed setup
+receipts in allied-people-tests-2f7b57eba532 are retained, including cleanup proof.
+No production migration, grant, invitation, business-record write or rollout is
+claimed by this cycle. Final browser evidence is subject-report.json with reviewed
+320/1440 date-review captures. Local dependency-junction standalone warnings remain a
+local artifact limitation; publish only verified clean-source provider artifacts.
+
+T01 and the rest of T02 remain partial; invitations, history/reviews, full account/job
+composition and T03-T07 media/workspace/bulk-photo/video scope are still required.
+Reuse the existing ledger and matrix. Latest C: preflight22.22GiB; preserve20GiB
+and all active releases/recovery resources. This checker is not a machine-wide quota.
+
 ## 13 November 19:02 UTC - Parts acceptance and compatible release dependency
 
 The Stitch Parts group is integrated through PR64 and preserved by People PR63

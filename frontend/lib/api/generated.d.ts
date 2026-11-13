@@ -168566,7 +168566,7 @@ export interface operations {
                     startsAt: string;
                     /**
                      * Format: date-time
-                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     * @description Optional for regular duties; required for new temporary cover.
                      */
                     expiresAt: string | null;
                     /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */

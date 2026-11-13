@@ -29060,7 +29060,7 @@ JSON request fields:
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
 | `temporary` | boolean | Yes | Temporary validated by this operation's strict request contract. |
 | `startsAt` | string (date-time) | Yes | ISO 8601 timestamp interpreted and validated by the server. |
-| `expiresAt` | string / null | Yes | ISO 8601 timestamp interpreted and validated by the server. |
+| `expiresAt` | string / null | Yes | Optional for regular duties; required for new temporary cover. |
 | `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
