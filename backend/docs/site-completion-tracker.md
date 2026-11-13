@@ -11867,3 +11867,36 @@ Evidence: parts-grid-geometry-diagnostic.json. The earlier matcher omitted the
 stylesheet query and did not apply; that attempt is excluded. Application data,
 permissions, timing and enquiry behaviour are unchanged. Public remains b1222a11;
 source 2537650d's checked-format gate is superseded by this necessary visual repair.
+
+## 13 November - resume Parts acceptance on current master
+
+Revalidated the saved work against current providers and source. Both public aliases
+still identify dpl_EdMgppUipQ81msnEmHCef4jZxx6m, source b1222a11. Backend deployment
+2c40bd63-b8a7-4a45-9429-4e03734e581c remains ACTIVE with the same four image digests
+and no pending rollout. Preserve that release and all compatible recovery resources.
+The prior Parts master 103fd467 frontend was cancelled and its backend gate failed
+an isolated session-expiry fixture; neither is a release pass. Current master65f14086
+contains its Parts correction plus the approved dashboard, collection/reminder,
+payment and scoped People work. Fast-forwarded the existing clean design worktree
+without replacing those changes or creating another dependency installation.
+
+Current master backend safety42820223736 and secrets42820223809 pass. Frontend
+42820223870 passes 1,573 units (12 conditional skips), production checks, WebKit,
+media and pickup/sourcing preflight, then reports1,147/1,150 browser passes. All14
+Parts cases pass, including the repaired desktop title/price adjacency, nine sizes,
+contrast, full overview Axe, fitment/history/recovery and native no-jump gallery.
+The three failures are the same new saved-navigation case in Chromium, Firefox
+and WebKit: its first locator asks for a removal label the application does not
+render. Match the established exact accessible name, Remove Engine oil filter
+from favourites. Preserve every dialog, URL, selected collection, focus and no-write
+assertion; no application behaviour or permission is changed by this fixture repair.
+Scoped formatting/lint pass. Rendered focused acceptance and all three final-master
+gates remain required before publication.
+
+The current master has112 migration directories while the active backend release
+has102. The ten newer migrations and their collection/payment/workforce rollout
+belong to separate approved batches. This visual implementation does not deploy
+them incidentally. Verify compatibility and actual provider state again before
+promoting the combined frontend. Parts and Groups4-10 remain open until their
+verified public receipts exist. C: passed25.51GiB with a bounded0.25GiB allowance;
+reuse warm Next16.4.3/Playwright1.63.0 dependencies and existing fixture mechanisms.
