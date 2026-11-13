@@ -37,13 +37,26 @@ function reveal(element: HTMLElement, focus: boolean, nearest = false) {
     element.scrollIntoView({ block: "nearest", behavior: "instant" });
     return;
   }
-  const box = element.getBoundingClientRect();
+  // Custom radios/checkboxes can hide the input behind a visible label. Keep
+  // the painted control and its focus ring visible, rather than its 1px input.
+  const label =
+    element instanceof HTMLInputElement && ["checkbox", "radio"].includes(element.type)
+      ? element.closest("label")
+      : null;
+  const box = (label ?? element).getBoundingClientRect();
   const top = headerOffset();
   const dock = document.querySelector<HTMLElement>(".support-controls");
-  const bottom =
+  const dockBox =
     dock && getComputedStyle(dock).position === "fixed"
-      ? Math.min(innerHeight - 16, dock.getBoundingClientRect().top - 12)
-      : innerHeight - 16;
+      ? dock.getBoundingClientRect()
+      : null;
+  // The compact public dock occupies a side rail. Controls alongside it do not
+  // need to jump above its row; only overlapping controls need that clearance.
+  const overlapsDock =
+    dockBox && box.right > dockBox.left - 8 && box.left < dockBox.right + 8;
+  const bottom = overlapsDock
+    ? Math.min(innerHeight - 16, dockBox.top - 12)
+    : innerHeight - 16;
   // Large revealed sections need their beginning visible, not their entire height.
   if (nearest && box.top >= top && Math.min(box.bottom, box.top + 48) <= bottom) return;
   window.scrollTo({ top: Math.max(0, scrollY + box.top - top), behavior: "instant" });
