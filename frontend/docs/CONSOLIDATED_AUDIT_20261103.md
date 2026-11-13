@@ -1,3 +1,35 @@
+## 13 November - CI version assertion repaired; audit and branch acceptance
+
+Exact candidate20dafbc3 backend run43505390581 failed in allie-role-guidance:
+the intentionally updated care-triage article is version4 while the existing test
+expected3. The assertion now requires4 and the new consent/non-delivery warning
+in the permission-filtered Staff catalogue. Existing reply/practice eligibility
+assertions remain. The three focused backend suites pass46 tests; formatting passes.
+The failed shared Care step passed116 other tests. Its failure prevented the later
+new suppression database cases from executing; do not count those as passed yet.
+Frontend43505390482 reached the production-browser matrix without a reported
+failed step at observation; its prior-source result cannot certify the next commit.
+
+The published E6 application passed30 existing audit-history/branch scenarios,
+seven exact-size branch reviews, seven exact-size expanded audit states and seven
+last-record pointer/keyboard checks. All51 cases terminal, no skipped/flaky/unexpected.
+Mobile contexts use touch/emulation, not physical devices. Branch checks preserve
+review/drafts, stale actor/revision, uncertain-result reconciliation, deactivation
+rejection, URL/search/paging and denied/error states. Audit checks preserve private
+filter scope, cursor traversal, reference validation and denied-data clearing.
+Desktop/320px branch and audit captures were inspected. Existing UI retained.
+
+Evidence: TEMP/allied-audit-branches-acceptance-20261113/{report,geometry-report,
+audit-geometry-report,audit-reach-report}.json and continuation.json. Real writes
+were blocked; mutations use fixtures only. Public HTML from both domains independently
+identified E6JTTbEE8ruFUsNv2YiupLWBXrq5 with200 responses. These baseline checks do not
+verify the new suppression implementation or the newly merged shared focus change.
+
+Current mastere0021792 merged with both ledger prefixes retained; source merge
+20dafbc3 signature verified. Search/filter/native-focus improvements preserved.
+New-source backend/browser gates and frontend-first publication remain required.
+No new production publication or database mutation occurred in this acceptance batch.
+
 ## 13 November - suppression regression execution paths corrected
 
 The first database rejection case was in a provisioned-workspace suite skipped by
