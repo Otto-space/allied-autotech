@@ -1,3 +1,112 @@
+## 13 November 18:56 UTC - compiled invoice correction verified
+
+Combined source e8ea33573f2c96b1453921c923b201f37aae5d52 is built as protected
+candidate dpl_G5YH7fvUPKDB1yqukd8wAPyXeUzu (READY). All 11 focused compiled
+invoice checks pass: selected-source creation and versioned issue/void, Admin and
+Super Admin facts, cancel/focus, and seven responsive serious-Axe cases. All 14
+supplemental exact viewport cases also pass for draft/issue review and private
+sharing, phone-width centered dialogs, keyboard containment, Escape and focus.
+No CSS injection or DOM replacement is used in these compiled runs. Synthetic
+mutations are intercepted; unmatched writes are blocked. Desktop/320px compiled
+captures were reviewed and retain document status, amounts and lifecycle controls.
+Evidence: TEMP/allied-invoice-acceptance-20261113/compiled-report.json,
+compiled-geometry-report.json and their results directories. Playwright used the
+installed Edge browser because the Browser plugin is unavailable. Phone contexts
+are emulation, not physical devices. This does not establish real API/account,
+provider-payment or complete accessibility acceptance.
+
+The invoice-only header correction removes the duplicate badge and compresses
+progress while retaining each stage and the current-stage label. At 320x720 the
+refined comparison moves invoice value from about797px to533px and reduces the
+progress region from272px to72px. Shared dashboard rules remain unchanged.
+The existing financial test now follows the retained semantic status badge.
+
+Signed merge496da205 preserves current master34cb9f02, including People and Parts.
+Scoped lint/formatting and the hosted production build pass. Source e8ea3357
+Frontend43485975421 and Backend43485975372 remain running; Secrets43485975443
+passes. Do not substitute earlier green gates for this source or final master.
+Public domains have not been promoted by this task. Compatible backend release,
+exact-master gates and post-publication checks remain prerequisites. Preserve
+all other active work and the full two-brief route/state and role/device backlog.
+
+## 13 November 18:00 UTC - invoice acceptance and focused hierarchy correction
+
+Protected candidate 33WpkwzMd4mGR4HSmfGQ3kU2kkPe/source 96159a9 passes all
+73 existing invoice list/detail cases and 14 supplemental exact-viewport dialog
+cases. The latter cover draft review/cancel, issue review/cancel, private sharing,
+keyboard containment, Escape and restored focus at all seven required pairs.
+All writes were isolated fixtures; unmatched submissions were blocked. No real
+invoice, payment, message or permission was changed. Evidence is under
+TEMP/allied-invoice-acceptance-20261113/{report,geometry-report}.json.
+
+Rendered inspection nevertheless found excessive invoice-header height and a
+redundant Draft badge on /admin/invoices/:invoiceId (Admin fixture, 320x720 and
+1280x720). The large boxed progress panel displaced the invoice document/value.
+The focused correction retains the accessible current-stage badge and all stages,
+uses compact wrapping rows, and removes only the duplicate header badge. It is
+scoped to invoice detail; no API, amount, permission or lifecycle change. The
+existing issue/void test now asserts the retained semantic status badge.
+Seven before/prototype viewport comparisons pass, with smaller progress height,
+earlier invoice value, no horizontal overflow and unchanged review/cancel focus.
+This is CSS/DOM prototype evidence, not a compiled-source pass. A final specificity
+refinement accounts for existing dashboard spacing; its seven-case rerun passed.
+Compiled acceptance is recorded in the later checkpoint. Scoped lint and formatting pass.
+
+Branch b07cb009 Frontend 43468581713 now passes, alongside backend and secrets.
+These gates precede the invoice edit. Master has advanced to 34cb9f02 with People
+identity/focus changes; preserve that work and the Parts clearance correction.
+Reconcile the complete source and require exact-master gates before publication.
+The separate release owner continues backend package/restore work. This checkpoint
+does not claim production publication, real-role persistence, physical-device
+coverage or completion of the broader two-brief page register.
+
+## 13 November 17:35 UTC - inventory acceptance and next invoice batch
+
+Inventory list/detail completed 59 compiled Edge cases: 58 passed and one customer
+redirect timed out. A separate two-case run warmed the protected dashboard assets;
+both original customer-denial tests then passed unchanged, with no inventory reads.
+Retain the initial timeout; no application change was needed or inferred from it.
+All 14 exact-size review/cancel cases passed, including centered dialogs, full-width
+phone dialogs, preserved drafts, zero outgoing writes and restored opener focus.
+Long-record accessibility, stock-change recovery, stale facts, storage failure and
+revocation cases passed. Desktop and 320px review captures were inspected.
+Evidence: TEMP/allied-inventory-acceptance-20261113/{report,denial-report}.json.
+These intercepted scenarios do not establish real account/API authorization or
+database persistence. The next 73 existing invoice list/detail cases are running.
+
+Master advanced to 43170836 with a scoped mobile product-gallery clearance fix.
+Frontend 43469678572 was superseded/cancelled, not passed; current-master checks
+are 43473406595 (frontend), 43473406404 (backend) and 43473407181 (secrets).
+The earlier candidate remains useful evidence for unchanged shell/inventory code,
+but is not the final combined publication candidate. Preserve the release owner's
+112-migration recovery/package work and all unrelated active changes.
+
+## 13 November 17:28 UTC - compiled shell and saved-items acceptance
+
+Protected candidate dpl_33WpkwzMd4mGR4HSmfGQ3kU2kkPe/source 96159a9 passes all
+41 native cases: 28 role-by-viewport shell cases, one short-screen drawer case,
+and 12 saved-collection removal/cancellation cases across installed Edge and
+Chrome at 1280x720/320x720. No skips, failures or retries. Desktop shell, 320px
+drawer and 320px saved-vehicle captures were visually reviewed. Exact dimensions,
+phone/touch emulation, focus restoration and intercepted writes are test evidence;
+physical devices, real accounts and database persistence are not established.
+Evidence: TEMP/allied-dashboard-focus-20261113/report.json and results/. Installed
+Edge 157.0.4341.46 and Chrome 157.0.8103.51 were identified from their executables.
+
+Master 6e910f9b independently integrates the identical locator fix via a490589c.
+Git diff confirms its app/backend inputs and saved-navigation test match the
+candidate source. Preserve both documentation histories; PR61 remains draft for
+reconciliation, not another functional repair. Exact-master Frontend 43469678572
+is running; Backend 43469678576 passes. No public publication by this task.
+
+The reminder release workstream owns four 65f14086 backend images and 112 migrations;
+its packaged isolated replay/drift/separate-restore test passes. This does not
+replace compatible recovery, managed backup/PITR or populated production restore.
+Inventory list/detail acceptance is running 59 cases with synthetic intercepted
+APIs. Its first customer-redirect timeout remains unresolved; a separately warmed
+destination diagnostic preserves the original assertion. No inventory pass is
+inferred from source or collection. Full two-brief scope remains active.
+
 ## 13 November 17:50 UTC - person-context acceptance; integration continues
 
 Both approved briefs remain active. PR57 is merged at65f14086;
