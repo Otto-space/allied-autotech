@@ -2686,6 +2686,13 @@ html {
   scroll-padding-bottom: var(--viewport-support-offset, 24px);
 }
 
+/* Public support sits in a side rail. Reserving its full height across the
+   viewport makes native radio/label focus jump despite being unobstructed.
+   ViewportNavigation handles controls that actually overlap the dock. */
+html:has(.public-site) {
+  scroll-padding-bottom: 16px;
+}
+
 @media (max-width: 850px),
   (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) {
   body {

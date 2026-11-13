@@ -612,6 +612,7 @@ export const learningArticles: LearningArticle[] = [
         "Open an authorised case and read its existing conversation.",
         "Use the public-reply or internal-note option only where your actual workspace provides it. Managed Customer Service replies are customer-visible.",
         "Review before sending. Dismissing an eligible delivery notice affects only your view; failed delivery and history remain truthful.",
+        "Not sent can mean operational email consent is off or another recorded delivery restriction. Check the authorised case delivery history. Do not change consent or ask an administrator to retry a suppressed job to bypass that restriction; a queued retry never proves delivery.",
         "For a linked customer case, check its conversation status. The conversation queue links to the existing case; it does not create another inbox or promise a response time.",
         "Joining requires your current live duty, explicit availability, eligible branch support hours and shared capacity. A disabled live release keeps requests queued; signing in alone never makes you available.",
         "Background updates preserve your message position. Choose View latest update to read a new public message; this does not mark a notification as read. A changed case requires reviewing the retained draft with the latest conversation before sending.",
@@ -621,8 +622,8 @@ export const learningArticles: LearningArticle[] = [
       "Managed care scope, canonical conversation controls, explicit availability and reviewed recovery",
       "customer service officer support complaints follow up",
     ),
-    version: 3,
-    reviewedAt: "2026-10-29",
+    version: 4,
+    reviewedAt: "2026-11-13",
   },
   article(
     "sales-enquiries",

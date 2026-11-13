@@ -16,6 +16,7 @@ import {
 import { formatStockInstant } from "@/lib/admin/work-vehicle-detail";
 import {
   jobAttempts,
+  jobSuppressionExplanation,
   jobKey,
   jobName,
   jobPageParams,
@@ -159,7 +160,7 @@ function JobWorkspace({
     [key],
   );
   const selected = useResource(
-    target ? `${endpoint}/${target.source}/${target.id}` : null,
+    target ? `${endpoint}/${target.source}/${target.id}?diagnostics=safe_delivery` : null,
     parseSelected,
   );
   const active = useRef(true),
@@ -251,8 +252,12 @@ function JobWorkspace({
       throw new ApiError(403, { error: { code: "FORBIDDEN" } });
     }
     const record = parseCurrentJob(
-      (await apiRequest(`${endpoint}/${selection.source}/${selection.id}`, { signal }))
-        .data,
+      (
+        await apiRequest(
+          `${endpoint}/${selection.source}/${selection.id}?diagnostics=safe_delivery`,
+          { signal },
+        )
+      ).data,
       `${selection.source}:${selection.id}`,
     );
     identity(signal);
@@ -714,8 +719,19 @@ function JobWorkspace({
                     </p>
                     <JobFacts row={row} />
                     <section className="wj-retry">
-                      <h3>Review a retry</h3>
-                      {!["FAILED", "DEAD_LETTER"].includes(row.status) ? (
+                      <h3>
+                        {jobSuppressionExplanation(row)
+                          ? "Delivery restriction"
+                          : "Review a retry"}
+                      </h3>
+                      {jobSuppressionExplanation(row) ? (
+                        <p className="notice">
+                          Delivery is suppressed: {jobSuppressionExplanation(row)} A
+                          manual retry is unavailable. Review the authorised support
+                          delivery history and resolve the recorded restriction through
+                          its normal workflow. Do not change consent to resend this job.
+                        </p>
+                      ) : !["FAILED", "DEAD_LETTER"].includes(row.status) ? (
                         <p className="notice">
                           {row.status === "PROCESSING"
                             ? "Processing is already in progress. Refresh to check its outcome; a manual retry is unavailable."

@@ -118,7 +118,9 @@ for (const [width, height] of [
     await dialog.getByRole("button", { name: "Find reviewed help" }).click();
     await expect(dialog.locator(".allie-answer")).toContainText("Find the workshop");
     const content = dialog.locator(".allie-dialog-body");
-    await expect(content).toHaveCSS("scrollbar-width", "none");
+    // The shared modal treatment uses a thin scrollbar; keep the actual
+    // overflow, scrolling, heading visibility and accessibility assertions below.
+    await expect(content).toHaveCSS("scrollbar-width", "thin");
     await expect
       .poll(() => content.evaluate((el) => el.scrollHeight > el.clientHeight))
       .toBe(true);

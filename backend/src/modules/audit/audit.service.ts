@@ -13,6 +13,7 @@ import { lockAccessActor } from "../organization/team-access-security.js";
 import { auditBadRequest, auditConflict, auditNotFound } from "./audit.errors.js";
 import { assertAuditAdministrator } from "./audit.policy.js";
 import { AuditRepository } from "./audit.repository.js";
+import { unsuppressedJobPredicate } from "./job-delivery-diagnostic.js";
 import { anomalySelect } from "./anomaly-record.js";
 import type {
   AnomalyListQuery,
@@ -136,11 +137,17 @@ export class AuditOperationsService {
     source: "outbox" | "webhook",
     id: string,
     context: RequestSecurityContext,
+    safeDeliveryDiagnostic = false,
   ) {
     assertAuditAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
-      const record = await this.repository.job(source, id, transaction);
+      const record = await this.repository.job(
+        source,
+        id,
+        transaction,
+        safeDeliveryDiagnostic,
+      );
       if (!record) throw auditNotFound();
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
@@ -267,6 +274,7 @@ export class AuditOperationsService {
                 attempts: input.expectedAttempts,
                 ...revision,
                 status: { in: ["FAILED", "DEAD_LETTER"] },
+                AND: [unsuppressedJobPredicate],
               },
               data: {
                 status: "PENDING",

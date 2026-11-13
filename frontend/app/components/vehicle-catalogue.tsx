@@ -103,7 +103,7 @@ export function VehicleCatalogue({
       </noscript>
       <div className="vehicle-search-panel">
         <div className="vehicle-inventory-heading">
-          <h2 id="vehicle-results-heading" className="sr-only" tabIndex={-1}>
+          <h2 id="vehicle-results-heading" tabIndex={-1}>
             Explore current listings
           </h2>
           <p role="status" aria-live="polite">

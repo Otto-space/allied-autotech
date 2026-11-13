@@ -20,7 +20,7 @@ export function CatalogueBanner({
       ? "/images/allied-autotech/parts-editorial.webp"
       : kind === "services"
         ? "/images/workshop/workshop-hero-01.jpg"
-        : undefined;
+        : "/images/allied-autotech/showroom-editorial.webp";
   return (
     <section
       className={`catalogue-banner catalogue-banner--${kind}`}
@@ -47,8 +47,12 @@ export function CatalogueBanner({
             />
           </figure>
         )}
-        {kind === "shop" && (
-          <p className="catalogue-banner__caption">Illustrative automotive essentials</p>
+        {(kind === "shop" || kind === "vehicles") && (
+          <p className="catalogue-banner__caption">
+            {kind === "shop"
+              ? "Illustrative automotive essentials"
+              : "Illustrative vehicle scene"}
+          </p>
         )}
       </div>
     </section>
