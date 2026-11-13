@@ -1,3 +1,38 @@
+### 13 November: D01-D17 implementation status snapshot
+
+This is the current source/acceptance ledger, not overall launch approval or a
+claim that every journey is finished. Definite owner answers stay settled.
+Booking readiness and purchasing readiness remain separate. Booking still needs
+actual branch resources/timings and authorised operator acceptance. Purchasing
+still needs verified invoice identifiers/applicability, financial/provider role
+acceptance and the unfinished D17 fulfilment path before activation.
+
+| Decision | Authority | Current implementation status and exact remaining scope |
+| --- | --- | --- |
+| D01 | Explicit launch scope | Implemented gates retain appointment request-and-confirm and collection-only parts. Provider, operational and financial acceptance still govern activation; delivery and paid vehicle reservations are separate. |
+| D02 | Explicit; later exact arithmetic approval | Implemented aggregate HALF_UP kobo calculations and saved deterministic allocation. Original money is reused by invoices/payment/refund checks. Actual Tax ID/CAC and accountant applicability verification remain required; no invented identifiers. |
+| D03 | Explicit | Implemented materials-first/workmanship-after-completed-work/before-collection controls and separate stages. Actual invoice identity, financial duties and provider/real-role acceptance remain required. |
+| D04 | Explicit | Implemented booking request-and-confirm with deposits disabled. No payment or launch approval enables deposits. |
+| D05 | Explicit, including Saturday answer | Implemented Mon-Sat 08:00-18:00 Africa/Lagos; Saturday closes at 6pm Nigeria time. Actual dated branch exceptions are separate operating facts. |
+| D06 | Explicit resource constraints | Implemented resource authoring, qualifications/availability and capacity guards. Awaiting actual branch capacity, qualified staff/breaks, working machines and bay/space records through authorised controls. |
+| D07 | Explicit per-service variability | Implemented service timing/preparation, capacity-aware offers and justified booking work/continuation reviews. Actual estimates and authorised operating acceptance remain required; unknown values stay unknown. |
+| D08 | Named interim assignment only | Awaiting actual verified Newworld Orlu account mapping, scope, independent backup and delegation dates. No guessed account, invitation or financial grant. |
+| D09 | Explicit reason/cancellation/capacity release | Implemented customer reason and eligible not-started cancellation without staff approval; recorded work start remains protected. Normal cutoff is still unspecified and is not described as approved. |
+| D10 | Explicit request-and-approve | Implemented reason, actual available times and atomic approved rescheduling while preserving the existing appointment until approval. Actual role/capacity acceptance remains separate. |
+| D11 | Explicit wait-or-leave choice | Implemented observed arrival/wait/leave and actual capacity-aware continuation/alternative review. No displacement or invented available turn; real operating/role acceptance remains. |
+| D12 | Explicit plus settled calendar answer | Implemented five Mon-Sat days, public holidays counted, starting after the later actual readiness/successful customer notification and excluding that anchor date; imported/custom parts use the same rule. Contact/extension history is immutable. Expiry remains review; no forfeiture, fee or disposal is invented. |
+| D13 | Explicit per-record estimates | Implemented per-product sourcing/preparation and order-specific supplier/import progress, separate from stock/payment/readiness. Awaiting real estimates per product/order rather than a universal one-day promise. |
+| D14 | Explicit private collection authority | Implemented owned, order-specific one-use code, exclusive staff review and immutable partial handover evidence; isolated pickup tests pass. Resolved/refunded-unit fulfilment is still part of unfinished D17. Actual role/physical acceptance remains. |
+| D15 | Explicit reminders/calendar goal | Implemented reminder eligibility, current-state/expiry checks, controlled reminder schedules and user-initiated calendar actions. Actual configured provider delivery/push permission and operational acceptance remain required; delivery is not promised from a queued record. |
+| D16 | Delegated implementation choices | Implemented non-punitive staff-verifiable attendance/no-show and remaining-work handling. No automatic fee/suspension or invented cutoff. Actual operators still need approved scope and operating acceptance. |
+| D17 | Bounded owner delegation; broad policy deferred | In progress. Actual Care case/customer choice, accepted alternative quotation, original refund binding, independently verified settlement and immutable physical disposition review are implemented. Next: net financial coverage, exact remaining physical fulfilment/closure, zero-capture/cancelled and technical-reversal reconciliation. No automatic restocking, credit, substitute, handling fee or general returns/warranty approval. |
+
+Current D17 verification is the isolated120-migration replay and134 native cases,
+17 frontend units,35 focused backend/learning units, source/test types and scoped
+lint. Rendered evidence and the exact held build are recorded in the tracker.
+Real financial/provider/device acceptance and exact-master production gates remain
+separate. Source implementation is not a successful real payment or bank refund.
+
 ### 13 November: actual supply resolution review, unpublished integration batch
 
 D17 now records an immutable actual settlement/physical-disposition event through
