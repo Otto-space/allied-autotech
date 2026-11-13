@@ -656,6 +656,35 @@ and full119-template/state acceptance remain open.
 
 ## 13 November - consolidated T02 integration checkpoint
 
+### 13 November 23:50 UTC - review integration and focus regression checkpoint
+
+Integrated current master9bf8a26e into the history/reviews branch without losing
+public gallery, privacy/suppression, release-journal or master-queue changes.
+Master independently contains the sticky-person focus correction and explicit
+Ubuntu24.04 browser runner. Preserved those exact implementations; the earlier
+local alternative is retained in stash and is not part of the combined candidate.
+The People regression keeps the original320/1440 cases and native start alignment,
+and adds a320px356px identity band with the measured header inset. Assertions for
+all four painted control edges, selected-person visibility and no overflow remain.
+
+Before integration, the locally compiled focus alternative passed3 Chromium and
+46 Edge review/People/workforce cases. Restoring only the old scroll margin causes
+one intentional A/B failure; that comparison is not a clean acceptance run or an
+exact Linux reproduction. After integration, current master CSS overlaid on the
+existing QA build passes all six Chromium/Edge original and measured-band cases.
+The exact combined-source build and complete CI remain due.
+TEMP/allied-team-reviews-20261113/{focus-chromium-report.json,focus-edge-report.json,
+old-style-ab-report.json,integrated-css-report.json} retains results and failures.
+This overlay check is not an exact-source compiled build or real-role acceptance.
+
+A fresh local0.5GiB build preflight failed at20.37GiB free. No build was started,
+reserve reduced or cleanup performed; the bounded0.1GiB regression preflight passed.
+Shared dependencies/caches, current/recovery images and populated restores remain.
+All three exact-source checks must pass before publication; master9bf frontend
+43525367353 is still running, backend43525367354 and secrets43525367161 pass.
+No deployment, real account mutation, database/schema change or flag activation.
+Both approved briefs remain active with the remaining T01-T07 scope above.
+
 ### 13 November 23:01 UTC - scoped current access reviews verified locally
 
 Both approved briefs remain active. The bounded review package resumed around
