@@ -1,23 +1,23 @@
 ### 13 November: integrated supply resolution review verified; D17 remains active
 
-Runtime source3746fe79290c22f8c11e6788cc07a2e2cdd3f106 preserves master6e910f9b,
+Runtime source 3746fe79290c22f8c11e6788cc07a2e2cdd3f106 preserves master 6e910f9b,
 including Parts, People, reminders, mobile scrollbar and saved-item focus fixes.
-Final held deploymentdpl_8CevpHYqk1LwqQN52dTMWWXEuNER is READY; no custom public
+Final held deployment dpl_8CevpHYqk1LwqQN52dTMWWXEuNER is READY; no custom public
 alias was promoted. Both apex/www still resolve to dpl_EdMgppUipQ81msnEmHCef4jZxx6m
 (the www alias redirects to apex). Desktop owner's hero edit remains untouched.
 
-Backend runtime is unchanged from integrated173cce6d: all134 native cases/11 files,
+Backend runtime is unchanged from integrated 173cce6d: all 134 native cases/11 files,
 120-migration empty replay/schema diff/db:check and restricted-runtime checks pass.
 Its owned tmpfs database was removed. Correcting the synthetic anomaly resolver
 identity fixed the earlier fixture failure; the other case passes with unchanged
-30-second limits. All17 frontend units,35 backend/learning units, source and focused
-test types, scoped lint/formatting, OpenAPI471 paths/mounted554 operations plus4
-infrastructure routes and secret guard4019 files pass. Canonical types regenerated.
+30-second limits. All 17 frontend units, 35 backend/learning units, source and focused
+test types, scoped lint/formatting, OpenAPI 471 paths/mounted 554 operations plus 4
+infrastructure routes and secret guard 4019 files pass. Canonical types regenerated.
 
-Rendered source173cce6d passed10/10 Chromium fixture cases: account/guest320/1440,
-admin concern320/1440, refund390 and resolution320/768/1440. Visual review removed
+Rendered source 173cce6d passed 10/10 Chromium fixture cases: account/guest 320/1440,
+admin concern 320/1440, refund 390 and resolution 320/768/1440. Visual review removed
 the redundant old refund-request prompt for an already reconciled case. Final
-source3746fe79 then passed3/3 affected resolution journeys at320/768/1440 with the
+source 3746fe79 then passed 3/3 affected resolution journeys at 320/768/1440 with the
 new absence assertion, saved refresh, exact amounts/quantities, scoped Axe and no
 page overflow. Screenshots were visually inspected. The initial new-browser run
 failed because PowerShell input encoded the naira test literal as a question mark;

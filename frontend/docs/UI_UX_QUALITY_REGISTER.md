@@ -1,23 +1,23 @@
 ### 13 November: integrated supply resolution review verified; D17 remains active
 
-Runtime source3746fe79290c22f8c11e6788cc07a2e2cdd3f106 preserves master6e910f9b,
+Runtime source 3746fe79290c22f8c11e6788cc07a2e2cdd3f106 preserves master 6e910f9b,
 including Parts, People, reminders, mobile scrollbar and saved-item focus fixes.
-Final held deploymentdpl_8CevpHYqk1LwqQN52dTMWWXEuNER is READY; no custom public
+Final held deployment dpl_8CevpHYqk1LwqQN52dTMWWXEuNER is READY; no custom public
 alias was promoted. Both apex/www still resolve to dpl_EdMgppUipQ81msnEmHCef4jZxx6m
 (the www alias redirects to apex). Desktop owner's hero edit remains untouched.
 
-Backend runtime is unchanged from integrated173cce6d: all134 native cases/11 files,
+Backend runtime is unchanged from integrated 173cce6d: all 134 native cases/11 files,
 120-migration empty replay/schema diff/db:check and restricted-runtime checks pass.
 Its owned tmpfs database was removed. Correcting the synthetic anomaly resolver
 identity fixed the earlier fixture failure; the other case passes with unchanged
-30-second limits. All17 frontend units,35 backend/learning units, source and focused
-test types, scoped lint/formatting, OpenAPI471 paths/mounted554 operations plus4
-infrastructure routes and secret guard4019 files pass. Canonical types regenerated.
+30-second limits. All 17 frontend units, 35 backend/learning units, source and focused
+test types, scoped lint/formatting, OpenAPI 471 paths/mounted 554 operations plus 4
+infrastructure routes and secret guard 4019 files pass. Canonical types regenerated.
 
-Rendered source173cce6d passed10/10 Chromium fixture cases: account/guest320/1440,
-admin concern320/1440, refund390 and resolution320/768/1440. Visual review removed
+Rendered source 173cce6d passed 10/10 Chromium fixture cases: account/guest 320/1440,
+admin concern 320/1440, refund 390 and resolution 320/768/1440. Visual review removed
 the redundant old refund-request prompt for an already reconciled case. Final
-source3746fe79 then passed3/3 affected resolution journeys at320/768/1440 with the
+source 3746fe79 then passed 3/3 affected resolution journeys at 320/768/1440 with the
 new absence assertion, saved refresh, exact amounts/quantities, scoped Axe and no
 page overflow. Screenshots were visually inspected. The initial new-browser run
 failed because PowerShell input encoded the naira test literal as a question mark;
@@ -26,12 +26,13 @@ Browser plugin unavailable; existing Playwright was used. These are intercepted
 synthetic APIs and emulated sizes, not actual role/provider/bank/device acceptance.
 
 Receipts under TEMP/aat-d03-service-payments-20261109/:
+
 - native-supply-resolution-final.log (134/134;120 migrations; owned cleanup)
 - resolution-held-browser-final.log (10/10 on173cce6d)
 - resolution-final-held-browser.log (3/3 on3746fe79)
 - resolution-final-held-results/.../supply-resolution-320.png and1440.png
-Temporary held-access cookie files were removed after the runs. No real money,
-application database, role/grant, policy activation or public-domain change.
+  Temporary held-access cookie files were removed after the runs. No real money,
+  application database, role/grant, policy activation or public-domain change.
 
 Remaining implementation: connect current verified resolution to net original
 financial coverage and exact remaining pickup/fulfilment/closure; handle actual
@@ -223,9 +224,9 @@ collection calendar/eligibility checks pass46 tests. Seven rendered fixture case
 are prepared but not yet run. Visual/browser acceptance remains outstanding.
 D17 alternative acceptance and settled-unit fulfilment remain incomplete and held.
 The separate schema110 candidate608d3c0d passed frontend42728871961 (984/984 full
-browser matrix,1549 units;12 pre-existing skips), backend42728871883 and secret
-42728871576. These are candidate checks, not exact-master production approval.
+browser matrix,1549 units;12 pre-existing skips), backend42728871883 and secret 42728871576. These are candidate checks, not exact-master production approval.
 No production database, alias, feature flag or private owner hero edit changed.
+
 ## 10 November 01:56 UTC - People identity and scoped directory group in progress
 
 Both owner-approved briefs remain active. The vehicle group is merged via PR50;

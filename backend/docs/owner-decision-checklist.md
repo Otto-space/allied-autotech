@@ -27,7 +27,7 @@ acceptance and the unfinished D17 fulfilment path before activation.
 | D16 | Delegated implementation choices | Implemented non-punitive staff-verifiable attendance/no-show and remaining-work handling. No automatic fee/suspension or invented cutoff. Actual operators still need approved scope and operating acceptance. |
 | D17 | Bounded owner delegation; broad policy deferred | In progress. Actual Care case/customer choice, accepted alternative quotation, original refund binding, independently verified settlement and immutable physical disposition review are implemented. Next: net financial coverage, exact remaining physical fulfilment/closure, zero-capture/cancelled and technical-reversal reconciliation. No automatic restocking, credit, substitute, handling fee or general returns/warranty approval. |
 
-Current D17 verification is the isolated120-migration replay and134 native cases,
+Current D17 verification is the isolated 120-migration replay and 134 native cases,
 17 frontend units,35 focused backend/learning units, source/test types and scoped
 lint. Rendered evidence and the exact held build are recorded in the tracker.
 Real financial/provider/device acceptance and exact-master production gates remain
