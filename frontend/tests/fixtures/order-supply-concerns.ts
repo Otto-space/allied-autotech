@@ -17,6 +17,9 @@ export function supplySummary(order: SupplyOrder = supplyOrder()): SupplySummary
     orderVersion: order.version,
     choiceStatementVersion: "SUPPLY_CHOICE_20261110_V1",
     hasMore: false,
+    closures: [],
+    hasMoreClosures: false,
+    closureReviewAvailable: false,
     items: [
       {
         id: supplyId(3),

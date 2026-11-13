@@ -576,6 +576,7 @@ enum OutboxStatus {
 }
 
 model User {
+  supplyClosures OrderSupplyClosure[]
   supplyResolutions            OrderSupplyResolution[]
   supplyRemedyChoices          OrderSupplyRemedyChoice[]
   pickupClaims                 OrderPickupClaim[]               @relation("PickupClaimant")
@@ -687,6 +688,7 @@ model User {
 }
 
 model Session {
+  supplyClosures OrderSupplyClosure[]
   supplyResolutions   OrderSupplyResolution[]
   supplyRemedyChoices OrderSupplyRemedyChoice[]
   pickupClaims        OrderPickupClaim[]
@@ -1606,6 +1608,7 @@ model CartItem {
 }
 
 model Order {
+  supplyClosures OrderSupplyClosure[]
   supplyResolutions            OrderSupplyResolution[]
   supplyRemedyChoices          OrderSupplyRemedyChoice[]
   pickupClaims                 OrderPickupClaim[]
@@ -3711,4 +3714,27 @@ model OrderSupplyResolution {
   session               Session                 @relation(fields: [sessionId], references: [id], onDelete: Restrict)
 
   @@unique([orderId, orderVersion])
+}
+
+// Financial closure of actual resolved supply obligations; never a physical handover.
+model OrderSupplyClosure {
+  id String @id @default(uuid()) @db.Uuid
+  orderId String @db.Uuid
+  recordedByUserId String @db.Uuid
+  sessionId String @db.Uuid
+  orderVersion Int
+  originalStatus OrderStatus
+  resultingStatus OrderStatus
+  financialSnapshot Json
+  financialReviewHash String @db.Char(64)
+  reason String @db.VarChar(1000)
+  idempotencyKey String @unique @db.Uuid
+  requestHash String @db.Char(64)
+  createdAt DateTime @default(now())
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  recordedBy User @relation(fields: [recordedByUserId], references: [id], onDelete: Restrict)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, orderVersion])
+  @@unique([orderId, financialReviewHash])
 }

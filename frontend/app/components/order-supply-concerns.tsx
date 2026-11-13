@@ -46,7 +46,7 @@ type Props = {
 };
 type Review = {
   reset?: () => void;
-  action: "raise" | "choice" | "refund" | "resolve";
+  action: "raise" | "choice" | "refund" | "resolve" | "close";
   body: Record<string, unknown>;
   title: string;
   facts: { label: string; value: string }[];
@@ -189,42 +189,48 @@ function SupplyPanel({
         ? change.body
         : { ...change.body, expectedVersion: expected, idempotencyKey: nonce };
     const confirmed = (data: SupplySummary) =>
-      change.action === "choice"
-        ? data.items.some(
-            (row) =>
-              row.id === body.supplyExceptionId &&
-              row.supplyRemedyChoices.some(
-                (choice) =>
-                  choice.orderVersion === expected &&
-                  choice.choice === body.choice &&
-                  choice.customerNote === String(body.customerNote ?? ""),
-              ),
+      change.action === "close"
+        ? data.closures.some(
+            (row) => row.orderVersion === expected && row.reason === body.reason,
           )
-        : change.action === "resolve"
+        : change.action === "choice"
           ? data.items.some(
               (row) =>
                 row.id === body.supplyExceptionId &&
-                row.resolution?.orderVersion === expected &&
-                row.resolution.reason === body.reason,
+                row.supplyRemedyChoices.some(
+                  (choice) =>
+                    choice.orderVersion === expected &&
+                    choice.choice === body.choice &&
+                    choice.customerNote === String(body.customerNote ?? ""),
+                ),
             )
-          : change.action === "raise" &&
-            data.items.some(
-              (row) =>
-                row.kind === body.kind &&
-                row.customerNote === body.customerNote &&
-                row.reason === body.reason &&
-                supplyRangeSignature(row.affectedLines) ===
-                  supplyRangeSignature(
-                    body.affectedLines as SupplySummary["items"][number]["affectedLines"],
-                  ),
-            );
+          : change.action === "resolve"
+            ? data.items.some(
+                (row) =>
+                  row.id === body.supplyExceptionId &&
+                  row.resolution?.orderVersion === expected &&
+                  row.resolution.reason === body.reason,
+              )
+            : change.action === "raise" &&
+              data.items.some(
+                (row) =>
+                  row.kind === body.kind &&
+                  row.customerNote === body.customerNote &&
+                  row.reason === body.reason &&
+                  supplyRangeSignature(row.affectedLines) ===
+                    supplyRangeSignature(
+                      body.affectedLines as SupplySummary["items"][number]["affectedLines"],
+                    ),
+              );
     let confirmedRefundId: string | undefined;
     const next: MutationProposal = {
       title: change.title,
       description:
-        change.action === "resolve"
-          ? "Review the actual original refund and affected goods. The server must verify settlement and physical history. This records reconciliation; collection still requires current clearance."
-          : "Review this order and actual affected goods. This request does not accept a substitute, approve money, confirm a bank receipt or authorise collection.",
+        change.action === "close"
+          ? "The server must verify every original refund and actual unit. This records financial closure with no goods outstanding; it creates no physical handover, stock return, new charge or credit."
+          : change.action === "resolve"
+            ? "Review the actual original refund and affected goods. The server must verify settlement and physical history. This records reconciliation; collection still requires current clearance."
+            : "Review this order and actual affected goods. This request does not accept a substitute, approve money, confirm a bank receipt or authorise collection.",
       facts: change.facts,
       retrySafely: true,
       retryAfterRejection: false,
@@ -276,7 +282,9 @@ function SupplyPanel({
                       ? "/choice"
                       : change.action === "resolve"
                         ? "/resolve"
-                        : ""),
+                        : change.action === "close"
+                          ? "/close"
+                          : ""),
                   {
                     method: "POST",
                     body,
@@ -400,6 +408,104 @@ function SupplyPanel({
           </button>
         )}
       </div>
+      {!!summary?.closures.length && (
+        <div className={styles.case} data-supply-closure-history>
+          <h3>Supply settlement and collection history</h3>
+          {summary.closures.map((closure) => (
+            <div key={closure.id}>
+              <p>
+                <strong>No goods outstanding</strong> Reviewed{" "}
+                {formatBusinessDate(closure.createdAt)}.
+              </p>
+              <p>
+                {closure.handedUnits} unit{closure.handedUnits === 1 ? "" : "s"} actually
+                collected; {closure.refundedUnfulfilledUnits} unfulfilled unit
+                {closure.refundedUnfulfilledUnits === 1 ? "" : "s"} refunded.
+              </p>
+              <p>
+                Original amount: {formatKobo(closure.originalKobo)}. Verified refunds:{" "}
+                {formatKobo(closure.refundedKobo)}. Retained original payment:{" "}
+                {formatKobo(closure.remainingKobo)}.
+              </p>
+              <p>
+                This is financial closure, not another physical pickup. Retained payment
+                is not a new amount due or replacement-order credit. Original goods and
+                refund records remain.
+              </p>
+              {administrator && closure.reason && (
+                <p>Internal review note: {closure.reason}</p>
+              )}
+            </div>
+          ))}
+          {summary.hasMoreClosures && (
+            <p>Customer Care can review earlier settlement history.</p>
+          )}
+        </div>
+      )}
+      {administrator &&
+        summary?.closureCapabilityVersion === 1 &&
+        summary.closureReviewAvailable && (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (blocked) return;
+              try {
+                const element = event.currentTarget,
+                  form = new FormData(element);
+                const reason = paragraph(form.get("closureReason"));
+                z.literal("on").parse(form.get("closureConfirmed"));
+                review({
+                  action: "close",
+                  title: "Record no-goods financial closure?",
+                  reset: () => element.reset(),
+                  body: { reason, noGoodsOutstandingAndSettlementReviewed: true },
+                  facts: [
+                    {
+                      label: "Goods outstanding",
+                      value:
+                        "No units remain after actual handover and verified refunded-unit review; the server rechecks this.",
+                    },
+                    {
+                      label: "Original money",
+                      value:
+                        "Preserved with independently verified refunds; no new payment or credit.",
+                    },
+                    { label: "Internal closure note", value: reason! },
+                  ],
+                });
+              } catch {
+                invalid();
+              }
+            }}
+          >
+            <fieldset className={styles.fields} disabled={blocked}>
+              <legend>Review financial closure</legend>
+              <p>
+                Review the actual original settlement and collection history when no goods
+                remain. This releases only active stock holds; consumed goods are not
+                returned to stock.
+              </p>
+              <label>
+                Internal closure note (12-1,000 characters)
+                <textarea
+                  className="input"
+                  name="closureReason"
+                  minLength={12}
+                  maxLength={1000}
+                  required
+                />
+              </label>
+              <label className={styles.check}>
+                <input type="checkbox" name="closureConfirmed" required />I reviewed
+                settled original refunds and actual goods history. No goods remain
+                outstanding.
+              </label>
+              <button className="button" type="submit">
+                Review financial closure
+              </button>
+            </fieldset>
+          </form>
+        )}
       {summary?.items.map((row) => (
         <article className={styles.case} key={row.id} aria-labelledby={`${id}-${row.id}`}>
           <h3 id={`${id}-${row.id}`}>{supplyKindLabels[row.kind]}</h3>

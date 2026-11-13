@@ -49,3 +49,12 @@ export const supplyResolutionSchema = z
     settlementAndPhysicalHistoryReviewed: z.literal(true),
   })
   .strict();
+
+export const supplyClosureSchema = z
+  .object({
+    expectedVersion: z.number().int().min(0).max(2147483647),
+    idempotencyKey: z.uuid(),
+    reason: paragraph,
+    noGoodsOutstandingAndSettlementReviewed: z.literal(true),
+  })
+  .strict();

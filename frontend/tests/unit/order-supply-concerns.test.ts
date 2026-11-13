@@ -203,3 +203,38 @@ describe("actual owned supply concern projection", () => {
     );
   });
 });
+
+it("rejects closure amounts and quantities that misrepresent actual obligations", () => {
+  const order = supplyOrder(),
+    data = supplySummary(order);
+  const closure = {
+    id: supplyId(90),
+    orderVersion: 0,
+    createdAt: "2026-11-13T12:00:00Z",
+    resultingStatus: "CANCELLED" as const,
+    originalKobo: "320",
+    refundedKobo: "320",
+    remainingKobo: "0",
+    originalUnits: 3,
+    handedUnits: 0,
+    refundedUnfulfilledUnits: 3,
+  };
+  data.closures = [closure];
+  expect(parseSupplySummary(data, order).closures[0]).toEqual(closure);
+  for (const change of [
+    { remainingKobo: "1" },
+    { refundedKobo: "310" },
+    { handedUnits: 1 },
+    { refundedUnfulfilledUnits: 2 },
+    { originalUnits: 4 },
+    { orderVersion: 1 },
+    { resultingStatus: "COMPLETED" },
+  ]) {
+    expect(() =>
+      parseSupplySummary({ ...data, closures: [{ ...closure, ...change }] }, order),
+    ).toThrow();
+  }
+  expect(() =>
+    parseSupplySummary({ ...data, closures: [closure, closure] }, order),
+  ).toThrow();
+});

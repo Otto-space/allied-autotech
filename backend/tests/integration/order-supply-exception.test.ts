@@ -47,7 +47,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     afterAll(() => prisma.$disconnect());
     async function fixture(
       guest = false,
-      terms: { legacy?: boolean; deliveryFeeKobo?: bigint; latePayment?: boolean } = {},
+      terms: {
+        legacy?: boolean;
+        deliveryFeeKobo?: bigint;
+        latePayment?: boolean;
+        initialStatus?: "PENDING" | "CONFIRMED";
+      } = {},
     ) {
       const suffix = randomUUID(),
         owner = await testOwner("unusable-supply-fixture"),
@@ -105,6 +110,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           customerName: "Synthetic actual buyer",
           customerEmail: access?.access.email ?? buyer.user.email,
           customerPhone: "08030000000",
+          ...(terms.initialStatus === "CONFIRMED"
+            ? {
+                status: "CONFIRMED" as const,
+                confirmedAt: await prisma.$transaction((tx) => databaseClock(tx)),
+              }
+            : {}),
           subtotalKobo: 303n,
           discountAmountKobo: 5n,
           taxKobo: 22n,
@@ -205,9 +216,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         },
       });
     }
-    async function refundFixture(offset = 0) {
-      const f = await fixture();
-      f.body.affectedLines[0]!.offset = offset;
+    async function approveManualRefundFixture(actor: AuthenticatedActor) {
       const prior = await prisma.businessPolicyVersion.findFirst({
         where: { key: "manual-refund" },
         orderBy: { version: "desc" },
@@ -217,13 +226,23 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           key: "manual-refund",
           version: (prior?.version ?? 0) + 1,
           approvalStatus: "APPROVED",
-          approvedByUserId: f.actor.userId,
+          approvedByUserId: actor.userId,
           source: "Synthetic isolated refund fixture; not production owner approval",
           sourceQuestion: "D17 fixture only",
           effectiveAt: new Date(Date.now() - 1000),
           settings: {},
         },
       });
+    }
+    async function refundFixture(
+      offset = 0,
+      quantity = 1,
+      initialStatus: "PENDING" | "CONFIRMED" = "PENDING",
+    ) {
+      const f = await fixture(false, { initialStatus });
+      f.body.affectedLines[0]!.offset = offset;
+      f.body.affectedLines[0]!.quantity = quantity;
+      await approveManualRefundFixture(f.actor);
       const concern = (await f.service.raise(f.actor, f.order.id, f.body, context))
         .items[0]!;
       const chosen = await f.service.choose(
@@ -272,6 +291,42 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         mfaRequired: true,
         mfaVerifiedAt: new Date(),
       };
+    }
+    async function completeOriginalReceipt(
+      f: Awaited<ReturnType<typeof fixture>>,
+      attempt: Awaited<ReturnType<typeof captured>>,
+    ) {
+      const existing = await prisma.payment.findUniqueOrThrow({
+        where: { id: attempt.paymentId },
+      });
+      if (existing.status === "SUCCEEDED" && existing.settledAttemptId === attempt.id)
+        return;
+      // Complete canonical synthetic manual receipt evidence. This fixture record
+      // is isolated test data, not real approval or provider/bank acceptance.
+      const receiptReviewer = await independentApprover();
+      const recordedAt = await prisma.$transaction((tx) => databaseClock(tx));
+      await prisma.manualPaymentReview.create({
+        data: {
+          paymentAttemptId: attempt.id,
+          submittedByUserId: f.customerActor.userId,
+          reviewedByUserId: receiptReviewer.userId,
+          status: "APPROVED",
+          reviewedAt: recordedAt,
+          reviewerNote: "Synthetic independently reviewed original manual receipt",
+        },
+      });
+      await prisma.payment.update({
+        where: { id: attempt.paymentId },
+        data: {
+          status: "SUCCEEDED",
+          settledAttemptId: attempt.id,
+          succeededAt: recordedAt,
+        },
+      });
+      await prisma.order.update({
+        where: { id: f.order.id },
+        data: { paidAt: attempt.paidAt },
+      });
     }
     async function settleOriginal(
       f: Awaited<ReturnType<typeof refundFixture>>,
@@ -330,7 +385,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         f.actor,
         f.order.id,
         {
-          expectedVersion: 2,
+          expectedVersion: (
+            await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } })
+          ).version,
           idempotencyKey: randomUUID(),
           supplyExceptionId: f.concern.id,
           reason: "Synthetic actual original settlement and physical history reviewed",
@@ -338,32 +395,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         },
         context,
       );
-      // Complete canonical synthetic manual receipt evidence. This fixture record
-      // is isolated test data, not real approval or provider/bank acceptance.
-      const receiptReviewer = await independentApprover();
-      const recordedAt = await prisma.$transaction((tx) => databaseClock(tx));
-      await prisma.manualPaymentReview.create({
-        data: {
-          paymentAttemptId: f.attempt.id,
-          submittedByUserId: f.customerActor.userId,
-          reviewedByUserId: receiptReviewer.userId,
-          status: "APPROVED",
-          reviewedAt: recordedAt,
-          reviewerNote: "Synthetic independently reviewed original manual receipt",
-        },
-      });
-      await prisma.payment.update({
-        where: { id: f.attempt.paymentId },
-        data: {
-          status: "SUCCEEDED",
-          settledAttemptId: f.attempt.id,
-          succeededAt: recordedAt,
-        },
-      });
-      await prisma.order.update({
-        where: { id: f.order.id },
-        data: { paidAt: f.attempt.paidAt },
-      });
+      await completeOriginalReceipt(f, f.attempt);
       return saved;
     }
     const choiceInput = (supplyExceptionId: string, expectedVersion = 1) => ({
@@ -1147,6 +1179,408 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           where: { orderId: accepted.order.id, status: "SUCCEEDED" },
         }),
       ).toBe(0);
+    });
+    it.each(["ACTIVE", "CONSUMED"] as const)(
+      "closes fully refunded unfulfilled goods with %s allocations without inventing handover or stock returns",
+      async (status) => {
+        const f = await refundFixture(
+          0,
+          3,
+          status === "CONSUMED" ? "CONFIRMED" : "PENDING",
+        );
+        await settleOriginal(f);
+        const inventory = await prisma.inventory.create({
+          data: {
+            branchId: f.branch.id,
+            productId: f.order.items[0]!.productId,
+            quantity: status === "CONSUMED" ? 7 : 10,
+            reserved: status === "ACTIVE" ? 3 : 0,
+          },
+        });
+        const reservation = await prisma.inventoryReservation.create({
+          data: {
+            inventoryId: inventory.id,
+            customerId: f.order.customerId,
+            quantity: 3,
+            status,
+            expiresAt: new Date(Date.now() + 3600000),
+            ...(status === "CONSUMED"
+              ? { consumedAt: await prisma.$transaction((tx) => databaseClock(tx)) }
+              : {}),
+            idempotencyKey: randomUUID(),
+            requestHash: "a".repeat(64),
+            referenceType: "ORDER",
+            referenceId: f.order.id,
+          },
+        });
+        const input = {
+          expectedVersion: 3,
+          idempotencyKey: randomUUID(),
+          reason: "Synthetic actual original refunds and no goods outstanding verified",
+          noGoodsOutstandingAndSettlementReviewed: true,
+        };
+        await expect(
+          f.service.close(
+            { ...f.actor, mfaVerifiedAt: null },
+            f.order.id,
+            input,
+            context,
+          ),
+        ).rejects.toMatchObject({ statusCode: 403 });
+        await expect(
+          f.service.close(f.customerActor, f.order.id, input, context),
+        ).rejects.toMatchObject({ statusCode: 403 });
+        await expect(
+          f.service.close(f.actor, f.order.id, { ...input, expectedVersion: 2 }, context),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        await expect(
+          new OrdersService().transition(
+            f.actor,
+            f.order.id,
+            { status: "CANCELLED", expectedVersion: 3, reason: input.reason },
+            context,
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        const anomaly = await prisma.paymentAnomaly.create({
+          data: {
+            paymentAttemptId: f.attempt.id,
+            type: "OTHER",
+            summary: "Synthetic changed original finance evidence",
+          },
+        });
+        await expect(
+          f.service.close(f.actor, f.order.id, input, context),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        expect(
+          await prisma.inventoryReservation.findUnique({ where: { id: reservation.id } }),
+        ).toMatchObject({ status, quantity: 3 });
+        await prisma.paymentAnomaly.update({
+          where: { id: anomaly.id },
+          data: {
+            status: "RESOLVED",
+            resolvedAt: await prisma.$transaction((tx) => databaseClock(tx)),
+            resolvedByUserId: f.actor.userId,
+            resolutionNote: "Synthetic independent discrepancy review completed",
+          },
+        });
+        const current = await f.service.readStaff(f.actor, f.order.id, context);
+        expect(current.closureReviewAvailable).toBe(true);
+        const corrupt = prisma.$extends({
+          query: {
+            orderSupplyClosure: {
+              create({ args, query }) {
+                args.data.financialSnapshot = {
+                  version: "ORDER_SUPPLY_CLOSURE_V1",
+                  originalKobo: "320",
+                  refundedKobo: "310",
+                  remainingKobo: "10",
+                };
+                return query(args);
+              },
+            },
+          },
+        }) as unknown as PrismaClient;
+        await expect(
+          new OrderSupplyExceptionService(corrupt).close(
+            f.actor,
+            f.order.id,
+            input,
+            context,
+          ),
+        ).rejects.toThrow();
+        expect(
+          await prisma.inventoryReservation.findUnique({ where: { id: reservation.id } }),
+        ).toMatchObject({ status, quantity: 3 });
+        const closed = await f.service.close(f.actor, f.order.id, input, context);
+        expect(closed).toMatchObject({
+          orderVersion: 4,
+          replayed: false,
+          closureReviewAvailable: false,
+          closures: [
+            {
+              resultingStatus: "CANCELLED",
+              originalKobo: "320",
+              refundedKobo: "320",
+              remainingKobo: "0",
+              originalUnits: 3,
+              refundedUnfulfilledUnits: 3,
+              handedUnits: 0,
+            },
+          ],
+        });
+        expect(await f.service.close(f.actor, f.order.id, input, context)).toMatchObject({
+          orderVersion: 4,
+          replayed: true,
+        });
+        await expect(
+          f.service.close(
+            f.actor,
+            f.order.id,
+            { ...input, reason: "Changed private closure review note" },
+            context,
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        expect(
+          await prisma.order.findUnique({ where: { id: f.order.id } }),
+        ).toMatchObject({
+          status: "CANCELLED",
+          totalKobo: 320n,
+          subtotalKobo: 303n,
+          taxKobo: 22n,
+          discountAmountKobo: 5n,
+        });
+        expect(
+          await prisma.inventory.findUnique({ where: { id: inventory.id } }),
+        ).toMatchObject({ quantity: status === "CONSUMED" ? 7 : 10, reserved: 0 });
+        expect(
+          await prisma.inventoryReservation.findUnique({ where: { id: reservation.id } }),
+        ).toMatchObject({
+          status: status === "ACTIVE" ? "RELEASED" : "CONSUMED",
+          quantity: 3,
+        });
+        expect(
+          await prisma.orderPickupHandover.count({ where: { orderId: f.order.id } }),
+        ).toBe(0);
+        expect(
+          await prisma.inventoryTransaction.count({
+            where: { referenceId: f.order.id, type: "RESTOCK" },
+          }),
+        ).toBe(0);
+        const safe = JSON.stringify(await f.service.read(f.principal, f.order.id));
+        for (const privateValue of [
+          input.reason,
+          "recordedByUserId",
+          "sessionId",
+          "requestHash",
+          "idempotencyKey",
+          "financialSnapshot",
+          "financialReviewHash",
+          "handoverIds",
+          "supplyResolutionIds",
+        ])
+          expect(safe).not.toContain(privateValue);
+        const saved = await prisma.orderSupplyClosure.findFirstOrThrow({
+          where: { orderId: f.order.id },
+        });
+        await expect(
+          prisma.orderSupplyClosure.update({
+            where: { id: saved.id },
+            data: { reason: "Attempted historical rewrite" },
+          }),
+        ).rejects.toThrow(/immutable/);
+        await expect(
+          prisma.orderSupplyClosure.delete({ where: { id: saved.id } }),
+        ).rejects.toThrow(/immutable/);
+        await expect(
+          prisma.$transaction(async (tx) =>
+            tx.orderSupplyClosure.create({
+              data: {
+                ...saved,
+                financialSnapshot: saved.financialSnapshot as Prisma.InputJsonValue,
+                id: randomUUID(),
+                orderVersion: 4,
+                originalStatus: "CANCELLED",
+                idempotencyKey: randomUUID(),
+                financialReviewHash: "b".repeat(64),
+                createdAt: await databaseClock(tx),
+              },
+            }),
+          ),
+        ).rejects.toThrow(/atomically/);
+        expect(
+          await prisma.orderSupplyClosure.count({ where: { orderId: f.order.id } }),
+        ).toBe(1);
+      },
+    );
+    it("financially closes a refunded remainder while preserving the actual earlier partial pickup and consumed stock", async () => {
+      const f = await fixture(),
+        attempt = await captured(f);
+      await approveManualRefundFixture(f.actor);
+      await completeOriginalReceipt(f, attempt);
+      const item = f.order.items[0]!;
+      const inventory = await prisma.inventory.create({
+        data: {
+          branchId: f.branch.id,
+          productId: item.productId,
+          quantity: 10,
+          reserved: 3,
+        },
+      });
+      await prisma.inventoryReservation.create({
+        data: {
+          inventoryId: inventory.id,
+          customerId: f.order.customerId,
+          quantity: 3,
+          expiresAt: new Date(Date.now() + 3600000),
+          idempotencyKey: randomUUID(),
+          requestHash: "a".repeat(64),
+          referenceType: "ORDER",
+          referenceId: f.order.id,
+        },
+      });
+      const orders = new OrdersService();
+      await orders.transition(
+        f.actor,
+        f.order.id,
+        { status: "CONFIRMED", expectedVersion: 0 },
+        context,
+      );
+      await orders.transition(
+        f.actor,
+        f.order.id,
+        { status: "PROCESSING", expectedVersion: 1 },
+        context,
+      );
+      await orders.transition(
+        f.actor,
+        f.order.id,
+        { status: "READY", expectedVersion: 2 },
+        context,
+      );
+      const pickup = new OrderPickupService(),
+        buyer = { kind: "account" as const, actor: f.customerActor };
+      const lines = [{ orderItemId: item.id, quantity: 1 }];
+      const code = await pickup.issue(
+        buyer,
+        f.order.id,
+        { expectedVersion: 3, idempotencyKey: randomUUID(), lines },
+        context,
+      );
+      const current = await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } });
+      const preview = await pickup.verify(f.actor, f.order.id, {
+        expectedVersion: current.version,
+        pickupCode: code.pickupCode!,
+        lines,
+      });
+      const handover = await pickup.handover(
+        f.actor,
+        f.order.id,
+        {
+          expectedVersion: preview.version,
+          pickupCode: code.pickupCode!,
+          claimId: preview.claimId,
+          authorisationId: preview.authorisationId,
+          financialReviewHash: preview.financialReviewHash,
+          idempotencyKey: randomUUID(),
+          lines,
+          collectorName: "Synthetic actual partial collector",
+          verificationNote:
+            "Actual eligible original unit handed over after private review",
+          physicalHandoverConfirmed: true,
+        },
+        context,
+      );
+      expect(handover.complete).toBe(false);
+      const afterHandover = await prisma.order.findUniqueOrThrow({
+        where: { id: f.order.id },
+      });
+      const concern = (
+        await f.service.raise(
+          f.actor,
+          f.order.id,
+          {
+            ...f.body,
+            expectedVersion: afterHandover.version,
+            affectedLines: [{ orderItemId: item.id, offset: 1, quantity: 2 }],
+          },
+          context,
+        )
+      ).items[0]!;
+      const chosen = await f.service.choose(
+        f.principal,
+        f.order.id,
+        choiceInput(concern.id, afterHandover.version + 1),
+        context,
+      );
+      const choice = chosen.items[0]!.supplyRemedyChoices[0]!;
+      const refundBody = {
+        paymentAttemptId: attempt.id,
+        amountKobo: BigInt(
+          z
+            .object({ amounts: z.object({ totalKobo: z.string() }) })
+            .parse(concern.monetaryBasis).amounts.totalKobo,
+        ),
+        supplyRemedyChoiceId: choice.id,
+        reason: "Synthetic actual unfulfilled original remainder including saved tax",
+      };
+      await settleOriginal({
+        ...f,
+        concern,
+        choice,
+        attempt,
+        payments: new PaymentsService(),
+        refundBody,
+      });
+      const version = (
+        await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } })
+      ).version;
+      const closed = await f.service.close(
+        f.actor,
+        f.order.id,
+        {
+          expectedVersion: version,
+          idempotencyKey: randomUUID(),
+          reason:
+            "Synthetic actual partial pickup and independently settled remaining refund reviewed",
+          noGoodsOutstandingAndSettlementReviewed: true,
+        },
+        context,
+      );
+      expect(closed.closures[0]).toMatchObject({
+        resultingStatus: "COMPLETED",
+        originalUnits: 3,
+        handedUnits: 1,
+        refundedUnfulfilledUnits: 2,
+        originalKobo: "320",
+        refundedKobo: refundBody.amountKobo.toString(),
+        remainingKobo: (320n - refundBody.amountKobo).toString(),
+      });
+      expect(await prisma.order.findUnique({ where: { id: f.order.id } })).toMatchObject({
+        status: "COMPLETED",
+        totalKobo: 320n,
+      });
+      const actual = await prisma.orderPickupHandover.findMany({
+        where: { orderId: f.order.id },
+      });
+      expect(actual).toHaveLength(1);
+      expect(actual[0]).toMatchObject({
+        id: handover.id,
+        completedOrder: false,
+        unitRanges: [{ orderItemId: item.id, offset: 0, quantity: 1 }],
+      });
+      expect(
+        await prisma.inventory.findUnique({ where: { id: inventory.id } }),
+      ).toMatchObject({ quantity: 7, reserved: 0 });
+      expect(
+        await prisma.inventoryTransaction.count({
+          where: { referenceId: f.order.id, type: "RESTOCK" },
+        }),
+      ).toBe(0);
+      expect((await pickup.read(buyer, f.order.id)).remaining).toEqual([]);
+    });
+    it("keeps actual remaining goods open rather than treating a partial refund as financial closure", async () => {
+      const f = await refundFixture();
+      await settleOriginal(f);
+      const input = {
+        expectedVersion: 3,
+        idempotencyKey: randomUUID(),
+        reason: "Synthetic attempted closure while actual original goods are still owed",
+        noGoodsOutstandingAndSettlementReviewed: true,
+      };
+      expect(
+        (await f.service.readStaff(f.actor, f.order.id, context)).closureReviewAvailable,
+      ).toBe(false);
+      await expect(
+        f.service.close(f.actor, f.order.id, input, context),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      expect(
+        await prisma.orderSupplyClosure.count({ where: { orderId: f.order.id } }),
+      ).toBe(0);
+      expect(await prisma.order.findUnique({ where: { id: f.order.id } })).toMatchObject({
+        status: "PENDING",
+        version: 3,
+        totalKobo: 320n,
+      });
     });
     it.each([1, 2])(
       "allocates and collects remaining units around a refunded gap, first collecting %i, without repricing or restocking",

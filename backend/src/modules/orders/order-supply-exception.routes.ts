@@ -12,6 +12,7 @@ import {
   supplyExceptionRaiseSchema,
   supplyRemedyChoiceSchema,
   supplyResolutionSchema,
+  supplyClosureSchema,
 } from "./order-supply-exception.schemas.js";
 import { purchaseCsrfHeadersSchema } from "./purchase.schemas.js";
 const value = (res: Response, key: string) => res.locals.validated?.[key];
@@ -92,6 +93,25 @@ export function registerBuyerSupplyRoutes(router: Router, guest = false) {
 export function registerStaffSupplyRoutes(router: Router) {
   const service = new OrderSupplyExceptionService(),
     params = { params: orderParamsSchema, query: ordersEmptyQuerySchema };
+  router.post(
+    "/:orderId/supply-exceptions/close",
+    createSensitiveRateLimit(10, 60000),
+    requireAdministrator,
+    requireCsrf,
+    validate({ ...params, body: supplyClosureSchema }),
+    async (req, res) =>
+      res.set("Cache-Control", "private, no-store").json(
+        successResponse(
+          "Actual supply settlement reviewed; no goods outstanding",
+          req.id,
+          await service.close(actor(req), id(res), value(res, "body"), {
+            requestId: String(req.id),
+            ipAddress: req.ip ?? null,
+            userAgent: req.get("user-agent") ?? null,
+          }),
+        ),
+      ),
+  );
   router.post(
     "/:orderId/supply-exceptions/resolve",
     createSensitiveRateLimit(10, 60000),

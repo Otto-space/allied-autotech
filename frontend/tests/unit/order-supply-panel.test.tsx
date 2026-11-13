@@ -389,3 +389,77 @@ it.each([false, true])(
     );
   },
 );
+
+it.each([false, true])(
+  "reviews actual financial closure and recovers its saved outcome after interruption=%s",
+  async (interrupted) => {
+    const order = supplyOrder(),
+      data = supplySummary(order);
+    data.closureCapabilityVersion = 1;
+    data.closureReviewAvailable = true;
+    data.items[0].affectedLines[0].quantity = 3;
+    data.items[0].resolution = {
+      id: supplyId(82),
+      orderVersion: 0,
+      createdAt: "2026-11-13T11:00:00Z",
+      unfulfilledLines: data.items[0].affectedLines,
+      previouslyHandedLines: [],
+    };
+    const reason = "Synthetic actual settlement and no remaining original goods reviewed";
+    let posts = 0;
+    mocks.account.mockImplementation(
+      async (
+        path: string,
+        options?: { method?: string; body?: Record<string, unknown> },
+      ) => {
+        if (options?.method !== "POST") return { data };
+        posts++;
+        expect(path).toBe(`/staff/orders/${order.id}/supply-exceptions/close`);
+        expect(options.body).toMatchObject({
+          expectedVersion: 1,
+          reason,
+          noGoodsOutstandingAndSettlementReviewed: true,
+        });
+        data.orderVersion = 2;
+        data.closureReviewAvailable = false;
+        data.closures = [
+          {
+            id: supplyId(90),
+            orderVersion: 1,
+            createdAt: "2026-11-13T12:00:00Z",
+            resultingStatus: "CANCELLED",
+            originalKobo: "320",
+            refundedKobo: "320",
+            remainingKobo: "0",
+            originalUnits: 3,
+            handedUnits: 0,
+            refundedUnfulfilledUnits: 3,
+            reason,
+          },
+        ];
+        if (interrupted)
+          throw new TypeError("Synthetic response lost after closure persistence");
+        return { data };
+      },
+    );
+    await mount({ audience: "staff", administrator: true, actorUserId: owner });
+    const form = container.querySelector('[name="closureReason"]')!.closest("form")!;
+    fill(form, "closureReason", reason);
+    (form.querySelector('[name="closureConfirmed"]') as HTMLInputElement).checked = true;
+    await submit(form);
+    expect(posts).toBe(0);
+    expect(container.querySelector("dialog")?.textContent).toContain(
+      "Record no-goods financial closure?",
+    );
+    await click("Confirm request");
+    if (interrupted) await click("Retry same request");
+    expect(posts).toBe(1);
+    expect(
+      container.querySelector("[data-supply-closure-history]")?.textContent,
+    ).toContain("No goods outstanding");
+    expect(container.textContent).toContain(
+      "0 units actually collected; 3 unfulfilled units refunded",
+    );
+    expect(container.querySelector('[name="closureReason"]')).toBeNull();
+  },
+);

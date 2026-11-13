@@ -78,7 +78,7 @@ it("keeps pickup instructions behind current audience eligibility", async () => 
   const staff = learningArticles.find(
     (article) => article.id === "staff-parts-collection",
   )!;
-  expect([customer.version, staff.version]).toEqual([4, 3]);
+  expect([customer.version, staff.version]).toEqual([5, 4]);
   expect(staff.steps.join(" ")).toContain(
     "exclude only the verified refunded unfulfilled positions",
   );

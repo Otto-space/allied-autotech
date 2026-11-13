@@ -1,3 +1,12 @@
+### 13 November: distinct no-goods financial closure (source)
+
+Customer parts-collection v5, staff-parts-collection v4, admin order-sourcing v8
+and restricted refund-work v9 explain actual financial closure separately from
+physical handover and stock returns. Original amounts and independent financial
+duties remain; guide targets, eligibility and publication flags are unchanged.
+See [closure checkpoint](NO_GOODS_FINANCIAL_CLOSURE_20261113.md) for actual evidence,
+unchanged permissions and remaining reconciliation/acceptance gates.
+
 ### 13 November: remaining-goods learning checkpoint (source)
 
 Customer parts-collection v4, staff-parts-collection v3, administrator

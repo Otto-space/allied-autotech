@@ -1,3 +1,34 @@
+### 13 November: no-goods financial closure verified natively; rendered acceptance pending
+
+Current source extends the integrated remaining-goods batch without losing newer
+master fixes. An assured administrator can review actual no-goods financial closure
+after independently settled original refunds and exact physical history. Original
+money, VAT, receipts and handovers remain. Only ACTIVE holds are released; CONSUMED
+stock is never restocked. No actual pickup means cancellation; an earlier actual
+partial pickup plus refunded remainder is completed by a separate financial event,
+not an invented handover. Generic paid-supply cancellation cannot restock goods.
+Customer/guest history excludes private notes, identities, hashes and proof IDs.
+Existing version/CSRF/MFA/scope, replay and uncertain-response recovery remain.
+Forward migration 123 adds immutable closure evidence and a deferred exact atomic outcome.
+
+Focused 4/4 native cases and 123-migration replay/schema diff/db:check/restricted
+runtime pass; owned tmpfs cleanup verified. Backend/source and focused test types,
+frontend focused types/lint and 20/20 units pass. Learning/calendar/timing 51/51 pass;
+OpenAPI 472 paths / 555 mounted operations plus 4 infrastructure routes and regenerated
+contracts pass. The full native run passes 142/142 across 11 files with 123-migration replay, empty
+schema diff, db:check, restricted runtime and owned tmpfs cleanup. Browser
+acceptance remains pending.
+The previous hosted backend run43496690592 failed a stale guide-version assertion
+(5 versus 7); it is corrected for current sourcingv8 with permission checks retained.
+Customer/staff collection guides now v5/v4, admin sourcing v8 and restricted refund v9;
+publication flags remain unchanged. See docs/help-learn/
+NO_GOODS_FINANCIAL_CLOSURE_20261113.md for full scope and evidence limits.
+
+Remaining D17: zero-capture/cancelled, legacy-allocation and technical-reversal
+reconciliation. Actual financial/operating facts, provider/real-role acceptance and
+exact-master CI plus guarded fresh backup/recovery/restore/migration/runtime/alias
+publication remain separate gates. No production database or public alias changed.
+
 ### 13 November: remaining original goods integrated; native regression verified
 
 Source d5fde376 integrates remaining-goods implementation 1841a467 with master
@@ -388,7 +419,7 @@ POST. Private notes stay administrator-only. Restricted learning sourcing v6 and
 refund-work v7 explain these boundaries; eligibility/publication flags are retained.
 
 Current verification: frontend17/17 unit cases; learning24/24; backend/scoped test
-types and lint; OpenAPI471 paths and mounted554 operations plus4 infrastructure
+types and lint; OpenAPI471 paths and mounted554 operations plus 4 infrastructure
 routes. Migration119 empty replay/schema diff/db:check passed. Initial native run
 had132/134 passes: new actual resolution/replay/SQL tampering checks passed before
 its synthetic anomaly omitted the required resolving account; another existing case
@@ -459,7 +490,7 @@ retaining every interaction/assertion. No real release flag was changed.
 
 Frontend units13/13, learning units48/48, backend/frontend and focused test types,
 scoped lint, secret guard4000 files, canonical OpenAPI470 paths and mounted coverage
-553 operations plus4 infrastructure routes pass. Public domain aliases, application
+553 operations plus 4 infrastructure routes pass. Public domain aliases, application
 DB, financial policy and restricted capability publication remain unchanged. These
 are isolated/fixture results, not provider, actual role or physical-device acceptance.
 

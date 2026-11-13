@@ -61,6 +61,8 @@ async function setup(
       summary: structuredClone(seed),
       writes: [] as { path: string; body: Record<string, unknown>; key?: string }[],
       failRead: false,
+      closureHandedUnits: 0,
+      interruptClosureResponse: false,
     };
   if (empty) state.summary.items = [];
   const prefix =
@@ -85,7 +87,26 @@ async function setup(
     expect(request.headers()["x-csrf-token"]).toBeTruthy();
     expect(body.expectedVersion).toBe(state.summary.orderVersion);
     expect(String(body.idempotencyKey)).toMatch(/^[0-9a-f-]{36}$/i);
-    if (url.pathname.endsWith("/resolve")) {
+    if (url.pathname.endsWith("/close")) {
+      expect(body.noGoodsOutstandingAndSettlementReviewed).toBe(true);
+      state.summary.closureReviewAvailable = false;
+      state.summary.closures = [
+        {
+          id: supplyId(90),
+          orderVersion: state.summary.orderVersion,
+          createdAt: "2026-11-13T12:00:00Z",
+          resultingStatus: state.closureHandedUnits ? "COMPLETED" : "CANCELLED",
+          originalKobo: "320",
+          refundedKobo: state.closureHandedUnits ? "213" : "320",
+          remainingKobo: state.closureHandedUnits ? "107" : "0",
+          originalUnits: 3,
+          handedUnits: state.closureHandedUnits,
+          refundedUnfulfilledUnits: 3 - state.closureHandedUnits,
+          reason: String(body.reason),
+        },
+      ];
+      record.status = state.summary.closures[0].resultingStatus;
+    } else if (url.pathname.endsWith("/resolve")) {
       expect(body.settlementAndPhysicalHistoryReviewed).toBe(true);
       state.summary.items[0].resolution = {
         id: supplyId(82),
@@ -122,6 +143,10 @@ async function setup(
       });
     state.summary.orderVersion++;
     record.version = state.summary.orderVersion;
+    if (url.pathname.endsWith("/close") && state.interruptClosureResponse) {
+      state.interruptClosureResponse = false;
+      return route.abort("failed");
+    }
     return ok(route, state.summary);
   });
   if (audience === "customer")
@@ -136,9 +161,19 @@ async function setup(
         : `/dashboard/orders/${record.id}`;
   return { record, state, url };
 }
-function consoleCapture(page: Page, guest = false) {
+function consoleCapture(page: Page, guest = false, interruptedClosurePath?: string) {
   const errors: string[] = [],
     warnings: string[] = [];
+  const expectedClosureConsole: string[] = [],
+    closureRequestFailures: string[] = [];
+  page.on("requestfailed", (request) => {
+    if (
+      interruptedClosurePath &&
+      new URL(request.url()).pathname === interruptedClosurePath &&
+      request.method() === "POST"
+    )
+      closureRequestFailures.push(request.failure()?.errorText ?? "unknown");
+  });
   const guestSessionResponses: number[] = [],
     guestSessionConsole: string[] = [];
   page.on("response", (response) => {
@@ -158,11 +193,25 @@ function consoleCapture(page: Page, guest = false) {
           "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
       )
         guestSessionConsole.push(message.text());
+      else if (
+        interruptedClosurePath &&
+        message.location().url &&
+        new URL(message.location().url).pathname === interruptedClosurePath &&
+        message.text() === "Failed to load resource: net::ERR_FAILED"
+      )
+        expectedClosureConsole.push(message.text());
       else errors.push(message.text());
     }
     if (message.type() === "warning") warnings.push(message.text());
   });
-  return { errors, warnings, guestSessionResponses, guestSessionConsole };
+  return {
+    errors,
+    warnings,
+    guestSessionResponses,
+    guestSessionConsole,
+    expectedClosureConsole,
+    closureRequestFailures,
+  };
 }
 for (const audience of ["customer", "guest"] as const)
   for (const width of [320, 1440])
@@ -472,3 +521,156 @@ for (const width of [320, 768, 1440])
     });
     await verifyConsole(page, logs.errors, logs.warnings);
   });
+
+for (const width of [320, 768, 1440])
+  for (const handed of [0, 1])
+    test(`no-goods financial closure preserves actual pickup history at ${width}px after ${handed} collected units`, async ({
+      page,
+    }, info) => {
+      await page.setViewportSize({ width, height: 900 });
+      const f = await setup(page, "staff");
+      const interrupted = width === 320 && handed === 1;
+      const logs = consoleCapture(
+        page,
+        false,
+        interrupted
+          ? `/api/v1/staff/orders/${f.record.id}/supply-exceptions/close`
+          : undefined,
+      );
+      f.state.closureHandedUnits = handed;
+      f.state.interruptClosureResponse = width === 320 && handed === 1;
+      f.state.summary.closureCapabilityVersion = 1;
+      f.state.summary.closureReviewAvailable = true;
+      f.state.summary.items[0].affectedLines = [
+        { orderItemId: f.record.items[0].id, offset: handed, quantity: 3 - handed },
+      ];
+      f.state.summary.items[0].resolution = {
+        id: supplyId(82),
+        orderVersion: 0,
+        createdAt: "2026-11-13T11:00:00Z",
+        unfulfilledLines: f.state.summary.items[0].affectedLines,
+        previouslyHandedLines: [],
+      };
+      await page.goto(f.url);
+      const panel = page.locator("[data-order-supply-concerns]"),
+        group = panel.getByRole("group", {
+          name: "Review financial closure",
+          exact: true,
+        });
+      await group
+        .getByRole("textbox")
+        .fill(
+          "Synthetic actual no-goods settlement and original physical history reviewed",
+        );
+      await group.getByRole("checkbox").check();
+      await group
+        .getByRole("button", { name: "Review financial closure", exact: true })
+        .click();
+      const dialog = page.getByRole("dialog");
+      await expect(dialog).toContainText("Record no-goods financial closure?");
+      await expect(dialog).toContainText(
+        "no physical handover, stock return, new charge or credit",
+      );
+      expect(f.state.writes).toHaveLength(0);
+      await dialog.getByRole("button", { name: "Confirm request", exact: true }).click();
+      if (width === 320 && handed === 1)
+        await dialog
+          .getByRole("button", { name: "Retry same request", exact: true })
+          .click();
+      await expect(dialog).not.toBeVisible();
+      const history = panel.locator("[data-supply-closure-history]");
+      await expect(history).toContainText("No goods outstanding");
+      await expect(history).toContainText(
+        `${handed} unit${handed === 1 ? "" : "s"} actually collected; ${3 - handed} unfulfilled units refunded`,
+      );
+      await expect(history).toContainText(
+        "not a new amount due or replacement-order credit",
+      );
+      await expect(group).toHaveCount(0);
+      expect(logs.closureRequestFailures).toEqual(interrupted ? ["net::ERR_FAILED"] : []);
+      expect(
+        logs.expectedClosureConsole.every(
+          (message) => message === "Failed to load resource: net::ERR_FAILED",
+        ),
+      ).toBe(true);
+      expect(f.state.writes).toHaveLength(1);
+      expect(f.state.writes[0].path).toMatch(/supply-exceptions\/close$/);
+      await page.reload();
+      await expect(history).toContainText("No goods outstanding");
+      await expect(history).toContainText(
+        handed
+          ? "Retained original payment: \u20a61.07"
+          : "Retained original payment: \u20a60.00",
+      );
+      expect(f.state.writes).toHaveLength(1);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
+      ).toBe(false);
+      expect(
+        (
+          await new AxeBuilder({ page })
+            .include("[data-order-supply-concerns]")
+            .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+            .analyze()
+        ).violations,
+      ).toEqual([]);
+      await page.screenshot({
+        path: info.outputPath(`supply-closure-${width}-${handed}.png`),
+        fullPage: true,
+      });
+      await verifyConsole(page, logs.errors, logs.warnings);
+    });
+
+for (const audience of ["customer", "guest"] as const)
+  for (const width of [320, 1440])
+    test(`${audience} reads safe recorded closure without administrator controls at ${width}px`, async ({
+      page,
+    }, info) => {
+      await page.setViewportSize({ width, height: 900 });
+      const logs = consoleCapture(page, audience === "guest"),
+        f = await setup(page, audience);
+      f.record.version = 2;
+      f.record.status = "CANCELLED";
+      f.state.summary.orderVersion = 2;
+      f.state.summary.closureCapabilityVersion = 1;
+      f.state.summary.closureReviewAvailable = true;
+      f.state.summary.closures = [
+        {
+          id: supplyId(90),
+          orderVersion: 1,
+          createdAt: "2026-11-13T12:00:00Z",
+          resultingStatus: "CANCELLED",
+          originalKobo: "320",
+          refundedKobo: "320",
+          remainingKobo: "0",
+          originalUnits: 3,
+          handedUnits: 0,
+          refundedUnfulfilledUnits: 3,
+          reason: "Private synthetic administrator closure note",
+        },
+      ];
+      await page.goto(f.url);
+      const panel = page.locator("[data-order-supply-concerns]"),
+        history = panel.locator("[data-supply-closure-history]");
+      await expect(history).toContainText("No goods outstanding");
+      await expect(history).toContainText(
+        "0 units actually collected; 3 unfulfilled units refunded",
+      );
+      await expect(
+        panel.getByRole("group", { name: "Review financial closure", exact: true }),
+      ).toHaveCount(0);
+      await expect(panel).not.toContainText(
+        "Private synthetic administrator closure note",
+      );
+      expect(f.state.writes).toHaveLength(0);
+      await page.reload();
+      await expect(history).toContainText("No goods outstanding");
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
+      ).toBe(false);
+      await page.screenshot({
+        path: info.outputPath(`safe-supply-closure-${audience}-${width}.png`),
+        fullPage: true,
+      });
+      await verifyConsole(page, logs.errors, logs.warnings);
+    });

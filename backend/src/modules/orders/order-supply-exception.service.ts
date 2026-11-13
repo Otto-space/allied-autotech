@@ -1,7 +1,11 @@
+import { savedSupplyExclusions } from "./order-supply-exception-hold.js";
+import { AppError } from "../../common/errors/app-error.js";
+import { recordSupplyClosure } from "./order-supply-closure.js";
 import { recordSupplyResolution } from "./order-supply-resolution.js";
 import {
   collectedPickupUnitRanges,
   pickupUnitRangeDifference,
+  remainingPickupUnitRanges,
 } from "./order-pickup-units.js";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
@@ -36,6 +40,7 @@ import {
   supplyExceptionRaiseSchema,
   supplyRemedyChoiceSchema,
   supplyResolutionSchema,
+  supplyClosureSchema,
 } from "./order-supply-exception.schemas.js";
 const select = {
   id: true,
@@ -43,6 +48,7 @@ const select = {
   version: true,
   status: true,
   readyAt: true,
+  fulfillmentMethod: true,
   paidAt: true,
   customerId: true,
   guestId: true,
@@ -63,6 +69,7 @@ const select = {
     select: {
       id: true,
       productName: true,
+      productId: true,
       quantity: true,
       unitPriceKobo: true,
       subtotalKobo: true,
@@ -157,12 +164,75 @@ export async function supplyExceptionSummary(
   });
   const order = await tx.order.findUniqueOrThrow({
     where: { id },
-    select: { version: true },
+    select: { version: true, items: { select: { id: true, quantity: true } } },
   });
+  const closures = await tx.orderSupplyClosure.findMany({
+    where: { orderId: id },
+    orderBy: [{ orderVersion: "desc" }, { id: "desc" }],
+    take: 11,
+    select: {
+      id: true,
+      orderVersion: true,
+      createdAt: true,
+      resultingStatus: true,
+      financialSnapshot: true,
+      reason: administrator,
+    },
+  });
+  let closureReviewAvailable = false;
+  if (administrator && records.length && records.every((row) => row.resolution)) {
+    try {
+      const resolutionCount = await tx.orderSupplyResolution.count({
+        where: { orderId: id },
+      });
+      const concernCount = await tx.orderSupplyException.count({
+        where: { orderId: id },
+      });
+      const handoverCount = await tx.orderPickupHandover.count({
+        where: { orderId: id },
+      });
+      const previous = closures[0]?.financialSnapshot as
+        { supplyResolutionIds?: unknown[]; handoverIds?: unknown[] } | undefined;
+      closureReviewAvailable =
+        resolutionCount === concernCount &&
+        (!previous ||
+          previous.supplyResolutionIds?.length !== resolutionCount ||
+          previous.handoverIds?.length !== handoverCount) &&
+        remainingPickupUnitRanges(
+          order.items.map((row) => ({ orderItemId: row.id, quantity: row.quantity })),
+          await pickupUnitHistory(tx, id),
+          await savedSupplyExclusions(tx, id),
+        ).length === 0;
+    } catch (error) {
+      if (!(error instanceof AppError && error.statusCode === 409)) throw error;
+    }
+  }
   return {
     orderId: id,
     orderVersion: order.version,
+    closureReviewAvailable,
     resolutionCapabilityVersion: 1 as const,
+    closureCapabilityVersion: 1 as const,
+    closures: closures.slice(0, 10).map(({ financialSnapshot, ...row }) => {
+      const proof = financialSnapshot as {
+        originalKobo: string;
+        refundedKobo: string;
+        remainingKobo: string;
+        originalUnits: number;
+        refundedUnfulfilledUnits: number;
+        handedUnits: number;
+      };
+      return {
+        ...row,
+        originalKobo: proof.originalKobo,
+        refundedKobo: proof.refundedKobo,
+        remainingKobo: proof.remainingKobo,
+        originalUnits: proof.originalUnits,
+        refundedUnfulfilledUnits: proof.refundedUnfulfilledUnits,
+        handedUnits: proof.handedUnits,
+      };
+    }),
+    hasMoreClosures: closures.length > 10,
     choiceStatementVersion: "SUPPLY_CHOICE_20261110_V1" as const,
     items: records.slice(0, 25).map((record) => ({
       ...record,
@@ -597,6 +667,28 @@ export class OrderSupplyExceptionService {
         if (!prior)
           await tx.order.update({ where: { id }, data: { version: { increment: 1 } } });
         return supplyExceptionSummary(tx, id, true);
+      },
+      { isolationLevel: "Serializable" },
+    );
+  }
+  close(
+    actor: AuthenticatedActor,
+    id: string,
+    raw: unknown,
+    context: RequestSecurityContext,
+  ) {
+    const input = supplyClosureSchema.parse(raw);
+    return withTransactionRetry(
+      this.database,
+      async (tx) => {
+        if (actor.role !== "ADMIN" && actor.role !== "SUPER_ADMIN")
+          throw orderForbidden();
+        const order = await this.operator(tx, actor, id);
+        const result = await recordSupplyClosure(tx, actor, order, input, context);
+        return {
+          ...(await supplyExceptionSummary(tx, id, true)),
+          replayed: result.replayed,
+        };
       },
       { isolationLevel: "Serializable" },
     );

@@ -89,6 +89,31 @@ export const supplySummarySchema = z.object({
   orderId: z.uuid(),
   orderVersion: z.number().int().nonnegative(),
   resolutionCapabilityVersion: z.literal(1).optional(),
+  closureCapabilityVersion: z.literal(1).optional(),
+  closureReviewAvailable: z.boolean().default(false),
+  closures: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        orderVersion: z.number().int().nonnegative(),
+        createdAt: date,
+        resultingStatus: z.enum(["CANCELLED", "COMPLETED"]),
+        originalKobo: money,
+        refundedKobo: money,
+        remainingKobo: money,
+        originalUnits: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+        refundedUnfulfilledUnits: z
+          .number()
+          .int()
+          .nonnegative()
+          .max(Number.MAX_SAFE_INTEGER),
+        handedUnits: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+        reason: z.string().max(1000).optional(),
+      }),
+    )
+    .max(10)
+    .default([]),
+  hasMoreClosures: z.boolean().default(false),
   choiceStatementVersion: z.literal("SUPPLY_CHOICE_20261110_V1"),
   items: z
     .array(
@@ -158,6 +183,22 @@ export function parseSupplySummary(value: unknown, order: SupplyOrder) {
     new Set(data.items.map((row) => row.id)).size !== data.items.length
   )
     throw Error("Unexpected order supply history");
+  if (new Set(data.closures.map((row) => row.id)).size !== data.closures.length)
+    throw Error("Unexpected duplicate supply closure");
+  const originalUnits = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  for (const closure of data.closures) {
+    if (
+      closure.orderVersion >= data.orderVersion ||
+      closure.originalUnits !== originalUnits ||
+      closure.handedUnits + closure.refundedUnfulfilledUnits !== originalUnits ||
+      BigInt(closure.refundedKobo) <= BigInt(0) ||
+      BigInt(closure.originalKobo) !==
+        BigInt(closure.refundedKobo) + BigInt(closure.remainingKobo) ||
+      (closure.resultingStatus === "CANCELLED") !== (closure.handedUnits === 0) ||
+      (closure.handedUnits === 0 && closure.remainingKobo !== "0")
+    )
+      throw Error("Unexpected supply closure amounts or actual quantities");
+  }
   for (const row of data.items) {
     if (row.orderId !== order.id) throw Error("Unexpected supply concern");
     for (const line of row.affectedLines) {

@@ -5,6 +5,7 @@ import {
   supplyExceptionRaiseSchema,
   supplyRemedyChoiceSchema,
   supplyResolutionSchema,
+  supplyClosureSchema,
 } from "./order-supply-exception.schemas.js";
 export function registerSupplyExceptionOpenApi(registry: OpenAPIRegistry) {
   const response = z.object({
@@ -12,6 +13,30 @@ export function registerSupplyExceptionOpenApi(registry: OpenAPIRegistry) {
     message: z.string(),
     data: z.unknown().optional(),
     meta: z.object({ requestId: z.string() }),
+  });
+  registry.registerPath({
+    method: "post",
+    path: "/staff/orders/{orderId}/supply-exceptions/close",
+    summary:
+      "Close actual resolved supply obligations without inventing a handover or stock return",
+    description:
+      "Current administrator MFA, CSRF, exact order version and UUID replay. Every original affected refund needs independent verified settlement and its canonical debit; unknown or changed money remains held. Actual collected and refunded unfulfilled unit positions must cover every original item. Records immutable financial closure, preserves original amounts and handover history, releases only actual active holds, revokes unused pickup codes and closes the remaining obligation. No zero-quantity handover, consumed-stock restocking, payment, fee, credit or broad returns approval. Private operator, reason, hashes and financial proof identities are not buyer output.",
+    security: [{ sessionCookie: [] }],
+    request: {
+      params: orderParamsSchema,
+      query: ordersEmptyQuerySchema.removeDefault(),
+      headers: z.looseObject({ "x-csrf-token": z.string().min(32) }),
+      body: {
+        required: true,
+        content: { "application/json": { schema: supplyClosureSchema } },
+      },
+    },
+    responses: {
+      200: {
+        description: "Actual immutable closure and safe supply history",
+        content: { "application/json": { schema: response } },
+      },
+    },
   });
   registry.registerPath({
     method: "post",

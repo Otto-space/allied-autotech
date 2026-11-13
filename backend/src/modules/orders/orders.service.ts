@@ -1732,6 +1732,13 @@ export class OrdersService {
   ) {
     if (!(["PENDING", "CONFIRMED", "PROCESSING"] as string[]).includes(order.status))
       throw invalidOrderTransition();
+    if (
+      order.paidAt &&
+      (await transaction.orderSupplyException.count({ where: { orderId: order.id } }))
+    )
+      throw orderConflict(
+        "Use actual supply settlement and financial closure; generic cancellation cannot restock affected paid goods.",
+      );
     if (order.status !== "PROCESSING")
       await this.releaseOrRestock(
         actor?.userId ?? null,
