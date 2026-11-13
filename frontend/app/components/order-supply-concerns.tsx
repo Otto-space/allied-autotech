@@ -561,17 +561,17 @@ function SupplyPanel({
                 {formatBusinessDate(row.resolution.createdAt)}.
               </p>
               <p>
+                Unfulfilled units:{" "}
                 {row.resolution.unfulfilledLines.reduce(
                   (sum, line) => sum + line.quantity,
                   0,
-                )}{" "}
-                unfulfilled units;{" "}
+                )}
+                . Previously collected units:{" "}
                 {row.resolution.previouslyHandedLines.reduce(
                   (sum, line) => sum + line.quantity,
                   0,
-                )}{" "}
-                previously collected units. Collection still requires current financial
-                and physical clearance.
+                )}
+                . Collection still requires current financial and physical clearance.
               </p>
             </div>
           )}

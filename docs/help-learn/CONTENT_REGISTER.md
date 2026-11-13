@@ -187,6 +187,76 @@ Forward112 repairs that function; applied111 is untouched. Owned tmpfs DB remove
 Separate four-file units/learning/routing: 37/37; backend types/scoped lint pass.
 Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-exception-forward-fix.log.
 Order-sourcing learning is admin-only v2; existing publication/commerce flags remain.
+## 9 November 22:28 UTC - combined audit candidate; no publication
+
+Reconcile committed pickup/holding/staged-service source62815e7c with reminder
+source27c07434. Preserve its owner-set collection calendar: Monday to Saturday,
+public holidays included, after actual readiness and successful notification,
+including imported/custom parts. Do not reask these values. This source has111
+migrations; no previously applied migration is rewritten. The other worktree's
+unfinished supply-exception/refund edits are untouched and are not included.
+
+Merge service-request guidance as v35, keeping staged invoices, actual vehicle
+release, calendar and saved reminder boundaries. Existing eligibility and flags
+remain unchanged. Pickup CI42708988094 failed after3 preliminary passes because
+the customer test's CSRF fixture omits the mandatory response message; fix the
+fixture envelope while retaining one-time display, browser-storage, refresh and
+exact-write assertions. Clean malformed collection labels/punctuation. Combined
+rendered, database replay/restore, types and exact-source gates are pending.
+
+Reminder source27c07434 backend42708086011 and secrets42708086182 pass; frontend
+42708085978 ended at its25-minute cumulative limit after890 cases. Three-engine
+sidebar and320/768/1440 reminder cases pass; this is not a full matrix pass.
+Individual test deadlines/assertions are unchanged; the combined job now budgets
+35 minutes for its full matrix and55 minutes overall. The other committed source's backend42708988327 and
+secrets42708988374 pass; its full rendered matrix did not run after the early
+pickup failure. Neither independent set proves this combined source.
+
+A separately signed102-schema recovery sourceb4c4c505 passes four native read-only
+repository projections of synthetic NOTICE jobs; temporary read role removed.
+Its old capacity parser rejects custom reminder settings. It is neither packaged
+nor compatible proof for this111-schema candidate. Preserve its verified generated
+client separately; regenerate111 before combined checks. Renew all compatibility,
+populated restore, packaged image and exact-master gates for eventual release.
+
+Disk preflights continue to hold packaging and larger checks. A merge preview
+accidentally ran after a failed20.25GiB preflight; it made no branch/worktree change.
+The actual merge was gated on a successful fresh check at20.75GiB. No production
+records, grants, paid allocations, business settings, capability flags or deployment
+changed. The full original audit and operational/provider/role/device acceptance
+remain active; source integration is not launch readiness.
+
+Combined local verification: generated111 client;111 units in10 suites pass,
+465 OpenAPI paths validate and547 operations are inventoried. Initial merge units
+failed retrieval for service-request in all five audiences: the passage exceeded
+the existing8000-character allowance. Concise v35 wording preserves all12 steps,
+staged-payment and reminder conditions; the unchanged retrieval tests now pass.
+Both backend/frontend types, backend lint and scoped frontend lint pass.
+Rendered acceptance remains pending at this checkpoint. Page composition
+is retained; the pickup UI edit only corrects visible labels and punctuation.
+
+---
+
+## 9 November - configurable appointment reminders
+
+Service-request v31 keeps its public gate, twelve steps and targets. Owner-only
+booking-reminders v1 explains reviewed branch timing, delegated defaults, explicit
+none, saved appointment policy and delivery limits. Its destination is allowlisted
+without broadening eligibility. No practice or feature flag is enabled. See
+REMINDER_SCHEDULE_20261109.md for actual checks and pending acceptance.
+
+---
+
+## 9 November - delayed appointment reminder checks
+
+Service-request v30 retains its public gate, twelve steps, existing semantic targets
+and permission boundaries. It explains current confirmed-future reminder eligibility,
+provider delay and unchanged attendance/cancellation. This does not publish learning
+flags or change reminder timings. See REMINDER_EXPIRY_20261109.md for actual checks.
+
+---
+
+---
 
 ### 9 November: collection holding is connected; release acceptance remains open
 
@@ -640,7 +710,8 @@ mean a production publication. Feature flags remain off in committed examples.
 | financial-policy-work   | financial-policy     | 5 / 2026-11-03        | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
 | parts-fitment           | public               | 14 / 2026-11-03       | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
 | vehicle-enquiry         | public               | 5 / 2026-11-02        | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
-| service-request         | public               | 29 / 2026-11-04       | /services                    | Public launch mode and Services page                                                                                                        |
+| booking-reminders       | owner                | 1 / 2026-11-09        | /admin/booking-capacity      | Reviewed branch reminder policy and saved appointment schedule                                                                              |
+| service-request         | public               | 31 / 2026-11-09       | /services                    | Public launch mode and Services page                                                                                                        |
 | security-basics         | public               | 2 / 2026-10-26        | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
 | no-live-lookup          | public               | 2 / 2026-10-26        | /help                        | Launch restrictions and existing status contracts                                                                                           |
 | own-conversation        | customer             | 4 / 2026-10-27        | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |
@@ -654,7 +725,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | mixed-queues            | operations           | 3 / 2026-10-27        | /admin                       | OPERATIONS template and effective assignment union                                                                                          |
 | oversight-scope         | oversight            | 3 / 2026-10-27        | /admin                       | CEO_MD position and permission-filtered overview                                                                                            |
 | customer-account-review | admin                | 3 / 2026-10-27        | /admin/customers             | Customer account lock, session enforcement and audit contract                                                                               |
-| access-review           | access               | 4 / 2026-10-27        | /admin/workforce/access      | Team access security, pinned delegation and reviewed responsibility impact                                                                  |
+| access-review           | access               | 5 / 2026-11-10        | /admin/workforce/access      | People identity, partial access explanation, pinned delegation and reviewed responsibility impact                                           |
 | privileged-recovery     | owner                | 3 / 2026-10-27        | /admin/security              | Existing identity/governance safeguards                                                                                                     |
 
 ## Guides
@@ -851,21 +922,4 @@ Combined service-request v26 retains both the v25 overview vehicle-selection cla
 
 Combined 4 November source: service-request v29 retains both the v28 Month/Schedule calendar navigation and the D07 remaining-work estimate clarification. Existing twelve steps, eligibility and guide targets remain unchanged.
 
-### 9 November: D03 staged invoice source, not published
-
-Service-request v30 preserves the twelve-step public guide while explaining
-materials versus workmanship, uncertain requests, historical invoices and disabled
-payments. Financial-policy-work v6 retains its independent eligibility gate and
-clarifies one saved tax allocation, historical preservation and financial review.
-Semantic targets and feature flags are unchanged. No tutorial grants permissions.
-See [the D03 checkpoint](SERVICE_PAYMENT_STAGES_20261109.md) for actual evidence,
-the synthetic draft and the remaining materials/amendment/vehicle-release work.
-
-### 9 November: accepted service-work source, not published
-
-Service-request v31, financial-policy-work v7, assigned-findings v6 and
-job-assignment v3 explain accepted scope, verified materials, separate labour,
-busy/held financial proof and completion versus vehicle release. Existing gates,
-semantic targets and the twelve-step public bound are preserved. See
-[the work-scope checkpoint](SERVICE_WORK_SCOPE_20261109.md) for the engineering
-timing choice, exact synthetic evidence and the remaining complete journeys.
+10 November2026: access-review v5 follows People / View person and the named identity header. It explicitly explains partial account-level and separately approved duty coverage. Existing access eligibility, pinned duties, independent approval rules and all feature flags remain unchanged. Local learning tests and the People acceptance checkpoint are tracked in the existing quality register.

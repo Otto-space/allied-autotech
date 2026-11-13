@@ -18,6 +18,9 @@ export const workforceDirectoryQuerySchema = z.object({
   cursor: z.uuid().optional(),
 });
 const directorySchema = z.object({
+  managementBranches: z
+    .array(z.object({ id: z.uuid(), name: z.string(), isActive: z.boolean() }))
+    .optional(),
   items: z.array(
     z.object({
       userId: z.uuid(),

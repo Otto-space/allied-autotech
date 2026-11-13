@@ -219,7 +219,7 @@ export function PurchaseOrderPage({ orderId }: { orderId: string }) {
 function OrderDetail({ orderId }: { orderId: string }) {
   const now = usePurchaseClock();
   const resource = usePurchaseResource(`/purchase/orders/${orderId}`, parseGuestOrder, {
-      retainWhileRefreshing: true,
+      revalidateOnFocus: true,
     }),
     router = useRouter();
   const { checkoutEnabled } = usePublicCapabilities();
@@ -306,8 +306,8 @@ function OrderDetail({ orderId }: { orderId: string }) {
           <OrderPickup
             order={resource.data}
             audience="guest"
-            disabled={busy || resource.loading}
-            onSaved={resource.refresh}
+            disabled={busy || resource.loading || resource.refreshing}
+            onSaved={resource.revalidate}
             onBusyChange={setBusy}
           />
           <OrderTimingSummary

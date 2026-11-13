@@ -88,3 +88,16 @@ stages passed; full matrix 304 passed, five CSS-preload verifier failures, 484 n
 run. No full-matrix pass is claimed. The shared footer preload now requires exact
 same-origin CSS, every selector constrained to the known footer/fitment-summary chunk and actual
 104px bottom clearance where a footer is rendered. Unknown warnings/errors still fail. No production change.
+### 10 November: customer one-time code survives the saved-order background check
+
+Customer parts-collection is v3; staff-parts-collection remains v2. The customer
+guide explains copying the code before Hide code, explicit refresh or reload.
+Successful background revalidation keeps the panel and code visible. Guest failed
+background checks and all access changes discard private data. Account background
+network failures preserve the mounted record with a refresh warning. The customer
+guide gives the common copy/private-sharing advice without promising identical
+temporary-failure behavior. Existing audience eligibility, exact owned
+destinations and publication flags remain unchanged. Five resource-hook cases and
+41 affected learning/pickup backend unit cases pass. Existing guest/customer hosted
+tests now capture only synthetic 390px codes; actual new-source rendered results
+remain pending. This does not establish real-role or physical collection acceptance.

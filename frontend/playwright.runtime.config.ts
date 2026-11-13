@@ -7,6 +7,10 @@ export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
     {
+      name: "parts-design",
+      testMatch: ["parts-design.spec.ts"],
+    },
+    {
       name: "vehicle-engine-features",
       testMatch: [
         "vehicle-engine-features.spec.ts",
@@ -21,6 +25,17 @@ export default defineConfig({
         "customer-account-modal.spec.ts",
         "customer-confirmation-focus.spec.ts",
       ],
+      use: {
+        browserName,
+        ...(browserName === "webkit"
+          ? { baseURL: "https://127.0.0.1:3104", ignoreHTTPSErrors: true }
+          : {}),
+      },
+    })),
+    ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
+      name: `sidebar-breakpoint-${browserName}`,
+      testMatch: ["dashboard-navigation.spec.ts"],
+      grep: /sidebar preserves the desktop choice across mobile/,
       use: {
         browserName,
         ...(browserName === "webkit"
@@ -110,6 +125,7 @@ export default defineConfig({
         "order-pickup.spec.ts",
         "order-supply-concerns.spec.ts",
         "booking-calendar.spec.ts",
+        "booking-capacity.spec.ts",
         "invoice-modal-responsive.spec.ts",
         "modal-layout.spec.ts",
         "mfa-action-layout.spec.ts",

@@ -63,6 +63,9 @@ enum BookingReminderKind {
   THREE_DAYS
   TWO_DAYS
   ONE_DAY
+  NOTICE_1
+  NOTICE_2
+  NOTICE_3
 }
 
 enum BookingReminderStatus {

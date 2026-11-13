@@ -226,7 +226,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(appointment.status).toBe(200);
       expect(appointment.body.data).toMatchObject({
         id: "service-request",
-        version: 34,
+        version: 35,
         href: "/services",
       });
       expect(appointment.body.data.steps.join(" ")).toContain(
@@ -363,7 +363,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const accessReview = await read(f.scopedAdmin, "/learning/articles/access-review");
       expect(accessReview.status).toBe(200);
-      expect(accessReview.body.data).toMatchObject({ version: 4 });
+      expect(accessReview.body.data).toMatchObject({ version: 5 });
+      expect(accessReview.body.data.steps.join(" ")).toContain(
+        "Open People in Team & Access and select View person.",
+      );
       expect(accessReview.body.data.steps.join(" ")).toContain(
         "review access added, removed and retained",
       );

@@ -201,7 +201,7 @@ test("older backend does not expose pickup controls or make unsupported reads", 
 for (const audience of ["customer", "guest"] as const)
   test(`${audience} pickup shows a secret once and keeps it out of refresh and browser storage`, async ({
     page,
-  }) => {
+  }, info) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const guest = audience === "guest" ? await purchaseFixture(page) : null;
     if (!guest) await ordersFixture(page);
@@ -277,6 +277,7 @@ for (const audience of ["customer", "guest"] as const)
         route.fulfill({
           json: {
             success: true,
+            message: "Synthetic CSRF response",
             data: { csrfToken: "c".repeat(43) },
             message: "Synthetic current-session CSRF",
             meta: { requestId: "synthetic-csrf" },
@@ -304,7 +305,15 @@ for (const audience of ["customer", "guest"] as const)
       window.dispatchEvent(new Event("focus"));
     });
     await expect.poll(() => ownedReads).toBeGreaterThan(readsBeforeSharing);
+    await expect(
+      panel.getByRole("button", { name: "Create pickup code", exact: true }),
+    ).toBeEnabled();
     await expect(panel.locator("code")).toHaveText("x".repeat(43));
+    await panel.locator("code").scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: info.outputPath(`private-pickup-${audience}-390.png`),
+      fullPage: false,
+    });
     expect(
       await page.evaluate(
         () =>

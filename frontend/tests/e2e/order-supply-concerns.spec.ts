@@ -85,7 +85,17 @@ async function setup(
     expect(request.headers()["x-csrf-token"]).toBeTruthy();
     expect(body.expectedVersion).toBe(state.summary.orderVersion);
     expect(String(body.idempotencyKey)).toMatch(/^[0-9a-f-]{36}$/i);
-    if (url.pathname.endsWith("/choice"))
+    if (url.pathname.endsWith("/resolve")) {
+      expect(body.settlementAndPhysicalHistoryReviewed).toBe(true);
+      state.summary.items[0].resolution = {
+        id: supplyId(82),
+        orderVersion: state.summary.orderVersion,
+        reason: String(body.reason),
+        createdAt: "2026-11-13T09:00:00Z",
+        unfulfilledLines: state.summary.items[0].affectedLines,
+        previouslyHandedLines: [],
+      };
+    } else if (url.pathname.endsWith("/choice"))
       state.summary.items[0].supplyRemedyChoices.unshift({
         ...supplyChoiceRecord(),
         choice: body.choice as "REFUND_REVIEW",
@@ -392,3 +402,72 @@ test("an affected refund uses the owned verified capture and opens its separate 
   });
   await verifyConsole(page, logs.errors, logs.warnings);
 });
+
+for (const width of [320, 768, 1440])
+  test(`verified original settlement and actual quantities remain readable after refresh at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    const logs = consoleCapture(page),
+      f = await setup(page, "staff");
+    f.state.summary.resolutionCapabilityVersion = 1;
+    const choice = supplyChoiceRecord();
+    choice.refunds = [
+      {
+        id: supplyId(81),
+        amountKobo: "107",
+        currency: "NGN",
+        status: "SUCCEEDED",
+        requestedAt: "2026-11-10T08:00:00Z",
+        processedAt: "2026-11-13T08:00:00Z",
+      },
+    ];
+    f.state.summary.items[0].supplyRemedyChoices = [choice];
+    await page.goto(f.url);
+    const panel = page.locator("[data-order-supply-concerns]"),
+      group = panel.getByRole("group", {
+        name: "Reconcile the refunded goods",
+        exact: true,
+      });
+    await group
+      .getByRole("textbox")
+      .fill("Synthetic actual original refund and collection history reviewed");
+    await group.getByRole("checkbox").check();
+    await group
+      .getByRole("button", { name: "Review supply resolution", exact: true })
+      .click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText("Record verified supply resolution?");
+    await expect(dialog).toContainText("?1.07");
+    expect(f.state.writes).toHaveLength(0);
+    await dialog.getByRole("button", { name: "Confirm request", exact: true }).click();
+    await expect(dialog).not.toBeVisible();
+    await expect(panel).toContainText("Refund and affected quantities reconciled");
+    await expect(panel).toContainText("Unfulfilled units: 1");
+    expect(f.state.writes).toHaveLength(1);
+    expect(f.state.writes[0].path).toMatch(/supply-exceptions\/resolve$/);
+    await page.reload();
+    await expect(panel).toContainText(
+      "Collection still requires current financial and physical clearance",
+    );
+    await expect(
+      panel.getByRole("button", { name: "Review supply resolution", exact: true }),
+    ).toHaveCount(0);
+    expect(f.state.writes).toHaveLength(1);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
+    ).toBe(false);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include("[data-order-supply-concerns]")
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: info.outputPath(`supply-resolution-${width}.png`),
+      fullPage: true,
+    });
+    await verifyConsole(page, logs.errors, logs.warnings);
+  });

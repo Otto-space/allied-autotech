@@ -310,6 +310,588 @@ Forward112 repairs that function; applied111 is untouched. Owned tmpfs DB remove
 Separate four-file units/learning/routing: 37/37; backend types/scoped lint pass.
 Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-exception-forward-fix.log.
 Order-sourcing learning is admin-only v2; existing publication/commerce flags remain.
+## 10 November 01:56 UTC - People identity and scoped directory group in progress
+
+Both owner-approved briefs remain active. The vehicle group is merged via PR50;
+current combined master is b1222a11, preserving Services and customer-confirmation
+repairs. Its frontend run42736089235 is still running; backend42736089322 and
+secrets42736089238 pass. Older master55/7af frontend runs were automatically
+superseded by concurrent integration, not counted as passing gates.
+
+Held production frontend dpl_2GpAoPSuSicrZmGu6J9u16ZkJhmP/source55 has five
+actual public vehicle reads at320/390/768/1024/1440 and seven intercepted editor/
+recovery passes. The distinct power/fuel/drive filter reload/Back check passes on
+its warmed retry. Retain the initial timeout:12/13 passed together, then the one
+filter passed separately. Protected reads forward Next navigation/deployment
+headers; CSP/protection remain unchanged. No real vehicle/business write occurred.
+This held source precedes b122's unrelated customer changes and is not publication
+acceptance. Both branded aliases and the backend have not been promoted by this task.
+
+Four backend images for b122 were built from its clean exact checkout. The0.75GiB
+post-build growth check stopped wrap-up with about20.75GiB free; all four existing
+image identities were reviewed before writing a small receipt under a separate
+0.01GiB allowance. No additional build bypassed that stop. Packaged tests are
+running. Managed recovery/fresh backup, populated restore, guarded migration,
+registry push, backend readiness and final frontend/alias acceptance remain open.
+
+People work is isolated in allied-team-media-20261110, reusing both verified
+node_modules junctions and the unchanged-schema generated client. New current
+person identity is returned only after existing owner/delegation checks; no phone,
+security or operational fields are added. The owner has one canonical People
+navigation entry, managed managers keep the existing scoped entry, and earlier
+administrator/direct links remain available. The directory separates account
+level/job/branch/duties, avoids repeated email fallback, shows applied filters and
+preserves branch/context. Delegated branch choices come only from that manager's
+existing envelope. Person identity stays above editing; unavailable/uncertain
+identity has an explicit neutral state. Access explanations explicitly identify
+partial coverage and retain independent approval/source rules. Existing open-ended
+temporary cover is flagged for review without changing records.
+
+Focused evidence so far:48 frontend units before the additional navigation/branch
+cases;32 backend learning units;16 actual HTTP/permission tests across directory
+and effective access on new allied_people_9df004de6ab5_ci. Its non-owner runtime
+role had no DDL/TRUNCATE/role-creation powers. All102 migrations replayed empty;
+only this task's synthetic database and role were removed afterward. Three
+provisioned-workspace cases were conditionally skipped, not acceptance. Initial
+unit failures were stale copy/fixture expectations and a JSX apostrophe lint
+error; corrected and retained. Final types/lint, rendered People checks and CI
+remain pending. No Team/media change or real grant has been published.
+
+The full V01-V05/T01-T07 ledger remains authoritative. T01 is partial: identity,
+canonical entry, scoped branch discovery and partial-summary clarity are implemented;
+complete task grouping/account-baseline composition and full rendered/negative
+matrix remain open. T02-T07, Digital Media Manager, media library/placements,
+bulk photos and supported videos are still required; none is dropped.
+
+## 10 November 01:00 UTC - repair confirmed live Services card stretching
+
+Public apex and www now identify deployment dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi,
+master580a1bb5. Backend remainsc3c54414 ACTIVE with no pending/in-progress rollout
+and zero temporary IP rules. Reconciled the master's auth-fixture isolation at
+65ef746e; preserve the full combined candidate and independent D17 work.
+
+Fresh public API/read-only Edge checks confirm no workbook/import/discount-provenance
+notes in the service descriptions and unchanged approved public prices. Catalogue
+and diagnostics imagery load at390/1440 without horizontal overflow. Anonymous
+401 responses are from /auth/session; no page runtime exception was found.
+
+Actual mobile rendering exposed a card-footer regression: horizontal flex plus a
+full-width action squeezed the price text into one-character lines, stretching the
+390px action to1045.34px and the first card to1437.38px. Stack price and action in
+the shared photographic card rules. Add price-before-action and44-96px action-height
+assertions to all nine existing Services discovery viewport cases.
+
+Exact candidate CSS, served through a local same-origin stylesheet response
+override with CSP preserved, passes320/360/390/430/768/1024/1280/1440/1920 checks:
+all36 links measure44px high; prices precede actions; no horizontal overflow.
+Search diagnostics, reload persistence, visible keyboard focus and Enter-to-detail
+also pass. Visually inspected public before390 and candidate after390/1440 captures.
+This is stylesheet-override evidence, not packaged or published acceptance.
+Affected CSS/test formatting and ESLint pass; all14 Services cases collect.
+Full exact-source hosted execution and publication remain required. Prepare this
+public correction as a separate release batch while retaining the larger backend
+candidate. No customer submission, protected record or provider payment was made.
+The initial live verifier waited on offscreen lazy images; corrected the harness
+to scroll images into view and use bounded loading checks. Its interrupted run is
+not a pass. Inline style injection was blocked by CSP; no CSP setting was changed.
+
+---
+
+## 10 November 00:46 UTC - current pickup captures and staged recovery evidence
+
+Source 0ae7c201 incorporates the collection candidate, then removes one extra
+blank line from the quality register. Parent 5b7a7123 passed 1,554 frontend units
+(12 existing skips), types, lint and production build, then failed only that
+Markdown formatting check. The nine merged files pass scoped formatting locally.
+Current-source backend 42728257100 and secrets 42728257111 pass. Frontend
+42728257444 passes production checks, repeated WebKit calendar/search, three-engine
+media decoding and all 13 pickup/sourcing preflight cases; the 1,018-case full
+matrix remains in progress at this checkpoint. Do not count it as passed.
+
+Downloaded early artifact 13724381047 (211,889 bytes), SHA256
+77629514200bb83f000dae4a19a4a397ae189b38391d5d116b50179876248d8f.
+Visually inspected all six synthetic screenshots: customer and guest pickup codes
+remain visible after the owned focus recheck settles at 390px; staff pickup and
+sourcing content wrap at 320px and 1440px. The customer capture is scrolled to the
+code and includes the fixed contact dock, so it is not a full-page geometry claim.
+The old footer-only failure capture is not a valid visual before comparison.
+No real customer, authorisation or financial data is captured.
+
+Recovery source 7b54eea2 passes all 37 isolated staged-service integration cases,
+using its own application/domain modules and current test helpers. Its 1,024MiB
+TypeScript check passes. This includes synthetic HTTP/CSRF/ownership, staged
+payment, invoice lineage, quote acceptance and vehicle-release checks. Temporary
+runtime database login is disabled afterward; no external provider calls occur.
+Private pickup, sourcing and collection-hold compatibility remain unaccepted;
+25 backend source files still differ from the main candidate. The older 9b928339
+read bridge is not a post-feature financial or operational recovery target.
+Packaged recovery, fresh production backup/PITR verification, exact-master checks,
+paired publication and live-role/provider/device acceptance remain open.
+
+Owner approved removal of only frontend/.next/cache/webpack. Automatic approval
+review rejected the folder deletion before process execution, stating only
+blocked by policy. No cache was deleted. Read-only review confirms 73 compiler
+pack files (742.05MiB), no narrower obsolete-file class. Retain the folder under
+the documented no-evasion rule. C: has about21.4GiB free; packaging's justified
+1.5GiB growth allowance requires21.5GiB and remains held. No production change.
+The original audit/D01-D17 scope and active independent D17 work remain open.
+
+---
+
+## 10 November 00:16 UTC - reconcile collection recovery and focus continuity
+
+Incorporate the committed collection release candidate dab976c7 without its active
+D17 worktree edits. Preserve both evidence histories. Keep this candidate's newer
+reminder settings, sidebar and saved-items repairs, early capture retention, current
+schema111 and access-change protections. No backend runtime or migration changes.
+
+Customer pickup stays mounted during its owned-order recheck. Guest order focus
+uses explicit background revalidation; ordinary resource refreshes still clear.
+Retained records disable actions while checking and clear on failed guest access/
+network reads, destination/parser changes or access changes. Other guest resources
+keep their existing default. The focused browser cases now wait for the order
+recheck to settle before asserting the code and saving the synthetic390px captures.
+Hide, reload, browser-storage and single-write assertions remain.
+
+Retain the collection candidate's responsive field grouping and action-specific
+uncertain-outcome messages. No extra physical handover or financial permission is
+introduced. Local verification:16 resource/suitability cases and3 pickup units pass
+(19 distinct cases), merged frontend TypeScript and affected ESLint/formatting pass;
+six strengthened pickup browser cases collect. Actual merged rendered acceptance
+still requires new exact-source CI. Parent b13d9602 backend42725113034 and secrets
+42725112817 pass; its full frontend matrix was active, not a complete pass.
+
+Read-only provider refresh00:09UTC confirms backendc3c54414 ACTIVE, no pending/
+in-progress deployment, retained four component digests and zero temporary IP
+rules. The independent D17 branch now has committed customer choices plus active
+uncommitted refund linkage; preserve it. Packaging/recovery, exact-master release
+and full audit/role/provider/device acceptance remain open. No production write.
+Work package started00:06UTC; target01:06UTC.
+
+---
+
+## 10 November 00:00 UTC - hosted pickup preflight passes; guide assertion aligned
+
+Final copy review: account background network failures deliberately retain the
+mounted record with a warning; guest failures discard it. Keep that difference
+in developer evidence and give customers only common copy/private-sharing advice.
+Customer guide v3 and audience checks remain; no extra restriction is introduced.
+
+Combined sourceb330dda0 frontend42723705205 passes production checks, repeated
+WebKit calendar/search transport, three-engine media decoding and the pickup/
+sourcing preflight. Both390px synthetic customer/guest captures show the issued code
+remaining visible with readable wrapped text and no horizontal clipping. The full
+1,018-case matrix was active, not completed. Its early artifact13720159521 was
+downloaded and SHA256-verified; the older failure capture shows only the footer
+and is unsuitable as a before/after visual pair. No real authorisations are shown.
+
+Backend42723705168 passes schema replay/db:check/types/lint,292 domain cases
+(4 existing skipped),15 reminder cases,63 profile cases and32 authoring cases,
+then fails one stale collection-guide version expectation. Align that expected
+customer/staff pair with the intentional v3/v2 definitions; all54 affected local
+calendar/learning/pickup unit cases pass. No production behavior changes in this
+assertion fix. New exact-source CI remains required.
+
+The six-file legacy read overlay9b928339 passes TypeScript and read-only native
+probes on the synthetic111 database: four booking projections, original and
+supplemental invoice documents, preserved lineage/stage allocation/totals, two PDFs,
+and old/new reminder policies. Its temporary SELECT-only role is removed. This is
+not packaged or accepted financial recovery: the legacy payment settlement still
+marks an invoice paid without checking stage totals. Preserve the release hold.
+No deployment, real record, permission or feature flag changed. Packaging remains
+held below its21.5GiB preflight requirement; the full original goal remains active.
+
+---
+
+## 9 November 23:55 UTC - preserve newer Home and Services repairs
+
+Reconcile current master1fc86e65, including the compact mobile carousel controls,
+stable activation scroll, Home/Services responsive changes and Services regression
+project. Keep all existing account/sidebar projects. Resolve the overlapping
+late-visit fixture by retaining PostgreSQL-derived Lagos dates and policies
+effective before both clocks, plus master's explicit simulated-time actor sessions.
+No production session/permission logic or applied migration changes. Combined
+reschedule rerun and exact-source CI must establish the merged result; earlier
+independent passes do not prove it. Whole original audit/D01-D17 scope remains.
+
+---
+
+## 9 November 23:50 UTC - guest pickup refresh regression corrected; hosted acceptance pending
+
+Source3a14ec13 frontend42719308531 confirms a genuine guest-only defect: the
+post-issuance order refresh unmounts the panel and loses its one-time code.
+Use a background revalidation for that saved-order check, retain the same private
+record while pending and discard it on failure, destination/parser change or access
+change. Explicit refresh/focus still clears. Add five hook regression cases and
+retain the existing guest/customer browser-storage and one-time-display assertions.
+Synthetic 390px code captures are saved before the full matrix clears its output;
+they are not real collection authorisations. Rendered after evidence is pending.
+
+Source3a14ec13 backend42719308334 also exposes a fixture clock mismatch after Lagos
+midnight. Derive the late-visit day from PostgreSQL CURRENT_TIMESTAMP and seed the
+test policies before both clocks. No production guard or applied migration changes.
+All18 reschedule integration cases pass on the isolated synthetic111 database with
+the working-tree helper/test overlay. The earlier previous-day attempt failed the
+same-day guard and was replaced, not waived.
+
+Affected local verification:17 frontend units,41 backend learning/pickup units,
+backend/frontend TypeScript, backend lint and scoped formatting passed. Customer
+parts-collection guide advances to v3; staff guide remains v2. Exact new-source CI,
+rendered guest acceptance, recovery packaging and full release gates remain open.
+The111 legacy recovery probe reads all four booking projections but rejects the
+saved supplemental invoice snapshot and new reminder policy. It is not an accepted
+financial recovery image. No production, real records, grants or flags changed.
+
+---
+
+## 9 November 23:18 UTC - populated111 restore passes; pickup assertion corrected
+
+The protected retained100-migration snapshot now restores into a fresh loopback
+111-schema database and passes guarded forward migration, db:check, original-row/
+column fingerprints and complete migration-history preservation. Existing product
+estimates remain unknown. Source and production were not written. This protected
+snapshot is never a fixture-submission target. Renew the production backup and
+managed PITR checks before rollout. First attempt timed out creating a local DB;
+read-only investigation confirmed no target existed, then a bounded local creation
+retry with a planned-target receipt succeeded. Other query/guard limits remain.
+
+Source82df0353 frontend42717479766 passes production checks, then pickup preflight
+completes physical handover/refresh but fails a stale punctuation assertion:
+actual Engine oil: 1 remaining versus the earlier question-mark separator. Update
+only that expected text; keep quantities, collector history, cleared-secret,
+write-count and overflow assertions. Remaining browser cases were not run. The
+native111 replay and15/53/11 cases retain their exact-source15a47eb4 scope; backend
+runtime/schema are unchanged. A new exact-source CI run remains required.
+
+Signed111-schema legacy bridge sourcecea4d2b3 is prepared locally, not deployed,
+compiled or accepted. Its invoice/policy/pickup compatibility still needs testing;
+the earlier102 bridge proof does not cover it. Full recovery/images/production
+release and original role/provider/device acceptance remain open. No capability,
+permission, business record or deployment changed.
+
+---
+
+## 9 November 23:05 UTC - corrected learning/native result
+
+Exact source15a47eb4 now has111-migration replay/db:check,15 reminder cases,53
+staged-payment/sourcing/pickup cases and11 learning cases passed. The learning
+recheck uses CI's test-only flags and explicit isolated-target confirmation; all
+restricted runtime logins are disabled afterward. Initial harness failures remain
+in the private receipts. No real provider or production data was used. Final
+82df0353 changes only inventory formatting/evidence; fresh exact-source CI remains
+required. Preserve this owned receipt note with the next source checkpoint rather
+than restarting active CI only to commit evidence. Whole goal remains active.
+
+---
+
+## 9 November 23:05 UTC - combined native proof; inventory formatting repaired
+
+Source15a47eb4 backend42715870417 and secrets42715870812 pass. Frontend42715870418
+passes1,547 units (12 existing skips), TypeScript and production compilation, then
+fails formatting in regenerated api-coverage.json/md. Format only those outputs;
+JSON semantics are verified unchanged. Its999 browser cases did not run. New exact-
+source CI is required; no publication or capability activation is claimed.
+
+The Git-filtered1,333-file canonical backend export matches committed15a47eb4.
+Fresh isolated111-migration replay/db:check and all15 reminder cases pass. The three
+staged-payment/sourcing/pickup suites pass53 cases. Learning initially has9 failures
+with its flags off; a separate retry is stopped by the missing explicit isolation
+confirmation (10 skipped, one pass). The corrected, test-only flagged retry is
+active. Guards/assertions remain unchanged; runtime login is disabled after each
+completed attempt. No production or protected-snapshot data is used for these tests.
+
+Both aliases still resolve to frontend5464e402/dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV at
+22:58 UTC. Backendc3c54414 remains ACTIVE with its retained digests and no pending
+rollout. The111-schema source still needs full populated restore, compatible API/
+worker/invoice/pickup recovery, packaged acceptance, fresh backup/PITR and exact-
+master gates. The102-schema bridge is not that proof. D17 remains active in the
+other worktree; its unfinished edits are preserved. Whole-audit actual-role,
+provider and physical-device acceptance remain open.
+
+---
+
+## 9 November 22:53 UTC - retain current Home and account focus repairs
+
+Combined audit source incorporates master3cf5d9cb, preserving the compact Home
+hero, phone spacing, account editor focus and all42 account browser cases. Both
+account-modal and sidebar-breakpoint projects remain. The cumulative matrix budget
+is35 minutes; individual assertions and deadlines are unchanged. The111 backend
+units,20 frontend units, types/lint and contracts apply before this final merge;
+exact combined-source CI and rendered acceptance remain required. No publication.
+
+---
+
+## 9 November 22:28 UTC - combined audit candidate; no publication
+
+Reconcile committed pickup/holding/staged-service source62815e7c with reminder
+source27c07434. Preserve its owner-set collection calendar: Monday to Saturday,
+public holidays included, after actual readiness and successful notification,
+including imported/custom parts. Do not reask these values. This source has111
+migrations; no previously applied migration is rewritten. The other worktree's
+unfinished supply-exception/refund edits are untouched and are not included.
+
+Merge service-request guidance as v35, keeping staged invoices, actual vehicle
+release, calendar and saved reminder boundaries. Existing eligibility and flags
+remain unchanged. Pickup CI42708988094 failed after3 preliminary passes because
+the customer test's CSRF fixture omits the mandatory response message; fix the
+fixture envelope while retaining one-time display, browser-storage, refresh and
+exact-write assertions. Clean malformed collection labels/punctuation. Combined
+rendered, database replay/restore, types and exact-source gates are pending.
+
+Reminder source27c07434 backend42708086011 and secrets42708086182 pass; frontend
+42708085978 ended at its25-minute cumulative limit after890 cases. Three-engine
+sidebar and320/768/1440 reminder cases pass; this is not a full matrix pass.
+Individual test deadlines/assertions are unchanged; the combined job now budgets
+35 minutes for its full matrix and55 minutes overall. The other committed source's backend42708988327 and
+secrets42708988374 pass; its full rendered matrix did not run after the early
+pickup failure. Neither independent set proves this combined source.
+
+A separately signed102-schema recovery sourceb4c4c505 passes four native read-only
+repository projections of synthetic NOTICE jobs; temporary read role removed.
+Its old capacity parser rejects custom reminder settings. It is neither packaged
+nor compatible proof for this111-schema candidate. Preserve its verified generated
+client separately; regenerate111 before combined checks. Renew all compatibility,
+populated restore, packaged image and exact-master gates for eventual release.
+
+Disk preflights continue to hold packaging and larger checks. A merge preview
+accidentally ran after a failed20.25GiB preflight; it made no branch/worktree change.
+The actual merge was gated on a successful fresh check at20.75GiB. No production
+records, grants, paid allocations, business settings, capability flags or deployment
+changed. The full original audit and operational/provider/role/device acceptance
+remain active; source integration is not launch readiness.
+
+Combined local verification: generated111 client;111 units in10 suites pass,
+465 OpenAPI paths validate and547 operations are inventoried. Initial merge units
+failed retrieval for service-request in all five audiences: the passage exceeded
+the existing8000-character allowance. Concise v35 wording preserves all12 steps,
+staged-payment and reminder conditions; the unchanged retrieval tests now pass.
+Both backend/frontend types, backend lint and scoped frontend lint pass.
+Rendered acceptance remains pending at this checkpoint. Page composition
+is retained; the pickup UI edit only corrects visible labels and punctuation.
+
+---
+
+## 9 November 22:00 UTC - reminder acceptance and recovery correction
+
+Candidate 31012924 passes backend42698964950 and secrets42698965156. Frontend
+42698965112 fails one of788 rendered cases (787 pass): the1440px reminder sidebar
+expands during a full-page capture without a user click. All1,526 units pass with
+12 existing skips; nine WebKit diagnostics and21 media preflights pass. Saved-items
+remove/Escape focus regressions pass in Chromium, Firefox and WebKit. These are
+synthetic workflows, not real-role or physical-device acceptance.
+
+The shared shell now retains the desktop collapse choice across mobile breakpoints;
+its independent mobile dialog still renders full navigation. The regression checks
+keyboard focus, mobile Escape, retained collapse and explicit expansion. Full-page
+capture and post-capture state assertions remain. The normal capacity fixture now
+returns canonical public capabilities instead of an unrelated outage. Rendered
+verification of these edits is pending; the native hosted parent diagnostic did
+not reproduce the capture reset in either healthy or unavailable capability state.
+
+A populated isolated restore passes100-to102 migration, db:check and original
+column/row/history preservation. It contains protected snapshot data and is never
+used for synthetic submissions. A separate read-only old-API probe on a synthetic
+database FAILS with Prisma P2023 on NOTICE_2. Previous worker-only recovery guidance
+is superseded: both compatible API and general worker must precede new NOTICE jobs
+and remain in recovery. The packaged compatibility bridge is not yet prepared.
+Its composition helper passes13 fixture cases only. Temporary probe role/container
+were removed. No production database, grant, capability or deployment changed.
+
+Current master6538f4b5 is reconciled, retaining authentication and payment/quotation
+modal repairs. At21:27 UTC both public aliases resolved to frontend5464e402
+(dpl_G5Yf7J6oBuHYConYENZrPLSVNHCV); backend remains9c219bc8/c3c54414. Do not promote
+the older held b362 frontend over the newer published work. C:20.97GiB passes the
+20GiB reserve but fails21.5GiB packaging headroom. No reviewed cleanup was performed.
+Exact-master CI, packaging, safe release and the complete original audit remain open.
+
+---
+
+## 9 November 21:03 UTC - canonical reminder proof and frontend regression follow-up
+
+PR41 source d05113f6 passes a Git-filtered 1,299-file backend export, fresh
+102-migration replay/db:check,14 reminder cases,121 other booking cases and11
+learning API cases. The first canonical domain run had133 passes/two failures
+because this global-queue suite ran after lifecycle fixtures; the final harness
+matches CI and runs it first without weakening assertions or clearing records.
+Earlier worktree migration bytes differed from Git's configured line endings;
+the guard stopped that claim. Applied migration files were not rewritten.
+
+Expiry PR34's frontend42692306583 failed five cases after501 passes: four footer
+clearance cases and one Firefox Saved items focus case. The newer footer repair
+is retained. A follow-up schedules collection focus after the modal and target
+collection commit, covering successful removal and Escape cancellation; rendered
+confirmation remains pending. Reminder messages now use explicit Nigeria time;
+a UTC/date-boundary integration case awaits final-source verification. Types and
+scoped lint pass; no publication or real provider/role/device acceptance is claimed.
+Packaging and the complete original audit requirements remain open.
+
+---
+
+## 9 November 20:39 UTC - configurable reminder source batch
+
+Branch codex/reminder-schedule-20261109 adds reviewed branch reminder settings with
+delegated 24h/2h/30m defaults, explicit none and saved appointment-policy scheduling.
+An expand-only 102nd migration retains legacy jobs/kinds. Isolated replay/db:check,
+135 booking regressions and 11 learning API cases pass; runtime login is disabled.
+Types, scoped frontend lint, five receipt/recovery units and final45 backend units
+pass. Rendered acceptance and exact-source CI remain pending. No publication or actual
+provider delivery is claimed. See docs/help-learn/REMINDER_SCHEDULE_20261109.md for
+failed attempts and recovery gates: compatible workers must precede new NOTICE
+creation; an old all-component recovery is insufficient.
+
+PR34 expiry head ccb2b196 separately passes backend42692306516 and secrets42692306480;
+frontend42692306583 is active. Its two-clock session fixture failure was corrected
+without weakening the database constraint. Schedule work does not cancel that run.
+Packaging remains held by the21.5GiB preflight. Product timing/full D13, D12/D14/D17,
+advanced D03 and remaining whole-audit role/provider/device acceptance stay open.
+
+---
+
+## 9 November 20:13 UTC - preserve concurrent Home and catalogue release work
+
+Reminder candidate incorporates master 9f9ee2f8: approved Home/support design,
+security modal geometry and published-catalogue compatibility. Preserve the
+following independent evidence histories; earlier reminder CI does not verify
+this combined source. Final exact-source checks and publication remain pending.
+No production deployment, record or capability was changed by this merge.
+
+---
+
+## 9 November 20:10 UTC - reminder expiry metadata verified in isolation
+
+New reminder notifications now store appointment time as their expiry, using
+existing inbox/push expiry controls. All 12 reminder/concurrency cases and db:check
+pass on the isolated 101-migration database; its restricted runtime login is
+disabled. Earlier 11 learning/API integration cases and 27 affected Help/retrieval
+units pass (overlapping coverage, not additive totals). No real provider, legacy
+backfill or production write is claimed. Final exact-source CI and release remain
+pending. Packaging preflight at20:08 UTC fails: C:21.45GiB versus21.5GiB required.
+The complete audit goal, configurable reminders and real-role acceptance stay open.
+
+---
+
+## 9 November 19:31 UTC - reminder candidate reconciles current media acceptance
+
+PR34 incorporates master f7bfbf52 and preserves its canonical hosted image URL
+fixes, profile/photo acceptance tests and expanded release matrix. Both evidence
+histories below are retained. The b362e9f8 held frontend remains an earlier
+candidate, not authority to overwrite the newer media fixes. Exact merged-head CI
+will supersede the first reminder-branch checks. No production mutation occurred.
+
+---
+
+## 9 November 19:27 UTC - delayed reminder guard candidate
+
+Independent implementation continues while packaging is held by disk reserve.
+Branch codex/reminder-expiry-20261109 (base master b362e9f8) adds a shared current-
+appointment check at reminder enqueue and notification provider delivery. Elapsed
+reminders cancel/terminate without changing booking status, attendance or capacity.
+Five focused units pass; scoped lint and formatting pass. New PostgreSQL regressions
+for delayed enqueue, expired provider retry, future delivery, terminal states and
+deduplication are wired into the existing isolated backend CI; not yet executed.
+Service-request v30 keeps its public eligibility and existing targets. Generated
+handbook corrects stale immediate-catch-up/physical-attendance wording. No schema,
+financial permission, reminder timing or production flag changes. See
+docs/help-learn/REMINDER_EXPIRY_20261109.md. Source types, integration/CI and release
+remain pending. The product-timing candidate is held; do not discard its verified
+export or READY frontend. Full configurable D15 and the original audit remain open.
+
+---
+
+## 9 November 19:14 UTC - exact master passes; held frontend accepted with limits
+
+Master b362e9f8 remains current remotely. All required workflows pass: frontend
+42674646758 (1,525 units, 12 existing skips; nine WebKit diagnostics; 574 production
+browser cases), backend 42674646943 and secrets 42674646239. The canonical backend
+export's 1,295 files/21,062,190 bytes were freshly compared with master's actual
+Git-filtered bytes in one batch; every file, including migration checksums, matches.
+
+New source's native schema probe and the three retained 9c219bc8 runtime images
+pass against the populated isolated 101-migration restore. Probes selected no
+business rows, used a read-only non-owner role and removed that role afterward.
+These are not the four new candidate packaged images or the ten packaged tests.
+Guarded build/schema/recovery helpers are prepared and syntax-check, not executed.
+
+Held production-environment frontend dpl_EnS5X45nMXyaGdY6TNMgHtvJzepY is READY
+from the checked master, without domain promotion. Seven actual held Edge fixture
+cases pass: responsive authoring, three save-recovery states and emulated touch.
+Four hosted synthetic public cases FAIL because product data loads on the server,
+where browser routing cannot supply their test-only IDs; they render unavailable.
+Do not count those as passes or change production data to make fixtures exist.
+All four pass in exact-master production CI with its isolated server fixture.
+Separately, the genuine public product passes read-only held checks at320/390/768/1440:
+unknown timing stays absent; checkout stays unavailable; no overflow/page errors/
+application writes; keyboard section links, mobile menu Escape/focus and scoped Axe
+pass. These are hosted fixtures/public reads, not real Admin roles or physical devices.
+
+Authenticated HTTP reaches the held app. Development OIDC is correctly refused
+for production; no Trusted Sources rule changed. A temporary candidate-only test
+link was used and revoked. The first link identifier appeared in a debug shape
+summary and was immediately revoked/replaced; replacement also revoked after tests.
+Fresh provider read confirms zero share links and both temporary browser access
+files are removed. Both public domains still point to dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb;
+backend c3c54414 and all four old component digests are unchanged, with no pending
+backend deployment. No production migration, price/stock edit or flag activation.
+
+Packaging remains held: C:20.76GiB fails21.5GiB required for1.5GiB expected growth.
+A review of34 exact old unshared project compilation cache outputs followed by
+bounded native Docker pruning reclaimed0B; images/containers unchanged. Dependency
+caches, source, database/volumes, backups and recovery images retained. Owner asked
+to free1GiB or identify a disposable folder; continue independent work while pending.
+Do not repeat local dev/browser combinations without their recorded10GiB budget.
+Next: four candidate images, packaged/recovery checks, renewed backup when its
+protected one-hour age expires, verified backend migration/rollout and promotion
+of this same held frontend. Entire original audit/D01-D17 scope remains active.
+
+Private receipts/scripts and safe screenshot results: TEMP/aat-attendance-20261104/
+release-product-timing-449d0ecc-20261109; handoff is in the parent folder. These
+continuity notes remain uncommitted pending the evidence/release closeout.
+
+---
+
+## 9 November 18:47 UTC - product timing merged; release held
+
+PR #32 merged to master b362e9f8b7ba6a2c22c55db859794a5c4716d405. Its full
+Git tree matches reviewed source 449d0ecc. Source-branch frontend 42669985402,
+backend 42669984697 and secrets 42669986094 pass. Frontend evidence: 1,525 unit
+tests pass (12 existing skips), nine repeated WebKit diagnostics and 574 production
+browser cases pass, including all eleven added timing/operator/touch cases.
+These are synthetic CI/browser checks, not live-role/provider/physical-device acceptance.
+
+Exact-master backend 42674646943 and secrets 42674646239 pass; frontend
+42674646758 remains in progress at 18:46 UTC. Observe it; do not restart it.
+The fresh production read-only backup and scoped firewall cleanup were verified.
+The populated isolated 100-to-101 migration rehearsal passes: original-column
+counts/hashes and full previous migration history preserved, new timing values
+remain null. Canonical filtered export is complete and reusable for the identical
+master tree. Production database/schema, prices, stock, permissions and flags
+remain unchanged. Historical managed restore proof is separate from this fresh
+logical restore rehearsal.
+
+Packaging has not started: C: 20.91 GiB fails the 21.5 GiB threshold for the
+four-image warm-cache build's 1.5 GiB growth budget. npm cache verification found
+no useful reclamation. No cache/image/profile/database deletion or pruning was
+performed. No local preview/browser is running. Retain current/rollback images.
+
+Next: exact-master frontend gate, safe space recovery, four candidate images and
+packaged/recovery probes, held frontend acceptance, renewed backup if its protected
+age limit expires, reviewed migration/rollout and both aliases. Recovery must
+retain the new migration-check image with old runtime images; old migration-check
+image knows only 100 migrations. Current frontend is deployment dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb
+at 160d3b7b; backend c3c54414 remains at 9c219bc8. Nothing from this batch is
+published. Full D13/order timing, D12/D14/D15/D17, advanced D03 and the original
+operational/provider/device acceptance remain. Do not mark the whole site ready.
+
+Private continuity: TEMP/aat-attendance-20261104/source-handoff-product-timing-20261109.json.
+This evidence update is intentionally uncommitted while exact-master CI runs.
+
+---
+
+---
+
+---
+
+---
 
 ### 10 November: pickup/holding release candidate and retained supply work
 
@@ -540,35 +1122,7 @@ The owner's separate 79-line Desktop hero edit is preserved.
 
 ## 10 November 01:00 UTC - repair confirmed live Services card stretching
 
-Public apex and www now identify deployment dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi,
-master580a1bb5. Backend remainsc3c54414 ACTIVE with no pending/in-progress rollout
-and zero temporary IP rules. Reconciled the master's auth-fixture isolation at
-65ef746e; preserve the full combined candidate and independent D17 work.
-
-Fresh public API/read-only Edge checks confirm no workbook/import/discount-provenance
-notes in the service descriptions and unchanged approved public prices. Catalogue
-and diagnostics imagery load at390/1440 without horizontal overflow. Anonymous
-401 responses are from /auth/session; no page runtime exception was found.
-
-Actual mobile rendering exposed a card-footer regression: horizontal flex plus a
-full-width action squeezed the price text into one-character lines, stretching the
-390px action to1045.34px and the first card to1437.38px. Stack price and action in
-the shared photographic card rules. Add price-before-action and44-96px action-height
-assertions to all nine existing Services discovery viewport cases.
-
-Exact candidate CSS, served through a local same-origin stylesheet response
-override with CSP preserved, passes320/360/390/430/768/1024/1280/1440/1920 checks:
-all36 links measure44px high; prices precede actions; no horizontal overflow.
-Search diagnostics, reload persistence, visible keyboard focus and Enter-to-detail
-also pass. Visually inspected public before390 and candidate after390/1440 captures.
-This is stylesheet-override evidence, not packaged or published acceptance.
-Affected CSS/test formatting and ESLint pass; all14 Services cases collect.
-Full exact-source hosted execution and publication remain required. Prepare this
-public correction as a separate release batch while retaining the larger backend
-candidate. No customer submission, protected record or provider payment was made.
-The initial live verifier waited on offscreen lazy images; corrected the harness
-to scroll images into view and use bounded loading checks. Its interrupted run is
-not a pass. Inline style injection was blocked by CSP; no CSP setting was changed.
+---
 
 ## 10 November 02:01 Lagos - vehicle CSP test correction and recovery evidence
 
@@ -841,6 +1395,81 @@ or remained at session verification; these are failed checks, not acceptance.
 Deployment protection and public aliases are unchanged. PR44 account focus retains
 40 compiled native passes; its final combined GitHub gate remains pending. The
 complete original goal and active backend dependencies are still open.
+
+## 10 November - saved-collection focus race found by full CI
+
+PR56 source 7b133943 finished Frontend run 42739997340 with 1,055 runtime
+passes and one WebKit failure. The failed case keeps an open vehicle-removal
+review bound to its original collection while the URL changes to products;
+after successful synthetic removal, the products tab is selected but unfocused.
+The notification retry cases pass. This is a failed release gate, not a pass.
+
+The close handler scheduled focus before React committed removal of the modal
+and enabled the tabs. Move this handoff into a post-commit effect, preserving
+the collection-bound mutation, refresh, session invalidation and opener recovery.
+Add the reverse-direction cancellation case and assert focus survives loaded
+content without any write. Exact-source compiled and three-engine acceptance
+remain required; no production submission or security change was made.
+
+## 10 November - dashboard coverage and mobile scrollbar regression
+
+Reconciled the successful b1222a11 runtime job's 1,035 numbered test results against
+the actual expanded dashboard quality index on 7b133943. Of 468 selected distinct
+cases, 154 are represented in that run; 314 are not established by it. Seven are
+the subsequently verified notification retry cases; three are intentionally gated
+real-provider cases. This is a coverage gap, not proof of missing implementation.
+See TEMP/allied-master-coverage-b1222a11/coverage-checkpoint.md and the collected
+case comparison. The optional artifact download timed out; completed job logs
+provide the case-level evidence without a retained archive.
+
+The next existing 18-case native Edge customer/sidebar/support-table batch passes
+17 cases and reproduces one failure: at 390x600, mobile navigation computes
+scrollbar-width:thin. The shared modal descendant rule overrides its established
+scrollbar-width:none. Preserve the requested sidebar treatment with a narrowly
+scoped modal-drawer exception in globals.css; scrolling/overflow stay unchanged.
+Add the assertion to the existing four-role/seven-size shared shell suite.
+
+The exact CSS correction passes 28/28 native Edge shared-shell cases at all seven
+requested viewport pairs and all four roles, with phone mobile/touch contexts.
+This is same-origin stylesheet-response override evidence with CSP retained,
+not a new compiled build. Source lint/format pass; compiled acceptance, integration
+and exact-master publication remain required. Baseline and prototype reports are
+in TEMP/allied-dashboard-index-7b133943. Do not count the failed baseline as a pass.
+
+The vehicle workstream published compatible b1222a11: both public aliases now
+identify READY dpl_EdMgppUipQ81msnEmHCef4jZxx6m; backend 2c40bd63 is ACTIVE with no
+pending rollout at the latest provider read. Its publication preflight reports
+102 migrations, matching four images and removed temporary operator access.
+Concurrent master e7681995 adds reviewed Parts work and must be preserved. PR56
+notification retry remains separate; its native 14 cases/backend/secrets pass and
+frontend 42739997340 finished with 1,055 passes and one WebKit saved-items
+focus failure. Investigate that regression before publication. Keep the full
+two-brief objective active.
+
+## 10 November - notification preview retry focus follow-up
+
+Current bounded item: notification preview error recovery. Protected integrated
+candidate b1222a11 reproduces focus falling to BODY after Try again replaces its
+button with loaded updates, in native Edge at 1280x720 and mobile/touch 320x720.
+Both failures are retained in TEMP/allied-customer-confirmation-20261110/
+notification-retry-held-report.json; no outgoing writes or page errors occurred.
+
+Move focus to the stable Close control in the retry event before clearing the
+error. Do not move focus again on response completion, so deliberate movement wins.
+Preserve requests, unread counts, destinations, role scope and dismissal safeguards.
+Extend the existing shared-modal matrix at all seven exact pairs, rotating Customer,
+Staff, Admin and Super Admin, through repeat failure, successful retry and pending
+cancellation. Add focus assertions to the existing empty-recovery unit case.
+New-source checks and compiled acceptance remain required before publication.
+
+The previous focus batch is merged at b1222a11; Backend 42736089322 and Secrets
+42736089238 pass while Frontend 42736089235 remains live. Its held candidate is
+dpl_GGEaLfn7hdq3cJk6x6KRtYugjwVQ. Both public aliases still serve dpl_EwTzDsgFUnBkUW6hfM64UeyrqcDi.
+The vehicle owner has a live browser-test process; preserve its compatible backend
+release work. Existing 55b96d50 packaged runtime checks pass 10/10, with no skipped
+cases; build receipt still says pushed=false/deployed=false. Do not rebuild merely
+because the frontend master differs. C: has roughly 20.7 GiB free, enough for bounded
+checks but not the 1.5 GiB packaging allowance. The full two-brief goal stays active.
 
 ## 10 November - customer confirmation recovery verified for integration
 
@@ -10915,18 +11544,18 @@ The current source still has 119 page templates. The existing route/role/state
 inventory and per-page index in UI_UX_QUALITY_REGISTER.md remain the checklist;
 this implementation adds the following ordered status overlay, not a second backlog:
 
-| Group | Scope                                                                          | Implementation / release status                                                                           |
-| ----- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt. |
-| 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt. |
-| 3     | Shop, filters, product, fitment                                                | Next: reference and read-only 390px baseline reviewed; preserve collection, fitment and timing uncertainty. |
-| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                            |
-| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                 |
-| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                               |
-| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                  |
-| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                             |
-| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                |
-| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                         |
+| Group | Scope                                                                          | Implementation / release status                                                                                                     |
+| ----- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Shared brand/header/footer/support and Home                                    | Live: 580a1bb5; compact Home/carousel correction verified on both aliases. See 10 November receipt.                                 |
+| 2     | Services, detail, existing request                                             | Live: 580a1bb5; catalogue/detail/request and nine viewport pairs verified. See 10 November receipt.                                 |
+| 3     | Shop, filters, product, fitment                                                | Held compiled candidate verified at nine sizes; full exact-master gates and compatible vehicle backend publication remain required. |
+| 4     | Vehicles, filters, detail, enquiries/inspection                                | Pending; no paid reservations.                                                                                                      |
+| 5     | Auth, recovery, verification, MFA, invitations                                 | Pending; only real existing auth methods.                                                                                           |
+| 6     | Remaining public/guest routes, About/Contact/Help/Search/Learn/Reviews/Privacy | Pending; keep capability restrictions and Help eligibility.                                                                         |
+| 7     | Customer shell, overview, vehicles/bookings/orders and details                 | Pending; real per-account data, isolated write fixtures.                                                                            |
+| 8     | Customer documents/payments/saved/support/notifications/profile/security       | Pending; independent grants and gated transactions preserved.                                                                       |
+| 9     | Workforce/Admin pages and nested records                                       | Pending; use existing per-page/permission index and distinct task layouts.                                                          |
+| 10    | Final platform consistency, missing sizes/states                               | Pending; 119 templates alone are 1,071 baseline viewport entries.                                                                   |
 
 Group 1 uses Nippo/Quicksand, existing palette, authentic logo and approved images.
 The approved editorial workshop/family/parts/showroom family replaces the old
@@ -11340,3 +11969,215 @@ all four remote/local branches remain. No protection rule or source/history was
 changed. The linked release/public-launch-20261022 branch, unique unmerged Services
 variants, active receipt branch and compatible recovery deployments are retained.
 Evidence: retirement-580a-review.json and the rejected native Git command output.
+
+## 10 November - Parts catalogue, product detail and fitment design in progress
+
+Start from master c3028cc1; public Home/Services remain source 580a1bb5 on both
+aliases. Inspected desktop/mobile Shop and product-detail references alongside
+their HTML, plus real public 1440/390 catalogue and 1440 detail. The current catalogue has
+one published product with no photo and unconfirmed fitment; preserve these facts.
+
+The Parts introduction now uses the approved editorial image as a full background,
+with breadcrumbs and a real browse link. Search comes before the existing vehicle/
+product modes. Inventory has a visible results heading, four desktop cards (three
+beside the retained advanced-filter sidebar), two on phones from 375px, and one on
+smaller phones. Single genuine results remain an appropriately sized single card.
+The detail overview places its real title, price and availability beside the gallery
+on desktop and follows a clear single-column phone flow. Missing photos remain
+compact; actual product photographs use contain framing. Narrow gallery controls
+wrap and use the existing in-place-carousel scroll exemption.
+
+Preserve all API/query/filter/fitment, stock, zero-price, timing-estimate, anonymous
+enquiry, account and checkout semantics. Reference OEM guarantees, fake inventory
+counts, VIN search, warehouse/collection claims and payment controls are excluded.
+The advanced desktop sidebar, real fitment choices and explanatory uncertainty are
+intentional departures to preserve useful existing features. Semantic guide IDs and
+labels remain; no Help definition, permission or capability publication changed.
+
+Fourteen production-build cases add nine exact-size search/category/stock/sort/
+detail/gallery/Back/reload journeys, pagination focus, failed-read recovery, zero/
+long/missing/doubled content, empty categories/unavailable vehicle choices and
+native gallery controls. Dedicated read-only loopback records support matching
+server/browser reads without affecting ordinary regression queries. All browser
+writes are rejected and fixture capability state is restored after each test.
+Compiled execution, visual comparison and all three exact-master gates are pending.
+No local build/install or Docker operation; reuse the existing dependency junction.
+Latest preflight: 21.22 GiB free, 0.25 GiB upload allowance above the 20 GiB reserve.
+
+Reconciled with master 7af6c51c without losing the approved vehicle-engine/features
+batch or the Services price/action wrapping repair. Both existing engine regression
+projects and the new Parts project remain in the complete matrix. Retain Parts
+checkpoint 64b37845c1ae807e49bea5ad73dd296eb6d849e6 until verified publication.
+The intervening engineDetails migration/backend publication belongs to its separate
+approved batch. Do not roll it out incidentally or promote an incompatible frontend;
+recheck its actual backend state before this group's eventual public promotion.
+
+First compiled candidate 9e179d4a is READY as dpl_FEJWw8AZBdzop4JH2h5mLywW72hp,
+held without public aliases. Real product/catalogue reads and 1440/390 screenshots
+load without page errors or horizontal overflow. These initial renders expose a
+dim editorial caption, an unnecessary empty finder row in product mode and a phone
+category control using only half its available row. Source follow-up moves the
+caption above the scrim, removes the empty track, gives category controls full
+width and leaves a phone heading lane beside support. Omit the redundant mobile
+browse link because search is immediately below the introduction. Product title/
+price precede section links on phones; desktop section links follow the overview.
+Rebuild and compare the repaired candidate; do not count these source changes as
+compiled acceptance. The source branch's existing CI 42735947021 is still running.
+
+All 14 Parts cases passed on compiled 9e179d4a, including the nine sizes, filter/
+history/gallery flows, recovery and native no-jump control case. The overall run
+42735947021 was cancelled when the visual repair source advanced; it is not a
+full release pass. Its preserved screenshots and logs remain partial evidence.
+
+Manual card capture exposed an undefined colour token: View product had white
+text on a transparent background, despite the generic automated scan reporting
+no violation. Correct the new styles to existing --action-primary and --link
+and add a rendered foreground/background contrast assertion for the card action
+at every size. Rebuild and rerun the complete matrix. This defect was confined
+to held candidates; public aliases were not changed by this Parts task.
+
+## 10 November - Parts compiled candidate verified; publication still held
+
+Compiled source 102b10f48e077bd92f93d9fc5586b63e1521601f is READY as
+dpl_71x8HzztbJPN1Z2BHrG6WNU6KsQd, with no public domains assigned. The repaired
+caption, empty finder track, full-width phone category and existing action/link
+colour tokens are present in the build. View product is a visible 44px-or-taller
+white-on-red action at all nine exact requested viewport pairs. The catalogue and
+real product detail fit all nine sizes without horizontal overflow. Product-card
+navigation was explicitly awaited through the detail URL and main heading before
+counting the product checks. An earlier observation timed out and an initial
+capture read stale navigation; those attempts are not acceptance evidence.
+
+Read-only Edge 157.0.4341.42 passes combined search/category/in-stock/price sort,
+product/detail/Back and refresh at 390 and 1440. Search is visible on the first
+phone screen. A transient 320px public product read displayed its existing
+unavailable state; Try again recovered the actual product without losing context.
+Mobile navigation Escape restores focus and Compatibility moves focus to its
+section. Scoped main/footer Axe A/AA at 390/1440 on both templates finds no
+violations. No page exception or business write was observed. Real inventory still
+has one product, no photograph and unconfirmed fitment; no sample content was added.
+
+Reference comparison: (1) photo-led introduction and high-contrast copy retained,
+using the approved editorial image instead of an unsupported warehouse claim;
+(2) Allied Nippo/Quicksand and authentic logo replace the export's broken logo;
+(3) white cards, clear prices and red actions follow the reference, with four
+large-screen columns and two phone columns when records exist; (4) photo-present
+detail uses the gallery/identity split while missing photos remain compact;
+(5) small screens reflow controls and preserve the genuine vehicle/fitment modes.
+The advanced desktop sidebar, explanatory fitment uncertainty, natural contain
+framing and enquiry-only actions are intentional functional/truthful departures.
+The earlier 9e179d4a isolated photo/card screenshots are partial reference evidence;
+latest compiled multi-record/gallery acceptance and complete master gates remain
+required. Physical devices, branded Safari, full screen-reader and real-role or
+provider delivery acceptance have not been established.
+
+Evidence: TEMP/aat-stitch-implementation-20261109/parts-readable-browser.json and
+parts-readable-{390,1440}.png, product-readable-{390,1440}.png. Latest branch
+backend safety 42740057193 and secrets 42740057197 pass; frontend 42740057295 has
+passed production checks and is running its browser matrix. These branch results
+do not replace the required three successful exact-master gates before promotion.
+
+The production backend is still c3c54414 ACTIVE at the 02:10:50 UTC GET-only check,
+with no pending rollout. Eight managed snapshots remain available; the retained
+strict-TLS populated restore receipt is 21 October, not a fresh rehearsal in this
+task. The independently approved vehicle engineDetails backend publication remains
+a compatibility prerequisite for the combined master frontend. Do not publish that
+field against the older API or deploy its migration incidentally for this design.
+Home/Services source 580a1bb5 remains live on both aliases. Groups 3-10 stay open.
+No local build/install or Docker operation. C: 20.59 GiB passed the bounded 0.05
+GiB browser preflight; preserve the 20 GiB reserve and recheck before more writes.
+
+The 102b10f4 run passed 13 Parts cases and failed the 390px full-main Axe scan
+after lightbox Escape. The retained trace identifies Collection's 44px target
+partly under the sticky header at the gallery opener's restored scroll position
+(22.3px exposed). This was not the card contrast assertion. Preserve the complete
+Axe rule set and gallery focus assertions; bring the section navigation fully into
+view to verify every link is at least 44px high and receives its centre hit, then
+position the overview at its start for the full-page scan and reference capture.
+No application or sticky-header rule changes. Final focused and full master
+execution remain required; the cancelled overall run is not a pass. Its 1,538
+units, 9 WebKit and 21 media diagnostics passed. The integrated matrix has 1,049
+cases. Evidence: parts-readable-ci-evidence.json and its 390 error-context receipt.
+
+## 10 November - Parts integrated; concurrent vehicle publication reconciled
+
+PR55 merged at master e7681995. Its held production-environment frontend is
+dpl_4hAPGMeQyG5cJYKKVEb8q8JGJCr7; it has not been promoted. During the upload,
+the existing release guard detected a separate authorised publication and stopped.
+Read-only reconciliation identifies both public aliases at dpl_EdMgppUipQ81msnEmHCef4jZxx6m,
+source b1222a11, and backend 2c40bd63-b8a7-4a45-9429-4e03734e581c ACTIVE. Preserve
+that release as the current compatible recovery baseline. Parts made no alias,
+backend, migration, grant or business-data change.
+
+All four active image digests match the clean b1222a11 build/release receipts.
+Backend source/schema/package files are unchanged between b1222a11 and e7681995.
+The separate batch's verified production preflight records 102 migrations, matching
+checksums, strict TLS and runtime least privilege. Its 02:08 UTC verified backup
+matches the separate populated restore: 100-to-102 guarded forward migration,
+original-column counts/hashes and prior successful/rolled-back history preserved,
+with no production write by the restore. Eight managed snapshots remain available.
+This is a read of the other authorised batch's actual receipts, not a claim that
+Parts performed a new migration or restore. Evidence: parts-backend-concurrent.json
+and parts-backend-compatibility.json under the existing task TEMP directory.
+The vehicle backend compatibility hold is resolved; final Parts gates remain.
+
+The exact e7681995 held candidate passes all nine real catalogue/detail viewport
+pairs against the new backend with no horizontal overflow, page error or business
+write. Source/runtime is identical to compiled 102b10f4; only verification records
+and the complete-target scan setup differ. Final master frontend run 42743078645
+passed its build and units but failed formatting of this newly appended quality
+record; browser stages did not run. Format the record, retain the strengthened
+scan and rerun all three gates on the resulting exact master. Do not publish the
+failed commit or describe it as a complete frontend pass.
+
+## 10 November - close the photo-present overview gap before publication
+
+The retained 102b10f4 multi-photo CI screenshot exposes a blank band between the
+right-side product identity and price panels. The gallery spans two auto-sized
+rows; surplus height was distributed into both tracks while the panels align to
+their starts. Use a min-content identity track and let the second track absorb
+the taller gallery. Reset rows on the phone's single-column flow. Add an assertion
+to the existing desktop product journeys that identity and price share their edge.
+
+A bounded same-origin stylesheet override on the held e768 application, with a
+clearly synthetic 750px gallery height and unchanged real product data, measures
+zero identity/price gap at 1440 and 1024 and no overflow at 390. CSP remains intact.
+This is a geometry diagnostic, not packaged photo-present acceptance; final CI
+records must still verify actual multi-photo fixtures and all complete gates.
+Evidence: parts-grid-geometry-diagnostic.json. The earlier matcher omitted the
+stylesheet query and did not apply; that attempt is excluded. Application data,
+permissions, timing and enquiry behaviour are unchanged. Public remains b1222a11;
+source 2537650d's checked-format gate is superseded by this necessary visual repair.
+
+## 13 November - resume Parts acceptance on current master
+
+Revalidated the saved work against current providers and source. Both public aliases
+still identify dpl_EdMgppUipQ81msnEmHCef4jZxx6m, source b1222a11. Backend deployment
+2c40bd63-b8a7-4a45-9429-4e03734e581c remains ACTIVE with the same four image digests
+and no pending rollout. Preserve that release and all compatible recovery resources.
+The prior Parts master 103fd467 frontend was cancelled and its backend gate failed
+an isolated session-expiry fixture; neither is a release pass. Current master65f14086
+contains its Parts correction plus the approved dashboard, collection/reminder,
+payment and scoped People work. Fast-forwarded the existing clean design worktree
+without replacing those changes or creating another dependency installation.
+
+Current master backend safety42820223736 and secrets42820223809 pass. Frontend
+42820223870 passes 1,573 units (12 conditional skips), production checks, WebKit,
+media and pickup/sourcing preflight, then reports1,147/1,150 browser passes. All14
+Parts cases pass, including the repaired desktop title/price adjacency, nine sizes,
+contrast, full overview Axe, fitment/history/recovery and native no-jump gallery.
+The three failures are the same new saved-navigation case in Chromium, Firefox
+and WebKit: its first locator asks for a removal label the application does not
+render. Match the established exact accessible name, Remove Engine oil filter
+from favourites. Preserve every dialog, URL, selected collection, focus and no-write
+assertion; no application behaviour or permission is changed by this fixture repair.
+Scoped formatting/lint pass. Rendered focused acceptance and all three final-master
+gates remain required before publication.
+
+The current master has112 migration directories while the active backend release
+has102. The ten newer migrations and their collection/payment/workforce rollout
+belong to separate approved batches. This visual implementation does not deploy
+them incidentally. Verify compatibility and actual provider state again before
+promoting the combined frontend. Parts and Groups4-10 remain open until their
+verified public receipts exist. C: passed25.51GiB with a bounded0.25GiB allowance;
+reuse warm Next16.4.3/Playwright1.63.0 dependencies and existing fixture mechanisms.

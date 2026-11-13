@@ -80,7 +80,7 @@ it("keeps versioned guidance truthful and permission gated", () => {
   const customer = learningArticles.find((row) => row.id === "service-request")!;
   const finance = learningArticles.find((row) => row.id === "financial-policy-work")!;
   expect([customer.version, customer.gate, customer.steps.length]).toEqual([
-    34,
+    35,
     "public",
     12,
   ]);

@@ -78,7 +78,7 @@ it("keeps pickup instructions behind current audience eligibility", async () => 
   const staff = learningArticles.find(
     (article) => article.id === "staff-parts-collection",
   )!;
-  expect([customer.version, staff.version]).toEqual([2, 2]);
+  expect([customer.version, staff.version]).toEqual([3, 2]);
   expect(learningEligible(publicLearningAccess, staff.gate)).toBe(false);
   expect(
     learningEligible(

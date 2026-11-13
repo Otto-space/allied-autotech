@@ -401,7 +401,7 @@ function PickupPanel({
             <div className={styles.secret}>
               <h3>Collection holding period</h3>
               <p>
-                Five collection days, Monday-Saturday, after readiness and successful
+                Five collection days, Monday to Saturday, after readiness and successful
                 notification. Public holidays count. The same rule applies to
                 imported/custom parts.
               </p>
@@ -752,7 +752,7 @@ function PickupPanel({
             <ul>
               {summary.handovers.map((row) => (
                 <li key={row.id}>
-                  {formatBusinessDate(row.createdAt)} - {row.collectorName}
+                  {formatBusinessDate(row.createdAt)}: {row.collectorName}
                   <ul>
                     {row.lines.map((line) => (
                       <li key={line.orderItemId}>

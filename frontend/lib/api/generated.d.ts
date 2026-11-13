@@ -130067,7 +130067,7 @@ export interface operations {
                      *             "resourceId": "00000000-0000-4000-8000-000000000001",
                      *             "message": "synthetic-message",
                      *             "createdAt": "2030-01-15T10:00:00.000Z",
-                     *             "resolvedAt": "2030-01-15T10:00:00.000Z",
+                     *             "resolvedAt": null,
                      *             "resolvedByUserId": "00000000-0000-4000-8000-000000000001"
                      *           }
                      *         ]
@@ -133938,7 +133938,7 @@ export interface operations {
                      *         },
                      *         "delivery": {
                      *           "enabled": false,
-                     *           "policyVersion": "synthetic-policyversion",
+                     *           "policyVersion": null,
                      *           "zones": [
                      *             {
                      *               "id": "synthetic-id",
@@ -134200,7 +134200,8 @@ export interface operations {
                      *         "booking": {
                      *           "confirmation": "STAFF_REVIEW",
                      *           "cancellationFeeKobo": "0",
-                     *           "reminderMinutes": 60
+                     *           "reminderMinutes": null,
+                     *           "reminderTiming": "APPOINTMENT_POLICY"
                      *         },
                      *         "marketing": {
                      *           "enabled": false
@@ -134299,11 +134300,13 @@ export interface operations {
                                  * @enum {string}
                                  */
                                 cancellationFeeKobo: "0";
+                                /** @description Reminder Minutes validated by this operation's strict request contract. */
+                                reminderMinutes: null;
                                 /**
-                                 * @description Reminder Minutes validated by this operation's strict request contract.
-                                 * @enum {number}
+                                 * @description Reminder Timing validated by this operation's strict request contract.
+                                 * @enum {string}
                                  */
-                                reminderMinutes: 60;
+                                reminderTiming: "APPOINTMENT_POLICY";
                             };
                             /** @description Marketing validated by this operation's strict request contract. */
                             marketing: {
@@ -139282,6 +139285,8 @@ export interface operations {
                         dailyLimit: number;
                         /** @description No Show Grace Minutes validated by this operation's strict request contract. */
                         noShowGraceMinutes?: number;
+                        /** @description Reminder Minutes validated by this operation's strict request contract. */
+                        reminderMinutes?: number[];
                         /** @description Opening Days validated by this operation's strict request contract. */
                         openingDays: number[];
                         /**
@@ -152594,6 +152599,13 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Responsibility-based workspace: directory",
                      *       "data": {
+                     *         "managementBranches": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name",
+                     *             "isActive": true
+                     *           }
+                     *         ],
                      *         "items": [
                      *           {
                      *             "userId": "00000000-0000-4000-8000-000000000001",
@@ -152645,6 +152657,18 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Management Branches validated by this operation's strict request contract. */
+                            managementBranches?: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                isActive: boolean;
+                            }[];
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
                                 /**
@@ -169286,6 +169310,16 @@ export interface operations {
                      *       "data": {
                      *         "userId": "00000000-0000-4000-8000-000000000001",
                      *         "accountLabel": "synthetic-accountlabel",
+                     *         "identity": {
+                     *           "role": "STAFF",
+                     *           "status": "ACTIVE",
+                     *           "verified": true,
+                     *           "accountBranch": {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name",
+                     *             "isActive": true
+                     *           }
+                     *         },
                      *         "branches": [
                      *           {
                      *             "id": "00000000-0000-4000-8000-000000000001",
@@ -169395,6 +169429,33 @@ export interface operations {
                             userId: string;
                             /** @description Account Label validated by this operation's strict request contract. */
                             accountLabel: string;
+                            /** @description Identity validated by this operation's strict request contract. */
+                            identity: {
+                                /**
+                                 * @description Role validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                role: "STAFF" | "ADMIN" | "SUPER_ADMIN";
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
+                                /** @description Verified validated by this operation's strict request contract. */
+                                verified: boolean;
+                                /** @description Account Branch validated by this operation's strict request contract. */
+                                accountBranch: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                    /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                    isActive: boolean;
+                                } | null;
+                            };
                             /** @description Branches validated by this operation's strict request contract. */
                             branches: {
                                 /**

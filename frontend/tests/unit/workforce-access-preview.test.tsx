@@ -138,6 +138,42 @@ beforeEach(() => {
   state.resource = { data: record(), loading: false, refreshing: false };
 });
 afterEach(cleanup);
+it("keeps the selected person's current identity above access editing and clears it during uncertainty", () => {
+  const account = record();
+  state.resource = { data: account, loading: false, refreshing: false };
+  const view = render(<WorkforceAccessPanel userId={account.userId} personPage />);
+  expect(screen.getByRole("heading", { level: 1, name: "Ada Okoro" })).toBeTruthy();
+  expect(screen.getByText("Account level", { exact: true })).toBeTruthy();
+  expect(screen.getByText("Account branch", { exact: true })).toBeTruthy();
+  expect(screen.getByText("Active", { exact: true })).toBeTruthy();
+  state.resource = { data: account, loading: false, refreshing: true };
+  view.rerender(<WorkforceAccessPanel userId={account.userId} personPage />);
+  expect(screen.queryByRole("heading", { level: 1, name: "Ada Okoro" })).toBeNull();
+  expect(screen.getByRole("heading", { level: 1, name: "Person" })).toBeTruthy();
+  state.resource = {
+    data: account,
+    loading: false,
+    refreshError: "Current access unavailable",
+  };
+  view.rerender(<WorkforceAccessPanel userId={account.userId} personPage />);
+  expect(screen.queryByRole("heading", { level: 1, name: "Ada Okoro" })).toBeNull();
+  expect(screen.getByText(/Person details are unavailable/)).toBeTruthy();
+});
+it("does not infer identity facts when a compatible older response omits them", () => {
+  const account = record();
+  delete account.identity;
+  state.resource = {
+    data: parseWorkforceAccount(account),
+    loading: false,
+    refreshing: false,
+  };
+  render(<WorkforceAccessPanel userId={account.userId} personPage />);
+  expect(screen.getByRole("heading", { level: 1, name: "Ada Okoro" })).toBeTruthy();
+  expect(
+    screen.getByText(/Account details are unavailable from this response/),
+  ).toBeTruthy();
+  expect(screen.queryByText("Active", { exact: true })).toBeNull();
+});
 function submit() {
   render(<WorkforceAccessPanel userId={record().userId} />);
   fireEvent.click(screen.getByText("Assign responsibility", { exact: true }));
@@ -383,10 +419,12 @@ it("shows scope and retained source explanations without calling a responsibilit
   expect(
     screen.getByRole("region", { name: "Responsibility access change" }),
   ).toBeTruthy();
-  expect(screen.getByText(/Other grant sources stay private/)).toBeTruthy();
+  expect(screen.getByText(/Other access sources stay private/)).toBeTruthy();
   expect(screen.getByText(/supplies no access before it starts/)).toBeTruthy();
   fireEvent.click(screen.getByText("Access retained (1)", { exact: true }));
-  expect(screen.getByText("Supplied by: Another active responsibility.")).toBeTruthy();
+  expect(
+    screen.getByText("Why this access is available: Another active responsibility."),
+  ).toBeTruthy();
 });
 it("rejects a fabricated current grant source, globalised branch and preview context", () => {
   const r = record(),
@@ -479,7 +517,7 @@ it("states the inactive and account-baseline boundaries beside the current break
   render(<WorkforceEffectiveAccess value={value} />);
   expect(screen.getByText(/while inactive or unverified/)).toBeTruthy();
   expect(
-    screen.getByText(/Account baseline and separately granted permissions/),
+    screen.getByText(/account-level permissions are not itemized here/),
   ).toBeTruthy();
   expect(screen.getByText("No currently active responsibility grants.")).toBeTruthy();
 });

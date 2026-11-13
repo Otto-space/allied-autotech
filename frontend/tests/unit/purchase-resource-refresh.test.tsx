@@ -4,13 +4,19 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, it, expect, vi } from "vitest";
 import { usePurchaseResource } from "../../lib/purchase/resource";
 const { request } = vi.hoisted(() => ({ request: vi.fn() }));
-vi.mock("../../lib/purchase/client", () => ({ purchaseRequest: request }));
+vi.mock("../../lib/purchase/client", () => ({
+  purchaseRequest: request,
+  subscribePurchaseAccess: () => () => {},
+}));
 const parse = (value: unknown) => String(value);
 let root: Root | undefined, container: HTMLDivElement;
 function Probe({ path, retain }: { path: string; retain: boolean }) {
-  const resource = usePurchaseResource(path, parse, { retainWhileRefreshing: retain });
+  const resource = usePurchaseResource(path, parse, { revalidateOnFocus: retain });
   return (
-    <button disabled={resource.loading} data-failed={resource.failed}>
+    <button
+      disabled={resource.loading || resource.refreshing}
+      data-failed={resource.failed}
+    >
       {resource.data ?? "empty"}
     </button>
   );

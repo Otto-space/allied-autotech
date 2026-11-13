@@ -33,6 +33,7 @@ import {
 } from "./staff-change-coordinator";
 import "./workforce-access-panel.css";
 import { WorkforceEffectiveAccess } from "./workforce-effective-access";
+import { WorkforcePersonHeader } from "./workforce-person-header";
 import {
   parseWorkforceAccessPreview,
   type WorkforceAccessPreview,
@@ -93,19 +94,32 @@ function PasswordProof({ prefix }: { prefix: string }) {
     </div>
   );
 }
-export function WorkforceAccessPanel({ userId }: { userId: string }) {
+export function WorkforceAccessPanel({
+  userId,
+  personPage = false,
+}: {
+  userId: string;
+  personPage?: boolean;
+}) {
   const coordinator = useStaffChangeCoordinator();
   const session = useAccountSession();
   return coordinator ? (
     <WorkforcePanel
       key={`${session?.id}:${session?.user.id}:${session?.user.role}:${userId}`}
       userId={userId}
+      personPage={personPage}
     />
   ) : (
-    <StandaloneWorkforce userId={userId} />
+    <StandaloneWorkforce userId={userId} personPage={personPage} />
   );
 }
-function StandaloneWorkforce({ userId }: { userId: string }) {
+function StandaloneWorkforce({
+  userId,
+  personPage,
+}: {
+  userId: string;
+  personPage: boolean;
+}) {
   const session = useAccountSession(),
     own = useOwnStaffPermissions();
   const allowed =
@@ -120,6 +134,7 @@ function StandaloneWorkforce({ userId }: { userId: string }) {
   if (!allowed || !session || !validTarget)
     return (
       <section className="detail-section">
+        {personPage && <h1>Person</h1>}
         <Feedback
           message={
             own.error ||
@@ -156,13 +171,14 @@ function StandaloneWorkforce({ userId }: { userId: string }) {
           <WorkforcePanel
             key={`${session.id}:${userId}:${change.epoch}`}
             userId={userId}
+            personPage={personPage}
           />
         </>
       )}
     </StaffChangeCoordinator>
   );
 }
-function WorkforcePanel({ userId }: { userId: string }) {
+function WorkforcePanel({ userId, personPage }: { userId: string; personPage: boolean }) {
   const coordinator = useStaffChangeCoordinator()!,
     session = useAccountSession();
   const parse = useCallback(
@@ -379,6 +395,12 @@ function WorkforcePanel({ userId }: { userId: string }) {
       className="detail-section workforce-panel"
       aria-labelledby="workforce-access-title"
     >
+      {personPage && (
+        <WorkforcePersonHeader
+          account={!error && !busy ? data : undefined}
+          unavailable={!!error}
+        />
+      )}
       <div className="wf-heading">
         <h2 id="workforce-access-title">Responsibilities & temporary cover</h2>
         <button

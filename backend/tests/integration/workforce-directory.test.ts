@@ -93,6 +93,37 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         (await read(f.scopedAdmin, { branchId: f.other.id })).body.data.items,
       ).toEqual([]);
     });
+    it("returns only permitted person identity fields and denies copied out-of-scope references", async () => {
+      const directory = await read(f.scopedAdmin);
+      expect(directory.body.data.managementBranches).toEqual([
+        { id: f.home.id, name: f.home.name, isActive: true },
+      ]);
+      const inspect = (actor: { headers: Record<string, string> }, userId: string) =>
+        request(app).get(`/api/v1/admin/workforce/accounts/${userId}`).set(actor.headers);
+      for (const actor of [owner, f.scopedAdmin]) {
+        const r = await inspect(actor, f.care.user.id);
+        expect(r.status).toBe(200);
+        expect(r.body.data.accountLabel).toBe("Ada Scope");
+        expect(r.body.data.identity).toEqual({
+          role: "STAFF",
+          status: "ACTIVE",
+          verified: true,
+          accountBranch: { id: f.home.id, name: f.home.name, isActive: true },
+        });
+        expect(Object.keys(r.body.data.identity).sort()).toEqual([
+          "accountBranch",
+          "role",
+          "status",
+          "verified",
+        ]);
+        expect(r.body.data).not.toHaveProperty("passwordHash");
+        expect(r.body.data).not.toHaveProperty("phone");
+      }
+      expect((await inspect(f.scopedAdmin, foreign.user.id)).status).toBe(403);
+      expect((await inspect(f.care, f.care.user.id)).status).toBe(403);
+      expect((await inspect(f.scopedAdmin, f.customer.user.id)).status).toBe(404);
+      expect((await inspect(f.scopedAdmin, f.owner.id)).status).toBe(404);
+    });
     it("does not expose customers, expired/future/revoked responsibilities or invalid assignment scopes", async () => {
       expect((await read(owner, { q: f.customer.user.email })).body.data.items).toEqual(
         [],

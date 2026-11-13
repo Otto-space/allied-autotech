@@ -8,6 +8,38 @@ import {
   learningGuides,
 } from "../../src/modules/learning/learning.content.js";
 
+it("versions the People explanation without widening access or treating partial checks as complete", () => {
+  const article = learningArticles.find((item) => item.id === "access-review")!;
+  expect(article).toMatchObject({
+    version: 5,
+    gate: "access",
+    href: "/admin/workforce/access",
+    reviewedAt: "2026-11-10",
+  });
+  expect(article.steps.join(" ")).toContain("select View person");
+  expect(article.steps.join(" ")).toContain("partial summary");
+  expect(article.steps.join(" ")).toContain(
+    "An unavailable check does not mean no access",
+  );
+  for (const role of ["PUBLIC", "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"] as const) {
+    const access = {
+      ...publicLearningAccess,
+      role,
+      verified: true,
+      managed: true,
+      canManage: role === "SUPER_ADMIN",
+    };
+    expect(learningEligible(access, article.gate)).toBe(role === "SUPER_ADMIN");
+    expect(
+      learningEligible(
+        { ...access, canManage: ["ADMIN", "SUPER_ADMIN"].includes(role) },
+        article.gate,
+      ),
+    ).toBe(["ADMIN", "SUPER_ADMIN"].includes(role));
+    expect(learningEligible({ ...access, verified: false }, article.gate)).toBe(false);
+  }
+});
+
 it("keeps product estimates in the administrator audience without collection authority", () => {
   const item = learningArticles.find((article) => article.id === "product-timing")!;
   expect(item.version).toBe(1);
@@ -106,7 +138,7 @@ it("versions guest refund handoff guidance while preserving separate financial a
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(34);
+  expect(article.version).toBe(35);
   expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
   expect(article.steps.join(" ")).toContain("wait for the current availability check");
   expect(article.steps.join(" ")).toContain(
@@ -229,7 +261,7 @@ it("versions saved financial breakdown guidance without expanding its independen
 
 it("explains recorded-start cancellation and missed reminder boundaries without inventing a cutoff", () => {
   const article = learningArticles.find((value) => value.id === "service-request")!;
-  expect(article.version).toBe(34);
+  expect(article.version).toBe(35);
   const text = article.steps.join(" ");
   expect(text).toContain("only before work starts");
   expect(text).toContain("older status still says Confirmed");
@@ -238,7 +270,7 @@ it("explains recorded-start cancellation and missed reminder boundaries without 
 
 it("explains resource-aware offers without promising a reservation or hiding preferred-time requests", () => {
   const article = learningArticles.find((value) => value.id === "service-request")!;
-  expect(article.version).toBe(34);
+  expect(article.version).toBe(35);
   expect(article.gate).toBe("public");
   const text = article.steps.join(" ");
   for (const phrase of [

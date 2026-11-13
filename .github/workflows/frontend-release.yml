@@ -27,10 +27,10 @@ jobs:
     runs-on: ubuntu-latest
     # One production build, followed by the existing Chromium suite and the
     # bounded Firefox/WebKit responsive matrix. The fixture API is serial.
-    # The exact 984-case serial matrix reached 865 passes in 30 minutes on
-    # dab976c7 before the step timeout, with no assertion failures. Keep every
-    # test and allow setup, the bounded full matrix and evidence upload.
-    timeout-minutes: 55
+    # The 1,018-case matrix took 34.7 minutes. Vehicle and confirmation suites
+    # bring collection to 1,111 cases; retain the serial fixture and all assertions.
+    # Allow 45 minutes for that matrix plus build, diagnostics and artifact upload.
+    timeout-minutes: 65
     defaults:
       run:
         working-directory: frontend
@@ -76,11 +76,23 @@ jobs:
       - name: Verify order sourcing review and recovery before the full matrix
         timeout-minutes: 3
         run: npx --no-install playwright test order-timing.spec.ts order-pickup.spec.ts order-supply-concerns.spec.ts --config playwright.runtime.config.ts --project=runtime --max-failures=1
+      - name: Preserve pickup and sourcing acceptance captures
+        # The later full Playwright run clears its output directory.
+        uses: actions/upload-artifact@v5
+        timeout-minutes: 2
+        with:
+          name: pickup-sourcing-browser
+          path: |
+            frontend/test-results/runtime-capabilities/order-pickup-*/
+            frontend/test-results/runtime-capabilities/order-timing-*/
+            frontend/test-results/runtime-capabilities/order-supply-concerns-*/
+          retention-days: 7
+          if-no-files-found: error
       - name: Verify independent runtime availability in the production build
-        # Run every case with unchanged per-test limits and assertions.
-        # The measured serial run needs more than 30 minutes. A step timeout
-        # leaves the job alive to upload its synthetic evidence.
-        timeout-minutes: 40
+        # A step timeout leaves the job alive to upload its synthetic evidence.
+        # The 915-case source reached case 890 at the old 25-minute ceiling.
+        # Allow the combined matrix to finish; individual test limits are unchanged.
+        timeout-minutes: 45
         run: npx --no-install playwright test --config playwright.runtime.config.ts --max-failures=5
       - name: Preserve synthetic browser evidence
         if: ${{ always() }}

@@ -165515,7 +165515,7 @@
                         "resourceId": "00000000-0000-4000-8000-000000000001",
                         "message": "synthetic-message",
                         "createdAt": "2030-01-15T10:00:00.000Z",
-                        "resolvedAt": "2030-01-15T10:00:00.000Z",
+                        "resolvedAt": null,
                         "resolvedByUserId": "00000000-0000-4000-8000-000000000001"
                       }
                     ]
@@ -171501,7 +171501,7 @@
                     },
                     "delivery": {
                       "enabled": false,
-                      "policyVersion": "synthetic-policyversion",
+                      "policyVersion": null,
                       "zones": [
                         {
                           "id": "synthetic-id",
@@ -171812,17 +171812,22 @@
                               "description": "Cancellation Fee Kobo validated by this operation's strict request contract."
                             },
                             "reminderMinutes": {
-                              "type": "number",
-                              "enum": [
-                                60
-                              ],
+                              "type": "null",
                               "description": "Reminder Minutes validated by this operation's strict request contract."
+                            },
+                            "reminderTiming": {
+                              "type": "string",
+                              "enum": [
+                                "APPOINTMENT_POLICY"
+                              ],
+                              "description": "Reminder Timing validated by this operation's strict request contract."
                             }
                           },
                           "required": [
                             "confirmation",
                             "cancellationFeeKobo",
-                            "reminderMinutes"
+                            "reminderMinutes",
+                            "reminderTiming"
                           ],
                           "description": "Booking validated by this operation's strict request contract."
                         },
@@ -171934,7 +171939,8 @@
                     "booking": {
                       "confirmation": "STAFF_REVIEW",
                       "cancellationFeeKobo": "0",
-                      "reminderMinutes": 60
+                      "reminderMinutes": null,
+                      "reminderTiming": "APPOINTMENT_POLICY"
                     },
                     "marketing": {
                       "enabled": false
@@ -179523,6 +179529,17 @@
                             "minimum": 0,
                             "maximum": 1440,
                             "description": "No Show Grace Minutes validated by this operation's strict request contract."
+                          },
+                          "reminderMinutes": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 10080,
+                              "description": "Reminder Minutes Item validated by this operation's strict request contract."
+                            },
+                            "maxItems": 3,
+                            "description": "Reminder Minutes validated by this operation's strict request contract."
                           },
                           "openingDays": {
                             "type": "array",
@@ -198271,6 +198288,34 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "managementBranches": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "Name validated by this operation's strict request contract."
+                              },
+                              "isActive": {
+                                "type": "boolean",
+                                "description": "Boolean control for is active; authorization is still enforced server-side."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "isActive"
+                            ],
+                            "description": "Management Branches Item validated by this operation's strict request contract."
+                          },
+                          "description": "Management Branches validated by this operation's strict request contract."
+                        },
                         "items": {
                           "type": "array",
                           "items": {
@@ -198525,6 +198570,13 @@
                   "success": true,
                   "message": "Responsibility-based workspace: directory",
                   "data": {
+                    "managementBranches": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "name": "synthetic-name",
+                        "isActive": true
+                      }
+                    ],
                     "items": [
                       {
                         "userId": "00000000-0000-4000-8000-000000000001",
@@ -224520,6 +224572,67 @@
                           "type": "string",
                           "description": "Account Label validated by this operation's strict request contract."
                         },
+                        "identity": {
+                          "type": "object",
+                          "properties": {
+                            "role": {
+                              "type": "string",
+                              "enum": [
+                                "STAFF",
+                                "ADMIN",
+                                "SUPER_ADMIN"
+                              ],
+                              "description": "Role validated by this operation's strict request contract."
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "ACTIVE",
+                                "SUSPENDED",
+                                "DEACTIVATED"
+                              ],
+                              "description": "Requested or filtered lifecycle state from the documented enum."
+                            },
+                            "verified": {
+                              "type": "boolean",
+                              "description": "Verified validated by this operation's strict request contract."
+                            },
+                            "accountBranch": {
+                              "type": [
+                                "object",
+                                "null"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Name validated by this operation's strict request contract."
+                                },
+                                "isActive": {
+                                  "type": "boolean",
+                                  "description": "Boolean control for is active; authorization is still enforced server-side."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "isActive"
+                              ],
+                              "description": "Account Branch validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "role",
+                            "status",
+                            "verified",
+                            "accountBranch"
+                          ],
+                          "description": "Identity validated by this operation's strict request contract."
+                        },
                         "branches": {
                           "type": "array",
                           "items": {
@@ -225065,6 +225178,7 @@
                       "required": [
                         "userId",
                         "accountLabel",
+                        "identity",
                         "branches",
                         "management",
                         "access",
@@ -225110,6 +225224,16 @@
                   "data": {
                     "userId": "00000000-0000-4000-8000-000000000001",
                     "accountLabel": "synthetic-accountlabel",
+                    "identity": {
+                      "role": "STAFF",
+                      "status": "ACTIVE",
+                      "verified": true,
+                      "accountBranch": {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "name": "synthetic-name",
+                        "isActive": true
+                      }
+                    },
                     "branches": [
                       {
                         "id": "00000000-0000-4000-8000-000000000001",

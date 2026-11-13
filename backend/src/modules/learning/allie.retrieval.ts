@@ -40,6 +40,7 @@ const destinations = new Set([
   "/admin/payment-disputes/work",
   "/admin/privacy",
   "/admin/finance-policy",
+  "/admin/booking-capacity",
 ]);
 const aliases: Record<string, string> = {
   shop: "part",

@@ -1,3 +1,72 @@
+## 9 November 19:27 UTC - delayed reminder guard candidate
+
+Independent implementation continues while packaging is held by disk reserve.
+Branch codex/reminder-expiry-20261109 (base master b362e9f8) adds a shared current-
+appointment check at reminder enqueue and notification provider delivery. Elapsed
+reminders cancel/terminate without changing booking status, attendance or capacity.
+Five focused units pass; scoped lint and formatting pass. New PostgreSQL regressions
+for delayed enqueue, expired provider retry, future delivery, terminal states and
+deduplication are wired into the existing isolated backend CI; not yet executed.
+Service-request v30 keeps its public eligibility and existing targets. Generated
+handbook corrects stale immediate-catch-up/physical-attendance wording. No schema,
+financial permission, reminder timing or production flag changes. See
+docs/help-learn/REMINDER_EXPIRY_20261109.md. Source types, integration/CI and release
+remain pending. The product-timing candidate is held; do not discard its verified
+export or READY frontend. Full configurable D15 and the original audit remain open.
+
+---
+
+## 9 November 19:14 UTC - exact master passes; held frontend accepted with limits
+
+Master b362e9f8 remains current remotely. All required workflows pass: frontend
+42674646758 (1,525 units, 12 existing skips; nine WebKit diagnostics; 574 production
+browser cases), backend 42674646943 and secrets 42674646239. The canonical backend
+export's 1,295 files/21,062,190 bytes were freshly compared with master's actual
+Git-filtered bytes in one batch; every file, including migration checksums, matches.
+
+New source's native schema probe and the three retained 9c219bc8 runtime images
+pass against the populated isolated 101-migration restore. Probes selected no
+business rows, used a read-only non-owner role and removed that role afterward.
+These are not the four new candidate packaged images or the ten packaged tests.
+Guarded build/schema/recovery helpers are prepared and syntax-check, not executed.
+
+Held production-environment frontend dpl_EnS5X45nMXyaGdY6TNMgHtvJzepY is READY
+from the checked master, without domain promotion. Seven actual held Edge fixture
+cases pass: responsive authoring, three save-recovery states and emulated touch.
+Four hosted synthetic public cases FAIL because product data loads on the server,
+where browser routing cannot supply their test-only IDs; they render unavailable.
+Do not count those as passes or change production data to make fixtures exist.
+All four pass in exact-master production CI with its isolated server fixture.
+Separately, the genuine public product passes read-only held checks at320/390/768/1440:
+unknown timing stays absent; checkout stays unavailable; no overflow/page errors/
+application writes; keyboard section links, mobile menu Escape/focus and scoped Axe
+pass. These are hosted fixtures/public reads, not real Admin roles or physical devices.
+
+Authenticated HTTP reaches the held app. Development OIDC is correctly refused
+for production; no Trusted Sources rule changed. A temporary candidate-only test
+link was used and revoked. The first link identifier appeared in a debug shape
+summary and was immediately revoked/replaced; replacement also revoked after tests.
+Fresh provider read confirms zero share links and both temporary browser access
+files are removed. Both public domains still point to dpl_oe7Yn63UxyHvkAS9gZs4ByfvStBb;
+backend c3c54414 and all four old component digests are unchanged, with no pending
+backend deployment. No production migration, price/stock edit or flag activation.
+
+Packaging remains held: C:20.76GiB fails21.5GiB required for1.5GiB expected growth.
+A review of34 exact old unshared project compilation cache outputs followed by
+bounded native Docker pruning reclaimed0B; images/containers unchanged. Dependency
+caches, source, database/volumes, backups and recovery images retained. Owner asked
+to free1GiB or identify a disposable folder; continue independent work while pending.
+Do not repeat local dev/browser combinations without their recorded10GiB budget.
+Next: four candidate images, packaged/recovery checks, renewed backup when its
+protected one-hour age expires, verified backend migration/rollout and promotion
+of this same held frontend. Entire original audit/D01-D17 scope remains active.
+
+Private receipts/scripts and safe screenshot results: TEMP/aat-attendance-20261104/
+release-product-timing-449d0ecc-20261109; handoff is in the parent folder. These
+continuity notes remain uncommitted pending the evidence/release closeout.
+
+---
+
 ## 9 November 17:59 UTC - exact-build product coverage queued
 
 Backend/secrets gates pass on fac525a3. Eleven product operator/public/touch cases
@@ -136,7 +205,6 @@ verification and receipt recovery rather than the removed raw status option;
 its source/lint is updated, but that full dashboard test has not run locally.
 The component browser fixture evidence above does not substitute for that test.
 
-
 Integration checkpoint: reconciled current master 9fbf3732 (recorded-work capacity,
 responsive calendar/modals and customer overview) without replacing its repairs.
 Combined guidance advances booking-confirmation to v12 and service-request to v29;
@@ -152,7 +220,6 @@ not a claim that the previously failed 81-case invocation passed. Merged backend
 cryptographically verified SSH signature using the configured signing key. Required hosted gates and
 production migration/recovery acceptance still remain. No production publication.
 
-
 Hosted regression checkpoint: the 7dad16e1 backend run passed its migration,
 booking/resource/financial and earlier learning stages, then failed five audience
 retrieval assertions because the expanded service article exceeded Allie's existing
@@ -164,7 +231,6 @@ Fresh native Edge component reruns on the integrated shared styles pass both
 390/1440 arrival/wait cases and all seven responsive/loading/error/recovery states.
 The signed source remains in draft PR #20, held for updated hosted checks and the
 recorded migration recovery/full-dashboard acceptance requirements.
-
 
 4 November full-dashboard acceptance follow-up (source, hosted run pending):
 new browser coverage mounts attendance in the real managed booking page and
@@ -193,7 +259,6 @@ and the shared 7–14-day new-booking window currently blocks a same-day alterna
 Resolve that late-arrival journey under D11 without weakening ordinary intake,
 resource checks, existing confirmations or physical-attendance history.
 
-
 4 November full-dashboard run: source 26850a6b passed backend safety, secret
 checks and frontend production checks. The expanded production-build browser run
 passed 232/235 cases. All three failures exposed two simultaneous Attendance
@@ -210,7 +275,6 @@ canonically replayed migration-98 isolated database. Its 30 guidance checks pass
 required hosted and packaged release checks remain pending. No production change.
 Keep the full attendance feature here separate until that writer transition and
 98-aware migration/recovery composition have been reviewed and verified.
-
 
 ---
 

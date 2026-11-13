@@ -107,7 +107,7 @@ jobs:
             tests/unit/booking-timing.test.ts tests/unit/booking-slot-timing.test.ts \
             tests/unit/workshop-resources.test.ts tests/integration/workshop-resource-policy.test.ts \
             tests/integration/workshop-resource-options.test.ts tests/unit/isolated-resource-database.test.ts \
-            tests/unit/booking-reminder-window.test.ts tests/unit/workshop-resource-learning.test.ts \
+            tests/unit/booking-reminder-current.test.ts tests/unit/booking-reminder-window.test.ts tests/unit/workshop-resource-learning.test.ts \
             tests/integration/workforce-aftercare.test.ts \
             tests/integration/booking-resource-lifecycle.test.ts \
             tests/unit/booking-attendance.test.ts tests/unit/booking-attendance-learning.test.ts tests/integration/booking-attendance.test.ts \

@@ -76,6 +76,44 @@ afterEach(() => {
 });
 
 describe("authorised server help survives Allie retrieval", () => {
+  it("keeps pickup display and clearing guidance restricted to verified customers", () => {
+    const article = learningArticles.find((row) => row.id === "parts-collection")!;
+    expect(article.version).toBe(3);
+    expect(article.gate).toBe("customer");
+    expect(article.steps.join(" ")).toContain(
+      "Copy it before choosing Hide code, refreshing or reloading",
+    );
+    expect(article.steps.join(" ")).toContain(
+      "Share it privately only with your chosen collector",
+    );
+    expect(
+      learningCatalogue(publicLearningAccess).articles.some(
+        (row) => row.id === article.id,
+      ),
+    ).toBe(false);
+    expect(
+      learningCatalogue({
+        ...publicLearningAccess,
+        role: "CUSTOMER",
+        verified: true,
+      }).articles.some((row) => row.id === article.id && row.version === 3),
+    ).toBe(true);
+  });
+  it("keeps reminder-policy guidance and actions restricted to the owner", () => {
+    for (const [name, access] of profiles.filter(([name]) => name !== "owner")) {
+      const data = learningCatalogue({ ...publicLearningAccess, ...access });
+      expect(
+        data.articles.some((row) => row.id === "booking-reminders"),
+        name,
+      ).toBe(false);
+      expect(
+        retrieveAllieContext(data, "booking-reminders", "work").actions.some(
+          (action) => action.href === "/admin/booking-capacity",
+        ),
+        name,
+      ).toBe(false);
+    }
+  });
   for (const [name, access] of profiles) {
     it(`retrieves every eligible article from the ${name} catalogue`, () => {
       const data = learningCatalogue({ ...publicLearningAccess, ...access });
