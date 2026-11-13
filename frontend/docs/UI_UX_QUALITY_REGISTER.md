@@ -1,5 +1,17 @@
 ## 13 November - blocked Vehicles gallery touch target before publication
 
+Compiled correction3b5c0457/deploymentdpl_btSK2rd1tPCdX9sdYFmPdhiebuya passes
+four actual BMW native-touch checks at320/390/850/930: right-edge hits clear the
+dock, next/previous/thumbnail changes keep page position,44px expand opens the
+gallery, modal arrows work and Escape restores focus. Scoped320 main/footer Axe
+reports zero violations; no page errors or application writes. Reviewed320 and
+settled390 captures. A progressive first390 photo capture is retained separately
+from the decoded-image follow-up. Evidence: vehicle-gallery-3b5-compiled-qa.json
+and vehicle-gallery-3b5-*.png in the same TEMP folder. Source lint/format/types pass.
+PR75 preserves incomingc48 audit/privacy work and both journals; reviewed gallery
+files remain byte-identical. Cancelled8e frontend is unqualified. Final integrated
+gates, compatible updated backend and public acceptance still prevent publication.
+
 Exact-master8e4325 candidate dpl_6gc8dzEBamgjvrEumHHmKoEibHqc remains held. Nine
 catalogue geometry checks and two scoped Axe scans pass, but real BMW detail at
 320x720 shows WhatsApp covering the right edge of View photos. Native hit testing

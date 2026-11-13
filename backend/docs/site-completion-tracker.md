@@ -1,5 +1,20 @@
 ## 13 November - Vehicles gallery touch-target follow-up before publication
 
+Compiled follow-up source3b5c0457, held deploymentdpl_btSK2rd1tPCdX9sdYFmPdhiebuya,
+passes four actual public BMW native-touch cases at320/390/850/930. Previous/next,
+thumbnail selection and the44px expand control are unobstructed at the dock height
+and keep scroll unchanged; modal arrows, Escape and focus restoration pass. Scoped
+main/footer Axe at320 reports zero violations. No page errors or application writes.
+Reviewed320 and settled390 captures; the first390 image capture was progressive
+loading, so a separate decoded-photo capture is retained. Evidence:
+vehicle-gallery-3b5-compiled-qa.json and vehicle-gallery-3b5-*.png in the same TEMP folder.
+Source lint/format/types/diff pass. PR75 incorporates current masterc48cf7b1 while
+preserving both journals; gallery source files are identical to the reviewed build.
+The8e frontend run was cancelled externally and is not a pass. Backend release work
+has advanced to release-backend-c48cf7b1-20261113; older64064 runtime equivalence below
+applies only to8e, not the newer audit diagnostic contract. Final exact-master gates,
+matching backend and live publication remain outstanding. Do not publish held8e.
+
 PR73 is integrated at master8e4325f9. Exact-master Backend43515502226 and
 Secrets43515502628 passed; Frontend43515502392 is running its full runtime matrix.
 Clean production-environment candidate dpl_6gc8dzEBamgjvrEumHHmKoEibHqc is held,
