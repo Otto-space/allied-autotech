@@ -39,3 +39,13 @@ export const supplyRemedyChoiceSchema = z
     choiceConfirmed: z.literal(true),
   })
   .strict();
+
+export const supplyResolutionSchema = z
+  .object({
+    expectedVersion: z.number().int().min(0).max(2147483647),
+    idempotencyKey: z.uuid(),
+    supplyExceptionId: z.uuid(),
+    reason: paragraph,
+    settlementAndPhysicalHistoryReviewed: z.literal(true),
+  })
+  .strict();

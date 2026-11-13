@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  canReviewSupplyResolution,
   parseSupplySummary,
   selectedSupplyRanges,
   remainingSupplyRefundAmount,
@@ -12,6 +13,65 @@ import {
   supplyChoiceRecord,
 } from "../fixtures/order-supply-concerns";
 describe("actual owned supply concern projection", () => {
+  it("rejects a saved disposition that duplicates, omits or reassigns affected units", () => {
+    const order = supplyOrder(),
+      data = supplySummary(order);
+    data.orderVersion = 2;
+    const resolution = {
+      id: supplyId(82),
+      orderVersion: 1,
+      createdAt: "2026-11-10T11:00:00Z",
+      unfulfilledLines: data.items[0].affectedLines,
+      previouslyHandedLines: [],
+    };
+    data.items[0].resolution = resolution;
+    expect(parseSupplySummary(data, order).items[0].resolution?.id).toBe(resolution.id);
+    for (const change of [
+      { unfulfilledLines: [] },
+      { previouslyHandedLines: data.items[0].affectedLines },
+      { unfulfilledLines: [{ ...data.items[0].affectedLines[0], offset: 1 }] },
+      { orderVersion: 2 },
+    ]) {
+      data.items[0].resolution = { ...resolution, ...change };
+      expect(() => parseSupplySummary(data, order)).toThrow();
+    }
+  });
+  it("offers reconciliation review only for a complete exact successful original refund", () => {
+    const row = supplySummary().items[0],
+      current = supplyChoiceRecord();
+    row.supplyRemedyChoices = [current];
+    const refund = {
+      id: supplyId(81),
+      amountKobo: "107",
+      currency: "NGN" as const,
+      status: "SUCCEEDED" as const,
+      requestedAt: "2026-11-10T08:00:00Z",
+      processedAt: "2026-11-10T10:00:00Z",
+    };
+    expect(canReviewSupplyResolution(row)).toBe(false);
+    current.refunds = [refund];
+    expect(canReviewSupplyResolution(row)).toBe(true);
+    for (const change of [
+      { status: "PROCESSING" as const },
+      { processedAt: null },
+      { amountKobo: "106" },
+    ]) {
+      current.refunds = [{ ...refund, ...change }];
+      expect(canReviewSupplyResolution(row)).toBe(false);
+    }
+    current.refunds = [refund];
+    current.hasMoreRefunds = true;
+    expect(canReviewSupplyResolution(row)).toBe(false);
+    current.hasMoreRefunds = false;
+    row.resolution = {
+      id: supplyId(82),
+      orderVersion: 2,
+      createdAt: "2026-11-10T11:00:00Z",
+      unfulfilledLines: row.affectedLines,
+      previouslyHandedLines: [],
+    };
+    expect(canReviewSupplyResolution(row)).toBe(false);
+  });
   it("keeps offered alternatives distinct from actual acceptance and a cancelled replacement", () => {
     const row = supplySummary().items[0];
     const selected = {

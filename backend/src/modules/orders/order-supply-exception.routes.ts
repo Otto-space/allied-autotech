@@ -11,6 +11,7 @@ import { OrderSupplyExceptionService } from "./order-supply-exception.service.js
 import {
   supplyExceptionRaiseSchema,
   supplyRemedyChoiceSchema,
+  supplyResolutionSchema,
 } from "./order-supply-exception.schemas.js";
 import { purchaseCsrfHeadersSchema } from "./purchase.schemas.js";
 const value = (res: Response, key: string) => res.locals.validated?.[key];
@@ -91,6 +92,26 @@ export function registerBuyerSupplyRoutes(router: Router, guest = false) {
 export function registerStaffSupplyRoutes(router: Router) {
   const service = new OrderSupplyExceptionService(),
     params = { params: orderParamsSchema, query: ordersEmptyQuerySchema };
+  router.post(
+    "/:orderId/supply-exceptions/resolve",
+    createSensitiveRateLimit(10, 60000),
+    requireAdministrator,
+    requireCsrf,
+    validate({ ...params, body: supplyResolutionSchema }),
+    async (req, res) =>
+      res.set("Cache-Control", "private, no-store").json(
+        successResponse(
+          "Verified supply refund and actual physical disposition recorded",
+          req.id,
+          await service.resolve(actor(req), id(res), value(res, "body"), {
+            requestId: String(req.id),
+            ipAddress: req.ip ?? null,
+            userAgent: req.get("user-agent") ?? null,
+          }),
+        ),
+      ),
+  );
+
   router.get(
     "/:orderId/supply-exceptions",
     createSensitiveRateLimit(30, 60000),

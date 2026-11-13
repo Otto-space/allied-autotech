@@ -11715,6 +11715,62 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### POST `/staff/orders/{orderId}/supply-exceptions/resolve`
+
+- Operation ID: `postStaffOrdersByOrderIdSupplyExceptionsResolve`
+- Purpose: Current administrator MFA, CSRF, exact version and UUID replay. Requires the actual current customer remedy, successful independent refund and canonical ledger for the exact original affected allocation. Derives unfulfilled and previously handed-over units from immutable physical history. Refuses active pickup reviews and missing historical handover. Retains audit evidence; does not return stock, invent collection, approve a refund or enable purchasing. Saved settlement must be revalidated before future fulfilment clearance. Record actual verified original supply refund and physical disposition. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `orderId` | path | string (uuid) | Yes | Identifier selecting the order resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `idempotencyKey` | string (uuid) | Yes | Retry key that must be reused only with an identical logical request. |
+| `supplyExceptionId` | string (uuid) | Yes | Identifier of the supply exception resource; ownership is resolved server-side. |
+| `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `settlementAndPhysicalHistoryReviewed` | true | Yes | Settlement And Physical History Reviewed validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "idempotencyKey": "00000000-0000-4000-8000-000000000001",
+  "supplyExceptionId": "00000000-0000-4000-8000-000000000001",
+  "reason": "synthetic-reason",
+  "settlementAndPhysicalHistoryReviewed": true
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Record actual verified original supply refund and physical disposition",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/orders/{orderId}/supply-exceptions`
 
 - Operation ID: `getStaffOrdersByOrderIdSupplyExceptions`

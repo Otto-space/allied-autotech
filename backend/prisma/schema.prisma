@@ -573,6 +573,7 @@ enum OutboxStatus {
 }
 
 model User {
+  supplyResolutions            OrderSupplyResolution[]
   supplyRemedyChoices          OrderSupplyRemedyChoice[]
   pickupClaims                 OrderPickupClaim[]               @relation("PickupClaimant")
   pickupClaimCancellations     OrderPickupClaim[]               @relation("PickupClaimCanceller")
@@ -683,6 +684,7 @@ model User {
 }
 
 model Session {
+  supplyResolutions   OrderSupplyResolution[]
   supplyRemedyChoices OrderSupplyRemedyChoice[]
   pickupClaims        OrderPickupClaim[]
   supportLivePresence SupportLivePresence[]
@@ -1601,6 +1603,7 @@ model CartItem {
 }
 
 model Order {
+  supplyResolutions            OrderSupplyResolution[]
   supplyRemedyChoices          OrderSupplyRemedyChoice[]
   pickupClaims                 OrderPickupClaim[]
   pickupAuthorisations         OrderPickupAuthorisation[]
@@ -3628,6 +3631,7 @@ model OrderCollectionEvent {
 }
 
 model OrderSupplyException {
+  resolution           OrderSupplyResolution?
   supplyRemedyChoices  OrderSupplyRemedyChoice[]
   id                   String                    @id @default(uuid()) @db.Uuid
   orderId              String                    @db.Uuid
@@ -3655,27 +3659,53 @@ model OrderSupplyException {
 
 // An owned customer's preference, not financial approval or alternative acceptance.
 model OrderSupplyRemedyChoice {
+  resolution        OrderSupplyResolution?
   partsQuotes       PartsQuote[]
   refunds           Refund[]
-  id                String                @id @default(uuid()) @db.Uuid
-  orderId           String                @db.Uuid
-  supplyExceptionId String                @db.Uuid
-  customerUserId    String?               @db.Uuid
-  sessionId         String?               @db.Uuid
-  guestSessionId    String?               @db.Uuid
+  id                String                 @id @default(uuid()) @db.Uuid
+  orderId           String                 @db.Uuid
+  supplyExceptionId String                 @db.Uuid
+  customerUserId    String?                @db.Uuid
+  sessionId         String?                @db.Uuid
+  guestSessionId    String?                @db.Uuid
   orderVersion      Int
-  choice            String                @db.VarChar(48)
-  statementVersion  String                @db.VarChar(48)
-  customerNote      String                @db.VarChar(1000)
-  idempotencyKey    String                @unique @db.Uuid
-  requestHash       String                @db.Char(64)
-  createdAt         DateTime              @default(now())
-  order             Order                 @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  supplyException   OrderSupplyException  @relation(fields: [supplyExceptionId], references: [id], onDelete: Restrict)
-  customerUser      User?                 @relation(fields: [customerUserId], references: [id], onDelete: Restrict)
-  session           Session?              @relation(fields: [sessionId], references: [id], onDelete: Restrict)
-  guestSession      PurchaseGuestSession? @relation(fields: [guestSessionId], references: [id], onDelete: Restrict)
+  choice            String                 @db.VarChar(48)
+  statementVersion  String                 @db.VarChar(48)
+  customerNote      String                 @db.VarChar(1000)
+  idempotencyKey    String                 @unique @db.Uuid
+  requestHash       String                 @db.Char(64)
+  createdAt         DateTime               @default(now())
+  order             Order                  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  supplyException   OrderSupplyException   @relation(fields: [supplyExceptionId], references: [id], onDelete: Restrict)
+  customerUser      User?                  @relation(fields: [customerUserId], references: [id], onDelete: Restrict)
+  session           Session?               @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  guestSession      PurchaseGuestSession?  @relation(fields: [guestSessionId], references: [id], onDelete: Restrict)
 
   @@unique([orderId, orderVersion])
   @@index([supplyExceptionId, orderVersion])
+}
+
+// Actual verified original refund and physical disposition; never a stock return.
+model OrderSupplyResolution {
+  id                    String                  @id @default(uuid()) @db.Uuid
+  orderId               String                  @db.Uuid
+  supplyExceptionId     String                  @unique @db.Uuid
+  choiceId              String                  @unique @db.Uuid
+  recordedByUserId      String                  @db.Uuid
+  sessionId             String                  @db.Uuid
+  orderVersion          Int
+  settlementProof       Json
+  unfulfilledLines      Json
+  previouslyHandedLines Json
+  reason                String                  @db.VarChar(1000)
+  idempotencyKey        String                  @unique @db.Uuid
+  requestHash           String                  @db.Char(64)
+  createdAt             DateTime                @default(now())
+  order                 Order                   @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  supplyException       OrderSupplyException    @relation(fields: [supplyExceptionId], references: [id], onDelete: Restrict)
+  choice                OrderSupplyRemedyChoice @relation(fields: [choiceId], references: [id], onDelete: Restrict)
+  recordedBy            User                    @relation(fields: [recordedByUserId], references: [id], onDelete: Restrict)
+  session               Session                 @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, orderVersion])
 }

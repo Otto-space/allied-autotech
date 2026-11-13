@@ -1,3 +1,4 @@
+import { collectionDatabaseClock } from "./order-collection-hold.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { paymentConflict } from "../payments/payments.errors.js";
 import {
@@ -76,7 +77,12 @@ export async function readSupplyRefundSettlement(
       "Financial evidence is busy or belongs to an earlier remedy. Reconcile before resolving quantities.",
     );
   return {
-    ...verifiedOrderRefundSettlement(orderId, expected, refunds),
+    ...verifiedOrderRefundSettlement(
+      orderId,
+      expected,
+      refunds,
+      await collectionDatabaseClock(tx),
+    ),
     supplyExceptionId,
     choiceId: choice.id,
   };

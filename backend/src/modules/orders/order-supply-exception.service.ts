@@ -1,3 +1,4 @@
+import { recordSupplyResolution } from "./order-supply-resolution.js";
 import {
   collectedPickupUnitRanges,
   pickupUnitRangeDifference,
@@ -34,6 +35,7 @@ import { pickupUnitHistory } from "./order-pickup.repository.js";
 import {
   supplyExceptionRaiseSchema,
   supplyRemedyChoiceSchema,
+  supplyResolutionSchema,
 } from "./order-supply-exception.schemas.js";
 const select = {
   id: true,
@@ -101,6 +103,16 @@ export async function supplyExceptionSummary(
       customerNote: true,
       reason: administrator,
       createdAt: true,
+      resolution: {
+        select: {
+          id: true,
+          orderVersion: true,
+          reason: administrator,
+          createdAt: true,
+          unfulfilledLines: true,
+          previouslyHandedLines: true,
+        },
+      },
       supplyRemedyChoices: {
         orderBy: { orderVersion: "desc" },
         take: 11,
@@ -149,6 +161,7 @@ export async function supplyExceptionSummary(
   return {
     orderId: id,
     orderVersion: order.version,
+    resolutionCapabilityVersion: 1 as const,
     choiceStatementVersion: "SUPPLY_CHOICE_20261110_V1" as const,
     items: records.slice(0, 25).map((record) => ({
       ...record,
@@ -583,6 +596,28 @@ export class OrderSupplyExceptionService {
         if (!prior)
           await tx.order.update({ where: { id }, data: { version: { increment: 1 } } });
         return supplyExceptionSummary(tx, id, true);
+      },
+      { isolationLevel: "Serializable" },
+    );
+  }
+  resolve(
+    actor: AuthenticatedActor,
+    id: string,
+    raw: unknown,
+    context: RequestSecurityContext,
+  ) {
+    const input = supplyResolutionSchema.parse(raw);
+    return withTransactionRetry(
+      this.database,
+      async (tx) => {
+        if (actor.role !== "ADMIN" && actor.role !== "SUPER_ADMIN")
+          throw orderForbidden();
+        const order = await this.operator(tx, actor, id);
+        const result = await recordSupplyResolution(tx, actor, order, input, context);
+        return {
+          ...(await supplyExceptionSummary(tx, id, true)),
+          replayed: result.replayed,
+        };
       },
       { isolationLevel: "Serializable" },
     );

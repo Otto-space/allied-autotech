@@ -15,6 +15,7 @@ import { parseWorkPayment, parsePaymentRefund } from "@/lib/admin/work-payments"
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import {
+  canReviewSupplyResolution,
   parseSupplySummary,
   selectedSupplyRanges,
   supplyRangeSignature,
@@ -45,7 +46,7 @@ type Props = {
 };
 type Review = {
   reset?: () => void;
-  action: "raise" | "choice" | "refund";
+  action: "raise" | "choice" | "refund" | "resolve";
   body: Record<string, unknown>;
   title: string;
   facts: { label: string; value: string }[];
@@ -199,22 +200,31 @@ function SupplyPanel({
                   choice.customerNote === String(body.customerNote ?? ""),
               ),
           )
-        : change.action === "raise" &&
-          data.items.some(
-            (row) =>
-              row.kind === body.kind &&
-              row.customerNote === body.customerNote &&
-              row.reason === body.reason &&
-              supplyRangeSignature(row.affectedLines) ===
-                supplyRangeSignature(
-                  body.affectedLines as SupplySummary["items"][number]["affectedLines"],
-                ),
-          );
+        : change.action === "resolve"
+          ? data.items.some(
+              (row) =>
+                row.id === body.supplyExceptionId &&
+                row.resolution?.orderVersion === expected &&
+                row.resolution.reason === body.reason,
+            )
+          : change.action === "raise" &&
+            data.items.some(
+              (row) =>
+                row.kind === body.kind &&
+                row.customerNote === body.customerNote &&
+                row.reason === body.reason &&
+                supplyRangeSignature(row.affectedLines) ===
+                  supplyRangeSignature(
+                    body.affectedLines as SupplySummary["items"][number]["affectedLines"],
+                  ),
+            );
     let confirmedRefundId: string | undefined;
     const next: MutationProposal = {
       title: change.title,
       description:
-        "Review this order and actual affected goods. This request does not accept a substitute, approve money, confirm a bank receipt or authorise collection.",
+        change.action === "resolve"
+          ? "Review the actual original refund and affected goods. The server must verify settlement and physical history. This records reconciliation; collection still requires current clearance."
+          : "Review this order and actual affected goods. This request does not accept a substitute, approve money, confirm a bank receipt or authorise collection.",
       facts: change.facts,
       retrySafely: true,
       retryAfterRejection: false,
@@ -260,11 +270,19 @@ function SupplyPanel({
                   body,
                   signal: abort.signal,
                 })
-              : await request(path + (change.action === "choice" ? "/choice" : ""), {
-                  method: "POST",
-                  body,
-                  signal: abort.signal,
-                });
+              : await request(
+                  path +
+                    (change.action === "choice"
+                      ? "/choice"
+                      : change.action === "resolve"
+                        ? "/resolve"
+                        : ""),
+                  {
+                    method: "POST",
+                    body,
+                    signal: abort.signal,
+                  },
+                );
           if (!alive.current) return;
           if (change.action === "refund") {
             const envelope = z
@@ -397,7 +415,9 @@ function SupplyPanel({
           {row.monetaryBasis.status === "SAVED_ORDER_ALLOCATION" &&
           row.monetaryBasis.amounts ? (
             <p>
-              Saved affected amount for review:{" "}
+              {row.resolution
+                ? "Original affected amount:"
+                : "Saved affected amount for review:"}{" "}
               <strong>{formatKobo(row.monetaryBasis.amounts.totalKobo)}</strong>,
               including saved VAT of {formatKobo(row.monetaryBasis.amounts.taxKobo)}. This
               is not financial approval.
@@ -534,6 +554,89 @@ function SupplyPanel({
               case.
             </p>
           )}
+          {row.resolution && (
+            <div role="note">
+              <p>
+                Refund and affected quantities reconciled on{" "}
+                {formatBusinessDate(row.resolution.createdAt)}.
+              </p>
+              <p>
+                {row.resolution.unfulfilledLines.reduce(
+                  (sum, line) => sum + line.quantity,
+                  0,
+                )}{" "}
+                unfulfilled units;{" "}
+                {row.resolution.previouslyHandedLines.reduce(
+                  (sum, line) => sum + line.quantity,
+                  0,
+                )}{" "}
+                previously collected units. Collection still requires current financial
+                and physical clearance.
+              </p>
+            </div>
+          )}
+          {staff &&
+            administrator &&
+            summary.resolutionCapabilityVersion === 1 &&
+            canReviewSupplyResolution(row) && (
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (blocked) return;
+                  try {
+                    const element = event.currentTarget,
+                      form = new FormData(element);
+                    const reason = paragraph(form.get("resolutionReason"));
+                    z.literal("on").parse(form.get("resolutionConfirmed"));
+                    review({
+                      action: "resolve",
+                      title: "Record verified supply resolution?",
+                      reset: () => element.reset(),
+                      body: {
+                        supplyExceptionId: row.id,
+                        reason,
+                        settlementAndPhysicalHistoryReviewed: true,
+                      },
+                      facts: [
+                        {
+                          label: "Affected original amount",
+                          value: formatKobo(row.monetaryBasis.amounts!.totalKobo),
+                        },
+                        { label: "Internal review note", value: reason! },
+                      ],
+                    });
+                  } catch {
+                    invalid();
+                  }
+                }}
+              >
+                <fieldset className={styles.fields} disabled={blocked}>
+                  <legend>Reconcile the refunded goods</legend>
+                  <p>
+                    Review the original refund record and actual collection history. The
+                    server checks successful settlement and separates unfulfilled units
+                    from previously collected goods.
+                  </p>
+                  <label>
+                    Internal reconciliation note (12-1,000 characters)
+                    <textarea
+                      className="input"
+                      name="resolutionReason"
+                      required
+                      minLength={12}
+                      maxLength={1000}
+                    />
+                  </label>
+                  <label className={styles.check}>
+                    <input type="checkbox" name="resolutionConfirmed" required />I
+                    reviewed the original settlement and actual physical history.
+                  </label>
+                  <button className="button" type="submit">
+                    Review supply resolution
+                  </button>
+                </fieldset>
+              </form>
+            )}
           {!staff && !supplyChoiceLocked(row) && (
             <form
               onSubmit={(event) => {
@@ -615,8 +718,9 @@ function SupplyPanel({
           )}
           {!staff && supplyChoiceLocked(row) && (
             <p>
-              A financial request or additional history needs reconciliation before
-              another choice. Contact this Care case to discuss a change.
+              {row.resolution
+                ? "The original refund and quantities are recorded above. Contact this Care case to discuss a change."
+                : "A financial request or additional history needs reconciliation before another choice. Contact this Care case to discuss a change."}
             </p>
           )}
           {staff && administrator && actorUserId && (

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  supplyResolvedUnitPartition,
   collectedPickupUnitRanges,
   pickupUnitRangeDifference,
   remainingPickupUnitRanges,
@@ -107,5 +108,25 @@ describe("immutable physical unit positions", () => {
         [part(1, 3)],
       ),
     ).toEqual([part(0, 1), part(4, 1), { orderItemId: other, offset: 0, quantity: 2 }]);
+  });
+  it("partitions an affected range crossing actual handover without inventing collection or restock", () => {
+    const history = [
+      { lines: [{ orderItemId: id, quantity: 2 }], unitRanges: [part(0, 2)] },
+    ];
+    expect(supplyResolvedUnitPartition(original, history, [part(1, 3)])).toEqual({
+      unfulfilledLines: [part(2, 2)],
+      previouslyHandedLines: [part(1, 1)],
+    });
+    expect(supplyResolvedUnitPartition(original, [], [part(1, 3)])).toEqual({
+      unfulfilledLines: [part(1, 3)],
+      previouslyHandedLines: [],
+    });
+    expect(() =>
+      supplyResolvedUnitPartition(
+        original,
+        [],
+        [{ orderItemId: other, offset: 0, quantity: 1 }],
+      ),
+    ).toThrow();
   });
 });

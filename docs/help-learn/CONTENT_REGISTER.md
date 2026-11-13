@@ -1,3 +1,19 @@
+### 13 November: actual supply settlement and disposition review (source)
+
+Order-sourcing v6 remains administrator-only; refund-work v7 retains explicit
+refund-duty eligibility. The new order resolution action independently requires
+current administrator MFA and CSRF. Learning never grants that authority.
+Review requires the exact original affected refund, successful independent checking
+or verified provider evidence and its canonical debit. The immutable event derives
+unfulfilled/previously handed-over ranges from actual history. Unused pickup codes
+are revoked; active pickup review must be reconciled first. It returns no stock,
+does not invent physical collection and does not itself clear payment/collection.
+Current financial and physical proof must be rechecked before later clearance.
+Actual wrong/used/installed technical assessments remain distinct; no general
+returns/warranty terms, fees, credit or policy publication are introduced.
+UI, types, native and rendered verification for this batch are tracked in the
+site completion tracker; publication flags remain unchanged.
+
 ### 10 November: alternative acceptance verified in the integrated held build
 
 Current runtime source04f23adf preserves masterb1222a11 confirmation/recovery focus

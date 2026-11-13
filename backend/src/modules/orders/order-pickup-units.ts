@@ -148,3 +148,20 @@ export function planPickupUnitRanges(
     lines(requested),
   );
 }
+
+/** An actual refunded unit is either unfulfilled or previously handed over.
+ * Preserve both dispositions; neither is evidence of stock being returned. */
+export function supplyResolvedUnitPartition(
+  orderLines: unknown,
+  history: readonly PickupUnitHistory[],
+  affectedLines: unknown,
+) {
+  const original = lines(orderLines),
+    affected = bounded(original, affectedLines),
+    collected = collectedPickupUnitRanges(original, history),
+    unfulfilledLines = pickupUnitRangeDifference(affected, collected);
+  return {
+    unfulfilledLines,
+    previouslyHandedLines: pickupUnitRangeDifference(affected, unfulfilledLines),
+  };
+}

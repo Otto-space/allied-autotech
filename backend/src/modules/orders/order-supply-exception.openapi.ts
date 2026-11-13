@@ -4,6 +4,7 @@ import { orderParamsSchema, ordersEmptyQuerySchema } from "./orders.schemas.js";
 import {
   supplyExceptionRaiseSchema,
   supplyRemedyChoiceSchema,
+  supplyResolutionSchema,
 } from "./order-supply-exception.schemas.js";
 export function registerSupplyExceptionOpenApi(registry: OpenAPIRegistry) {
   const response = z.object({
@@ -11,6 +12,29 @@ export function registerSupplyExceptionOpenApi(registry: OpenAPIRegistry) {
     message: z.string(),
     data: z.unknown().optional(),
     meta: z.object({ requestId: z.string() }),
+  });
+  registry.registerPath({
+    method: "post",
+    path: "/staff/orders/{orderId}/supply-exceptions/resolve",
+    summary: "Record actual verified original supply refund and physical disposition",
+    description:
+      "Current administrator MFA, CSRF, exact version and UUID replay. Requires the actual current customer remedy, successful independent refund and canonical ledger for the exact original affected allocation. Derives unfulfilled and previously handed-over units from immutable physical history. Refuses active pickup reviews and missing historical handover. Retains audit evidence; does not return stock, invent collection, approve a refund or enable purchasing. Saved settlement must be revalidated before future fulfilment clearance.",
+    security: [{ sessionCookie: [] }],
+    request: {
+      params: orderParamsSchema,
+      query: ordersEmptyQuerySchema.removeDefault(),
+      headers: z.looseObject({ "x-csrf-token": z.string().min(32) }),
+      body: {
+        required: true,
+        content: { "application/json": { schema: supplyResolutionSchema } },
+      },
+    },
+    responses: {
+      200: {
+        description: "Immutable actual resolution and safe supply history",
+        content: { "application/json": { schema: response } },
+      },
+    },
   });
   for (const prefix of ["/customers/orders", "/purchase/orders", "/staff/orders"]) {
     const guest = prefix.startsWith("/purchase"),

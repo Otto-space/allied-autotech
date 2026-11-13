@@ -88,6 +88,7 @@ const choice = z.object({
 export const supplySummarySchema = z.object({
   orderId: z.uuid(),
   orderVersion: z.number().int().nonnegative(),
+  resolutionCapabilityVersion: z.literal(1).optional(),
   choiceStatementVersion: z.literal("SUPPLY_CHOICE_20261110_V1"),
   items: z
     .array(
@@ -97,6 +98,17 @@ export const supplySummarySchema = z.object({
         enquiryId: z.uuid(),
         kind: supplyKind,
         affectedLines: ranges,
+        resolution: z
+          .object({
+            id: z.uuid(),
+            orderVersion: z.number().int().nonnegative(),
+            createdAt: date,
+            reason: z.string().max(1000).optional(),
+            unfulfilledLines: z.array(ranges.element).max(20000),
+            previouslyHandedLines: z.array(ranges.element).max(20000),
+          })
+          .nullable()
+          .optional(),
         customerNote: z.string().max(1000),
         reason: z.string().max(1000).optional(),
         createdAt: date,
@@ -152,6 +164,38 @@ export function parseSupplySummary(value: unknown, order: SupplyOrder) {
       const item = order.items.find((item) => item.id === line.orderItemId);
       if (!item || line.offset + line.quantity > item.quantity)
         throw Error("Unexpected affected goods");
+    }
+    if (row.resolution) {
+      const resolved = [
+        ...row.resolution.unfulfilledLines,
+        ...row.resolution.previouslyHandedLines,
+      ].sort((a, b) => a.orderItemId.localeCompare(b.orderItemId) || a.offset - b.offset);
+      if (
+        row.resolution.orderVersion >= data.orderVersion ||
+        resolved.some((part, index) => {
+          const previous = resolved[index - 1];
+          const covered = row.affectedLines
+            .filter((actual) => actual.orderItemId === part.orderItemId)
+            .reduce(
+              (sum, actual) =>
+                sum +
+                Math.max(
+                  0,
+                  Math.min(part.offset + part.quantity, actual.offset + actual.quantity) -
+                    Math.max(part.offset, actual.offset),
+                ),
+              0,
+            );
+          return (
+            covered !== part.quantity ||
+            (previous?.orderItemId === part.orderItemId &&
+              previous.offset + previous.quantity > part.offset)
+          );
+        }) ||
+        resolved.reduce((sum, part) => sum + part.quantity, 0) !==
+          row.affectedLines.reduce((sum, part) => sum + part.quantity, 0)
+      )
+        throw Error("Unexpected supply resolution quantities");
     }
     if (
       new Set(row.supplyRemedyChoices.map((choice) => choice.orderVersion)).size !==
@@ -228,4 +272,35 @@ export function remainingSupplyRefundAmount(row: SupplySummary["items"][number])
     .reduce((sum, refund) => sum + BigInt(refund.amountKobo), BigInt(0));
   if (committed > total) return null;
   return (total - committed).toString();
+}
+
+/** Enables a review only; the server rechecks the actual ledger and physical facts. */
+export function canReviewSupplyResolution(row: SupplySummary["items"][number]) {
+  const current = row.supplyRemedyChoices[0];
+  if (
+    row.resolution ||
+    row.hasMoreChoices ||
+    row.kind === "USED_INSTALLED_OR_DIAGNOSIS_DISPUTE" ||
+    row.monetaryBasis.status !== "SAVED_ORDER_ALLOCATION" ||
+    !row.monetaryBasis.amounts ||
+    !current ||
+    current.hasMoreRefunds ||
+    current.hasMoreAlternatives ||
+    !(
+      current.choice === "REFUND_REVIEW" ||
+      (current.choice === "SUITABLE_ALTERNATIVE_REVIEW" && row.alternativeAccepted)
+    )
+  )
+    return false;
+  const active = current.refunds.filter(
+    (refund) => !["FAILED", "CANCELLED"].includes(refund.status),
+  );
+  return (
+    active.length > 0 &&
+    active.every(
+      (refund) => refund.status === "SUCCEEDED" && refund.processedAt !== null,
+    ) &&
+    active.reduce((sum, refund) => sum + BigInt(refund.amountKobo), BigInt(0)) ===
+      BigInt(row.monetaryBasis.amounts.totalKobo)
+  );
 }

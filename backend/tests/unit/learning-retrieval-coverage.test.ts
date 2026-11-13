@@ -137,7 +137,7 @@ it("keeps collection instructions administrative without granting release permis
 
 it("keeps order sourcing authoring instructions out of public, customer and staff catalogues", () => {
   const guide = learningArticles.find((article) => article.id === "order-sourcing")!;
-  expect([guide.gate, guide.version]).toEqual(["admin", 5]);
+  expect([guide.gate, guide.version]).toEqual(["admin", 6]);
   for (const role of ["PUBLIC", "CUSTOMER", "STAFF"] as const) {
     const catalogue = learningCatalogue({
       ...publicLearningAccess,
@@ -145,5 +145,23 @@ it("keeps order sourcing authoring instructions out of public, customer and staf
       verified: true,
     });
     expect(catalogue.articles.some((article) => article.id === guide.id)).toBe(false);
+  }
+});
+
+it("keeps actual supply settlement resolution restricted and separate from physical collection", () => {
+  const source = learningArticles.find((article) => article.id === "order-sourcing")!;
+  const refund = learningArticles.find((article) => article.id === "refund-work")!;
+  expect([source.gate, source.version, refund.gate, refund.version]).toEqual([
+    "admin",
+    6,
+    "refunds",
+    7,
+  ]);
+  for (const topic of [source, refund]) {
+    const content = JSON.stringify(topic);
+    expect(content).toContain("Reconcile the refunded goods");
+    expect(content).toContain("canonical debit");
+    expect(content).toContain("does not return stock or grant collection");
+    expect(content).toContain("active pickup review");
   }
 });

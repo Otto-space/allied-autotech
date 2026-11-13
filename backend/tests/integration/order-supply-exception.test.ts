@@ -1,3 +1,4 @@
+import { currentSupplyResolution } from "../../src/modules/orders/order-supply-resolution.js";
 import { vi } from "vitest";
 import { readSupplyRefundSettlement } from "../../src/modules/orders/order-supply-refund-settlement.js";
 import { ManualRefundsService } from "../../src/modules/payments/manual-refunds.service.js";
@@ -984,6 +985,17 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const saved = refundReceipt(
         await f.payments.requestRefund(f.actor, f.refundBody, randomUUID(), context),
       );
+      const resolutionInput = {
+        expectedVersion: 2,
+        idempotencyKey: randomUUID(),
+        supplyExceptionId: f.concern.id,
+        reason: "Synthetic actual original settlement and physical history reviewed",
+        settlementAndPhysicalHistoryReviewed: true,
+      };
+      await expect(
+        f.service.resolve(f.actor, f.order.id, resolutionInput, context),
+      ).rejects.toMatchObject({ statusCode: 409 });
+
       await expect(
         prisma.$transaction((tx) =>
           readSupplyRefundSettlement(tx, f.order.id, f.concern.id),
@@ -1043,6 +1055,129 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           choiceId: f.choice.id,
         });
         expect(proof.refunds).toHaveLength(1);
+        await expect(
+          f.service.resolve(
+            { ...f.actor, role: "STAFF" },
+            f.order.id,
+            resolutionInput,
+            context,
+          ),
+        ).rejects.toMatchObject({ statusCode: 403 });
+        await expect(
+          f.service.resolve(
+            { ...f.actor, mfaVerifiedAt: null },
+            f.order.id,
+            resolutionInput,
+            context,
+          ),
+        ).rejects.toMatchObject({ statusCode: 403 });
+        await expect(
+          f.service.resolve(
+            f.actor,
+            f.order.id,
+            { ...resolutionInput, expectedVersion: 1 },
+            context,
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        const resolved = await f.service.resolve(
+          f.actor,
+          f.order.id,
+          resolutionInput,
+          context,
+        );
+        expect(resolved.orderVersion).toBe(3);
+        expect(resolved.replayed).toBe(false);
+        expect(resolved.items[0]!.resolution).toMatchObject({
+          unfulfilledLines: f.body.affectedLines,
+          previouslyHandedLines: [],
+        });
+        const replayed = await f.service.resolve(
+          f.actor,
+          f.order.id,
+          resolutionInput,
+          context,
+        );
+        expect(replayed.replayed).toBe(true);
+        expect(replayed.orderVersion).toBe(3);
+        await expect(
+          f.service.resolve(
+            f.actor,
+            f.order.id,
+            { ...resolutionInput, reason: "Synthetic changed resolution details" },
+            context,
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        const stored = await prisma.orderSupplyResolution.findUniqueOrThrow({
+          where: { supplyExceptionId: f.concern.id },
+        });
+        const current = await prisma.$transaction((tx) =>
+          currentSupplyResolution(tx, f.order.id, f.concern.id),
+        );
+        expect(current.resolutionId).toBe(stored.id);
+        await expect(
+          prisma.orderSupplyResolution.create({
+            data: {
+              ...stored,
+              id: randomUUID(),
+              orderVersion: 3,
+              idempotencyKey: randomUUID(),
+              settlementProof: JSON.parse(JSON.stringify(stored.settlementProof)),
+              unfulfilledLines: [],
+              previouslyHandedLines: f.body.affectedLines,
+            },
+          }),
+        ).rejects.toThrow(/Physical disposition/);
+        await expect(
+          prisma.orderSupplyResolution.create({
+            data: {
+              ...stored,
+              id: randomUUID(),
+              orderVersion: 3,
+              idempotencyKey: randomUUID(),
+              settlementProof: { ...proof, amountKobo: "1" },
+              unfulfilledLines: f.body.affectedLines,
+              previouslyHandedLines: [],
+            },
+          }),
+        ).rejects.toThrow(/actual verified original refund/);
+
+        await expect(
+          prisma.orderSupplyResolution.update({
+            where: { id: stored.id },
+            data: { unfulfilledLines: [] },
+          }),
+        ).rejects.toThrow(/immutable/);
+        await expect(
+          prisma.orderSupplyResolution.delete({ where: { id: stored.id } }),
+        ).rejects.toThrow(/immutable/);
+        expect(JSON.stringify(await f.service.read(f.principal, f.order.id))).not.toMatch(
+          /settlementProof|requestHash|idempotencyKey|sessionId|evidenceObjectKey|recordedByUserId/,
+        );
+        expect(
+          await prisma.orderPickupHandover.count({ where: { orderId: f.order.id } }),
+        ).toBe(0);
+        const anomaly = await prisma.paymentAnomaly.create({
+          data: {
+            paymentAttemptId: proof.refunds[0]!.paymentAttemptId,
+            type: "REFUND_MISMATCH",
+            summary: "Synthetic later discrepancy",
+          },
+        });
+        await expect(
+          prisma.$transaction((tx) =>
+            currentSupplyResolution(tx, f.order.id, f.concern.id),
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        await prisma.paymentAnomaly.update({
+          where: { id: anomaly.id },
+          data: {
+            status: "RESOLVED",
+            resolvedAt: new Date(),
+            resolvedByUserId: checker.userId,
+            resolutionNote: "Synthetic independent reconciliation completed",
+          },
+        });
+
         expect(JSON.stringify(proof)).not.toMatch(
           /synthetic-affected-bank|Synthetic bank|accountNumber|evidenceObjectKey/,
         );

@@ -312,3 +312,80 @@ describe("owned supply review interface", () => {
     },
   );
 });
+
+it.each([false, true])(
+  "reads the recorded disposition after explicit review and interrupted response=%s",
+  async (interrupted) => {
+    const order = supplyOrder(),
+      data = supplySummary(order),
+      current = supplyChoiceRecord();
+    data.resolutionCapabilityVersion = 1;
+    current.refunds = [
+      {
+        id: supplyId(81),
+        amountKobo: "107",
+        currency: "NGN",
+        status: "SUCCEEDED",
+        requestedAt: "2026-11-10T08:00:00Z",
+        processedAt: "2026-11-10T10:00:00Z",
+      },
+    ];
+    data.items[0].supplyRemedyChoices = [current];
+    let posts = 0;
+    const note = "Synthetic actual settlement and physical collection history reviewed";
+    mocks.account.mockImplementation(
+      async (
+        path: string,
+        options?: { method?: string; body?: Record<string, unknown> },
+      ) => {
+        if (options?.method !== "POST") return { data };
+        posts += 1;
+        expect(path).toBe(`/staff/orders/${order.id}/supply-exceptions/resolve`);
+        expect(options.body).toMatchObject({
+          expectedVersion: 1,
+          supplyExceptionId: data.items[0].id,
+          reason: note,
+          settlementAndPhysicalHistoryReviewed: true,
+        });
+        const response = {
+          data: {
+            ...data,
+            orderVersion: 2,
+            items: [
+              {
+                ...data.items[0],
+                resolution: {
+                  id: supplyId(82),
+                  orderVersion: 1,
+                  reason: note,
+                  createdAt: "2026-11-10T11:00:00Z",
+                  unfulfilledLines: data.items[0].affectedLines,
+                  previouslyHandedLines: [],
+                },
+              },
+            ],
+          },
+        };
+        Object.assign(data, response.data);
+        if (interrupted) throw new TypeError("Synthetic response lost after persistence");
+        return response;
+      },
+    );
+    await mount({ audience: "staff", administrator: true, actorUserId: owner });
+    const form = container.querySelector('[name="resolutionReason"]')!.closest("form")!;
+    fill(form, "resolutionReason", note);
+    (form.querySelector('[name="resolutionConfirmed"]') as HTMLInputElement).checked =
+      true;
+    await submit(form);
+    expect(container.querySelector("dialog")?.textContent).toContain(
+      "Record verified supply resolution?",
+    );
+    await click("Confirm request");
+    if (interrupted) await click("Retry same request");
+    expect(posts).toBe(1);
+    expect(container.textContent).toContain("Refund and affected quantities reconciled");
+    expect(container.textContent).toContain(
+      "Collection still requires current financial and physical clearance",
+    );
+  },
+);

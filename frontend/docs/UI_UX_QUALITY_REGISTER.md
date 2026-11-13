@@ -1,3 +1,38 @@
+### 13 November: actual supply resolution review, unpublished integration batch
+
+D17 now records an immutable actual settlement/physical-disposition event through
+current administrator MFA, CSRF, version and UUID replay. It derives unfulfilled
+and previously handed-over units from actual original history, requires the exact
+independently settled original refund and canonical debit, blocks active pickup
+review and revokes unused private pickup codes. It notifies the existing Care team.
+No goods are marked handed over or returned to stock by this action. The private
+bank proof, operator/session identities and audit/replay data are not buyer output.
+The saved proof is revalidated against later discrepancies before future clearance.
+
+The existing supply panel now offers review only with the new backend capability
+and a complete exact successful refund history. Customers can read the resulting
+quantity history. A lost response recovers from the saved record without a second
+POST. Private notes stay administrator-only. Restricted learning sourcing v6 and
+refund-work v7 explain these boundaries; eligibility/publication flags are retained.
+
+Current verification: frontend17/17 unit cases; learning24/24; backend/scoped test
+types and lint; OpenAPI471 paths and mounted554 operations plus4 infrastructure
+routes. Migration119 empty replay/schema diff/db:check passed. Initial native run
+had132/134 passes: new actual resolution/replay/SQL tampering checks passed before
+its synthetic anomaly omitted the required resolving account; another existing case
+timed out. The fixture now includes that account; the unchanged30-second limits
+and final combined rerun remain required. No guard or assertion was removed.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-resolution.log.
+
+Integration must retain remote master6e910f9b Parts, People, reminder, saved-item
+focus and mobile-scroll fixes before final native/rendered verification. No public
+alias promotion, production migration, payment, refund or capability activation.
+D17 still needs current resolution connected to net financial coverage and exact
+remaining physical fulfilment/closure, including no-capture/cancelled cases and
+technical reversal reconciliation. Overall D01-D17 is still active. Actual
+financial identifiers, provider/role acceptance and production release safeguards
+remain outstanding; broader returns/warranty stays deferred.
+
 ### 13 November: actual settlement proof and physical unit evidence
 
 D17 now has a read-only settlement verifier bound to the current affected case,
