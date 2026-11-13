@@ -1,6 +1,6 @@
-## 13 November 17:05 UTC - resume both briefs on current integrated source
+## 13 November 17:50 UTC - person-context acceptance; integration continues
 
-Both approved briefs remain active. PR57 is now merged at master65f14086;
+Both approved briefs remain active. PR57 is merged at65f14086;
 the unfinished person-context work is preserved on codex/team-media-context-20261113
 in the existing allied-team-media-20261110 worktree. Integrate current source
 without overwriting intervening Parts, booking, payment or invitation work.
@@ -21,15 +21,41 @@ recorded dates for visible assignment sources in Lagos time. Earlier account
 setup no longer claims access is active for an inactive account. Account-level
 and separately approved access coverage remains explicitly partial. Learning
 access-review v6 describes the changed target without changing eligibility/flags.
-52 focused frontend units and16 learning cases pass. Rendered eight-width
-People/edit-context checks and final types/style checks are in progress; do not
-count them as complete yet. The first temporary runner failed because its cwd
-was the artifact directory; explicit frontend cwd corrected the runner only.
+52 focused frontend units and16 learning cases pass. Frontend/backend TypeScript,
+scoped lint/format and the production build pass. Final runtimee32332f8 has14/14
+isolated production-build journeys: all eight requested widths, long names at
+320/1440 with selected-name text doubled and spacing enlarged, filter/return and
+failure recovery, delegated loss/copied-route denial and saved collection cancel
+focus. Person-page Axe at320/1440 and the existing directory scans pass. Two
+additional long-name checks exercise focused password input and review button.
+Evidence: TEMP/allied-team-context-20261113/focus-report.json and controls-report.json.
+No physical device, branded Safari, full screen-reader or real-role write is claimed.
+
+Retain the initial runner cwd failure, development chunk error and pre-fix captures.
+The first production assertions passed but visual review exposed a tall phone
+identity bar. Full phone width improves wrapping; stronger hit tests then found
+real320px focus occlusion. A local focus/resize handler now scrolls form controls
+clear of the measured bar and support clearance. Rounded button corners were
+excluded from geometric hit samples; painted edge midpoints remain required.
+Failed traces and original screenshots remain under the same task artifact root.
+
+PR63 contains this bounded follow-up. Reconcile current43170836, preserving the
+separate saved-removal correction and mobile product gallery/support clearance.
+Exact integrated-master gates and compatible publication remain pending. The
+local standalone trace warning comes from verified dependency junctions; this
+local package is not a portable deployment artifact. A separate112-schema Prisma
+client was generated offline at an unreachable loopback target after unlinking
+only this worktree's old client junction; the vehicle target remains untouched.
+
+Temporary-cover validation/timezone work is draft only, preserved in
+TEMP/allied-team-context-20261113/cover-draft.patch (three files; not applied).
+Next inspect/apply-check that draft and complete UI, authoritative request checks,
+historical open-ended preservation, contracts and isolated/browser evidence.
 
 T01 remains partial; T02-T07 are still required, including expiring cover,
 invitations/history, account/job workspaces, Digital Media Manager, public media,
 bulk vehicle photos and supported video. C: preflight25.51GiB with2GiB budget;
-mid-check25.23GiB. Preserve the20GiB reserve and all existing recovery resources.
+latest check23.41GiB. Preserve the20GiB reserve and all existing recovery resources.
 
 ## 10 November 01:56 UTC - People identity and scoped directory group in progress
 

@@ -332,37 +332,47 @@ for (const width of [320, 1440]) {
       element.style.wordSpacing = "0.16em";
     });
     const review = page.getByRole("button", { name: "Review enrollment", exact: true });
-    await review.focus();
-    await expect(selected.getByText(name, { exact: true })).toBeInViewport();
-    expect(
-      await selected.evaluate((element) => element.getBoundingClientRect().height),
-    ).toBeLessThan(720 / 2);
-    await expect(review).toBeInViewport();
-    await page.screenshot({ path: info.outputPath("person-long-identity.png") });
-    await expect
-      .poll(() =>
-        review.evaluate((element) => {
-          const box = element.getBoundingClientRect();
-          const bar = document
-            .querySelector(".wf-person-context")!
-            .getBoundingClientRect();
-          // Sample painted edge midpoints; bounding-box corners can fall
-          // outside the button's rounded border even with nothing over it.
-          const occludingElements = [
-            [box.left + box.width / 2, box.top + 2],
-            [box.left + box.width / 2, box.bottom - 2],
-            [box.left + 2, box.top + box.height / 2],
-            [box.right - 2, box.top + box.height / 2],
-          ].flatMap(([x, y]) => {
-            const front = document.elementFromPoint(x, y);
-            return front === element || element.contains(front)
-              ? []
-              : [front ? `${front.tagName}.${front.className}` : "outside viewport"];
-          });
-          return { belowIdentity: box.top >= bar.bottom, occludingElements };
-        }),
-      )
-      .toEqual({ belowIdentity: true, occludingElements: [] });
+    for (const control of [
+      page.getByLabel("Your current password", { exact: true }),
+      review,
+    ]) {
+      await control.focus();
+      await expect(control).toBeFocused();
+      await expect(selected.getByText(name, { exact: true })).toBeInViewport();
+      expect(
+        await selected.evaluate((element) => element.getBoundingClientRect().height),
+      ).toBeLessThan(720 / 2);
+      await expect(control).toBeInViewport();
+      await page.screenshot({
+        path: info.outputPath(
+          control === review ? "person-long-identity.png" : "person-long-password.png",
+        ),
+      });
+      await expect
+        .poll(() =>
+          control.evaluate((element) => {
+            const box = element.getBoundingClientRect();
+            const bar = document
+              .querySelector(".wf-person-context")!
+              .getBoundingClientRect();
+            // Sample painted edge midpoints; bounding-box corners can fall
+            // outside the button's rounded border even with nothing over it.
+            const occludingElements = [
+              [box.left + box.width / 2, box.top + 2],
+              [box.left + box.width / 2, box.bottom - 2],
+              [box.left + 2, box.top + box.height / 2],
+              [box.right - 2, box.top + box.height / 2],
+            ].flatMap(([x, y]) => {
+              const front = document.elementFromPoint(x, y);
+              return front === element || element.contains(front)
+                ? []
+                : [front ? `${front.tagName}.${front.className}` : "outside viewport"];
+            });
+            return { belowIdentity: box.top >= bar.bottom, occludingElements };
+          }),
+        )
+        .toEqual({ belowIdentity: true, occludingElements: [] });
+    }
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
