@@ -146,6 +146,12 @@ it("keeps the selected person's current identity above access editing and clears
   expect(screen.getByText("Account level", { exact: true })).toBeTruthy();
   expect(screen.getByText("Account branch", { exact: true })).toBeTruthy();
   expect(screen.getByText("Active", { exact: true })).toBeTruthy();
+  expect(
+    within(screen.getByRole("complementary", { name: "Selected person" })).getByText(
+      "Ada Okoro",
+      { exact: true },
+    ),
+  ).toBeTruthy();
   state.resource = { data: account, loading: false, refreshing: true };
   view.rerender(<WorkforceAccessPanel userId={account.userId} personPage />);
   expect(screen.queryByRole("heading", { level: 1, name: "Ada Okoro" })).toBeNull();
@@ -158,6 +164,127 @@ it("keeps the selected person's current identity above access editing and clears
   view.rerender(<WorkforceAccessPanel userId={account.userId} personPage />);
   expect(screen.queryByRole("heading", { level: 1, name: "Ada Okoro" })).toBeNull();
   expect(screen.getByText(/Person details are unavailable/)).toBeTruthy();
+  expect(
+    within(screen.getByRole("complementary", { name: "Selected person" })).queryByText(
+      "Ada Okoro",
+      { exact: true },
+    ),
+  ).toBeNull();
+});
+it("groups real allowed actions by task and shows dates only for their visible sources", () => {
+  const account = record();
+  const workshop = {
+    id: id(951),
+    userId: account.userId,
+    template: "WORKSHOP_LEAD",
+    templateVersion: 1,
+    branchId: id(101),
+    scope: "BRANCH",
+    temporary: true,
+    startsAt: stamp,
+    expiresAt: "2026-10-27T10:00:00.000Z",
+    reason: "Reviewed temporary workshop cover",
+    assignedByUserId: id(302),
+    createdAt: stamp,
+    revokedAt: null,
+    revokedByUserId: null,
+    revocationReason: null,
+  };
+  const technician = {
+    ...workshop,
+    id: id(952),
+    template: "MECHANICAL_TECHNICIAN",
+    scope: "ASSIGNED",
+    temporary: false,
+    expiresAt: null,
+  };
+  const view = preview().added[0]!;
+  const source = {
+    assignmentId: workshop.id,
+    label: "Workshop / Quality Service Lead",
+    scope: "BRANCH" as const,
+    kind: "ASSIGNMENT" as const,
+  };
+  const value = {
+    ...account.effectiveAccess!,
+    grants: [
+      { ...view, sources: [source] },
+      {
+        ...view,
+        capability: "QUALITY_APPROVE",
+        label: "Independently approve workshop quality",
+        sources: [source],
+      },
+      {
+        ...view,
+        capability: "JOBS_ASSIGN",
+        label: "Assign workshop jobs",
+        sources: [source],
+      },
+      {
+        ...view,
+        capability: "JOBS_UPDATE",
+        label: "Record workshop work",
+        scope: "ASSIGNED" as const,
+        sources: [
+          {
+            ...source,
+            assignmentId: technician.id,
+            label: "Mechanical Technician",
+            scope: "ASSIGNED" as const,
+          },
+        ],
+      },
+    ],
+  };
+  render(
+    <WorkforceEffectiveAccess
+      value={value}
+      assignments={[
+        workshop,
+        technician,
+        { ...workshop, id: id(999), reason: "Hidden source reason must stay private" },
+      ]}
+    />,
+  );
+  fireEvent.click(
+    screen.getByText("Allowed actions and why they are available (4)", { exact: true }),
+  );
+  for (const label of [
+    "View",
+    "Prepare and edit",
+    "Independently review and approve",
+    "Coordinate work",
+  ])
+    expect(screen.getByRole("region", { name: label })).toBeTruthy();
+  expect(screen.getAllByText(/26 Oct 2026, 11:00 \(Lagos time\)/).length).toBeGreaterThan(
+    0,
+  );
+  expect(
+    screen.getAllByText(/ends 27 Oct 2026, 11:00 \(Lagos time\)/).length,
+  ).toBeGreaterThan(0);
+  expect(screen.getByText(/Job duty: Mechanical Technician/)).toBeTruthy();
+  expect(screen.queryByText(/Hidden source reason/)).toBeNull();
+  expect(screen.queryByRole("region", { name: "Other allowed work" })).toBeNull();
+});
+it("does not describe earlier duties as active when the selected account is inactive", () => {
+  const account = record();
+  account.access = null;
+  account.identity!.status = "SUSPENDED";
+  account.management = {
+    ...account.management,
+    canEnroll: false,
+    canAssign: false,
+    canRevoke: false,
+    canDelegate: false,
+  };
+  account.effectiveAccess!.baseline = "INACTIVE";
+  state.resource = { data: account, loading: false, refreshing: false };
+  render(<WorkforceAccessPanel userId={account.userId} personPage />);
+  expect(
+    screen.getByText(/cannot use responsibility access while inactive/),
+  ).toBeTruthy();
+  expect(screen.queryByText(/Legacy access is still active/)).toBeNull();
 });
 it("does not infer identity facts when a compatible older response omits them", () => {
   const account = record();

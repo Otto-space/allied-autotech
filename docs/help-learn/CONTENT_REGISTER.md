@@ -785,7 +785,7 @@ mean a production publication. Feature flags remain off in committed examples.
 | mixed-queues            | operations           | 3 / 2026-10-27        | /admin                       | OPERATIONS template and effective assignment union                                                                                          |
 | oversight-scope         | oversight            | 3 / 2026-10-27        | /admin                       | CEO_MD position and permission-filtered overview                                                                                            |
 | customer-account-review | admin                | 3 / 2026-10-27        | /admin/customers             | Customer account lock, session enforcement and audit contract                                                                               |
-| access-review           | access               | 5 / 2026-11-10        | /admin/workforce/access      | People identity, partial access explanation, pinned delegation and reviewed responsibility impact                                           |
+| access-review           | access               | 6 / 2026-11-13        | /admin/workforce/access      | Persistent selected-person context, Overview return, partial access explanation and reviewed responsibility impact                          |
 | privileged-recovery     | owner                | 3 / 2026-10-27        | /admin/security              | Existing identity/governance safeguards                                                                                                     |
 
 ## Guides
@@ -983,3 +983,5 @@ Combined service-request v26 retains both the v25 overview vehicle-selection cla
 Combined 4 November source: service-request v29 retains both the v28 Month/Schedule calendar navigation and the D07 remaining-work estimate clarification. Existing twelve steps, eligibility and guide targets remain unchanged.
 
 10 November2026: access-review v5 follows People / View person and the named identity header. It explicitly explains partial account-level and separately approved duty coverage. Existing access eligibility, pinned duties, independent approval rules and all feature flags remain unchanged. Local learning tests and the People acceptance checkpoint are tracked in the existing quality register.
+
+13 November2026: access-review v6 explains the persistent Selected person bar and keyboard-accessible Overview return during long edits. Task groups use the current server-returned allowed actions; visible assignment sources include recorded start/end dates in Lagos time. Missing identity or partial access remains explicitly unavailable, not evidence of no access. Eligibility and feature flags are unchanged; current rendered evidence belongs to the People checkpoint in the quality register.

@@ -11,12 +11,13 @@ import {
 it("versions the People explanation without widening access or treating partial checks as complete", () => {
   const article = learningArticles.find((item) => item.id === "access-review")!;
   expect(article).toMatchObject({
-    version: 5,
+    version: 6,
     gate: "access",
     href: "/admin/workforce/access",
-    reviewedAt: "2026-11-10",
+    reviewedAt: "2026-11-13",
   });
   expect(article.steps.join(" ")).toContain("select View person");
+  expect(article.steps.join(" ")).toContain("Use Overview");
   expect(article.steps.join(" ")).toContain("partial summary");
   expect(article.steps.join(" ")).toContain(
     "An unavailable check does not mean no access",

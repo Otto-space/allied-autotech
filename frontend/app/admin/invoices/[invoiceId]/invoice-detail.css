@@ -53,34 +53,30 @@
   color: #405566;
   margin: 9px 0 0;
 }
-.wid-heading .wid-status {
-  vertical-align: middle;
-  margin-left: 12px;
+.dashboard .dashboard-content .wid-heading .workflow-progress {
+  margin: 12px 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
-.wid-status {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 8px;
-  border: 1px solid #c9d4df;
-  border-radius: 5px;
-  color: #324a5f;
-  background: #edf2f6;
+.dashboard .dashboard-content .wid-heading .workflow-progress-heading {
+  margin: 0 0 8px;
 }
-.wid-status-issued {
-  background: #edf3fc;
-  border-color: #c1d4f0;
-  color: #234e86;
+.dashboard .dashboard-content .wid-heading .workflow-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
-.wid-status-paid {
-  background: #e7f5ee;
-  border-color: #b7d9c8;
-  color: #1f6347;
+.dashboard .dashboard-content .wid-heading .workflow-stages li {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-top: 0;
+  border-left: 3px solid currentColor;
 }
-.wid-status-void {
-  background: #f5f0f0;
-  border-color: #dfd0d0;
-  color: #66494b;
+.wid-heading .workflow-stage-dot {
+  flex-shrink: 0;
 }
 .wid-refresh {
   display: flex;
