@@ -55,6 +55,8 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
       - run: npm ci
+      - name: Verify migration checkout and packaged-input safeguards
+        run: node --test scripts/deployment/migration-inputs.test.mjs
       - run: npm run prisma:generate
       - name: Replay migrations and reject missing schema migrations
         run: npm run test:migrations

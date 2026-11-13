@@ -1,3 +1,96 @@
+#At 19:04 UTC, both aliases still identify the b122 frontend and the backend is
+ACTIVE at 2c40bd63, with no pending rollout and zero temporary IP rules. The earlier
+backup is now outside the one-hour migration-receipt window: retain its recovery
+evidence, but obtain a fresh backup and matching populated restore before any
+production migration. No production migration or deployment occurred in this batch.
+
+# 13 November - release input integrity repair and populated recovery evidence
+
+Implemented shared release-helper checks for established migration checkout bytes
+before/after builds and for the actual immutable migration-image SQL before registry
+authentication or push. Missing, extra, duplicate or changed packaged migrations
+stop publication. The probe has no network or data volumes and checks ownership
+before temporary-container cleanup. Added five real-Git regression cases and a
+backend safety workflow step. No SQL, schema, permission or business-policy change.
+
+A real comparison exposed four LF checkout files whose established checksum bytes
+are CRLF: order_purchase_review, cart_vehicle_selection, booking_resource_allocations
+and product_timing_estimates. Git normalization had allowed a clean-looking source
+tree. Restored exact filtered bytes; verified identical HEAD/index/clean-filtered
+Git blobs and refreshed index metadata without staging any SQL change. The source 431
+migration image already contained the wrong bytes: its default release manifest is
+now held as release-held-migration-checksum-mismatch.json, with release-ineligible.json.
+Remote source tags are preserved and must not be overwritten. Its nine image probes
+passed, demonstrating why those probes alone do not establish migration readiness.
+
+The new guard passes all five regression tests. Actual Docker execution accepts the
+canonical 6e migration image's112 files and rejects the held431 image. Evidence:
+TEMP/aat-attendance-20261104/migration-input-guard-actual-images-20261113.json.
+All 59 deployment/input/spec/cutover regression cases pass, including the five new
+cases; these counts overlap. Source lint and affected formatting pass after
+correcting unsafe-finally warnings.
+New-source hosted checks and exact-master integration remain required.
+
+Canonical6e and compatible 135 packages each pass nine image/security/runtime probes.
+The packaged synthetic database test passes empty 112 replay, schema/history checks,
+actual separate-target restore and deliberate drift rejection. All 112 canonical
+migration files match Git-filtered checksum bytes. Four task-created intermediate 65
+image references were removed after payload-equivalence and container-reference
+checks; production, rollback, current/recovery/base images and every volume remain.
+No physical disk reclamation is claimed. The approved Webpack cache remains intact
+because both earlier deletion attempts were rejected by automatic approval review.
+
+A fresh strict-TLS read-only production snapshot verifies 102 applied checksums,
+one prior rolled-back entry and existing runtime/default privileges. The 930,943-byte
+archive passes the existing receipt guard. Its separate populated restore migrates
+102-to-112 through the guarded runner: all original-column counts/hashes, complete
+prior history and genuine existing product inputs remain unchanged. The target is
+allied_combined_restore_694da4ccfa74_ci on the recorded loopback-only 63888 profile;
+it contains a protected snapshot and must never receive fixture submissions or
+routine cleanup. Native startup first hit the default-port binding error; the
+recorded loopback startup completed normal recovery/sync before use.
+
+All six actual canonical/recovery API and worker images validate every scalar column
+of 112 generated models against that populated restore, with SELECT-only temporary
+credentials and read-only transactions selecting no business rows. The task-created
+probe role was removed. Production received no schema/business write. The initial
+backup failed because its new output directory was absent; corrected setup succeeded.
+Each temporary current-address firewall exception was removed and verified; two app
+rules and zero temporary IP rules remain. Eight managed snapshots are present, newest
+13 November 05:22 UTC. This is current inventory and a fresh logical restore, not a
+new managed-cloud restore claim. All protected archives/restore evidence are retained.
+
+Read-only public Edge 157.0.4341.46 hero acceptance passes three complete real-time
+four-slide loops, pause/resume, keyboard arrows, nine widths 320 to 1920, a 21-second
+image delay and all four images failing. Copy and task links remain usable; failed
+media stops rotation. Primary controls remain 44px; approved phone selectors are 32px
+wide with 44px height and verified centre hits. The initial verifier incorrectly
+required 44px width for those secondary selectors; retained that failure and corrected
+the assertion. Visually reviewed safe 390/1440 and failed-image 320 captures. Direct
+Services search/reload/keyboard/detail acceptance also passes. Evidence: live-home-
+hero-acceptance-final-20261113.json and live-b122-public-service-final-20261113.json.
+These are resized desktop Edge checks, not physical-device or real-role acceptance.
+
+Eight current 431/recovery 135 registry digests were verified after protected login;
+none was activated. The 431 manifest remains ineligible as above. The initial registry
+preparation assertion had no diagnostic detail; retained that limitation rather
+than assigning an unproven cause. The instrumented attempt completed. The 135 artifact
+is a tested compatible candidate, not blanket permission for an incident promotion.
+Normal exact-master publication requirements remain. Older 102 API images cannot
+read newly created NOTICE kinds and are not a complete post-feature rollback.
+
+Both public aliases and backend remain the compatible b122 release at the last read.
+Source431 frontend run43473406595 was superseded/cancelled by newer master 34cb9f02;
+source 6e run43469678572 was also cancelled, not passed. Preserve newer People/Parts
+work. Prepare a new exact-source package after this guard integrates; do not repair
+or overwrite the held immutable tag. Require successful exact-master gates, fresh
+backup/restore evidence and a reviewed consumer-before-producer rollout with actual
+old-worker termination/readiness verification before new NOTICE creation. Booking/
+payment flags stay unchanged. D17 remains in its separate active worktree; remaining
+resolved-unit/financial fulfilment work, real-role/provider acceptance, identifiers
+and genuinely missing operator inputs stay open. Public hero/Services acceptance
+is not whole-site readiness. The full original audit and D01-D17 goal remain active.
+
 ## 13 November 17:50 UTC - person-context acceptance; integration continues
 
 Both approved briefs remain active. PR57 is merged at65f14086;
