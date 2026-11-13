@@ -589,7 +589,7 @@ function SupplyPanel({
           {row.monetaryBasis.status === "SAVED_ORDER_ALLOCATION" &&
           row.monetaryBasis.amounts ? (
             <p>
-              {row.resolution
+              {row.resolution || summary.reconciliations.length
                 ? "Original affected amount:"
                 : "Saved affected amount for review:"}{" "}
               <strong>{formatKobo(row.monetaryBasis.amounts.totalKobo)}</strong>,
@@ -600,7 +600,9 @@ function SupplyPanel({
             <p>
               {row.kind === "USED_INSTALLED_OR_DIAGNOSIS_DISPUTE"
                 ? "Technical assessment is required; no general return or warranty entitlement is assumed."
-                : "Finance must review the original invoice and any attributable charges before a refund amount can be requested."}
+                : summary.reconciliations.length
+                  ? "The original price breakdown remains unavailable. The cancelled-order payment review above uses actual payment records; no per-unit refund amount is inferred."
+                  : "Finance must review the original invoice and any attributable charges before a refund amount can be requested."}
             </p>
           )}
           {staff && administrator && row.reason && (
@@ -903,14 +905,18 @@ function SupplyPanel({
                 : "A financial request or additional history needs reconciliation before another choice. Contact this Care case to discuss a change."}
             </p>
           )}
-          {staff && administrator && actorUserId && !row.resolution && (
-            <SupplyRefundForm
-              order={order}
-              row={row}
-              disabled={blocked}
-              review={review}
-            />
-          )}
+          {staff &&
+            administrator &&
+            actorUserId &&
+            !summary.reconciliations.length &&
+            !row.resolution && (
+              <SupplyRefundForm
+                order={order}
+                row={row}
+                disabled={blocked}
+                review={review}
+              />
+            )}
         </article>
       ))}
       {summary?.hasMore && (

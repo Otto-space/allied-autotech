@@ -771,7 +771,8 @@ for (const width of [320, 768, 1440])
         refundedKobo: outcome === "NO_CAPTURE_RECORDED" ? "0" : "320",
         cancelledUnits: 3,
       };
-      f.state.summary.items[0].monetaryBasis.status = "HISTORICAL_BREAKDOWN_REVIEW_REQUIRED";
+      f.state.summary.items[0].monetaryBasis.status =
+        "HISTORICAL_BREAKDOWN_REVIEW_REQUIRED";
       f.state.summary.items[0].monetaryBasis.amounts = null;
       await page.goto(f.url);
       const panel = page.locator("[data-order-supply-concerns]"),
@@ -790,6 +791,11 @@ for (const width of [320, 768, 1440])
       await expect(dialog).toContainText("Record cancelled-order payment review?");
       expect(f.state.writes).toHaveLength(0);
       await dialog.getByRole("button", { name: "Confirm request", exact: true }).click();
+      if (interrupted)
+        await dialog
+          .getByRole("button", { name: "Retry same request", exact: true })
+          .click();
+      await expect(dialog).not.toBeVisible();
       const history = panel.locator("[data-cancelled-supply-history]");
       await expect(history).toContainText(
         outcome === "NO_CAPTURE_RECORDED"
@@ -801,6 +807,10 @@ for (const width of [320, 768, 1440])
       );
       await expect(history).toContainText("The original order remains cancelled");
       await expect(group).toHaveCount(0);
+      await expect(panel).toContainText("no per-unit refund amount is inferred");
+      await expect(panel).not.toContainText(
+        "Finance must review the original invoice and any attributable charges before a refund amount can be requested",
+      );
       expect(f.state.writes).toHaveLength(1);
       await page.reload();
       await expect(history).toBeVisible();
