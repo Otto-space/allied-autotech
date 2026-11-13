@@ -34,6 +34,7 @@ import {
 import "./workforce-access-panel.css";
 import { WorkforceEffectiveAccess } from "./workforce-effective-access";
 import { WorkforcePersonHeader } from "./workforce-person-header";
+import { WorkforcePersonContext } from "./workforce-person-context";
 import {
   parseWorkforceAccessPreview,
   type WorkforceAccessPreview,
@@ -394,12 +395,16 @@ function WorkforcePanel({ userId, personPage }: { userId: string; personPage: bo
     <section
       className="detail-section workforce-panel"
       aria-labelledby="workforce-access-title"
+      data-person-page={personPage || undefined}
     >
       {personPage && (
         <WorkforcePersonHeader
           account={!error && !busy ? data : undefined}
           unavailable={!!error}
         />
+      )}
+      {personPage && (
+        <WorkforcePersonContext account={!error && !busy ? data : undefined} />
       )}
       <div className="wf-heading">
         <h2 id="workforce-access-title">Responsibilities & temporary cover</h2>
@@ -428,9 +433,11 @@ function WorkforcePanel({ userId, personPage }: { userId: string; personPage: bo
       {data && (
         <>
           <p>
-            {data.access
-              ? `Enrolled ${formatBusinessDate(data.access.enabledAt)}. Position: ${workforcePositionLabels[data.access.position as keyof typeof workforcePositionLabels] ?? data.access.position}.`
-              : "Legacy access is still active. No responsibilities have been silently assigned."}
+            {data.effectiveAccess?.baseline === "OWNER"
+              ? "This protected Super Admin account uses the owner baseline. A job position does not change that authority."
+              : data.access
+                ? `Enrolled ${formatBusinessDate(data.access.enabledAt)}. Position: ${workforcePositionLabels[data.access.position as keyof typeof workforcePositionLabels] ?? data.access.position}.`
+                : "This account uses an earlier access setup. No job duties have been assigned automatically."}
           </p>
           {!Object.values(data.management).some((v) => v === true) && (
             <p className="notice">
@@ -438,7 +445,10 @@ function WorkforcePanel({ userId, personPage }: { userId: string; personPage: bo
               access.
             </p>
           )}
-          <WorkforceEffectiveAccess value={data.effectiveAccess} />
+          <WorkforceEffectiveAccess
+            value={data.effectiveAccess}
+            assignments={data.assignments}
+          />
           <WorkforceEditors
             key={`${userId}:${epoch}`}
             data={data}

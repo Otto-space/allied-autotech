@@ -352,32 +352,68 @@ test("Parts category and unavailable vehicle choices keep a truthful help route"
 
 test.describe("Parts native gallery", () => {
   test.use({ hasTouch: true, isMobile: true, reducedMotion: "reduce" });
-  test("photo controls update in place on a narrow phone", async ({ page, request }) => {
-    const state = await partsDesignFixture(request, page);
-    await page.setViewportSize({ width: 320, height: 720 });
-    await page.goto(`/parts/${partsDesignId}`);
-    const controls = page.locator(".pd-gallery > .pd-gallery-controls");
-    await controls.scrollIntoViewIfNeeded();
-    const before = await page.evaluate(() => scrollY);
-    const next = await controls
-      .getByRole("button", { name: "Next photo", exact: true })
-      .boundingBox();
-    await page.touchscreen.tap(next!.x + next!.width / 2, next!.y + next!.height / 2);
-    await expect(controls.getByText("Photo 2 of 2", { exact: true })).toBeVisible();
-    await page.evaluate(async () => {
-      for (let frame = 0; frame < 3; frame++)
-        await new Promise<void>((r) => requestAnimationFrame(() => r()));
+  for (const width of [320, 390])
+    test(`photo controls stay clear of support and update in place at ${width}px`, async ({
+      page,
+      request,
+    }, info) => {
+      const state = await partsDesignFixture(request, page);
+      await page.setViewportSize({ width, height: 720 });
+      await page.goto(`/parts/${partsDesignId}`);
+      const controls = page.locator(".pd-gallery > .pd-gallery-controls");
+      await controls.scrollIntoViewIfNeeded();
+      const nextButton = controls.getByRole("button", {
+        name: "Next photo",
+        exact: true,
+      });
+      const support = await page.locator(".support-controls > button").boundingBox();
+      // Reproduce the captured overlap instead of letting locator.tap scroll it away.
+      await nextButton.evaluate(
+        (element, dockCenter) => {
+          const rect = element.getBoundingClientRect();
+          window.scrollTo({
+            top: scrollY + rect.top + rect.height / 2 - dockCenter,
+            behavior: "instant",
+          });
+        },
+        support!.y + support!.height / 2,
+      );
+      expect(
+        await nextButton.evaluate((element) => {
+          const rect = element.getBoundingClientRect();
+          return element.contains(
+            document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2),
+          );
+        }),
+      ).toBe(true);
+      const before = await page.evaluate(() => scrollY);
+      const next = await controls
+        .getByRole("button", { name: "Next photo", exact: true })
+        .boundingBox();
+      await page.touchscreen.tap(next!.x + next!.width / 2, next!.y + next!.height / 2);
+      await expect(controls.getByText("Photo 2 of 2", { exact: true })).toBeVisible();
+      await page.evaluate(async () => {
+        for (let frame = 0; frame < 3; frame++)
+          await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      });
+      expect(await page.evaluate(() => scrollY)).toBe(before);
+      const previous = await controls
+        .getByRole("button", { name: "Previous photo", exact: true })
+        .boundingBox();
+      await page.touchscreen.tap(
+        previous!.x + previous!.width / 2,
+        previous!.y + previous!.height / 2,
+      );
+      await expect(controls.getByText("Photo 1 of 2", { exact: true })).toBeVisible();
+      await page.evaluate(async () => {
+        for (let frame = 0; frame < 3; frame++)
+          await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      });
+      expect(await page.evaluate(() => scrollY)).toBe(before);
+      await noOverflow(page);
+      expect(state.unexpectedWrites).toEqual([]);
+      await page.screenshot({
+        path: info.outputPath(`parts-gallery-clearance-${width}.png`),
+      });
     });
-    expect(await page.evaluate(() => scrollY)).toBe(before);
-    const previous = await controls
-      .getByRole("button", { name: "Previous photo", exact: true })
-      .boundingBox();
-    await page.touchscreen.tap(
-      previous!.x + previous!.width / 2,
-      previous!.y + previous!.height / 2,
-    );
-    await expect(controls.getByText("Photo 1 of 2", { exact: true })).toBeVisible();
-    await noOverflow(page);
-    expect(state.unexpectedWrites).toEqual([]);
-  });
 });

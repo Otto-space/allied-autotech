@@ -830,6 +830,7 @@ export const learningArticles: LearningArticle[] = [
       "Existing MFA, password, branch and delegation controls still apply.",
       [
         "Open People in Team & Access and select View person. Check the selected person's identity, account level, job position, branch and status. A job title does not grant duties.",
+        "During a long edit, check Selected person above the form. Use Overview to return to their account details. If current identity is unavailable, refresh before relying on earlier details.",
         "Read What this person can access, then expand Allowed actions and why they are available. This is a partial summary: account-level permissions are not itemized, and separately approved duties appear only when your access permits that check. An unavailable check does not mean no access.",
         "Before assigning or revoking a responsibility, review access added, removed and retained. Revoking one grant can leave the same access supplied by another active grant. Scheduled assignments supply no access before their start.",
         "Check the reason and current delegation. If access changes before confirmation, refresh and review again; if a save is uncertain, inspect and reconcile it before retrying.",
@@ -840,8 +841,8 @@ export const learningArticles: LearningArticle[] = [
       "Team access security, pinned delegation and reviewed responsibility impact",
       "invite staff admin operations permissions access added removed retained grant sources delegate delegation authority privileges",
     ),
-    version: 5,
-    reviewedAt: "2026-11-10",
+    version: 6,
+    reviewedAt: "2026-11-13",
   },
   article(
     "privileged-recovery",

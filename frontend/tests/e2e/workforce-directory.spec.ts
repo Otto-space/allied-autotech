@@ -273,10 +273,40 @@ for (const [width, height] of [
       const review = page.getByRole("button", { name: "Review enrollment", exact: true });
       await review.focus();
       await expect(review).toBeInViewport();
+      const selected = page.getByRole("complementary", {
+        name: "Selected person",
+        exact: true,
+      });
+      await expect(selected.getByText("Ada Okoro", { exact: true })).toBeVisible();
+      const occlusion = await review.evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        const top = document.querySelector(".wf-person-context")!.getBoundingClientRect();
+        const front = document.elementFromPoint(
+          box.left + box.width / 2,
+          box.top + box.height / 2,
+        );
+        return {
+          belowIdentity: box.top >= top.bottom,
+          unobscured: front === element || element.contains(front),
+        };
+      });
+      expect(occlusion).toEqual({ belowIdentity: true, unobscured: true });
+      await page.screenshot({ path: info.outputPath("person-edit-context.png") });
+      await selected.getByRole("link", { name: "Overview", exact: true }).focus();
+      await page.keyboard.press("Enter");
+      await expect(page.locator("#workforce-person-overview")).toBeFocused();
+      await expect(
+        page.getByRole("heading", { name: "Ada Okoro", level: 1, exact: true }),
+      ).toBeVisible();
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       ).toBe(true);
       await page.screenshot({ path: info.outputPath("workforce-detail.png") });
+      if (width === 320 || width === 1440)
+        expect(
+          (await new AxeBuilder({ page }).include(".workforce-panel").analyze())
+            .violations,
+        ).toEqual([]);
       await page.getByRole("link", { name: "Back to People", exact: true }).click();
       await expect(region).toBeVisible();
       expect(s.errors).toEqual([]);
@@ -284,6 +314,74 @@ for (const [width, height] of [
     });
   });
 }
+for (const width of [320, 1440]) {
+  test(`long selected identity at ${width}px wraps at enlarged text without covering actions`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 720 });
+    const s = await setup(page);
+    const name = "Chidinma Alexandra Okonkwo-Emmanuel with a long recorded family name";
+    s.f.workforce.accountLabel = name;
+    await page.goto(`${base}/${s.f.member.id}`);
+    await page.getByText("Review legacy access and enroll", { exact: true }).click();
+    const selected = page.getByRole("complementary", { name: "Selected person" });
+    await selected.locator("strong").evaluate((element) => {
+      element.style.fontSize = "28px";
+      element.style.lineHeight = "1.5";
+      element.style.letterSpacing = "0.12em";
+      element.style.wordSpacing = "0.16em";
+    });
+    const review = page.getByRole("button", { name: "Review enrollment", exact: true });
+    for (const control of [
+      page.getByLabel("Your current password", { exact: true }),
+      review,
+    ]) {
+      await control.focus();
+      await expect(control).toBeFocused();
+      await expect(selected.getByText(name, { exact: true })).toBeInViewport();
+      expect(
+        await selected.evaluate((element) => element.getBoundingClientRect().height),
+      ).toBeLessThan(720 / 2);
+      await expect(control).toBeInViewport();
+      await page.screenshot({
+        path: info.outputPath(
+          control === review ? "person-long-identity.png" : "person-long-password.png",
+        ),
+      });
+      await expect
+        .poll(() =>
+          control.evaluate((element) => {
+            const box = element.getBoundingClientRect();
+            const bar = document
+              .querySelector(".wf-person-context")!
+              .getBoundingClientRect();
+            // Sample painted edge midpoints; bounding-box corners can fall
+            // outside the button's rounded border even with nothing over it.
+            const occludingElements = [
+              [box.left + box.width / 2, box.top + 2],
+              [box.left + box.width / 2, box.bottom - 2],
+              [box.left + 2, box.top + box.height / 2],
+              [box.right - 2, box.top + box.height / 2],
+            ].flatMap(([x, y]) => {
+              const front = document.elementFromPoint(x, y);
+              return front === element || element.contains(front)
+                ? []
+                : [front ? `${front.tagName}.${front.className}` : "outside viewport"];
+            });
+            return { belowIdentity: box.top >= bar.bottom, occludingElements };
+          }),
+        )
+        .toEqual({ belowIdentity: true, occludingElements: [] });
+    }
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.screenshot({ path: info.outputPath("person-long-identity.png") });
+    expect(s.writes).toEqual([]);
+    expect(s.errors).toEqual([]);
+  });
+}
+
 test("directory filtering, pagination, clear and deep-link context use real controls", async ({
   page,
 }) => {
@@ -353,4 +451,6 @@ test("delegated administrator loses open directory and copied detail route when 
       exact: true,
     }),
   ).toHaveCount(0);
+  expect(s.errors).toEqual([]);
+  expect(s.writes).toEqual([]);
 });
