@@ -314,6 +314,40 @@ for (const [width, height] of [
     });
   });
 }
+test.afterEach(async ({ page }, info) => {
+  if (
+    info.status === info.expectedStatus ||
+    !info.title.startsWith("long selected identity")
+  )
+    return;
+  const geometry = await page.evaluate(() => {
+    const target = document.activeElement as HTMLElement | null;
+    const context = document.querySelector<HTMLElement>(".wf-person-context");
+    const dock = document.querySelector<HTMLElement>(".support-controls");
+    const bounds = (node: Element | null) =>
+      node
+        ? {
+            top: node.getBoundingClientRect().top,
+            bottom: node.getBoundingClientRect().bottom,
+            height: node.getBoundingClientRect().height,
+          }
+        : null;
+    return {
+      viewport: innerHeight,
+      scrollY,
+      activeTag: target?.tagName,
+      insidePersonScope: !!target?.closest(".workforce-panel[data-person-page='true']"),
+      target: bounds(target),
+      context: bounds(context),
+      dock: bounds(dock),
+      header: bounds(document.querySelector(".dashboard-top")),
+      rootTop: getComputedStyle(document.documentElement).scrollPaddingTop,
+      marginTop: target ? getComputedStyle(target).scrollMarginBlockStart : null,
+    };
+  });
+  // Geometry only: no identities, field values, credentials or record contents.
+  console.info("People focus geometry", JSON.stringify(geometry));
+});
 for (const [width, tallerHeader] of [
   [320, false],
   [1440, false],

@@ -1,3 +1,59 @@
+### 13 November: actual no-goods closure and current-master integration
+
+Runtime source 8f868a2a integrates master e0021792 search draft-load and native service
+filter/support-clearance repairs. Current public apex/www independently identify
+READY dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5; the shared release receipt records source 6a
+and backend 112. This work has not promoted a domain or changed production data.
+Current held candidate dpl_EgGbXf9NpmrphoDwqcDNNAL7WGP6 is READY from 8f868a2a;
+no custom public domain was assigned.
+The owner's dirty Desktop hero edit remains untouched; no other branch was retired.
+
+Backend runtime/SQL are unchanged from ac7f5f43. All 142 native cases / 11 files,
+123-migration empty replay/schema diff/db:check and restricted runtime pass; owned
+tmpfs cleanup verified. A focused rerun passes four cases; its ACTIVE-allocation
+case also exercises the actual HTTP closure endpoint: CSRF/customer rejection,
+current assured administrator,
+no-store response and real persisted closure. Exact original money, independent
+refund proof, actual handovers and consumed stock remain. Generic paid-supply
+cancellation cannot restock goods. Customer/guest projections omit private proofs.
+Contracts validate 472 paths / 555 mounted operations plus 4 infrastructure routes;
+Prisma client/API types regenerated. Source/focused types, scoped lint, 51 learning/
+calendar/timing tests, 20 supply UI units and 16 People units pass. Secret 4031 and
+canonical 123-file checkout-byte guard pass on ac7f5f43; SQL/application paths are
+unchanged by the later frontend commits. Receipts: native-supply-closure-final.log
+and native-supply-closure-http.log under TEMP/aat-d03-service-payments-20261109/.
+
+Rendered supply closure passes 10/10 on corrected held source de45a6a0: full/partial
+actual quantity display at 320/768/1440, explicit review, lost-response recovery,
+refresh, exact amounts, scoped Axe, overflow and private customer/guest views.
+Screenshots were inspected. Initial visual review corrected misleading collection-
+clearance copy after recorded closure and reconciled synthetic affected amounts.
+Current guides: customer/staff parts collection v5/v4, administrator sourcing v8,
+restricted refund-work v9. Eligibility, guide targets and publication flags remain.
+
+Prior exact-source CI 6dae2492 failed backend only on an obsolete sourcing-guide
+version assertion (5 versus 7), now maintained at v8 with role checks preserved.
+Frontend passed 1162 browser cases but failed a 320px People focus occlusion. Ordinary
+held People cases passed, so a larger-header/enlarged-name regression was added;
+it reproduced real occlusion on the earlier held build. The first local correction
+still failed the stronger case (12/13 passed on held ecf0154e). Shared and local
+focus reveal now use the same measured sticky identity; dialogs retain local focus.
+The final integrated run passes 13/13 on source 8f868a2a, including the previously
+failing enlarged-header case. Final phone/desktop closure and enlarged-identity
+screenshots were visually inspected. Scoped Axe/overflow assertions pass where
+tested. Receipt: closure-integrated-held-browser.log. API fixtures and emulated
+viewports do not prove real-role/provider/device acceptance. No assertion or
+timeout was weakened.
+The browser plugin is unavailable; existing Playwright/Chromium fixtures are used,
+not actual role/provider, physical-device or Safari acceptance. Temporary access
+links/cookies from completed runs have been revoked/removed.
+
+Remaining independent D17 work: zero-capture/cancelled and legacy/technical-reversal
+reconciliation. Verified invoice identifiers/applicability, operating account/resource
+facts, independent provider/role acceptance, exact integrated-master checks and safe
+fresh backup/off-device recovery/restore/migration/runtime publication remain. Broader
+returns/warranty is deferred. Booking and purchasing readiness remain separate.
+
 ## 13 November 20:42 UTC - public search load-race repair
 
 Current published source6a remains live on both domains with compatible backend112.
