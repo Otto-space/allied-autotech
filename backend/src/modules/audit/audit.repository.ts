@@ -4,6 +4,7 @@ import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import { refundQueueSelect } from "../payments/refund-record.js";
 import { anomalySelect } from "./anomaly-record.js";
 import { outboxJobSelect, webhookJobSelect } from "./operational-job-record.js";
+import { jobDeliveryDiagnostic } from "./job-delivery-diagnostic.js";
 import type {
   AnomalyListQuery,
   AuditListQuery,
@@ -120,13 +121,26 @@ export class AuditRepository {
       .slice(0, take);
   }
 
-  async job(source: "outbox" | "webhook", id: string, client: Prisma.TransactionClient) {
+  async job(
+    source: "outbox" | "webhook",
+    id: string,
+    client: Prisma.TransactionClient,
+    safeDeliveryDiagnostic = false,
+  ) {
     if (source === "outbox") {
       const record = await client.outboxEvent.findUnique({
         where: { id },
-        select: { ...outboxJobSelect, publishedAt: true },
+        select: { ...outboxJobSelect, publishedAt: true, lastError: true },
       });
-      return record ? { ...record, source: "OUTBOX" as const } : null;
+      if (!record) return null;
+      const { lastError: _privateError, ...safeRecord } = record;
+      return {
+        ...safeRecord,
+        source: "OUTBOX" as const,
+        ...(safeDeliveryDiagnostic
+          ? { deliverySuppressionReason: jobDeliveryDiagnostic(record) }
+          : {}),
+      };
     }
     const record = await client.paymentWebhookEvent.findUnique({
       where: { id },

@@ -12,6 +12,7 @@ import {
   auditListQuerySchema,
   disputeListQuerySchema,
   operationalJobParamsSchema,
+  operationalJobQuerySchema,
   operationalJobsQuerySchema,
   operationalRetryBodySchema,
   operationsEmptyQuerySchema,
@@ -46,7 +47,7 @@ export function createAuditOperationsRouter(): Router {
   );
   router.get(
     "/operations/jobs/:source/:jobId",
-    validate({ params: operationalJobParamsSchema, query: operationsEmptyQuerySchema }),
+    validate({ params: operationalJobParamsSchema, query: operationalJobQuerySchema }),
     controller.job,
   );
   router.get(

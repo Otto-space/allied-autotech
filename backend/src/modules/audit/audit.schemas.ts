@@ -105,6 +105,11 @@ export const refundListQuerySchema = z
   })
   .strict();
 export const operationsEmptyQuerySchema = z.object({}).strict().default({});
+export const operationalJobQuerySchema = z
+  .object({
+    diagnostics: z.literal("safe_delivery").optional(),
+  })
+  .strict();
 
 export type AuditListQuery = z.infer<typeof auditListQuerySchema>;
 export type OperationalJobsQuery = z.infer<typeof operationalJobsQuerySchema>;
