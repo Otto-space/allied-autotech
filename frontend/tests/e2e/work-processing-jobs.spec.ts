@@ -52,6 +52,9 @@ for (const [width, height] of [
       ];
       await page.goto("/admin/processing-jobs");
       await openFirst(page);
+      await expect(
+        page.getByRole("heading", { name: "Delivery restriction", exact: true }),
+      ).toBeVisible();
       await expect(page.locator(".wj-retry")).toContainText(
         "Operational email consent is off.",
       );

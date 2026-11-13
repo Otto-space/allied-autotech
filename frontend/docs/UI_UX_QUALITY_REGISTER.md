@@ -1,3 +1,25 @@
+## 13 November - compiled suppression acceptance and heading refinement
+
+Compiled source 8a09e04d passes all 22 processing-job scenarios in dedicated Edge:
+seven exact viewport pairs (1280x720, 1024x768, 768x1024, 430x932, 390x844,
+360x800, 320x720), directory/accessibility, filtering/history, reviewed retry,
+uncertain-result reconciliation, stale revision, denied access and unavailable
+recovery storage. All terminal; zero skipped/flaky/unexpected. API data and writes
+were isolated fixtures, not production delivery or real-role acceptance. Desktop
+and 320px screenshots inspected; no horizontal overflow or ordinary suppression
+retry control. Evidence: TEMP/allied-suppression-optin-20261113/report.json.
+
+Build/type checking, scoped frontend lint and eight contract/recovery units passed.
+Local standalone tracing warned about shared dependency paths; browser validation
+uses Next start with those existing dependencies, not an independently portable
+standalone artifact. Vercel packaging remains separately gated by CI.
+
+Visual inspection found the suppressed section still titled Review a retry.
+Changed only that conditional heading to Delivery restriction and added a rendered
+assertion. The 22 passes above precede this wording refinement; its final compiled
+recheck and exact-source CI remain pending. No deployment or schema change.
+C: remains 22.98 GiB free. Existing source and useful caches preserved.
+
 ## 13 November - compatible diagnostic opt-in correction
 
 Current-job inspection now adds the safe allowlisted delivery diagnostic only for

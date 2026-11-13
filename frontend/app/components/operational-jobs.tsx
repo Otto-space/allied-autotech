@@ -719,7 +719,11 @@ function JobWorkspace({
                     </p>
                     <JobFacts row={row} />
                     <section className="wj-retry">
-                      <h3>Review a retry</h3>
+                      <h3>
+                        {jobSuppressionExplanation(row)
+                          ? "Delivery restriction"
+                          : "Review a retry"}
+                      </h3>
                       {jobSuppressionExplanation(row) ? (
                         <p className="notice">
                           Delivery is suppressed: {jobSuppressionExplanation(row)} A
