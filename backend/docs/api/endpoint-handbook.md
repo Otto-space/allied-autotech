@@ -27109,7 +27109,7 @@ Relevant errors: 400 The request is malformed.; 401 Current session required; 40
 ### GET `/admin/operations/jobs/{source}/{jobId}`
 
 - Operation ID: `getAdminOperationsJobsBySourceByJobId`
-- Purpose: Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404; query parameters are rejected. Inspect a current processing job. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404. The optional diagnostics=safe_delivery query adds an allowlisted suppression reason; omitted queries preserve the legacy response. Other query values are rejected. Inspect a current processing job. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -27121,6 +27121,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `source` | path | outbox / webhook | Yes | Identifier selecting the source resource. |
 | `jobId` | path | string (uuid) | Yes | Identifier selecting the job resource. |
+| `diagnostics` | query | safe_delivery | No | Diagnostics used to constrain this request. |
 
 Success: HTTP 200.
 

@@ -21,6 +21,7 @@ async function fixture(page: Page, role = "STAFF") {
   await page.route("**/api/v1/**", async (route) => {
     const url = new URL(route.request().url()),
       endpoint = url.pathname.replace("/api/v1", "");
+    if (endpoint === "/public/capabilities") return route.fallback();
     if (endpoint === "/staff/notifications/summary")
       return reply(route, { unreadCount: 0, groups: [] });
     if (endpoint === "/staff/notifications/context")

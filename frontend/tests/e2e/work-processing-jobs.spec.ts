@@ -20,6 +20,61 @@ async function review(page: Page) {
 }
 const confirm = (page: Page) =>
   page.getByRole("dialog").getByRole("button", { name: "Confirm change", exact: true });
+for (const [width, height] of [
+  [1280, 720],
+  [1024, 768],
+  [768, 1024],
+  [430, 932],
+  [390, 844],
+  [360, 800],
+  [320, 720],
+] as const) {
+  test.describe("suppression at " + width + "x" + height, () => {
+    test.use({
+      viewport: { width, height },
+      isMobile: width <= 430,
+      hasTouch: width <= 768,
+    });
+    test("consent suppression is explained without offering an ordinary retry", async ({
+      page,
+    }, info) => {
+      const f = await workJobsFixture(page);
+      const row = jobRow(1);
+      if (row.source !== "OUTBOX") throw Error("Expected outbox fixture");
+      f.rows = [
+        {
+          ...row,
+          eventType: "support.customer-email.requested",
+          aggregateType: "SupportCustomerEmail",
+          status: "DEAD_LETTER",
+          deliverySuppressionReason: "CONSENT_WITHDRAWN",
+        },
+      ];
+      await page.goto("/admin/processing-jobs");
+      await openFirst(page);
+      await expect(
+        page.getByRole("heading", { name: "Delivery restriction", exact: true }),
+      ).toBeVisible();
+      await expect(page.locator(".wj-retry")).toContainText(
+        "Operational email consent is off.",
+      );
+      await expect(page.locator(".wj-retry")).toContainText("Do not change consent");
+      await expect(
+        page.getByRole("button", { name: "Review job retry", exact: true }),
+      ).toHaveCount(0);
+      expect(
+        await page.evaluate(() => ({ width: innerWidth, height: innerHeight })),
+      ).toEqual({ width, height });
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+      await page.locator(".wj-retry").scrollIntoViewIfNeeded();
+      if ([320, 1280].includes(width))
+        await page.screenshot({ path: info.outputPath("suppression-explanation.png") });
+      expect(f.writes).toEqual([]);
+    });
+  });
+}
 for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
   test(`processing jobs directory and inspection at ${width}`, async ({ page }) => {
     const f = await workJobsFixture(page),

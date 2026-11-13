@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { operationalJobCursorSchema } from "./operational-job-cursor.js";
+import { supportDeliverySuppressionReasons } from "./job-delivery-diagnostic.js";
 const date = z.iso.datetime({ offset: true });
 const count = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const jobFields = {
@@ -47,6 +48,10 @@ export const currentOperationalJobResponseSchema = z.discriminatedUnion("source"
     .extend({
       status: z.enum(["PENDING", "PROCESSING", "PUBLISHED", "FAILED", "DEAD_LETTER"]),
       publishedAt: date.nullable(),
+      deliverySuppressionReason: z
+        .enum(supportDeliverySuppressionReasons)
+        .nullable()
+        .optional(),
     })
     .strict(),
   operationalJobResponseSchema.options[1]
