@@ -463,6 +463,87 @@ and full119-template/state acceptance remain open.
 
 ## 13 November - consolidated T02 integration checkpoint
 
+### 13 November 23:01 UTC - scoped current access reviews verified locally
+
+Both approved briefs remain active. The bounded review package resumed around
+22:03 UTC in allied-team-media-20261110, branch codex/team-reviews-20261113.
+It preserves the separately verified history work and current master c48cf7b1
+integration. The later 2e492b81 vehicle-only follow-up remains on master and must
+be retained during integration; it is not part of this local private-page build.
+
+The new /admin/workforce/reviews page uses existing owner/current delegation
+authority. Server filters run before pagination for temporary cover ending within
+24 hours, 7 days or 30 days; open-ended cover; scheduled, ended or removed duties;
+managed Staff without active duties in the permitted scope; and earlier Staff
+access setups. Each result shows its checked server time and recorded dates in
+Lagos time. Match records are bounded independently of active-duty summaries,
+using a page-bounded relation query. Supported pinned duties and the current
+branch/template envelope remain authoritative; default directory DTOs are unchanged.
+
+These are read-only reviews, not automatic revocations, reminders or global counts.
+Other grants/account-level access may remain. Admin and protected owner baselines
+are excluded from Staff setup-gap checks; inactive/unverified Staff are excluded
+from active-duty gaps. Old open-ended records are retained. View person and Back
+preserve review/search/cursor context. Only the owner gets the existing invitation-
+status link here; full managed invitation/history/person composition remains open.
+Restricted access-review help is v10; eligibility, permissions and flags are unchanged.
+
+Local verification: 36/36 native isolated HTTP cases pass after a fresh 112-migration
+replay with a non-owner runtime role and no DDL/TRUNCATE. These cover actual review
+filters, pinned definitions, scope/cursors, unassigned versus legitimate baselines,
+MFA/stale sessions, delegation loss, unchanged old records/default DTO and the
+existing history/learning contracts. Task-only synthetic databases/roles were
+cleaned up; protected populated restores/backups were not used as fixture targets.
+An initial 34/35 run exposed the old learning-v9 expectation; corrected v10 passes.
+Final source: TEMP/allied-people-tests-47fb95a2ae5b. Earlier attempts remain retained. A two-person, 21-match case also verifies
+20 returned records plus the More flag independently for each person.
+
+Frontend/backend types, backend lint, focused frontend lint/format, 17 learning
+units and 26 combined frontend units pass. Canonical OpenAPI validates 465 paths;
+the client and 547-operation inventory are regenerated. The final local production
+build passes. An overlapping early typecheck raced generated Next types; the
+final serialized typecheck passes. No type/assertion/security gate was weakened.
+
+Final Edge fixtures: 30/30 new-review and existing-People journeys pass at
+320x720, 360x800, 390x844, 430x932, 768x1024, 1024x768, 1280x720 and 1440x900.
+The merged history/full-audit group also passes 28/28, including the older 375/1920
+samples. Four supplemental facts/keyboard cases pass at 320/1440; enlarged text
+checks verify unobstructed actions for both people. Axe, all recorded states,
+invalid/empty/failed/malformed/denied recovery, dates, query/paging/reload/Back,
+person return and delegation loss pass. Overview and actual duty-facts screenshots
+were visually reviewed. Duplicate zone labels and clipped selector text found in
+the first 30-pass build were corrected and rebuilt before the final run.
+
+Evidence: TEMP/allied-team-reviews-20261113/{build-final.log,final-report.json,
+facts-report.json,keyboard-report.json,history-report.json} and their result folders.
+Installed Edge/Playwright is the browser fallback. These are synthetic fixtures,
+not real account changes or physical-device/Safari/full screen reader acceptance.
+Local dependency junctions retain standalone trace warnings; do not publish that
+artifact. No production grants, invitations, business submissions or gated flags
+changed. Current exact-master CI, integration and publication remain required.
+T01 and remaining T02/T03 composition, T04 media boundaries/library, T05 bulk photos,
+T06 real videos and T07 full role/device acceptance are still open.
+
+Release preparation is distinct: 64064fe9 and 8e4325f9 artifacts remain held.
+Both pass all nine image tests; the latter four immutable registry digests and
+current/recovery read-only schema probes are verified. Fresh strict-TLS production
+backup and separate populated 112-to-112 restore preserve rows and full history.
+The temporary operator DB rule was removed with original/concurrent rules retained.
+No new managed-cloud restore is claimed. A 60-second first runtime import timeout
+is retained; its complete rerun passes. Supported authenticated held-build relay
+checks include all eight invitation foundation widths and isolated pagination/
+reload/Back recovery. Production correctly rejects development OIDC; protection
+was not changed. Master advanced through c48cf7b1 to2e492b81, so running/cancelled
+checks are not publication evidence. The c48 frontend gate failed in the existing 320px enlarged-identity People
+case: the support dock occludes the enrollment action (1266 pass, one fail).
+Local Edge does not reproduce that larger-header geometry; correct it before
+integration/publication. The new
+2e492 master run is not yet a passing release gate. Fresh 22:44 backend36687b08 remains ACTIVE
+with the four6a digests/no pending rollout; 22:56 apex/www both identify READY
+frontend4gNTdCdQRLm4MhLznG4uTZTt1T6Y, preserving the www308. No deployment or domain
+promotion by this package. Disk preflights pass; latest C: measurement is21.10GiB.
+Current/recovery images, backups, restores and useful caches remain retained.
+
 PR71 now contains the dated-cover and invitation-task changes as one coherent
 access-management batch and supersedes PR69 for integration. Both original commit
 histories and all test evidence remain retained; the cover branch is not retired.

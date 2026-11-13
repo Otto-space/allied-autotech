@@ -32,6 +32,8 @@ saved-items-quality.spec.ts > parts is readable at 320px
 saved-items-quality.spec.ts > parts is readable at 1440px
 work-aftercare.spec.ts > named navigation, actual history facts and selected review survive responsive layouts
 work-audit.spec.ts > audit history and expanded inspection at 320
+workforce-access-reviews.spec.ts > access review layout and controls at 320
+workforce-access-reviews.spec.ts > access review layout and controls at 1440
 work-booking-detail-quality.spec.ts > long service and line descriptions remain readable on mobile
 work-bookings-quality.spec.ts > workshop records and expanded filters fit 320px
 work-branches.spec.ts > branch workspace foundation at 320

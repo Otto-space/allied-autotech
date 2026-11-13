@@ -158,24 +158,51 @@ export const workforceListSchema = z.strictObject({
   limit: z.coerce.number().int().min(1).max(50).default(25),
   cursor: z.uuid().optional(),
 });
-export const workforceDirectoryQuerySchema = workforceListSchema.extend({
-  q: z
-    .string()
-    .trim()
-    .max(120)
-    .refine(
-      (value) => ![...value].some((c) => c.charCodeAt(0) < 32 || c.charCodeAt(0) === 127),
-      {
-        message: "Search cannot contain control characters",
-      },
-    )
-    .optional(),
-  role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]).optional(),
-  status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]).optional(),
-  position: positionSchema.optional(),
-  branchId: z.uuid().optional(),
-});
+export const workforceReviewKindSchema = z.enum([
+  "COVER_ENDING",
+  "OPEN_ENDED_COVER",
+  "SCHEDULED",
+  "ENDED",
+  "REMOVED",
+  "UNASSIGNED",
+  "EARLIER_STAFF_SETUP",
+]);
+export const workforceDirectoryQuerySchema = workforceListSchema
+  .extend({
+    q: z
+      .string()
+      .trim()
+      .max(120)
+      .refine(
+        (value) =>
+          ![...value].some((c) => c.charCodeAt(0) < 32 || c.charCodeAt(0) === 127),
+        {
+          message: "Search cannot contain control characters",
+        },
+      )
+      .optional(),
+    role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]).optional(),
+    status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]).optional(),
+    position: positionSchema.optional(),
+    branchId: z.uuid().optional(),
+    review: workforceReviewKindSchema.optional(),
+    reviewDays: z.coerce
+      .number()
+      .pipe(z.union([z.literal(1), z.literal(7), z.literal(30)]))
+      .optional(),
+  })
+  .refine((value) => value.reviewDays === undefined || value.review === "COVER_ENDING", {
+    message: "An ending-cover window requires the ending-cover review",
+    path: ["reviewDays"],
+  });
 export const workforceDirectoryResponseSchema = z.object({
+  review: z
+    .object({
+      kind: workforceReviewKindSchema,
+      scope: z.enum(["ALL_PRIVILEGED_ACCOUNTS", "DELEGATED_STAFF_AND_DUTIES"]),
+      windowEndsAt: z.iso.datetime().optional(),
+    })
+    .optional(),
   managementBranches: z
     .array(z.object({ id: z.uuid(), name: z.string(), isActive: z.boolean() }))
     .optional(),
@@ -205,6 +232,22 @@ export const workforceDirectoryResponseSchema = z.object({
       ),
       canInspect: z.boolean(),
       responsibilitiesMore: z.boolean(),
+      reviewMatchesMore: z.boolean().optional(),
+      reviewMatches: z
+        .array(
+          z.object({
+            assignmentId: z.uuid(),
+            template: templateSchema,
+            templateVersion: z.number().int().positive(),
+            branch: z.object({ id: z.uuid(), name: z.string(), isActive: z.boolean() }),
+            scope: z.enum(["BRANCH", "ASSIGNED"]),
+            temporary: z.boolean(),
+            startsAt: z.iso.datetime(),
+            expiresAt: z.iso.datetime().nullable(),
+            revokedAt: z.iso.datetime().nullable(),
+          }),
+        )
+        .optional(),
     }),
   ),
   nextCursor: z.uuid().optional(),

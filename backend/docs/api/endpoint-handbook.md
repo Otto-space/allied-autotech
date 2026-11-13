@@ -28608,6 +28608,8 @@ Parameters:
 | `status` | query | ACTIVE / SUSPENDED / DEACTIVATED | No | Status used to constrain this request. |
 | `position` | query | CEO_MD / OPERATIONS / CUSTOMER_SERVICE / SALES_SUPERVISOR / SALES_CASHIER / ACCOUNTANT / WORKSHOP_LEAD / ELECTRICAL_TECHNICIAN / MECHANICAL_TECHNICIAN | No | Position used to constrain this request. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
+| `review` | query | COVER_ENDING / OPEN_ENDED_COVER / SCHEDULED / ENDED / REMOVED / UNASSIGNED / EARLIER_STAFF_SETUP | No | Review used to constrain this request. |
+| `reviewDays` | query | number | No | Review Days used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -28616,6 +28618,11 @@ Success: HTTP 200.
   "success": true,
   "message": "Responsibility-based workspace: directory",
   "data": {
+    "review": {
+      "kind": "COVER_ENDING",
+      "scope": "ALL_PRIVILEGED_ACCOUNTS",
+      "windowEndsAt": "2030-01-15T10:00:00.000Z"
+    },
     "managementBranches": [
       {
         "id": "00000000-0000-4000-8000-000000000001",

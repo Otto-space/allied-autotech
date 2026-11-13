@@ -7,6 +7,7 @@ import type { WorkforceAccess } from "@/lib/api/workforce-schemas";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { WorkforceDirectory } from "./workforce-directory";
+import { WorkforceAccessReviews } from "./workforce-access-reviews";
 import { WorkforceOverview } from "./workforce-overview";
 import { WorkforceBookingDetail } from "./workforce-booking-detail";
 import { WorkforceBookings } from "./workforce-bookings";
@@ -50,6 +51,8 @@ export function WorkforceWorkspace({
       return <WorkPartsFitment />;
     case "access":
       return <WorkforceAccessLookup canInvite={access.canInviteAdmins} />;
+    case "accessReviews":
+      return <WorkforceAccessReviews />;
     case "jobs":
       return path === destination.href ? (
         <WorkforceJobs access={access} refreshAccess={refreshAccess} />
