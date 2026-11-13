@@ -1,4 +1,6 @@
-### 13 November - release reconciliation and saved-items test correction
+# Allied AutoTech consolidated audit — implementation and acceptance
+
+## 13 November - release reconciliation and saved-items test correction
 
 Current master 65f14086 contains the merged dashboard, Parts, reminder and People
 batches. Production aliases still identify dpl_EdMgppUipQ81msnEmHCef4jZxx6m at
@@ -18,8 +20,6 @@ Backend 42820223736 and Secrets 42820223809 passed for 65f14086. Corrected compi
 acceptance, new-source/master CI, compatible backend rollout and public acceptance
 remain outstanding. The full two-brief goal and its remaining page/state coverage
 are active; no business facts, transactions or permissions were changed.
-
-Allied AutoTech consolidated audit — implementation and acceptance
 
 ## 10 November - saved-collection focus race found by full CI
 
