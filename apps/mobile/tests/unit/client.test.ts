@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createApiClient } from "../../src/api/client";
+import { createApiClient, type PublicReadPath } from "../../src/api/client";
 import { ApiError, parseRetryAfter } from "../../src/api/errors";
 
 const base = "http://127.0.0.1:4000/api/v1";
@@ -122,4 +122,62 @@ test("external cancellation and pre-aborted signal normalize safely", async () =
       controller.signal,
     ),
   ).rejects.toMatchObject({ code: "ABORTED" });
+});
+test("service detail and pagination use only validated anonymous public reads", async () => {
+  const id = "00000000-0000-4000-8000-000000000001";
+  const fetcher = jest.fn().mockResolvedValue(
+    response({
+      success: true,
+      message: "Loaded",
+      data: { value: "verified" },
+      meta: { requestId: "test" },
+    }),
+  );
+  const api = createApiClient(base, fetcher);
+  await api.get(`/public/services/${id}`, schema);
+  await api.get("/public/services", schema, undefined, { cursor: id });
+  expect(fetcher.mock.calls.map((call) => call[0])).toEqual([
+    `${base}/public/services/${id}`,
+    `${base}/public/services?cursor=${id}`,
+  ]);
+  for (const [, options] of fetcher.mock.calls)
+    expect(options).toMatchObject({
+      method: "GET",
+      credentials: "omit",
+      redirect: "error",
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
+});
+test.each([
+  "/public/services/not-a-uuid",
+  "/public/services/../auth/session",
+  "/public/services/00000000-0000-4000-8000-000000000001/slots",
+  "/public/services?cursor=anything",
+  "/public/services/00000000-0000-4000-8000-000000000001\n",
+  "/customers/bookings",
+  "https://example.com/services",
+])("rejects unsupported path before network access: %s", async (path) => {
+  const fetcher = jest.fn();
+  await expect(
+    createApiClient(base, fetcher).get(path as PublicReadPath, schema),
+  ).rejects.toMatchObject({ code: "UNSUPPORTED_PATH" });
+  expect(fetcher).not.toHaveBeenCalled();
+});
+test("invalid cursors and unsupported query fields cannot reach the network", async () => {
+  const fetcher = jest.fn();
+  const api = createApiClient(base, fetcher);
+  await expect(
+    api.get("/public/services", schema, undefined, { cursor: "../anything" }),
+  ).rejects.toMatchObject({ code: "UNSUPPORTED_QUERY" });
+  await expect(
+    api.get("/public/capabilities", schema, undefined, {}),
+  ).rejects.toMatchObject({ code: "UNSUPPORTED_QUERY" });
+  await expect(
+    api.get("/public/services", schema, undefined, {
+      cursor: undefined,
+      extra: "value",
+    } as { cursor?: string }),
+  ).rejects.toMatchObject({ code: "UNSUPPORTED_QUERY" });
+  expect(fetcher).not.toHaveBeenCalled();
 });

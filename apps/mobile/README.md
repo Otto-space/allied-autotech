@@ -38,11 +38,17 @@ invented service names/prices and deliberately returns unavailable capabilities.
 It makes no outbound requests. Shut it down with Ctrl+C after verification.
 
 The shell has five tabs: Home (S05), Explore (S07–S09), Garage (S10), Activity
-(S20), You (S24). Only `/public/services` and `/public/capabilities` GETs are
-implemented. No authentication, enquiry submission, bookings, payment, push,
+(S20), You (S24). Explore now provides the service catalogue, detail screens and
+a read-only selected-service handoff for a future booking flow. The transport
+permits `/public/services` (including validated cursor pagination),
+`/public/services/:serviceId` (UUID only) and `/public/capabilities` GETs.
+Selection carries only the service ID; details are loaded from the backend again.
+No appointment is submitted or confirmed. No authentication, enquiry submission, bookings, payment, push,
 analytics, image uploads or private-image transport exists. Generated types cover
-the committed API document; the actual transport allows only those two reads.
-Runtime Zod schemas validate the envelope and the fields used by these proofs.
+the committed API document; the actual transport allows only those public reads.
+Runtime Zod schemas validate the envelope, service identity and displayed fields.
+List/detail errors support retry; unavailable services cannot be selected. Test
+fixtures are confined to tests, never used as application fallback data.
 
 Capabilities are advisory, memory-only and expire after 60 seconds. Unknown,
 failed, malformed, inconsistent and expired snapshots disable all six action

@@ -1,3 +1,17 @@
+## 11 November 2026 — mobile service catalogue experiment
+
+Scope: signed-out Explore services, service detail and selected-service handoff in
+`apps/mobile`. Uses existing public APIs and mobile components; no booking write,
+authentication, payment, backend or policy change. Current verification and
+remaining acceptance are recorded in
+[`SERVICE_CATALOGUE_EXPERIMENT.md`](../../apps/mobile/evidence/SERVICE_CATALOGUE_EXPERIMENT.md).
+Coverage includes loading, empty, failure/retry, pagination, detail identity and
+read-only selection/navigation. All 77 mobile tests, typecheck, lint and format
+checks pass; Android/iOS bundle exports pass. Automated API fixtures are explicitly
+synthetic; real-backend and Android/iOS runtime/device acceptance remain unverified.
+Local checks used Node 26; required Node 24 acceptance remains outstanding.
+No publication.
+
 ## 4 November 02:40 UTC — public search acceptance package
 
 Target boundary: 03:40 UTC. Full renewed two-brief goal remains active. Current

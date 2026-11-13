@@ -5,6 +5,15 @@ import { createApiClient } from "../../src/api/client";
 import { makeQueryClient } from "../../src/api/queries";
 import { SessionProvider } from "../../src/auth/session";
 import ExploreProof from "../../src/features/services/ExploreProof";
+import {
+  apiResponse,
+  serviceFixture,
+  serviceId,
+  otherServiceId,
+} from "../fixtures/services";
+
+const mockPush = jest.fn();
+jest.mock("expo-router", () => ({ useRouter: () => ({ push: mockPush }) }));
 
 async function mount(fetcher: typeof fetch) {
   const client = makeQueryClient();
@@ -21,19 +30,8 @@ async function mount(fetcher: typeof fetch) {
   );
   return { ...view, client };
 }
-const ok = (items: unknown[]) =>
-  ({
-    ok: true,
-    status: 200,
-    headers: { get: () => null },
-    json: async () => ({
-      success: true,
-      message: "Synthetic test response",
-      data: { items },
-      meta: { requestId: "fixture-request" },
-    }),
-  }) as unknown as Response;
-describe("MOB-008 Explore read-only proof (mocked API)", () => {
+const ok = (items: unknown[]) => apiResponse({ items });
+describe("Service catalogue (mocked API; not real-backend acceptance)", () => {
   test("loading state is accessible", async () => {
     const result = await mount(
       jest.fn(
@@ -53,17 +51,15 @@ describe("MOB-008 Explore read-only proof (mocked API)", () => {
     result.client.clear();
   });
   test("success displays only names returned by the server", async () => {
-    const result = await mount(
-      jest.fn().mockResolvedValue(
-        ok([
-          {
-            id: "00000000-0000-4000-8000-000000000001",
-            name: "Synthetic contract fixture",
-          },
-        ]),
-      ),
-    );
+    const result = await mount(jest.fn().mockResolvedValue(ok([serviceFixture])));
     expect(await screen.findByText("Synthetic contract fixture")).toBeTruthy();
+    await fireEvent.press(
+      screen.getByRole("button", { name: "View Synthetic contract fixture" }),
+    );
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/services/[serviceId]",
+      params: { serviceId },
+    });
     await result.unmount();
     result.client.clear();
   });
@@ -84,6 +80,46 @@ describe("MOB-008 Explore read-only proof (mocked API)", () => {
     await fireEvent.press(retry);
     await waitFor(() => expect(screen.getByText("No services listed")).toBeTruthy());
     expect(fetcher).toHaveBeenCalledTimes(2);
+    await result.unmount();
+    result.client.clear();
+  });
+  test("pagination failure preserves earlier services and retries the same cursor", async () => {
+    const fetcher = jest
+      .fn()
+      .mockResolvedValueOnce(
+        apiResponse({ items: [serviceFixture], nextCursor: serviceId }),
+      )
+      .mockRejectedValueOnce(new Error("offline"))
+      .mockResolvedValueOnce(
+        apiResponse({
+          items: [
+            { ...serviceFixture, id: otherServiceId, name: "Synthetic second service" },
+          ],
+        }),
+      );
+    const result = await mount(fetcher);
+    await fireEvent.press(
+      await screen.findByRole("button", { name: "Load more services" }),
+    );
+    const retry = await screen.findByRole("button", { name: "Try again" });
+    expect(screen.getByText(serviceFixture.name)).toBeTruthy();
+    await fireEvent.press(retry);
+    expect(await screen.findByText("Synthetic second service")).toBeTruthy();
+    expect(fetcher.mock.calls.slice(1).map((call) => call[0])).toEqual([
+      `http://127.0.0.1:4000/api/v1/public/services?cursor=${serviceId}`,
+      `http://127.0.0.1:4000/api/v1/public/services?cursor=${serviceId}`,
+    ]);
+    expect(screen.queryByRole("button", { name: "Load more services" })).toBeNull();
+    await result.unmount();
+    result.client.clear();
+  });
+  test("malformed catalogue is an error, never an invented or empty service list", async () => {
+    const result = await mount(
+      jest.fn().mockResolvedValue(ok([{ id: serviceId, name: "Incomplete fixture" }])),
+    );
+    expect(await screen.findByRole("button", { name: "Try again" })).toBeTruthy();
+    expect(screen.queryByText("No services listed")).toBeNull();
+    expect(screen.queryByText("Incomplete fixture")).toBeNull();
     await result.unmount();
     result.client.clear();
   });
