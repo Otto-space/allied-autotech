@@ -1,3 +1,13 @@
+## 13 November - isolated diagnostic fixture correction
+
+Backend run43508328971 failed three unknown/unrelated-event cases because their
+service calls omitted the newly required diagnostic opt-in while expecting its
+nullable field. The HTTP legacy/opt-in contract, four suppression guards and stale
+legacy retry guard passed. Corrected those calls to request diagnostics explicitly;
+unknown raw-error privacy, ordinary eligible retry and lower-role denial assertions
+remain. Scoped formatting/lint pass. Exact-source isolated CI must rerun; no claim
+that this failed run passed. No application behavior or database schema changed.
+
 ## 13 November - compiled suppression acceptance and heading refinement
 
 Compiled source 8a09e04d passes all 22 processing-job scenarios in dedicated Edge:

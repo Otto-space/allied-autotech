@@ -148,9 +148,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       "keeps unknown reason %s private without inventing suppression",
       async (reason) => {
         const row = await fixture(reason);
-        expect(await operations.job(actor, "outbox", row.id, context)).toMatchObject({
-          deliverySuppressionReason: null,
-        });
+        const inspected = await operations.job(actor, "outbox", row.id, context, true);
+        expect(inspected).toMatchObject({ deliverySuppressionReason: null });
+        expect(inspected).not.toHaveProperty("lastError");
+        expect(JSON.stringify(inspected)).not.toContain("PRIVATE-UNKNOWN-ERROR");
         await expect(retry(row)).resolves.toMatchObject({ status: "RETRY_REQUESTED" });
       },
     );
@@ -173,7 +174,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     });
     it("does not classify unrelated events or allow lower-role inspection", async () => {
       const row = await fixture("CONSENT_WITHDRAWN", "synthetic.other-event");
-      expect(await operations.job(actor, "outbox", row.id, context)).toMatchObject({
+      expect(await operations.job(actor, "outbox", row.id, context, true)).toMatchObject({
         deliverySuppressionReason: null,
       });
       await expect(retry(row)).resolves.toMatchObject({ status: "RETRY_REQUESTED" });
