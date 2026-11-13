@@ -1,5 +1,17 @@
 ## 13 November - mobile control release published; Vehicles verification
 
+Update: corrected Vehicles source124bbfe6 compiled as
+dpl_3vbKctFBeeBbjaKgSe3JVqFccbbg. Nine viewport geometry checks, two scoped Axe
+scans and doubled320 hero verification pass; caption clearance is6px with doubled
+text and no horizontal overflow. Reviewed390/1440 viewport and doubled320 captures.
+Evidence: vehicles-124-candidate-qa.json and vehicles-124-*.png in the TEMP folder.
+The compact fixed support dock may overlay noninteractive content until scrolling;
+physical-device/full screen-reader acceptance is not claimed. Incoming master64064fe9
+staff-access changes and both evidence journals are preserved in the Vehicles branch.
+The four Vehicles implementation files are byte-identical to reviewed124bbfe6.
+PR73 remains unpublished pending combined exact-master checks, a clean final
+provider candidate and compatible backend for the incoming dated-cover policy.
+
 PR68 and concurrent public-search recovery are now live at exact master
 e0021792bae1bd8fd2f26605bf01748a0adf8a59, deployment
 dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y on apex and www. Exact-master Frontend43504882640,

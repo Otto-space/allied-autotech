@@ -1,5 +1,15 @@
 ## 13 November - published mobile controls; Vehicles held verification
 
+Update: corrected compiled Vehicles source124bbfe6/deployment
+dpl_3vbKctFBeeBbjaKgSe3JVqFccbbg passes nine geometry sizes, two scoped Axe
+scans and doubled320 hero clearance (6px, no overflow). Reviewed390/1440 viewport
+and doubled320 captures. Evidence: vehicles-124-candidate-qa.json and associated
+screenshots in the same TEMP folder. Fixed support may overlay noninteractive
+content until scrolling; this does not establish full screen-reader/device acceptance.
+Incoming master64064fe9 staff-access changes and both journals are preserved;
+Vehicles source files match reviewed124bbfe6 exactly. PR73 still needs combined
+exact-master gates, a clean final candidate and compatible dated-cover backend.
+
 Mobile-control sourcee0021792 is published on both domains as
 dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y. All three exact-master gates passed
 (43504882640/43504882711/43504882729):1575 units,12 existing conditional skips,
