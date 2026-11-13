@@ -1,3 +1,15 @@
+## 13 November - consolidated T02 integration checkpoint
+
+PR71 now contains the dated-cover and invitation-task changes as one coherent
+access-management batch and supersedes PR69 for integration. Both original commit
+histories and all test evidence remain retained; the cover branch is not retired.
+Merge current master d9c733aa's public-search input repair and d2dcc1ab's completed
+compatible-release evidence without losing either journal. Earlier running or
+superseded frontend checks are not passing exact-source gates. Require fresh
+checks for the combined source and exact master before publication. The access-
+history implementation draft is preserved separately in the existing worktree's
+labelled stash/branch; it is not part of this release batch.
+
 ## 13 November - explicit invitation tasks and current release reconciliation
 
 Both approved briefs remain active. Continue T02 in allied-team-media-20261110,
@@ -118,6 +130,108 @@ T01 and the rest of T02 remain partial; invitations, history/reviews, full accou
 composition and T03-T07 media/workspace/bulk-photo/video scope are still required.
 Reuse the existing ledger and matrix. Latest C: preflight22.22GiB; preserve20GiB
 and all active releases/recovery resources. This checker is not a machine-wide quota.
+
+## 13 November 20:42 UTC - public search load-race repair
+
+Current published source6a remains live on both domains with compatible backend112.
+Read-only acceptance reproduced a real public search draft-loss defect: hold only
+the actual logo response, type diagnostics into the hydrated form, then release
+the image. The browser's natural initial pageshow resets the query to empty.
+The first diagnostic failed to intercept the deployment query suffix (zero held
+requests); corrected wildcard reproduces the loss with one held image. Evidence:
+TEMP/aat-attendance-20261104/search-load-reset-reproduced-20261113.json and safe390
+screenshot. No customer, financial or account records were submitted.
+
+PublicSearchForm now reconciles pageshow only for a document restored from the
+back/forward cache. Initial loading preserves the visitor's query and chosen scope;
+existing popstate and back_forward-navigation handling remain. Added real-browser
+slow-logo cases at320/1280 to the existing runtime recovery suite, retaining native
+load events and subsequent submission. Source lint/format and nine existing search
+units pass; compiled/browser and exact-source release gates remain pending.
+
+Supplemental live checks pass offscreen pause, return/resume, persistent manual
+pause across hover/leave, and focus pause until explicit Play. Reduced-motion
+initialisation exceeded the harness's five-second deadline; a diagnostic with
+settled document loading confirms true reduced-motion state and working controls.
+Do not count the incomplete supplemental run as a full pass. A separate combined
+search attempt failed before the controlled load-race diagnosis; keep that evidence.
+The later owner preference that laptop hover continues autoplay supersedes the
+older audit hover-pause proposal; no carousel behavior was changed.
+
+The Windows SSH agent contains the existing signing key. The native Windows
+ssh-keygen program successfully signed evidence commitd2dcc1ab without disabling
+signing, changing global Git settings or requesting any secret. The earlier signing
+failure used Git's different default program. Existing release evidence is committed;
+this additional source batch is not yet published. Full original audit/D01-D17,
+real-role/provider/device acceptance and independent active D17 work remain open.
+
+## 13 November 20:28 UTC - verified compatible release published
+
+This entry supersedes the earlier 19:04 pre-release state. Exact master
+6a9318a6b04c481b10bc0a52ff1ba7e45790248d integrated PR67 and retained the newer
+People, Parts and invoice changes. All three exact-master gates passed:
+Frontend 43491294033, Backend database safety 43491294226 and Secrets 43491294056.
+The shared migration-input guard and all 59 affected regression cases pass;
+the five new cases are included in that count. Bad source431 packages remain held.
+
+A fresh 932,194-byte strict-TLS production snapshot was separately restored to
+allied_combined_restore_838feafd344f_ci on the recorded loopback-only 63888
+profile. The native populated rehearsal verified preservation of original data,
+complete prior migration history and existing product inputs through 102 to112.
+All six current/recovery API and worker image schema probes passed. Protected
+snapshots and restore databases remain retained; no fixture submissions occurred.
+Current managed snapshot inventory, provider retention/PITR/encryption documentation
+and the historical managed-cluster restore are separate from this fresh logical
+restore. No new managed-cloud restore is claimed.
+
+Production then migrated from102 to112 through npm run db:migrate. Existing
+history, checksums, runtime least privilege and defaults remain intact. Migrator
+db:check and the actual runtime scalar-column schema probe passed. Runtime ledger
+access remains denied by design; no grants were broadened. Only reviewed schema
+and migration-history writes occurred; no demonstration/customer/stock/price or
+financial submissions were made. Every scoped temporary IP rule was removed and
+verified, preserving original and concurrent rules.
+
+Consumer deployment793cd04d became ACTIVE before the new API producer was deployed.
+All provider build/deploy/finalize steps succeeded; the predecessor is SUPERSEDED
+and no pending deployment remained. Fresh post-probe reminder heartbeats passed.
+This establishes provider-managed replacement and readiness; historic termination
+logs were unavailable, so individual old-process exit was not directly observed.
+Final backend36687b08-0c0c-4c24-a80e-69dc572c1822 is ACTIVE with all four verified
+source6a digests. Actual spec comparison verifies that only intended image digests
+changed. Both public API health endpoints return200. All13 worker task heartbeats
+are healthy, including fresh booking and identity progress after the probe began.
+Heartbeats do not prove customer-message or provider-delivery acceptance.
+
+Frontend dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5 was held until the matching backend was
+ready, then promoted. Both apex and www resolve to that READY deployment; CLI
+metadata confirms source6a. Actual held Services geometry/imagery passed nine widths.
+Direct public Services checks then passed320/360/390/430/768/1024/1280/1440/1920:
+all36 actions are44px high, with no horizontal overflow; search, reload, visible
+keyboard focus, Enter and the correct diagnostics detail/form load passed. Four
+anonymous session401s were expected; no page exceptions occurred. No submission.
+390/1440 screenshots were visually reviewed. Earlier direct public hero tests pass
+three real-time loops, pause/resume, keyboard and slow/all-failed media. About
+320/390/1440 preserves the full seven-person team photo. Hero/About source is
+unchanged by this release. These are resized desktop Edge checks, not physical
+phone, Safari, authenticated role or provider test-mode acceptance.
+
+Evidence: TEMP/aat-attendance-20261104/release-backend-6a9318a6-20261113,
+held-6a9318a6-services-rendered-20261113.json,
+live-6a9318a6-public-service-final-20261113.json,
+live-home-hero-acceptance-final-20261113.json and live-about-whole-team-20261113.json.
+Safe before: live-service-card-before-390-20261110.png; after:
+live-6a9318a6-service-card-final-390-20261113.png and1440 counterpart.
+
+Readiness: this compatible public/backend release is published and health-checked.
+Payments, booking activation and other capability flags remain unchanged. Full
+operational acceptance, real-role persistence, provider test-mode and physical-device
+checks remain distinct and open. D17's active resolved-unit/financial fulfilment
+work remains separate; preserve its dirty worktree. Outstanding genuine operator
+inputs/identifiers and the Services filter/support overlap remain recorded follow-ups.
+The original full audit/D01-D17 goal is active, not complete. At completion of these
+small checks C: remains above20GiB; the approved compiler cache is retained because
+automatic approval review blocked its deletion. No alternate deletion was attempted.
 
 ## 13 November - release input integrity repair and populated recovery evidence
 
