@@ -1,3 +1,39 @@
+## 13 November - Stitch Parts live acceptance and Vehicles package
+
+Group 3 Parts is live at exact master
+6a9318a6b04c481b10bc0a52ff1ba7e45790248d on both public domains:
+deployment dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5. Exact-master Frontend
+43491294033, Backend 43491294226 and Secrets 43491294056 passed. The owner
+backend task completed compatible schema112 and deployment36687b08, with guarded
+migration, populated restore and runtime checks recorded separately above/below.
+This UI task performed no database or business writes.
+
+TEMP/aat-stitch-implementation-20261109/parts-live-6a-browser.json records actual
+public catalogue and Engine Oil Filter detail at nine widths320-1920, no horizontal
+overflow,44px product actions, combined category/search/stock/sort recovery through
+detail, Back and reload at390/1440, www canonical journey and mobile menu recovery.
+Four scoped main/footer Axe scans had no A/AA violations. The390 catalogue and1440
+detail screenshots were visually reviewed. This is resized installed Edge evidence;
+physical devices, all-role/screen-reader acceptance, real photo-present product
+gallery and pagination remain separate. Fixture gallery/pagination evidence is CI.
+
+Current design item is Group 4 Vehicles. Reviewed supplied desktop/mobile marketplace
+screens and current public two-listing catalogue. Fidelity points: photographic
+introduction with integrated breadcrumb; compact search-first mobile flow; visible
+results heading without stretched empty rows; sidebar/chip filters retained; factual
+photo/price/specification cards with a clear full-width action. Use approved labelled
+editorial imagery only in the introduction, actual photos on listings, and keep
+owner-reported faults fully visible. Unsupported reference stock, certification,
+warranties, address and booking claims are excluded. Existing enquiry/inspection
+policy and all query/filter semantics are retained. Implementation is not yet
+compiled, visually accepted or published; detail/gallery and state coverage remain.
+
+PR68 is merged as e0021792bae1bd8fd2f26605bf01748a0adf8a59, preserving concurrent
+public-search load-race fixes. Its Services native-focus/dock correction remains
+unpublished pending exact-master43504882640 (Frontend); Backend43504882711 and
+Secrets43504882729 passed. Keep current6a frontend as compatible recovery. Groups4-10
+and full119-template/state acceptance remain open.
+
 ## 13 November 20:42 UTC - public search load-race repair
 
 Current published source6a remains live on both domains with compatible backend112.

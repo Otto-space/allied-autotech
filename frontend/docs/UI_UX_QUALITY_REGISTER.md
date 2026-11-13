@@ -1,3 +1,43 @@
+## 13 November - Parts live acceptance; Vehicles reference implementation
+
+Group3 Parts is now live on both domains at source6a9318a6 and deployment
+dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5, with all three exact-master gates passed
+(43491294033/43491294226/43491294056). Actual public read-only Edge acceptance:
+catalogue and real Engine Oil Filter detail at320,360,390,430,768,1024,1280,1440,1920;
+no overflow;44px product actions; phone search visible in first screen; category,
+search, stock and sort survive detail/Back/reload at390/1440; www journey, mobile
+menu Escape/focus and compatibility target clearance pass. Four scoped main/footer
+Axe A/AA scans report zero violations. Evidence: TEMP/aat-stitch-implementation-20261109/
+parts-live-6a-browser.json and parts-live-6a-{catalogue,product}-{390,1440}.png.
+Reviewed390 catalogue and1440 detail. No business submissions. Physical-device,
+full screen-reader and real-stock photo/gallery/pagination acceptance are unclaimed;
+isolated CI supplies photo-present and pagination coverage. Excluded pre-readiness
+tap and stale menu-name harness attempts remain documented in the receipt.
+
+Group4 Vehicles is the current bounded package. Reference fidelity ledger:
+
+| Reference point                               | Current change                                                                               | Evidence/status                                                                         |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Photographic navy introduction and breadcrumb | Approved showroom editorial image, explicit illustration caption, integrated real breadcrumb | Source only; compiled review pending                                                    |
+| Compact mobile discovery                      | Existing search,44px chips and filter/sort controls retained                                 | Baseline390 reviewed; changed rendering pending                                         |
+| Results close to controls                     | Content-sized grid rows replace stretched empty tracks; existing results heading visible     | Local CSS prototype reduced desktop heading-to-card gap120px to36px; not compiled proof |
+| Clear photo, price and action hierarchy       | Actual un-cropped listing photos retained, readable specs, full-width View vehicle treatment | Source only; no fake listings or nested controls                                        |
+| Honest condition information                  | Existing BMW owner-reported AC fault and unknown inspection/condition states preserved       | Actual two-listing baseline reviewed                                                    |
+
+Baseline screenshots vehicles-baseline-6a-{1440,390}.png were visually reviewed.
+The supplied marketplace desktop/mobile references were reviewed; the detail
+reference supplies HTML only. Reference certification, warranties, sample stock,
+VIN search and booking claims are not approved product facts or actions. Preserve
+all working filters, URL/Back/reload, modal focus, real gallery and enquiry policy.
+Compiled/reference comparison, detail and state verification remain outstanding.
+This styling batch changes no permissions, policy or learning-guide semantic IDs.
+
+PR68 Services native radio/dock fix is integrated in mastere0021792, preserving
+the concurrent public Search initial-pageshow repair. Exact-master Frontend
+43504882640 remains running; Backend43504882711 and Secrets43504882729 passed.
+Neither that correction nor this Vehicles package is claimed live yet. Full119
+template coverage and remaining Groups4-10 remain open.
+
 ## 13 November 20:42 UTC - public search load-race repair
 
 Current published source6a remains live on both domains with compatible backend112.
