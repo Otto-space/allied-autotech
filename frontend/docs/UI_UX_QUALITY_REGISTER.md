@@ -28,6 +28,12 @@ Care version1/2 definitions, delegated scope, stale/unknown saves, form Axe and
 all eight People widths remain included. Add the23 form/Care cases to runtime CI;
 do not widen timeouts. The existing server CI gains the effective-access suite.
 
+PR69's first backend run 43497279114 found two earlier temporary-cover fixtures
+without end dates. Corrected their inputs while retaining password/delegation
+denials and concurrent 200/409 assertions. A fresh isolated replay and all 52
+cases in the five-file CI group pass; runtime privileges and cleanup are recorded
+in TEMP/allied-people-tests-325b41594c00. Hosted checks must pass again.
+
 Evidence: TEMP/allied-team-cover-20261113 and the isolated receipts named in the
 completion tracker. Test flags are isolated only; production flags remain unchanged.
 Physical devices, branded Safari, full screen-reader and real-role acceptance

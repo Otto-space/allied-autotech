@@ -41,6 +41,14 @@ subject build also passes all36 cases, including visible end-date/target checks.
 Add both full form/Care suites to existing runtime CI and effective-access HTTP
 tests to the existing fresh Admin CI database. Keep timeouts and safety checks.
 
+PR69's first backend gate exposed two older workforce-access fixtures whose
+temporary cover omitted an end date. They stopped at validation before password,
+delegation and concurrency checks. Added valid end dates without changing the
+403/200/409 assertions. All 52 cases in the same five-file CI group then passed
+on a fresh isolated 112-migration database with non-owner runtime privileges;
+cleanup is verified in TEMP/allied-people-tests-325b41594c00. The initial failed
+hosted run 43497279114 is retained and is not a passing release gate.
+
 Artifacts: TEMP/allied-team-cover-20261113; isolated receipts in
 allied-people-tests-465d2f8fa1bf and allied-people-tests-c5dfc405f82f. Failed setup
 receipts in allied-people-tests-2f7b57eba532 are retained, including cleanup proof.
