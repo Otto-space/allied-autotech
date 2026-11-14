@@ -1,3 +1,23 @@
+### 14 November: cancelled-order payment guidance correction
+
+The compiled cancelled/refunded fixture shows verified returned funds above a
+generic Payment card that still asks for payment resolution. Keep the historical
+"Payment recorded" label and direct customers to payment records for refund updates,
+with Customer Care help optional. Do not infer new refunds or financial permission.
+Update the existing paid/cancelled order assertion; no control, layout, payment or
+approval logic changes. Lint/format/diff pass; new compiled acceptance is pending.
+
+The70e D17 frontend failure is traced to a500 at /api/v1/public/capabilities, not a
+failed visible privacy/state assertion. Exact artifact digest and projected network
+evidence are retained. Four read-only cases pass with a provisional shared loopback
+transport against compiled53150, including a placeholder-leak guard; this provisional
+change was restored when the D17 owner began its scoped caller-fixture repair.
+Its final acceptance remains separate. No error filtering or assertion was relaxed.
+Safe phone/laptop screenshots: TEMP/allied-supply-transport-20261114/results.
+Temporary candidate access is revoked with zero remaining grants; no cookie persisted
+and the task-owned loopback process is stopped. Live-role acceptance is still blocked
+by the browser current-URL safety check. Preserve the independent active worktree.
+
 ### 14 November: preserve current master screenshot settlement and release
 
 Merged master19aee07d, including its completed upstream release receipts and the

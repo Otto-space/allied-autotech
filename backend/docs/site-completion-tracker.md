@@ -1,3 +1,28 @@
+### 14 November: cancelled-payment guidance follows recorded status
+
+Safe compiled D17 fixture screenshots show a contradiction: the supply panel says
+the original refund is independently verified, while the generic Payment card asks
+the buyer to get the payment resolved. Replace that cancelled/paid explanation with
+a direction to payment records for refund updates and optional Customer Care help.
+The original payment remains recorded; this change derives no new refund outcome,
+amount, entitlement or approval. Update the existing paid/cancelled browser assertion;
+creation/cancellation restrictions and all financial state logic remain unchanged.
+Scoped lint/format/diff pass. New compiled acceptance/publication is pending.
+
+D17 frontend43548771412 failed its strict console check after the cancelled-order
+privacy/state checks passed. The downloaded artifact14095024714 matches its SHA256;
+the failed trace proves one500 at /api/v1/public/capabilities, falling through to the
+CI placeholder rewrite. Safe projected evidence is TEMP/aat-attendance-20261104/
+d17-70e-supply-failed-network-20261114.json. No console assertion was weakened.
+A provisional shared loopback transport passes four exact read-only cases at320/
+1440 against the unchanged compiled53150 application, including a deterministic
+placeholder-leak guard. It was set aside when the independent D17 owner began a
+scoped caller-owned capability fixture and focus-refresh repair. That owner's fix
+needs its own final acceptance; do not count the provisional four passes as that.
+Candidate access was revoked, remote remaining grant count is zero, cookies stayed
+in memory and task-owned fixture26424 was stopped. The source worktree is preserved.
+Ordinary live browser acceptance remains blocked by the current-URL safety check.
+
 ### 14 November: preserve current master screenshot settlement and release
 
 Merged master19aee07d, including its completed upstream release receipts and the
