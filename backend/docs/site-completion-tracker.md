@@ -39,12 +39,22 @@ configured true for the next build. This does not enable chat or change live pag
 The separate D17/132-migration work remains outside this activation batch, based
 on master add252a6 (112 migrations, backend runtime unchanged from production).
 
-Renewed real-model evaluation is in progress under a separate approval ledger;
-prior exhausted approvals are retained. Case workshop-08 returned caveat="" and
-was correctly rejected. Align the upstream JSON schema with existing output
-length/count constraints and explicitly request null when no caveat is needed.
+Renewed real-model baseline: 99 validated answers, one safely rejected empty
+caveat, and ten local negative cases with zero provider calls. Prior exhausted
+approvals are retained. Case workshop-08 returned caveat="" and was correctly
+rejected. Align the upstream JSON schema with existing output length/count
+constraints and explicitly request null when no caveat is needed. All17 targeted
+corrected-source model rechecks pass, including workshop-08; factual replies were
+reviewed against the evaluation rubrics. The active ledger retains117 reservations
+and USD0.233217 conservatively reserved, not an invoice amount. Three calls remain
+within this campaign's120-request cap; never reset that ledger to obtain more.
 No runtime validator is relaxed, retry added, permission granted or schema changed.
 The corrected source passes 110 focused backend tests, scoped lint and formatting.
+TypeScript and the4,000-file secret guard pass. The release workflow previously
+omitted Allie's owned-conversation HTTP suite. Its Allie/Care step now creates a
+dedicated empty database, replays/checks schema, rejects excessive runtime grants,
+and runs owned conversations plus the existing Care suites as a non-owner role
+without DDL, TRUNCATE or migration-ledger reads. Real-model calls remain separate.
 Earlier frontend checks passed 65 tests; the one worker startup timeout passed
 all eight tests on a focused retry. These are not hosted workflow acceptance.
 
@@ -55,8 +65,8 @@ after verifying zero connections. Other databases/resources remain untouched.
 Evidence: TEMP/allied-allie-live-20261114/{migration-replay.log,native-cleanup.json}.
 Free space later recovered without a measured attribution; fresh preflights govern.
 
-Remaining: finish/review model evaluation and corrected-model rechecks; exact-source
-CI/integration; matching backend package and fresh recovery/runtime checks; confirm
+Remaining: exact-source CI/integration, including the new isolated Allie/Care step;
+matching backend package and fresh recovery/runtime checks; confirm
 the OpenAI project hard USD10 monthly limit; configure API/worker settings; rebuild
 and verify the owner editor; audited branch coverage and representative opt-in;
 actual customer/representative delivery, reconnect, isolation and AI-to-human handoff.
