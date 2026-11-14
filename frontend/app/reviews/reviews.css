@@ -253,10 +253,7 @@
 }
 .reviews-page .review-list[aria-busy="true"] {
   min-height: 200px;
-  background:
-    linear-gradient(#f2f5f7, #f2f5f7) 0 28px / 100% 16px no-repeat,
-    linear-gradient(#f2f5f7, #f2f5f7) 0 60px / 75% 14px no-repeat,
-    linear-gradient(#f2f5f7, #f2f5f7) 0 90px / 90% 14px no-repeat;
+  background: #edf1f5;
 }
 .reviews-page .review-card--editorial {
   display: grid;

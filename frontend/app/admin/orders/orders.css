@@ -106,7 +106,7 @@
 .work-orders-skeleton {
   margin-top: 20px;
   height: 180px;
-  background: repeating-linear-gradient(#f0f3f5 0 40px, transparent 40px 60px);
+  background: #edf1f5;
 }
 @media (max-width: 1399px) {
   .work-orders-filters.has-branch {

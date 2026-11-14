@@ -287,7 +287,7 @@
   height: 72px;
   border: 1px solid #e0e6ed;
   border-radius: 6px;
-  background: linear-gradient(90deg, #edf2f6, #f8fafc);
+  background: #edf1f5;
 }
 @media (max-width: 1250px) {
   .wa-event-heading {

@@ -361,7 +361,7 @@
 }
 .cp-skeleton > div {
   height: 560px;
-  background: linear-gradient(110deg, #e5eaf0, #f8fafb, #e5eaf0);
+  background: #edf1f5;
   background-size: 220% 100%;
   border-radius: 10px;
   animation: cp-shimmer 1.8s linear infinite;
