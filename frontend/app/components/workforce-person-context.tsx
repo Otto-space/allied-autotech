@@ -59,7 +59,7 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
           dock && getComputedStyle(dock).position === "fixed"
             ? dock.getBoundingClientRect().top
             : viewportBottom,
-        ) - 4;
+        ) - 2;
       const bounds = target ? focusBounds(target) : null;
       // Compact only the padding; keep the entire identity and its text size.
       // If even that cannot leave a usable focus band, let the context scroll.
