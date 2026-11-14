@@ -63,7 +63,7 @@
   border-radius: 4px;
 }
 .catalogue-banner--vehicles {
-  background: linear-gradient(110deg, var(--marketplace-blue), var(--palette-grey-900));
+  background: var(--palette-navy);
 }
 .catalogue-banner--vehicles .catalogue-banner__inner {
   display: block;
@@ -714,7 +714,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, #101722f5 0%, #101722e8 46%, #10172266 100%);
+  background: #080d10d9;
 }
 .vehicles-page .catalogue-banner--vehicles .catalogue-banner__inner {
   position: static;
@@ -1005,7 +1005,7 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(90deg, #080d10f5 5%, #080d10de 43%, #080d1066 100%);
+  background: #080d10d9;
 }
 .services-page .catalogue-banner__inner {
   display: block;
@@ -1176,7 +1176,7 @@
 }
 @media (max-width: 1000px) {
   .services-page .catalogue-banner--services::before {
-    background: linear-gradient(90deg, #080d10ed, #080d10c7);
+    background: #080d10d9;
   }
   .services-page .services-results {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1184,7 +1184,7 @@
 }
 @media (max-width: 700px) {
   .services-page .catalogue-banner--services::before {
-    background: linear-gradient(90deg, #080d10ed, #080d10b8);
+    background: #080d10d9;
   }
   .services-page .catalogue-banner__inner,
   .services-page .catalogue-banner__copy {
@@ -1269,7 +1269,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, #080d10f5 12%, #080d10d9 52%, #080d1052);
+  background: #080d10d9;
 }
 .shop-page .catalogue-banner__inner {
   display: block;
@@ -1464,7 +1464,7 @@
 }
 @media (max-width: 1023px) {
   .shop-page .catalogue-banner--shop::before {
-    background: linear-gradient(90deg, #080d10ed, #080d10c9);
+    background: #080d10d9;
   }
 }
 @media (min-width: 375px) and (max-width: 1023px) {

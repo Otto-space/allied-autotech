@@ -1,4 +1,10 @@
-﻿.site-footer.site-footer--editorial {
+.site-footer.site-footer--editorial {
+  --surface: var(--palette-navy);
+  --ink: var(--palette-white);
+  --text-body: #e0e2e6;
+  --line: #ffffff33;
+  --link-hover: var(--palette-white);
+  --focus-ring: var(--palette-white);
   position: relative;
   background: var(--surface);
   color: var(--ink);

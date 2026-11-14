@@ -293,16 +293,7 @@
 .work-booking-detail .booking-detail-skeleton {
   height: 140px;
   margin-top: 16px;
-  background: linear-gradient(
-    #edf1f4 40px,
-    transparent 40px,
-    transparent 54px,
-    #edf1f4 54px,
-    #edf1f4 96px,
-    transparent 96px,
-    transparent 110px,
-    #edf1f4 110px
-  );
+  background: #edf1f5;
 }
 .dashboard .dashboard-content .work-booking-detail .booking-detail-disruption {
   padding: 4px 20px;

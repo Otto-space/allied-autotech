@@ -562,7 +562,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(0deg, #01121aef, transparent 90%);
+  background: #01121acc;
 }
 .public-site .lifestyle-feature h3 {
   font: 500 30px/1.2 var(--font-heading);

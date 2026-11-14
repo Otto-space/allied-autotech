@@ -12,7 +12,7 @@ export function SiteFooter() {
     <footer className="site-footer site-footer--editorial">
       <div className="site-footer__inner site-footer__columns">
         <div>
-          <Brand />
+          <Brand inverse />
           <p className="brand-signature">Built on trust. Driven by quality.</p>
           <p>{business.address}</p>
           <p>

@@ -1,3 +1,23 @@
+### 14 November: owner-approved flat palette and deferred representative setup
+
+Owner requests removing all interface gradients, a dark-blue footer and a clear way
+to add the Port Harcourt Customer Service Officer later. Replace CSS gradient
+backgrounds with flat charcoal, navy, white and neutral loading fills; retain red
+actions, existing photography, semantic status colours and layout. Footer uses
+navy #0b2038 with the existing inverse logo, light text and white keyboard focus.
+The navbar remains white. Owner coverage now links to the existing People account
+and work-email lookup, secure invitation and branch-scoped Customer Care duties.
+No staff account is invented or invited automatically. Availability still requires
+a qualified signed-in representative, approved coverage and an explicit live lease.
+
+Source search reports no gradient functions in application CSS/TSX. Existing
+colour-state expectations now require flat charcoal navigation; required compiled
+CI includes that campaign plus mobile/desktop footer contrast and focus checks.
+Coverage fixtures verify the new account/email setup entry. Rendered final-source
+checks and production publication remain pending; no live activation is claimed.
+The verified 112-to132 recovery evidence remains valid for unchanged backend inputs;
+final backup freshness, exact-master checks and matching images are still required.
+
 ### 14 November: follow deferred fragment layout without overriding visitor input
 
 The private production-environment4c967141 campaign finishes47/48: all17 MFA,

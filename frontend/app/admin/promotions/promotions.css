@@ -159,7 +159,7 @@
   height: 140px;
   margin-top: 18px;
   border-radius: 6px;
-  background: linear-gradient(90deg, #edf2f6, #f9fbfc, #edf2f6);
+  background: #edf1f5;
   background-size: 200% 100%;
   animation: wp-loading 1.5s ease infinite;
 }
