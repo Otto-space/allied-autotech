@@ -1,3 +1,13 @@
+## 14 November - final navigation integration with current master
+
+Integrated master 026d9fe2, preserving account design, Allie constraints, the
+measured person-focus correction and isolated MFA expiry fix. The previous
+258b frontend run failed its taller-header person-focus case; incoming PR96
+addresses that exact failure. Both journal histories are preserved. New combined
+source checks remain required; no production publication is claimed. C:26.43GiB
+passes integration preflight. Current production remains healthy on 6c52; the
+132-migration backend still requires matching packaging and recovery gates.
+
 ## 14 November - Allie reconciled with the new 132-migration master
 
 Master dcac8157 includes the separate owner-decision/order and account-design
@@ -231,6 +241,135 @@ records and evidence; 13 newly inventoried routes remain not-inspected. Groups
 5-10 and the remaining route/state/role/device coverage remain open. Preserve
 newer master 19aee07d, whose changes are test evidence and journals, in the next
 batch; it is not misreported as the published source.
+
+## 14 November - reconcile verified breadcrumb with owner-decision master
+
+Compiled Preview 80be0b43 passed 25/25 focused navigation, menu, hero failure and
+Admin-delegation fixture cases, with zero skipped/flaky/unexpected results. Reviewed
+320px and1440px Person captures show the single Overview / People / Person trail.
+These are synthetic Preview checks, not real-role or physical-device acceptance.
+Receipt: TEMP/allied-people-breadcrumb-compiled-80be0b43/verified.json.
+
+Incoming master02439cdc includes the owner-decision supply/refund batch and People
+focus-clearance repairs. Application code merges without conflicts; both journal
+histories are retained. All132 migration inputs and incoming financial code must
+remain unchanged. New combined-source checks and compiled acceptance are pending.
+Production observation04:53UTC retains6c52 images, healthy API and both aliases.
+The20 forward migrations113-132, fresh backup/populated restore, matching images,
+exact-master gates and held production-candidate acceptance precede publication.
+C:20.30GiB passes the0.05GiB integration budget but not1.5GiB packaging. No capability,
+production data or security settings changed. The full two-brief scope remains open.
+
+## 14 November - delegated People breadcrumb correction, verification pending
+
+Compiled a0f44e16 at320x720 shows Overview / Overview / Details on the delegated
+Admin person route. The shared shell matches only the permitted Overview sidebar
+entry; the delegated page itself has already checked identity and delegation.
+Give People/person its own breadcrumb inside that guarded page and exclude those
+routes from the shell's generic trail. Preserve existing filter/review return URLs,
+Back links and all authority checks. Mark People/Person as the current page.
+Existing320/1440 delegated entry regressions now require a single correct trail.
+No server permission, API, workflow or Help semantic target changes.
+
+Source formatting and diff checks pass. The attempted new baseline did not reach
+the page: C: preflight failed11.04GiB vs20.15GiB. The command incorrectly continued,
+but the test's independent Disk reserve stop prevented navigation; this is not
+an app regression result. Runner is terminal. New rendered acceptance, type/lint,
+exact-source CI and publication remain pending. Preserve the patch and the full
+original scope; no new release is claimed. Evidence:
+TEMP/allied-people-breadcrumb-baseline-a0f44e16/report.json.
+
+## 14 November - menu acceptance reconciled with delegated Admin entry
+
+Master b0cf0f0e includes PR92 Admin duty entry and access-review Help v11.
+Merge conflicts were limited to these journals; preserve both histories. The
+menu CSS and hero recovery wording remain intact, as do all incoming Admin
+identity/delegation guards, tests and content. New exact-source CI, compiled
+acceptance and exact-master publication gates remain required.
+
+Prior abbf0fa9 compiled Preview acceptance:19 navigation/hero,18 customer/admin
+table,14 customer-care layout/recovery,8 support preflight guards,4 privacy modal
+and21 exact-seven-viewport review geometry cases pass. Counts overlap in scope;
+these are bounded synthetic cases, not whole-site or real-role certification.
+Enquiry/reply/privacy reviews center on both axes, use full phone width, keep
+controls reachable and preserve Escape/focus at all seven required sizes.1024
+and430 captures reviewed. No real messages, privacy requests or grants submitted.
+Receipts: TEMP/allied-{menu-compiled,table-compiled,care-compiled,care-guards,
+privacy-modal,care-geometry}-abbf0fa9/verified.json.
+
+The old frontend-only release plan is superseded: incoming master changes backend
+Help content. Reconcile with the Team release package before publication; do not
+claim old backend images contain v11. Full original briefs and T01-T07/D01-D17,
+real-role, physical-device and missing business-data limits remain open.
+
+## 14 November - compiled menu acceptance and concurrent hero reconciliation
+
+PR91 source10220f8a has18/18 compiled Edge Preview passes with zero skips/flaky
+cases on dpl_6WC8dGwCXVAUQFEk5MhNqAdbPxCb. Seven exact viewport pairs, delayed
+scripts, no-JavaScript destinations, offline overlay and menu rest/open/Escape/focus
+are covered without stylesheet overrides.320 rest/focus captures reviewed. The
+first harness omitted preview authentication on static assets and failed before
+styling loaded; corrected authenticated routing passes. Preview capabilities and
+Help differ from production, so normal production-policy acceptance remains open.
+Evidence: TEMP/allied-menu-compiled-10220f8a/{report,verified}.json.
+
+Published6c52 public service index plus four actual linked details pass35/35 at
+all seven exact sizes: actual dimensions, keyboard FAQ open/close, request heading
+in viewport, scrolling, loaded images, no page overflow or unhandled page errors.
+Desktop/320 Diagnostics and320 index captures reviewed. Job time needs assessment
+remains truthful. No enquiries/booking writes; no full form, private-role, physical
+phone or header-occlusion guarantee from these checks. Evidence:
+TEMP/allied-public-services-20261114/{report,verified}.json.
+
+Masteradd252a6 adds the separately reviewed hero image-error wording and two matching
+assertions. Preserve it along with both journal prefixes; only journal headers
+conflict. Original10220 branch frontend43551748454 is still running its45-minute
+runtime matrix; backend43551748467 and secrets43551748484 pass. These results do
+not certify the merged source. New exact-source checks/compiled acceptance and
+exact-master release gates remain required before publishing the combined batch.
+No backend runtime or schema delta from published6c52. Full original briefs and
+independent D01-D17/T01-T07, real-role/provider/device and business-data gaps remain.
+
+## 14 November - public loading measurements and remaining menu decoration
+
+Provider observation at03:17UTC confirms backend e40c9a13 ACTIVE with no pending
+release, both aliases on dpl_GABPemCubUZP16cbJ8EgZum1TSKv and backend live/ready200.
+These match the published6c52 package. The old packaging block is superseded for
+that release. Current master19aee07d adds screenshot timing/evidence only; its
+backend/secrets gates pass, frontend43547571228 remains running at this checkpoint.
+The clean audit checkout was fast-forwarded, preserving other worktrees.
+
+Public lab observations in dedicated headless Edge cover Home, Parts, Vehicles and
+submitted Search at1280x720 and390x844. Actual sizes, populated headings, loaded
+images, full-page scroll/return and no overflow/unhandled page errors pass in these
+eight samples. LCP observations are1.744-3.384s and CLS0-0.0342; unthrottled single
+samples on this machine, not field scores, cold-cache guarantees or performance
+acceptance. Search initially used unsupported q and measured the empty form;
+corrected search=oil samples are separate, not an unchanged eight-case run.
+Receipts: TEMP/allied-public-performance-20261114/report.json and
+TEMP/allied-search-performance-20261114/report.json. Home desktop/mobile and mobile
+Search captures were visually inspected. No messages or production writes.
+
+The mobile public menu still has a permanent outline/background box, contrary to
+the supplied brief. Change only its resting border/background to transparent;
+retain46px geometry, hover/open/disabled rules and existing focus ring. Its sole
+component consumer is site-header. Formatting/diff checks pass. Source-CSS overlay
+checks pass7/7 exact required sizes, including keyboard open, Escape/focus return,
+scroll lock, desktop hiding and no overflow/errors;320 resting/focused captures
+reviewed. This is diagnostic CSS over compiled6c52, NOT compiled-candidate proof.
+Inline insertion was correctly blocked by CSP; the corrected harness serves only
+an intercepted same-origin stylesheet without changing CSP. A first locator waited
+for Open navigation after it changed to Close navigation; that run was stopped,
+then the stable control locator and explicit timeout passed. Evidence:
+TEMP/allied-menu-candidate-20261114/report.json. Compiled CI/preview/publication
+remain pending. No permission, workflow, learning destination or API changed.
+
+Private browser recheck failed exactly: The browser access host is unavailable.
+Do not repeat the pending private-sign-in request or count fixtures as real-role
+acceptance. Full original briefs, independent D01-D17/T01-T07 work, physical-device
+and server/provider acceptance remain open; unconfirmed Diagnostics duration and
+Engine Oil Filter identity/photo facts remain missing business inputs. Source,
+dependencies, history, databases and other active branches were preserved.
 
 ### 14 November: prepare the complete owner-decision master integration
 

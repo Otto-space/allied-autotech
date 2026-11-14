@@ -523,10 +523,10 @@ button {
   align-items: center;
   justify-content: center;
 
-  border: 1px solid rgba(1, 18, 26, 0.1);
+  border: 1px solid transparent;
   border-radius: 11px;
 
-  background: rgba(1, 18, 26, 0.035);
+  background: transparent;
   color: var(--ink);
 
   transition:

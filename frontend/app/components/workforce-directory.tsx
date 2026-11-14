@@ -33,9 +33,25 @@ function Directory() {
   const target = /^\/admin\/workforce\/access\/([^/]+)$/.exec(pathname)?.[1];
   const backBase = search.has("review") ? "/admin/workforce/reviews" : base;
   const back = search.size ? `${backBase}?${search.toString()}` : backBase;
+  const breadcrumb = (
+    <nav className="breadcrumbs" aria-label="Breadcrumb">
+      <Link href="/admin">Overview</Link>
+      <span aria-hidden="true">/</span>
+      {target ? (
+        <>
+          <Link href={back}>{search.has("review") ? "Access reviews" : "People"}</Link>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">Person</span>
+        </>
+      ) : (
+        <span aria-current="page">People</span>
+      )}
+    </nav>
+  );
   if (target)
     return (
       <section className="workforce-directory">
+        {breadcrumb}
         <Link className="text-link" href={back}>
           {search.has("review") ? "Back to access reviews" : "Back to People"}
         </Link>
@@ -56,7 +72,12 @@ function Directory() {
         )}
       </section>
     );
-  return <DirectoryTable key={search.toString()} />;
+  return (
+    <>
+      {breadcrumb}
+      <DirectoryTable key={search.toString()} />
+    </>
+  );
 }
 function DirectoryTable() {
   const search = useSearchParams(),
