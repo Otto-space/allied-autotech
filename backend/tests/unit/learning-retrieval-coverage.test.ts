@@ -78,7 +78,7 @@ afterEach(() => {
 describe("authorised server help survives Allie retrieval", () => {
   it("keeps pickup display and clearing guidance restricted to verified customers", () => {
     const article = learningArticles.find((row) => row.id === "parts-collection")!;
-    expect(article.version).toBe(6);
+    expect(article.version).toBe(7);
     expect(article.gate).toBe("customer");
     expect(article.steps.join(" ")).toContain(
       "Copy it before choosing Hide code, refreshing or reloading",
@@ -96,7 +96,7 @@ describe("authorised server help survives Allie retrieval", () => {
         ...publicLearningAccess,
         role: "CUSTOMER",
         verified: true,
-      }).articles.some((row) => row.id === article.id && row.version === 6),
+      }).articles.some((row) => row.id === article.id && row.version === 7),
     ).toBe(true);
   });
   it("keeps reminder-policy guidance and actions restricted to the owner", () => {
@@ -175,7 +175,7 @@ it("keeps collection instructions administrative without granting release permis
 
 it("keeps order sourcing authoring instructions out of public, customer and staff catalogues", () => {
   const guide = learningArticles.find((article) => article.id === "order-sourcing")!;
-  expect([guide.gate, guide.version]).toEqual(["admin", 9]);
+  expect([guide.gate, guide.version]).toEqual(["admin", 10]);
   for (const role of ["PUBLIC", "CUSTOMER", "STAFF"] as const) {
     const catalogue = learningCatalogue({
       ...publicLearningAccess,
@@ -191,9 +191,9 @@ it("keeps actual supply settlement resolution restricted and separate from physi
   const refund = learningArticles.find((article) => article.id === "refund-work")!;
   expect([source.gate, source.version, refund.gate, refund.version]).toEqual([
     "admin",
-    9,
-    "refunds",
     10,
+    "refunds",
+    11,
   ]);
   for (const topic of [source, refund]) {
     const content = JSON.stringify(topic);
@@ -215,7 +215,7 @@ it("explains actual remaining collection without granting payment or stock autho
     sourcing.gate,
     refund.version,
     refund.gate,
-  ]).toEqual([6, "customer", 9, "admin", 10, "refunds"]);
+  ]).toEqual([7, "customer", 10, "admin", 11, "refunds"]);
   expect(pickup.steps.join(" ")).toContain("only the goods still owed");
   expect(sourcing.steps.join(" ")).toContain("does not restock consumed");
   expect(refund.steps.join(" ")).toContain("does not erase its historical acceptance");
@@ -238,6 +238,10 @@ it("keeps cancelled-order reconciliation and unknown money distinct from unit re
   const source = learningArticles.find((row) => row.id === "order-sourcing")!;
   const customer = learningArticles.find((row) => row.id === "parts-collection")!;
   expect(source.steps.join(" ")).toContain("no payment attempts");
+  expect(source.steps.join(" ")).toContain("observations obtained after cancellation");
+  expect(
+    learningArticles.find((row) => row.id === "refund-work")!.steps.join(" "),
+  ).toContain("reversed or pending result remains held");
   expect(source.steps.join(" ")).toContain("invalidates clearance");
   expect(customer.steps.join(" ")).toContain("not a refund");
   expect(customer.steps.join(" ")).toContain("separate acceptance");

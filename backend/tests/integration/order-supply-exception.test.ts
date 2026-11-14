@@ -1,5 +1,6 @@
 import { RefundWorker } from "../../src/workers/refund.worker.js";
 import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
+import type { VerifiedPayment } from "../../src/providers/payments/payment-provider.port.js";
 import { databaseClock } from "../../src/common/database/clock.js";
 import { assertNoSupplyExceptionHold } from "../../src/modules/orders/order-supply-exception-hold.js";
 import { Prisma, type PrismaClient } from "../../src/generated/prisma/client.js";
@@ -568,6 +569,212 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(
           await prisma.orderSupplyClosure.count({ where: { orderId: f.order.id } }),
         ).toBe(0);
+      },
+    );
+    it.each([
+      ["PAYSTACK", "failed"],
+      ["PAYSTACK", "abandoned"],
+      ["MONNIFY", "failed"],
+      ["MONNIFY", "abandoned"],
+    ] as const)(
+      "reconciles only actual post-cancellation %s %s observations and reopens changed evidence",
+      async (provider, status) => {
+        const f = await fixture();
+        const now = await prisma.$transaction((tx) => databaseClock(tx));
+        const payment = await prisma.payment.create({
+          data: {
+            orderId: f.order.id,
+            customerId: f.order.customerId,
+            paymentNumber: randomUUID(),
+            purpose: "ORDER_PAYMENT",
+            amountKobo: 320n,
+            status: "CANCELLED",
+            cancelledAt: now,
+            idempotencyKeyHash: randomUUID().replaceAll("-", "").repeat(2),
+          },
+        });
+        const attempt = await prisma.paymentAttempt.create({
+          data: {
+            paymentId: payment.id,
+            attemptNumber: 1,
+            internalReference: randomUUID(),
+            provider,
+            amountKobo: 320n,
+            initiatedAt: now,
+          },
+        });
+        const result: VerifiedPayment = {
+          reference: attempt.internalReference,
+          gatewayTransactionId: `synthetic-negative-${randomUUID()}`,
+          status,
+          amountKobo: provider === "PAYSTACK" ? 320n : 0n,
+          currency: "NGN",
+          paidAt: null,
+          providerFeeKobo: null,
+          method: null,
+        };
+        const verify = vi.fn().mockImplementation(async () => ({ ...result }));
+        const payments = new PaymentsService(
+          prisma,
+          new PaymentProviderRegistry({
+            [provider]: {
+              initialize: vi.fn(),
+              verify,
+              refund: vi.fn(),
+              verifyRefund: vi.fn(),
+            },
+          }),
+        );
+        const observe = () =>
+          payments.verifyAttempt(f.customerActor, payment.id, attempt.id, context);
+        await observe(); // A real query before cancellation cannot clear later cancellation.
+        await f.service.raise(f.actor, f.order.id, f.body, context);
+        await cancelOriginal(f);
+        expect(
+          (await f.service.readStaff(f.actor, f.order.id, context))
+            .cancelledReconciliationReviewAvailable,
+        ).toBe(false);
+        const exactNegativeAmount = result.amountKobo;
+        if (provider === "PAYSTACK") result.amountKobo = 319n;
+        else result.currency = "USD";
+        await observe();
+        expect(
+          (await f.service.readStaff(f.actor, f.order.id, context))
+            .cancelledReconciliationReviewAvailable,
+        ).toBe(false);
+        result.amountKobo = exactNegativeAmount;
+        result.currency = "NGN";
+        await observe();
+        await observe(); // Same current facts reuse evidence rather than invalidating a review.
+        expect(
+          await prisma.paymentAttemptObservation.count({
+            where: { paymentAttemptId: attempt.id },
+          }),
+        ).toBe(3);
+        const version = (
+          await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } })
+        ).version;
+        expect(
+          (await f.service.readStaff(f.actor, f.order.id, context))
+            .cancelledReconciliationReviewAvailable,
+        ).toBe(true);
+        const saved = await f.service.close(
+          f.actor,
+          f.order.id,
+          cancelledReview(version),
+          context,
+        );
+        expect(saved.reconciliations).toHaveLength(1);
+        expect(saved.reconciliations[0]).toMatchObject({
+          outcome: "NO_CAPTURE_RECORDED",
+          capturedKobo: "0",
+          refundedKobo: "0",
+        });
+        const closure = await prisma.orderSupplyClosure.findFirstOrThrow({
+          where: { orderId: f.order.id },
+        });
+        expect(closure.financialSnapshot).toMatchObject({
+          version: "ORDER_CANCELLED_SUPPLY_RECONCILIATION_V2",
+          uncapturedAttempts: [
+            { paymentAttemptId: attempt.id, provider, providerStatus: status },
+          ],
+        });
+        await observe();
+        expect(
+          (await f.service.readStaff(f.actor, f.order.id, context))
+            .cancelledReconciliationReviewAvailable,
+        ).toBe(false);
+        await prisma.$transaction(
+          (tx) =>
+            tx.$queryRaw`SELECT aat_assert_order_supply_clearance(${f.order.id}::uuid)::text`,
+        );
+        const observation = await prisma.paymentAttemptObservation.findFirstOrThrow({
+          where: { paymentAttemptId: attempt.id },
+        });
+        await expect(
+          prisma.paymentAttemptObservation.update({
+            where: { id: observation.id },
+            data: { status: "pending" },
+          }),
+        ).rejects.toThrow();
+        await expect(
+          prisma.paymentAttemptObservation.delete({ where: { id: observation.id } }),
+        ).rejects.toThrow();
+        const safe = JSON.stringify(await f.service.read(f.principal, f.order.id));
+        for (const secret of [
+          "uncapturedAttempts",
+          "observationId",
+          attempt.internalReference,
+          result.gatewayTransactionId,
+        ])
+          expect(safe).not.toContain(secret);
+        result.status = "pending";
+        await observe();
+        await expect(
+          prisma.$transaction(
+            (tx) =>
+              tx.$queryRaw`SELECT aat_assert_order_supply_clearance(${f.order.id}::uuid)::text`,
+          ),
+        ).rejects.toThrow();
+        result.status = status;
+        await observe();
+        expect(
+          (await f.service.readStaff(f.actor, f.order.id, context))
+            .cancelledReconciliationReviewAvailable,
+        ).toBe(true);
+        expect(
+          await prisma.refund.count({ where: { paymentAttemptId: attempt.id } }),
+        ).toBe(0);
+        expect(
+          await prisma.paymentLedgerEntry.count({
+            where: { paymentAttemptId: attempt.id },
+          }),
+        ).toBe(0);
+        if (provider === "MONNIFY" || status === "abandoned") {
+          // A later negative cannot erase earlier possible funds. Monnify amountPaid
+          // is actual money; a paid timestamp on a failed Paystack response also
+          // requires reconciliation, even if a subsequent response removes it.
+          if (provider === "MONNIFY") result.amountKobo = 1n;
+          else result.paidAt = await prisma.$transaction((tx) => databaseClock(tx));
+          await observe();
+          result.amountKobo = exactNegativeAmount;
+          result.paidAt = null;
+          await observe();
+          expect(
+            (await f.service.readStaff(f.actor, f.order.id, context))
+              .cancelledReconciliationReviewAvailable,
+          ).toBe(false);
+          await expect(
+            prisma.$transaction(
+              (tx) =>
+                tx.$queryRaw`SELECT aat_assert_order_supply_clearance(${f.order.id}::uuid)::text`,
+            ),
+          ).rejects.toThrow();
+        }
+        if (provider === "PAYSTACK" && status === "failed") {
+          result.status = "success";
+          result.paidAt = await prisma.$transaction((tx) => databaseClock(tx));
+          await observe();
+          expect(
+            (await prisma.paymentAttempt.findUniqueOrThrow({ where: { id: attempt.id } }))
+              .status,
+          ).toBe("SUCCESSFUL");
+          expect(
+            await prisma.paymentLedgerEntry.count({
+              where: {
+                paymentAttemptId: attempt.id,
+                type: "CAPTURE",
+                direction: "CREDIT",
+              },
+            }),
+          ).toBe(1);
+          await expect(
+            prisma.$transaction(
+              (tx) =>
+                tx.$queryRaw`SELECT aat_assert_order_supply_clearance(${f.order.id}::uuid)::text`,
+            ),
+          ).rejects.toThrow();
+        }
       },
     );
     it("reconciles the full actual unbound legacy cancellation refund after separate approval and bank checking", async () => {

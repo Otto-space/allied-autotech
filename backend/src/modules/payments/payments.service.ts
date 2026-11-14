@@ -1,4 +1,5 @@
 import { databaseClock } from "../../common/database/clock.js";
+import { recordPaymentAttemptObservation } from "./payment-attempt-observation.js";
 import { assertSupplyRefundBinding } from "../orders/order-supply-refund.js";
 import {
   additionalInvoiceQuoteSelect,
@@ -2130,6 +2131,7 @@ export class PaymentsService {
         include: { payment: true },
       });
       if (!attempt) throw paymentNotFound();
+      await recordPaymentAttemptObservation(tx, attempt, result);
       const now = new Date();
       const exact =
         result.reference === attempt.internalReference &&

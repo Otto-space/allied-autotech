@@ -10,7 +10,7 @@ import type { supplyClosureSchema } from "./order-supply-exception.schemas.js";
 import { orderConflict } from "./orders.errors.js";
 import { orderFingerprint } from "./orders.types.js";
 const money = z.string().regex(/^(0|[1-9][0-9]*)$/);
-const proof = z
+const v1Proof = z
   .object({
     version: z.literal("ORDER_CANCELLED_SUPPLY_RECONCILIATION_V1"),
     currency: z.literal("NGN"),
@@ -41,6 +41,33 @@ const proof = z
     ),
   })
   .strict();
+const proof = z.union([
+  v1Proof,
+  v1Proof.extend({
+    version: z.literal("ORDER_CANCELLED_SUPPLY_RECONCILIATION_V2"),
+    uncapturedAttempts: z
+      .array(
+        z
+          .object({
+            paymentAttemptId: z.uuid(),
+            observationId: z.uuid(),
+            provider: z.enum(["PAYSTACK", "MONNIFY"]),
+            providerStatus: z.enum(["failed", "abandoned"]),
+            observedAmountKobo: money,
+          })
+          .strict(),
+      )
+      .min(1),
+  }),
+]);
+export const cancelledReconciliationFilter: Prisma.OrderSupplyClosureWhereInput = {
+  OR: [
+    "ORDER_CANCELLED_SUPPLY_RECONCILIATION_V1",
+    "ORDER_CANCELLED_SUPPLY_RECONCILIATION_V2",
+  ].map((version) => ({
+    financialSnapshot: { path: ["version"], equals: version },
+  })),
+};
 /** The SQL verifier locks actual money and refuses unknown/unfinished attempts.
  * This reads current evidence; it never grants financial authority or moves money. */
 export async function cancelledSupplySnapshot(
@@ -91,7 +118,10 @@ export async function currentCancelledSupplyReconciliation(
       value &&
       typeof value === "object" &&
       !Array.isArray(value) &&
-      value["version"] === "ORDER_CANCELLED_SUPPLY_RECONCILIATION_V1"
+      [
+        "ORDER_CANCELLED_SUPPLY_RECONCILIATION_V1",
+        "ORDER_CANCELLED_SUPPLY_RECONCILIATION_V2",
+      ].includes(String(value["version"]))
     );
   });
   if (!record) return;

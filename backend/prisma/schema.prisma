@@ -1804,6 +1804,7 @@ model PaymentAttempt {
   ledgerEntries       PaymentLedgerEntry[]
   reconciliationItems PaymentReconciliationItem[]
   reconciliationDue   PaymentReconciliationDue?
+  observations        PaymentAttemptObservation[]
 
   @@unique([paymentId, attemptNumber])
   @@unique([provider, providerReference])
@@ -1814,6 +1815,27 @@ model PaymentAttempt {
   // provider/gatewayTransactionId with a partial unique index.
   @@index([provider, status, initiatedAt])
   @@index([status, createdAt])
+}
+
+// Private, append-only provider observations. Sequence orders distinct results
+// under the attempt row lock even when timestamps share millisecond precision.
+model PaymentAttemptObservation {
+  id                   String          @id @default(uuid()) @db.Uuid
+  sequence             BigInt          @unique @default(autoincrement())
+  paymentAttemptId     String          @db.Uuid
+  provider             PaymentProvider
+  reference            String          @db.VarChar(160)
+  gatewayTransactionId String          @db.VarChar(160)
+  status               String          @db.VarChar(16)
+  amountKobo           BigInt
+  currency             String          @db.Char(3)
+  paidAt               DateTime?
+  providerFeeKobo      BigInt?
+  fingerprint          String          @db.Char(64)
+  observedAt           DateTime        @default(dbgenerated("clock_timestamp()"))
+  paymentAttempt       PaymentAttempt  @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+
+  @@index([paymentAttemptId, sequence])
 }
 
 model ManualPaymentReview {

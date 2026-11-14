@@ -1,3 +1,11 @@
+### 14 November: current provider-observed cancelled-payment review
+
+Customer parts-collection v7, staff-parts-collection v6, administrator order-sourcing
+v10 and restricted refund-work v11 explain failed/abandoned status versus actual
+current provider evidence, pending/reversal holds and later conflicting money.
+Existing gates, targets and feature flags remain. See the
+[implementation checkpoint](PROVIDER_NEGATIVE_OBSERVATION_20261114.md).
+
 ### 13 November: cancelled original reconciliation (prepared source)
 
 Customer parts-collection v6, staff-parts-collection v5, administrator order-sourcing

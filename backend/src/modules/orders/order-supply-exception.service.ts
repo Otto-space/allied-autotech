@@ -1,5 +1,8 @@
 import { isDeepStrictEqual } from "node:util";
-import { cancelledSupplySnapshot } from "./order-cancelled-supply-reconciliation.js";
+import {
+  cancelledSupplySnapshot,
+  cancelledReconciliationFilter,
+} from "./order-cancelled-supply-reconciliation.js";
 import { savedSupplyExclusions } from "./order-supply-exception-hold.js";
 import { AppError } from "../../common/errors/app-error.js";
 import { recordSupplyClosure } from "./order-supply-closure.js";
@@ -175,10 +178,7 @@ export async function supplyExceptionSummary(
   const reconciliations = await tx.orderSupplyClosure.findMany({
     where: {
       orderId: id,
-      financialSnapshot: {
-        path: ["version"],
-        equals: "ORDER_CANCELLED_SUPPLY_RECONCILIATION_V1",
-      },
+      ...cancelledReconciliationFilter,
     },
     orderBy: [{ orderVersion: "desc" }, { id: "desc" }],
     take: 11,
@@ -607,10 +607,7 @@ export class OrderSupplyExceptionService {
           await tx.orderSupplyClosure.count({
             where: {
               orderId: id,
-              financialSnapshot: {
-                path: ["version"],
-                equals: "ORDER_CANCELLED_SUPPLY_RECONCILIATION_V1",
-              },
+              ...cancelledReconciliationFilter,
             },
           })
         )

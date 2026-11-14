@@ -1,3 +1,32 @@
+### 14 November: provider-observed negative attempts (prepared source)
+
+D17 now saves private immutable provider observations, with exact current
+post-cancellation failed/abandoned evidence for explicit cancelled-order review.
+No-attempt and positive-capture V1 proofs retain their output; V2 carries private
+negative proof and never becomes bank-absence or refund assurance. Repeated same
+facts reuse evidence. A pending/reversed result, new capture, anomaly or earlier
+possible funds prevents clearance; no stock, financial grant or handover is created.
+The Monnify adapter preserves REVERSED separately from FAILED.
+
+Fresh129 replay/schema diff/db:check and four focused real isolated journeys pass.
+Initial broader regression passes180/180 across14 files, including actual payment,
+refund, pickup, quote and concurrency flows with injected provider/storage fixtures.
+67 provider/learning/calendar units, source/focused-test types, scoped lint,
+472-path OpenAPI validation and4044-file secret guard pass. Forward130 adds the
+historical positive-evidence hold and is under final full native verification.
+Owned129 tmpfs resources were removed. No shared database or real provider was used.
+
+Customer/staff collection guides are v7/v6, admin sourcing v10 and restricted refund
+work v11, retaining eligibility, semantic targets and publication flags. D04's ledger
+row was corrected to the actual revised pre-payment checks, preserving the separate
+no-booking-deposit rule. See docs/help-learn/PROVIDER_NEGATIVE_OBSERVATION_20261114.md.
+Current85f08280 backend43529867157 and secrets43529867280 pass; frontend43529867183
+remains running. Those checks are previous-source evidence, not the new migration's
+release gate. Owner Desktop hero and both public aliases remain untouched. Final
+native result, exact integrated-source CI and production recovery/migration/runtime
+safeguards still precede publication. Purchasing stays gated; legacy partial and
+operator/guest recovery plus actual owner/provider/role inputs remain open.
+
 ### 14 November: current gallery/focus fixes integrated and verified
 
 Merged master9bf8a26e, preserving the mobile vehicle gallery dock-clearance repair,
