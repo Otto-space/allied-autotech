@@ -1,6 +1,6 @@
 {
   "source": "../backend/docs/api/allied-autotech.openapi.json",
-  "sourceSha256": "1b455aef8fc4491425f7d138aa4811746fb92c507fafc6b64426cd4572cdd5d4",
+  "sourceSha256": "a545c97a6b4aa7a32f83712b06f03e245fd528ce7d99466719d65c3d62dbf38b",
   "note": "Private contract inventory. Source candidates are search hints, not proof of consumption. Response schemas with additionalProperties may be incomplete; reconcile serializers. Operational routes outside OpenAPI are tracked in the Markdown inventory.",
   "operations": [
     {
@@ -48533,6 +48533,1473 @@
       "screen": "Pending mapping"
     },
     {
+      "operationId": "postStaffOrdersByOrderIdSupplyExceptionsClose",
+      "method": "POST",
+      "path": "/api/v1/staff/orders/{orderId}/supply-exceptions/close",
+      "purpose": "Close actual resolved supply obligations without inventing a handover or stock return",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "noGoodsOutstandingAndSettlementReviewed": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "No Goods Outstanding And Settlement Reviewed validated by this operation's strict request contract."
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "idempotencyKey",
+          "reason",
+          "noGoodsOutstandingAndSettlementReviewed"
+        ],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Close actual resolved supply obligations without inventing a handover or stock return.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Close actual resolved supply obligations without inventing a handover or stock return.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/fulfillment-evidence.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "lib/admin/work-orders.ts",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postStaffOrdersByOrderIdSupplyExceptionsResolve",
+      "method": "POST",
+      "path": "/api/v1/staff/orders/{orderId}/supply-exceptions/resolve",
+      "purpose": "Record actual verified original supply refund and physical disposition",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "supplyExceptionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the supply exception resource; ownership is resolved server-side."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "settlementAndPhysicalHistoryReviewed": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "Settlement And Physical History Reviewed validated by this operation's strict request contract."
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "idempotencyKey",
+          "supplyExceptionId",
+          "reason",
+          "settlementAndPhysicalHistoryReviewed"
+        ],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Record actual verified original supply refund and physical disposition.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Record actual verified original supply refund and physical disposition.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/fulfillment-evidence.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "lib/admin/work-orders.ts",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "getCustomersOrdersByOrderIdSupplyExceptions",
+      "method": "GET",
+      "path": "/api/v1/customers/orders/{orderId}/supply-exceptions",
+      "purpose": "Read current owned/scoped supply concerns and safe Care references",
+      "audience": "customer-facing",
+      "accessBoundary": "authenticated-customer",
+      "roles": ["CUSTOMER"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read current owned/scoped supply concerns and safe Care references.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Read current owned/scoped supply concerns and safe Care references.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/aftercare-intake.tsx",
+        "app/components/cart-panel.tsx",
+        "app/components/collection-checkout.tsx",
+        "app/components/customer-order-aftercare.tsx",
+        "app/components/order-detail.tsx",
+        "app/components/purchase-suitability.tsx",
+        "lib/api/support-sources.ts",
+        "lib/customer-order-query.ts",
+        "lib/orders/use-aftercare-write.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postCustomersOrdersByOrderIdSupplyExceptionsChoice",
+      "method": "POST",
+      "path": "/api/v1/customers/orders/{orderId}/supply-exceptions/choice",
+      "purpose": "Record the actual customer's remedy preference without approving money or a substitute",
+      "audience": "customer-facing",
+      "accessBoundary": "authenticated-customer",
+      "roles": ["CUSTOMER"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "supplyExceptionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the supply exception resource; ownership is resolved server-side."
+          },
+          "choice": {
+            "type": "string",
+            "enum": ["REFUND_REVIEW", "SUITABLE_ALTERNATIVE_REVIEW", "TECHNICAL_REVIEW"],
+            "description": "Choice validated by this operation's strict request contract."
+          },
+          "customerNote": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "statementVersion": {
+            "type": "string",
+            "enum": ["SUPPLY_CHOICE_20261110_V1"],
+            "description": "Statement Version validated by this operation's strict request contract."
+          },
+          "choiceConfirmed": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "Choice Confirmed validated by this operation's strict request contract."
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "idempotencyKey",
+          "supplyExceptionId",
+          "choice",
+          "statementVersion",
+          "choiceConfirmed"
+        ],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Record the actual customer's remedy preference without approving money or a substitute.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Record the actual customer's remedy preference without approving money or a substitute.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/aftercare-intake.tsx",
+        "app/components/cart-panel.tsx",
+        "app/components/collection-checkout.tsx",
+        "app/components/customer-order-aftercare.tsx",
+        "app/components/order-detail.tsx",
+        "app/components/purchase-suitability.tsx",
+        "lib/api/support-sources.ts",
+        "lib/customer-order-query.ts",
+        "lib/orders/use-aftercare-write.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "getPurchaseOrdersByOrderIdSupplyExceptions",
+      "method": "GET",
+      "path": "/api/v1/purchase/orders/{orderId}/supply-exceptions",
+      "purpose": "Read current owned/scoped supply concerns and safe Care references",
+      "audience": "administrator-facing",
+      "accessBoundary": "verified-purchase-guest",
+      "roles": ["PURCHASE_GUEST"],
+      "security": [
+        {
+          "purchaseGuestCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read current owned/scoped supply concerns and safe Care references.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Read current owned/scoped supply concerns and safe Care references.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/purchase-aftercare.tsx",
+        "app/components/purchase-cart.tsx",
+        "app/components/purchase-invoice.tsx",
+        "app/components/purchase-quotations.tsx",
+        "app/components/purchase-records.tsx",
+        "app/components/purchase-suitability.tsx"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postPurchaseOrdersByOrderIdSupplyExceptionsChoice",
+      "method": "POST",
+      "path": "/api/v1/purchase/orders/{orderId}/supply-exceptions/choice",
+      "purpose": "Record the actual customer's remedy preference without approving money or a substitute",
+      "audience": "administrator-facing",
+      "accessBoundary": "verified-purchase-guest",
+      "roles": ["PURCHASE_GUEST"],
+      "security": [
+        {
+          "purchaseGuestCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Current guest CSRF token from POST /purchase/access/csrf; keep in memory only. Grants no account access.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "supplyExceptionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the supply exception resource; ownership is resolved server-side."
+          },
+          "choice": {
+            "type": "string",
+            "enum": ["REFUND_REVIEW", "SUITABLE_ALTERNATIVE_REVIEW", "TECHNICAL_REVIEW"],
+            "description": "Choice validated by this operation's strict request contract."
+          },
+          "customerNote": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "statementVersion": {
+            "type": "string",
+            "enum": ["SUPPLY_CHOICE_20261110_V1"],
+            "description": "Statement Version validated by this operation's strict request contract."
+          },
+          "choiceConfirmed": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "Choice Confirmed validated by this operation's strict request contract."
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "idempotencyKey",
+          "supplyExceptionId",
+          "choice",
+          "statementVersion",
+          "choiceConfirmed"
+        ],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Record the actual customer's remedy preference without approving money or a substitute.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Record the actual customer's remedy preference without approving money or a substitute.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/purchase-aftercare.tsx",
+        "app/components/purchase-cart.tsx",
+        "app/components/purchase-invoice.tsx",
+        "app/components/purchase-quotations.tsx",
+        "app/components/purchase-records.tsx",
+        "app/components/purchase-suitability.tsx"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "getStaffOrdersByOrderIdSupplyExceptions",
+      "method": "GET",
+      "path": "/api/v1/staff/orders/{orderId}/supply-exceptions",
+      "purpose": "Read current owned/scoped supply concerns and safe Care references",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read current owned/scoped supply concerns and safe Care references.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Read current owned/scoped supply concerns and safe Care references.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/fulfillment-evidence.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "lib/admin/work-orders.ts",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "postStaffOrdersByOrderIdSupplyExceptions",
+      "method": "POST",
+      "path": "/api/v1/staff/orders/{orderId}/supply-exceptions",
+      "purpose": "Record actual affected quantities and alert existing Customer Care without moving money",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the order resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "orderId",
+          "in": "path",
+          "description": "Identifier selecting the order resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Last server version observed by the client; stale writes are rejected."
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Retry key that must be reused only with an identical logical request."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "UNAVAILABLE",
+              "WRONG_OR_UNSUITABLE_SUPPLY",
+              "USED_INSTALLED_OR_DIAGNOSIS_DISPUTE"
+            ],
+            "description": "Kind validated by this operation's strict request contract."
+          },
+          "affectedLines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Identifier of the order item resource; ownership is resolved server-side."
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 99999,
+                  "description": "Offset validated by this operation's strict request contract."
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100000,
+                  "description": "Quantity validated by this operation's strict request contract."
+                }
+              },
+              "required": ["orderItemId", "offset", "quantity"],
+              "additionalProperties": false,
+              "description": "Affected Lines Item validated by this operation's strict request contract."
+            },
+            "minItems": 1,
+            "maxItems": 200,
+            "description": "Affected Lines validated by this operation's strict request contract."
+          },
+          "customerNote": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 1000,
+            "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+          },
+          "actualConcernConfirmed": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "Actual Concern Confirmed validated by this operation's strict request contract."
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "idempotencyKey",
+          "kind",
+          "affectedLines",
+          "customerNote",
+          "reason",
+          "actualConcernConfirmed"
+        ],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Record actual affected quantities and alert existing Customer Care without moving money.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Record actual affected quantities and alert existing Customer Care without moving money.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [
+        "app/components/fulfillment-evidence.tsx",
+        "app/components/order-aftercare.tsx",
+        "app/components/order-timing.tsx",
+        "app/components/purchase-review-decision.tsx",
+        "app/components/staff-order-detail.tsx",
+        "lib/admin/work-orders.ts",
+        "lib/api/invoice-source-schemas.ts",
+        "lib/learning/contracts.ts"
+      ],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
       "operationId": "postAdminOrdersByOrderIdTiming",
       "method": "POST",
       "path": "/api/v1/admin/orders/{orderId}/timing",
@@ -49914,6 +51381,11 @@
             "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Revision validated by this operation's strict request contract."
+          },
+          "alternativeAgreementVersion": {
+            "type": "string",
+            "enum": ["SUPPLY_ALTERNATIVE_20261110_V1"],
+            "description": "Alternative Agreement Version validated by this operation's strict request contract."
           }
         },
         "required": ["revision"],
@@ -50075,6 +51547,11 @@
             "type": "integer",
             "exclusiveMinimum": 0,
             "description": "Revision validated by this operation's strict request contract."
+          },
+          "alternativeAgreementVersion": {
+            "type": "string",
+            "enum": ["SUPPLY_ALTERNATIVE_20261110_V1"],
+            "description": "Alternative Agreement Version validated by this operation's strict request contract."
           }
         },
         "required": ["revision"],
@@ -53395,6 +54872,11 @@
             "required": ["name", "phone"],
             "additionalProperties": false,
             "description": "Contact validated by this operation's strict request contract."
+          },
+          "alternativeAgreementVersion": {
+            "type": "string",
+            "enum": ["SUPPLY_ALTERNATIVE_20261110_V1"],
+            "description": "Alternative Agreement Version validated by this operation's strict request contract."
           }
         },
         "required": ["revision", "contact"],
@@ -76126,6 +77608,7 @@
       "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
       "sourceCandidates": [
         "app/components/manual-payment-review.tsx",
+        "app/components/order-supply-concerns.tsx",
         "app/components/refund-request-form.tsx",
         "app/components/staff-payments.tsx",
         "lib/admin/work-payments.ts"
@@ -76263,6 +77746,7 @@
       "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
       "sourceCandidates": [
         "app/components/manual-payment-review.tsx",
+        "app/components/order-supply-concerns.tsx",
         "app/components/refund-request-form.tsx",
         "app/components/staff-payments.tsx",
         "lib/admin/work-payments.ts"
@@ -76783,6 +78267,11 @@
             "format": "uuid",
             "description": "Identifier of the payment attempt resource; ownership is resolved server-side."
           },
+          "supplyRemedyChoiceId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the supply remedy choice resource; ownership is resolved server-side."
+          },
           "amountKobo": {
             "type": "string",
             "pattern": "^\\d+$",
@@ -76896,6 +78385,7 @@
       },
       "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
       "sourceCandidates": [
+        "app/components/order-supply-concerns.tsx",
         "app/components/refund-request-form.tsx",
         "app/components/staff-payments.tsx"
       ],
@@ -77067,6 +78557,7 @@
       },
       "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
       "sourceCandidates": [
+        "app/components/order-supply-concerns.tsx",
         "app/components/refund-request-form.tsx",
         "app/components/staff-payments.tsx"
       ],
@@ -113621,6 +115112,11 @@
                     "format": "uuid",
                     "description": "Identifier of the payment attempt resource; ownership is resolved server-side."
                   },
+                  "supplyRemedyChoiceId": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Identifier of the supply remedy choice resource; ownership is resolved server-side."
+                  },
                   "paymentAttempt": {
                     "type": "object",
                     "properties": {
@@ -113943,6 +115439,11 @@
                     "type": "string",
                     "format": "uuid",
                     "description": "Identifier of the payment attempt resource; ownership is resolved server-side."
+                  },
+                  "supplyRemedyChoiceId": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Identifier of the supply remedy choice resource; ownership is resolved server-side."
                   },
                   "paymentAttempt": {
                     "type": "object",
@@ -114299,6 +115800,11 @@
                           "type": "string",
                           "format": "uuid",
                           "description": "Identifier of the payment attempt resource; ownership is resolved server-side."
+                        },
+                        "supplyRemedyChoiceId": {
+                          "type": ["string", "null"],
+                          "format": "uuid",
+                          "description": "Identifier of the supply remedy choice resource; ownership is resolved server-side."
                         },
                         "paymentAttempt": {
                           "type": "object",

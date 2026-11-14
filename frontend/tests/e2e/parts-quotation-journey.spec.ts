@@ -18,7 +18,7 @@ async function enabledQuotationCapabilities(page: Page) {
 const quoteId = "b1000000-0000-4000-8000-000000000001";
 const orderId = "b1000000-0000-4000-8000-000000000002";
 for (const width of [360, 768, 1280])
-  test(`quoted parts request review and acceptance at ${width}px`, async ({
+  test(`actual alternative quotation review and acceptance at ${width}px`, async ({
     page,
   }, info) => {
     await page.setViewportSize({ width, height: 900 });
@@ -28,6 +28,8 @@ for (const width of [360, 768, 1280])
     state.records.enquiries.subject = "Replacement filter request";
     const quote = {
       id: quoteId,
+      alternativeAgreementVersion: "SUPPLY_ALTERNATIVE_20261110_V1",
+      supplyRemedyChoiceId: "b1000000-0000-4000-8000-000000000050",
       enquiryId: state.records.enquiries.id,
       revision: 2,
       productName: "Replacement filter with a long descriptive name",
@@ -38,7 +40,7 @@ for (const width of [360, 768, 1280])
       totalKobo: "21500",
       status: "ISSUED",
       notes:
-        "Collection only. Final compatibility and availability checks follow payment. Contact Customer Care for cancellation or refund review.",
+        "Collection only. Compatibility and availability checks precede payment. Original affected goods require separate verified financial resolution before another payment. Contact Customer Care for cancellation or refund review.",
       expiresAt: new Date(Date.now() + 86400000).toISOString(),
       orderId: null as string | null,
     };
@@ -46,7 +48,10 @@ for (const width of [360, 768, 1280])
     await page.route("**/api/v1/customers/parts-quotes/**", async (route) => {
       if (route.request().method() === "POST") {
         writes++;
-        expect(route.request().postDataJSON()).toEqual({ revision: 2 });
+        expect(route.request().postDataJSON()).toEqual({
+          revision: 2,
+          alternativeAgreementVersion: "SUPPLY_ALTERNATIVE_20261110_V1",
+        });
         expect(route.request().headers()["idempotency-key"]).toBeTruthy();
         expect(route.request().headers()["x-csrf-token"]).toBeTruthy();
         quote.status = "ACCEPTED";
@@ -74,11 +79,18 @@ for (const width of [360, 768, 1280])
     await expect(
       page.getByRole("heading", { name: "Parts quotations", exact: true }),
     ).toBeVisible();
+    const availability = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === "/api/v1/public/capabilities" &&
+        response.request().method() === "GET",
+    );
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    expect((await (await availability).json()).data.checkoutEnabled).toBe(true);
     const review = page.getByRole("button", { name: "Review and accept", exact: true });
     await expect(review).toBeEnabled();
     await review.click();
     await expect(page.getByRole("dialog")).toContainText(
-      "Payment does not confirm compatibility",
+      "No store credit or transfer of the original payment is authorised.",
     );
     await page.keyboard.press("Escape");
     await expect(review).toBeFocused();

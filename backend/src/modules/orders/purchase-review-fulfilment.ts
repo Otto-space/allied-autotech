@@ -1,3 +1,6 @@
+import { remainingPickupUnitRanges } from "./order-pickup-units.js";
+import { pickupUnitHistory } from "./order-pickup.repository.js";
+import { assertNoSupplyExceptionHold } from "./order-supply-exception-hold.js";
 import { assertOrderSourcingAvailable } from "./order-sourcing-availability.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { orderConflict } from "./orders.errors.js";
@@ -23,7 +26,26 @@ export async function assertReviewedPurchaseFulfilment(
   id: string,
 ) {
   const order = await lockPurchaseReviewOrder(tx, id);
-  await assertOrderSourcingAvailable(tx, id);
+  const supply = await assertNoSupplyExceptionHold(tx, id);
+  const quantities = new Map(order.items.map((item) => [item.id, item.quantity]));
+  if (supply.resolutions.length) {
+    for (const key of quantities.keys()) quantities.set(key, 0);
+    const physical = remainingPickupUnitRanges(
+      order.items.map((item) => ({ orderItemId: item.id, quantity: item.quantity })),
+      await pickupUnitHistory(tx, id),
+      supply.resolutions.flatMap((row) => row.unfulfilledLines),
+    );
+    for (const range of physical)
+      quantities.set(
+        range.orderItemId,
+        (quantities.get(range.orderItemId) ?? 0) + range.quantity,
+      );
+    if (!physical.length)
+      throw orderConflict(
+        "No goods remain to fulfil. Review financial closure rather than recording a handover.",
+      );
+  }
+  await assertOrderSourcingAvailable(tx, id, quantities);
   const review = await tx.orderPurchaseReview.findFirst({
     where: { orderId: id },
     orderBy: { revision: "desc" },
@@ -38,7 +60,14 @@ export async function assertReviewedPurchaseFulfilment(
     typeof workflow === "object" &&
     !Array.isArray(workflow) &&
     workflow["version"] === 2;
-  if (!review && !revised) return { legacy: true as const, sourced: false };
+  if (!review && !revised)
+    return {
+      legacy: true as const,
+      sourced: false,
+      supply,
+      quantities,
+      items: order.items,
+    };
   if (
     !order.paidAt ||
     !review ||
@@ -78,13 +107,26 @@ export async function assertReviewedPurchaseFulfilment(
     order,
     purchaseRequirementsSchema.parse(review.requirements),
     "FULFILMENT",
+    supply.resolutions.length ? quantities : undefined,
   );
-  if (orderFingerprint(current) !== orderFingerprint(approved.fitment))
+  const expected = approved.fitment
+    .filter((line) => quantities.get(line.orderItemId) !== 0)
+    .map((line) => ({
+      ...line,
+      quantity: quantities.get(line.orderItemId) ?? line.quantity,
+    }));
+  if (orderFingerprint(current) !== orderFingerprint(expected))
     throw orderConflict(
       "Compatibility evidence changed after payment. Hold fulfilment for technical review; payment remains recorded.",
     );
   return {
     legacy: false as const,
-    sourced: approved.availability.some((line) => line.evidence.kind === "SUPPLIER"),
+    sourced: approved.availability.some(
+      (line) =>
+        quantities.get(line.orderItemId) !== 0 && line.evidence.kind === "SUPPLIER",
+    ),
+    supply,
+    quantities,
+    items: order.items,
   };
 }

@@ -112,8 +112,9 @@ it("explains controllable workshop highlights without turning a discovery reques
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
-  expect([parts.version, vehicles.version]).toEqual([14, 6]);
+  expect([parts.version, vehicles.version]).toEqual([15, 6]);
   expect(parts.steps.join(" ")).toContain("payment without another staff approval");
+  expect(parts.steps.join(" ")).toContain("does not transfer your original payment");
   expect(parts.steps.join(" ")).toContain("changing only quantity retains the vehicle");
   expect(parts.steps.join(" ")).toContain("If the offer changes, refresh and review");
   expect(parts.steps.join(" ")).toContain(
@@ -162,7 +163,7 @@ it("versions reversal guidance without granting live lookups or writes", () => {
 
 it("versions guest refund handoff guidance while preserving separate financial authority", () => {
   const guidance = learningArticles.find((item) => item.id === "financial-aftercare")!;
-  expect(guidance.version).toBe(5);
+  expect(guidance.version).toBe(6);
   expect(guidance.gate).toBe("financial-aftercare");
   expect(guidance.steps).toHaveLength(6);
   expect(guidance.steps.join(" ")).toContain("full remaining pre-confirmation refund");
@@ -279,7 +280,7 @@ it("explains reasoned pending reschedules without releasing the original appoint
 it("versions saved financial breakdown guidance without expanding its independent duties", () => {
   const aftercare = learningArticles.find((value) => value.id === "financial-aftercare")!;
   const policy = learningArticles.find((value) => value.id === "financial-policy-work")!;
-  expect(aftercare.version).toBe(5);
+  expect(aftercare.version).toBe(6);
   expect(aftercare.gate).toBe("financial-aftercare");
   expect(aftercare.steps.join(" ")).toContain("Saved order amounts");
   expect(aftercare.steps.join(" ")).toContain(

@@ -1,3 +1,4 @@
+import { databaseClock } from "../../common/database/clock.js";
 import { snapshotRefundClock } from "../policies/refund-clock.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -231,7 +232,7 @@ export class ManualRefundsService {
     )
       throw paymentConflict("Transfer evidence upload is incomplete or invalid");
     const transferredAt = new Date(input.transferredAt);
-    if (!Number.isFinite(transferredAt.getTime()) || transferredAt > new Date())
+    if (!Number.isFinite(transferredAt.getTime()))
       throw paymentConflict("Transfer date must not be in the future");
     return this.database.$transaction(async (tx) => {
       await lockAccessActor(tx, actor);
@@ -291,13 +292,16 @@ export class ManualRefundsService {
         )._sum.amountKobo ?? 0n;
       if (committed > refund.paymentAttempt.amountKobo)
         throw paymentConflict("Refund commitments exceed the captured balance");
+      const recordedAt = await databaseClock(tx);
+      if (transferredAt > recordedAt)
+        throw paymentConflict("Transfer date must not be in the future");
       const updated = await tx.refund.update({
         where: { id },
         data: {
           status: "PROCESSING",
           providerStatus: "BANK_TRANSFER_RECORDED",
           transferredByUserId: actor.userId,
-          transferRecordedAt: new Date(),
+          transferRecordedAt: recordedAt,
           bankTransferAt: transferredAt,
           bankReference: input.bankReference,
           beneficiaryEncrypted: encryptRefundBeneficiary(
@@ -394,7 +398,19 @@ export class ManualRefundsService {
         !refund.bankReference
       )
         throw paymentConflict("Record transfer evidence before checking completion");
-      const now = new Date();
+      const now = await databaseClock(tx);
+      if (
+        accepted &&
+        (!refund.approvedAt ||
+          !refund.bankTransferAt ||
+          !refund.transferRecordedAt ||
+          refund.bankTransferAt < refund.approvedAt ||
+          refund.transferRecordedAt < refund.bankTransferAt ||
+          refund.transferRecordedAt > now)
+      )
+        throw paymentConflict(
+          "Review actual approval and bank-transfer dates before confirming returned funds",
+        );
       const updated = await tx.refund.update({
         where: { id },
         data: {

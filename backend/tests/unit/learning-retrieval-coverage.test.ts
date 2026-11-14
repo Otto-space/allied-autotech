@@ -78,7 +78,7 @@ afterEach(() => {
 describe("authorised server help survives Allie retrieval", () => {
   it("keeps pickup display and clearing guidance restricted to verified customers", () => {
     const article = learningArticles.find((row) => row.id === "parts-collection")!;
-    expect(article.version).toBe(3);
+    expect(article.version).toBe(7);
     expect(article.gate).toBe("customer");
     expect(article.steps.join(" ")).toContain(
       "Copy it before choosing Hide code, refreshing or reloading",
@@ -96,7 +96,7 @@ describe("authorised server help survives Allie retrieval", () => {
         ...publicLearningAccess,
         role: "CUSTOMER",
         verified: true,
-      }).articles.some((row) => row.id === article.id && row.version === 3),
+      }).articles.some((row) => row.id === article.id && row.version === 7),
     ).toBe(true);
   });
   it("keeps reminder-policy guidance and actions restricted to the owner", () => {
@@ -175,7 +175,7 @@ it("keeps collection instructions administrative without granting release permis
 
 it("keeps order sourcing authoring instructions out of public, customer and staff catalogues", () => {
   const guide = learningArticles.find((article) => article.id === "order-sourcing")!;
-  expect([guide.gate, guide.version]).toEqual(["admin", 1]);
+  expect([guide.gate, guide.version]).toEqual(["admin", 11]);
   for (const role of ["PUBLIC", "CUSTOMER", "STAFF"] as const) {
     const catalogue = learningCatalogue({
       ...publicLearningAccess,
@@ -184,4 +184,88 @@ it("keeps order sourcing authoring instructions out of public, customer and staf
     });
     expect(catalogue.articles.some((article) => article.id === guide.id)).toBe(false);
   }
+});
+
+it("keeps actual supply settlement resolution restricted and separate from physical collection", () => {
+  const source = learningArticles.find((article) => article.id === "order-sourcing")!;
+  const refund = learningArticles.find((article) => article.id === "refund-work")!;
+  expect([source.gate, source.version, refund.gate, refund.version]).toEqual([
+    "admin",
+    11,
+    "refunds",
+    12,
+  ]);
+  for (const topic of [source, refund]) {
+    const content = JSON.stringify(topic);
+    expect(content).toContain("Reconcile the refunded goods");
+    expect(content).toContain("canonical debit");
+    expect(content).toContain("does not return stock or grant collection");
+    expect(content).toContain("active pickup review");
+  }
+});
+
+it("explains actual remaining collection without granting payment or stock authority", () => {
+  const pickup = learningArticles.find((row) => row.id === "parts-collection")!;
+  const sourcing = learningArticles.find((row) => row.id === "order-sourcing")!;
+  const refund = learningArticles.find((row) => row.id === "refund-work")!;
+  expect([
+    pickup.version,
+    pickup.gate,
+    sourcing.version,
+    sourcing.gate,
+    refund.version,
+    refund.gate,
+  ]).toEqual([7, "customer", 11, "admin", 12, "refunds"]);
+  expect(pickup.steps.join(" ")).toContain("only the goods still owed");
+  expect(sourcing.steps.join(" ")).toContain("does not restock consumed");
+  expect(refund.steps.join(" ")).toContain("does not erase its historical acceptance");
+  expect(refund.steps.join(" ")).toContain("separate grant and independence");
+});
+
+it("keeps no-goods financial closure distinct from invented handover and financial permission", () => {
+  for (const id of ["staff-parts-collection", "order-sourcing", "refund-work"]) {
+    const article = learningArticles.find((row) => row.id === id)!;
+    expect(article.steps.join(" ")).toContain("financial closure");
+  }
+  const source = learningArticles.find((row) => row.id === "order-sourcing")!;
+  expect(source.steps.join(" ")).toContain("never a fake final handover");
+  expect(source.steps.join(" ")).toContain("consumed stock and original money");
+  const refund = learningArticles.find((row) => row.id === "refund-work")!;
+  expect(refund.steps.join(" ")).toContain("this guide grants none of those duties");
+});
+
+it("keeps cancelled-order reconciliation and unknown money distinct from unit refunds", () => {
+  const source = learningArticles.find((row) => row.id === "order-sourcing")!;
+  const customer = learningArticles.find((row) => row.id === "parts-collection")!;
+  expect(source.steps.join(" ")).toContain("no payment attempts");
+  expect(source.steps.join(" ")).toContain("observations obtained after cancellation");
+  expect(
+    learningArticles.find((row) => row.id === "refund-work")!.steps.join(" "),
+  ).toContain("reversed or pending result remains held");
+  expect(source.steps.join(" ")).toContain("invalidates clearance");
+  expect(customer.steps.join(" ")).toContain("not a refund");
+  expect(customer.steps.join(" ")).toContain("separate acceptance");
+  for (const role of ["PUBLIC", "CUSTOMER", "STAFF"] as const)
+    expect(
+      learningCatalogue({ ...publicLearningAccess, role, verified: true }).articles.some(
+        (row) => row.id === source.id,
+      ),
+    ).toBe(false);
+});
+
+it("keeps actual pre-confirmation recovery distinct from staff cancellation and broad policy approval", () => {
+  const guide = learningArticles.find((row) => row.id === "refund-work")!;
+  expect(guide.gate).toBe("refunds");
+  expect(guide.steps.join(" ")).toContain(
+    "immutable account or verified-guest cancellation audit",
+  );
+  expect(guide.steps.join(" ")).toContain(
+    "does not approve the broader cancellation policy",
+  );
+  expect(guide.steps.join(" ")).toContain("A different capable operator must approve");
+  const aftercare = learningArticles.find((row) => row.id === "financial-aftercare")!;
+  expect(aftercare.version).toBe(6);
+  expect(aftercare.steps.join(" ")).toContain(
+    "A staff cancellation is not buyer consent",
+  );
 });

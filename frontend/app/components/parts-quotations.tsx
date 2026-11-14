@@ -102,6 +102,12 @@ function QuotationPanel({
     }
   }
   function decision(quote: Quote, accept: boolean, now: number) {
+    if (accept && quote.supplyRemedyChoiceId && !quote.alternativeAgreementVersion) {
+      setMessage(
+        "This alternative needs current reviewed terms. Ask Care for a revised quotation before accepting.",
+      );
+      return;
+    }
     if (new Date(quote.expiresAt).getTime() <= now) {
       setMessage(
         "This quotation has expired. Ask Customer Care for an updated quotation.",
@@ -114,7 +120,9 @@ function QuotationPanel({
       title: accept ? "Accept this quotation?" : "Decline this quotation?",
       presentation: "quotation",
       description: accept
-        ? "Creates an unpaid collection order. Suitability and availability are checked before payment becomes available. Wait for a separate collection confirmation before travelling."
+        ? quote.supplyRemedyChoiceId
+          ? "Accept this actual alternative and its quoted price as a separate unpaid order. The original affected amount must follow the independent refund and resolution workflow before a new payment. No store credit or transfer of the original payment is authorised. Compatibility and availability must be checked before payment."
+          : "Creates an unpaid collection order. Suitability and availability are checked before payment becomes available. Wait for a separate collection confirmation before travelling."
         : "This revision will be declined. You can ask Customer Care for an updated quotation.",
       facts: [
         { label: "Product", value: quote.productName },
@@ -127,7 +135,12 @@ function QuotationPanel({
       submit: async () => {
         const response = await send(
           `${root}/${quote.id}/${accept ? "accept" : "decline"}`,
-          { revision: quote.revision },
+          {
+            revision: quote.revision,
+            ...(accept && quote.alternativeAgreementVersion
+              ? { alternativeAgreementVersion: quote.alternativeAgreementVersion }
+              : {}),
+          },
           key,
         );
         if (accept) z.object({ order: z.object({ id: z.uuid() }) }).parse(response.data);
@@ -187,6 +200,14 @@ function QuotationPanel({
             Status: {quote.status.toLowerCase()}. Valid until{" "}
             {formatBusinessDate(quote.expiresAt)}.
           </p>
+          {quote.supplyRemedyChoiceId && (
+            <p>
+              This is an alternative for affected original goods. Acceptance creates a
+              separate unpaid order. The original refund and resolution must be verified
+              before another payment; no store credit or transfer of the original payment
+              is authorised.
+            </p>
+          )}
           <dl className={styles.totals}>
             <div>
               <dt>Quantity</dt>

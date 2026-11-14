@@ -1,3 +1,22 @@
+### 13 November: distinct no-goods financial closure (source)
+
+Customer parts-collection v5, staff-parts-collection v4, admin order-sourcing v8
+and restricted refund-work v9 explain actual financial closure separately from
+physical handover and stock returns. Original amounts and independent financial
+duties remain; guide targets, eligibility and publication flags are unchanged.
+See [closure checkpoint](NO_GOODS_FINANCIAL_CLOSURE_20261113.md) for actual evidence,
+unchanged permissions and remaining reconciliation/acceptance gates.
+
+### 13 November: remaining-goods learning checkpoint (source)
+
+Customer parts-collection v4, staff-parts-collection v3, administrator
+order-sourcing v7 and restricted
+refund-work v8 now explain current resolved refund coverage, exact remaining goods,
+private partial collection and preservation of original money/physical history.
+Audience checks, guide targets and publication flags remain unchanged. See
+[remaining-goods checkpoint](RESOLVED_SUPPLY_FULFILMENT_20261113.md) for evidence,
+acceptance boundaries and the distinct unfinished financial-closure paths.
+
 ### 9 November: collection holding is connected; release acceptance remains open
 
 D12 now records immutable actual phone/in-person contact results separately from
@@ -71,9 +90,10 @@ Existing global learning/AI/practice/publication flags stay unchanged.
 Owner's latest calendar answer: five days, Monday-Saturday, public holidays count,
 exclude the anchor day after both actual readiness and successful notification;
 imported/custom parts use the same rule. The date-only engine has no payment or
-stock side effects. Pending notification yields no deadline. D12 durable evidence,
-reasoned extensions, customer/staff rendering and failed-notification acceptance
-still require implementation. Older unresolved calendar notes are superseded.
+stock side effects. Pending notification yields no deadline. D12 durable contact
+evidence, reasoned extensions and customer/staff rendering are implemented. Hosted
+failed-contact/extension acceptance passed on d42f62cf; exact combined-source release
+gates remain open. Older unresolved calendar notes are superseded.
 
 Verification checkpoint: 10 calendar tests and one audience eligibility test pass;
 28/28 combined calendar/eligibility/retrieval/sourcing tests pass. Three pickup UI
@@ -87,6 +107,7 @@ stages passed; full matrix 304 passed, five CSS-preload verifier failures, 484 n
 run. No full-matrix pass is claimed. The shared footer preload now requires exact
 same-origin CSS, every selector constrained to the known footer/fitment-summary chunk and actual
 104px bottom clearance where a footer is rendered. Unknown warnings/errors still fail. No production change.
+
 ### 10 November: customer one-time code survives the saved-order background check
 
 Customer parts-collection is v3; staff-parts-collection remains v2. The customer

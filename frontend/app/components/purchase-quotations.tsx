@@ -57,9 +57,17 @@ export function PurchaseQuotations() {
   }, []);
   function review(item: Item, accepting: boolean, contact: Contact) {
     const saved = item.quotation;
+    if (accepting && saved.supplyRemedyChoiceId && !saved.alternativeAgreementVersion)
+      return;
     setReviewExpiresAt(Date.parse(saved.expiresAt));
     const body = accepting
-      ? { revision: saved.revision, contact: { ...contact } }
+      ? {
+          revision: saved.revision,
+          contact: { ...contact },
+          ...(saved.alternativeAgreementVersion
+            ? { alternativeAgreementVersion: saved.alternativeAgreementVersion }
+            : {}),
+        }
       : { revision: saved.revision };
     const key = `purchase-quote-accept:${saved.id}:${saved.revision}`;
     let orderId: string | undefined;
@@ -79,7 +87,9 @@ export function PurchaseQuotations() {
       presentation: "quotation",
       title: accepting ? "Review quotation acceptance" : "Review quotation decline",
       description: accepting
-        ? "Accepting saves an unpaid collection order at this quoted total. Payment, final suitability and availability checks, and collection readiness are separate."
+        ? saved.supplyRemedyChoiceId
+          ? "Accept this actual alternative and its quoted price as a separate unpaid order. The original affected amount must follow the independent refund and resolution workflow before a new payment. No store credit or transfer of the original payment is authorised. Compatibility and availability must be checked before payment."
+          : "Accepting saves an unpaid collection order at this quoted total. Suitability and availability are checked before payment. Collection readiness is separate."
         : "Declining closes this offer. Contact the team if you need a different quotation.",
       facts: [
         { label: "Product", value: saved.productName },
@@ -231,6 +241,14 @@ function GuestQuotation({
         </StatusBadge>
       </p>
       {saved.sku && <p>SKU: {saved.sku}</p>}
+      {saved.supplyRemedyChoiceId && (
+        <p>
+          This is an alternative for affected original goods. Acceptance creates a
+          separate unpaid order. The original refund and resolution must be verified
+          before another payment; no store credit or transfer of the original payment is
+          authorised.
+        </p>
+      )}
       <dl className="purchase-summary">
         <div>
           <dt>Quantity</dt>
@@ -254,6 +272,12 @@ function GuestQuotation({
       </p>
       <p className="purchase-quote-notes">{saved.notes}</p>
       {item.collectionBranch && <p>Collection: {item.collectionBranch.name}</p>}
+      {saved.supplyRemedyChoiceId && !saved.alternativeAgreementVersion && (
+        <p>
+          This alternative needs current reviewed terms. Ask Care for a revised quotation
+          before accepting.
+        </p>
+      )}
       {saved.orderId ? (
         <Link className="button" href={`/purchase/orders/${saved.orderId}`}>
           View linked order
@@ -305,7 +329,13 @@ function GuestQuotation({
                 value={contact.phone}
                 onChange={(event) => onContact({ ...contact, phone: event.target.value })}
               />
-              <button className="button" disabled={!item.collectionBranch}>
+              <button
+                className="button"
+                disabled={
+                  !item.collectionBranch ||
+                  !!(saved.supplyRemedyChoiceId && !saved.alternativeAgreementVersion)
+                }
+              >
                 Review and accept quotation
               </button>
             </form>

@@ -20,6 +20,54 @@ const jsonResponse = (value: unknown) =>
   });
 
 describe("Monnify payment security", () => {
+  it.each([
+    ["FAILED", "failed"],
+    ["EXPIRED", "abandoned"],
+    ["REVERSED", "reversed"],
+  ])("preserves the provider's %s outcome as %s", async (paymentStatus, expected) => {
+    const responses = [
+      {
+        requestSuccessful: true,
+        responseMessage: "success",
+        responseCode: "0",
+        responseBody: {
+          accessToken: "synthetic-access-token-long-enough",
+          expiresIn: 3600,
+        },
+      },
+      {
+        requestSuccessful: true,
+        responseMessage: "success",
+        responseCode: "0",
+        responseBody: {
+          transactionReference: "MNFY|synthetic|negative",
+          paymentReference: "AAT-negative",
+          amountPaid: 0,
+          totalPayable: 3.2,
+          settlementAmount: 0,
+          paymentStatus,
+          currencyCode: "NGN",
+          paidOn: null,
+          fee: 0,
+        },
+      },
+    ];
+    const adapter = new MonnifyAdapter({
+      mode: "sandbox",
+      apiKey: "MK_TEST_synthetic",
+      secretKey: "SK_TEST_synthetic",
+      contractCode: "synthetic-contract",
+      callbackUrl: "https://app.example.test/payments/complete",
+      requestTimeoutMs: 2_000,
+      maxResponseBytes: 16_384,
+      fetcher: async () => jsonResponse(responses.shift()),
+    });
+    expect(await adapter.verify("AAT-negative")).toMatchObject({
+      status: expected,
+      amountKobo: 0n,
+      paidAt: null,
+    });
+  });
   it("uses hosted Pay-with-Bank, fixed provider hosts, bounded responses, and cached auth", async () => {
     const calls: Array<{ url: string; init?: RequestInit }> = [];
     const responses = [
