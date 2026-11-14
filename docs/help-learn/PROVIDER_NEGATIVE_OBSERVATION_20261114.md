@@ -49,3 +49,16 @@ They explain current provider evidence, pending/reversal holds and later conflic
 Historical partial monetary-breakdown reconciliation, operator/guest whole-order
 recovery and actual independent role/provider/accounting acceptance remain separate.
 General returns/warranty, bank calendar and unspecified cutoffs remain unapproved.
+
+## Integrated compiled checkpoint
+
+Master6797 sidebar transition recovery is integrated in source d1fde372. Its held
+production-environment frontend passes13/13 People/sidebar fixture cases; no public
+domain is assigned. This verifies the shared focus integration, not real financial
+provider/role acceptance. The first access setup reached Vercel login and was stopped;
+corrected share-link setup asserts the intended application before the passing run.
+All temporary scoped links and cookie files were revoked/removed.
+
+Exact d1 frontend build passed, then its gate stopped at Markdown formatting in the
+quality register. Journal formatting is corrected; new exact-source hosted checks
+remain required. Runtime, SQL and the180-case/76-unit evidence are unchanged.

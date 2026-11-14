@@ -1,3 +1,28 @@
+### 14 November: integrated sidebar and People compiled acceptance
+
+Held READY dpl_4ZwQdnSw7Hgmj5VjecTxwHTsWuRx on d1fde372 passes13/13:
+two real rendered responsive sidebar focus/preference cases and eleven People
+cases at eight widths320-1440, including enlarged text/tall320 header. The safe
+phone fixture capture was inspected. This is compiled held rendering with API
+fixtures; it is not real workforce/physical-device acceptance. Both master6797
+sidebar recovery and the measured People gap repair remain.
+
+The first held run reached Vercel login because its temporary share URL used the
+wrong token mechanism. It was stopped and its token/cookie state revoked/removed;
+it is not application failure or acceptance. The corrected setup asserts the
+intended application host/body before testing. Its13 cases pass with process
+exit0; the second scoped token and cookie file were also revoked/removed.
+
+Exact d1 frontend43533354333 built successfully but stopped at quality-register
+Markdown formatting before the broad browser matrix. Journals are formatted with
+the repository Prettier; no runtime, assertion, permission or migration is changed
+by this correction. New exact-source checks still govern release. Native130180/180
+and76 focused units remain the current backend evidence. Production read-only
+inspection found ACTIVE36687b08 and all four digests matching local source tag
+6a9318a6; managed backups list eight, latest13November05:22UTC. No fresh populated
+restore, migration or public promotion is claimed. Current master, recovery and
+rollback resources remain preserved; the owner Desktop hero is untouched.
+
 ### 14 November: provider-observed negative attempts (prepared source)
 
 D17 now saves private immutable provider observations, with exact current
@@ -175,6 +200,7 @@ reconciliation. Verified invoice identifiers/applicability, operating account/re
 facts, independent provider/role acceptance, exact integrated-master checks and safe
 fresh backup/off-device recovery/restore/migration/runtime publication remain. Broader
 returns/warranty is deferred. Booking and purchasing readiness remain separate.
+
 ## 14 November - sidebar breakpoint focus correction awaiting release
 
 Exact-master frontend run 43525367353 failed one of 1,271 browser cases: after collapsing the desktop sidebar and resizing from 1655x960 to 390x844, the mobile navigation close button was absent. The other 1,270 cases passed. Production remains unchanged; source 9bf is not publication-qualified. CI artifact 14085934613 was checksum-verified. Screenshot, context and trace are retained under TEMP/allied-9bf-ci-sidebar; only the downloaded aggregate archive was removed.
