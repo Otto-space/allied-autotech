@@ -1,3 +1,44 @@
+## 14 November - public loading measurements and remaining menu decoration
+
+Provider observation at03:17UTC confirms backend e40c9a13 ACTIVE with no pending
+release, both aliases on dpl_GABPemCubUZP16cbJ8EgZum1TSKv and backend live/ready200.
+These match the published6c52 package. The old packaging block is superseded for
+that release. Current master19aee07d adds screenshot timing/evidence only; its
+backend/secrets gates pass, frontend43547571228 remains running at this checkpoint.
+The clean audit checkout was fast-forwarded, preserving other worktrees.
+
+Public lab observations in dedicated headless Edge cover Home, Parts, Vehicles and
+submitted Search at1280x720 and390x844. Actual sizes, populated headings, loaded
+images, full-page scroll/return and no overflow/unhandled page errors pass in these
+eight samples. LCP observations are1.744-3.384s and CLS0-0.0342; unthrottled single
+samples on this machine, not field scores, cold-cache guarantees or performance
+acceptance. Search initially used unsupported q and measured the empty form;
+corrected search=oil samples are separate, not an unchanged eight-case run.
+Receipts: TEMP/allied-public-performance-20261114/report.json and
+TEMP/allied-search-performance-20261114/report.json. Home desktop/mobile and mobile
+Search captures were visually inspected. No messages or production writes.
+
+The mobile public menu still has a permanent outline/background box, contrary to
+the supplied brief. Change only its resting border/background to transparent;
+retain46px geometry, hover/open/disabled rules and existing focus ring. Its sole
+component consumer is site-header. Formatting/diff checks pass. Source-CSS overlay
+checks pass7/7 exact required sizes, including keyboard open, Escape/focus return,
+scroll lock, desktop hiding and no overflow/errors;320 resting/focused captures
+reviewed. This is diagnostic CSS over compiled6c52, NOT compiled-candidate proof.
+Inline insertion was correctly blocked by CSP; the corrected harness serves only
+an intercepted same-origin stylesheet without changing CSP. A first locator waited
+for Open navigation after it changed to Close navigation; that run was stopped,
+then the stable control locator and explicit timeout passed. Evidence:
+TEMP/allied-menu-candidate-20261114/report.json. Compiled CI/preview/publication
+remain pending. No permission, workflow, learning destination or API changed.
+
+Private browser recheck failed exactly: The browser access host is unavailable.
+Do not repeat the pending private-sign-in request or count fixtures as real-role
+acceptance. Full original briefs, independent D01-D17/T01-T07 work, physical-device
+and server/provider acceptance remain open; unconfirmed Diagnostics duration and
+Engine Oil Filter identity/photo facts remain missing business inputs. Source,
+dependencies, history, databases and other active branches were preserved.
+
 ## 14 November 02:38 UTC - settled focus evidence verified; disk block cleared
 
 The screenshot-only correction at22fba6d9 passes all three branch checks. Frontend
