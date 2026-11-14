@@ -36,12 +36,19 @@ export function MfaChallenge({
   const firstMethod = useRef<HTMLButtonElement>(null);
   const [options, setOptions] = useState<Options>();
   const keyAction = useRef<HTMLButtonElement>(null);
+  const preparationFocus = useRef<Element | null>(null);
   useEffect(() => {
-    if (options?.method === "webauthn") keyAction.current?.focus();
+    if (options?.method !== "webauthn") return;
+    const active = document.activeElement;
+    const origin = preparationFocus.current;
+    preparationFocus.current = null;
+    // The response may arrive after the user has chosen another control.
+    if (active === origin || active === document.body) keyAction.current?.focus();
   }, [options]);
   const [unavailable, setUnavailable] = useState<string>();
   const [canSetup, setCanSetup] = useState(false);
   async function prepare(method: Method) {
+    preparationFocus.current = document.activeElement;
     setOptions(undefined);
     setUnavailable(undefined);
     setCanSetup(false);

@@ -105,7 +105,7 @@ export default defineConfig({
       // Exercise the changed forms and invitation flow in the required matrix,
       // preserving the synthetic WebAuthn origin and all existing projects.
       use: { baseURL: "http://localhost:3103" },
-      grep: /login fits|registration fits|recovery fits|reset link and manual entry fit|verification and resend fit|MFA methods and enrollment fit|login accessibility|registration accessible|recovery accessibility|reset accessible|verification accessible|MFA challenge accessibility|anonymous invitation check|unavailable invitation session read|acceptance scrubs|acceptance handles|cross-tab account changes discard invitation/,
+      grep: /login fits|registration fits|recovery fits|reset link and manual entry fit|verification and resend fit|MFA methods and enrollment fit|security-key preparation|login accessibility|registration accessible|recovery accessibility|reset accessible|verification accessible|MFA challenge accessibility|anonymous invitation check|unavailable invitation session read|acceptance scrubs|acceptance handles|cross-tab account changes discard invitation/,
     },
     {
       name: "home-design",
