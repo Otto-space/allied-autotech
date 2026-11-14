@@ -14084,3 +14084,22 @@ Source lint/format and collection are checked separately from compiled acceptanc
 Evidence: parts-master65f-ci-evidence.json and matching PNGs in the established TEMP
 folder. New compiled captures, all final-master gates and a compatible backend
 remain prerequisites for Parts publication. Groups4-10 remain open.
+
+## 14 November - workshop photograph navigation and placement reconciliation
+
+Fresh anonymous Edge checks at390/1440 confirm the Home "Two-post vehicle lift"
+link opens About's text-only "How we work" section, with no lift in its target.
+Link directly to the existing lift photograph using a stable focusable equipment
+item anchor in both shared gallery variants. Preserve existing section/guide
+targets, the initially open workshop group, native scrolling, photo viewing and
+permissions. Add two keyboard/navigation/reload/dialog-focus regression cases.
+
+The owner's9 November editorial reference implementation (29a2c442) explicitly
+supersedes the older photo hero. Retain that approved carousel and genuine
+Home/About photographs; correct four stale placement entries and obsolete hero
+framing metadata in the original asset manifest. All15 supplied originals match
+their recorded SHA256 values; no original, derivative, approved price or withheld
+asset changes. Compiled candidate acceptance and publication remain pending.
+Baseline: TEMP/aat-attendance-20261104/workshop-link-baseline-20261114.json.
+This is public read-only browser evidence, not role/provider/device acceptance.
+Keep the independent b0cf0f0e backend release and D17 migration gates intact.

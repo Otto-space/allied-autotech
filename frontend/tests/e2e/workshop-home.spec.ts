@@ -28,6 +28,39 @@ async function decoded(page: Page) {
     .toBe(true);
 }
 
+for (const width of [390, 1440]) {
+  test(`workshop lift link reaches its photograph and preserves keyboard access at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page);
+    const link = page
+      .getByRole("navigation", { name: "Workshop equipment and approach" })
+      .getByRole("link", { name: "Two-post vehicle lift" });
+    await link.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/about#equipment-item-service-bay-lift$/);
+    const lift = page.locator("#equipment-item-service-bay-lift");
+    await expect(lift).toBeInViewport();
+    await expect(
+      lift.getByRole("heading", { name: "Two-post vehicle lift" }),
+    ).toBeVisible();
+    await page.reload();
+    await expect(lift).toBeInViewport();
+    const photo = lift.getByRole("link", { name: "View photo of Two-post vehicle lift" });
+    await photo.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(photo).toBeFocused();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  });
+}
+
 test("touch swipes retain vertical scrolling and rapid selection stays stable after resize", async ({
   browser,
 }) => {

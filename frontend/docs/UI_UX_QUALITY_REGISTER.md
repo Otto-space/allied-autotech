@@ -12433,3 +12433,19 @@ Source lint/format and collection are checked separately from compiled acceptanc
 Evidence: parts-master65f-ci-evidence.json and matching PNGs in the established TEMP
 folder. New compiled captures, all final-master gates and a compatible backend
 remain prerequisites for Parts publication. Groups4-10 remain open.
+
+## 14 November - Home equipment link reaches the actual lift photograph
+
+Confirmed at390/1440 in anonymous installed Edge: Home's lift link opens
+About#principles ("How we work"), which contains no lift. Target the existing
+lift figure with a stable equipment-item anchor in both shared gallery modes.
+No gallery disclosure, image crop, modal logic, capability or guide target changes.
+Two affected browser cases cover keyboard entry, direct fragment reload, photo
+dialog Escape/focus return and overflow. Compiled verification is pending.
+
+Reconcile the original asset manifest with owner-approved29a2c442 editorial Home:
+authentic action photographs now live in service imagery and Home/About content,
+not the superseded three-photo hero. Preserve all15 original hashes, derivative
+metadata, full seven-person team framing and the two withheld assets. Baseline
+receipt: TEMP/aat-attendance-20261104/workshop-link-baseline-20261114.json.
+No new design departure or policy decision; publication remains gated.
