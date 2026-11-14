@@ -10,8 +10,13 @@ PR88's hero wording correction is merged after all three branch gates passed:
 frontend43548717414 reports1,337 browser passes and1,591 units with12 explicit skips;
 backend43548717431 and secrets43548717423 pass. Master add252a6 needs its own gates
 before publication. This combined source retains that hero correction and the new
-cancelled-payment explanation. New combined compiled acceptance remains pending;
-the earlier four-case payment preview covers its unchanged order component only.
+cancelled-payment explanation. Combined compiled Preview7f4f385c passes8/8 in176s:
+four cancelled-customer reads at320/1440 with focus refresh/reload and a deterministic
+500 fallback-leak guard, plus four failed-hero-image cases at320/1440. The original
+strict privacy/no-write/console assertions remain. Both payment-card captures were
+visually reviewed. Receipt: TEMP/allied-combined-7f4f385c/verified.json. The task-owned
+loopback fixture28832 was stopped and its port closure verified. This is compiled
+synthetic acceptance, not real-role/provider/device proof. Final CI/publication remain.
 Enabled unpaid review remains for the isolated full-capability CI environment.
 Preserve the independent D17 worktree and all20 forward-migration/recovery/release
 gates; no production alias, database, record or capability activation occurs here.
