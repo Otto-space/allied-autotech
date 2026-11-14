@@ -311,7 +311,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       await prisma.manualPaymentReview.create({
         data: {
           paymentAttemptId: attempt.id,
-          submittedByUserId: f.customerActor.userId,
+          submittedByUserId: f.order.guestId ? null : f.customerActor.userId,
           reviewedByUserId: receiptReviewer.userId,
           status: "APPROVED",
           reviewedAt: recordedAt,
@@ -777,6 +777,192 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         }
       },
     );
+    it.each([false, true])(
+      "recovers an actual pre-confirmation buyer cancellation through separate human review (guest=%s)",
+      async (guest) => {
+        const f = await fixture(guest, { legacy: true });
+        await approveManualRefundFixture(f.actor);
+        await f.service.raise(f.actor, f.order.id, f.body, context);
+        const version = (
+          await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } })
+        ).version;
+        if (guest) {
+          await new OrdersService().guestCancel(
+            { sessionToken: f.access!.sessionToken, csrfToken: f.access!.csrfToken },
+            f.order.id,
+            {
+              expectedVersion: version,
+              reason: "Synthetic verified guest cancels all original unfulfilled goods",
+            },
+            `aftercare-v1.${Date.now()}.${randomUUID()}`,
+            context,
+          );
+        } else await cancelOriginal(f);
+        const attempt = await captured(f);
+        await completeOriginalReceipt(f, attempt);
+        await prisma.paymentLedgerEntry.create({
+          data: {
+            paymentAttemptId: attempt.id,
+            sourceKey: `capture:${attempt.id}`,
+            type: "CAPTURE",
+            direction: "CREDIT",
+            amountKobo: 320n,
+            occurredAt: attempt.paidAt!,
+          },
+        });
+        if (!guest) {
+          await cancelOriginal(f); // Preserve the customer's existing automatic request.
+          const prior = await prisma.refund.findFirstOrThrow({
+            where: { paymentAttemptId: attempt.id },
+          });
+          await new PaymentsService().decideRefund(
+            await independentApprover(),
+            prior.id,
+            {
+              decision: "CANCELLED",
+              note: "Synthetic prior request needs a corrected independent human review",
+            },
+            context,
+          );
+        }
+        const payments = new PaymentsService();
+        const input = {
+          paymentAttemptId: attempt.id,
+          amountKobo: 320n,
+          reason: "Synthetic full remaining pre-confirmation cancellation recovery",
+        };
+        await expect(
+          payments.requestRefund(
+            f.actor,
+            { ...input, amountKobo: 107n },
+            randomUUID(),
+            context,
+          ),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        await expect(
+          payments.requestRefund(f.customerActor, input, randomUUID(), context),
+        ).rejects.toMatchObject({ statusCode: 403 });
+        const key = randomUUID();
+        const saved = refundReceipt(
+          await payments.requestRefund(f.actor, input, key, context),
+        );
+        expect(saved.refund).toMatchObject({
+          status: "REQUESTED",
+          amountKobo: "320",
+          requestedByUserId: f.actor.userId,
+          approvedByUserId: null,
+          supplyRemedyChoiceId: null,
+        });
+        expect(
+          refundReceipt(await payments.requestRefund(f.actor, input, key, context))
+            .replayed,
+        ).toBe(true);
+        await expect(
+          payments.requestRefund(f.actor, input, randomUUID(), context),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        const record = await prisma.refund.findUniqueOrThrow({
+          where: { id: saved.refund.id },
+        });
+        expect(record.policySnapshot).toMatchObject({
+          key: "manual-refund",
+          approvalStatus: "APPROVED",
+          preConfirmationCancellation: {
+            version: "PRECONFIRMATION_SUPPLY_CANCELLATION_V1",
+            orderId: f.order.id,
+            purchaseAccess: guest ? "EMAIL_VERIFIED_GUEST" : "ACCOUNT",
+            cancellationPolicy: {
+              key: "cancellation",
+              settings: { beforeConfirmationFeeKobo: "0" },
+            },
+          },
+        });
+        await expect(
+          prisma.refund.update({
+            where: { id: record.id },
+            data: { policySnapshot: {} },
+          }),
+        ).rejects.toThrow();
+        // A request is neither self-approval nor a settled bank transfer.
+        await testCapability(f.actor.userId, "REFUND_APPROVE");
+        await expect(
+          payments.decideRefund(f.actor, record.id, { decision: "APPROVED" }, context),
+        ).rejects.toMatchObject({ statusCode: 409 });
+        expect(
+          await prisma.paymentLedgerEntry.count({ where: { refundId: record.id } }),
+        ).toBe(0);
+        await finishActualManualRefund(record.id);
+        const current = await prisma.order.findUniqueOrThrow({
+          where: { id: f.order.id },
+        });
+        const closed = await f.service.close(
+          f.actor,
+          f.order.id,
+          cancelledReview(current.version),
+          context,
+        );
+        expect(closed.reconciliations[0]).toMatchObject({
+          outcome: "CAPTURED_FUNDS_RETURNED",
+          originalKobo: "320",
+          capturedKobo: "320",
+          refundedKobo: "320",
+        });
+        expect(
+          await prisma.orderPickupHandover.count({ where: { orderId: f.order.id } }),
+        ).toBe(0);
+        expect(
+          await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } }),
+        ).toMatchObject({
+          status: "CANCELLED",
+          totalKobo: 320n,
+          confirmedAt: null,
+          cancelledAt: current.cancelledAt,
+          cancellationReason: current.cancellationReason,
+          policySnapshot: {},
+          version: current.version + 1,
+        });
+        const safe = JSON.stringify(await f.service.read(f.principal, f.order.id));
+        for (const secret of [
+          "preConfirmationCancellation",
+          "cancellationAuditId",
+          "policySnapshot",
+          input.reason,
+        ])
+          expect(safe).not.toContain(secret);
+      },
+    );
+    it("does not turn a staff cancellation into a buyer's free-cancellation authority", async () => {
+      const f = await fixture(false, { legacy: true });
+      await approveManualRefundFixture(f.actor);
+      await f.service.raise(f.actor, f.order.id, f.body, context);
+      const order = await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } });
+      await new OrdersService().transition(
+        f.actor,
+        f.order.id,
+        {
+          expectedVersion: order.version,
+          status: "CANCELLED",
+          reason: "Synthetic operator cancellation requires its own actual remedy",
+        },
+        context,
+      );
+      const attempt = await captured(f);
+      await completeOriginalReceipt(f, attempt);
+      await expect(
+        new PaymentsService().requestRefund(
+          f.actor,
+          {
+            paymentAttemptId: attempt.id,
+            amountKobo: 320n,
+            reason: "Cannot claim an unrecorded buyer cancellation",
+          },
+          randomUUID(),
+          context,
+        ),
+      ).rejects.toMatchObject({ statusCode: 409 });
+      expect(await prisma.refund.count({ where: { paymentAttemptId: attempt.id } })).toBe(
+        0,
+      );
+    });
     it("reconciles the full actual unbound legacy cancellation refund after separate approval and bank checking", async () => {
       const f = await fixture(false, { legacy: true });
       await approveManualRefundFixture(f.actor);

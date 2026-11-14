@@ -175,7 +175,7 @@ it("keeps collection instructions administrative without granting release permis
 
 it("keeps order sourcing authoring instructions out of public, customer and staff catalogues", () => {
   const guide = learningArticles.find((article) => article.id === "order-sourcing")!;
-  expect([guide.gate, guide.version]).toEqual(["admin", 10]);
+  expect([guide.gate, guide.version]).toEqual(["admin", 11]);
   for (const role of ["PUBLIC", "CUSTOMER", "STAFF"] as const) {
     const catalogue = learningCatalogue({
       ...publicLearningAccess,
@@ -191,9 +191,9 @@ it("keeps actual supply settlement resolution restricted and separate from physi
   const refund = learningArticles.find((article) => article.id === "refund-work")!;
   expect([source.gate, source.version, refund.gate, refund.version]).toEqual([
     "admin",
-    10,
-    "refunds",
     11,
+    "refunds",
+    12,
   ]);
   for (const topic of [source, refund]) {
     const content = JSON.stringify(topic);
@@ -215,7 +215,7 @@ it("explains actual remaining collection without granting payment or stock autho
     sourcing.gate,
     refund.version,
     refund.gate,
-  ]).toEqual([7, "customer", 10, "admin", 11, "refunds"]);
+  ]).toEqual([7, "customer", 11, "admin", 12, "refunds"]);
   expect(pickup.steps.join(" ")).toContain("only the goods still owed");
   expect(sourcing.steps.join(" ")).toContain("does not restock consumed");
   expect(refund.steps.join(" ")).toContain("does not erase its historical acceptance");
@@ -251,4 +251,21 @@ it("keeps cancelled-order reconciliation and unknown money distinct from unit re
         (row) => row.id === source.id,
       ),
     ).toBe(false);
+});
+
+it("keeps actual pre-confirmation recovery distinct from staff cancellation and broad policy approval", () => {
+  const guide = learningArticles.find((row) => row.id === "refund-work")!;
+  expect(guide.gate).toBe("refunds");
+  expect(guide.steps.join(" ")).toContain(
+    "immutable account or verified-guest cancellation audit",
+  );
+  expect(guide.steps.join(" ")).toContain(
+    "does not approve the broader cancellation policy",
+  );
+  expect(guide.steps.join(" ")).toContain("A different capable operator must approve");
+  const aftercare = learningArticles.find((row) => row.id === "financial-aftercare")!;
+  expect(aftercare.version).toBe(6);
+  expect(aftercare.steps.join(" ")).toContain(
+    "A staff cancellation is not buyer consent",
+  );
 });

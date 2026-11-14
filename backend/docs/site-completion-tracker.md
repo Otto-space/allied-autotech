@@ -1,3 +1,30 @@
+### 14 November: actual buyer cancellation refund recovery (source)
+
+The existing Payment records request now supports actual pre-confirmation account
+or verified-guest buyer cancellations despite a supply concern. It binds genuine
+immutable cancellation/ownership, canonical capture, saved zero-fee rule and the
+approved manual-refund policy; it permits only the full remaining amount. Staff
+cancellation, technical/unknown history, partial guesses and unsettled money stay
+held. No approval, bank transfer, handover, stock action or new grant is created.
+The private evidence stays immutable and out of buyer/queue output.
+
+Fresh132 replay/schema diff/db:check and three real isolated service journeys pass,
+with separate request/approval/transfer/check, replay, privacy and protected scope.
+Initial fixtures used a nonexistent Payment.guestId and an unversioned guest key;
+corrected fixtures follow the actual original-Order identity and aftercare protocol.
+Forward132 repairs the guard; already replayed131 remains unchanged. Final132 broad regression passes193/193 across15 files, including existing
+guest aftercare and payment/refund/pickup/concurrency journeys. The focused
+provider/learning/calendar/timing aggregate passes77/77. All owned focused tmpfs resources were removed. Refund-work
+v12, financial-aftercare v6 and admin sourcing v11 keep their existing eligibility,
+targets and flags. See docs/help-learn/SUPPLY_CANCELLATION_RECOVERY_20261114.md.
+
+Only34 verified obsolete compiler pack files (158.53MiB) were removed from this
+worktree after bounded retention/process checks; C: measured20.262->20.417GiB at
+cleanup. Unknown resources, runtime, databases, backups, images and source remain.
+This backend-only batch preserves the running frontend43534523080 on6df28b6e;
+its backend43534523130 and secrets43534523129 pass. No production change or
+purchasing activation. Final native/hosted/master/recovery gates remain separate.
+
 ### 14 November: integrated sidebar and People compiled acceptance
 
 Held READY dpl_4ZwQdnSw7Hgmj5VjecTxwHTsWuRx on d1fde372 passes13/13:
@@ -13845,3 +13872,6 @@ Source lint/format and collection are checked separately from compiled acceptanc
 Evidence: parts-master65f-ci-evidence.json and matching PNGs in the established TEMP
 folder. New compiled captures, all final-master gates and a compatible backend
 remain prerequisites for Parts publication. Groups4-10 remain open.
+
+Automatic approval review rejected deletion of the verified80KiB aborted-browser
+profile with "blocked by policy". It was retained; no alternate deletion was used.

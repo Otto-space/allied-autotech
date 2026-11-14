@@ -9,6 +9,39 @@ import {
 } from "./order-supply-exception.engine.js";
 import { lockSupplyOrder } from "./order-supply-exception.service.js";
 
+/** Reuse an actual buyer cancellation, never an operator's assertion of one.
+ * SQL checks the immutable account/verified-guest audit and saved zero-fee rule.
+ * This is evidence for a REQUEST only; normal approval and settlement still apply. */
+export async function preconfirmationSupplyCancellationBasis(
+  tx: Prisma.TransactionClient,
+  orderId: string | null,
+) {
+  if (!orderId || !(await tx.orderSupplyException.count({ where: { orderId } }))) return;
+  const [row] = await tx.$queryRaw<{ basis: unknown }[]>`
+    SELECT aat_preconfirmation_supply_cancellation_basis(${orderId}::uuid) AS basis`;
+  if (row?.basis === null) return;
+  return z
+    .object({
+      version: z.literal("PRECONFIRMATION_SUPPLY_CANCELLATION_V1"),
+      orderId: z.uuid(),
+      cancellationAuditId: z.uuid(),
+      purchaseAccess: z.enum(["ACCOUNT", "EMAIL_VERIFIED_GUEST"]),
+      cancellationPolicy: z
+        .object({
+          id: z.uuid(),
+          key: z.literal("cancellation"),
+          version: z.number().int().positive(),
+          approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]),
+          source: z.string(),
+          effectiveAt: z.string(),
+          settings: z.record(z.string(), z.json()),
+        })
+        .strict(),
+    })
+    .strict()
+    .parse(row?.basis);
+}
+
 /** Called inside the existing refund transaction, before locking the attempt.
  * This binds a request; existing finance approval, dispatch and verification remain authoritative. */
 export async function assertSupplyRefundBinding(

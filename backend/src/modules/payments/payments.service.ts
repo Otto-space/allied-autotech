@@ -1,6 +1,9 @@
 import { databaseClock } from "../../common/database/clock.js";
 import { recordPaymentAttemptObservation } from "./payment-attempt-observation.js";
-import { assertSupplyRefundBinding } from "../orders/order-supply-refund.js";
+import {
+  assertSupplyRefundBinding,
+  preconfirmationSupplyCancellationBasis,
+} from "../orders/order-supply-refund.js";
 import {
   additionalInvoiceQuoteSelect,
   assertSupplementalInvoiceCurrent,
@@ -1061,11 +1064,15 @@ export class PaymentsService {
       )
         throw paymentNotFound();
       await this.assertBranch(actor, attempt.paymentId, tx);
-      await assertSupplyRefundBinding(tx, {
-        orderId: attempt.payment.orderId,
-        choiceId: input.supplyRemedyChoiceId,
-        amountKobo: input.amountKobo,
-      });
+      const cancellationRecovery = !input.supplyRemedyChoiceId
+        ? await preconfirmationSupplyCancellationBasis(tx, attempt.payment.orderId)
+        : undefined;
+      if (!cancellationRecovery)
+        await assertSupplyRefundBinding(tx, {
+          orderId: attempt.payment.orderId,
+          choiceId: input.supplyRemedyChoiceId,
+          amountKobo: input.amountKobo,
+        });
       if (
         await tx.paymentDispute.count({
           where: { paymentAttemptId: attempt.id, status: { not: "WON" } },
@@ -1098,7 +1105,10 @@ export class PaymentsService {
           },
           select: { id: true },
         });
-        if (cancelledGuestOrder && input.amountKobo !== attempt.amountKobo - committed)
+        if (
+          (cancelledGuestOrder || cancellationRecovery) &&
+          input.amountKobo !== attempt.amountKobo - committed
+        )
           throw paymentConflict(
             "Cancellation before confirmation is free. Request the full remaining verified amount; a separate operator must approve the refund.",
           );
@@ -1108,7 +1118,12 @@ export class PaymentsService {
         select: refundQueueSelect,
         data: {
           policyVersionId: refundPolicy.id,
-          policySnapshot: policySnapshot(refundPolicy),
+          policySnapshot: {
+            ...policySnapshot(refundPolicy),
+            ...(cancellationRecovery
+              ? { preConfirmationCancellation: cancellationRecovery }
+              : {}),
+          },
           paymentAttemptId: input.paymentAttemptId,
           supplyRemedyChoiceId: input.supplyRemedyChoiceId ?? null,
           requestedByUserId: actor.userId,

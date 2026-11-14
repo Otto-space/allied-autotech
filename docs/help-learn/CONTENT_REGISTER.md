@@ -1,3 +1,12 @@
+### 14 November: actual buyer cancellation recovery
+
+Refund-work v12, financial-aftercare v6 and administrator order-sourcing v11 explain
+the existing full remaining pre-confirmation recovery, original account/verified-
+guest cancellation evidence and separate financial duties. No staff cancellation
+is presented as buyer consent; broader terms remain unapproved. Existing targets,
+eligibility and feature flags stay. See the
+[recovery checkpoint](SUPPLY_CANCELLATION_RECOVERY_20261114.md).
+
 ### 14 November: current provider-observed cancelled-payment review
 
 Customer parts-collection v7, staff-parts-collection v6, administrator order-sourcing
