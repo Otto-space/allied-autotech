@@ -285,7 +285,7 @@ for (const evictHiddenFocus of [false, true])
       await expect(
         page.getByRole("dialog", { name: "Dashboard navigation" }),
       ).toBeHidden();
-      await expect(page.locator(".sidebar")).toHaveCSS("width", "264px");
+      await expect(page.locator(".sidebar")).toHaveCSS("width", "256px");
     }
   });
 

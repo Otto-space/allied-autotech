@@ -646,6 +646,18 @@ template coverage and remaining Groups4-10 remain open.
 
 ## 13 November - consolidated T02 integration checkpoint
 
+### 2026-11-14 00:28 UTC - compiled focus succeeds; added width expectation corrected
+
+Reconciled0275 private previewCvnnSkio6m9oNmU4Y7bPtTbRjrcp is READY. Its native
+Chromium transition passes. The forced-eviction case passes all focus and modal-
+closure checks, then fails the newly added width expectation: actual256px follows
+brand-system.css, while the assertion incorrectly used the older264px global grid.
+Corrected the assertion to the approved256px value; no application style or focus
+assertion changed. Preserve the first1-pass/1-failure/6-not-run report under
+TEMP/allied-team-held-0275e5b0-20261114/navigation-report.json. Corrected new-source
+execution/CI remains pending. Browser availability stays distinct from production
+policy and real-role acceptance; no publication or real writes occurred.
+
 ### 2026-11-14 00:20 UTC - concurrent sidebar fix preserved; open-drawer baseline reproduced
 
 Reconciled master6797b243/PR82 with review work. Preserved its transition-only
