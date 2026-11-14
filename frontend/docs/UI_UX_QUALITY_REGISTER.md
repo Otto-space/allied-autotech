@@ -1,3 +1,25 @@
+## 14 November 04:11 UTC - delegated Admin entry verified with scoped fixtures
+
+PR92 preserves the actual full Admin account baseline while opening People and
+Access reviews only after current identity and existing delegation match the
+session. Private compiled6e6ffd2f has unchanged application inputs through9c297935
+and the final painted-edge assertion correction.8 distinct focused cases now pass:
+review2/2, People5/6 plus corrected phone-denial1/1. Coverage includes320/1440
+person navigation, revocation and baseline recovery, absent delegation and wrong
+actor without people requests, transient failure/retry, scoped review and loss of
+review authority. Phone denial passes Axe, native keyboard focus,44px controls and
+8 probes at painted corners/edges. Source types, scoped ESLint/formatting,27 Help
+units and37 isolated112-replay HTTP cases pass.
+
+Retain the incomplete58-case run (16 passed,2 failed before stopping) and the later
+5/6 failure. Corrected fixtures use the real Admin session flag and consistent
+branch envelope. The initial corner probes sampled outside rounded controls;
+painted-corner and edge assertions pass without changing application styles.
+Evidence: TEMP/allied-admin-duty-6e6ffd2f-20261114. Preview policy actually returns 503. These compiled/synthetic-account checks do not establish production-policy,
+real-role, physical-device or Safari acceptance. Exact-master, held-production and
+live checks remain pending; published baseline remains6c52. Continue04:06-05:06
+integration/release before another page group. Full T01-T07 remainder stays open.
+
 ## 14 November 03:06 UTC - authorized Admin duty-entry gap; candidate only
 
 Real Admin sessions retain their approved account baseline and do not set the

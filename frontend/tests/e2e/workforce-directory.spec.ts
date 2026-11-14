@@ -228,19 +228,44 @@ test("real Admin without current duty delegation never fetches the scoped direct
     page.getByRole("link", { name: "Return to People", exact: true }),
   ]) {
     await expect(control).toBeFocused();
+    const hitArea = await control.evaluate((element) => {
+      const b = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      const radius = Math.max(
+        ...[
+          style.borderTopLeftRadius,
+          style.borderTopRightRadius,
+          style.borderBottomLeftRadius,
+          style.borderBottomRightRadius,
+        ].map((value) => Number.parseFloat(value) || 0),
+      );
+      // Probe painted corners, then each edge. The bounding rectangle's
+      // square corners are outside a rounded button's actual hit area.
+      const inset = Math.min(b.width / 2, b.height / 2, radius / 2 + 2);
+      const points = [
+        [b.left + inset, b.top + inset],
+        [b.right - inset, b.top + inset],
+        [b.left + inset, b.bottom - inset],
+        [b.right - inset, b.bottom - inset],
+        [b.left + b.width / 2, b.top + 2],
+        [b.left + b.width / 2, b.bottom - 2],
+        [b.left + 2, b.top + b.height / 2],
+        [b.right - 2, b.top + b.height / 2],
+      ];
+      return {
+        height: b.height,
+        radius,
+        points: points.map(([x, y]) => ({
+          x,
+          y,
+          unobscured: element.contains(document.elementFromPoint(x!, y!)),
+        })),
+      };
+    });
+    expect(hitArea.height, JSON.stringify(hitArea)).toBeGreaterThanOrEqual(44);
     expect(
-      await control.evaluate((element) => {
-        const b = element.getBoundingClientRect();
-        return (
-          b.height >= 44 &&
-          [
-            [b.left + 2, b.top + 2],
-            [b.right - 2, b.top + 2],
-            [b.left + 2, b.bottom - 2],
-            [b.right - 2, b.bottom - 2],
-          ].every(([x, y]) => element.contains(document.elementFromPoint(x!, y!)))
-        );
-      }),
+      hitArea.points.every((point) => point.unobscured),
+      JSON.stringify(hitArea),
     ).toBe(true);
     await page.keyboard.press("Tab");
   }
