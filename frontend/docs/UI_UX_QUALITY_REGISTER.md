@@ -1,3 +1,70 @@
+### 14 November: reconcile cancelled guidance with current master and fixture repair
+
+Merged scoped availability repair b3108a85 and master add252a6 into this follow-up,
+retaining both complete journal histories. The selected caller-owned supply fixture,
+focus refresh and strict console/privacy/no-write checks match b310 byte-for-byte;
+the provisional shared customer-order transport is absent. Backend runtime, API and
+all132 migration inputs are unchanged from b310. No financial or permission rule changed.
+
+PR88's hero wording correction is merged after all three branch gates passed:
+frontend43548717414 reports1,337 browser passes and1,591 units with12 explicit skips;
+backend43548717431 and secrets43548717423 pass. Master add252a6 needs its own gates
+before publication. This combined source retains that hero correction and the new
+cancelled-payment explanation. Combined compiled Preview7f4f385c passes8/8 in176s:
+four cancelled-customer reads at320/1440 with focus refresh/reload and a deterministic
+500 fallback-leak guard, plus four failed-hero-image cases at320/1440. The original
+strict privacy/no-write/console assertions remain. Both payment-card captures were
+visually reviewed. Receipt: TEMP/allied-combined-7f4f385c/verified.json. The task-owned
+loopback fixture28832 was stopped and its port closure verified. This is compiled
+synthetic acceptance, not real-role/provider/device proof. Final CI/publication remain.
+Enabled unpaid review remains for the isolated full-capability CI environment.
+Preserve the independent D17 worktree and all20 forward-migration/recovery/release
+gates; no production alias, database, record or capability activation occurs here.
+
+## 14 November - hero failed-image language follow-up
+
+Newly published6c52 passes an anonymous Edge157 check: three real-time four-slide
+loops, pause/resume, keyboard/manual pause, controls and no page overflow across
+nine widths320-1920px,21-second delayed image and four failed images. Zero page
+errors; no business submissions. Receipt and safe screenshots:
+TEMP/aat-attendance-20261104/live-home-hero-acceptance-20261114.json,
+live-home-hero-390-20261114.png and live-home-hero-image-failure-320-20261114.png.
+Phone and failed-image screenshots were visually reviewed. This does not establish
+physical-device, screen-reader or new native-background-tab acceptance.
+
+The failed-image state still says "Editorial image unavailable". Replace that
+internal term with "Image unavailable" in the shared hero and the two existing
+failure assertions. No layout, media association or carousel logic changes.
+Rendered acceptance/publication for the wording correction is pending. Preserve
+the separate D17 integration and all operational/provider acceptance boundaries.
+
+### 14 November: cancelled-order payment guidance correction
+
+The compiled cancelled/refunded fixture shows verified returned funds above a
+generic Payment card that still asks for payment resolution. Keep the historical
+"Payment recorded" label and direct customers to payment records for refund updates,
+with Customer Care help optional. Do not infer new refunds or financial permission.
+Update the existing paid/cancelled order assertion; no control, layout, payment or
+approval logic changes. Lint/format/diff pass. Compiled Preview7ae94906 passes four
+distinct cancelled-customer read-only cases at320/1440, with no capture/returned-funds
+states, original privacy/no-write/console checks and exact new returned-funds guidance.
+Both payment-card captures were visually reviewed. Receipt:
+TEMP/allied-cancelled-copy-7ae94906/verified.json. The earlier broader run passed four,
+then its unpaid-review phase hit the restricted Preview's disabled control; one case
+did not run. It is not a six-case pass. Keep enabled unpaid review for isolated full-
+capability CI without changing deployment flags. Publication/integration are pending.
+
+The70e D17 frontend failure is traced to a500 at /api/v1/public/capabilities, not a
+failed visible privacy/state assertion. Exact artifact digest and projected network
+evidence are retained. Four read-only cases pass with a provisional shared loopback
+transport against compiled53150, including a placeholder-leak guard; this provisional
+change was restored when the D17 owner began its scoped caller-fixture repair.
+Its final acceptance remains separate. No error filtering or assertion was relaxed.
+Safe phone/laptop screenshots: TEMP/allied-supply-transport-20261114/results.
+Temporary candidate access is revoked with zero remaining grants; no cookie persisted
+and the task-owned loopback process is stopped. Live-role acceptance is still blocked
+by the browser current-URL safety check. Preserve the independent active worktree.
+
 ### 14 November: isolate supply recovery availability after window focus
 
 Exact70e6dce8 backend43548764313 and both secret checks pass. Frontend43548764352

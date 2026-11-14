@@ -1,3 +1,83 @@
+### 14 November: reconcile cancelled guidance with current master and fixture repair
+
+Merged scoped availability repair b3108a85 and master add252a6 into this follow-up,
+retaining both complete journal histories. The selected caller-owned supply fixture,
+focus refresh and strict console/privacy/no-write checks match b310 byte-for-byte;
+the provisional shared customer-order transport is absent. Backend runtime, API and
+all132 migration inputs are unchanged from b310. No financial or permission rule changed.
+
+PR88's hero wording correction is merged after all three branch gates passed:
+frontend43548717414 reports1,337 browser passes and1,591 units with12 explicit skips;
+backend43548717431 and secrets43548717423 pass. Master add252a6 needs its own gates
+before publication. This combined source retains that hero correction and the new
+cancelled-payment explanation. Combined compiled Preview7f4f385c passes8/8 in176s:
+four cancelled-customer reads at320/1440 with focus refresh/reload and a deterministic
+500 fallback-leak guard, plus four failed-hero-image cases at320/1440. The original
+strict privacy/no-write/console assertions remain. Both payment-card captures were
+visually reviewed. Receipt: TEMP/allied-combined-7f4f385c/verified.json. The task-owned
+loopback fixture28832 was stopped and its port closure verified. This is compiled
+synthetic acceptance, not real-role/provider/device proof. Final CI/publication remain.
+Enabled unpaid review remains for the isolated full-capability CI environment.
+Preserve the independent D17 worktree and all20 forward-migration/recovery/release
+gates; no production alias, database, record or capability activation occurs here.
+
+## 14 November - live hero verification found remaining fallback wording
+
+Both live domains now resolve to6c52 frontend dpl_GABPemCubUZP16cbJ8EgZum1TSKv;
+matching backend e40c9a13 is ACTIVE. PR86 is merged as19aee07d (test timing/journals
+only; application files unchanged), with new exact-master gates running.
+
+An anonymous Edge157 check on the newly published homepage passes three real-time
+four-slide autoplay loops, explicit pause/resume, keyboard arrows/manual pause,
+responsive controls/no page overflow at320/360/390/430/768/1024/1280/1440/1920px,
+a21-second delayed image, and all four failed images. Zero page errors; no business
+submissions. Image faults were intercepted locally, not changed on the server.
+Receipt: TEMP/aat-attendance-20261104/live-home-hero-acceptance-20261114.json.
+Phone and failed-image screenshots were visually reviewed. Native background-tab
+and reduced-motion evidence from the earlier unchanged-carousel run remains separate.
+
+The failed-image screenshot exposes customer text "Editorial image unavailable".
+F07 requires plain language, so replace only that label with "Image unavailable"
+and update the two existing browser assertions. Layout, authentic/illustrative asset
+associations, controls and carousel state logic are unchanged. Rendered acceptance
+and exact-source publication for this small correction are pending. D17 remains
+with its independent integration owner; do not overwrite that active worktree.
+The second historical Docker review stopped on a changed inventory before deletion;
+no additional images or volumes were removed by that review.
+
+### 14 November: cancelled-payment guidance follows recorded status
+
+Safe compiled D17 fixture screenshots show a contradiction: the supply panel says
+the original refund is independently verified, while the generic Payment card asks
+the buyer to get the payment resolved. Replace that cancelled/paid explanation with
+a direction to payment records for refund updates and optional Customer Care help.
+The original payment remains recorded; this change derives no new refund outcome,
+amount, entitlement or approval. Update the existing paid/cancelled browser assertion;
+creation/cancellation restrictions and all financial state logic remain unchanged.
+Scoped lint/format/diff pass. Actual compiled Preview7ae94906 passes four distinct
+read-only cancelled-customer cases at320/1440 (no capture and returned funds), with
+the original privacy/no-write/console assertions unchanged. Payment-card captures
+at both widths were visually reviewed. Receipt: TEMP/allied-cancelled-copy-7ae94906/
+verified.json. The initial broader run passed those four but stopped at an unpaid
+review control disabled by the restricted Preview; its final laptop case did not run.
+Do not call it a six-case pass. Enabled unpaid review remains for isolated full-mode
+CI; its original source assertion is retained. No server/deployment flag changed.
+Publication and final integration checks remain pending.
+
+D17 frontend43548771412 failed its strict console check after the cancelled-order
+privacy/state checks passed. The downloaded artifact14095024714 matches its SHA256;
+the failed trace proves one500 at /api/v1/public/capabilities, falling through to the
+CI placeholder rewrite. Safe projected evidence is TEMP/aat-attendance-20261104/
+d17-70e-supply-failed-network-20261114.json. No console assertion was weakened.
+A provisional shared loopback transport passes four exact read-only cases at320/
+1440 against the unchanged compiled53150 application, including a deterministic
+placeholder-leak guard. It was set aside when the independent D17 owner began a
+scoped caller-owned capability fixture and focus-refresh repair. That owner's fix
+needs its own final acceptance; do not count the provisional four passes as that.
+Candidate access was revoked, remote remaining grant count is zero, cookies stayed
+in memory and task-owned fixture26424 was stopped. The source worktree is preserved.
+Ordinary live browser acceptance remains blocked by the current-URL safety check.
+
 ### 14 November: isolate supply recovery availability after window focus
 
 Exact70e6dce8 backend43548764313 and both secret checks pass. Frontend43548764352
