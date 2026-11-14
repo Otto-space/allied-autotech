@@ -856,7 +856,7 @@ export const learningArticles: LearningArticle[] = [
       "Review invitations and responsibility access safely",
       "Existing MFA, password, branch and delegation controls still apply.",
       [
-        "Open People in Team & Access and select View person. Check the selected person's identity, account level, job position, branch and status. A job title does not grant duties.",
+        "Open People in Team & Access and select View person. Check the selected person's identity, account level, job position, branch and status. A job title does not grant duties. An Admin account keeps its normal workspace. Managing someone else's duties and using Access reviews still require the owner's current delegation.",
         "During a long edit, check Selected person above the form. Use Overview to return to their account details. If current identity is unavailable, refresh before relying on earlier details.",
         "Enter start and end dates in Lagos time, regardless of this device's time zone. New temporary cover needs an end date. The selected person stays above the scrolling review details. Existing open-ended cover is kept for review; it is not silently changed or removed.",
         "Read What this person can access, then expand Allowed actions and why they are available. This is a partial summary: account-level permissions are not itemized, and separately approved duties appear only when your access permits that check. An unavailable check does not mean no access.",
@@ -873,8 +873,8 @@ export const learningArticles: LearningArticle[] = [
       "Team access security, pinned delegation and reviewed responsibility impact",
       "invite staff admin operations permissions access added removed retained grant sources delegate delegation authority privileges",
     ),
-    version: 10,
-    reviewedAt: "2026-11-13",
+    version: 11,
+    reviewedAt: "2026-11-14",
   },
   article(
     "privileged-recovery",
