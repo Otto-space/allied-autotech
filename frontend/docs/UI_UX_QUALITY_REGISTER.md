@@ -13209,3 +13209,11 @@ PR94 now reconciles master02439cdc (D17 plus the current Admin baseline). Preser
 both full histories and every master runtime/schema input. Only the existing six
 workshop files differ from master. Earlier9c2f captures remain pre-integration
 evidence; fresh combined compiled verification and final-source gates are pending.
+
+CI coverage correction: the existing runtime matrix did not select workshop-home.
+The new workshop-navigation project collects exactly9 affected cases, retaining
+deadlines and using explicit anonymous/browse fixtures. Actual image decode/contain,
+page errors and safe390/1440 captures are checked in the selected cases. This is
+collection evidence only until execution passes. Runtime config is the seventh
+scoped file. Combined Preview0f726647 is READY; local browser execution remains
+held by disk reserve (latest17.78GiB). No earlier screenshot is relabelled combined.

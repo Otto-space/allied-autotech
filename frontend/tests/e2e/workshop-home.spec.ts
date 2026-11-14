@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { HERO_INTERVAL_MS } from "@/lib/hero-carousel";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 const hero = (page: Page) => page.getByRole("region", { name: "Workshop highlights" });
 async function open(page: Page, waitUntil: "load" | "domcontentloaded" = "load") {
   const response = await page.goto("/", { waitUntil });
@@ -31,7 +32,25 @@ async function decoded(page: Page) {
 for (const width of [320, 360, 390, 430, 768, 1024, 1280, 1366, 1440]) {
   test(`workshop lift link reaches its photograph and preserves keyboard access at ${width}px`, async ({
     page,
-  }) => {
+  }, info) => {
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.route("**/api/v1/auth/session", (route) =>
+      route.fulfill({
+        status: 401,
+        json: { success: false, error: { code: "UNAUTHORIZED" } },
+      }),
+    );
+    await page.route("**/api/v1/public/capabilities", (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          message: "Isolated public capabilities",
+          data: publicCapabilitiesFixture("browse_enquiries"),
+          meta: { requestId: "workshop-navigation" },
+        },
+      }),
+    );
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await open(page);
@@ -55,9 +74,22 @@ for (const width of [320, 360, 390, 430, 768, 1024, 1280, 1366, 1440]) {
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(photo).toBeFocused();
+    const image = photo.locator("img");
+    await expect
+      .poll(() =>
+        image.evaluate((element) => {
+          const img = element as HTMLImageElement;
+          return img.complete && img.naturalWidth > 0;
+        }),
+      )
+      .toBe(true);
+    await expect(image).toHaveCSS("object-fit", "contain");
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
+    expect(errors).toEqual([]);
+    if ([390, 1440].includes(width))
+      await page.screenshot({ path: info.outputPath(`lift-destination-${width}.png`) });
   });
 }
 

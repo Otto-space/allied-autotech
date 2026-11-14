@@ -15031,5 +15031,14 @@ migrations, financial tests and generated contracts match master exactly. The
 earlier9c2f compiled evidence remains target-specific pre-integration acceptance;
 fresh combined compiled acceptance and final-source/master checks are required.
 
+Coverage correction: workshop-home was absent from the production CI selectors.
+Add a workshop-navigation project selecting only these nine cases, with explicit
+anonymous/browse fixtures, page-error checks, actual image decode/contain checks
+and safe390/1440 screenshots. Collection proves9 selected cases; execution is not
+inferred. This adds the runtime config as the seventh scoped file. The combined
+0f726647 Preview is READY (dpl_14F2Q32AsAAM2hcHJEnHDBePRdoH); local browser
+execution is held by failed reserve checks (10.58, then17.78GiB). Preserve all
+earlier9c2f evidence separately. Cloud CI, combined captures and release remain.
+
 Automatic approval review rejected deletion of the verified80KiB aborted-browser
 profile with "blocked by policy". It was retained; no alternate deletion was used.
