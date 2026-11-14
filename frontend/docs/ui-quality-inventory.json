@@ -2160,6 +2160,13 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/workforce-entry.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/workforce-finance.tsx",
       "nativeButtons": 7,
       "nativeAnchors": 0,
@@ -7901,6 +7908,11 @@
     {
       "source": "app/components/workforce-enquiry-detail.tsx",
       "sourceSignals": ["nativeButton", "nativeAnchor", "form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-entry.tsx",
+      "sourceSignals": ["nativeButton", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {

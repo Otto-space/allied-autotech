@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Route } from "@playwright/test";
+import { test, expect, type Page, type Route } from "../fixtures/authentication-test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
@@ -48,6 +48,7 @@ async function fixture(
 ) {
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/public/capabilities") return route.fallback();
     if (await handler(route, endpoint)) return;
     if (endpoint === "/auth/session")
       return reply(route, {

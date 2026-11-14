@@ -1,3 +1,27 @@
+## 14 November - integrated account test transport and current Admin source
+
+Integrated current master b0cf0f0e, preserving its Admin workspace changes and
+learning text. Both journals retain incoming in-place corrections and this
+account batch. The incoming backend change is learning copy only; no backend
+rollout, schema change or capability activation is part of this account release.
+
+Final local collection selects 1,434 tests in 76 files: the original 1,337 case
+titles remain, the account project adds 91 checks and current master adds six
+Admin checks. Source locations changed, so compare project, file and full title
+rather than line numbers. Collection does not establish execution acceptance.
+The account project restores availability only in the isolated loopback API and
+routes the browser policy read there; hosted checks and other projects keep their
+existing setup. Staff fixtures fall through for that policy read. Canonical
+inventory regenerated: 120 routes; all recorded coverage/evidence preserved.
+Evidence: account-design-20261114/final-required-matrix-collection.json.
+
+Compiled account evidence remains scoped to fb2e/5f20 as recorded below. All seven
+invitation fixtures, nine natural-reflow cases, 24 automated accessibility cases
+and 63 read-only viewport checks have passed in their recorded builds. Final
+integrated checks, exact-master candidate and live acceptance remain pending.
+The public release remains 6c52. Groups 6-10 and full inventory acceptance remain
+open. No real account or business mutations were used for these design checks.
+
 ## 14 November - required account collection corrected and expanded
 
 Collection proves the previous1,340-case estimate was wrong: the existing selected

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures/authentication-test";
 import AxeBuilder from "@axe-core/playwright";
 import { expectAuthControlReachable } from "../fixtures/auth-layout";
 import { fixture, codes } from "../fixtures/mfa";

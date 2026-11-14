@@ -31,7 +31,7 @@ jobs:
     # One production build, followed by the existing Chromium suite and the
     # bounded Firefox/WebKit responsive matrix. The fixture API is serial.
     # The 1,337-case baseline took 43.7 minutes. Explicit account coverage adds
-    # 91 layout, accessibility and invitation cases, bringing collection to 1,428.
+    # 91 layout, accessibility and invitation cases alongside current master.
     # Retain the serial fixture, every assertion and individual test limit. Allow
     # 60 minutes for the matrix plus 20 for setup, build, diagnostics and upload.
     timeout-minutes: 80
