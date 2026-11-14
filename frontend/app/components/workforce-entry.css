@@ -1,0 +1,9 @@
+.wf-entry-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.wf-entry-actions :is(button, a) {
+  scroll-margin-block-end: 96px;
+}

@@ -4,7 +4,7 @@ import { workStaffDetailFixture, id } from "../fixtures/work-staff-detail";
 import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 const base = "/admin/workforce/access",
   stamp = "2026-10-26T18:00:00.000Z";
-async function setup(page: Page, delegated = false) {
+async function setup(page: Page, delegated = false, managedSession = true) {
   const f = await workStaffDetailFixture(page, delegated ? "ADMIN" : "SUPER_ADMIN");
   f.workforce.effectiveAccess = {
     baseline: "LEGACY",
@@ -123,7 +123,7 @@ async function setup(page: Page, delegated = false) {
         ok({
           id: id(301),
           user: { id: id(302), email: "workshop@example.test", role: "ADMIN" },
-          workforceManaged: true,
+          workforceManaged: managedSession,
           mfaRequired: true,
           mfaVerifiedAt: stamp,
           expiresAt: "2027-01-01T00:00:00.000Z",
@@ -132,17 +132,149 @@ async function setup(page: Page, delegated = false) {
       ),
     );
     await page.route("**/api/v1/staff/workforce/access", (r) =>
-      r.fulfill(
-        ok({
-          ...access,
-          canManageAssignments: state.mode !== "revoked",
-          version: state.mode === "revoked" ? 2 : 1,
-        }),
-      ),
+      state.mode === "scope-error"
+        ? r.fulfill({
+            status: 503,
+            json: { success: false, error: { code: "DATABASE_UNAVAILABLE" } },
+          })
+        : r.fulfill(
+            ok({
+              ...access,
+              userId: state.mode === "wrong-actor" ? id(999999) : access.userId,
+              canManageAssignments: state.mode !== "revoked",
+              version: state.mode === "revoked" ? 2 : 1,
+            }),
+          ),
     );
   }
   return { ...state, state, f };
 }
+for (const width of [320, 1440])
+  test(`real Admin baseline can open delegated People at ${width}px`, async ({
+    page,
+  }) => {
+    const s = await setup(page, true, false);
+    s.f.workforce.management.canEnroll = false;
+    await page.setViewportSize({ width, height: 720 });
+    await page.goto(base);
+    await expect(
+      page.getByRole("heading", { name: "People", exact: true }),
+    ).toBeVisible();
+    await page.getByRole("link", { name: "View person: Ada Okoro", exact: true }).click();
+    await expect(
+      page.getByRole("heading", { name: "Ada Okoro", exact: true }),
+    ).toBeVisible();
+    await expect(page.locator(".wf-person-header")).toContainText("Staff");
+    expect(s.state.errors).toEqual([]);
+    expect(s.state.writes).toEqual([]);
+  });
+test("real Admin baseline remains available when duty delegation ends", async ({
+  page,
+}) => {
+  const s = await setup(page, true, false);
+  await page.goto(base);
+  await expect(page.getByRole("heading", { name: "People", exact: true })).toBeVisible();
+  s.state.mode = "revoked";
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(
+    page.getByRole("heading", { name: "Duty management unavailable", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "View person: Ada Okoro", exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole("link", { name: "Return to People", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Staff directory", exact: true }),
+  ).toBeVisible();
+  expect(s.state.errors).toEqual([]);
+  expect(s.state.writes).toEqual([]);
+});
+test("real Admin without current duty delegation never fetches the scoped directory", async ({
+  page,
+}) => {
+  const s = await setup(page, true, false);
+  s.state.mode = "revoked";
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.goto(base);
+  await expect(
+    page.getByRole("heading", { name: "Duty management unavailable", exact: true }),
+  ).toBeVisible();
+  expect(s.state.reads).toEqual([]);
+  await expect(
+    page.getByRole("link", { name: "View person: Ada Okoro", exact: true }),
+  ).toHaveCount(0);
+  expect(s.state.writes).toEqual([]);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  const refresh = page.getByRole("button", {
+    name: "Refresh duty management access",
+    exact: true,
+  });
+  await refresh.focus();
+  for (const control of [
+    refresh,
+    page.getByRole("link", { name: "Return to People", exact: true }),
+  ]) {
+    await expect(control).toBeFocused();
+    expect(
+      await control.evaluate((element) => {
+        const b = element.getBoundingClientRect();
+        return (
+          b.height >= 44 &&
+          [
+            [b.left + 2, b.top + 2],
+            [b.right - 2, b.top + 2],
+            [b.left + 2, b.bottom - 2],
+            [b.right - 2, b.bottom - 2],
+          ].every(([x, y]) => element.contains(document.elementFromPoint(x!, y!)))
+        );
+      }),
+    ).toBe(true);
+    await page.keyboard.press("Tab");
+  }
+});
+test("real Admin rejects another account's duty snapshot before fetching people", async ({
+  page,
+}) => {
+  const s = await setup(page, true, false);
+  s.state.mode = "wrong-actor";
+  await page.goto(base);
+  await expect(
+    page.getByRole("heading", { name: "Duty management unavailable", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Your current Admin identity could not be confirmed" }),
+  ).toBeVisible();
+  expect(s.state.reads).toEqual([]);
+  expect(s.state.writes).toEqual([]);
+});
+test("real Admin can retry an unavailable duty check without treating it as no access", async ({
+  page,
+}) => {
+  const s = await setup(page, true, false);
+  s.state.mode = "scope-error";
+  await page.goto(base);
+  await expect(
+    page.getByRole("heading", { name: "Duty management unavailable", exact: true }),
+  ).toBeVisible();
+  expect(s.state.reads).toEqual([]);
+  s.state.mode = "normal";
+  await page
+    .getByRole("button", { name: "Refresh duty management access", exact: true })
+    .click();
+  await expect(page.getByRole("heading", { name: "People", exact: true })).toBeVisible();
+  expect(s.state.writes).toEqual([]);
+});
 for (const [width, height] of [
   [1440, 720],
   [1280, 720],

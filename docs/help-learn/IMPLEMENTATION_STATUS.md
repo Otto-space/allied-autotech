@@ -1,5 +1,17 @@
 # Implementation checkpoint
 
+## 14 November - delegated Admin duty pages; candidate only
+
+Access-review v11 clarifies that Admin retains its normal account workspace while
+managing other people's duties and opening Access reviews require the owner's
+current delegation. Existing eligibility, semantic targets, pinned definitions and
+all feature flags are unchanged. The client now checks the same current identity
+and delegation for real Admin sessions, which deliberately do not use the Staff-only
+workforceManaged flag. A compiled6c52 baseline reproduces the old page denial with
+isolated APIs: one failed, one not run. This new candidate is not yet compiled,
+accepted or published. Source, rendered, exact-master and live evidence belong in
+the existing UI quality register and site-completion tracker.
+
 ## Current publication checkpoint - 28 October 2026
 
 Committed W1-W15 foundations are now included in production runtime

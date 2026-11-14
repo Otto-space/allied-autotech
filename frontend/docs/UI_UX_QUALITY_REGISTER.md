@@ -1,3 +1,28 @@
+## 14 November 03:06 UTC - authorized Admin duty-entry gap; candidate only
+
+Real Admin sessions retain their approved account baseline and do not set the
+Staff-only workforceManaged flag. The existing owner-only client entry therefore
+rejects the People duty route even when the server's current Admin delegation
+permits it. A compiled6c52 public-assets/isolated-API baseline confirms one phone
+failure and one case not run, retained under
+TEMP/allied-admin-duty-baseline-6c52-20261114. This is fixture evidence, not a real
+signed-in role acceptance or a claim that normal Admin account access is absent.
+
+The bounded03:06-04:06 candidate checks current own identity and the existing
+delegation snapshot separately, preserves the ordinary Admin workspace, binds the
+response to the current account and resets protected duty views on denial/error/
+scope change. No role, duty definition, server authority or activation flag changes.
+Six tests add phone/laptop person entry, delegation loss with baseline recovery,
+no-delegation/no-fetch, wrong-actor/no-fetch and unavailable/retry. The phone denial
+state also checks Axe, native Tab,44px controls and unobstructed painted edges.
+Access-review v11 records the model with unchanged help eligibility/targets/flags.
+
+27 learning/retrieval units and37 isolated actual HTTP cases after empty112 replay
+pass; synthetic least privilege and task-only cleanup are verified under
+TEMP/allied-people-tests-862fe72d4e29. Final source/compiled/exact-master/live checks
+remain required. Full T01-T07 scope, including person sections and remaining managed
+composition/media work, stays open. The published baseline remains6c52b934.
+
 ## 14 November 02:45 UTC - Team review/history group live on both domains
 
 Exact master6c52b934 passed frontend43541388596, backend43541388597 and secrets

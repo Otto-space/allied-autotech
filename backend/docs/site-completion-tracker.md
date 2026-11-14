@@ -1,3 +1,39 @@
+## 14 November 03:06 UTC - real Admin duty-entry repair; candidate only
+
+Current finite package:03:06 to04:06 UTC in allied-team-media-20261110 on
+codex/team-person-workspace-20261114. Published6c52b934 remains the live baseline.
+Its release evidence is signed locally as7a68ea5c on this follow-up branch.
+
+The actual identity contract deliberately sets workforceManaged only for enrolled
+Staff, preserving the approved full Admin account baseline. The workforce/learning
+snapshot separately records whether an Admin has a workforce record and current
+management delegation. The client entry incorrectly required the Staff-only path:
+compiled6c52 with isolated APIs reproduces one failed phone case and one not run,
+showing Responsibility management unavailable instead of the authorized People
+page. Evidence: TEMP/allied-admin-duty-baseline-6c52-20261114.
+
+The candidate checks current own identity plus existing server-returned delegation,
+binds both to the session user, and keeps the ordinary Admin workspace intact.
+Retained duty views are hidden/inert during checks, reset on scope changes and
+discarded after denial, errors or mismatched identity. No server permission, Admin
+baseline, frozen v1/v2 definition or capability flag is changed. Six new browser
+cases cover320/1440 person entry, delegation loss/return to the baseline, absent
+delegation without a directory fetch, wrong-actor response and unavailable/retry.
+The phone denial state also checks Axe, native keyboard focus and full hit areas.
+
+Access-review guidance advances to v11 with unchanged eligibility/semantic targets
+and flags.27 learning/retrieval units pass. Fresh empty112-migration replay and37
+actual HTTP cases pass with a non-owner/no-DDL/no-TRUNCATE synthetic runtime role;
+only the newly created synthetic database/role were removed. Source fingerprint
+and cleanup: TEMP/allied-people-tests-862fe72d4e29. This never used a populated
+restore as a fixture. Final source checks, compiled acceptance, exact-master gates
+and publication of this candidate remain pending.
+
+The full person sections, managed invitation/history/account composition, role/job
+workspaces and media/photo/video matrix remain open in T01-T07. The basic managed
+invitation component is not the normal real-Admin entry: do not replace or narrow
+the established Admin baseline based on an unrealistic session fixture.
+
 ## 14 November 02:45 UTC - Team history and current-access reviews published
 
 Released exact master6c52b934, including PR80's readable history/current-access

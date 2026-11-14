@@ -363,7 +363,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const accessReview = await read(f.scopedAdmin, "/learning/articles/access-review");
       expect(accessReview.status).toBe(200);
-      expect(accessReview.body.data).toMatchObject({ version: 10 });
+      expect(accessReview.body.data).toMatchObject({ version: 11 });
+      expect(accessReview.body.data.steps.join(" ")).toContain(
+        "An Admin account keeps its normal workspace",
+      );
       expect(accessReview.body.data.steps.join(" ")).toContain(
         "Reviews never revoke duties or send reminders",
       );
