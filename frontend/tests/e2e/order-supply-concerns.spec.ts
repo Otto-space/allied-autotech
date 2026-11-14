@@ -10,6 +10,7 @@ import {
 } from "../fixtures/order-supply-concerns";
 import { paymentRow } from "../fixtures/work-payments";
 import { verifyConsole } from "../fixtures/preview-console";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 const ok = (route: Route, data: unknown) =>
   route.fulfill({
     json: {
@@ -26,7 +27,14 @@ async function setup(
 ) {
   const staff = audience === "staff" ? await workOrderDetailFixture(page) : null;
   const guest = audience === "guest" ? await purchaseFixture(page) : null;
-  if (audience === "customer") await ordersFixture(page);
+  if (audience === "customer") {
+    await ordersFixture(page);
+    // The shared order fixture deliberately delegates release policy to its caller.
+    // Keep this read-only recovery journey isolated when availability refreshes.
+    await page.route("**/api/v1/public/capabilities", (route) =>
+      ok(route, publicCapabilitiesFixture("browse_enquiries")),
+    );
+  }
   const record = staff?.detail.record ?? guest?.order ?? orderRecord(1, "PROCESSING");
   Object.assign(record, {
     version: 1,
@@ -905,6 +913,15 @@ for (const audience of ["customer", "guest"] as const)
         await expect(panel.getByRole("button", { name: "Review my choice" })).toHaveCount(
           0,
         );
+        if (audience === "customer") {
+          const availability = page.waitForResponse(
+            (response) =>
+              new URL(response.url()).pathname === "/api/v1/public/capabilities" &&
+              response.request().method() === "GET",
+          );
+          await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+          expect((await availability).status()).toBe(200);
+        }
         await page.reload();
         await expect(history).toBeVisible();
         expect(f.state.writes).toHaveLength(0);
