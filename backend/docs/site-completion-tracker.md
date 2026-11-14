@@ -845,6 +845,41 @@ and full119-template/state acceptance remain open.
 
 ## 13 November - consolidated T02 integration checkpoint
 
+### 2026-11-14 01:21 UTC - Team review group compiled acceptance
+
+Current item: integrate and release the verified history and access-review group
+from PR 80. Both approved briefs remain active; this checkpoint does not complete
+the remaining person composition, job workspaces or media requirements.
+
+Signed source c86008e4 passes all 52 compiled Edge journeys in 6.4 minutes, with
+zero failures, skips, flaky cases or runner errors. The real compiled stylesheet
+is used. Deliberate enlarged-text and measured-inset scenarios retain their test
+adjustments; no replacement stylesheet or focus implementation is injected.
+Coverage includes all eight widths, Axe checks, review states, filter/paging/reload/
+Back/person context, denied and malformed recovery, delegation loss, recorded
+history and current-versus-recorded facts. The six person cases include 320/768/
+1440px, both desktop sidebar states, actual keyboard traversal, current/stale
+insets, and painted-edge checks for the input, visible label and Review action.
+The 320px and tablet password captures were visually reviewed; labels are clear.
+The approved layout and brand are retained; this is a focus-scrolling refinement.
+
+Evidence: TEMP/allied-team-held-c86008e4-20261114/{source.json,acceptance.json,
+review-report.json,review-results}. These are synthetic account APIs with actual
+preview public-policy unavailability, not normal production-policy, real-role,
+physical-device, Safari or full screen-reader acceptance. No real account writes.
+Earlier failed/partial runs are retained and are not counted as passed.
+
+The 37-case isolated HTTP backend inputs remain identical to their verified source;
+27 focused frontend units, 17 learning units, application/scoped browser-test types,
+lint/format and 112 physical migration inputs pass. Current-head backend safety and
+secrets pass; frontend production build, scoped test types and repeated three-engine
+sidebar preflight pass, while the full runtime matrix is still running. Exact-master
+checks and compatible backend/readiness/recovery remain mandatory before publication.
+No new deployment or domain promotion by this package. Update live acceptance after
+publication; the previous domain/backend identities remain the recovery baseline.
+
+
+
 ### 2026-11-14 01:07 UTC - visible labels and test-scope repair checkpoint
 
 The01:07 package boundary retains verified shared navigation8/8 and backend37 HTTP /
