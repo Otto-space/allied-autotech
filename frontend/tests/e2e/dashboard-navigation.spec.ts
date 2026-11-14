@@ -235,6 +235,10 @@ test("sidebar preserves the desktop choice across mobile without stranding keybo
   await page.goto("/admin");
   await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
   await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
+  await page.getByRole("button", { name: "Expand sidebar", exact: true }).focus();
+  await expect(
+    page.getByRole("button", { name: "Expand sidebar", exact: true }),
+  ).toBeFocused();
   await page.setViewportSize({ width: 390, height: 844 });
   const mobile = page.getByRole("button", { name: "Close dashboard navigation" });
   await expect(mobile).toBeFocused();
@@ -242,6 +246,9 @@ test("sidebar preserves the desktop choice across mobile without stranding keybo
   await expect(nav).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(nav).toBeHidden();
+  await expect(
+    page.getByRole("button", { name: "Open dashboard navigation", exact: true }),
+  ).toBeFocused();
   await page.setViewportSize({ width: 1024, height: 768 });
   await expect(
     page.getByRole("button", { name: "Expand sidebar", exact: true }),
@@ -255,6 +262,24 @@ test("sidebar preserves the desktop choice across mobile without stranding keybo
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
+});
+
+test("sidebar preserves the desktop choice across mobile without moving content focus", async ({
+  page,
+}) => {
+  await session(page, "ADMIN");
+  await page.setViewportSize({ width: 1655, height: 960 });
+  await page.goto("/admin");
+  await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+  const from = page.getByLabel("From", { exact: true });
+  await from.focus();
+  await expect(from).toBeFocused();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(from).toBeFocused();
+  await expect(page.getByRole("dialog", { name: "Dashboard navigation" })).toBeHidden();
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await expect(from).toBeFocused();
+  await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
 });
 
 test("short laptop sidebar scrolls every group while keeping its controls visible", async ({
