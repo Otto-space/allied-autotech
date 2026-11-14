@@ -1,10 +1,13 @@
 "use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAccountSession } from "./dashboard-shell";
 import { WorkforceDirectory } from "./workforce-directory";
 import { Feedback } from "./feedback";
+import { WorkforceAccessReviews } from "./workforce-access-reviews";
 export function WorkforceEntry() {
   const session = useAccountSession();
+  const path = usePathname();
   if (session?.user.role !== "SUPER_ADMIN")
     return (
       <>
@@ -15,5 +18,9 @@ export function WorkforceEntry() {
         </Link>
       </>
     );
-  return <WorkforceDirectory />;
+  return path === "/admin/workforce/reviews" ? (
+    <WorkforceAccessReviews />
+  ) : (
+    <WorkforceDirectory />
+  );
 }

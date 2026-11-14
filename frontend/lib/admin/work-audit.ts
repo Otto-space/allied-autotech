@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { auditEventSchema, type AuditQuery } from "@/lib/api/audit-schemas";
+import { accessChangeKind, recordedAccessBranchIds } from "./access-history";
 export function auditLabel(value: string) {
   const text = value.replaceAll("_", " ").toLowerCase();
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -19,6 +20,25 @@ export function parseWorkAudit(value: unknown, query: AuditQuery) {
     .parse(value);
   const ids = new Set<string>();
   for (const [index, event] of page.items.entries()) {
+    if (query.view === "ACCESS_CHANGES") {
+      if (
+        !accessChangeKind(event) ||
+        !event.currentContext ||
+        (event.currentContext.actor &&
+          (event.currentContext.actor.id !== event.userId ||
+            event.currentContext.actor.role !== event.user?.role)) ||
+        (event.entityType === "USER" &&
+          event.currentContext.subject &&
+          event.currentContext.subject.id !== event.entityId) ||
+        event.currentContext.branches.some(
+          (row) => !recordedAccessBranchIds(event).includes(row.id),
+        ) ||
+        new Set(event.currentContext.branches.map((row) => row.id)).size !==
+          event.currentContext.branches.length
+      )
+        throw Error("Access-change history could not be confirmed");
+    } else if (event.currentContext !== undefined)
+      throw Error("Unrequested audit identity context");
     if (ids.has(event.id) || (event.userId === null && event.user !== null))
       throw Error("Invalid audit identity");
     ids.add(event.id);

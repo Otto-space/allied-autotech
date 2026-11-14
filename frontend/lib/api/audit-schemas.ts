@@ -77,6 +77,27 @@ export const auditEventSchema = z.object({
   oldValues: z.json(),
   newValues: z.json(),
   createdAt: z.iso.datetime({ offset: true }),
+  currentContext: z
+    .strictObject({
+      actor: z
+        .strictObject({
+          id: z.uuid(),
+          name: z.string().min(1).max(500).nullable(),
+          role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]),
+        })
+        .nullable(),
+      subject: z
+        .strictObject({
+          id: z.uuid(),
+          name: z.string().min(1).max(500).nullable(),
+          role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]),
+        })
+        .nullable(),
+      branches: z
+        .array(z.strictObject({ id: z.uuid(), name: z.string().min(1) }))
+        .max(42),
+    })
+    .optional(),
   user: z
     .object({ role: z.enum(["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) })
     .nullable(),

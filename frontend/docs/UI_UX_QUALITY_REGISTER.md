@@ -1,3 +1,24 @@
+### 14 November: integrate current access review and complete People focus bounds
+
+Reconciled master6c52b934 with the D17 recovery batch, retaining the read-only
+access history/review journeys, permission checks, learning content and strengthened
+keyboard/sidebar coverage. Regenerated the combined 555-operation contract inventory;
+no operation from either parent is removed. Earlier masterd951 UI fixes remain.
+
+The existing compiled177f candidate fails the strengthened tall-header320px test:
+the selected-person band obscures the password label. Preserve that failed baseline.
+The integrated component measures labels with controls, cancels stale document
+insets, compacts only band padding when needed and releases stickiness if a short
+viewport cannot accommodate the full identity plus a usable field. Manual wheel/
+touch scrolling suppresses resize-driven focus recovery until the next focus event.
+All seven parent focus cases are retained; a short-height case covers the fallback.
+Rendered acceptance of this new source is pending; the older16-case pass is not
+counted for it. Scoped frontend lint/types, backend types,27 access frontend units,
+17 backend learning units and13 collection-clock units pass. Collection remains five
+Mon-Sat days including holidays, after both actual readiness and successful notice;
+imported/custom parts use the same rule. No financial activation, record mutation,
+provider configuration or public alias change is authorised by these fixture results.
+
 ### 14 November: latest master UI fixes reconciled with D17
 
 Integrated masterd951b240, preserving open-drawer desktop focus return, capability-
@@ -218,6 +239,104 @@ reconciliation. Verified invoice identifiers/applicability, operating account/re
 facts, independent provider/role acceptance, exact integrated-master checks and safe
 fresh backup/off-device recovery/restore/migration/runtime publication remain. Broader
 returns/warranty is deferred. Booking and purchasing readiness remain separate.
+
+## 14 November 01:32 UTC - current master journal formatting repair
+
+Direct Git-blob formatting checks on9152db07 fail for both existing journals.
+The frontend format:check includes the quality register, so this is a real release
+gate defect. Apply repository Prettier to both journals, preserving prior text and
+table cells; only spacing and formatter-owned separator widths change. The content
+comparison passes. Include exact-source acceptance receipts and limits above the
+preserved history. No runtime, permission, schema, help contract or assertion changes.
+Current9152 backend43540288758 and secrets43540288739 pass; frontend43540288723
+is queued behind the still-running e2e1 matrix. New exact-master checks remain
+required after this documentation repair; no cancelled gate counts as a pass.
+
+## 14 November 01:30 UTC - compiled acceptance and newer runtime boundary
+
+The held production518ebb40 build dpl_5TUjQU7D4TzbpghbwwCSS3BEtPnM passes23/23
+in1.8 minutes, zero failures/skips/flaky cases: seven consent-suppression, one
+privacy review, four responsive People, three sidebar breakpoint and eight vehicle
+section/capability cases. It used actual compiled production assets, isolated
+account APIs and the genuine public BMW listing read-only. No application writes.
+Report and hash: TEMP/allied-held-518ebb40/{report.json,verified.json}. Its temporary
+provider link was revoked and no cookie/secret persisted. Earlier access setup
+failures remain recorded; connector recovery returned zero remaining share links.
+Do not treat those failed setups or any preview-only run as production acceptance.
+
+Master advanced through d951b240 garage focus-ring clearance, then9152db07 Team
+history/current-access reviews. Preserve all additions and the original sidebar
+repair. The older queued518 andd951 frontend runs are CANCELLED, not successful.
+Exact e2e1 frontend43535706178 still runs the full matrix at this checkpoint;
+its repeated three-engine sidebar preflight and backend/secrets checks passed.
+Current9152 frontend43540288723 is queued, backend43540288758 running and secrets
+43540288739 passed. Recheck these handles; no earlier result qualifies newer source.
+
+Actual compiled d951 Preview dpl_68tDkG4QYLBtuE2ww7QpzcwxQyB6 passes seven garage
+modal cases at1280/1024/768/430/390/360/320, with no stylesheet override. Geometry,
+complete close-button focus-ring clearance, keyboard containment, Escape/opener
+recovery and no writes pass. The430 and320 captures are visually reviewed. Receipt:
+TEMP/allied-preview-d951b240/garage-verified.json. This is preview fixture evidence.
+The first expanded30-case attempt passed15 dashboard cases, then failed one vehicle
+case because the Preview server returned a temporary-unavailability page;14 cases
+did not run. Preserve report.json and its safe screenshot. It is not a30-case pass.
+The separate seven-case run does not replace the full CI vehicle checks.
+
+The C48 runtime equivalence proof applied only throughd951. Master9152 changes
+backend audit/learning/workforce inputs without changing the112 migrations. A new
+compatible package and actual-image/recovery checks are required; do not run old
+C48/9bf/518 apply helpers or promote their held frontends. Current release worktree
+already records this mismatch in TEMP/allied-9152db07-release-readiness.json. Its
+1.5GiB package preflight failed20.31GiB versus21.5GiB. No build or reserve reduction
+was attempted. Existing production/recovery resources and both source worktrees
+are preserved. No new owner policy answer is required for this batch.
+
+Full original briefs/D01-D17 remain active. Normal CUA access was rechecked and is
+still unavailable; do not bypass sign-in or repeat the existing restoration question.
+Provider, real-role and physical-device acceptance remain distinct. D17's separate
+worktree and uncommitted130+ migration/recovery work remain untouched. No real
+customer/stock/price/financial record, permission or activation flag changed here.
+
+## 14 November 01:08 UTC - repaired master acceptance and current release reconciliation
+
+PR78 is merged as e2e1c9672ac526f8107f14870e98dd0f9f31d34e. Its actual compiled
+Preview dpl_AuEHA3eA5PZYEyLmuz8Vvb7rtH3A passes15/15 isolated cases with zero
+skips, flaky or unexpected results: seven consent-suppression cases, privacy
+review cancellation, four long-identity responsive cases and three sidebar
+breakpoint cases, including returning with the drawer open. Report hash and
+source receipt are under TEMP/allied-preview-e2e1c967. These are API fixtures,
+not real-role, physical-device or production acceptance. Exact e2e1 frontend
+43535706178 remains running; backend43535706249 and secrets43535706184 pass.
+
+Master subsequently advanced to518ebb40 with PR83's truthful vehicle section
+navigation. Its source change is reviewed and preserved; do not publish e2e1
+as though it includes this change. New exact-master frontend43537052297 is
+queued; backend43537052304 and secrets43537052347 pass at this checkpoint.
+Existing production is unchanged. No failed/cancelled earlier source is qualified.
+
+Held production candidate dpl_5TUjQU7D4TzbpghbwwCSS3BEtPnM is READY on518ebb40,
+with custom domain assignment disabled and both public aliases preserved. Another
+thread had already staged dpl_3i28wcBUBFMPwrBAVuFyRhHaYD3H for the same source;
+retain both receipts and reuse a verified candidate rather than build again.
+The first staging attempt for e2e1 stopped before any request because master
+advanced. TEMP/allied-release-518ebb40/runtime-equivalence-review.json proves
+unchanged backend build inputs against the four immutable C48 images, keeping
+truthful image provenance and112 migrations. This is no authority to skip the
+new source gates, fresh provider/recovery checks or backend-first acceptance.
+
+New held-production fixture acceptance has NOT run. Temporary provider-access
+setup failed before browser launch; both failed attempts and cleanup limits are
+recorded under TEMP/allied-held-518ebb40. The first scoped link requested900s TTL
+and was never disclosed; its secret was not retained, so revocation is unverified.
+No browser cookie/application session was saved and no application record changed.
+Do not count the setup failures as application defects or passing acceptance.
+
+The original briefs/D01-D17 remain active. The separate D17 worktree has advanced
+to6df28b6e and130 migrations, with further uncommitted cancellation/guest recovery
+work; preserve it. Do not repeat the published Admin vehicle permissions repair.
+Real-role access, actual provider/device acceptance and genuine operator product
+facts remain separate. C: preflight passed20.35GiB for a0.25GiB browser budget;
+no dependency installation, Docker build or blocked cache deletion was attempted.
 
 ## 14 November - garage modal focus-ring clearance
 
@@ -1059,6 +1178,325 @@ template coverage and remaining Groups4-10 remain open.
 
 ## 13 November - consolidated T02 integration checkpoint
 
+### 2026-11-14 01:21 UTC - Team review group compiled acceptance
+
+Current item: integrate and release the verified history and access-review group
+from PR 80. Both approved briefs remain active; this checkpoint does not complete
+the remaining person composition, job workspaces or media requirements.
+
+Signed source c86008e4 passes all 52 compiled Edge journeys in 6.4 minutes, with
+zero failures, skips, flaky cases or runner errors. The real compiled stylesheet
+is used. Deliberate enlarged-text and measured-inset scenarios retain their test
+adjustments; no replacement stylesheet or focus implementation is injected.
+Coverage includes all eight widths, Axe checks, review states, filter/paging/reload/
+Back/person context, denied and malformed recovery, delegation loss, recorded
+history and current-versus-recorded facts. The six person cases include 320/768/
+1440px, both desktop sidebar states, actual keyboard traversal, current/stale
+insets, and painted-edge checks for the input, visible label and Review action.
+The 320px and tablet password captures were visually reviewed; labels are clear.
+The approved layout and brand are retained; this is a focus-scrolling refinement.
+
+Evidence: TEMP/allied-team-held-c86008e4-20261114/{source.json,acceptance.json,
+review-report.json,review-results}. These are synthetic account APIs with actual
+preview public-policy unavailability, not normal production-policy, real-role,
+physical-device, Safari or full screen-reader acceptance. No real account writes.
+Earlier failed/partial runs are retained and are not counted as passed.
+
+The 37-case isolated HTTP backend inputs remain identical to their verified source;
+27 focused frontend units, 17 learning units, application/scoped browser-test types,
+lint/format and 112 physical migration inputs pass. Current-head backend safety and
+secrets pass; frontend production build, scoped test types and repeated three-engine
+sidebar preflight pass, while the full runtime matrix is still running. Exact-master
+checks and compatible backend/readiness/recovery remain mandatory before publication.
+No new deployment or domain promotion by this package. Update live acceptance after
+publication; the previous domain/backend identities remain the recovery baseline.
+
+### 2026-11-14 01:07 UTC - visible labels and test-scope repair checkpoint
+
+The01:07 package boundary retains verified shared navigation8/8 and backend37 HTTP /
+27 focused frontend units. Compiledebfb enlarged-identity controls pass6/6 without
+style overrides; source32px label clearance is later and still needs compilation.
+Visual review of that earlier compiled capture found the label partly behind the
+person band even though its input passed. Restore normal32px combined clearance
+while cancelling stale document padding; with a current inset this equals master's
+existing normal geometry. Extend edge occlusion checks to the visible associated
+label as well as the input and Review action. The label-aware inline prototype
+passes all6 width/sidebar cases. The initial two controlled variants had not applied
+their inset because of the merge error below; do not claim that earlier run proved
+the controlled variants. After repair, both controlled cases pass with actual
+149/309px insets and372/212px computed margins. New compiled acceptance remains due.
+
+The remaining compiled suite passed17, then hit an avoidable merge-resolution error:
+the measured-inset block was inserted in an earlier directory test, where its
+variables were undefined.28 later cases did not run. Moved it into the intended
+long-identity loop; original directory assertions remain. Report is retained under
+TEMP/allied-team-held-ebfb9d6d-20261114/remaining-report.json. This is not a full pass.
+Application typecheck excludes browser tests, so its pass did not validate that
+block. Both affected browser files now pass an explicit scoped TypeScript project
+and undefined-variable lint. Add that scoped typecheck to CI before browsers;
+keep the established application typecheck and all browser assertions unchanged.
+No broad test-exclusion change. No real account, schema, flag or protection change.
+
+The next bounded package starts01:07 UTC, targeting02:07: finish compiled regression,
+integrate current approved source and pass exact-master gates before publication.
+Current source37-case backend inputs are unchanged. At00:54 the backend still uses
+6a's four digests with no rollout, and both apex/www identify4gNT;www redirects to
+apex. No publication by this package. Full T01-T07 remainder remains active.
+
+### 2026-11-14 00:48 UTC - current keyboard/drawer source reconciled for final compilation
+
+Integrated mastere2e1c967/PR78. The shared dashboard-shell implementation now
+matches current master exactly, including its approved open-drawer close-before-
+focus guard. Retained the original keyboard traversal through Show password to
+Review enrollment,768px tablet and1440px collapsed/expanded People samples.
+Added the two measured-band/current-versus-earlier-inset cases without weakening
+those checks. Native sidebar, content focus, open-drawer and forced-eviction cases
+remain selected across three engines. Preserve master's repeat-each3 preflight;
+its12 selected cases make36 executions, bounded to5min. No duplicate preflight.
+
+Only the scoped selected-person CSS calculation remains as a shared runtime
+refinement over current master. The4-case inline prototype verified the actual
+computed margins; new compiled acceptance remains pending. Retain current source,
+all failed attempts, migration inputs, current/recovery resources and real data.
+No publication, database/permission change or capability activation in this merge.
+
+### 2026-11-14 00:46 UTC - selected-person focus under unavailable availability
+
+The reconciled hosted combined suite passed25 cases, then failed320px enlarged-
+identity focus;23 later cases did not run. Do not count it as a full pass.
+TEMP/allied-team-held-0275e5b0-20261114/review-report.json retains the failure.
+The earlier independent navigation suite passed8/8 Chromium/Edge cases, including
+native handoff, forced focus eviction, main-content focus and open-drawer return.
+Both failed baseline cases and the incorrect width assertion remain retained.
+
+Focused diagnosis measures document inset319px after the sticky header is133px;
+the356px person band and372px margin then place focus behind the dock or the band
+as the two visibility handlers realign it. This occurs with a legitimate unavailable
+public-policy notice that scrolls offscreen. Keep the policy unavailable, not a
+matching fake healthy policy. Scope the fix to person controls: subtract document
+padding before adding the measured person top/height and16px clearance. Native
+scrolling then reserves the person band once even when the document inset is stale.
+
+An initial stylesheet-overlay attempt did not override the compiled rule (measured
+margin remained372px) and failed; it is not acceptance. An explicit inline prototype
+using the candidate calculation passes all4 original/measured/stale-inset Edge cases,
+with measured margins186px at319px inset and196px at309px inset. This verifies the
+calculation, not a new compiled artifact. Preserve focus-diagnostic, focus-overlay
+and focus-inline reports under the same TEMP folder. Add one stale-inset regression
+without changing any original occlusion, native-scroll or identity assertions.
+New compiled-source/CI acceptance remains required; no publication or real writes.
+
+### 2026-11-14 00:28 UTC - compiled focus succeeds; added width expectation corrected
+
+Reconciled0275 private previewCvnnSkio6m9oNmU4Y7bPtTbRjrcp is READY. Its native
+Chromium transition passes. The forced-eviction case passes all focus and modal-
+closure checks, then fails the newly added width expectation: actual256px follows
+brand-system.css, while the assertion incorrectly used the older264px global grid.
+Corrected the assertion to the approved256px value; no application style or focus
+assertion changed. Preserve the first1-pass/1-failure/6-not-run report under
+TEMP/allied-team-held-0275e5b0-20261114/navigation-report.json. Corrected new-source
+execution/CI remains pending. Browser availability stays distinct from production
+policy and real-role acceptance; no publication or real writes occurred.
+
+### 2026-11-14 00:20 UTC - concurrent sidebar fix preserved; open-drawer baseline reproduced
+
+Reconciled master6797b243/PR82 with review work. Preserved its transition-only
+focusout capture, previous-breakpoint guard, explicit keyboard setup, opener
+recovery and form-content focus regression. The earlier local last-focused
+alternative is superseded and retained in source history. Only the supplemental
+open-drawer return remains as a shared-shell runtime delta: close the modal before
+focusing the desktop sidebar. No permission/navigation destination changed.
+
+A native compiled baseline separately reproduces the open-drawer problem: after
+opening mobile navigation and resizing to desktop, Collapse sidebar is visible but
+inactive. TEMP/allied-team-reviews-20261113/open-drawer-baseline-report.json records
+that expected failure. The final forced-eviction regression includes the open-drawer
+return; native and content-focus assertions stay intact. Types, scoped lint, format
+and diff checks pass. Discovery selects9 cases across three engines; discovery is
+not execution. Final compiled source and CI remain required before publication.
+
+The earlier505 compiled preview's isolated paging/window/filter/reload/Back/person
+return test passes with the hosted relay allowance (1.7min test). Its initial20s
+transport timeout is retained separately. That result does not certify the later
+shared-shell source or normal production availability. All APIs use synthetic
+fixtures except read-only public-policy transport; no account writes or protection
+changes occurred. The original broad Team/media requirements remain active.
+
+### 2026-11-14 00:12 UTC - shared sidebar focus correction candidate
+
+The review integration package completed around00:07 UTC; the next bounded package
+started then, targeting01:07 UTC. Master9bf frontend43525367353 failed1 of1271
+runtime cases: the desktop-to-mobile sidebar test could not find/focus the drawer
+close button. The selected-person fix passed. Preserve this failure, not a retry
+waiver. Backend/secrets for review source5052811d pass; its frontend remains live.
+
+The resize handler read activeElement after the breakpoint had hidden the desktop
+control. A controlled early focus-eviction listener reproduces the same closed-drawer
+assertion locally; it does not establish identical Linux timing. Preserve baseline
+failure under TEMP/allied-team-reviews-20261113/sidebar-baseline-results and the
+hash-verified CI screenshot/context/trace under TEMP/allied-ci-9bf-sidebar-20261114.
+The72.8MB archive stayed in memory; only its three failure files were saved.
+
+Candidate keeps the last focus only when the control becomes hidden, discards
+ordinary visible blurs and transfers focus during the breakpoint change. Closing
+an open drawer precedes focus return because the desktop sidebar is inert while
+the dialog is modal. Desktop collapsed/expanded preference remains unchanged.
+Keep the original transition test, add browser-evicted focus/open-drawer return
+and no-drawer main-content focus checks. All three are selected for Chromium,
+Firefox and WebKit, with an early bounded preflight before the unchanged full matrix.
+Scoped formatting/lint pass; rendered new-source acceptance and exact CI are pending.
+
+The source505 private previewGKfUtph2AzawvhYNSTMoXZhTxskj is READY, not published.
+Its server reports public availability unavailable; a conflicting local policy
+fixture caused repeated refresh/navigation in the first attempt (two failures,
+then interrupted). Routing only public-policy reads to the actual preview stabilizes
+that state. All eight review widths/Axe pass; pagination timed out through the
+read-only relay and is being isolated. This is compiled synthetic UI evidence in
+an unavailable-policy state, not normal production-policy or real-role acceptance.
+No production writes or protections changed; unmocked APIs/writes are refused.
+
+The20GiB reserve remains mandatory. C: last measured20.34GiB; local build remains
+held and no extra image/database/cache cleanup occurred after the explicit640 review.
+Publication, remaining Team composition and all outstanding media work remain open.
+
+### 2026-11-13 23:53 UTC - assigned-record review correction and disk review
+
+Final contract review found a real client mismatch: valid Sales Representative /
+Cashier cover uses ASSIGNED scope in both pinned definitions, while the new review
+parser only recognized the two technician duties as assigned-record duties. The
+new focused case failed before the correction; the corrected parser now accepts
+all three assigned-record duties in versions1/2 and rejects forged branch scope.
+All27 combined history/registry/review units pass. Fresh isolated112 replay and
+37 HTTP cases pass under non-owner runtime credentials without DDL/TRUNCATE,
+including actual assigned sales/technician responses and delegated-template denial.
+Only the task-created synthetic database and role were cleaned up. Evidence:
+TEMP/allied-people-tests-af396ea0be30. Earlier36-case receipts remain valid for
+their source and do not certify this later test addition. Backend runtime unchanged.
+
+PR80 combines history and current access reviews; PR72 is closed as superseded,
+with its source branch, signed commits and original evidence retained. New head
+checks must finish before publication. Earlier passing/running source checks do
+not certify the corrected candidate. The full remaining Team/media scope stays open.
+
+Disk retention review confirmed the four task-built64064fe9 local image references
+are superseded, never published and unused by all running/stopped containers or
+current/pending cloud deployments. Removed exactly those four references using
+native Docker without force. Retained current6a, recovery135d, held8e4 images,
+registry artifacts, source, receipts, useful cache and all containers/volumes.
+Measured C:20.380GiB before and20.381GiB after; no useful host-space gain is claimed.
+Receipt: TEMP/allied-team-reviews-20261113/superseded-640-image-cleanup.json.
+The fresh-build disk constraint remains; no extra build or broad cleanup followed.
+
+### 13 November 23:44 UTC - review integration and focus regression checkpoint
+
+Integrated current master9bf8a26e into the history/reviews branch without losing
+public gallery, privacy/suppression, release-journal or master-queue changes.
+Master independently contains the sticky-person focus correction and explicit
+Ubuntu24.04 browser runner. Preserved those exact implementations; the earlier
+local alternative is retained in stash and is not part of the combined candidate.
+The People regression keeps the original320/1440 cases and native start alignment,
+and adds a320px356px identity band with the measured header inset. Assertions for
+all four painted control edges, selected-person visibility and no overflow remain.
+
+Before integration, the locally compiled focus alternative passed3 Chromium and
+46 Edge review/People/workforce cases. Restoring only the old scroll margin causes
+one intentional A/B failure; that comparison is not a clean acceptance run or an
+exact Linux reproduction. After integration, current master CSS overlaid on the
+existing QA build passes all six Chromium/Edge original and measured-band cases.
+The exact combined-source build and complete CI remain due.
+TEMP/allied-team-reviews-20261113/{focus-chromium-report.json,focus-edge-report.json,
+old-style-ab-report.json,integrated-css-report.json} retains results and failures.
+This overlay check is not an exact-source compiled build or real-role acceptance.
+
+A fresh local0.5GiB build preflight failed at20.37GiB free. No build was started,
+reserve reduced or cleanup performed; the bounded0.1GiB regression preflight passed.
+Shared dependencies/caches, current/recovery images and populated restores remain.
+All three exact-source checks must pass before publication; master9bf frontend
+43525367353 is still running, backend43525367354 and secrets43525367161 pass.
+No deployment, real account mutation, database/schema change or flag activation.
+Both approved briefs remain active with the remaining T01-T07 scope above.
+
+### 13 November 23:01 UTC - scoped current access reviews verified locally
+
+Both approved briefs remain active. The bounded review package resumed around
+22:03 UTC in allied-team-media-20261110, branch codex/team-reviews-20261113.
+It preserves the separately verified history work and current master c48cf7b1
+integration. The later 2e492b81 vehicle-only follow-up remains on master and must
+be retained during integration; it is not part of this local private-page build.
+
+The new /admin/workforce/reviews page uses existing owner/current delegation
+authority. Server filters run before pagination for temporary cover ending within
+24 hours, 7 days or 30 days; open-ended cover; scheduled, ended or removed duties;
+managed Staff without active duties in the permitted scope; and earlier Staff
+access setups. Each result shows its checked server time and recorded dates in
+Lagos time. Match records are bounded independently of active-duty summaries,
+using a page-bounded relation query. Supported pinned duties and the current
+branch/template envelope remain authoritative; default directory DTOs are unchanged.
+
+These are read-only reviews, not automatic revocations, reminders or global counts.
+Other grants/account-level access may remain. Admin and protected owner baselines
+are excluded from Staff setup-gap checks; inactive/unverified Staff are excluded
+from active-duty gaps. Old open-ended records are retained. View person and Back
+preserve review/search/cursor context. Only the owner gets the existing invitation
+status link here; full managed invitation/history/person composition remains open.
+Restricted access-review help is v10; eligibility, permissions and flags are unchanged.
+
+Local verification: 36/36 native isolated HTTP cases pass after a fresh 112-migration
+replay with a non-owner runtime role and no DDL/TRUNCATE. These cover actual review
+filters, pinned definitions, scope/cursors, unassigned versus legitimate baselines,
+MFA/stale sessions, delegation loss, unchanged old records/default DTO and the
+existing history/learning contracts. Task-only synthetic databases/roles were
+cleaned up; protected populated restores/backups were not used as fixture targets.
+An initial 34/35 run exposed the old learning-v9 expectation; corrected v10 passes.
+Final source: TEMP/allied-people-tests-47fb95a2ae5b. Earlier attempts remain retained. A two-person, 21-match case also verifies
+20 returned records plus the More flag independently for each person.
+
+Frontend/backend types, backend lint, focused frontend lint/format, 17 learning
+units and 26 combined frontend units pass. Canonical OpenAPI validates 465 paths;
+the client and 547-operation inventory are regenerated. The final local production
+build passes. An overlapping early typecheck raced generated Next types; the
+final serialized typecheck passes. No type/assertion/security gate was weakened.
+
+Final Edge fixtures: 30/30 new-review and existing-People journeys pass at
+320x720, 360x800, 390x844, 430x932, 768x1024, 1024x768, 1280x720 and 1440x900.
+The merged history/full-audit group also passes 28/28, including the older 375/1920
+samples. Four supplemental facts/keyboard cases pass at 320/1440; enlarged text
+checks verify unobstructed actions for both people. Axe, all recorded states,
+invalid/empty/failed/malformed/denied recovery, dates, query/paging/reload/Back,
+person return and delegation loss pass. Overview and actual duty-facts screenshots
+were visually reviewed. Duplicate zone labels and clipped selector text found in
+the first 30-pass build were corrected and rebuilt before the final run.
+
+Evidence: TEMP/allied-team-reviews-20261113/{build-final.log,final-report.json,
+facts-report.json,keyboard-report.json,history-report.json} and their result folders.
+Installed Edge/Playwright is the browser fallback. These are synthetic fixtures,
+not real account changes or physical-device/Safari/full screen reader acceptance.
+Local dependency junctions retain standalone trace warnings; do not publish that
+artifact. No production grants, invitations, business submissions or gated flags
+changed. Current exact-master CI, integration and publication remain required.
+T01 and remaining T02/T03 composition, T04 media boundaries/library, T05 bulk photos,
+T06 real videos and T07 full role/device acceptance are still open.
+
+Release preparation is distinct: 64064fe9 and 8e4325f9 artifacts remain held.
+Both pass all nine image tests; the latter four immutable registry digests and
+current/recovery read-only schema probes are verified. Fresh strict-TLS production
+backup and separate populated 112-to-112 restore preserve rows and full history.
+The temporary operator DB rule was removed with original/concurrent rules retained.
+No new managed-cloud restore is claimed. A 60-second first runtime import timeout
+is retained; its complete rerun passes. Supported authenticated held-build relay
+checks include all eight invitation foundation widths and isolated pagination/
+reload/Back recovery. Production correctly rejects development OIDC; protection
+was not changed. Master advanced through c48cf7b1 to2e492b81, so running/cancelled
+checks are not publication evidence. The c48 frontend gate failed in the existing 320px enlarged-identity People
+case: the support dock occludes the enrollment action (1266 pass, one fail).
+Local Edge does not reproduce that larger-header geometry; correct it before
+integration/publication. The new
+2e492 master run is not yet a passing release gate. Fresh 22:44 backend36687b08 remains ACTIVE
+with the four6a digests/no pending rollout; 22:56 apex/www both identify READY
+frontend4gNTdCdQRLm4MhLznG4uTZTt1T6Y, preserving the www308. No deployment or domain
+promotion by this package. Disk preflights pass; latest C: measurement is21.10GiB.
+Current/recovery images, backups, restores and useful caches remain retained.
+
 PR71 now contains the dated-cover and invitation-task changes as one coherent
 access-management batch and supersedes PR69 for integration. Both original commit
 histories and all test evidence remain retained; the cover branch is not retired.
@@ -1068,6 +1506,80 @@ superseded frontend checks are not passing exact-source gates. Require fresh
 checks for the combined source and exact master before publication. The access-
 history implementation draft is preserved separately in the existing worktree's
 labelled stash/branch; it is not part of this release batch.
+
+## 13 November - readable recorded access history
+
+Current item: T02 history, in allied-team-media-20261110 on
+codex/team-history-20261113, based on consolidated PR71/source29008f19. Both
+approved briefs remain active. This package adds /admin/team/history for the
+existing audit-reader interface: owner and legacy Admin composition. Managed
+workforce navigation/person-specific composition remain explicit T01/T03 follow-ups;
+no new managed authority or general Staff audit access is granted. Expiring-access
+reviews and the rest of T03-T07 are still required.
+
+The existing audit endpoint has an opt-in ACCESS_CHANGES view for recorded duty,
+position/delegation, account-level, branch and invitation events. Reads/previews
+and other activity remain in the full log. Its original response stays unchanged
+without the opt-in. Current staff names and branch names are minimal, explicitly
+current context, not identities at event time. Customer profiles/contact/security
+fields are never selected. Invitation recipient lookup preserves Admin-own and
+owner-all visibility. The actor lock, MFA/session checks, no-store response and
+minimal READ audit remain in the same transaction. No schema/migration is added.
+
+Default rows now explain the recorded change and current person/operator. Event
+details show human-readable duty/scope/Lagos dates/reason before secondary IDs
+and escaped original JSON. Unknown definitions and missing older dates/session
+effects stay unavailable rather than being invented. Removing one assignment
+does not claim all access ended. New assignment/removal audits record dates and
+position setup records earlier position/session effects going forward; old audit
+records are preserved. Restricted access-review help is v9; eligibility and all
+feature flags remain unchanged. Existing full audit and deep links are retained.
+
+Evidence: 13 focused frontend units, 16 restricted learning units, frontend build
+and type checks, backend types, scoped lint/format, 465-path OpenAPI validation
+and regenerated 547-operation inventory pass. A fresh isolated 112-migration
+replay initially passed 75 original audit/duty cases but the new suite setup hit
+the active-invitation email uniqueness guard. Corrected the fixture to use two
+cancelled historical links without weakening the constraint. A second fresh
+replay passes all 16 history/learning HTTP cases, including five new history cases.
+Both task-created databases/roles were removed only after identity/idle checks;
+non-owner runtime credentials have no DDL/TRUNCATE privileges. Protected populated
+restores and application databases remain untouched. Receipts: TEMP/allied-people-
+tests-4281d78da4f3 (setup failure retained) and allied-people-tests-cf4b76ce5edd.
+
+The new HTTP checks prove current versus recorded roles, separate user/profile
+ID namespaces, exclusion of a customer's stale staff profile, recipient own/all
+visibility, raw-history preservation, exact filters/keyset paging, old DTO
+compatibility and anonymous/Staff/Customer/unassured/revoked denial.
+
+Initial production-browser history/full-log run passes all 23 cases. Visual review
+raised new human fact values to the normal 14px reading size. The refined run
+passes 16 cases; two added enlarged-text cases were blocked by the test's inline
+style injection under CSP. Direct CSS-property test changes preserve CSP and both
+targeted keyboard cases now pass. The final combined 28-case run passes all cases with no skips.
+Eight required viewport pairs, history/full-log navigation, no outer overflow,
+Axe, preserved false/zero evidence, missing facts, exact scoped filters/cursor
+paging, owner/legacy Admin/ordinary Staff states, temporary failure/empty/recovery,
+denial clearing and 320/1440 long-name/text-spacing focus are covered.
+
+Artifacts: TEMP/allied-team-history-20261113: final-report (23 pass), readable-report
+(16 pass and two harness failures), enlarged-report (two pass), readable-build.log
+and the final verified-report/results. Reviewed 320/1440 overview and fact captures
+retain current-name labels. Browser plugin is unavailable; installed Edge with
+intercepted fixtures is the fallback, not physical-device, branded Safari, full
+screen-reader or authenticated production acceptance. The 27 local standalone
+trace exclusions from reused dependencies remain a packaging limitation; publish
+only clean-source provider artifacts. A root-level formatter accidentally rewrote
+the generated API types; canonical api:types regeneration restored a focused
+48-line addition and TypeScript passes. No generated-file formatting change remains.
+
+PR71 backend43504898900 and secrets43504898784 pass; frontend43504898759 is still
+running. This history package is not yet published or merged. Preserve PR71's
+source and current compatible source6a release/recovery evidence; require matching
+backend/frontend, exact-master gates and fresh live checks before publication.
+Fresh 21:31 provider reads still show both aliases on dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5,
+with www-to-apex308. C: checks remained above20GiB; latest small-write preflight22.45GiB. No cache/image
+cleanup was performed or physical reclamation claimed in this package.
 
 ## 13 November - explicit invitation tasks and current release reconciliation
 
@@ -2895,20 +3407,20 @@ position assignments, production vehicle edits or capability activation are part
 of testing. Existing approved reference is retained; the vehicle brief asks for
 focused grouping and list controls, with no unrelated visual redesign.
 
-| ID / scope                                                                                           | Implementation and authoritative evidence                                                                                                                                                                                  | Status / next proof                                                                                                                                                                                                                                                                                                                               |
-| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| V01 terminology throughout editor/review, staff/preview, public filters/detail and applied summaries | Shared power labels preserve BEV/HEV/PHEV/ICE and old URLs; Fuel type and Drive system remain separate                                                                                                                     | Released in b1222a11 on 10 November and preserved by published 6a9318a6. Combined-filter chips, URL, refresh/Back and public labels pass the recorded hosted/live checks; broader role/device acceptance is distinct.                                                                                                                             |
-| V02 Engine & drive and supplied Engine details                                                       | Shared editor/summary; optional 500-character description in schema/validation/repository/public contracts/import/form/review; new additive `20261110010000_vehicle_engine_details` migration                              | Released in b1222a11 after isolated replay, populated 100-to-102 preservation and guarded production migration. Current compatible 6a release advances safely to 112; retain both release receipts and protected restores.                                                                                                                        |
-| V03 Additional features individual entry/edit/remove and public two/one-column list                  | Existing string-array storage retained; form rows preserve commas; 40 items / 80 chars, trims, duplicate/empty checks; existing account-scoped variable-row draft recovery                                                 | Released in b1222a11. Individual feature rows, embedded commas, validation, draft recovery and public responsive lists pass source, isolated and hosted fixture checks. No real inventory edits were used for QA.                                                                                                                                 |
-| V04 truthful content, imports, customer isolation and Help                                           | Optional supplied import fields; private vehicle-operations v3, public vehicle-enquiry v6; audiences/flags unchanged; faults remain separate                                                                               | Released with b1222a11: approved imports/content, truthful unknowns/faults and restricted vehicle learning definitions. Eligibility and capability flags remain unchanged; no real-role or provider acceptance is implied.                                                                                                                        |
-| V05 complete QA and publication                                                                      | New actual application Playwright suite covers 320/390/768/1024/1440 at 720px height, review/cancel/save/reload and Axe; separate runtime project                                                                          | Vehicle brief completed and released in b1222a11 with all three exact-source gates. Anonymous 320/1440 apex/www search/detail/Back/reload and Axe pass; five held widths and seven editor fixtures are retained. Not full device/role certification.                                                                                              |
-| T01 canonical People and person identity/access summary                                              | Existing owner/delegation boundaries; named identity, scoped branch choices, context/filter chips, partial-access honesty and retained earlier links                                                                       | Partial: PR63 is included in published 6a9318a6. Person context/task groups have 14 production-browser fixtures, two extended focus cases, 52 units and prior isolated HTTP evidence. Remaining sections, role composition and authenticated live acceptance stay open.                                                                           |
-| T02 duties, cover, invitations, history/reviews                                                      | Require end date for new cover; retain old open-ended records for review; Lagos conversions, retained-grant explanations and current/proposed review; eligibility/MFA/session safeguards                                   | Partial: dated-cover PR69 passes corrected backend CI; frontend CI is running. Explicit invitation tasks, named reviews and cancellation semantics pass an initial 32 production-browser fixtures; all 32 compact production-browser journeys pass, including eight Axe and initial task-hit checks. History/reviews and publication remain open. |
-| T03 account/job workspaces and effective access                                                      | Navigation/cards/search/tabs/actions/counts/notifications and server fields/branch/assignment scope; fail-closed loading and session/access changes; preserve v1/v2 duties and independent financial checks                | Not implemented; complete expected-visible/absent and read/write allow/deny matrix required for legacy and managed paths                                                                                                                                                                                                                          |
-| T04 Digital Media Manager and workspace                                                              | Real job position with separately assigned view/add/edit/prepare/publish/remove duties; minimal identities, no broad administration/private/finance access; library, placements, draft/publish/revert and usage safeguards | Not implemented; no title, duty or real grant added                                                                                                                                                                                                                                                                                               |
-| T05 bulk vehicle photos                                                                              | Multi-file stable-ID queue, per-photo descriptions/captions/order/main, capacity/version/ticket binding, partial/uncertain recovery, cancellation, visible editor and focus return                                         | Not implemented; preserve 20-photo/10 MiB limits and last-published-photo protection                                                                                                                                                                                                                                                              |
-| T06 complete supported videos                                                                        | Infrastructure/format/size/duration validation, safe processing/errors, poster, captions/transcript, accessible mobile controls, no automatic sound; no incidental paid provisioning                                       | Not implemented; no video support claimed                                                                                                                                                                                                                                                                                                         |
-| T07 full access, responsive/accessibility and regression acceptance                                  | All specified role/branch/date/delegation/private-field/stale-account/media boundaries and widths 1280x720,1024x768,768x1024,430x932,390x844,360x800,320x720,1440-wide                                                     | Not implemented or certified; maintain page/account/job/scope/visible/allowed/denied/state/viewport/evidence matrix as each group is inspected                                                                                                                                                                                                    |
+| ID / scope                                                                                           | Implementation and authoritative evidence                                                                                                                                                                                  | Status / next proof                                                                                                                                                                                                                                                                                          |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| V01 terminology throughout editor/review, staff/preview, public filters/detail and applied summaries | Shared power labels preserve BEV/HEV/PHEV/ICE and old URLs; Fuel type and Drive system remain separate                                                                                                                     | Released in b1222a11 on 10 November and preserved by published 6a9318a6. Combined-filter chips, URL, refresh/Back and public labels pass the recorded hosted/live checks; broader role/device acceptance is distinct.                                                                                        |
+| V02 Engine & drive and supplied Engine details                                                       | Shared editor/summary; optional 500-character description in schema/validation/repository/public contracts/import/form/review; new additive `20261110010000_vehicle_engine_details` migration                              | Released in b1222a11 after isolated replay, populated 100-to-102 preservation and guarded production migration. Current compatible 6a release advances safely to 112; retain both release receipts and protected restores.                                                                                   |
+| V03 Additional features individual entry/edit/remove and public two/one-column list                  | Existing string-array storage retained; form rows preserve commas; 40 items / 80 chars, trims, duplicate/empty checks; existing account-scoped variable-row draft recovery                                                 | Released in b1222a11. Individual feature rows, embedded commas, validation, draft recovery and public responsive lists pass source, isolated and hosted fixture checks. No real inventory edits were used for QA.                                                                                            |
+| V04 truthful content, imports, customer isolation and Help                                           | Optional supplied import fields; private vehicle-operations v3, public vehicle-enquiry v6; audiences/flags unchanged; faults remain separate                                                                               | Released with b1222a11: approved imports/content, truthful unknowns/faults and restricted vehicle learning definitions. Eligibility and capability flags remain unchanged; no real-role or provider acceptance is implied.                                                                                   |
+| V05 complete QA and publication                                                                      | New actual application Playwright suite covers 320/390/768/1024/1440 at 720px height, review/cancel/save/reload and Axe; separate runtime project                                                                          | Vehicle brief completed and released in b1222a11 with all three exact-source gates. Anonymous 320/1440 apex/www search/detail/Back/reload and Axe pass; five held widths and seven editor fixtures are retained. Not full device/role certification.                                                         |
+| T01 canonical People and person identity/access summary                                              | Existing owner/delegation boundaries; named identity, scoped branch choices, context/filter chips, partial-access honesty and retained earlier links                                                                       | Partial: PR63 is included in published 6a9318a6. Person context/task groups have 14 production-browser fixtures, two extended focus cases, 52 units and prior isolated HTTP evidence. Remaining sections, role composition and authenticated live acceptance stay open.                                      |
+| T02 duties, cover, invitations, history/reviews                                                      | Require end date for new cover; retain old open-ended records for review; Lagos conversions, retained-grant explanations and current/proposed review; eligibility/MFA/session safeguards                                   | Partial: dated cover/invitations are merged in master. The history/review candidate passes 37 isolated HTTP cases, 27 focused frontend units and 52 combined compiled Edge journeys (c86008e4). Exact-master release checks, publication and full managed invitation/history/person composition remain open. |
+| T03 account/job workspaces and effective access                                                      | Navigation/cards/search/tabs/actions/counts/notifications and server fields/branch/assignment scope; fail-closed loading and session/access changes; preserve v1/v2 duties and independent financial checks                | Not implemented; complete expected-visible/absent and read/write allow/deny matrix required for legacy and managed paths                                                                                                                                                                                     |
+| T04 Digital Media Manager and workspace                                                              | Real job position with separately assigned view/add/edit/prepare/publish/remove duties; minimal identities, no broad administration/private/finance access; library, placements, draft/publish/revert and usage safeguards | Not implemented; no title, duty or real grant added                                                                                                                                                                                                                                                          |
+| T05 bulk vehicle photos                                                                              | Multi-file stable-ID queue, per-photo descriptions/captions/order/main, capacity/version/ticket binding, partial/uncertain recovery, cancellation, visible editor and focus return                                         | Not implemented; preserve 20-photo/10 MiB limits and last-published-photo protection                                                                                                                                                                                                                         |
+| T06 complete supported videos                                                                        | Infrastructure/format/size/duration validation, safe processing/errors, poster, captions/transcript, accessible mobile controls, no automatic sound; no incidental paid provisioning                                       | Not implemented; no video support claimed                                                                                                                                                                                                                                                                    |
+| T07 full access, responsive/accessibility and regression acceptance                                  | All specified role/branch/date/delegation/private-field/stale-account/media boundaries and widths 1280x720,1024x768,768x1024,430x932,390x844,360x800,320x720,1440-wide                                                     | Not implemented or certified; maintain page/account/job/scope/visible/allowed/denied/state/viewport/evidence matrix as each group is inspected                                                                                                                                                               |
 
 Additional discovered regression: the update schema inherited the creation default
 `condition: USED` when a patch omitted condition. Removed that default from update
@@ -9627,19 +10139,20 @@ selected cases are recorded below after verification.
 
 ### Managed workforce journeys within the catch-all
 
-| Journey                                                     | Evidence suite                                      | Review scope                                                                                    |
-| ----------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `/admin` and `/admin/workforce`                             | `workforce-overview`                                | All eight responsibility templates, counters, no grants, expiry, revoked/error access and alias |
-| `/admin/workforce/jobs`                                     | `workforce-jobs`, `workforce-access`                | Queue, narrow/wide layout, permitted destinations                                               |
-| `/admin/workforce/jobs/[id]`                                | `workforce-job-detail`                              | Assigned job detail and technical-update controls in fixtures                                   |
-| `/admin/workforce/bookings`                                 | `workforce-bookings`                                | Readable scoped records and real detail destinations                                            |
-| `/admin/workforce/bookings/[id]`                            | `dashboard-page-recovery`                           | Direct scoped detail, refresh failure and retry; no legacy booking fetch                        |
-| `/admin/workforce/enquiries`                                | `workforce-enquiries`                               | Scoped queue, layout and accessibility samples                                                  |
-| `/admin/workforce/complaints`                               | `workforce-complaints`                              | Scoped queue, layout and accessibility samples                                                  |
-| `/admin/workforce/orders`                                   | `workforce-orders`                                  | Order-progress workspace samples; no real fulfillment commitment                                |
-| `/admin/workforce/finance`                                  | `workforce-finance`                                 | Payment-record reading samples; no live financial action                                        |
-| `/admin/workforce/access`, staff responsibility forms       | `dashboard-access-quality`, `work-staff-workforce`  | Owner/denied entry and existing enrollment/assignment review fixtures                           |
-| `/admin/security`, `/admin/notifications` for managed staff | `admin-security-quality`, `workforce-notifications` | Personal tools and responsibility-aware notification samples                                    |
+| Journey                                                     | Evidence suite                                      | Review scope                                                                                                                                                                                |
+| ----------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/admin` and `/admin/workforce`                             | `workforce-overview`                                | All eight responsibility templates, counters, no grants, expiry, revoked/error access and alias                                                                                             |
+| `/admin/workforce/jobs`                                     | `workforce-jobs`, `workforce-access`                | Queue, narrow/wide layout, permitted destinations                                                                                                                                           |
+| `/admin/workforce/jobs/[id]`                                | `workforce-job-detail`                              | Assigned job detail and technical-update controls in fixtures                                                                                                                               |
+| `/admin/workforce/bookings`                                 | `workforce-bookings`                                | Readable scoped records and real detail destinations                                                                                                                                        |
+| `/admin/workforce/bookings/[id]`                            | `dashboard-page-recovery`                           | Direct scoped detail, refresh failure and retry; no legacy booking fetch                                                                                                                    |
+| `/admin/workforce/enquiries`                                | `workforce-enquiries`                               | Scoped queue, layout and accessibility samples                                                                                                                                              |
+| `/admin/workforce/complaints`                               | `workforce-complaints`                              | Scoped queue, layout and accessibility samples                                                                                                                                              |
+| `/admin/workforce/orders`                                   | `workforce-orders`                                  | Order-progress workspace samples; no real fulfillment commitment                                                                                                                            |
+| `/admin/workforce/finance`                                  | `workforce-finance`                                 | Payment-record reading samples; no live financial action                                                                                                                                    |
+| `/admin/workforce/access`, staff responsibility forms       | `dashboard-access-quality`, `work-staff-workforce`  | Owner/denied entry and existing enrollment/assignment review fixtures                                                                                                                       |
+| `/admin/workforce/reviews`                                  | `workforce-access-reviews`                          | Owner/delegated manager, denied access, dated/scoped recorded states, pagination/recovery, eight widths, Axe and enlarged keyboard fixtures; real-role/device acceptance remains unverified |
+| `/admin/security`, `/admin/notifications` for managed staff | `admin-security-quality`, `workforce-notifications` | Personal tools and responsibility-aware notification samples                                                                                                                                |
 
 ### Verification record and continuation
 

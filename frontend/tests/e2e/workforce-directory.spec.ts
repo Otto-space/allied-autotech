@@ -348,14 +348,58 @@ test.afterEach(async ({ page }, info) => {
   // Geometry only: no identities, field values, credentials or record contents.
   console.info("People focus geometry", JSON.stringify(geometry));
 });
-for (const { width, collapsed, tallerHeader } of [
-  { width: 320, collapsed: false, tallerHeader: false },
-  { width: 768, collapsed: false, tallerHeader: false },
-  { width: 1440, collapsed: false, tallerHeader: false },
-  { width: 1440, collapsed: true, tallerHeader: false },
-  { width: 320, collapsed: false, tallerHeader: true },
+for (const { width, collapsed, measuredBand, earlierInset, tallerHeader } of [
+  {
+    width: 320,
+    collapsed: false,
+    measuredBand: false,
+    earlierInset: 0,
+    tallerHeader: false,
+  },
+  {
+    width: 768,
+    collapsed: false,
+    measuredBand: false,
+    earlierInset: 0,
+    tallerHeader: false,
+  },
+  {
+    width: 1440,
+    collapsed: false,
+    measuredBand: false,
+    earlierInset: 0,
+    tallerHeader: false,
+  },
+  {
+    width: 1440,
+    collapsed: true,
+    measuredBand: false,
+    earlierInset: 0,
+    tallerHeader: false,
+  },
+  {
+    width: 320,
+    collapsed: false,
+    measuredBand: true,
+    earlierInset: 0,
+    tallerHeader: false,
+  },
+  {
+    width: 320,
+    collapsed: false,
+    measuredBand: true,
+    earlierInset: 160,
+    tallerHeader: false,
+  },
+  {
+    width: 320,
+    collapsed: false,
+    measuredBand: false,
+    earlierInset: 0,
+    tallerHeader: true,
+  },
 ]) {
-  test(`long selected identity at ${width}px wraps at enlarged text without covering actions${collapsed ? " with collapsed sidebar" : ""}${tallerHeader ? " with a taller dashboard header" : ""}`, async ({
+  test(`long selected identity at ${width}px${measuredBand ? " with the measured identity band" : ""}${earlierInset ? " and an earlier header inset" : ""} wraps at enlarged text without covering actions${collapsed ? " with collapsed sidebar" : ""}${tallerHeader ? " with a taller dashboard header" : ""}`, async ({
     page,
   }, info) => {
     await page.setViewportSize({ width, height: 720 });
@@ -383,6 +427,16 @@ for (const { width, collapsed, tallerHeader } of [
       element.style.letterSpacing = "0.12em";
       element.style.wordSpacing = "0.16em";
     });
+    if (measuredBand)
+      await selected.evaluate((element, extraInset) => {
+        // Keep the valid larger band independent of platform font metrics.
+        element.style.minHeight = "356px";
+        const header = document.querySelector(".dashboard-top")!;
+        document.documentElement.style.setProperty(
+          "--viewport-header-offset",
+          `${Math.max(0, header.getBoundingClientRect().bottom) + 16 + extraInset}px`,
+        );
+      }, earlierInset);
     const review = page.getByRole("button", { name: "Review enrollment", exact: true });
     for (const control of [
       page.getByLabel("Your current password", { exact: true }),
@@ -416,24 +470,40 @@ for (const { width, collapsed, tallerHeader } of [
       await expect
         .poll(() =>
           control.evaluate((element) => {
-            const box = element.getBoundingClientRect();
+            const targets = [element];
+            if (element instanceof HTMLInputElement) {
+              const label = element.labels?.[0];
+              if (!label)
+                return {
+                  belowIdentity: false,
+                  occludingElements: ["Visible field label missing"],
+                };
+              targets.push(label);
+            }
+            const boxes = targets.map((target) => target.getBoundingClientRect());
             const bar = document
               .querySelector(".wf-person-context")!
               .getBoundingClientRect();
             // Sample painted edge midpoints; bounding-box corners can fall
             // outside the button's rounded border even with nothing over it.
-            const occludingElements = [
-              [box.left + box.width / 2, box.top + 2],
-              [box.left + box.width / 2, box.bottom - 2],
-              [box.left + 2, box.top + box.height / 2],
-              [box.right - 2, box.top + box.height / 2],
-            ].flatMap(([x, y]) => {
-              const front = document.elementFromPoint(x, y);
-              return front === element || element.contains(front)
-                ? []
-                : [front ? `${front.tagName}.${front.className}` : "outside viewport"];
-            });
-            return { belowIdentity: box.top >= bar.bottom, occludingElements };
+            const occludingElements = boxes.flatMap((box, index) =>
+              [
+                [box.left + box.width / 2, box.top + 2],
+                [box.left + box.width / 2, box.bottom - 2],
+                [box.left + 2, box.top + box.height / 2],
+                [box.right - 2, box.top + box.height / 2],
+              ].flatMap(([x, y]) => {
+                const front = document.elementFromPoint(x, y);
+                const target = targets[index]!;
+                return front === target || target.contains(front)
+                  ? []
+                  : [front ? `${front.tagName}.${front.className}` : "outside viewport"];
+              }),
+            );
+            return {
+              belowIdentity: boxes.every((box) => box.top >= bar.bottom),
+              occludingElements,
+            };
           }),
         )
         .toEqual({ belowIdentity: true, occludingElements: [] });
@@ -446,6 +516,53 @@ for (const { width, collapsed, tallerHeader } of [
     expect(s.errors).toEqual([]);
   });
 }
+
+test("short person viewport releases the sticky identity so the field and label remain usable", async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 320, height: 520 });
+  const s = await setup(page);
+  s.f.workforce.accountLabel =
+    "Chidinma Alexandra Okonkwo-Emmanuel with a long recorded family name";
+  await page.goto(`${base}/${s.f.member.id}`);
+  await page.getByText("Review legacy access and enroll", { exact: true }).click();
+  const selected = page.getByRole("complementary", { name: "Selected person" });
+  await selected.locator("strong").evaluate((element) => {
+    element.style.fontSize = "28px";
+    element.style.lineHeight = "1.5";
+    element.style.letterSpacing = "0.12em";
+    element.style.wordSpacing = "0.16em";
+  });
+  const password = page.getByLabel("Your current password", { exact: true });
+  await password.focus();
+  await expect(password).toBeFocused();
+  await expect(selected).toHaveAttribute("data-unpinned", "true");
+  await password.evaluate((element) =>
+    element.scrollIntoView({ block: "start", behavior: "instant" }),
+  );
+  await expect
+    .poll(() =>
+      password.evaluate((element) => {
+        const label = (element as HTMLInputElement).labels?.[0];
+        if (!label) return false;
+        const header = document.querySelector(".dashboard-top")!.getBoundingClientRect();
+        const dock = document.querySelector(".support-controls")!.getBoundingClientRect();
+        return [element, label].every((target) => {
+          const box = target.getBoundingClientRect();
+          const front = document.elementFromPoint(box.left + box.width / 2, box.top + 2);
+          return (
+            box.top >= header.bottom &&
+            box.bottom < dock.top &&
+            (front === target || target.contains(front))
+          );
+        });
+      }),
+    )
+    .toBe(true);
+  await page.screenshot({ path: info.outputPath("person-short-password.png") });
+  expect(s.writes).toEqual([]);
+  expect(s.errors).toEqual([]);
+});
 
 test("directory filtering, pagination, clear and deep-link context use real controls", async ({
   page,

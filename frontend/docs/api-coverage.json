@@ -1,6 +1,6 @@
 {
   "source": "../backend/docs/api/allied-autotech.openapi.json",
-  "sourceSha256": "1a2e0c6d108a0bfe3cd2405b07c514f427018cc18028ba98bfd39eda5fab7bcf",
+  "sourceSha256": "a545c97a6b4aa7a32f83712b06f03e245fd528ce7d99466719d65c3d62dbf38b",
   "note": "Private contract inventory. Source candidates are search hints, not proof of consumption. Response schemas with additionalProperties may be incomplete; reconcile serializers. Operational routes outside OpenAPI are tracked in the Markdown inventory.",
   "operations": [
     {
@@ -20098,6 +20098,7 @@
         "app/components/staff-invitation-form.tsx",
         "app/components/staff-picker.tsx",
         "app/components/work-slot-filters.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx",
         "lib/admin/work-staff-directory.ts",
         "lib/admin/work-staff-invitations.ts",
@@ -20361,6 +20362,7 @@
         "app/components/staff-invitation-form.tsx",
         "app/components/staff-picker.tsx",
         "app/components/work-slot-filters.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx",
         "lib/admin/work-staff-directory.ts",
         "lib/admin/work-staff-invitations.ts",
@@ -21148,6 +21150,7 @@
         "app/components/staff-invitation-form.tsx",
         "app/components/staff-picker.tsx",
         "app/components/work-slot-filters.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx",
         "lib/admin/work-staff-directory.ts",
         "lib/admin/work-staff-invitations.ts",
@@ -21336,6 +21339,7 @@
         "app/components/staff-invitation-form.tsx",
         "app/components/staff-picker.tsx",
         "app/components/work-slot-filters.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx",
         "lib/admin/work-staff-directory.ts",
         "lib/admin/work-staff-invitations.ts",
@@ -21651,6 +21655,7 @@
         "app/components/staff-invitation-form.tsx",
         "app/components/staff-picker.tsx",
         "app/components/work-slot-filters.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx",
         "lib/admin/work-staff-directory.ts",
         "lib/admin/work-staff-invitations.ts",
@@ -99907,6 +99912,18 @@
         {
           "schema": {
             "type": "string",
+            "enum": ["ACCESS_CHANGES"],
+            "description": "Opt-in recorded duty, account-level, branch and invitation changes with minimal current staff context. Other activity remains in the full audit log."
+          },
+          "required": false,
+          "description": "Opt-in recorded duty, account-level, branch and invitation changes with minimal current staff context. Other activity remains in the full audit log.",
+          "name": "view",
+          "in": "query",
+          "example": "ACCESS_CHANGES"
+        },
+        {
+          "schema": {
+            "type": "string",
             "format": "uuid",
             "description": "Identifier of the user resource; ownership is resolved server-side."
           },
@@ -100185,6 +100202,85 @@
                           "format": "date-time",
                           "description": "ISO 8601 timestamp interpreted and validated by the server."
                         },
+                        "currentContext": {
+                          "type": "object",
+                          "properties": {
+                            "actor": {
+                              "type": ["object", "null"],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "name": {
+                                  "type": ["string", "null"],
+                                  "minLength": 1,
+                                  "maxLength": 500,
+                                  "description": "Name validated by this operation's strict request contract."
+                                },
+                                "role": {
+                                  "type": "string",
+                                  "enum": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+                                  "description": "Role validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": ["id", "name", "role"],
+                              "additionalProperties": false,
+                              "description": "Actor validated by this operation's strict request contract."
+                            },
+                            "subject": {
+                              "type": ["object", "null"],
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "name": {
+                                  "type": ["string", "null"],
+                                  "minLength": 1,
+                                  "maxLength": 500,
+                                  "description": "Name validated by this operation's strict request contract."
+                                },
+                                "role": {
+                                  "type": "string",
+                                  "enum": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+                                  "description": "Role validated by this operation's strict request contract."
+                                }
+                              },
+                              "required": ["id", "name", "role"],
+                              "additionalProperties": false,
+                              "description": "Subject validated by this operation's strict request contract."
+                            },
+                            "branches": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Name validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": ["id", "name"],
+                                "additionalProperties": false,
+                                "description": "Branches Item validated by this operation's strict request contract."
+                              },
+                              "maxItems": 42,
+                              "description": "Branches validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": ["actor", "subject", "branches"],
+                          "additionalProperties": false,
+                          "description": "Included only for ACCESS_CHANGES view. Minimal current staff names and roles, not identities at event time; unavailable or ineligible identities are null. Invitation recipients retain existing own/all visibility. No customer profiles or contact/security fields."
+                        },
                         "user": {
                           "type": ["object", "null"],
                           "properties": {
@@ -100290,7 +100386,6 @@
       "sourceCandidates": [
         "app/components/audit-log.tsx",
         "app/components/dashboard-shell.tsx",
-        "app/components/staff-invitation-form.tsx",
         "lib/api/audit-schemas.ts",
         "lib/dashboard-navigation.ts"
       ],
@@ -121347,6 +121442,37 @@
           "in": "query",
           "description": "Branch Id used to constrain this request.",
           "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "enum": [
+              "COVER_ENDING",
+              "OPEN_ENDED_COVER",
+              "SCHEDULED",
+              "ENDED",
+              "REMOVED",
+              "UNASSIGNED",
+              "EARLIER_STAFF_SETUP"
+            ],
+            "description": "Review validated by this operation's strict request contract."
+          },
+          "required": false,
+          "name": "review",
+          "in": "query",
+          "description": "Review used to constrain this request.",
+          "example": "COVER_ENDING"
+        },
+        {
+          "schema": {
+            "type": "number",
+            "description": "Review Days validated by this operation's strict request contract."
+          },
+          "required": false,
+          "name": "reviewDays",
+          "in": "query",
+          "description": "Review Days used to constrain this request.",
+          "example": 1
         }
       ],
       "request": null,
@@ -121368,6 +121494,36 @@
               "data": {
                 "type": "object",
                 "properties": {
+                  "review": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "COVER_ENDING",
+                          "OPEN_ENDED_COVER",
+                          "SCHEDULED",
+                          "ENDED",
+                          "REMOVED",
+                          "UNASSIGNED",
+                          "EARLIER_STAFF_SETUP"
+                        ],
+                        "description": "Kind validated by this operation's strict request contract."
+                      },
+                      "scope": {
+                        "type": "string",
+                        "enum": ["ALL_PRIVILEGED_ACCOUNTS", "DELEGATED_STAFF_AND_DUTIES"],
+                        "description": "Scope validated by this operation's strict request contract."
+                      },
+                      "windowEndsAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                      }
+                    },
+                    "required": ["kind", "scope"],
+                    "description": "Review validated by this operation's strict request contract."
+                  },
                   "managementBranches": {
                     "type": "array",
                     "items": {
@@ -121547,6 +121703,103 @@
                         "responsibilitiesMore": {
                           "type": "boolean",
                           "description": "Responsibilities More validated by this operation's strict request contract."
+                        },
+                        "reviewMatchesMore": {
+                          "type": "boolean",
+                          "description": "Review Matches More validated by this operation's strict request contract."
+                        },
+                        "reviewMatches": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "assignmentId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the assignment resource; ownership is resolved server-side."
+                              },
+                              "template": {
+                                "type": "string",
+                                "enum": [
+                                  "OPERATIONS",
+                                  "CUSTOMER_SERVICE",
+                                  "SALES_SUPERVISOR",
+                                  "SALES_CASHIER",
+                                  "ACCOUNTANT",
+                                  "WORKSHOP_LEAD",
+                                  "ELECTRICAL_TECHNICIAN",
+                                  "MECHANICAL_TECHNICIAN",
+                                  "CARE_VIEWER",
+                                  "CARE_RESPONDER",
+                                  "CARE_ASSIGNER",
+                                  "CARE_LIVE_AGENT"
+                                ],
+                                "description": "Template validated by this operation's strict request contract."
+                              },
+                              "templateVersion": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "description": "Template Version validated by this operation's strict request contract."
+                              },
+                              "branch": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "description": "Name validated by this operation's strict request contract."
+                                  },
+                                  "isActive": {
+                                    "type": "boolean",
+                                    "description": "Boolean control for is active; authorization is still enforced server-side."
+                                  }
+                                },
+                                "required": ["id", "name", "isActive"],
+                                "description": "Branch validated by this operation's strict request contract."
+                              },
+                              "scope": {
+                                "type": "string",
+                                "enum": ["BRANCH", "ASSIGNED"],
+                                "description": "Scope validated by this operation's strict request contract."
+                              },
+                              "temporary": {
+                                "type": "boolean",
+                                "description": "Temporary validated by this operation's strict request contract."
+                              },
+                              "startsAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "expiresAt": {
+                                "type": ["string", "null"],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "revokedAt": {
+                                "type": ["string", "null"],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              }
+                            },
+                            "required": [
+                              "assignmentId",
+                              "template",
+                              "templateVersion",
+                              "branch",
+                              "scope",
+                              "temporary",
+                              "startsAt",
+                              "expiresAt",
+                              "revokedAt"
+                            ],
+                            "description": "Review Matches Item validated by this operation's strict request contract."
+                          },
+                          "description": "Review Matches validated by this operation's strict request contract."
                         }
                       },
                       "required": [
@@ -121654,6 +121907,7 @@
         "app/components/staff-access-form.tsx",
         "app/components/staff-change-coordinator.tsx",
         "app/components/workforce-access-panel.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx"
       ],
       "implementation": "Pending explicit integration audit",
@@ -140226,6 +140480,7 @@
         "app/components/staff-access-form.tsx",
         "app/components/staff-change-coordinator.tsx",
         "app/components/workforce-access-panel.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx"
       ],
       "implementation": "Pending explicit integration audit",
@@ -140468,6 +140723,7 @@
         "app/components/staff-access-form.tsx",
         "app/components/staff-change-coordinator.tsx",
         "app/components/workforce-access-panel.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx"
       ],
       "implementation": "Pending explicit integration audit",
@@ -140962,6 +141218,7 @@
         "app/components/staff-access-form.tsx",
         "app/components/staff-change-coordinator.tsx",
         "app/components/workforce-access-panel.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx"
       ],
       "implementation": "Pending explicit integration audit",
@@ -141290,6 +141547,7 @@
         "app/components/staff-access-form.tsx",
         "app/components/staff-change-coordinator.tsx",
         "app/components/workforce-access-panel.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx"
       ],
       "implementation": "Pending explicit integration audit",
@@ -141567,6 +141825,7 @@
         "app/components/staff-access-form.tsx",
         "app/components/staff-change-coordinator.tsx",
         "app/components/workforce-access-panel.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx"
       ],
       "implementation": "Pending explicit integration audit",
@@ -141844,6 +142103,7 @@
         "app/components/staff-access-form.tsx",
         "app/components/staff-change-coordinator.tsx",
         "app/components/workforce-access-panel.tsx",
+        "app/components/workforce-access-reviews.tsx",
         "app/components/workforce-directory.tsx"
       ],
       "implementation": "Pending explicit integration audit",

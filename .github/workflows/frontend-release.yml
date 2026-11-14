@@ -56,6 +56,8 @@ jobs:
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run check:production
+      - name: Typecheck the responsive navigation regressions
+        run: npx --no-install tsc --noEmit --project tsconfig.navigation-tests.json
       - name: Install the three engines used by the isolated regression
         run: npx --no-install playwright install --with-deps chromium firefox webkit
       - name: Record browser engine versions and test platform
@@ -72,6 +74,7 @@ jobs:
           }
           NODE
       - name: Verify sidebar breakpoint focus before the full matrix
+        timeout-minutes: 5
         run: npx --no-install playwright test --config playwright.runtime.config.ts --project=sidebar-breakpoint-chromium --project=sidebar-breakpoint-firefox --project=sidebar-breakpoint-webkit --repeat-each=3 --max-failures=1
       - name: Verify WebKit calendar and search transport before the full matrix
         run: npx --no-install playwright test booking-calendar.spec.ts public-search-recovery.spec.ts --config playwright.runtime.config.ts --project=responsive-webkit --grep "calendar 320x720|public search recovery" --repeat-each=3 --max-failures=1

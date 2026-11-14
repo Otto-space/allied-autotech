@@ -192,6 +192,7 @@ describe("maintained workforce route and scope policy", () => {
     expect(permittedWorkforceDestinations(a).map((entry) => entry.id)).toEqual([
       "overview",
       "access",
+      "accessReviews",
       "profile",
       "security",
       "notifications",
@@ -203,6 +204,8 @@ describe("maintained workforce route and scope policy", () => {
   it("accepts registered UUID detail paths without overmatching forbidden or malformed destinations", () => {
     expect(workforceDestination(`/admin/workforce/jobs/${id(8)}`)?.id).toBe("jobs");
     expect(workforceDestination(`/admin/workforce/access/${id(8)}`)?.id).toBe("access");
+    expect(workforceDestination("/admin/workforce/reviews")?.id).toBe("accessReviews");
+    expect(workforceDestination(`/admin/workforce/reviews/${id(8)}`)).toBeUndefined();
     expect(workforceDestination("/admin/workforce")?.id).toBe("overview");
     for (const path of [
       "/admin/payments",

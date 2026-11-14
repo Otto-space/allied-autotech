@@ -23,13 +23,14 @@ import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { Feedback } from "./feedback";
 import { AuditValues } from "./audit-values";
-export function AuditLog() {
+import { accessChangeSummary } from "@/lib/admin/access-history";
+export function AuditLog({ accessChanges = false }: { accessChanges?: boolean }) {
   const session = useAccountSession();
   if (!session) return null;
   if (!["ADMIN", "SUPER_ADMIN"].includes(session.user.role))
     return (
       <>
-        <h1>Audit log</h1>
+        <h1>{accessChanges ? "Access change history" : "Audit log"}</h1>
         <Feedback message="Administrator access is required to view these records." />
       </>
     );
@@ -38,10 +39,19 @@ export function AuditLog() {
       key={`${session.user.id}:${session.user.role}`}
       owner={session.user.id}
       role={session.user.role}
+      accessChanges={accessChanges}
     />
   );
 }
-function AuditAccess({ owner, role }: { owner: string; role: string }) {
+function AuditAccess({
+  owner,
+  role,
+  accessChanges,
+}: {
+  owner: string;
+  role: string;
+  accessChanges: boolean;
+}) {
   const own = useOwnStaffPermissions(),
     [denied, setDenied] = useState(false);
   const deny = useCallback(() => setDenied(true), []);
@@ -55,7 +65,7 @@ function AuditAccess({ owner, role }: { owner: string; role: string }) {
   if (!own.data || error || denied)
     return (
       <div className="work-audit">
-        <h1>Audit log</h1>
+        <h1>{accessChanges ? "Access change history" : "Audit log"}</h1>
         <Feedback
           message={
             error ||
@@ -77,14 +87,22 @@ function AuditAccess({ owner, role }: { owner: string; role: string }) {
         </button>
       </div>
     );
-  return <AuditContent onDenied={deny} accessBusy={own.loading || own.refreshing} />;
+  return (
+    <AuditContent
+      onDenied={deny}
+      accessBusy={own.loading || own.refreshing}
+      accessChanges={accessChanges}
+    />
+  );
 }
 function AuditContent({
   onDenied,
   accessBusy,
+  accessChanges,
 }: {
   onDenied: () => void;
   accessBusy: boolean;
+  accessChanges: boolean;
 }) {
   const [applied, setApplied] = useState(emptyAuditFilters),
     [advanced, setAdvanced] = useState(false);
@@ -96,6 +114,7 @@ function AuditContent({
   const query = new URLSearchParams(
     Object.entries(auditQuery(applied)).map(([key, value]) => [key, String(value)]),
   );
+  if (accessChanges) query.set("view", "ACCESS_CHANGES");
   if (pagination.cursor) query.set("cursor", pagination.cursor);
   const queryText = query.toString();
   const parse = useCallback(
@@ -129,26 +148,48 @@ function AuditContent({
           </li>
           <li>
             <ChevronRight size={14} aria-hidden="true" />
-            <span aria-current="page">Audit log</span>
+            <span aria-current="page">
+              {accessChanges ? "Access change history" : "Audit log"}
+            </span>
           </li>
         </ol>
       </nav>
       <header className="wa-heading">
         <div>
-          <h1>Audit log</h1>
-          <p>Review recorded actions and changes.</p>
+          <h1>{accessChanges ? "Access change history" : "Audit log"}</h1>
+          <p>
+            {accessChanges
+              ? "Review recorded duty, account-level, invitation and branch changes."
+              : "Review recorded actions and changes."}
+          </p>
         </div>
         <button className="button secondary" disabled={busy} onClick={records.refresh}>
           <RefreshCw size={16} aria-hidden="true" />
-          Refresh audit log
+          {accessChanges ? "Refresh history" : "Refresh audit log"}
         </button>
       </header>
       <p className="wa-read-note">
         Reading or refreshing this history is recorded in the audit log.
       </p>
+      {accessChanges && (
+        <div className="wa-history-note">
+          <p>
+            Names and branch names are current records, not names at the event time.
+            Earlier events may omit dates or before/after details. History does not prove
+            a person’s current access.
+          </p>
+          <Link className="text-link" href="/admin/audit">
+            Open full audit log
+          </Link>
+          <p className="muted">
+            Account status, sign-in, read/preview and other activity remain in the full
+            log. Invitation recipient names follow your existing invitation visibility.
+          </p>
+        </div>
+      )}
       <form
         className="wa-filters"
-        data-draft-key="audit-log:1"
+        data-draft-key={accessChanges ? "access-history:1" : "audit-log:1"}
         noValidate
         onSubmit={form.handleSubmit(
           (value) => {
@@ -181,11 +222,26 @@ function AuditContent({
                 <option value="">
                   {field.name === "action" ? "All actions" : "All record types"}
                 </option>
-                {field.options.map((option) => (
-                  <option key={option} value={option}>
-                    {auditLabel(option)}
-                  </option>
-                ))}
+                {field.options
+                  .filter(
+                    (option) =>
+                      !accessChanges ||
+                      (field.name === "action"
+                        ? [
+                            "UPDATE",
+                            "ROLE_CHANGE",
+                            "BRANCH_ASSIGNED",
+                            "INVITATION_CREATED",
+                            "INVITATION_ACCEPTED",
+                          ]
+                        : ["USER", "STAFF_PROFILE", "PRIVILEGED_INVITATION"]
+                      ).includes(option),
+                  )
+                  .map((option) => (
+                    <option key={option} value={option}>
+                      {auditLabel(option)}
+                    </option>
+                  ))}
               </select>
             </div>
           ))}
@@ -270,7 +326,7 @@ function AuditContent({
         </details>
         <div className="wa-filter-actions">
           <button className="button" type="submit" disabled={busy}>
-            Apply audit filters
+            {accessChanges ? "Apply history filters" : "Apply audit filters"}
           </button>
           <button
             type="button"
@@ -278,7 +334,7 @@ function AuditContent({
             disabled={busy}
             onClick={clear}
           >
-            Clear audit filters
+            {accessChanges ? "Clear history filters" : "Clear audit filters"}
           </button>
         </div>
       </form>
@@ -291,7 +347,9 @@ function AuditContent({
       )}
       {records.loading && (
         <div className="wa-loading" role="status">
-          <span>Checking audit events…</span>
+          <span>
+            {accessChanges ? "Checking access changes…" : "Checking audit events…"}
+          </span>
           <div aria-hidden="true" />
           <div aria-hidden="true" />
           <div aria-hidden="true" />
@@ -308,7 +366,9 @@ function AuditContent({
               <h2>
                 {filtered
                   ? "No events match these filters"
-                  : "No audit events on this page"}
+                  : accessChanges
+                    ? "No access changes on this page"
+                    : "No audit events on this page"}
               </h2>
               <p>Try another filter or refresh to check for updates.</p>
               {filtered && (
@@ -321,6 +381,7 @@ function AuditContent({
           <div className="wa-events">
             {records.data.items.map((event) => {
               const href = currentAuditRecord(event);
+              const change = accessChanges ? accessChangeSummary(event) : undefined;
               return (
                 <article
                   className="wa-event"
@@ -329,7 +390,8 @@ function AuditContent({
                 >
                   <header className="wa-event-heading">
                     <h2 id={`audit-event-${event.id}`}>
-                      {auditLabel(event.action)} · {auditLabel(event.entityType)}
+                      {change?.title ??
+                        `${auditLabel(event.action)} · ${auditLabel(event.entityType)}`}
                     </h2>
                     <time dateTime={event.createdAt}>
                       {formatBusinessDate(event.createdAt)}
@@ -339,9 +401,51 @@ function AuditContent({
                       {event.user ? auditLabel(event.user.role) : "Not available"}
                     </p>
                   </header>
+                  {change && (
+                    <div className="wa-change-overview">
+                      <p>{change.explanation}</p>
+                      <dl className="wa-current-people">
+                        <div>
+                          <dt>Person (current record)</dt>
+                          <dd>
+                            {event.currentContext?.subject?.name ??
+                              "Name unavailable in this view"}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Changed by (current staff name)</dt>
+                          <dd>
+                            {event.currentContext?.actor?.name ??
+                              "Name unavailable in this view"}
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+                  )}
                   <details className="wa-event-details">
                     <summary>Event details</summary>
                     <div className="wa-inspection">
+                      {change && (
+                        <section
+                          className="wa-recorded-change"
+                          aria-label="Recorded access change"
+                        >
+                          {change.facts.length > 0 && (
+                            <dl className="wa-metadata">
+                              {change.facts.map((fact) => (
+                                <div key={fact.label}>
+                                  <dt>{fact.label}</dt>
+                                  <dd>{fact.value}</dd>
+                                </div>
+                              ))}
+                            </dl>
+                          )}
+                          <p>
+                            <strong>Recorded reason: </strong>
+                            {change.reason ?? "Not recorded in this event"}
+                          </p>
+                        </section>
+                      )}
                       <dl className="wa-metadata">
                         {[
                           ["Event reference", event.id],
@@ -373,7 +477,7 @@ function AuditContent({
         pagination={pagination}
         nextCursor={records.data?.nextCursor}
         disabled={busy || !!records.error || !!records.refreshError}
-        label="Audit log"
+        label={accessChanges ? "Access change history" : "Audit log"}
       />
     </div>
   );

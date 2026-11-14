@@ -14,6 +14,12 @@ const isoDate = z.iso.datetime({ offset: true });
 export const auditListQuerySchema = z
   .object({
     ...page,
+    view: z
+      .literal("ACCESS_CHANGES")
+      .optional()
+      .describe(
+        "Opt-in recorded duty, account-level, branch and invitation changes with minimal current staff context. Other activity remains in the full audit log.",
+      ),
     userId: z.uuid().optional(),
     action: auditActionSchema.optional(),
     entityType: auditEntityTypeSchema.optional(),

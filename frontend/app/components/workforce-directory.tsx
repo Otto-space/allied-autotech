@@ -31,12 +31,13 @@ function Directory() {
     search = useSearchParams(),
     session = useAccountSession();
   const target = /^\/admin\/workforce\/access\/([^/]+)$/.exec(pathname)?.[1];
-  const back = search.size ? `${base}?${search.toString()}` : base;
+  const backBase = search.has("review") ? "/admin/workforce/reviews" : base;
+  const back = search.size ? `${backBase}?${search.toString()}` : backBase;
   if (target)
     return (
       <section className="workforce-directory">
         <Link className="text-link" href={back}>
-          Back to People
+          {search.has("review") ? "Back to access reviews" : "Back to People"}
         </Link>
         {z.uuid().safeParse(target).success ? (
           <WorkforceAccessPanel key={target} userId={target} personPage />

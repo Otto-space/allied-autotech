@@ -26,12 +26,17 @@ customer-security-quality.spec.ts > customer security fits 320px
 customer-security-quality.spec.ts > customer security fits 1440px
 dashboard-navigation.spec.ts > shared navigation is accessible at 320px
 dashboard-navigation.spec.ts > shared navigation is accessible at 1440px
+dashboard-navigation.spec.ts > sidebar preserves the desktop choice across mobile without stranding keyboard focus
+dashboard-navigation.spec.ts > sidebar restores browser-evicted focus while preserving the desktop choice
+dashboard-navigation.spec.ts > sidebar preserves the desktop choice across mobile without moving content focus
 garage-photos-quality.spec.ts > photo accessibility 390
 garage-photos-quality.spec.ts > photo accessibility 1440
 saved-items-quality.spec.ts > parts is readable at 320px
 saved-items-quality.spec.ts > parts is readable at 1440px
 work-aftercare.spec.ts > named navigation, actual history facts and selected review survive responsive layouts
 work-audit.spec.ts > audit history and expanded inspection at 320
+workforce-access-reviews.spec.ts > access review layout and controls at 320
+workforce-access-reviews.spec.ts > access review layout and controls at 1440
 work-booking-detail-quality.spec.ts > long service and line descriptions remain readable on mobile
 work-bookings-quality.spec.ts > workshop records and expanded filters fit 320px
 work-branches.spec.ts > branch workspace foundation at 320
@@ -247,3 +252,22 @@ saved-items-navigation.spec.ts > saved navigation 360x800 > vehicle collection s
 saved-items-navigation.spec.ts > saved navigation 320x720 > vehicle collection survives detail, Back, Forward and reload
 saved-items-navigation.spec.ts > an open removal review stays bound to its collection through a URL change
 saved-items-navigation.spec.ts > saving a vehicle opens its vehicle collection from the receipt
+
+access-history.spec.ts > recorded access history fits 320
+access-history.spec.ts > recorded access history fits 360
+access-history.spec.ts > recorded access history fits 390
+access-history.spec.ts > recorded access history fits 430
+access-history.spec.ts > recorded access history fits 768
+access-history.spec.ts > recorded access history fits 1024
+access-history.spec.ts > recorded access history fits 1280
+access-history.spec.ts > recorded access history fits 1440
+access-history.spec.ts > missing historical facts stay missing while current names remain explicitly current
+access-history.spec.ts > history filters retain the scoped view and full audit keeps the original response
+access-history.spec.ts > an unrelated server event is rejected instead of being counted as an access change
+access-history.spec.ts > denial clears recorded identities and ordinary staff never fetches history
+access-history.spec.ts > ordinary staff cannot fetch the history view
+access-history.spec.ts > long current names and enlarged history text preserve keyboard inspection at 320
+access-history.spec.ts > long current names and enlarged history text preserve keyboard inspection at 1440
+access-history.spec.ts > the owner can open the current history destination
+access-history.spec.ts > history cursor paging retains its scoped view without putting references in the URL
+access-history.spec.ts > history distinguishes an unavailable read from no recorded changes and recovers

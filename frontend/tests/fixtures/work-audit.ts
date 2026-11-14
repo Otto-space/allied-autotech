@@ -65,7 +65,12 @@ export async function workAuditFixture(page: Page, role = "ADMIN") {
       const index = rows.findIndex((r) => r.id === q.get("cursor"));
       rows = index < 0 ? [] : rows.slice(index + 1);
     }
-    const items = rows.slice(0, 25);
+    const items = rows.slice(0, 25).map((row) => {
+      if (q.get("view") === "ACCESS_CHANGES") return row;
+      const { currentContext: _context, ...original } = row;
+      void _context;
+      return original;
+    });
     return route.fulfill({
       json: {
         success: true,
