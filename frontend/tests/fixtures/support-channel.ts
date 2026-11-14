@@ -1,4 +1,5 @@
 import type { Page, Route } from "@playwright/test";
+import { publicCapabilitiesFixture } from "./public-capabilities";
 import type { CareChannel } from "@/lib/api/support-channel-schemas";
 
 const uuid = (n: number) => `f1600000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -71,6 +72,11 @@ export async function supportChannelFixture(
     });
   const fail = (route: Route, status: number, code: string) =>
     route.fulfill({ status, json: { success: false, error: { code } } });
+  await page.route("**/api/v1/public/capabilities", (route) =>
+    route.request().method() === "GET"
+      ? ok(route, publicCapabilitiesFixture())
+      : fail(route, 405, "METHOD_NOT_ALLOWED"),
+  );
   await page.route("**/api/v1/auth/csrf", (route) =>
     ok(route, { csrfToken: "isolated-channel-csrf-".repeat(3) }),
   );

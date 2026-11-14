@@ -1,3 +1,19 @@
+## 14 November - Allie acceptance reconciled with current account and owner decisions
+
+Preserve master dcac8157 and the current 132-migration backend source. The earlier
+Allie 112-migration release scope is superseded. Prior-source f52ca1f1 passes the
+compiled 59-case Allie/Care campaign and backend gate; its full frontend gate is
+still running. These results are not exact-source or real-role acceptance for
+this combined candidate. Keep the current 60-minute full matrix budget and add
+the separate ten-minute Allie campaign to the job allowance. All existing
+account, Admin, order and Allie assertions/coverage remain selected.
+
+No live publication or permission change is claimed. Owner-confirmed USD10 monthly
+hard limit and Mon-Sat 08:00-18:00 Port Harcourt coverage remain approved; audited
+coverage configuration, operator opt-in, actual delivery/handoff/reconnect and
+final source/compiled/live verification remain required. Disk reserve blocks
+local packaging; see the completion tracker for measured cleanup and constraints.
+
 ## 14 November - account integration includes the current owner-decision baseline
 
 Preserved master 02439cdc, including the separately reviewed owner-decision/order
@@ -368,6 +384,39 @@ failure assertions. No layout, media association or carousel logic changes.
 Rendered acceptance/publication for the wording correction is pending. Preserve
 the separate D17 integration and all operational/provider acceptance boundaries.
 
+## 14 November - Allie and human chat activation acceptance
+
+Owner-approved target: Allie plus human live chat in production. Human coverage is
+Customer Service Officer, Port Harcourt, Monday-Saturday 08:00-18:00 Africa/Lagos.
+The production owner-only support-coverage build flag is now configured; its prior
+absence hid the editor. No frontend build/promotion or live-chat activation has
+occurred. Existing API authorization, reviewed mutation flow, branch isolation,
+explicit operator opt-in and offline queued-message fallback remain authoritative.
+
+The new backend fix aligns model output constraints with the existing validator
+after a real answer supplied an empty caveat instead of null. No visible redesign,
+new action, capability permission or help-guide target changes. Current focused
+evidence is 110 backend units and 73 frontend units (one startup failure followed
+by a successful eight-test retry), not completed real-role/provider/browser journeys.
+The new 132-migration native test attempt was stopped for disk reserve and does not
+count as passed. Current activation source is isolated on 112-migration master.
+
+The standard frontend matrix omitted the dedicated conversation, handoff, privacy,
+channel and owner-coverage suites. A separate compiled-build CI campaign now
+collects59 existing cases across those five suites. Its build explicitly enables
+the owner-only editor; its synthetic Allie/channel fixtures supply their declared
+browse/enquiries availability so a refresh cannot escape to the CI placeholder.
+No console assertion or unavailable-state check is relaxed. Dedicated artifacts
+retain this campaign separately, and the original full matrix keeps its existing
+per-test and45-minute step limits. Actual new-campaign results remain pending.
+
+Verify guest/customer AI start, send/follow-up, cancel, clear, quota/error recovery,
+privacy and ownership; owner schedule review/save/recovery; scoped representative
+opt-in/heartbeat/claim/reply/end; customer public messages, reconnect and handoff at
+390/1440px with keyboard and console checks. Hosted/real-role browser acceptance
+is outstanding: Computer Use rejected the current URL, and must not be bypassed.
+See the matching site-completion-tracker entry for provider/release dependencies.
+
 ### 14 November: cancelled-order payment guidance correction
 
 The compiled cancelled/refunded fixture shows verified returned funds above a
@@ -424,7 +473,7 @@ screenshots inspected. These are synthetic compiled journeys, not actual provide
 bank or real-role acceptance. Both scoped access tokens were revoked and cookie
 files removed. New exact-commit CI and all production backup/restore,20 forward
 migration, packaging/readiness and alias gates still precede publication.
-C: measured20.79GiB after testing; the20GiB reserve is retained. Local full-image
+C: measured20.79GiB after testing; the 20 GiB reserve is retained. Local full-image
 packaging remains unfinished after the cold-cache build was stopped; no successful
 image manifest or production migration is claimed.
 
@@ -812,7 +861,7 @@ did not run. Preserve report.json and its safe screenshot. It is not a30-case pa
 The separate seven-case run does not replace the full CI vehicle checks.
 
 The C48 runtime equivalence proof applied only throughd951. Master9152 changes
-backend audit/learning/workforce inputs without changing the112 migrations. A new
+backend audit/learning/workforce inputs without changing the 112 migrations. A new
 compatible package and actual-image/recovery checks are required; do not run old
 C48/9bf/518 apply helpers or promote their held frontends. Current release worktree
 already records this mismatch in TEMP/allied-9152db07-release-readiness.json. Its
@@ -829,7 +878,7 @@ customer/stock/price/financial record, permission or activation flag changed her
 ## 14 November 01:08 UTC - repaired master acceptance and current release reconciliation
 
 PR78 is merged as e2e1c9672ac526f8107f14870e98dd0f9f31d34e. Its actual compiled
-Preview dpl_AuEHA3eA5PZYEyLmuz8Vvb7rtH3A passes15/15 isolated cases with zero
+Preview dpl_AuEHA3eA5PZYEyLmuz8Vvb7rtH3A passes 15/15 isolated cases with zero
 skips, flaky or unexpected results: seven consent-suppression cases, privacy
 review cancellation, four long-identity responsive cases and three sidebar
 breakpoint cases, including returning with the drawer open. Report hash and
