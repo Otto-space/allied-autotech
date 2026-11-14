@@ -218,7 +218,7 @@ export function HomeHero() {
                 ),
             )}
             {state.failed[state.current] && (
-              <span className={styles.unavailable}>Editorial image unavailable</span>
+              <span className={styles.unavailable}>Image unavailable</span>
             )}
           </div>
           <div className={styles.controls} data-carousel-controls>
