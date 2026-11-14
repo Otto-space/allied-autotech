@@ -1,3 +1,29 @@
+### 14 November: freeze the combined release source with newer MFA focus ownership
+
+Preserve masterb39bd0aa's actual delayed-security-key focus repair and its two
+explicit regression tests. Both the moved-focus and ordinary next-action paths
+remain selected alongside this branch's settled-method layout checks. The complete
+MFA15-case campaign passes on the recorded earlier compiled runtime; the incoming
+MFA repair has its own compiled evidence. Neither is a full final-source gate.
+The measured-person repair remains exactly the newer master implementation.
+
+Collection corrects the earlier14-case estimate: viewport-navigation contains12
+existing cases. Required CI now selects that whole file without weakening its
+assertions. Preview0b6 exists, but its absent Ask Allie build feature makes the
+support campaign unsuitable; that owned run was stopped after confirming the
+missing control. It is not product acceptance. Use a private production-environment
+candidate for the final rendered campaign; public domains remain unchanged.
+
+Merged scoped lint and focused browser-test types pass. The real112-to132 populated
+restore retains its prior verified receipt and original-column hashes; no backend
+runtime or migration byte changed in this UI reconciliation. Managed backup metadata
+now shows8 backups, latest2026-11-14T05:22:12Z. DigitalOcean's current documentation
+states daily backups, seven-day PITR and encryption at rest/in transit; this is
+provider documentation plus live metadata, not a fresh managed PITR restore claim.
+Exact combined-master checks, matching four images, fresh final backup, image/runtime
+and rendered acceptance still precede production publication. No policy flag,
+permission, financial identity or original D01-D17 requirement was changed.
+
 ### 14 November: corrected MFA compiled campaign passes; reconcile latest test safeguards
 
 The final corrected MFA campaign passes15/15 against the held80e build: all10
@@ -13574,3 +13600,27 @@ TEMP/allied-person-header-989-baseline and TEMP/allied-689-runtime-failure-20261
 Selected ZIP CRCs verified; the full archive digest was not fetched/verified.
 Older masterdcac also has a separate MFA1024 Home-link focus failure; it remains
 unresolved and is not covered by this person-context-only repair.
+
+## 14 November - delayed security-key response must preserve newer focus
+
+Confirmed the MFA1024 CI failure with a controlled compiled d06 response: after
+the user focuses Home, security-key preparation unconditionally focuses its next
+button. Candidate retains preparation's focus origin, respects a newer active
+control and preserves normal next-action focus when the user has not moved.
+Two targeted regressions are included in the existing account-design selector.
+Existing layout/focus tests, security contracts and flags remain unchanged.
+Baseline: TEMP/allied-mfa-focus-baseline-d06. Rendered fix acceptance is pending.
+
+## 14 November - compiled MFA focus acceptance completed
+
+Compiled c6f4b92e passes 22/22 executions in 14.3 minutes: two new focus
+regressions repeated three times, the original 1024px scenario repeated three
+times, nine remaining layout widths and four accessibility widths (16 distinct
+scenarios). Strict existing focus/layout assertions and zero-page-error checks
+remain. Full no-emit TypeScript and scoped lint/format/diff pass. Evidence:
+TEMP/allied-mfa-focus-c6f4b92e/report.json and safe challenge-focus captures.
+These are synthetic authentication responses on a compiled protected Preview;
+real MFA hardware, account mutation and physical-device acceptance are untested.
+PR98 is integrated with master026d9fe2, preserving PR97 fixture timing repair
+and all 132 migrations. Exact resulting-master CI and recovery/release checks
+remain mandatory before publication. No capability flags were changed.
