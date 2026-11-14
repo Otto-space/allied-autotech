@@ -1,4 +1,8 @@
 import {
+  registerBuyerSupplyRoutes,
+  registerStaffSupplyRoutes,
+} from "./order-supply-exception.routes.js";
+import {
   registerBuyerPickupRoutes,
   registerStaffPickupRoutes,
 } from "./order-pickup.routes.js";
@@ -34,6 +38,7 @@ export function createCustomerOrdersRouter(): Router {
   const controller = new OrdersController();
   router.use(authenticate(), requireCustomer);
   registerBuyerPickupRoutes(router);
+  registerBuyerSupplyRoutes(router);
   router.post(
     "/checkout",
     requireCsrf,
@@ -81,6 +86,7 @@ export function createStaffOrdersRouter(): Router {
   const controller = new OrdersController();
   router.use(authenticate(), requireStaff);
   registerStaffPickupRoutes(router);
+  registerStaffSupplyRoutes(router);
   router.get("/", validate({ query: staffOrderListQuerySchema }), controller.staffList);
   router.get(
     "/:orderId",

@@ -40,6 +40,7 @@ export const refundStatuses = [
   "CANCELLED",
 ] as const;
 export const refundSchema = z.object({
+  supplyRemedyChoiceId: z.uuid().nullable().optional(),
   id: z.string().uuid(),
   refundNumber: z.string(),
   paymentAttemptId: z.string().uuid(),

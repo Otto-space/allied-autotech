@@ -1,3 +1,26 @@
+## 14 November - account integration includes the current owner-decision baseline
+
+Preserved master 02439cdc, including the separately reviewed owner-decision/order
+and payment work. This adds 20 forward migrations beyond the live 112 baseline.
+It supersedes the earlier b0cf-only compatibility scope: publication of this
+combined frontend now requires the matching backend release and its full safety
+gates. No migrations or backend rollout were run by the account-design task.
+
+The other release task has a b0cf packaging receipt marked stopped-before-completion
+because its revised 2 GiB growth estimate needs 22 GiB free. That package also
+predates the 20-migration owner-decision integration; it does not qualify 02439cdc.
+Do not repeat its build or apply helpers or publish against the old backend.
+
+Combined collection now selects 1,470 tests in 77 files, including all original
+1,337 project/file/title identities and all 91 account cases. Earlier 1,434 was
+correct for b0cf and is superseded by this integration. The isolated test callback
+is named runPage to avoid React-hook lint interpretation. Inventory regeneration
+finds 120 routes and 404 interaction/boundary source files; recorded coverage and
+evidence remain unchanged. Collection is not an execution result.
+Evidence: account-design-20261114/integrated-02439cdc-required-collection.json and
+master-02439cdc-journal-merge.json. Exact integrated/master checks and held-build
+acceptance remain pending; public 6c52 and Groups 6-10 remain as recorded.
+
 ## 14 November - integrated account test transport and current Admin source
 
 Integrated current master b0cf0f0e, preserving its Admin workspace changes and
@@ -178,6 +201,65 @@ records and evidence; 13 newly inventoried routes remain not-inspected. Groups
 newer master 19aee07d, whose changes are test evidence and journals, in the next
 batch; it is not misreported as the published source.
 
+### 14 November: prepare the complete owner-decision master integration
+
+Reconciled financial/copy follow-up6fca2fdc with masterb0cf0f0e in the existing
+worktree on release/owner-decisions-integration-20261114; no worktree or dependencies
+were copied. Preserve the cancelled-payment and hero guidance, current Admin-baseline
+workspace, owner-delegated duty-page checks, version11 Team guidance and strengthened
+painted-control probes. The taller-header and short-viewport People cases remain.
+Financial/payment modules and all132 migration inputs are byte-for-byte unchanged
+from6fca. No original amounts, permissions, invoice identity, policy approval or
+capability flag was invented or activated. D01-D17 scope and its unresolved values
+remain in the decision checklist; booking and purchasing readiness remain separate.
+
+Merged source passes scoped ESLint, full frontend no-emit TypeScript, focused
+navigation-test TypeScript and17 backend learning units. Earlier193 native financial,
+53 compiled People/supply journeys and the follow-up8-case combined preview remain
+scoped evidence, not full combined-source or real-role/provider acceptance. Exact
+master frontend/backend/secret gates still precede production publication. Current
+production stays on backende40c9a13 and frontendGAB;20 forward migrations113-132,
+fresh backup/populated restore, matching four images and runtime checks remain.
+
+Correct the earlier Git-link inference: project inspect's11-field summary omitted
+Git details. The raw52-field Vercel project API confirms a GitHub link whose
+production branch is release/public-launch-20261022, with root frontend. Master
+integration does not assign public domains. Preserve that connected historical
+branch and provider configuration. DigitalOcean's four components remain image
+sources with no Git auto-deploy. No deployment, database or financial mutation was
+performed by this integration preparation.
+
+Local cold builds remain stopped until a passing disk preflight. A transient11.32GiB
+free-space check failed; later independent measurements returned above20GiB. Windows
+page-file allocation was about18.6GiB, without an earlier baseline proving the cause.
+A single online trim of Docker's identified ext4 filesystem reported28.7MiB discarded;
+no physical host-space gain is claimed. The page file, application/database volumes,
+current/rollback resources, source and history were retained. No further cache purge
+or Docker/WSL shutdown was used. The20GiB reserve remains mandatory for agent stages.
+
+### 14 November: reconcile cancelled guidance with current master and fixture repair
+
+Merged scoped availability repair b3108a85 and master add252a6 into this follow-up,
+retaining both complete journal histories. The selected caller-owned supply fixture,
+focus refresh and strict console/privacy/no-write checks match b310 byte-for-byte;
+the provisional shared customer-order transport is absent. Backend runtime, API and
+all132 migration inputs are unchanged from b310. No financial or permission rule changed.
+
+PR88's hero wording correction is merged after all three branch gates passed:
+frontend43548717414 reports1,337 browser passes and1,591 units with12 explicit skips;
+backend43548717431 and secrets43548717423 pass. Master add252a6 needs its own gates
+before publication. This combined source retains that hero correction and the new
+cancelled-payment explanation. Combined compiled Preview7f4f385c passes8/8 in176s:
+four cancelled-customer reads at320/1440 with focus refresh/reload and a deterministic
+500 fallback-leak guard, plus four failed-hero-image cases at320/1440. The original
+strict privacy/no-write/console assertions remain. Both payment-card captures were
+visually reviewed. Receipt: TEMP/allied-combined-7f4f385c/verified.json. The task-owned
+loopback fixture28832 was stopped and its port closure verified. This is compiled
+synthetic acceptance, not real-role/provider/device proof. Final CI/publication remain.
+Enabled unpaid review remains for the isolated full-capability CI environment.
+Preserve the independent D17 worktree and all20 forward-migration/recovery/release
+gates; no production alias, database, record or capability activation occurs here.
+
 ## 14 November 04:11 UTC - Admin duty entry focused verification complete; integrate next
 
 The03:06-04:06 implementation package is signed through9c297935, with a final
@@ -339,6 +421,417 @@ and exact-source publication for this small correction are pending. D17 remains
 with its independent integration owner; do not overwrite that active worktree.
 The second historical Docker review stopped on a changed inventory before deletion;
 no additional images or volumes were removed by that review.
+
+### 14 November: cancelled-payment guidance follows recorded status
+
+Safe compiled D17 fixture screenshots show a contradiction: the supply panel says
+the original refund is independently verified, while the generic Payment card asks
+the buyer to get the payment resolved. Replace that cancelled/paid explanation with
+a direction to payment records for refund updates and optional Customer Care help.
+The original payment remains recorded; this change derives no new refund outcome,
+amount, entitlement or approval. Update the existing paid/cancelled browser assertion;
+creation/cancellation restrictions and all financial state logic remain unchanged.
+Scoped lint/format/diff pass. Actual compiled Preview7ae94906 passes four distinct
+read-only cancelled-customer cases at320/1440 (no capture and returned funds), with
+the original privacy/no-write/console assertions unchanged. Payment-card captures
+at both widths were visually reviewed. Receipt: TEMP/allied-cancelled-copy-7ae94906/
+verified.json. The initial broader run passed those four but stopped at an unpaid
+review control disabled by the restricted Preview; its final laptop case did not run.
+Do not call it a six-case pass. Enabled unpaid review remains for isolated full-mode
+CI; its original source assertion is retained. No server/deployment flag changed.
+Publication and final integration checks remain pending.
+
+D17 frontend43548771412 failed its strict console check after the cancelled-order
+privacy/state checks passed. The downloaded artifact14095024714 matches its SHA256;
+the failed trace proves one500 at /api/v1/public/capabilities, falling through to the
+CI placeholder rewrite. Safe projected evidence is TEMP/aat-attendance-20261104/
+d17-70e-supply-failed-network-20261114.json. No console assertion was weakened.
+A provisional shared loopback transport passes four exact read-only cases at320/
+1440 against the unchanged compiled53150 application, including a deterministic
+placeholder-leak guard. It was set aside when the independent D17 owner began a
+scoped caller-owned capability fixture and focus-refresh repair. That owner's fix
+needs its own final acceptance; do not count the provisional four passes as that.
+Candidate access was revoked, remote remaining grant count is zero, cookies stayed
+in memory and task-owned fixture26424 was stopped. The source worktree is preserved.
+Ordinary live browser acceptance remains blocked by the current-URL safety check.
+
+### 14 November: isolate supply recovery availability after window focus
+
+Exact70e6dce8 backend43548764313 and both secret checks pass. Frontend43548764352
+and43548771412 stop in the order-sourcing preflight before the full matrix: an
+unmocked public-capabilities request escapes the shared customer fixture to the
+CI api.example.com placeholder and returns500. The customer order fixture explicitly
+delegates that policy endpoint to its caller; this suite had omitted that dependency.
+No browser console error was ignored or allowlisted by this correction.
+
+The supply suite now supplies its explicit browse-enquiries policy for customer
+reads, retaining checkout/deposit restrictions and the guest/staff fixtures. Its
+cancelled-customer privacy journey also verifies an availability refresh on window
+focus before reload. A focused held probe with a500 fallback reproduces the gap
+(expected200/received500); all8 customer/guest privacy variants then pass with the
+same unhandled-request trap. The complete current source supply-concern suite passes
+34/34 against held70e6dce8 in isolated Chrome157, including customer choice, owned
+refund linkage, settlement/physical history, no-goods closure, cancelled reconciliation
+and private-safe refresh. Strict console, no-write and confidentiality assertions
+remain. Scoped ESLint, Prettier and focused TypeScript checks pass. Application and
+backend runtime source are unchanged; no learning policy/version/flag changed.
+
+Evidence: supply-capabilities-focus-baseline.log (expected red),
+supply-capabilities-isolation-final.log (8 passes) and
+supply-source-final-held-browser.log (34 passes), in the established private TEMP
+folder. Source70's held People/sidebar19-case Chrome run also passes, with tall/short
+screenshots inspected. These are synthetic compiled journeys, not actual provider,
+bank or real-role acceptance. Both scoped access tokens were revoked and cookie
+files removed. New exact-commit CI and all production backup/restore,20 forward
+migration, packaging/readiness and alias gates still precede publication.
+C: measured20.79GiB after testing; the20GiB reserve is retained. Local full-image
+packaging remains unfinished after the cold-cache build was stopped; no successful
+image manifest or production migration is claimed.
+
+### 14 November: preserve current master screenshot settlement and release
+
+Merged master19aee07d, including its completed upstream release receipts and the
+focus-test screenshot movement after the unchanged label/control visibility poll.
+All19 integrated People/sidebar cases, including the taller header and short-height
+fallback, remain. Application source is unchanged from compiled53150d0a; backend
+source is unchanged from b34c846b's successful hosted132 replay and isolated gate.
+Fresh exact-commit checks still govern integration/publication; older passes remain
+previous-source evidence. No live record, permission, price or commerce flag changed.
+
+The concurrent backend e40c9a13 is ACTIVE and was retained; the public apex now
+identifies dpl_GABPemCubUZP16cbJ8EgZum1TSKv. The old image-cleanup guard stopped
+before deletion when that deployment appeared. After refreshing retention,23 obsolete
+October image copies (46 local tag references) were removed with per-image container,
+worktree, ancestry and provider checks, preserving the current and three preceding
+successful backend deployments, remote registry copies and all database volumes.
+Physical Windows free space is measured separately; image sizes are not added.
+
+A provisional b34 four-image build encountered cold dependency layers, invalidating
+its warm-cache growth estimate. Only its exact-source Docker CLI/plugin were stopped;
+the build exited1 and produced no build manifest or verified b34 images. C: remained
+above20GiB (last21.21GiB). Full packaging still needs a passing justified preflight;
+no reduced reserve, source rewrite, forced cleanup or production migration was used.
+
+### 14 November: compiled integrated focus acceptance completed
+
+Held production-environment candidate dpl_CqL2KVfDDecbhMRUa5unyXm8okaW,
+source53150d0a, passes19/19 compiled Chromium fixture journeys: three responsive
+sidebar transitions, eight directory widths320-1440 and eight person-focus cases.
+These retain keyboard Tab, enlarged full identity, measured356px band, stale header
+inset, taller header and painted label/control edge assertions; the520px-height
+case verifies release of stickiness when the complete identity cannot fit.
+The tall-header and short-screen password screenshots were visually inspected.
+The two-case edge preflight also passed. Logs are integrated-label-final-full-browser.log
+and integrated-label-final-held-browser.log in the established private TEMP evidence
+folder. Scope is rendered fixtures, not real-role, physical-device or payment acceptance.
+Temporary candidate access was revoked and its cookie file removed.
+
+Corrected the first candidate's overly conservative vertical clearance; final
+geometry retains two pixels above/below the focus band. No assertion was dropped.
+Exact-source CI is still running and PR87 remains draft. Master6c52b934 is preserved.
+Both live aliases remain dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y; backend36687b08 is ACTIVE
+with no pending rollout. No production publication or database write occurred.
+The complete release includes20 forward migrations113-132 relative to master;
+all132 replayed in the193-test isolated financial run. Required exact-master checks,
+recovery/backup/restore, matching four-image packaging and runtime gates remain.
+
+C: measured20.12GiB after the browser run. A measured single-worker, trace/video-off
+19-case run used a bounded0.1GiB allowance; the cloud-only source upload used0.05GiB
+without local build/install/archive. Full local build capacity is not established.
+Automatic approval review rejected deletion of the tiny aborted-browser profile
+with "blocked by policy"; it remains untouched. Other active worktree caches, source,
+Git history, database volumes, current/rollback images and owner files were retained.
+
+### 14 November: integrate current access review and complete People focus bounds
+
+Reconciled master6c52b934 with the D17 recovery batch, retaining the read-only
+access history/review journeys, permission checks, learning content and strengthened
+keyboard/sidebar coverage. Regenerated the combined 555-operation contract inventory;
+no operation from either parent is removed. Earlier masterd951 UI fixes remain.
+
+The existing compiled177f candidate fails the strengthened tall-header320px test:
+the selected-person band obscures the password label. Preserve that failed baseline.
+The integrated component measures labels with controls, cancels stale document
+insets, compacts only band padding when needed and releases stickiness if a short
+viewport cannot accommodate the full identity plus a usable field. Manual wheel/
+touch scrolling suppresses resize-driven focus recovery until the next focus event.
+All seven parent focus cases are retained; a short-height case covers the fallback.
+Rendered acceptance of this new source is pending; the older16-case pass is not
+counted for it. Scoped frontend lint/types, backend types,27 access frontend units,
+17 backend learning units and13 collection-clock units pass. Collection remains five
+Mon-Sat days including holidays, after both actual readiness and successful notice;
+imported/custom parts use the same rule. No financial activation, record mutation,
+provider configuration or public alias change is authorised by these fixture results.
+
+### 14 November: latest master UI fixes reconciled with D17
+
+Integrated masterd951b240, preserving open-drawer desktop focus return, capability-
+aware vehicle section navigation, garage focus-ring padding and stronger tablet/
+collapsed-sidebar keyboard assertions. The enlarged320px/tall-header People case
+and privacy-safe geometry diagnostics are retained alongside those new cases.
+Backend runtime/SQL are unchanged from fc271455's132 replay and193 native/77 unit
+passes. The existing generic refund form's unchanged request body supports the new
+bounded backend recovery; no frontend permission or transaction field was added.
+
+Frontend6df28b6e43534523080 passes the complete gate:1602 units/12 explicit skips,
+1309 runtime browser cases and all smaller transport/media/browser checks. That
+older-source pass does not qualify the changed merged UI; fresh compiled targeted
+acceptance and exact-master checks remain required. The Vercel connector omits Git
+configuration; authenticated CLI inspection verifies the project is unlinked from
+Git, so updating master cannot silently assign its public domains. No provider
+configuration, live alias, database, price or permission was changed.
+
+### 14 November: actual buyer cancellation refund recovery (source)
+
+The existing Payment records request now supports actual pre-confirmation account
+or verified-guest buyer cancellations despite a supply concern. It binds genuine
+immutable cancellation/ownership, canonical capture, saved zero-fee rule and the
+approved manual-refund policy; it permits only the full remaining amount. Staff
+cancellation, technical/unknown history, partial guesses and unsettled money stay
+held. No approval, bank transfer, handover, stock action or new grant is created.
+The private evidence stays immutable and out of buyer/queue output.
+
+Fresh132 replay/schema diff/db:check and three real isolated service journeys pass,
+with separate request/approval/transfer/check, replay, privacy and protected scope.
+Initial fixtures used a nonexistent Payment.guestId and an unversioned guest key;
+corrected fixtures follow the actual original-Order identity and aftercare protocol.
+Forward132 repairs the guard; already replayed131 remains unchanged. Final132 broad regression passes193/193 across15 files, including existing
+guest aftercare and payment/refund/pickup/concurrency journeys. The focused
+provider/learning/calendar/timing aggregate passes77/77. All owned focused tmpfs resources were removed. Refund-work
+v12, financial-aftercare v6 and admin sourcing v11 keep their existing eligibility,
+targets and flags. See docs/help-learn/SUPPLY_CANCELLATION_RECOVERY_20261114.md.
+
+Only34 verified obsolete compiler pack files (158.53MiB) were removed from this
+worktree after bounded retention/process checks; C: measured20.262->20.417GiB at
+cleanup. Unknown resources, runtime, databases, backups, images and source remain.
+This backend-only batch preserves the running frontend43534523080 on6df28b6e;
+its backend43534523130 and secrets43534523129 pass. No production change or
+purchasing activation. Final native/hosted/master/recovery gates remain separate.
+
+### 14 November: integrated sidebar and People compiled acceptance
+
+Held READY dpl_4ZwQdnSw7Hgmj5VjecTxwHTsWuRx on d1fde372 passes13/13:
+two real rendered responsive sidebar focus/preference cases and eleven People
+cases at eight widths320-1440, including enlarged text/tall320 header. The safe
+phone fixture capture was inspected. This is compiled held rendering with API
+fixtures; it is not real workforce/physical-device acceptance. Both master6797
+sidebar recovery and the measured People gap repair remain.
+
+The first held run reached Vercel login because its temporary share URL used the
+wrong token mechanism. It was stopped and its token/cookie state revoked/removed;
+it is not application failure or acceptance. The corrected setup asserts the
+intended application host/body before testing. Its13 cases pass with process
+exit0; the second scoped token and cookie file were also revoked/removed.
+
+Exact d1 frontend43533354333 built successfully but stopped at quality-register
+Markdown formatting before the broad browser matrix. Journals are formatted with
+the repository Prettier; no runtime, assertion, permission or migration is changed
+by this correction. New exact-source checks still govern release. Native130180/180
+and76 focused units remain the current backend evidence. Production read-only
+inspection found ACTIVE36687b08 and all four digests matching local source tag
+6a9318a6; managed backups list eight, latest13November05:22UTC. No fresh populated
+restore, migration or public promotion is claimed. Current master, recovery and
+rollback resources remain preserved; the owner Desktop hero is untouched.
+
+### 14 November: provider-observed negative attempts (prepared source)
+
+D17 now saves private immutable provider observations, with exact current
+post-cancellation failed/abandoned evidence for explicit cancelled-order review.
+No-attempt and positive-capture V1 proofs retain their output; V2 carries private
+negative proof and never becomes bank-absence or refund assurance. Repeated same
+facts reuse evidence. A pending/reversed result, new capture, anomaly or earlier
+possible funds prevents clearance; no stock, financial grant or handover is created.
+The Monnify adapter preserves REVERSED separately from FAILED.
+
+Fresh129 replay/schema diff/db:check and four focused real isolated journeys pass.
+Initial broader regression passes180/180 across14 files, including actual payment,
+refund, pickup, quote and concurrency flows with injected provider/storage fixtures.
+76 provider/learning/calendar/timing units, source/focused-test types, scoped lint,
+472-path OpenAPI validation and4044-file secret guard pass. Forward130 adds the
+historical positive-evidence hold. Fresh130 replay/schema diff/db:check and the
+final full native run pass180/180 across14 files, with owned tmpfs cleanup verified.
+Owned129 tmpfs resources were removed. No shared database or real provider was used.
+
+Customer/staff collection guides are v7/v6, admin sourcing v10 and restricted refund
+work v11, retaining eligibility, semantic targets and publication flags. D04's ledger
+row was corrected to the actual revised pre-payment checks, preserving the separate
+no-booking-deposit rule. See docs/help-learn/PROVIDER_NEGATIVE_OBSERVATION_20261114.md.
+Current85f08280 backend43529867157 and secrets43529867280 pass; frontend43529867183
+remains running. Those checks are previous-source evidence, not the new migration's
+release gate. Owner Desktop hero and both public aliases remain untouched. Final
+exact integrated-source CI and production recovery/migration/runtime
+safeguards still precede publication. Purchasing stays gated; legacy partial and
+operator/guest recovery plus actual owner/provider/role inputs remain open.
+
+### 14 November: current gallery/focus fixes integrated and verified
+
+Merged master9bf8a26e, preserving the mobile vehicle gallery dock-clearance repair,
+reviewed source journals, Ubuntu24.04 browser runner pin and master CI scheduling.
+Exact bd2b0870 backend43526065290 and secrets43526065165 pass; frontend43526065153
+is running at this checkpoint. D17 service/financial SQL remain unchanged.
+
+Held bd2 candidate dpl_BXefKdEyrZ1npw4VbC4i9rKzvdin passes14/15 supplemental
+checks: all four touch/landscape photo-navigation cases use actual published
+public vehicle data with GET-only protection; eight directory widths and ordinary
+enlarged identities pass. The320px taller-header case genuinely fails: a painted
+edge is occluded by A.whatsapp-control after explicit native scrollIntoView.
+Current root scroll-padding already includes the header plus16px focus gap; the
+merged local margin added that gap again. Source9bf16582 retains the upstream
+single-header correction and counts only the measured sticky identity height.
+Native browser, local measured and shared focus reveal then use the same inset.
+No window scroll listener, assertion reduction, hidden dock or extra timeout.
+
+Corrected source9bf16582 is READY at held deployment
+dpl_HvuykgSyBLJXKGNrKS2Y8TD2WKDs. All11 People checks pass at eight widths
+320-1440px, including enlarged identities and the320px taller-header native focus
+case. The focused action is fully above the dock; its safe fixture screenshot was
+visually inspected. Four real public-gallery touch cases from bd2 remain applicable
+because this correction changes only People CSS/test comments. The earlier14/15
+red result is retained as regression evidence, not counted as a pass.
+All supplemental scoped links/cookie state were revoked/removed. The preceding
+D17 fixtures/native evidence and the owner Desktop hero remain preserved. New
+exact-source CI and production safeguards still precede publication; no public
+alias, application data, stock, bank action or permission was changed.
+
+### 13 November: cancelled-order reconciliation verified batch
+
+Integrated source preserves master c48cf7b1 vehicle, dated access, privacy-focus and
+job-diagnostic repairs. Held READY frontend dpl_C3SFP4jtDNhiXZBVKHV684nGdsWr uses
+runtime4729e4bd, with no public domain assigned. All27 rendered cases pass:
+14 new cancellation/payment reviews,10 prior unit/refund closures and3 People
+focus cases including320px enlarged text/tall header. Source review and an actual
+RED held test reproduced contradictory legacy refund copy; corrected source passes.
+Screenshot review found unpaid fixtures inheriting paid dates/references. Those
+fixtures now match actual no-capture data; the14 new cases pass again with no
+fabricated payment/invoice history. Corrected desktop and phone captures and the
+People viewport were inspected. Scoped Axe/overflow and lost-response recovery
+checks pass where asserted. Temporary share links were revoked and cookie files
+removed. These are emulated/intercepted fixtures, not real role/provider/device
+acceptance.
+
+Fresh128 empty migration replay/schema diff/db:check pass on owned loopback tmpfs
+storage. The full native run passes147 cases; the expanded duplicate-refund case
+reached its final retained-history assertion and found two actual immutable reviews
+instead of the obsolete expected one. The corrected one-case focused rerun passes
+with process exit0 and verified owned cleanup. Thus148 unique native cases are
+verified across those runs; this is not described as one all-green128 full run.
+The new128 guard requires an approved review for every manual capture, including
+captures not selected as the original receipt, and holds dispute-linked anomalies.
+The actual duplicate journey preserves the original320-kobo contract and receipt,
+records640 actual captured/refunded kobo separately, rejects an unreviewed manual
+capture even after its refund, and retains both actual reviews after later concern.
+No per-unit allocation, stock return, fake handover or broad policy approval.
+
+52 guide/calendar/timing/role and29 supply/review UI units pass. Integrated API
+checks validate472 paths /555 mounted operations plus4 infrastructure routes;
+client types/inventory regenerated without dropping any prior operation or coverage
+status. The owner's Desktop hero remains untouched. Exact-source hosted checks,
+reviewed master integration and fresh production recovery/migration/runtime gates
+still precede publication. Remaining D17 code includes authoritative negative
+attempt evidence, historical partial-allocation and operator/guest full-cancellation
+recovery; actual invoice/operating/provider/role inputs remain separately recorded.
+No production alias, database, real financial record, stock or permission changed.
+
+### 13 November: cancelled original payment review (prepared source)
+
+D17 now has a distinct existing-order financial review for actual uncaptured
+cancellations and fully returned whole-order legacy/technical captures. It keeps
+positive unit-refund closure separate, preserves actual cancellation and all
+money/stock history, and rechecks original proof before replacement payment or
+fulfilment. Unknown attempts and financial/physical/technical concerns stay held.
+Forward SQL124-127 preserves earlier replayed files. The narrow cancellation
+refund recovery requests money only; general pending terms and independent
+financial approval/transfer/checking are not bypassed.
+
+52 guide/calendar/timing/role units and29 combined supply/review UI units pass. Native full127
+empty replay/schema diff/db:check and148/148 cases across11 files pass; owned
+tmpfs cleanup verified. Rendered held-candidate acceptance remains pending;
+no production publication, migration or purchasing activation occurred. See
+../../docs/help-learn/CANCELLED_SUPPLY_RECONCILIATION_20261113.md for the exact
+source journey and acceptance limits. Integrated master c48cf7b1 preserves vehicle/card, dated staff invitation,
+privacy focus and suppressed-job diagnostics repairs. Financial runtime and SQL
+are unchanged by that integration. API contracts validate472 paths/555 mounted
+operations plus4 infrastructure routes; client types/inventory regenerated.
+Both public aliases now independently identify READY dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y;
+this work did not publish it or change public aliases. The owner's Desktop hero edit remains untouched.
+
+### 13 November: settled collection calendar and refund CI fixture repair
+
+The repeated owner calendar answer matches the recorded immutable D12 policy:
+five Monday-Saturday days; holidays count; exclude the later actual readiness /
+successful-notification date; imported/custom parts use the same rule. No policy
+revision, deadline backfill or production write is needed for this confirmation.
+
+Exact-source backend run 43510111594 on 3835e818 stopped at three unit failures
+in refund-approval-atomicity.test.ts: its SQL mock returned lock IDs for the newly
+required authoritative clock query. Runtime clock enforcement is preserved.
+The fixture now returns a distinct known database timestamp only for the clock
+query, asserts that saved approvals use it, and verifies that unavailable clock
+proof prevents refund and audit writes. All 19 cases across that file, refund
+session boundaries and collection calendar pass; focused strict TypeScript,
+Oxlint, formatting and diff checks pass. Existing backend runtime/123 migrations
+and held frontend runtime remain unchanged. Secret run 43510111501 passed;
+frontend run 43510111503 remains running at this checkpoint, not accepted as pass.
+The corrected source requires its own hosted checks before publication. Current
+master e0021792 is an ancestor; the owner's dirty Desktop hero remains untouched.
+D17 technical/no-capture reconciliation and the recorded release gates below
+remain active. No stock, payment, role, production alias or database was changed.
+
+### 13 November: actual no-goods closure and current-master integration
+
+Runtime source 8f868a2a integrates master e0021792 search draft-load and native service
+filter/support-clearance repairs. Current public apex/www independently identify
+READY dpl_E6JTTbEE8ruFUsNv2YiupLWBXrq5; the shared release receipt records source 6a
+and backend 112. This work has not promoted a domain or changed production data.
+Current held candidate dpl_EgGbXf9NpmrphoDwqcDNNAL7WGP6 is READY from 8f868a2a;
+no custom public domain was assigned.
+The owner's dirty Desktop hero edit remains untouched; no other branch was retired.
+
+Backend runtime/SQL are unchanged from ac7f5f43. All 142 native cases / 11 files,
+123-migration empty replay/schema diff/db:check and restricted runtime pass; owned
+tmpfs cleanup verified. A focused rerun passes four cases; its ACTIVE-allocation
+case also exercises the actual HTTP closure endpoint: CSRF/customer rejection,
+current assured administrator,
+no-store response and real persisted closure. Exact original money, independent
+refund proof, actual handovers and consumed stock remain. Generic paid-supply
+cancellation cannot restock goods. Customer/guest projections omit private proofs.
+Contracts validate 472 paths / 555 mounted operations plus 4 infrastructure routes;
+Prisma client/API types regenerated. Source/focused types, scoped lint, 51 learning/
+calendar/timing tests, 20 supply UI units and 16 People units pass. Secret 4031 and
+canonical 123-file checkout-byte guard pass on ac7f5f43; SQL/application paths are
+unchanged by the later frontend commits. Receipts: native-supply-closure-final.log
+and native-supply-closure-http.log under TEMP/aat-d03-service-payments-20261109/.
+
+Rendered supply closure passes 10/10 on corrected held source de45a6a0: full/partial
+actual quantity display at 320/768/1440, explicit review, lost-response recovery,
+refresh, exact amounts, scoped Axe, overflow and private customer/guest views.
+Screenshots were inspected. Initial visual review corrected misleading collection-
+clearance copy after recorded closure and reconciled synthetic affected amounts.
+Current guides: customer/staff parts collection v5/v4, administrator sourcing v8,
+restricted refund-work v9. Eligibility, guide targets and publication flags remain.
+
+Prior exact-source CI 6dae2492 failed backend only on an obsolete sourcing-guide
+version assertion (5 versus 7), now maintained at v8 with role checks preserved.
+Frontend passed 1162 browser cases but failed a 320px People focus occlusion. Ordinary
+held People cases passed, so a larger-header/enlarged-name regression was added;
+it reproduced real occlusion on the earlier held build. The first local correction
+still failed the stronger case (12/13 passed on held ecf0154e). Shared and local
+focus reveal now use the same measured sticky identity; dialogs retain local focus.
+The final integrated run passes 13/13 on source 8f868a2a, including the previously
+failing enlarged-header case. Final phone/desktop closure and enlarged-identity
+screenshots were visually inspected. Scoped Axe/overflow assertions pass where
+tested. Receipt: closure-integrated-held-browser.log. API fixtures and emulated
+viewports do not prove real-role/provider/device acceptance. No assertion or
+timeout was weakened.
+The browser plugin is unavailable; existing Playwright/Chromium fixtures are used,
+not actual role/provider, physical-device or Safari acceptance. Temporary access
+links/cookies from completed runs have been revoked/removed.
+
+Remaining independent D17 work: zero-capture/cancelled and legacy/technical-reversal
+reconciliation. Verified invoice identifiers/applicability, operating account/resource
+facts, independent provider/role acceptance, exact integrated-master checks and safe
+fresh backup/off-device recovery/restore/migration/runtime publication remain. Broader
+returns/warranty is deferred. Booking and purchasing readiness remain separate.
 
 ## 14 November 02:38 UTC - settled focus evidence verified; disk block cleared
 
@@ -1984,6 +2477,83 @@ The original full audit/D01-D17 goal is active, not complete. At completion of t
 small checks C: remains above20GiB; the approved compiler cache is retained because
 automatic approval review blocked its deletion. No alternate deletion was attempted.
 
+### 13 November: no-goods financial closure verified natively; rendered acceptance pending
+
+Current source extends the integrated remaining-goods batch without losing newer
+master fixes. An assured administrator can review actual no-goods financial closure
+after independently settled original refunds and exact physical history. Original
+money, VAT, receipts and handovers remain. Only ACTIVE holds are released; CONSUMED
+stock is never restocked. No actual pickup means cancellation; an earlier actual
+partial pickup plus refunded remainder is completed by a separate financial event,
+not an invented handover. Generic paid-supply cancellation cannot restock goods.
+Customer/guest history excludes private notes, identities, hashes and proof IDs.
+Existing version/CSRF/MFA/scope, replay and uncertain-response recovery remain.
+Forward migration 123 adds immutable closure evidence and a deferred exact atomic outcome.
+
+Focused 4/4 native cases and 123-migration replay/schema diff/db:check/restricted
+runtime pass; owned tmpfs cleanup verified. Backend/source and focused test types,
+frontend focused types/lint and 20/20 units pass. Learning/calendar/timing 51/51 pass;
+OpenAPI 472 paths / 555 mounted operations plus 4 infrastructure routes and regenerated
+contracts pass. The full native run passes 142/142 across 11 files with 123-migration replay, empty
+schema diff, db:check, restricted runtime and owned tmpfs cleanup. Browser
+acceptance remains pending.
+The previous hosted backend run43496690592 failed a stale guide-version assertion
+(5 versus 7); it is corrected for current sourcingv8 with permission checks retained.
+Customer/staff collection guides now v5/v4, admin sourcing v8 and restricted refund v9;
+publication flags remain unchanged. See docs/help-learn/
+NO_GOODS_FINANCIAL_CLOSURE_20261113.md for full scope and evidence limits.
+
+Remaining D17: zero-capture/cancelled, legacy-allocation and technical-reversal
+reconciliation. Actual financial/operating facts, provider/real-role acceptance and
+exact-master CI plus guarded fresh backup/recovery/restore/migration/runtime/alias
+publication remain separate gates. No production database or public alias changed.
+
+### 13 November: remaining original goods integrated; native regression verified
+
+Source d5fde376 integrates remaining-goods implementation 1841a467 with master
+6a9318a6. Newer People context/access, invoice hierarchy, Parts gallery spacing and
+migration-package byte guards are retained. The two evidence-register conflicts
+were resolved by retaining both distinct histories. Owner's Desktop hero edit is
+untouched. No public alias, production database or financial capability changed.
+
+D17 now revalidates exact original receipts/refunds, current financial anomalies,
+actual saved unit exclusions and current compatibility before fulfilling goods
+still owed. Original contract money remains unchanged. Active original stock
+holds are replaced with the exact remaining hold before consumption, preserving
+old rows/journals and never restocking consumed goods. Private collection records
+exact remaining positions around refunded gaps. Original payment cannot charge
+again. Historical acceptance/refund survives cancellation of an unpaid replacement.
+No-goods, cancelled/zero-capture and legacy/technical-reversal financial closure
+remain unfinished, explicit review paths; generic cancellation must not restock them.
+
+Final native proof: 138/138 across 11 files, including separate partial/full
+collection cases; 122-migration replay, empty schema diff, db:check, restricted
+runtime and owned tmpfs cleanup pass. The earlier focused run passed 68/68.
+Source/focused test types, scoped lint, OpenAPI 471 paths/554 mounted operations
+plus 4 infrastructure routes pass. Integrated learning/calendar tests pass 41/41,
+and the new migration-input guard tests pass 5/5. Final integrated secret scanning
+passes 4028 files. Durable refund approval/transfer/check and actual order/pickup
+events now use database time; future-date/independent-finance guards remain.
+Customer parts-collection v4, staff-parts-collection v3, admin order-sourcing v7
+and restricted refund-work v8 retain eligibility/guide targets/flags. See docs/help-learn/
+RESOLVED_SUPPLY_FULFILMENT_20261113.md for exact scope and acceptance boundaries.
+Receipts: TEMP/aat-d03-service-payments-20261109/native-supply-remaining-final.log
+and native-supply-remaining-clock.log. Prior rendered fixtures cover concern/
+resolution controls, not this new API journey. Both apex/www remain on
+dpl_EdMgppUipQ81msnEmHCef4jZxx6m (live Vercel alias verification).
+
+The new byte guard found one older LF checkout of additional_service_quotations
+whose established Git-filtered checkout is CRLF. Restored those filtered bytes
+only: SQL blob and production history unchanged. Canonical 122-file checkout guard
+and fresh empty replay/schema diff/db:check pass; its owned tmpfs database was removed. Receipt: TEMP/aat-d03-service-payments-
+20261109/canonical-supply-migrations-replay.log.
+
+Final integrated CI, compatible backend/worker migration package, verified fresh
+backup/off-device recovery/restore rehearsal and actual provider/role acceptance
+remain release gates. Purchasing activation also needs real invoice identifiers/
+accountant applicability and unfinished D17 closure; booking operating readiness is
+separate. The approved Mon-Sat holiday-inclusive collection calendar stays settled.
+
 ## 13 November - release input integrity repair and populated recovery evidence
 
 At 19:04 UTC, both aliases still identify the b122 frontend and the backend is
@@ -2365,6 +2935,370 @@ T01 remains partial; T02-T07 are still required, including expiring cover,
 invitations/history, account/job workspaces, Digital Media Manager, public media,
 bulk vehicle photos and supported video. C: preflight25.51GiB with2GiB budget;
 latest check23.41GiB. Preserve the20GiB reserve and all existing recovery resources.
+
+### 13 November: integrated supply resolution review verified; D17 remains active
+
+Runtime source 3746fe79290c22f8c11e6788cc07a2e2cdd3f106 preserves master 6e910f9b,
+including Parts, People, reminders, mobile scrollbar and saved-item focus fixes.
+Final held deployment dpl_8CevpHYqk1LwqQN52dTMWWXEuNER is READY; no custom public
+alias was promoted. Both apex/www still resolve to dpl_EdMgppUipQ81msnEmHCef4jZxx6m
+(the www alias redirects to apex). Desktop owner's hero edit remains untouched.
+
+Backend runtime is unchanged from integrated 173cce6d: all 134 native cases/11 files,
+120-migration empty replay/schema diff/db:check and restricted-runtime checks pass.
+Its owned tmpfs database was removed. Correcting the synthetic anomaly resolver
+identity fixed the earlier fixture failure; the other case passes with unchanged
+30-second limits. All 17 frontend units, 35 backend/learning units, source and focused
+test types, scoped lint/formatting, OpenAPI 471 paths/mounted 554 operations plus 4
+infrastructure routes and secret guard 4019 files pass. Canonical types regenerated.
+
+Rendered source 173cce6d passed 10/10 Chromium fixture cases: account/guest 320/1440,
+admin concern 320/1440, refund 390 and resolution 320/768/1440. Visual review removed
+the redundant old refund-request prompt for an already reconciled case. Final
+source 3746fe79 then passed 3/3 affected resolution journeys at 320/768/1440 with the
+new absence assertion, saved refresh, exact amounts/quantities, scoped Axe and no
+page overflow. Screenshots were visually inspected. The initial new-browser run
+failed because PowerShell input encoded the naira test literal as a question mark;
+the test now uses its exact Unicode escape, preserving the currency assertion.
+Browser plugin unavailable; existing Playwright was used. These are intercepted
+synthetic APIs and emulated sizes, not actual role/provider/bank/device acceptance.
+
+Receipts under TEMP/aat-d03-service-payments-20261109/:
+
+- native-supply-resolution-final.log (134/134;120 migrations; owned cleanup)
+- resolution-held-browser-final.log (10/10 on173cce6d)
+- resolution-final-held-browser.log (3/3 on3746fe79)
+- resolution-final-held-results/.../supply-resolution-320.png and1440.png
+  Temporary held-access cookie files were removed after the runs. No real money,
+  application database, role/grant, policy activation or public-domain change.
+
+Remaining implementation: connect current verified resolution to net original
+financial coverage and exact remaining pickup/fulfilment/closure; handle actual
+zero-capture/cancelled and technical-reversal reconciliation distinctly. Generic
+cancelLocked restocks CONSUMED reservations for confirmed cancellations, so it
+must not be reused blindly for refunded supply goods. Future SQL must preserve
+legacy physical rows while admitting only proved unfulfilled refunded gaps.
+A cancelled replacement must not erase its historical accepted original refund;
+unknown/late money and technical cases remain review. No fee, fake handover,
+automatic stock return, forced credit or general returns/warranty is approved.
+
+The D01-D17 status snapshot is in owner-decision-checklist.md. Before publication,
+finish that independent D17 work and obtain actual invoice/operating/account facts,
+provider/role acceptance, exact-master GitHub checks and guarded backup/restore/
+migration/release evidence. Booking readiness is separate from purchasing readiness.
+The full goal stays active; this verified resolution batch is not launch completion.
+
+### 13 November: actual supply resolution review, unpublished integration batch
+
+D17 now records an immutable actual settlement/physical-disposition event through
+current administrator MFA, CSRF, version and UUID replay. It derives unfulfilled
+and previously handed-over units from actual original history, requires the exact
+independently settled original refund and canonical debit, blocks active pickup
+review and revokes unused private pickup codes. It notifies the existing Care team.
+No goods are marked handed over or returned to stock by this action. The private
+bank proof, operator/session identities and audit/replay data are not buyer output.
+The saved proof is revalidated against later discrepancies before future clearance.
+
+The existing supply panel now offers review only with the new backend capability
+and a complete exact successful refund history. Customers can read the resulting
+quantity history. A lost response recovers from the saved record without a second
+POST. Private notes stay administrator-only. Restricted learning sourcing v6 and
+refund-work v7 explain these boundaries; eligibility/publication flags are retained.
+
+Current verification: frontend17/17 unit cases; learning24/24; backend/scoped test
+types and lint; OpenAPI471 paths and mounted554 operations plus 4 infrastructure
+routes. Migration119 empty replay/schema diff/db:check passed. Initial native run
+had132/134 passes: new actual resolution/replay/SQL tampering checks passed before
+its synthetic anomaly omitted the required resolving account; another existing case
+timed out. The fixture now includes that account; the unchanged30-second limits
+and final combined rerun remain required. No guard or assertion was removed.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-resolution.log.
+
+Integration must retain remote master6e910f9b Parts, People, reminder, saved-item
+focus and mobile-scroll fixes before final native/rendered verification. No public
+alias promotion, production migration, payment, refund or capability activation.
+D17 still needs current resolution connected to net financial coverage and exact
+remaining physical fulfilment/closure, including no-capture/cancelled cases and
+technical reversal reconciliation. Overall D01-D17 is still active. Actual
+financial identifiers, provider/role acceptance and production release safeguards
+remain outstanding; broader returns/warranty stays deferred.
+
+### 13 November: actual settlement proof and physical unit evidence
+
+D17 now has a read-only settlement verifier bound to the current affected case,
+actual customer choice, original saved kobo allocation and original captured payment.
+It requires successful settlement, its exact canonical debit and current anomaly/
+dispute checks. Manual settlement retains independent request, approval, transfer
+and bank-check duties; approval or recording a transfer alone cannot clear money.
+The returned proof excludes bank references, encrypted beneficiary and storage keys.
+
+Additive migration118 preserves old handovers and records exact unit positions for
+new handovers. Legacy quantity evidence is reconstructed in immutable order; corrupt,
+overlapping or foreign positions remain held. No missing goods become a handover.
+A native test exposed application/database clock skew for collection contact;
+collection events and default hold calculations now use the database clock while
+the future-date guard and approved Monday-Saturday calendar remain unchanged.
+
+Verification: 133/133 tests across11 files passed on a new owned tmpfs test target,
+with118-migration empty replay, schema diff, db:check and restricted runtime checks.
+The target was removed afterward. Receipt: TEMP/aat-d03-service-payments-20261109/
+native-supply-settlement-evidence.log. Earlier clock-failing run is retained as
+superseded evidence. No customer records or production database were used.
+
+Next D17 work remains immutable resolution, net financial coverage, exact remaining
+physical quantities and truthful partial pickup/closure. This batch does not release
+any supply hold or activate purchasing. Actual role/provider acceptance, financial
+identifiers and guarded integrated publication remain separate requirements.
+
+Final frontend-scoped formatting and fixture lint pass. A root-scoped formatting
+check unnecessarily included the intentionally ignored generated API types; the
+correct frontend ignore policy was retained and generated output was not reformatted.
+
+### 10 November: alternative acceptance verified in the integrated held build
+
+Current runtime source04f23adf preserves masterb1222a11 confirmation/recovery focus
+repairs, earlier service-card sizing and vehicle fields. Backend117-migration empty
+replay, empty schema diff, db:check and restricted runtime pass. All112 native cases
+across9 files pass: actual account/guest alternative acceptance and explicit-version
+rejection, current-session SQL proof, exact original refund caps, late-capture
+retention, cancellation/revised offers, ordinary guest quotes, pickup and vehicle
+regressions. Owned tmpfs target was removed; only shared BuildKit remains.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-alternative-integrated.log.
+
+Held deployment dpl_7yKx1ZUtfZnq4ctZ6v3JFrnTefP7 passes25/25 Chromium fixture cases
+across320/360/768/1280/1366/1440: original supply controls, actual alternative reviews,
+administrator quotation authoring, guest ordinary/alternative decisions, interrupted
+acceptance recovery, access removal, expiry, read errors and capability transitions.
+Screenshots were visually inspected; scoped Axe/overflow checks pass where tested.
+The first held run exposed a fixture assumption about enabled initial capabilities;
+it was stopped after confirming that the real restricted server state was preserved.
+Fixtures now explicitly fetch/assert their mocked enabled capability after hydration,
+retaining every interaction/assertion. No real release flag was changed.
+
+Frontend units13/13, learning units48/48, backend/frontend and focused test types,
+scoped lint, secret guard4000 files, canonical OpenAPI470 paths and mounted coverage
+553 operations plus 4 infrastructure routes pass. Public domain aliases, application
+DB, financial policy and restricted capability publication remain unchanged. These
+are isolated/fixture results, not provider, actual role or physical-device acceptance.
+
+Next required D17 work: bind verified refund settlement to immutable resolved unit
+ranges, reconcile original financial coverage and remaining physical obligations,
+then support truthful partial pickup/closure without inventing handover, restocking,
+credit or new charges. New alternative payment remains held until that resolution.
+Exact-master CI, fresh populated restore and guarded release safeguards remain
+required before production. Broader returns/warranty is still expressly deferred.
+
+### 10 November: actual alternative quotation and acceptance binding
+
+D17 reuses the actual Care Parts quotation and existing account/private-guest
+acceptance. Issuance binds the current alternative request. The immutable offer
+retains separate-original-refund-before-new-payment terms, labelled engineering
+under the D17 delegation. Acceptance explicitly acknowledges that version, creates
+one actual unpaid same-buyer order, and retains current customer/guest session proof
+without storing a token. SQL preserves offer terms and acceptance proof. Stale,
+technical, foreign and unacknowledged offers cannot be accepted. Cancellation of an
+unpaid replacement permits a fresh customer choice/revised alternative; committed
+refunds still require reconciliation. This is not forced credit or a money transfer.
+
+An original affected-portion refund after alternative acceptance uses the existing
+independent approval/provider/cap safeguards. New alternative payment and collection
+stay held pending the original verified financial/resolved-unit workflow. Actual
+late successful capture evidence remains recordable; it does not mark an order paid.
+Broader returns/warranty and real owner/accountant/provider prerequisites remain.
+Forward116/117 replay/schema diff/db:check and35 native cases passed on an isolated
+restricted target, then owned tmpfs cleanup. Final integrated rerun and rendered
+acceptance are pending. First116 run had34 passes/one missing synthetic policy
+sourceQuestion; the fixture was corrected, no guard removed. UI units13/13 and
+learning48/48 pass. Restricted sourcing v5/refund-work v6 and public parts guidance
+v15 reflect the same sequence; publication flags and production data are unchanged.
+D17 is incomplete until verified settlement and truthful resolved-unit fulfilment
+are connected. Do not promote this held source as a complete production workflow.
+
+Integrated native evidence:95/95 supply/refund/pickup cases passed on115 migrations.
+An added vehicle case initially failed before fixture creation because it compared
+the local NAT port with PostgreSQL's internal5432. Its original CI assertions remain;
+local task containers now use the existing exact tmpfs identity/network/port proof.
+A fresh115-migration replay/db:check/restricted-runtime retry passed that vehicle
+case1/1. Both owned databases were removed. Focused integration TypeScript passes
+after preserving endpoint/cookie tuple types; no runtime assertion was removed.
+Logs: TEMP/aat-d03-service-payments-20261109/native-supply-integrated.log and
+native-vehicle-integration-check.log. No populated restore, production migration,
+exact-master CI or public-domain promotion is claimed for this D17 candidate.
+
+### 10 November: integrated supply interface rendered acceptance
+
+Source2abf201f preserves master7af6c51c, including service-card sizing and vehicle
+engine/features work. Only evidence-history conflicts needed manual reconciliation;
+both histories were retained. Held deployment dpl_4N2QUtE4ogEuKhYhGogVZFYgM5sY
+passes7/7 synthetic rendered cases: account/guest request review, cancellation,
+recovery/refresh at320/1440, administrator actual-unit intake at320/1440 and the
+390px verified-capture refund request/link/focus. Six scoped Axe and overflow checks
+pass; screenshots were inspected. Browser plugin unavailable; existing Playwright
+was used. This proves fixture UI, not actual roles/provider settlement or devices.
+The first build passed4/7: guest console assertions misclassified the intentional
+account-session401, now checked by exact endpoint/status separately; a real refund
+focus race with dialog restoration/refresh was reproduced and repaired. All other
+console errors remain failures. Final types/scoped lint/11 interface units and48
+collection/learning/vehicle units pass; secret guard3995 files passes. Prisma client
+was regenerated using isolated test environment defaults. Public domains, production
+DB and capability flags remain unchanged. D17 alternative acceptance and verified
+settlement/resolved-unit fulfilment remain unfinished, with its source held.
+
+### 10 November: customer and administrator supply interface checkpoint
+
+Owned account and private-guest order details now show actual supply concerns only
+when the backend advertises capability version1. Customer requests require explicit
+review; interrupted saves reconcile their original request rather than duplicate it.
+Session/access changes discard private state. Staff cannot enter customer choices.
+Administrator intake selects actual unit ranges and separates public/private notes.
+Refund requests select an actual verified capture, bind the current customer choice
+and exact saved affected amount, then link to the existing independent refund queue.
+Requested/approved is never presented as money returned. No payment gate is enabled.
+
+Actual verification:11 focused frontend tests and focused test TypeScript pass;
+19 native API cases passed with114-migration replay/db:check/restricted runtime and
+owned tmpfs cleanup. Restricted order-sourcing v4 and refund-work v5 guidance plus
+collection calendar/eligibility checks pass46 tests. Seven rendered fixture cases
+are prepared but not yet run. Visual/browser acceptance remains outstanding.
+D17 alternative acceptance and settled-unit fulfilment remain incomplete and held.
+The separate schema110 candidate608d3c0d passed frontend42728871961 (984/984 full
+browser matrix,1549 units;12 pre-existing skips), backend42728871883 and secret 42728871576. These are candidate checks, not exact-master production approval.
+No production database, alias, feature flag or private owner hero edit changed.
+
+### 10 November: affected supply refunds use the existing financial kernel
+
+D17 now binds an actual current customer refund-review choice to the existing
+administrator/MFA refund request. Original saved unit-range pricing, discount and
+VAT are revalidated, not repriced. Requested/committed amounts across attempts and
+choices cannot exceed that affected gross or the verified capture. No handling fee,
+credit, payment permission or new tax approval is introduced. Earlier unbound
+refunds and unknown historical/attributable charges require actual reconciliation.
+Used/installed/disputed cases retain technical assessment rather than a general
+return entitlement. Existing human approvals, provider eligibility and evidence
+checks remain authoritative. The guarded full late-order technical reversal remains.
+
+Forward114 adds a nullable immutable Refund choice link and defensive SQL guards.
+A committed refund freezes changing that remedy choice; failed/cancelled requests
+retain history and permit a fresh customer choice. Buyer/guest history shows actual
+bounded refund statuses/amounts without operator, bank, beneficiary or private policy
+records. Approval/NEEDS_ATTENTION is not money returned. Payment and physical holds
+remain until the separate settlement/resolved-quantity workflow is connected.
+
+Actual evidence:95/95 across seven native suites, including existing manual refund
+processing, pre-payment review and pickup regressions;114-migration empty replay,
+empty schema diff, db:check and restricted runtime passed. Owned tmpfs DB removed.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-refund-complete.log.
+Separate session/approval/learning tests26/26 and focused integration test types pass
+(the external test config includes Express declarations and permits existing test
+process.env index-property conventions). Backend/frontend types, scoped lint,
+secret guard3977 files, OpenAPI470 paths and route coverage553 operations plus4
+infrastructure routes passed. Canonical contracts add no paths and change only the
+refund request/read/decision surfaces for the optional binding.
+Earlier native attempts failed3,7 and10 cases due to fixture setup: immutable-record
+mutations, a missing provider parameter, service Date versus HTTP serialization,
+required legacy delivery/provider facts and leaked test payment-window policy.
+Fixtures now construct correct immutable facts, parse the serialized receipt and
+append restored prior policy settings in finally; production guards are unchanged.
+Applied114 is frozen. Refund-work learning is restricted v4; publication flags remain.
+
+D17 still needs its customer/operator interface, actual alternative acceptance and
+verified financial-to-unit fulfilment resolution. This source remains held locally.
+The separate schema110 candidate dab976c7 passed backend/secret and865/984 browser
+cases with zero failures, then hit its30-minute full-matrix limit. Source ae907094
+retains every case/assertion and grants40 minutes to the step/55 to the job. Latest
+master580a1bb5 adds authentication-fixture isolation and must be preserved in the
+candidate before its new exact-source checks. No production publication occurred.
+
+### 10 November: actual customer remedy choices verified; resolution remains held
+
+D17 now retains an append-only choice from the actual owned customer or private
+purchase guest: refund review, suitable-alternative review, or technical review for
+used/installed/disputed goods. These are requests, not financial approval, substitute
+acceptance, credit consent, payment or settlement. No staff member can impersonate
+this customer choice. Both service locks and SQL guards verify the actual current
+principal, order and concern. Guest writes require their own CSRF; account/guest
+mixed cookies are rejected. Replay rechecks current access before returning history.
+
+Current order versions serialize competing choices. Changed choices append rather
+than overwrite, and duplicate UUID/body replay cannot duplicate an alert or entry.
+The safe projection omits private operator notes and actor/session/replay identities.
+Existing scoped Care alerts are reused; the original financial/collection hold stays.
+Technical requests do not infer a general returns period or financial entitlement.
+
+Actual evidence:84/84 across six native suites;113 migrations replayed into a new
+isolated loopback tmpfs test DB, empty schema diff, db:check and restricted runtime
+passed. Task DB/container removed. Applied113 is now immutable. Separate four-file
+units/learning/routing:38/38 after updating the order-sourcing v3 expectation. Receipt:
+TEMP/aat-d03-service-payments-20261109/native-supply-choice.log. Canonical OpenAPI
+adds only two owned choice paths; no existing path changed/removed. Backend/frontend types and scoped lint pass; secret guard3975 files, OpenAPI470
+paths and mounted-route coverage553 operations plus 4 infrastructure routes pass.
+
+The actual interface, acceptance of a suitable offered alternative, linkage to the
+independent refund workflow, verified settlement and resolved unit fulfilment remain
+to implement. D17 is incomplete and held locally; do not publish this source or enable
+purchasing to demonstrate it. Schema110 release candidate dab976c7 is unchanged.
+Its backend42721896518 and secret42721896435 passed; frontend42721896492 remains
+running in the full matrix. No production database, transaction or flag was changed.
+
+### 10 November: settled collection calendar and current integrated verification
+
+Owner calendar remains five Monday-Saturday days, with public holidays counted,
+starting after both actual readiness and successful customer notification; exclude
+the later anchor date. Imported/custom parts use the same rule. No further owner
+calendar value is required. Durable contact failure/success and reasoned extensions
+are implemented; remaining work is release/acceptance, not missing calendar policy.
+
+Release candidate dab976c79928a404d193abda302a2036d222db56 preserves latest master
+1fc86e65 and its corrected real/simulated booking fixture clocks. The previous
+combined backend run42720338191 had four late-visit fixture failures; the newer
+master fix is integrated instead of replacing it. Current-source isolated replay
+of110 migrations, empty schema diff, db:check and restricted runtime pass, with
+31/31 booking-reschedule/collection-clock cases. Owned tmpfs test DB removed.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-late-visit-holding.log.
+
+Hosted source d42f62cf passed all13 focused sourcing/pickup cases, including six
+pickup/holding journeys: staff320/1440, unsupported-backend guard, customer/guest
+one-time code with focus revalidation, failed contact and retained extension history.
+Its full matrix was cancelled by the newer candidate; it is not a full release pass.
+Artifact13721380954 downloaded and SHA256 verified. Its directory was overwritten
+by the later full matrix, so it contains no current pickup screenshots. Earlier
+synthetic screenshots remain historical, not an after-image of this candidate.
+
+Current exact-source runs: frontend42721896492, backend42721896518 still running;
+secret42721896435 passed. Before publication require exact-master checks, populated
+restore/forward-migration rehearsal, guarded production migration and matching image/
+frontend verification. Read-only app identity remains c3c54414 with no pending deploy;
+eight managed backups, latest2026-11-09T05:22:14Z, do not prove a new restore rehearsal.
+C: completion preflight21.22GiB passed with0.05GiB expected small-write allowance.
+Owner Desktop hero edit and dependency junction remain untouched. D17 resolution
+remains held locally and incomplete; no payment, refund or production write occurred.
+
+### 10 November: supply concern intake and Care handoff verified in isolation
+
+D17 now retains actual affected unit ranges, the immutable original monetary basis
+where available, and a linked owned/branch Care enquiry. Unavailable sourcing creates
+one unresolved case for uncovered units; repeats do not duplicate cases/alerts and
+later estimates do not silently resolve it. Existing current-recipient Care alerts
+and opt-in encrypted department delivery are reused. A queued/disabled email is not
+successful delivery. Missing/invalid historical money remains a reconciliation state;
+used/installed/diagnosis reports stay in technical assessment without inventing a
+returns period, fee or entitlement. Financial approval is always false at intake.
+
+Current Admin/Super Admin MFA authoring, scoped Staff reads, actual buyer/guest
+ownership, strict CSRF, version/replay checks and immutable history are connected.
+Unresolved concerns stop new payment preparation and physical fulfilment while
+preserving captured money and stock records. Actual independent remedy consent,
+alternative-quote binding, refund/adjustment linkage, resolved quantities, operational
+UI and rendered acceptance remain to implement. This intake is not D17 completion
+and is held from production until its resolution journey is connected.
+
+Actual evidence: 79/79 in six native suites; 112-migration empty isolated replay,
+empty schema diff, db:check and restricted runtime checks passed. The first run had
+71 passes/eight failures caused by a trigger alias colliding with implicit OLD.
+Forward112 repairs that function; applied111 is untouched. Owned tmpfs DB removed.
+Separate four-file units/learning/routing: 37/37; backend types/scoped lint pass.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-exception-forward-fix.log.
+Order-sourcing learning is admin-only v2; existing publication/commerce flags remain.
 
 ## 10 November 01:56 UTC - People identity and scoped directory group in progress
 
@@ -3175,6 +4109,8 @@ Inventory issue/use is an optional extension, not a section-7.2 launch requireme
 materials-before-work, genuine historical credits and all financial safeguards stay.
 The full D01-D17 goal, unresolved owner facts and per-order/private-pickup work remain.
 The owner's separate 79-line Desktop hero edit is preserved.
+
+## 10 November 01:00 UTC - repair confirmed live Services card stretching
 
 ---
 
@@ -14264,3 +15200,6 @@ Source lint/format and collection are checked separately from compiled acceptanc
 Evidence: parts-master65f-ci-evidence.json and matching PNGs in the established TEMP
 folder. New compiled captures, all final-master gates and a compatible backend
 remain prerequisites for Parts publication. Groups4-10 remain open.
+
+Automatic approval review rejected deletion of the verified80KiB aborted-browser
+profile with "blocked by policy". It was retained; no alternate deletion was used.

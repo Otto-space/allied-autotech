@@ -29,6 +29,7 @@ export function departmentRecipient(type: string, settings = env): string | unde
     case "SERVICE":
     case "BOOKING":
     case "COMPLAINT":
+    case "ORDER_SUPPLY":
       return settings.DEPARTMENT_SUPPORT_EMAIL;
     default:
       throw new Error("Unknown department enquiry type");
@@ -46,7 +47,7 @@ export async function enqueueDepartmentEmail(
   const payload = departmentEmailPayloadSchema.parse({
     recipient,
     replyTo: input.email,
-    title: `New ${input.type.toLowerCase()} request — Allied AutoTech`,
+    title: `New ${input.type === "ORDER_SUPPLY" ? "order supply review" : input.type.toLowerCase()} request — Allied AutoTech`,
     message: `Reference: ${input.id}\nSubject: ${input.subject}\n\n${input.message}\n\nReview and manage this request in the staff dashboard.`,
   });
   // Created in the same transaction as the request, inside its existing

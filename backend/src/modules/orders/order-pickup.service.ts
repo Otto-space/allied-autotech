@@ -1,4 +1,7 @@
-import { orderCollectionHold } from "./order-collection-hold.js";
+import { databaseClock } from "../../common/database/clock.js";
+import { savedSupplyExclusions } from "./order-supply-exception-hold.js";
+import { planPickupUnitRanges } from "./order-pickup-units.js";
+import { orderCollectionHold, collectionDatabaseClock } from "./order-collection-hold.js";
 import { collectionHoldPolicy } from "./order-collection-clock.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -30,11 +33,12 @@ import {
   planPickupHandover,
 } from "./order-pickup.engine.js";
 import {
-  collectedPickupTotals,
+  remainingPickupLines,
   lockPickupOrder,
   originalPickupLines,
   pickupFinancialProof,
   pickupSummary,
+  pickupUnitHistory,
   type PickupOrder,
 } from "./order-pickup.repository.js";
 import {
@@ -145,12 +149,6 @@ export class OrderPickupService {
   issue(buyer: Buyer, id: string, raw: unknown, context: RequestSecurityContext) {
     const input = pickupIssueSchema.parse(raw),
       requestHash = orderFingerprint({ orderId: id, ...input });
-    const now = new Date(),
-      secret = createPickupSecret(
-        id,
-        now,
-        new Date(now.getTime() + pickupSecurityPolicy.validityMinutes * 60000),
-      );
     return withTransactionRetry(
       this.database,
       async (tx) => {
@@ -175,15 +173,21 @@ export class OrderPickupService {
         if (order.version !== input.expectedVersion) throw orderStale();
         await this.noActiveClaim(tx, id);
         await pickupFinancialProof(tx, order);
+        const now = await databaseClock(tx),
+          secret = createPickupSecret(
+            id,
+            now,
+            new Date(now.getTime() + pickupSecurityPolicy.validityMinutes * 60000),
+          );
         planPickupHandover(
-          originalPickupLines(order),
-          await collectedPickupTotals(tx, id),
+          await remainingPickupLines(tx, order),
+          [],
           input.lines,
           input.lines,
         );
         await tx.orderPickupAuthorisation.updateMany({
           where: { orderId: id, revokedAt: null, consumedAt: null },
-          data: { revokedAt: new Date(), version: { increment: 1 } },
+          data: { revokedAt: await databaseClock(tx), version: { increment: 1 } },
         });
         const authorisation = await tx.orderPickupAuthorisation.create({
           data: {
@@ -245,7 +249,7 @@ export class OrderPickupService {
         await this.noActiveClaim(tx, id);
         await tx.orderPickupAuthorisation.update({
           where: { id: authorisation.id },
-          data: { revokedAt: new Date(), version: { increment: 1 } },
+          data: { revokedAt: await databaseClock(tx), version: { increment: 1 } },
         });
         const changed = await tx.order.update({
           where: { id },
@@ -350,7 +354,7 @@ export class OrderPickupService {
             policySnapshot: collectionHoldPolicy,
             idempotencyKey: input.idempotencyKey,
             requestHash,
-            createdAt: new Date(),
+            createdAt: await collectionDatabaseClock(tx),
           },
         });
         const changed = await tx.order.update({
@@ -396,10 +400,10 @@ export class OrderPickupService {
     const authorisation = await tx.orderPickupAuthorisation.findFirst({
       where: { orderId: order.id, tokenHash: pickupTokenHash(order.id, code) },
     });
-    assertPickupEntitlement(authorisation, order.id, code, new Date());
+    assertPickupEntitlement(authorisation, order.id, code, await databaseClock(tx));
     const plan = planPickupHandover(
-      originalPickupLines(order),
-      await collectedPickupTotals(tx, order.id),
+      await remainingPickupLines(tx, order),
+      [],
       pickupLinesSchema.parse(authorisation!.lines),
       lines,
     );
@@ -503,7 +507,7 @@ export class OrderPickupService {
             "This review already recorded handover. Preserve its history and contact Customer Care.",
           );
         if (order.version !== input.expectedVersion) throw orderStale();
-        const now = new Date();
+        const now = await databaseClock(tx);
         await tx.orderPickupClaim.update({
           where: { id: claim.id },
           data: {
@@ -604,7 +608,13 @@ export class OrderPickupService {
           throw orderConflict(
             "Financial clearance changed. Verify the current order before handover.",
           );
-        const now = new Date();
+        const unitRanges = planPickupUnitRanges(
+          originalPickupLines(order),
+          await pickupUnitHistory(tx, id),
+          plan.lines,
+          await savedSupplyExclusions(tx, id),
+        );
+        const now = await databaseClock(tx);
         assertPickupEntitlement(authorisation, id, pickupCode, now);
         await tx.orderPickupClaim.update({
           where: { id: claim.id },
@@ -634,6 +644,7 @@ export class OrderPickupService {
             idempotencyKey: input.idempotencyKey,
             requestHash,
             lines: plan.lines,
+            unitRanges,
             completedOrder: plan.complete,
             collectorName: input.collectorName,
             verificationNote: input.verificationNote,

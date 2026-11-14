@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import { readFile } from "node:fs/promises";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
@@ -72,17 +73,23 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         { database: string; host: string; port: number }[]
       >`SELECT current_database() AS database,host(inet_server_addr()) AS host,inet_server_port() AS port`;
       expect(identity?.database).toBe(env.DB_NAME);
-      expect(identity?.port).toBe(env.DB_PORT);
-      if (process.env.GITHUB_ACTIONS === "true") {
-        // The fresh CI service is reached through its localhost port mapping;
-        // PostgreSQL reports its container-side address rather than that client alias.
-        expect(env.DB_HOST).toBe("localhost");
-        expect(env.DB_NAME).toBe("allied_autotech_schema_ci");
-        expect(env.DB_PORT).toBe(5432);
-        expect(identity?.host).toMatch(
-          /^(?:127\.|10\.|172\.(?:1[6-9]|2[0-9]|3[01])\.|192\.168\.|::1$)/,
-        );
-      } else expect(identity?.host).toBe(env.DB_HOST);
+      if (process.env["TEST_DATABASE_CONTAINER_ID"]) {
+        // A dynamic local Docker port differs from PostgreSQL's internal port.
+        // Prove the exact task-owned tmpfs container and NAT mapping instead.
+        await assertIsolatedLoopbackDatabase();
+      } else {
+        expect(identity?.port).toBe(env.DB_PORT);
+        if (process.env.GITHUB_ACTIONS === "true") {
+          // The fresh CI service is reached through its localhost port mapping;
+          // PostgreSQL reports its container-side address rather than that client alias.
+          expect(env.DB_HOST).toBe("localhost");
+          expect(env.DB_NAME).toBe("allied_autotech_schema_ci");
+          expect(env.DB_PORT).toBe(5432);
+          expect(identity?.host).toMatch(
+            /^(?:127\.|10\.|172\.(?:1[6-9]|2[0-9]|3[01])\.|192\.168\.|::1$)/,
+          );
+        } else expect(identity?.host).toBe(env.DB_HOST);
+      }
       expect(identity!.database).toMatch(/_(test|ci)$/);
       const prefix = randomUUID().slice(0, 8);
       const branch = await prisma.branch.create({

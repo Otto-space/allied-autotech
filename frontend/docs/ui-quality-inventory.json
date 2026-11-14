@@ -921,6 +921,13 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/order-supply-concerns.tsx",
+      "nativeButtons": 8,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/order-timing.tsx",
       "nativeButtons": 1,
       "nativeAnchors": 0,
@@ -6875,6 +6882,11 @@
     {
       "source": "app/components/order-pickup.tsx",
       "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/order-supply-concerns.tsx",
+      "sourceSignals": ["nativeButton", "form", "disclosure", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {

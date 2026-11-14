@@ -84,7 +84,7 @@ jobs:
         run: npx --no-install playwright test --config playwright.runtime.config.ts --project=media-contract-chromium --project=media-contract-firefox --project=media-contract-webkit --max-failures=1
       - name: Verify order sourcing review and recovery before the full matrix
         timeout-minutes: 3
-        run: npx --no-install playwright test order-timing.spec.ts order-pickup.spec.ts --config playwright.runtime.config.ts --project=runtime --max-failures=1
+        run: npx --no-install playwright test order-timing.spec.ts order-pickup.spec.ts order-supply-concerns.spec.ts --config playwright.runtime.config.ts --project=runtime --max-failures=1
       - name: Preserve pickup and sourcing acceptance captures
         # The later full Playwright run clears its output directory.
         uses: actions/upload-artifact@v5
@@ -94,6 +94,7 @@ jobs:
           path: |
             frontend/test-results/runtime-capabilities/order-pickup-*/
             frontend/test-results/runtime-capabilities/order-timing-*/
+            frontend/test-results/runtime-capabilities/order-supply-concerns-*/
           retention-days: 7
           if-no-files-found: error
       - name: Verify Parts discovery and unobstructed gallery controls before the full matrix

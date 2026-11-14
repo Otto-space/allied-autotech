@@ -2,6 +2,8 @@ import { z } from "zod";
 
 export const partsQuotationSchema = z.object({
   id: z.uuid(),
+  alternativeAgreementVersion: z.literal("SUPPLY_ALTERNATIVE_20261110_V1").optional(),
+  supplyRemedyChoiceId: z.uuid().nullable().optional(),
   enquiryId: z.uuid(),
   revision: z.number().int().positive(),
   productName: z.string(),

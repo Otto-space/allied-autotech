@@ -280,9 +280,11 @@ export class MonnifyAdapter implements PaymentProviderPort {
       ? "success"
       : data.paymentStatus === "EXPIRED"
         ? "abandoned"
-        : ["FAILED", "REVERSED"].includes(data.paymentStatus)
-          ? "failed"
-          : "pending";
+        : data.paymentStatus === "REVERSED"
+          ? "reversed"
+          : data.paymentStatus === "FAILED"
+            ? "failed"
+            : "pending";
     const paidAt = data.paidOn ? new Date(data.paidOn) : null;
     if (paidAt && !Number.isFinite(paidAt.getTime())) throw providerRejected();
     return {

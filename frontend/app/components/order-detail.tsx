@@ -1,4 +1,5 @@
 "use client";
+import { OrderSupplyConcerns } from "./order-supply-concerns";
 import { OrderPickup } from "./order-pickup";
 import { OrderTimingSummary } from "./order-timing";
 import { containDialogFocus } from "@/lib/dialog-focus";
@@ -454,6 +455,15 @@ export function OrderDetail({ orderId }: { orderId: string }) {
         </section>
       )}
       {current && !order.error && !order.refreshError && (
+        <OrderSupplyConcerns
+          order={current}
+          audience="customer"
+          disabled={busy || order.loading || order.refreshing}
+          onSaved={order.revalidate}
+          onBusyChange={setBusy}
+        />
+      )}
+      {current && !order.error && !order.refreshError && (
         <OrderPickup
           order={current}
           audience="customer"
@@ -625,7 +635,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
                     {current.paidAt ? (
                       <p>
                         {current.status === "CANCELLED"
-                          ? "Payment was received, but this order is cancelled. Contact customer care for help resolving the payment."
+                          ? "Payment was received for this cancelled order. Check payment records for refund updates, or contact customer care if you need help."
                           : "Payment is recorded for this order."}
                       </p>
                     ) : (
