@@ -35,10 +35,10 @@ added to customer/guest output. No public contract or frontend interaction chang
 - Seven Monnify adapter/security unit cases pass, including actual parsed failed,
   expired and reversed provider envelopes. Initial new fixture envelopes omitted
   required response metadata; corrected fixtures pass without parser relaxation.
-- 67 focused provider, guide/audience and collection-calendar units pass. Four stale
+- 76 focused provider, guide/audience, collection-calendar and order-timing units pass. Four stale
   guide-version expectations were corrected after versioned content changed;
   permission and content assertions remain.
-- Initial schema129 broader financial/fulfilment regression run passes180/180 across14 files, including the real isolated payment/refund/pickup/concurrency services. A final schema130 full run now covers the additional historical-funds guard; its result and current exact-source hosted checks remain pending at this checkpoint. No production database/provider
+- Initial schema129 broader financial/fulfilment regression run passes180/180 across14 files, including the real isolated payment/refund/pickup/concurrency services. The final schema130 replay/schema diff/db:check and full run also pass180/180 across14 files with process exit0 and verified owned tmpfs cleanup. This includes the new historical-funds hold. Current exact-source hosted checks remain pending at this checkpoint. No production database/provider
   calls, public promotion, real payment/refund or permission change occurred.
 
 ## Learning and remaining scope

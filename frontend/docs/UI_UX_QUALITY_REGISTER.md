@@ -11,9 +11,10 @@ The Monnify adapter preserves REVERSED separately from FAILED.
 Fresh129 replay/schema diff/db:check and four focused real isolated journeys pass.
 Initial broader regression passes180/180 across14 files, including actual payment,
 refund, pickup, quote and concurrency flows with injected provider/storage fixtures.
-67 provider/learning/calendar units, source/focused-test types, scoped lint,
+76 provider/learning/calendar/timing units, source/focused-test types, scoped lint,
 472-path OpenAPI validation and4044-file secret guard pass. Forward130 adds the
-historical positive-evidence hold and is under final full native verification.
+historical positive-evidence hold. Fresh130 replay/schema diff/db:check and the
+final full native run pass180/180 across14 files, with owned tmpfs cleanup verified.
 Owned129 tmpfs resources were removed. No shared database or real provider was used.
 
 Customer/staff collection guides are v7/v6, admin sourcing v10 and restricted refund
@@ -23,7 +24,7 @@ no-booking-deposit rule. See docs/help-learn/PROVIDER_NEGATIVE_OBSERVATION_20261
 Current85f08280 backend43529867157 and secrets43529867280 pass; frontend43529867183
 remains running. Those checks are previous-source evidence, not the new migration's
 release gate. Owner Desktop hero and both public aliases remain untouched. Final
-native result, exact integrated-source CI and production recovery/migration/runtime
+exact integrated-source CI and production recovery/migration/runtime
 safeguards still precede publication. Purchasing stays gated; legacy partial and
 operator/guest recovery plus actual owner/provider/role inputs remain open.
 
@@ -174,6 +175,13 @@ reconciliation. Verified invoice identifiers/applicability, operating account/re
 facts, independent provider/role acceptance, exact integrated-master checks and safe
 fresh backup/off-device recovery/restore/migration/runtime publication remain. Broader
 returns/warranty is deferred. Booking and purchasing readiness remain separate.
+## 14 November - sidebar breakpoint focus correction awaiting release
+
+Exact-master frontend run 43525367353 failed one of 1,271 browser cases: after collapsing the desktop sidebar and resizing from 1655x960 to 390x844, the mobile navigation close button was absent. The other 1,270 cases passed. Production remains unchanged; source 9bf is not publication-qualified. CI artifact 14085934613 was checksum-verified. Screenshot, context and trace are retained under TEMP/allied-9bf-ci-sidebar; only the downloaded aggregate archive was removed.
+
+An isolated Edge 157 fixture reproduces CSS hiding the focused control before the media-query callback: activeElement becomes BODY. The exact old source effect misses navigation handoff in 10/10 runs; the corrected effect passes 10/10 transitions and 20 content-focus checks across baseline/corrected fixtures. This is source-effect evidence, not compiled application acceptance. The effect retains only focus lost during the breakpoint transition, clears it after adaptation and unregisters both listeners. Desktop preference and drawer safeguards remain.
+
+The application regression establishes keyboard focus before resize, checks opener recovery and adds content-focus preservation. Existing Chromium, Firefox and WebKit CI projects select both cases. Local Firefox 1543 and WebKit 2359 executables are absent; launches failed and no browsers were installed. Types, scoped lint, formatting and diff checks pass. Compiled acceptance and new exact-source gates remain required. Hosted browser transport is held below its 20.5 GiB guard; the small isolated test passed a separate 20.1 GiB preflight without a build/server. No database, permission, policy, feature flag or semantic help destination changed. Full page, role and device scope remains active.
 
 ## 14 November - release gate corrections and current calendar acceptance
 
