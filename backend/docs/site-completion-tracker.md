@@ -1,3 +1,206 @@
+## 14 November - account integration includes the current owner-decision baseline
+
+Preserved master 02439cdc, including the separately reviewed owner-decision/order
+and payment work. This adds 20 forward migrations beyond the live 112 baseline.
+It supersedes the earlier b0cf-only compatibility scope: publication of this
+combined frontend now requires the matching backend release and its full safety
+gates. No migrations or backend rollout were run by the account-design task.
+
+The other release task has a b0cf packaging receipt marked stopped-before-completion
+because its revised 2 GiB growth estimate needs 22 GiB free. That package also
+predates the 20-migration owner-decision integration; it does not qualify 02439cdc.
+Do not repeat its build or apply helpers or publish against the old backend.
+
+Combined collection now selects 1,470 tests in 77 files, including all original
+1,337 project/file/title identities and all 91 account cases. Earlier 1,434 was
+correct for b0cf and is superseded by this integration. The isolated test callback
+is named runPage to avoid React-hook lint interpretation. Inventory regeneration
+finds 120 routes and 404 interaction/boundary source files; recorded coverage and
+evidence remain unchanged. Collection is not an execution result.
+Evidence: account-design-20261114/integrated-02439cdc-required-collection.json and
+master-02439cdc-journal-merge.json. Exact integrated/master checks and held-build
+acceptance remain pending; public 6c52 and Groups 6-10 remain as recorded.
+
+## 14 November - integrated account test transport and current Admin source
+
+Integrated current master b0cf0f0e, preserving its Admin workspace changes and
+learning text. Both journals retain incoming in-place corrections and this
+account batch. The incoming backend change is learning copy only; no backend
+rollout, schema change or capability activation is part of this account release.
+
+Final local collection selects 1,434 tests in 76 files: the original 1,337 case
+titles remain, the account project adds 91 checks and current master adds six
+Admin checks. Source locations changed, so compare project, file and full title
+rather than line numbers. Collection does not establish execution acceptance.
+The account project restores availability only in the isolated loopback API and
+routes the browser policy read there; hosted checks and other projects keep their
+existing setup. Staff fixtures fall through for that policy read. Canonical
+inventory regenerated: 120 routes; all recorded coverage/evidence preserved.
+Evidence: account-design-20261114/final-required-matrix-collection.json.
+
+Compiled account evidence remains scoped to fb2e/5f20 as recorded below. All seven
+invitation fixtures, nine natural-reflow cases, 24 automated accessibility cases
+and 63 read-only viewport checks have passed in their recorded builds. Final
+integrated checks, exact-master candidate and live acceptance remain pending.
+The public release remains 6c52. Groups 6-10 and full inventory acceptance remain
+open. No real account or business mutations were used for these design checks.
+
+## 14 November - required account collection corrected and expanded
+
+Collection proves the previous1,340-case estimate was wrong: the existing selected
+projects still collected1,337 cases and omitted these account layout/invitation
+checks. Add an explicit account-design project with60 responsive form cases,24
+accessibility cases and seven invitation cases. The actual required collection is
+now1,428 cases in76 files. A case-identity comparison proves every previous1,337
+case remains selected. Source evidence: account-design-20261114/required-matrix-collection-audit.json.
+Allow60 minutes for the expanded matrix and80 for the job, retaining the previous
+20-minute setup/diagnostic allowance and every individual test limit/max-failure
+rule. This supersedes the earlier1,340-case budget estimate; collection is not
+execution acceptance.
+
+The new compiled5f20 build dpl_7b2qAWndYjqpd6npEFYK7nZFzcPY passes all seven
+invitation fixtures, now including the320x720 pointer obstruction regression.
+Native touch at320x720 and390x844 confirms the real anonymous session check receives
+input, returns401 guidance, stays on the page and preserves scroll. The fixed dock
+is absent under the same exclusion already used by the other authentication pages.
+An additional guest-invitation Axe scan finds zero violations. No business writes.
+Evidence: invitation-final-5f-result.json and invitation-5f-native-fixed.json.
+The real email/MFA token inputs remain single fields for their actual flows and
+copy/paste; unsupported SMS/Whatsapp six-slot verification is not introduced.
+
+Current master add252a6 is integrated, preserving its plain Home fallback wording
+and both journals exactly. Full current-source checks, final master integration,
+exact-master production build and live Group5 acceptance remain required. Current
+public release6c52 remains unchanged. Groups6-10/full inventory remain open.
+
+## 14 November - invitation phone action obstructed by the support bar
+
+The compiled fb2e build exposes a real320x720 defect: Check session again is
+173x48px at y627, but its centre receives Ask Allie from the fixed full-width
+support bar. Evidence: TEMP/aat-stitch-implementation-20261109/account-design-20261114/
+invitation-fb-dock-obstruction.json and invitation-fb-320-support-review.png.
+Apply the existing authentication-page dock exclusion to the invitation route,
+alongside the other six account routes. Keep its Help Centre/footer links and all
+non-auth support behaviour. The anonymous retry regression now uses320x720 and
+checks full visibility and an unobstructed native pointer target before clicking.
+This repair still requires new compiled acceptance.
+
+The exact6c52 job132282616901 confirms a43.7-minute full1,337-case baseline,
+with11.2 minutes before the matrix. Three session regressions bring collection
+to1,340; native keyboard/scroll checks add work across30 form-size cases. Allow
+50 minutes for the complete matrix and70 for the job, preserving the previous
+20-minute setup/diagnostic allowance. No tests, per-test limits, assertions or
+max-failure rules are removed. Evidence: account-design-20261114/matrix-runtime-budget.json.
+
+Separate compiled checks pass24 existing automated accessibility cases across
+six account forms and63 read-only viewport checks across all seven routes. The
+initial access-renewal attempt reached the provider login; those three failed
+checks and21 not-run cases are setup failures, not app acceptance. Intended-host
+and application identity checks now guard the successful rerun. Physical devices,
+real roles and actual account/security mutations remain untested. Group5 stays
+unpublished pending this obstruction repair and final exact-master gates.
+
+## 14 November - compiled account recovery and natural reflow evidence
+
+The private production-environment build fb2e15c2, deployment
+`dpl_EFBh1vETWrsPUim9acL1y1b7kD9e`, passes seven invitation fixture cases.
+Anonymous401 reads settle and retry at320/1440,503 reads retain distinct error
+feedback and recover, and the existing explicit CSRF confirmation, rejection,
+uncertainty, credential clearing and cross-tab late-response checks pass. These
+use synthetic account APIs with a guard against unhandled hosted mutations;
+they are not real-role or live access-change acceptance.
+
+The first18-case layout run recorded13 passes, three failures and two cases not
+run. Reset/MFA secondary links were below the initial phone viewport. The new
+reference composition deliberately allows long forms and the complete privacy
+notice to flow vertically. The regression now exercises keyboard focus and native
+scrolling, then requires the whole control in view, its centre to receive input,
+and the existing44px minimum height. Horizontal overflow and all original form
+states/sizes remain checked. Nine focused registration/reset/MFA cases now pass
+at320/390/1440 against unchanged compiled application styles. A focus-only trial
+recorded8/9 passes and a fractional viewport-edge failure; a two-case scroll-margin
+CSS rehearsal also failed and was not applied. Neither failed attempt counts as
+acceptance. Successful compiled checks contain no injected replacement stylesheet.
+
+The ordinary Preview correctly fails closed when its availability endpoint returns 503. That exposed the registration fallback missing a level-one heading; it now
+uses the shared card and a clear contact action, without the registration-only
+information panel. The production-configured private build reads the genuine
+browse/enquiries policy with accounts enabled and commerce/booking gates unchanged.
+CLI submission succeeded, but its new structured response defeated the helper URL
+parser; the provider receipt was recovered without resubmission and both public
+domains were confirmed unchanged.
+
+Evidence is under TEMP/aat-stitch-implementation-20261109/account-design-20261114:
+invitation-fb-result.json, layout-fb-result.json, native-reflow-fb-v2-result.json,
+registration-fb-natural-reflow.json and retained initial failure captures. Full
+reference/size/accessibility review, final exact-master checks and live account-page
+verification remain required. Group5 remains open; source coverage stays repaired.
+
+## 14 November - account reference implementation, rendered checks pending
+
+Group 5 covers the seven existing authentication routes. The four supplied account
+PNG/HTML references were reviewed at their real dimensions: centered white cards
+on an off-white canvas, a red edge, generous readable fields, and a separate navy
+information panel for registration. The shared AccessShell implements that family
+with the actual Allied mark, Nippo/Quicksand and existing fields/actions. MFA and
+email verification use a compact context icon; staff invitations now share the same
+shell. Registration reflows to one field column on phones. Unsupported phone or
+Whatsapp sign-in/recovery, fleet tiers, sample vehicle fields, certification/security
+badges and MFA bypass are excluded. Existing account and business gates are retained.
+
+A read-only current-release probe reproduces the anonymous invitation defect: two
+GET /auth/session responses return401, but the checking message remains after retry.
+Evidence: TEMP/aat-stitch-implementation-20261109/account-design-20261114/invitation-baseline.json.
+The resource hook now permits expected anonymous session reads only when explicitly
+requested for GET /auth/session. An external session change still aborts reads and
+discards credentials; it settles as denied instead of leaving the checking message active.
+Existing explicit and background revalidation remain. Protected resource defaults are unchanged. Unavailable
+reads display an error separately from signed-out guidance. Three isolated browser
+regressions cover anonymous retry at320/1440 and503 recovery; the existing CSRF,
+fragment, MFA and late-response acceptance assertions are retained.
+
+Local TypeScript, scoped ESLint/Prettier and all 31 API-client unit tests pass.
+This entry records source changes, not compiled acceptance or publication. Mark
+affected canonical account coverage repaired until the rendered tests, reference
+comparison, exact-master gates and live checks pass. Preserve the completed Vehicles
+release and remaining Groups 6-10/full120-route/state coverage. No real account,
+permission, email, password or MFA mutation was used for the baseline.
+
+## 14 November - Vehicles published; account pages are the next design group
+
+The checked source `6c52b934b531f9ef56b90615e73099f43e898cd2` is live at both
+public domains through frontend `dpl_GABPemCubUZP16cbJ8EgZum1TSKv`. The www alias
+redirects to apex with 308. Exact-master checks passed: frontend 43541388596
+(1,591 unit passes, 12 existing conditional skips, 1,337 browser passes), backend
+43541388597 and secrets 43541388641. The full matrix includes four touch-gallery
+cases and 15 Parts cases; no earlier or cancelled run qualifies this release.
+
+The separate approved backend release activated `e40c9a13-d8ae-4c4f-a50c-04353ceef4c4`
+with all four source-matched remote digests. Its fresh isolated populated restore,
+current/recovery image probes and 13 fresh healthy worker tasks have separate
+receipts under TEMP/aat-attendance-20261104/release-backend-6c52b934-20261114. This
+design task did not apply its backend rollout or change financial/booking flags.
+
+Live Edge 157 checks cover all nine requested viewport sizes, Hatchback filtering,
+detail navigation and retained filter state on return. Native touch emulation at
+320/390 verifies next/previous/thumbnail controls without page movement, unobstructed
+44px gallery actions, dialog arrows, Escape and focus return. The unavailable
+Inspection link is absent. Settled photographs and desktop/phone captures were
+reviewed; initial image-loading captures are retained separately. Home carousel
+next/previous/slide selection also retain scroll at 320/390; Services reflows at
+both sizes with its compact hero. No production business submissions or browser
+errors occurred. Evidence: TEMP/aat-stitch-implementation-20261109/master-6c52-20261114
+and vehicle-gallery-master-6c52-gates.json. These are browser emulation/read-only
+checks, not physical-device, real-role or provider transaction acceptance.
+
+Group 4 is published. Group 5 now covers sign-in, registration, password recovery,
+reset, email verification, MFA and staff invitations. The existing canonical
+inventory is refreshed to 120 current routes, preserving all 107 prior coverage
+records and evidence; 13 newly inventoried routes remain not-inspected. Groups
+5-10 and the remaining route/state/role/device coverage remain open. Preserve
+newer master 19aee07d, whose changes are test evidence and journals, in the next
+batch; it is not misreported as the published source.
+
 ### 14 November: prepare the complete owner-decision master integration
 
 Reconciled financial/copy follow-up6fca2fdc with masterb0cf0f0e in the existing

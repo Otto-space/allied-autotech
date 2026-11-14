@@ -1,5 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures/authentication-test";
 import AxeBuilder from "@axe-core/playwright";
+import { expectAuthControlReachable } from "../fixtures/auth-layout";
 import {
   registrationFixture,
   fillRegistration,
@@ -18,9 +19,9 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
-    await expect(
-      page.getByRole("button", { name: "Create account", exact: true }),
-    ).toBeInViewport();
+    // The single-column form keeps the full privacy notice and may scroll vertically.
+    const submit = page.getByRole("button", { name: "Create account", exact: true });
+    await expectAuthControlReachable(submit);
     const help = page.getByRole("link", { name: "Need help with your account?" });
     // The stable auth shell permits vertical reflow; secondary help remains reachable.
     await help.scrollIntoViewIfNeeded();

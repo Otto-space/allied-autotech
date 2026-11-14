@@ -1,8 +1,5 @@
-.register-page .login-form-area {
-  padding-block: 20px;
-}
 .register-form h1 {
-  font-size: 30px;
+  font-size: clamp(30px, 3vw, 40px);
 }
 .register-form .login-intro {
   margin-bottom: 22px;
@@ -86,22 +83,17 @@
   box-shadow: none;
 }
 @media (max-width: 899px) {
-  .register-page .login-content {
-    padding: 20px 20px 24px;
-  }
-  .register-page .login-mobile-brand {
-    margin-bottom: 10px;
-  }
-  .register-page .login-form-area {
-    padding-top: 14px;
-    padding-bottom: 0;
-  }
   .register-form h1 {
     font-size: 27px;
   }
   .register-form .login-intro {
     margin-bottom: 18px;
     font-size: 13px;
+  }
+}
+@media (max-width: 430px) {
+  .register-fields {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (max-width: 360px) {

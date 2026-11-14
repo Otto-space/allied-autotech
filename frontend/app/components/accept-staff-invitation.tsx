@@ -34,7 +34,9 @@ export function AcceptStaffInvitation() {
     resolver: zodResolver(acceptInvitationSchema),
     defaultValues: defaults,
   });
-  const session = useResource("/auth/session", parseSession);
+  const session = useResource("/auth/session", parseSession, undefined, {
+    optionalSession: true,
+  });
   const initialized = useRef(false);
   const pending = useRef<AbortController | null>(null);
   const accepted = useRef(false);
@@ -100,9 +102,9 @@ export function AcceptStaffInvitation() {
         </>
       ) : (
         <>
-          <Feedback message={error} />
+          <Feedback message={error ?? (session.denied ? undefined : session.error)} />
           {session.loading && <p role="status">Checking your signed-in account…</p>}
-          {!eligible && !session.loading && (
+          {!eligible && !session.loading && (!session.error || session.denied) && (
             <p className="notice">
               Sign in as the invited staff member and complete MFA, then reopen the
               original invitation link.

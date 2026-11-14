@@ -261,9 +261,6 @@
   .mfa-form h1 {
     font-size: 27px;
   }
-  .login-form-area:has(.mfa-form) {
-    padding-top: 16px;
-  }
   .mfa-form .login-help {
     padding-top: 6px;
   }
