@@ -19,6 +19,18 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
       "Prepare security key",
     ]) {
       if (method) await page.getByRole("button", { name: method, exact: true }).click();
+      if (method === "Authenticator")
+        await expect(
+          page.getByRole("combobox", { name: "Authenticator", exact: true }),
+        ).toBeFocused();
+      if (method === "Recovery code")
+        await expect(page.getByLabel("Recovery code", { exact: true })).toBeFocused();
+      // Preparing the key intentionally moves focus after the options render.
+      // Verify that handoff before traversing the page's other controls.
+      if (method === "Prepare security key")
+        await expect(
+          page.getByRole("button", { name: "Use security key", exact: true }),
+        ).toBeFocused();
       for (const control of await page
         .locator(
           ".login-content button,.login-content a,.login-content input,.login-content select",
