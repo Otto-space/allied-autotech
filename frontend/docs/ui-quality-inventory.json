@@ -88,6 +88,13 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/appointment-export.tsx",
+      "nativeButtons": 0,
+      "nativeAnchors": 2,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/audit-log.tsx",
       "nativeButtons": 5,
       "nativeAnchors": 0,
@@ -109,6 +116,27 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/booking-alternative-times.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/booking-attendance.tsx",
+      "nativeButtons": 3,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/booking-calendar.tsx",
+      "nativeButtons": 9,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/booking-capacity.tsx",
       "nativeButtons": 6,
       "nativeAnchors": 0,
@@ -124,7 +152,28 @@
     },
     {
       "source": "app/components/booking-detail.tsx",
-      "nativeButtons": 12,
+      "nativeButtons": 13,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/booking-reschedule-review.tsx",
+      "nativeButtons": 2,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/booking-timing-review.tsx",
+      "nativeButtons": 3,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/booking-work-review.tsx",
+      "nativeButtons": 5,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -152,7 +201,7 @@
     },
     {
       "source": "app/components/browser-push-settings.tsx",
-      "nativeButtons": 2,
+      "nativeButtons": 4,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -229,14 +278,14 @@
     },
     {
       "source": "app/components/concern-booking.tsx",
-      "nativeButtons": 8,
+      "nativeButtons": 10,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
       "source": "app/components/contact-parts-enquiry.tsx",
-      "nativeButtons": 1,
+      "nativeButtons": 2,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -291,6 +340,13 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/customer-filter-picker.tsx",
+      "nativeButtons": 2,
+      "nativeAnchors": 0,
+      "textLinkButtons": 1,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/customer-order-aftercare.tsx",
       "nativeButtons": 1,
       "nativeAnchors": 0,
@@ -334,14 +390,14 @@
     },
     {
       "source": "app/components/dashboard-navigation.tsx",
-      "nativeButtons": 1,
+      "nativeButtons": 2,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
       "source": "app/components/dashboard-shell.tsx",
-      "nativeButtons": 9,
+      "nativeButtons": 8,
       "nativeAnchors": 1,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -522,6 +578,20 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/home-featured-services.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/home-hero.tsx",
+      "nativeButtons": 4,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/home-reviews-preview.tsx",
       "nativeButtons": 1,
       "nativeAnchors": 0,
@@ -587,7 +657,7 @@
     {
       "source": "app/components/invoice-detail.tsx",
       "nativeButtons": 1,
-      "nativeAnchors": 1,
+      "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
@@ -596,6 +666,13 @@
       "nativeButtons": 3,
       "nativeAnchors": 0,
       "textLinkButtons": 1,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/invoice-sheet.tsx",
+      "nativeButtons": 0,
+      "nativeAnchors": 1,
+      "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
@@ -837,6 +914,20 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/order-pickup.tsx",
+      "nativeButtons": 8,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/order-timing.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/orders-panel.tsx",
       "nativeButtons": 9,
       "nativeAnchors": 0,
@@ -851,8 +942,22 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/owner-service-structure.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/parts-catalogue.tsx",
       "nativeButtons": 11,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/parts-quotations.tsx",
+      "nativeButtons": 4,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1019,6 +1124,13 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/public-capabilities.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/public-enquiry-actions.tsx",
       "nativeButtons": 0,
       "nativeAnchors": 2,
@@ -1026,8 +1138,85 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/public-enquiry-form.tsx",
+      "nativeButtons": 2,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/public-reviews.tsx",
       "nativeButtons": 2,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/purchase-access.tsx",
+      "nativeButtons": 4,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/purchase-aftercare.tsx",
+      "nativeButtons": 5,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/purchase-cart-add.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/purchase-cart.tsx",
+      "nativeButtons": 9,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/purchase-invoice.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/purchase-quotations.tsx",
+      "nativeButtons": 3,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/purchase-records.tsx",
+      "nativeButtons": 9,
+      "nativeAnchors": 1,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/purchase-review-decision.tsx",
+      "nativeButtons": 2,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/purchase-suitability.tsx",
+      "nativeButtons": 7,
+      "nativeAnchors": 1,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/purchase-verify.tsx",
+      "nativeButtons": 1,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1201,6 +1390,13 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/service-groups.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/service-image-editor.tsx",
       "nativeButtons": 5,
       "nativeAnchors": 0,
@@ -1252,7 +1448,7 @@
     {
       "source": "app/components/site-header.tsx",
       "nativeButtons": 3,
-      "nativeAnchors": 1,
+      "nativeAnchors": 2,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
@@ -1286,7 +1482,7 @@
     },
     {
       "source": "app/components/staff-booking-slots.tsx",
-      "nativeButtons": 9,
+      "nativeButtons": 10,
       "nativeAnchors": 1,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1349,7 +1545,7 @@
     },
     {
       "source": "app/components/staff-invoices.tsx",
-      "nativeButtons": 10,
+      "nativeButtons": 11,
       "nativeAnchors": 0,
       "textLinkButtons": 2,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1406,6 +1602,13 @@
     {
       "source": "app/components/staff-reviews.tsx",
       "nativeButtons": 15,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/staff-vehicle-collection.tsx",
+      "nativeButtons": 3,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1525,7 +1728,7 @@
     {
       "source": "app/components/vehicle-actions.tsx",
       "nativeButtons": 10,
-      "nativeAnchors": 3,
+      "nativeAnchors": 7,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
@@ -1552,6 +1755,13 @@
     },
     {
       "source": "app/components/vehicle-document-review.tsx",
+      "nativeButtons": 2,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/vehicle-feature-fields.tsx",
       "nativeButtons": 2,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
@@ -1614,8 +1824,15 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/work-account-profile.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/work-category-detail.tsx",
-      "nativeButtons": 3,
+      "nativeButtons": 4,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1699,7 +1916,7 @@
     },
     {
       "source": "app/components/work-product-detail.tsx",
-      "nativeButtons": 6,
+      "nativeButtons": 8,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1818,7 +2035,7 @@
     },
     {
       "source": "app/components/work-vehicle-detail.tsx",
-      "nativeButtons": 5,
+      "nativeButtons": 6,
       "nativeAnchors": 5,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1852,6 +2069,13 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/workforce-access-reviews.tsx",
+      "nativeButtons": 2,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/workforce-aftercare.tsx",
       "nativeButtons": 9,
       "nativeAnchors": 0,
@@ -1875,6 +2099,13 @@
     {
       "source": "app/components/workforce-booking-detail.tsx",
       "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/workforce-booking-reschedule.tsx",
+      "nativeButtons": 5,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -1909,9 +2140,9 @@
     },
     {
       "source": "app/components/workforce-enquiries.tsx",
-      "nativeButtons": 7,
+      "nativeButtons": 8,
       "nativeAnchors": 0,
-      "textLinkButtons": 0,
+      "textLinkButtons": 1,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
@@ -1978,8 +2209,36 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/components/workforce-person-context.tsx",
+      "nativeButtons": 0,
+      "nativeAnchors": 1,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/components/workforce-workspace.tsx",
       "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/workshop-resource-fields.tsx",
+      "nativeButtons": 15,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/workshop-resource-history.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/components/workshop-resources.tsx",
+      "nativeButtons": 9,
       "nativeAnchors": 0,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
@@ -2057,7 +2316,7 @@
     {
       "source": "app/parts/page.tsx",
       "nativeButtons": 0,
-      "nativeAnchors": 1,
+      "nativeAnchors": 2,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
@@ -2111,6 +2370,27 @@
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
     {
+      "source": "app/search/page.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/search/retry-search.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
+      "source": "app/search/search-form.tsx",
+      "nativeButtons": 1,
+      "nativeAnchors": 0,
+      "textLinkButtons": 0,
+      "review": "source census; semantics and utility duplication require per-consumer review"
+    },
+    {
       "source": "app/services/[serviceId]/error.tsx",
       "nativeButtons": 1,
       "nativeAnchors": 0,
@@ -2135,13 +2415,6 @@
       "source": "app/vehicles/[listingId]/error.tsx",
       "nativeButtons": 1,
       "nativeAnchors": 0,
-      "textLinkButtons": 0,
-      "review": "source census; semantics and utility duplication require per-consumer review"
-    },
-    {
-      "source": "app/vehicles/[listingId]/page.tsx",
-      "nativeButtons": 0,
-      "nativeAnchors": 4,
       "textLinkButtons": 0,
       "review": "source census; semantics and utility duplication require per-consumer review"
     },
@@ -2262,6 +2535,34 @@
     {
       "route": "/admin/booking-capacity",
       "source": "app/admin/booking-capacity/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/admin/booking-resources",
+      "source": "app/admin/booking-resources/page.tsx",
       "family": "work",
       "dynamic": false,
       "access": "server-enforced role and capability; per-route confirmation required",
@@ -3241,6 +3542,34 @@
       }
     },
     {
+      "route": "/admin/profile",
+      "source": "app/admin/profile/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
       "route": "/admin/promotions/[promotionId]",
       "source": "app/admin/promotions/[promotionId]/page.tsx",
       "family": "work",
@@ -3772,6 +4101,34 @@
       }
     },
     {
+      "route": "/admin/team/history",
+      "source": "app/admin/team/history/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
       "route": "/admin/vehicle-sales/[transactionId]",
       "source": "app/admin/vehicle-sales/[transactionId]/page.tsx",
       "family": "work",
@@ -3917,6 +4274,62 @@
       "family": "work",
       "dynamic": true,
       "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/cart",
+      "source": "app/cart/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/checkout",
+      "source": "app/checkout/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
       "review": "source inventoried; see register for sampled rendered evidence",
       "coverage": {
         "headings": "not-inspected",
@@ -4748,7 +5161,7 @@
       "access": "public; launch mode and token conditions may restrict actions",
       "review": "source inventoried; see register for sampled rendered evidence",
       "coverage": {
-        "headings": "not-inspected",
+        "headings": "repaired",
         "labels": "not-inspected",
         "helpers": "not-inspected",
         "errors": "not-inspected",
@@ -4757,15 +5170,15 @@
         "selects": "not-inspected",
         "checkboxes": "not-inspected",
         "radios": "not-inspected",
-        "actions": "not-inspected",
+        "actions": "repaired",
         "toolbars": "not-inspected",
         "tables": "not-inspected",
-        "cards": "not-inspected",
+        "cards": "repaired",
         "empty": "not-inspected",
         "permissions": "not-inspected",
         "loading": "not-inspected",
         "longContent": "not-inspected",
-        "mobile": "not-inspected"
+        "mobile": "repaired"
       }
     },
     {
@@ -4888,7 +5301,7 @@
       "access": "public; launch mode and token conditions may restrict actions",
       "review": "source inventoried; see register for sampled rendered evidence",
       "coverage": {
-        "headings": "not-inspected",
+        "headings": "repaired",
         "labels": "not-inspected",
         "helpers": "not-inspected",
         "errors": "not-inspected",
@@ -4897,15 +5310,15 @@
         "selects": "not-inspected",
         "checkboxes": "not-inspected",
         "radios": "not-inspected",
-        "actions": "not-inspected",
+        "actions": "repaired",
         "toolbars": "not-inspected",
         "tables": "not-inspected",
-        "cards": "not-inspected",
+        "cards": "repaired",
         "empty": "not-inspected",
         "permissions": "not-inspected",
         "loading": "not-inspected",
         "longContent": "not-inspected",
-        "mobile": "not-inspected"
+        "mobile": "repaired"
       }
     },
     {
@@ -4916,7 +5329,7 @@
       "access": "public; launch mode and token conditions may restrict actions",
       "review": "source inventoried; see register for sampled rendered evidence",
       "coverage": {
-        "headings": "not-inspected",
+        "headings": "repaired",
         "labels": "not-inspected",
         "helpers": "not-inspected",
         "errors": "not-inspected",
@@ -4925,15 +5338,15 @@
         "selects": "not-inspected",
         "checkboxes": "not-inspected",
         "radios": "not-inspected",
-        "actions": "not-inspected",
+        "actions": "repaired",
         "toolbars": "not-inspected",
         "tables": "not-inspected",
-        "cards": "not-inspected",
+        "cards": "repaired",
         "empty": "not-inspected",
         "permissions": "not-inspected",
         "loading": "not-inspected",
         "longContent": "not-inspected",
-        "mobile": "not-inspected"
+        "mobile": "repaired"
       }
     },
     {
@@ -5117,9 +5530,9 @@
       }
     },
     {
-      "route": "/register",
-      "source": "app/register/page.tsx",
-      "family": "authentication",
+      "route": "/purchase/complete",
+      "source": "app/purchase/complete/page.tsx",
+      "family": "public",
       "dynamic": false,
       "access": "public; launch mode and token conditions may restrict actions",
       "review": "source inventoried; see register for sampled rendered evidence",
@@ -5142,6 +5555,202 @@
         "loading": "not-inspected",
         "longContent": "not-inspected",
         "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/purchase/invoices/[invoiceId]",
+      "source": "app/purchase/invoices/[invoiceId]/page.tsx",
+      "family": "public",
+      "dynamic": true,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/purchase/orders/[orderId]/aftercare",
+      "source": "app/purchase/orders/[orderId]/aftercare/page.tsx",
+      "family": "public",
+      "dynamic": true,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/purchase/orders/[orderId]",
+      "source": "app/purchase/orders/[orderId]/page.tsx",
+      "family": "public",
+      "dynamic": true,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/purchase",
+      "source": "app/purchase/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/purchase/payments/[paymentId]",
+      "source": "app/purchase/payments/[paymentId]/page.tsx",
+      "family": "public",
+      "dynamic": true,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/purchase/verify",
+      "source": "app/purchase/verify/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "not-inspected",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "not-inspected",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "not-inspected",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "not-inspected"
+      }
+    },
+    {
+      "route": "/register",
+      "source": "app/register/page.tsx",
+      "family": "authentication",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
+        "headings": "repaired",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "repaired",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "repaired",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "repaired"
       }
     },
     {
@@ -5152,6 +5761,34 @@
       "access": "public; launch mode and token conditions may restrict actions",
       "review": "source inventoried; see register for sampled rendered evidence",
       "coverage": {
+        "headings": "repaired",
+        "labels": "not-inspected",
+        "helpers": "not-inspected",
+        "errors": "not-inspected",
+        "placeholders": "not-inspected",
+        "inputs": "not-inspected",
+        "selects": "not-inspected",
+        "checkboxes": "not-inspected",
+        "radios": "not-inspected",
+        "actions": "repaired",
+        "toolbars": "not-inspected",
+        "tables": "not-inspected",
+        "cards": "repaired",
+        "empty": "not-inspected",
+        "permissions": "not-inspected",
+        "loading": "not-inspected",
+        "longContent": "not-inspected",
+        "mobile": "repaired"
+      }
+    },
+    {
+      "route": "/reviews",
+      "source": "app/reviews/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence",
+      "coverage": {
         "headings": "not-inspected",
         "labels": "not-inspected",
         "helpers": "not-inspected",
@@ -5173,8 +5810,8 @@
       }
     },
     {
-      "route": "/reviews",
-      "source": "app/reviews/page.tsx",
+      "route": "/search",
+      "source": "app/search/page.tsx",
       "family": "public",
       "dynamic": false,
       "access": "public; launch mode and token conditions may restrict actions",
@@ -5292,24 +5929,24 @@
       "access": "public; launch mode and token conditions may restrict actions",
       "review": "source inventoried; see register for sampled rendered evidence",
       "coverage": {
-        "headings": "not-inspected",
+        "headings": "repaired",
         "labels": "not-inspected",
         "helpers": "not-inspected",
-        "errors": "not-inspected",
+        "errors": "repaired",
         "placeholders": "not-inspected",
         "inputs": "not-inspected",
         "selects": "not-inspected",
         "checkboxes": "not-inspected",
         "radios": "not-inspected",
-        "actions": "not-inspected",
+        "actions": "repaired",
         "toolbars": "not-inspected",
         "tables": "not-inspected",
-        "cards": "not-inspected",
+        "cards": "repaired",
         "empty": "not-inspected",
-        "permissions": "not-inspected",
-        "loading": "not-inspected",
+        "permissions": "repaired",
+        "loading": "repaired",
         "longContent": "not-inspected",
-        "mobile": "not-inspected"
+        "mobile": "repaired"
       }
     },
     {
@@ -5376,7 +6013,7 @@
       "access": "public; launch mode and token conditions may restrict actions",
       "review": "source inventoried; see register for sampled rendered evidence",
       "coverage": {
-        "headings": "not-inspected",
+        "headings": "repaired",
         "labels": "not-inspected",
         "helpers": "not-inspected",
         "errors": "not-inspected",
@@ -5385,15 +6022,15 @@
         "selects": "not-inspected",
         "checkboxes": "not-inspected",
         "radios": "not-inspected",
-        "actions": "not-inspected",
+        "actions": "repaired",
         "toolbars": "not-inspected",
         "tables": "not-inspected",
-        "cards": "not-inspected",
+        "cards": "repaired",
         "empty": "not-inspected",
         "permissions": "not-inspected",
         "loading": "not-inspected",
         "longContent": "not-inspected",
-        "mobile": "not-inspected"
+        "mobile": "repaired"
       }
     }
   ],
@@ -5401,6 +6038,11 @@
     {
       "source": "app/about/page.tsx",
       "sourceSignals": ["nativeAnchor"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/booking-resources/page.tsx",
+      "sourceSignals": ["feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5539,6 +6181,16 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/appointment-export.tsx",
+      "sourceSignals": ["nativeAnchor"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/appointment-timing.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/audit-log.tsx",
       "sourceSignals": ["nativeButton", "form", "disclosure", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
@@ -5569,6 +6221,21 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/booking-alternative-times.tsx",
+      "sourceSignals": ["nativeButton", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/booking-attendance.tsx",
+      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/booking-calendar.tsx",
+      "sourceSignals": ["nativeButton", "dialog", "table", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/booking-capacity.tsx",
       "sourceSignals": ["nativeButton", "form", "disclosure", "feedback"],
       "review": "not independently rendered unless recorded in register"
@@ -5581,6 +6248,31 @@
     {
       "source": "app/components/booking-detail.tsx",
       "sourceSignals": ["nativeButton", "form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/booking-reference.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/booking-reschedule-history.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/booking-reschedule-review.tsx",
+      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/booking-timing-review.tsx",
+      "sourceSignals": ["nativeButton", "form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/booking-work-review.tsx",
+      "sourceSignals": ["nativeButton", "form", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5618,6 +6310,11 @@
     {
       "source": "app/components/cart-update-drawer.tsx",
       "sourceSignals": ["nativeButton", "dialog"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/cart-vehicle-summary.tsx",
+      "sourceSignals": ["feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5682,7 +6379,7 @@
     },
     {
       "source": "app/components/create-payment-request.tsx",
-      "sourceSignals": ["nativeButton"],
+      "sourceSignals": ["nativeButton", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5703,6 +6400,11 @@
     {
       "source": "app/components/customer-directory.tsx",
       "sourceSignals": ["nativeButton", "form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/customer-filter-picker.tsx",
+      "sourceSignals": ["nativeButton", "disclosure", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5739,6 +6441,11 @@
     {
       "source": "app/components/customer-vehicles.tsx",
       "sourceSignals": ["nativeButton", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/dashboard-account.tsx",
+      "sourceSignals": ["disclosure"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -5895,6 +6602,16 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/home-featured-services.tsx",
+      "sourceSignals": ["nativeButton"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/home-hero.tsx",
+      "sourceSignals": ["nativeButton", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/home-reviews-preview.tsx",
       "sourceSignals": ["nativeButton", "feedback"],
       "review": "not independently rendered unless recorded in register"
@@ -5947,12 +6664,17 @@
     },
     {
       "source": "app/components/invoice-detail.tsx",
-      "sourceSignals": ["nativeButton", "nativeAnchor", "table", "feedback"],
+      "sourceSignals": ["nativeButton", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
       "source": "app/components/invoice-filters.tsx",
       "sourceSignals": ["nativeButton", "form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/invoice-sheet.tsx",
+      "sourceSignals": ["nativeAnchor", "table"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6144,6 +6866,16 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/order-pickup.tsx",
+      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/order-timing.tsx",
+      "sourceSignals": ["nativeButton", "form", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/orders-panel.tsx",
       "sourceSignals": ["nativeButton", "table", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
@@ -6154,8 +6886,18 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/owner-service-structure.tsx",
+      "sourceSignals": ["nativeButton"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/parts-catalogue.tsx",
       "sourceSignals": ["nativeButton", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/parts-quotations.tsx",
+      "sourceSignals": ["nativeButton", "form", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6274,13 +7016,18 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/public-capabilities.tsx",
+      "sourceSignals": ["nativeButton", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/public-enquiry-actions.tsx",
       "sourceSignals": ["nativeAnchor"],
       "review": "not independently rendered unless recorded in register"
     },
     {
       "source": "app/components/public-enquiry-form.tsx",
-      "sourceSignals": ["form", "nativeSelect"],
+      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6291,6 +7038,62 @@
     {
       "source": "app/components/public-reviews.tsx",
       "sourceSignals": ["nativeButton", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/purchase-access.tsx",
+      "sourceSignals": ["nativeButton", "form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/purchase-aftercare.tsx",
+      "sourceSignals": ["nativeButton", "form", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/purchase-cart-add.tsx",
+      "sourceSignals": ["nativeButton", "form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/purchase-cart.tsx",
+      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/purchase-invoice.tsx",
+      "sourceSignals": ["nativeButton", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/purchase-quotations.tsx",
+      "sourceSignals": ["nativeButton", "form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/purchase-records.tsx",
+      "sourceSignals": ["nativeButton", "nativeAnchor", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/purchase-review-decision.tsx",
+      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/purchase-suitability.tsx",
+      "sourceSignals": [
+        "nativeButton",
+        "nativeAnchor",
+        "form",
+        "disclosure",
+        "nativeSelect"
+      ],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/purchase-verify.tsx",
+      "sourceSignals": ["nativeButton"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6406,6 +7209,11 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/saved-order-amounts.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/saved-parts-vehicle-selector.tsx",
       "sourceSignals": ["nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
@@ -6436,6 +7244,11 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/service-groups.tsx",
+      "sourceSignals": ["nativeButton", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/service-image-editor.tsx",
       "sourceSignals": ["nativeButton", "form"],
       "review": "not independently rendered unless recorded in register"
@@ -6463,6 +7276,11 @@
     {
       "source": "app/components/service-marquee.tsx",
       "sourceSignals": ["nativeButton"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/service-payment-summary.tsx",
+      "sourceSignals": ["feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6617,6 +7435,11 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/staff-vehicle-collection.tsx",
+      "sourceSignals": ["nativeButton", "form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/staff-work-order.tsx",
       "sourceSignals": ["nativeButton", "form", "feedback"],
       "review": "not independently rendered unless recorded in register"
@@ -6733,8 +7556,23 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/vehicle-engine-details-field.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-engine-fields.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/vehicle-evidence.tsx",
       "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-feature-fields.tsx",
+      "sourceSignals": ["nativeButton", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6790,6 +7628,11 @@
     {
       "source": "app/components/viewport-navigation.tsx",
       "sourceSignals": ["tabs"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-account-profile.tsx",
+      "sourceSignals": ["nativeButton", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -6991,6 +7834,11 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/workforce-access-reviews.tsx",
+      "sourceSignals": ["nativeButton", "form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/workforce-aftercare.tsx",
       "sourceSignals": ["nativeButton", "form", "table", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
@@ -7008,6 +7856,11 @@
     {
       "source": "app/components/workforce-booking-detail.tsx",
       "sourceSignals": ["nativeButton", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-booking-reschedule.tsx",
+      "sourceSignals": ["nativeButton", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -7086,8 +7939,33 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/components/workforce-person-context.tsx",
+      "sourceSignals": ["nativeAnchor"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-person-header.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/components/workforce-workspace.tsx",
       "sourceSignals": ["nativeButton", "form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workshop-resource-fields.tsx",
+      "sourceSignals": ["nativeButton", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workshop-resource-history.tsx",
+      "sourceSignals": ["nativeButton", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workshop-resources.tsx",
+      "sourceSignals": ["nativeButton", "form", "disclosure", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
@@ -7208,6 +8086,26 @@
       "review": "not independently rendered unless recorded in register"
     },
     {
+      "source": "app/search/page.tsx",
+      "sourceSignals": ["nativeButton", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/search/retry-search.tsx",
+      "sourceSignals": ["nativeButton"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/search/search-form.tsx",
+      "sourceSignals": ["nativeButton", "form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/search/search-results.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
       "source": "app/services/[serviceId]/error.tsx",
       "sourceSignals": ["nativeButton", "loadingBoundary"],
       "review": "not independently rendered unless recorded in register"
@@ -7239,7 +8137,7 @@
     },
     {
       "source": "app/vehicles/[listingId]/page.tsx",
-      "sourceSignals": ["nativeAnchor", "feedback"],
+      "sourceSignals": ["disclosure", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {

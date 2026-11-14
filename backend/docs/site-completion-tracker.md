@@ -1,3 +1,68 @@
+## 14 November - account reference implementation, rendered checks pending
+
+Group 5 covers the seven existing authentication routes. The four supplied account
+PNG/HTML references were reviewed at their real dimensions: centered white cards
+on an off-white canvas, a red edge, generous readable fields, and a separate navy
+information panel for registration. The shared AccessShell implements that family
+with the actual Allied mark, Nippo/Quicksand and existing fields/actions. MFA and
+email verification use a compact context icon; staff invitations now share the same
+shell. Registration reflows to one field column on phones. Unsupported phone or
+Whatsapp sign-in/recovery, fleet tiers, sample vehicle fields, certification/security
+badges and MFA bypass are excluded. Existing account and business gates are retained.
+
+A read-only current-release probe reproduces the anonymous invitation defect: two
+GET /auth/session responses return401, but the checking message remains after retry.
+Evidence: TEMP/aat-stitch-implementation-20261109/account-design-20261114/invitation-baseline.json.
+The resource hook now permits expected anonymous session reads only when explicitly
+requested for GET /auth/session. An external session change still aborts reads and
+discards credentials; it settles as denied instead of leaving the checking message active.
+Existing explicit and background revalidation remain. Protected resource defaults are unchanged. Unavailable
+reads display an error separately from signed-out guidance. Three isolated browser
+regressions cover anonymous retry at320/1440 and503 recovery; the existing CSRF,
+fragment, MFA and late-response acceptance assertions are retained.
+
+Local TypeScript, scoped ESLint/Prettier and all 31 API-client unit tests pass.
+This entry records source changes, not compiled acceptance or publication. Mark
+affected canonical account coverage repaired until the rendered tests, reference
+comparison, exact-master gates and live checks pass. Preserve the completed Vehicles
+release and remaining Groups 6-10/full120-route/state coverage. No real account,
+permission, email, password or MFA mutation was used for the baseline.
+
+## 14 November - Vehicles published; account pages are the next design group
+
+The checked source `6c52b934b531f9ef56b90615e73099f43e898cd2` is live at both
+public domains through frontend `dpl_GABPemCubUZP16cbJ8EgZum1TSKv`. The www alias
+redirects to apex with 308. Exact-master checks passed: frontend 43541388596
+(1,591 unit passes, 12 existing conditional skips, 1,337 browser passes), backend
+43541388597 and secrets 43541388641. The full matrix includes four touch-gallery
+cases and 15 Parts cases; no earlier or cancelled run qualifies this release.
+
+The separate approved backend release activated `e40c9a13-d8ae-4c4f-a50c-04353ceef4c4`
+with all four source-matched remote digests. Its fresh isolated populated restore,
+current/recovery image probes and 13 fresh healthy worker tasks have separate
+receipts under TEMP/aat-attendance-20261104/release-backend-6c52b934-20261114. This
+design task did not apply its backend rollout or change financial/booking flags.
+
+Live Edge 157 checks cover all nine requested viewport sizes, Hatchback filtering,
+detail navigation and retained filter state on return. Native touch emulation at
+320/390 verifies next/previous/thumbnail controls without page movement, unobstructed
+44px gallery actions, dialog arrows, Escape and focus return. The unavailable
+Inspection link is absent. Settled photographs and desktop/phone captures were
+reviewed; initial image-loading captures are retained separately. Home carousel
+next/previous/slide selection also retain scroll at 320/390; Services reflows at
+both sizes with its compact hero. No production business submissions or browser
+errors occurred. Evidence: TEMP/aat-stitch-implementation-20261109/master-6c52-20261114
+and vehicle-gallery-master-6c52-gates.json. These are browser emulation/read-only
+checks, not physical-device, real-role or provider transaction acceptance.
+
+Group 4 is published. Group 5 now covers sign-in, registration, password recovery,
+reset, email verification, MFA and staff invitations. The existing canonical
+inventory is refreshed to 120 current routes, preserving all 107 prior coverage
+records and evidence; 13 newly inventoried routes remain not-inspected. Groups
+5-10 and the remaining route/state/role/device coverage remain open. Preserve
+newer master 19aee07d, whose changes are test evidence and journals, in the next
+batch; it is not misreported as the published source.
+
 ## 14 November 02:38 UTC - settled focus evidence verified; disk block cleared
 
 The screenshot-only correction at22fba6d9 passes all three branch checks. Frontend

@@ -1,0 +1,67 @@
+.invitation-form :is(p, .eyebrow) {
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.invitation-form .eyebrow {
+  display: block;
+  color: var(--link);
+  margin-bottom: 12px;
+}
+.invitation-form .actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin-top: 20px;
+}
+.invitation-form fieldset {
+  min-inline-size: 0;
+  padding: 0;
+  margin: 24px 0 0;
+  border: 0;
+}
+.invitation-form .field {
+  margin-bottom: 20px;
+}
+.invitation-form .field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.invitation-form .field input {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid var(--border-control);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 10px 13px;
+  font-size: 16px;
+}
+.login-page .invitation-form .button {
+  min-height: 48px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.invitation-form form .button {
+  width: 100%;
+  justify-content: center;
+}
+.login-page .invitation-form a.button {
+  width: 100%;
+  justify-content: center;
+  color: var(--on-primary);
+  text-decoration: none;
+}
+.invitation-form .field-error {
+  color: var(--error-ink);
+  margin-block: 8px 0;
+}
+.invitation-form input[aria-invalid="true"] {
+  border-color: var(--error-ink);
+}

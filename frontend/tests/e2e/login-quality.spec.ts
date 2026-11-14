@@ -55,7 +55,9 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
-    await expect(page.locator(".login-editorial")).toBeVisible({ visible: width >= 900 });
+    await expect(
+      page.locator(".login-masthead").getByRole("link", { name: "Allied AutoTech home" }),
+    ).toBeVisible();
     for (const control of await page
       .locator(".login-content input,.login-content button,.login-content a")
       .all()) {
@@ -149,7 +151,7 @@ for (const [status, code] of [
     state.code = code;
     await page.goto("/login");
     await page.evaluate(() => document.fonts.ready);
-    const panel = page.locator(".login-editorial");
+    const panel = page.locator(".login-masthead");
     const before = await panel.boundingBox();
     const headingTop = await page.locator("h1").evaluate((node) => node.offsetTop);
     await submitLogin(page);
