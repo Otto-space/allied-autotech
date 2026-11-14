@@ -15407,3 +15407,18 @@ Evidence: TEMP/allied-allie-live-20261114/combined-release-migration-manual-revi
 and combined-migration-canonical-checkout-verified.json. Prepared restore helper
 was syntax-checked only, not executed. Public AI/live chat remain unactivated;
 coverage, current officer duties/opt-in and real delivery acceptance remain open.
+
+## 14 November - confirmed delayed MFA preparation focus; candidate repair
+
+The olderdcac run reports1468 passes and2 failures: the person occlusion repaired
+by PR96 and MFA methods/enrollment at1024px (Home loses focus). A separate compiled
+d06 fixture reproduces the MFA failure deterministically: hold security-key options,
+focus Home, release the response, then observe focus moved to Use security key.
+This is an application focus race, not a reason to weaken the layout assertion.
+Baseline: TEMP/allied-mfa-focus-baseline-d06/report.json and safe empty-field capture.
+
+Candidate records focus when preparation starts and permits its automatic next-
+action focus only while that origin/body remains active. Preserve newer focus;
+retain ordinary next-action focus. Add both regressions to mfa-quality and select
+them in the existing account-design CI project. No authentication proof, challenge,
+MFA policy, permission or provider flag changes. Compiled verification is pending.

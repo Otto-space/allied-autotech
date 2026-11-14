@@ -13499,3 +13499,13 @@ TEMP/allied-person-header-989-baseline and TEMP/allied-689-runtime-failure-20261
 Selected ZIP CRCs verified; the full archive digest was not fetched/verified.
 Older masterdcac also has a separate MFA1024 Home-link focus failure; it remains
 unresolved and is not covered by this person-context-only repair.
+
+## 14 November - delayed security-key response must preserve newer focus
+
+Confirmed the MFA1024 CI failure with a controlled compiled d06 response: after
+the user focuses Home, security-key preparation unconditionally focuses its next
+button. Candidate retains preparation's focus origin, respects a newer active
+control and preserves normal next-action focus when the user has not moved.
+Two targeted regressions are included in the existing account-design selector.
+Existing layout/focus tests, security contracts and flags remain unchanged.
+Baseline: TEMP/allied-mfa-focus-baseline-d06. Rendered fix acceptance is pending.

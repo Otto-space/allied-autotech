@@ -2,6 +2,52 @@ import { test, expect } from "../fixtures/authentication-test";
 import AxeBuilder from "@axe-core/playwright";
 import { expectAuthControlReachable } from "../fixtures/auth-layout";
 import { fixture, codes } from "../fixtures/mfa";
+
+test("security-key preparation preserves newer keyboard focus", async ({ page }) => {
+  await fixture(page);
+  await page.setViewportSize({ width: 1024, height: 900 });
+  let release: (() => void) | undefined;
+  let requested = false;
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/v1/auth/mfa/challenge/options", async (route) => {
+    if (route.request().postDataJSON().method === "webauthn") {
+      requested = true;
+      await pending;
+    }
+    return route.fallback();
+  });
+  try {
+    await page.goto("/mfa");
+    await page.getByRole("button", { name: "Prepare security key", exact: true }).click();
+    await expect.poll(() => requested).toBe(true);
+    const home = page
+      .locator(".login-content")
+      .getByRole("link", { name: "Home", exact: true });
+    await home.focus();
+    await expect(home).toBeFocused();
+    release?.();
+    await expect(
+      page.getByRole("button", { name: "Use security key", exact: true }),
+    ).toBeVisible();
+    await expect(home).toBeFocused();
+  } finally {
+    release?.();
+  }
+});
+
+test("security-key preparation focuses the next action when focus has not moved", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.goto("/mfa");
+  await page.getByRole("button", { name: "Prepare security key", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Use security key", exact: true }),
+  ).toBeFocused();
+});
+
 for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
   test(`MFA methods and enrollment fit ${width}px`, async ({ page }) => {
     const state = await fixture(page);
