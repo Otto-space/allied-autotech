@@ -1,3 +1,20 @@
+## 14 November - garage modal focus-ring clearance
+
+Rendered430px scrolled Add a vehicle inspection confirmed the close button ends
+at y69 and its3px outline plus3px offset extends to y75, while the scrolling body
+starts at y69. The earlier28 shared-modal passes did not assert this overlap.
+Increase garage-dialog heading bottom padding to8px at desktop/mobile and add
+a regression requiring body content to clear the complete focused-button outline.
+No permissions, submissions, help targets or security policy change.
+
+Seven viewport cases pass with the candidate spacing supplied as an isolated
+same-origin CSS fixture against compiled518ebb40; this is a CSS rehearsal, not
+compiled candidate acceptance. Initial inline injection was correctly blocked by
+CSP and is retained as a harness failure. Formatting, scoped ESLint and diff checks
+pass. Compilation/integration, exact-source CI and final rendered candidate checks
+remain before publication. Evidence: TEMP/allied-garage-geometry-518ebb40 and
+TEMP/allied-garage-clearance-candidate-css. Full original briefs remain active.
+
 ## 14 November - Vehicles section navigation follows actual availability
 
 Independent compiled6797b243 sidebar acceptance passes8/8 ordinary/delayed-media
