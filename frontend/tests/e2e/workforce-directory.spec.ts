@@ -270,16 +270,6 @@ for (const [width, height] of [
       await expect(identity.getByText("Active", { exact: true })).toBeVisible();
       await expect(page.getByText(/This is a partial access summary/)).toBeVisible();
       await expect(page.getByLabel("Job position", { exact: true })).toBeVisible();
-      if (measuredBand)
-        await selected.evaluate((element, extraInset) => {
-          // Keep the valid larger band independent of platform font metrics.
-          element.style.minHeight = "356px";
-          const header = document.querySelector(".dashboard-top")!;
-          document.documentElement.style.setProperty(
-            "--viewport-header-offset",
-            `${Math.max(0, header.getBoundingClientRect().bottom) + 16 + extraInset}px`,
-          );
-        }, earlierInset);
       const review = page.getByRole("button", { name: "Review enrollment", exact: true });
       await review.focus();
       await expect(review).toBeInViewport();
@@ -354,6 +344,16 @@ for (const { width, collapsed, measuredBand, earlierInset } of [
       element.style.letterSpacing = "0.12em";
       element.style.wordSpacing = "0.16em";
     });
+    if (measuredBand)
+      await selected.evaluate((element, extraInset) => {
+        // Keep the valid larger band independent of platform font metrics.
+        element.style.minHeight = "356px";
+        const header = document.querySelector(".dashboard-top")!;
+        document.documentElement.style.setProperty(
+          "--viewport-header-offset",
+          `${Math.max(0, header.getBoundingClientRect().bottom) + 16 + extraInset}px`,
+        );
+      }, earlierInset);
     const review = page.getByRole("button", { name: "Review enrollment", exact: true });
     for (const control of [
       page.getByLabel("Your current password", { exact: true }),
@@ -387,24 +387,40 @@ for (const { width, collapsed, measuredBand, earlierInset } of [
       await expect
         .poll(() =>
           control.evaluate((element) => {
-            const box = element.getBoundingClientRect();
+            const targets = [element];
+            if (element instanceof HTMLInputElement) {
+              const label = element.labels?.[0];
+              if (!label)
+                return {
+                  belowIdentity: false,
+                  occludingElements: ["Visible field label missing"],
+                };
+              targets.push(label);
+            }
+            const boxes = targets.map((target) => target.getBoundingClientRect());
             const bar = document
               .querySelector(".wf-person-context")!
               .getBoundingClientRect();
             // Sample painted edge midpoints; bounding-box corners can fall
             // outside the button's rounded border even with nothing over it.
-            const occludingElements = [
-              [box.left + box.width / 2, box.top + 2],
-              [box.left + box.width / 2, box.bottom - 2],
-              [box.left + 2, box.top + box.height / 2],
-              [box.right - 2, box.top + box.height / 2],
-            ].flatMap(([x, y]) => {
-              const front = document.elementFromPoint(x, y);
-              return front === element || element.contains(front)
-                ? []
-                : [front ? `${front.tagName}.${front.className}` : "outside viewport"];
-            });
-            return { belowIdentity: box.top >= bar.bottom, occludingElements };
+            const occludingElements = boxes.flatMap((box, index) =>
+              [
+                [box.left + box.width / 2, box.top + 2],
+                [box.left + box.width / 2, box.bottom - 2],
+                [box.left + 2, box.top + box.height / 2],
+                [box.right - 2, box.top + box.height / 2],
+              ].flatMap(([x, y]) => {
+                const front = document.elementFromPoint(x, y);
+                const target = targets[index]!;
+                return front === target || target.contains(front)
+                  ? []
+                  : [front ? `${front.tagName}.${front.className}` : "outside viewport"];
+              }),
+            );
+            return {
+              belowIdentity: boxes.every((box) => box.top >= bar.bottom),
+              occludingElements,
+            };
           }),
         )
         .toEqual({ belowIdentity: true, occludingElements: [] });

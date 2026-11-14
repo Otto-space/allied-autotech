@@ -56,6 +56,8 @@ jobs:
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run check:production
+      - name: Typecheck the responsive navigation regressions
+        run: npx --no-install tsc --noEmit --project tsconfig.navigation-tests.json
       - name: Install the three engines used by the isolated regression
         run: npx --no-install playwright install --with-deps chromium firefox webkit
       - name: Record browser engine versions and test platform

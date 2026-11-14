@@ -41,10 +41,10 @@
 }
 .workforce-panel[data-person-page="true"]
   :is(input, textarea, select, button, [tabindex="-1"], [id]) {
-  /* Native scrolling adds document padding to this margin. Cancel that inset
-     before reserving the measured band, including a notice scrolled offscreen. */
+  /* Cancel document padding before reserving the measured band and field label,
+     including a notice scrolled offscreen. */
   scroll-margin-block-start: calc(
-    var(--wf-person-sticky-top) + var(--wf-person-sticky-height) + 16px -
+    var(--wf-person-sticky-top) + var(--wf-person-sticky-height) + 32px -
       var(--viewport-header-offset, 96px)
   );
   scroll-margin-block-end: 96px;

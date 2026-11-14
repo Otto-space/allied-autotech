@@ -814,6 +814,38 @@ and full119-template/state acceptance remain open.
 
 ## 13 November - consolidated T02 integration checkpoint
 
+### 2026-11-14 01:07 UTC - visible labels and test-scope repair checkpoint
+
+The01:07 package boundary retains verified shared navigation8/8 and backend37 HTTP /
+27 focused frontend units. Compiledebfb enlarged-identity controls pass6/6 without
+style overrides; source32px label clearance is later and still needs compilation.
+Visual review of that earlier compiled capture found the label partly behind the
+person band even though its input passed. Restore normal32px combined clearance
+while cancelling stale document padding; with a current inset this equals master's
+existing normal geometry. Extend edge occlusion checks to the visible associated
+label as well as the input and Review action. The label-aware inline prototype
+passes all6 width/sidebar cases. The initial two controlled variants had not applied
+their inset because of the merge error below; do not claim that earlier run proved
+the controlled variants. After repair, both controlled cases pass with actual
+149/309px insets and372/212px computed margins. New compiled acceptance remains due.
+
+The remaining compiled suite passed17, then hit an avoidable merge-resolution error:
+the measured-inset block was inserted in an earlier directory test, where its
+variables were undefined.28 later cases did not run. Moved it into the intended
+long-identity loop; original directory assertions remain. Report is retained under
+TEMP/allied-team-held-ebfb9d6d-20261114/remaining-report.json. This is not a full pass.
+Application typecheck excludes browser tests, so its pass did not validate that
+block. Both affected browser files now pass an explicit scoped TypeScript project
+and undefined-variable lint. Add that scoped typecheck to CI before browsers;
+keep the established application typecheck and all browser assertions unchanged.
+No broad test-exclusion change. No real account, schema, flag or protection change.
+
+The next bounded package starts01:07 UTC, targeting02:07: finish compiled regression,
+integrate current approved source and pass exact-master gates before publication.
+Current source37-case backend inputs are unchanged. At00:54 the backend still uses
+6a's four digests with no rollout, and both apex/www identify4gNT;www redirects to
+apex. No publication by this package. Full T01-T07 remainder remains active.
+
 ### 2026-11-14 00:48 UTC - current keyboard/drawer source reconciled for final compilation
 
 Integrated mastere2e1c967/PR78. The shared dashboard-shell implementation now
