@@ -1,3 +1,17 @@
+### 14 November: follow deferred fragment layout without overriding visitor input
+
+The private production-environment4c967141 campaign finishes47/48: all17 MFA,
+all16 People, all3 sidebar and11/12 public navigation checks pass. Desktop
+fragment refresh still fails; it is not release acceptance. A separate instrumented
+replay confirms the suspended enquiry form expands after load/fonts: the workshop
+heading moves from195.7px to853.2px, then829.2px, below the844px viewport.
+Observe initial-fragment main layout for at most10 seconds after load; retain the
+existing visible-target guard and immediately disconnect on pointer/key/wheel/touch
+or route cleanup. Ordinary refresh/history and managed-person focus are unchanged.
+Add two deterministic deferred-form/manual-scroll regressions; the navigation file
+now has14 cases. Exact-source compiled acceptance and release checks remain pending.
+Production domains, schema and capability flags remain unchanged by this correction.
+
 ### 14 November: freeze the combined release source with newer MFA focus ownership
 
 Preserve masterb39bd0aa's actual delayed-security-key focus repair and its two

@@ -208,10 +208,14 @@ export function ViewportNavigation() {
     let frame = 0;
     let cancelled = false;
     let observer: MutationObserver | undefined;
+    let layoutObserver: ResizeObserver | undefined;
+    let layoutTimeout: number | undefined;
     const cancelEntry = () => {
       cancelled = true;
       cancelAnimationFrame(frame);
       observer?.disconnect();
+      layoutObserver?.disconnect();
+      clearTimeout(layoutTimeout);
     };
     const enter = () => {
       if (cancelled) return true;
@@ -238,6 +242,7 @@ export function ViewportNavigation() {
     // for those only on initial fragment entry; explicit navigation stays immediate.
     const schedule = () => {
       if (cancelled) return;
+      cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         frame = requestAnimationFrame(() => {
           if (!enter()) {
@@ -250,6 +255,14 @@ export function ViewportNavigation() {
       });
     };
     const loaded = () => {
+      // Suspended forms can expand after load and font settlement. Keep the
+      // fragment visible through that short entry window; any new interaction
+      // immediately releases ownership so a visitor's scroll is never undone.
+      if (!cancelled && location.hash) {
+        layoutObserver = new ResizeObserver(schedule);
+        layoutObserver.observe(document.querySelector("main") ?? document.body);
+        layoutTimeout = window.setTimeout(() => layoutObserver?.disconnect(), 10000);
+      }
       void document.fonts.ready.then(schedule);
     };
     if (initial) {

@@ -13624,3 +13624,14 @@ real MFA hardware, account mutation and physical-device acceptance are untested.
 PR98 is integrated with master026d9fe2, preserving PR97 fixture timing repair
 and all 132 migrations. Exact resulting-master CI and recovery/release checks
 remain mandatory before publication. No capability flags were changed.
+# 14 November: deferred fragment layout correction
+
+Private compiled4c967141 campaign:47/48 passes; desktop fragment refresh remains
+red. Instrumented replay shows suspended contact-form expansion after load/fonts
+moves the heading from195.7px to853.2px and finally829.2px in844px height.
+The scoped fix observes main layout only during initial fragment entry for at most
+10 seconds after load, with immediate pointer/key/wheel/touch cancellation. Add
+390/1440 deterministic deferred-form plus manual-scroll coverage. All17 MFA,
+16 People and3 sidebar cases passed separately within the same campaign; they
+do not convert its remaining public navigation failure into acceptance. Final
+source compiled checks and exact-master gates still precede publication.

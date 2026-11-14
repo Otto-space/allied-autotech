@@ -281,6 +281,40 @@ for (const width of [390, 1440]) {
 }
 
 for (const width of [390, 1440]) {
+  test(`Fragment entry follows deferred form layout until the visitor scrolls at ${width}`, async ({
+    page,
+  }) => {
+    const errors = await fixture(page);
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/contact#workshop");
+    await expect(page.getByRole("textbox", { name: "Subject", exact: true })).toBeVisible();
+    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    const workshopOffset = () =>
+      page.locator("#workshop").evaluate((el) => {
+        const box = el.getBoundingClientRect();
+        const header = document.querySelector(".site-header")!.getBoundingClientRect();
+        return { top: box.top - header.bottom, bottom: box.bottom };
+      });
+    await expect.poll(async () => (await workshopOffset()).top).toBeGreaterThanOrEqual(0);
+    // Represent deferred form content without depending on network timing.
+    await page.locator(".contact-form-panel").evaluate((panel) => {
+      const content = document.createElement("div");
+      content.style.height = "800px";
+      panel.prepend(content);
+    });
+    await expect.poll(async () => (await workshopOffset()).bottom).toBeLessThan(844);
+    await page.mouse.wheel(0, -350);
+    await expect.poll(async () => (await workshopOffset()).top).toBeGreaterThan(100);
+    await page.locator(".contact-form-panel").evaluate((panel) => {
+      const content = document.createElement("div");
+      content.style.height = "240px";
+      panel.prepend(content);
+    });
+    await page.waitForTimeout(1000);
+    expect((await workshopOffset()).top).toBeGreaterThan(100);
+    expect(errors).toEqual([]);
+  });
+
   test(`Fragment refresh respects the header and immediate manual scrolling at ${width}`, async ({
     page,
   }) => {
