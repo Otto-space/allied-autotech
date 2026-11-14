@@ -10,7 +10,7 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 35%, #263b4a, #07141d 78%);
+  background: var(--palette-navy);
 }
 
 .card .stage {

@@ -12,6 +12,29 @@ const css = (page: Page, selector: string, property: string) =>
     .locator(selector)
     .evaluate((el, key) => getComputedStyle(el).getPropertyValue(key), property);
 
+for (const width of [390, 1440]) {
+  test(`dark-blue footer retains readable links and keyboard focus at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.route("**/api/v1/**", (route) =>
+      route.fulfill({ status: 401, json: { success: false } }),
+    );
+    await page.goto("/about");
+    const footer = page.locator(".site-footer");
+    await expect(footer).toHaveCSS("background-color", "rgb(11, 32, 56)");
+    await expect(footer).toHaveCSS("background-image", "none");
+    await expect(footer.locator(".brand-logo--inverse")).toBeVisible();
+    const link = footer.getByRole("link", { name: "Services", exact: true });
+    await expect(link).toHaveCSS("color", "rgb(224, 226, 230)");
+    await link.focus();
+    await expect(link).toBeFocused();
+    await expect(link).toHaveCSS("outline-style", "solid");
+    const audit = await new AxeBuilder({ page }).include(".site-footer").analyze();
+    expect(audit.violations).toEqual([]);
+  });
+}
+
 // Browser-only harness uses the application's compiled CSS. No debug route is shipped.
 async function gallery(page: Page) {
   await page.route("**/api/v1/**", (route) =>
@@ -232,7 +255,8 @@ for (const role of ["CUSTOMER", "ADMIN", "SUPER_ADMIN"]) {
     else await workOverviewFixture(page, role);
     await page.goto(role === "CUSTOMER" ? "/dashboard" : "/admin");
     await expect(page.locator(".sidebar")).toBeVisible();
-    expect(await css(page, ".sidebar", "background-image")).toContain("linear-gradient");
+    expect(await css(page, ".sidebar", "background-image")).toBe("none");
+    expect(await css(page, ".sidebar", "background-color")).toBe("rgb(16, 20, 25)");
     const active = page.locator('.side-nav a[aria-current="page"]').first();
     await active.hover();
     await expect(active).toHaveCSS("background-color", "rgb(101, 12, 18)");

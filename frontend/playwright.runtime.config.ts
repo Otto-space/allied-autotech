@@ -7,6 +7,10 @@ export default defineConfig({
   testDir: "./tests/e2e",
   projects: [
     {
+      name: "brand-palette",
+      testMatch: ["colour-states.spec.ts"],
+    },
+    {
       name: "privacy-review",
       testMatch: ["work-privacy.spec.ts"],
     },

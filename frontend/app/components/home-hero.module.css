@@ -91,7 +91,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #080c0ff2 0%, #080c0fe0 45%, #080c0f66 100%);
+  background: #080c0fd9;
 }
 .photo {
   object-fit: cover;
@@ -193,7 +193,7 @@
     margin-block: 16px 24px;
   }
   .media::after {
-    background: linear-gradient(90deg, #080c0ff2, #080c0fd9);
+    background: #080c0fd9;
   }
   .controls {
     justify-self: start;

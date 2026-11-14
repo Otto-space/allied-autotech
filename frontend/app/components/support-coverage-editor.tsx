@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
@@ -86,6 +87,23 @@ function CoverageSelector({ userId }: { userId: string }) {
         workshop opening hours. Saving coverage does not release live chat or make
         representatives available.
       </p>
+      <section aria-labelledby="support-representative-heading">
+        <h3 id="support-representative-heading">Add a support representative</h3>
+        <p>
+          Find the officer by name or work email in People. Select their account and
+          assign Customer Care duties for the Port Harcourt branch: view cases, reply to
+          customers and accept live conversations. If needed, use the secure staff
+          invitation on that page first.
+        </p>
+        <Link className="button secondary" href="/admin/workforce/access">
+          Choose an account or add a staff email
+        </Link>
+        <p>
+          The representative must sign in and switch on live availability. Until an
+          eligible representative is online during support hours, customers can still
+          leave a Customer Care message.
+        </p>
+      </section>
       <label>
         Coverage branch
         <select

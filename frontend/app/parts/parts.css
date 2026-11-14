@@ -563,7 +563,7 @@
   width: 45%;
 }
 .product-contact {
-  background: radial-gradient(ellipse at right bottom, #4a151a 0, #01121a 60%);
+  background: var(--palette-navy);
   color: #fff;
   padding: 32px 0;
 }
