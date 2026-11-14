@@ -1,3 +1,23 @@
+## 14 November - truthful Vehicles section navigation
+
+Held6797b243 passes8/8 compiled sidebar breakpoint cases in Chromium153/Edge157,
+nine catalogue sizes and four real BMW gallery touch sizes. PR81 is closed as
+superseded by PR82; retained evidence includes the intentionally failing baseline
+and incomplete alternative. Reviewed390/1440 catalogue and1440 detail captures.
+
+The real disabled-inspection state exposed a dead Inspection section link: native
+activation updates the hash but its section is absent. Section navigation now uses
+the same inspectionRequestsEnabled capability as the existing content. Preserve
+the other three destinations, existing layout, approved policy and access guards.
+Regression scope covers full/browse/catalogue/unavailable policy views at390/1440,
+all target IDs, enabled native navigation and zero application writes. Unchanged
+compiled679 passes the enabled case and fails the disabled case as expected after
+correcting an initial fixture-envelope error. Corrected compiled and final master
+gates remain pending; this group is not published. Evidence:
+TEMP/aat-stitch-implementation-20261109/vehicle-section-availability-20261114 and
+vehicle-inspection-link-679-baseline.json. All role/device and full119-page limits
+remain; Group5 is read-only preparation until Vehicles publication is verified.
+
 ## 14 November - sidebar breakpoint focus correction awaiting release
 
 Exact-master frontend run 43525367353 failed one of 1,271 browser cases: after collapsing the desktop sidebar and resizing from 1655x960 to 390x844, the mobile navigation close button was absent. The other 1,270 cases passed. Production remains unchanged; source 9bf is not publication-qualified. CI artifact 14085934613 was checksum-verified. Screenshot, context and trace are retained under TEMP/allied-9bf-ci-sidebar; only the downloaded aggregate archive was removed.

@@ -1,8 +1,83 @@
 import { test, expect, type Locator } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { id } from "../fixtures/public-account-actions";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 
 const origin = process.env.CAPABILITY_TEST_CONTROL_ORIGIN;
+
+test.describe("vehicle engine section navigation follows availability", () => {
+  for (const width of [390, 1440]) {
+    for (const mode of [
+      "full",
+      "browse_enquiries",
+      "catalogue",
+      "unavailable",
+    ] as const) {
+      test(`${mode} keeps section links truthful at ${width}px`, async ({ page }) => {
+        const state = {
+          capabilityReads: 0,
+          writes: [] as string[],
+          errors: [] as string[],
+        };
+        page.on("pageerror", (error) => state.errors.push(error.message));
+        await page.route("**/api/v1/**", async (route) => {
+          if (route.request().method() !== "GET") {
+            state.writes.push(route.request().method());
+            return route.abort();
+          }
+          const path = new URL(route.request().url()).pathname;
+          if (path === "/api/v1/auth/session")
+            return route.fulfill({
+              status: 401,
+              json: { success: false, error: { code: "UNAUTHORIZED" } },
+            });
+          if (path === "/api/v1/public/capabilities") {
+            state.capabilityReads++;
+            return route.fulfill(
+              mode === "unavailable"
+                ? { status: 503, json: { success: false } }
+                : {
+                    json: {
+                      success: true,
+                      data: publicCapabilitiesFixture(mode),
+                      message: "Isolated vehicle availability fixture",
+                      meta: { requestId: "vehicle-section-navigation" },
+                    },
+                  },
+            );
+          }
+          return route.continue();
+        });
+        await page.setViewportSize({ width, height: 900 });
+        const listing = process.env.PUBLIC_VEHICLE_TEST_LISTING_ID ?? id(90203);
+        await page.goto(`/vehicles/${listing}`);
+        const navigation = page.getByRole("navigation", { name: "Vehicle sections" });
+        await expect(navigation).toBeVisible();
+        // Exercise policy states in the browser without changing server policy.
+        await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+        await expect.poll(() => state.capabilityReads).toBeGreaterThan(0);
+        const inspection = navigation.getByRole("link", {
+          name: "Inspection",
+          exact: true,
+        });
+        await expect(inspection).toHaveCount(mode === "full" ? 1 : 0);
+        await expect(page.locator("#inspection")).toHaveCount(mode === "full" ? 1 : 0);
+        for (const link of await navigation.getByRole("link").all()) {
+          const target = await link.getAttribute("href");
+          expect(target).toMatch(/^#[a-z-]+$/);
+          await expect(page.locator(target!)).toHaveCount(1);
+        }
+        if (mode === "full") {
+          await inspection.click();
+          await expect(page).toHaveURL(/#inspection$/);
+          await expect(page.locator("#inspection")).toBeInViewport();
+        }
+        expect(state.writes).toEqual([]);
+        expect(state.errors).toEqual([]);
+      });
+    }
+  }
+});
 
 test.describe("vehicle engine gallery touch controls", () => {
   test.use({ hasTouch: true, isMobile: true, reducedMotion: "reduce" });

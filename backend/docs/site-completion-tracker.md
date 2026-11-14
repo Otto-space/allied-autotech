@@ -1,3 +1,28 @@
+## 14 November - Vehicles section navigation follows actual availability
+
+Independent compiled6797b243 sidebar acceptance passes8/8 ordinary/delayed-media
+cases in Chromium153 and installed Edge157, including both breakpoint directions
+and content-focus preservation. Alternative PR81 is closed as superseded; its
+source and differential evidence remain. Held679 also passes nine catalogue sizes
+and four real BMW gallery touch sizes; reviewed390/1440 catalogue and1440 detail
+captures. The existing detail gallery/price columns and real condition disclosures
+retain the reference's useful structure without its unsupported guarantees.
+
+Final detail review found an unconditionally rendered Inspection section link,
+while browse/enquiries and catalogue modes omit that section. Native activation
+sets#inspection but has no destination and leaves scroll unchanged. Make section
+navigation consume the same inspectionRequestsEnabled capability as its content.
+Retain Overview, Specifications and Condition. No policy or permission is enabled.
+Eight browser regressions cover full, browse/enquiries, catalogue and unavailable
+states at390/1440, verify every destination, and use native enabled-state navigation.
+On unchanged compiled679, the corrected fixture baseline has one enabled pass and
+one expected disabled-mode failure; an earlier invalid API-envelope attempt is
+retained separately and is not acceptance. Corrected compiled acceptance and new
+exact-master release checks remain outstanding. Evidence is under
+TEMP/aat-stitch-implementation-20261109/vehicle-section-availability-20261114 and
+vehicle-inspection-link-679-baseline.json. Group4 publication remains held; no
+production submissions, backend rollout or physical-device acceptance is claimed.
+
 ## 14 November - sidebar breakpoint focus correction awaiting release
 
 Exact-master frontend run 43525367353 failed one of 1,271 browser cases: after collapsing the desktop sidebar and resizing from 1655x960 to 390x844, the mobile navigation close button was absent. The other 1,270 cases passed. Production remains unchanged; source 9bf is not publication-qualified. CI artifact 14085934613 was checksum-verified. Screenshot, context and trace are retained under TEMP/allied-9bf-ci-sidebar; only the downloaded aggregate archive was removed.

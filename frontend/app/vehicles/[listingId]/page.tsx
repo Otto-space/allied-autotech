@@ -28,7 +28,10 @@ import { VehicleGallery } from "./vehicle-gallery";
 import { mileageLabel } from "@/lib/vehicle-detail";
 import { vehicleLabel } from "@/lib/vehicle-discovery";
 import "./vehicle-detail.css";
-import { VehicleActions } from "../../components/vehicle-actions";
+import {
+  VehicleActions,
+  VehicleSectionNavigation,
+} from "../../components/vehicle-actions";
 import { vehicleEnquiryHref } from "@/lib/catalogue-enquiry";
 const getListing = cache(async (id: string) => {
   if (!z.uuid().safeParse(id).success) notFound();
@@ -245,12 +248,7 @@ export default async function ListingPage({
               {formatKobo(listing.priceKobo, { hideZeroDecimals: true })}
             </p>
           </header>
-          <nav className="vd-section-nav" aria-label="Vehicle sections">
-            <a href="#vehicle-overview">Overview</a>
-            <a href="#vehicle-specifications">Specifications</a>
-            <a href="#vehicle-condition">Condition</a>
-            <a href="#inspection">Inspection</a>
-          </nav>
+          <VehicleSectionNavigation />
           <VehicleActions
             enquiryHref={enquiryHref}
             key={listing.id}
