@@ -462,11 +462,6 @@ for (const { width, collapsed, measuredBand, earlierInset, tallerHeader } of [
         await selected.evaluate((element) => element.getBoundingClientRect().height),
       ).toBeLessThan(720 / 2);
       await expect(control).toBeInViewport();
-      await page.screenshot({
-        path: info.outputPath(
-          control === review ? "person-long-identity.png" : "person-long-password.png",
-        ),
-      });
       await expect
         .poll(() =>
           control.evaluate((element) => {
@@ -507,6 +502,11 @@ for (const { width, collapsed, measuredBand, earlierInset, tallerHeader } of [
           }),
         )
         .toEqual({ belowIdentity: true, occludingElements: [] });
+      await page.screenshot({
+        path: info.outputPath(
+          control === review ? "person-long-identity.png" : "person-long-password.png",
+        ),
+      });
     }
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),

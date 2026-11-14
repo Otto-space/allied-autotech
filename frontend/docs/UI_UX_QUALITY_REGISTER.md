@@ -1,3 +1,27 @@
+### 14 November: preserve current master screenshot settlement and release
+
+Merged master19aee07d, including its completed upstream release receipts and the
+focus-test screenshot movement after the unchanged label/control visibility poll.
+All19 integrated People/sidebar cases, including the taller header and short-height
+fallback, remain. Application source is unchanged from compiled53150d0a; backend
+source is unchanged from b34c846b's successful hosted132 replay and isolated gate.
+Fresh exact-commit checks still govern integration/publication; older passes remain
+previous-source evidence. No live record, permission, price or commerce flag changed.
+
+The concurrent backend e40c9a13 is ACTIVE and was retained; the public apex now
+identifies dpl_GABPemCubUZP16cbJ8EgZum1TSKv. The old image-cleanup guard stopped
+before deletion when that deployment appeared. After refreshing retention,23 obsolete
+October image copies (46 local tag references) were removed with per-image container,
+worktree, ancestry and provider checks, preserving the current and three preceding
+successful backend deployments, remote registry copies and all database volumes.
+Physical Windows free space is measured separately; image sizes are not added.
+
+A provisional b34 four-image build encountered cold dependency layers, invalidating
+its warm-cache growth estimate. Only its exact-source Docker CLI/plugin were stopped;
+the build exited1 and produced no build manifest or verified b34 images. C: remained
+above20GiB (last21.21GiB). Full packaging still needs a passing justified preflight;
+no reduced reserve, source rewrite, forced cleanup or production migration was used.
+
 ### 14 November: compiled integrated focus acceptance completed
 
 Held production-environment candidate dpl_CqL2KVfDDecbhMRUa5unyXm8okaW,
@@ -269,6 +293,51 @@ reconciliation. Verified invoice identifiers/applicability, operating account/re
 facts, independent provider/role acceptance, exact integrated-master checks and safe
 fresh backup/off-device recovery/restore/migration/runtime publication remain. Broader
 returns/warranty is deferred. Booking and purchasing readiness remain separate.
+
+## 14 November 02:38 UTC - settled focus screenshots accepted
+
+The screenshot timing correction at22fba6d9 passes the full frontend branch check
+43543100658:1,337 runtime browser passes and1,591 units,12 explicit skips. Backend
+43543100662 and secrets43543100789 pass. Six focused msedge cases against the actual
+compiled6c52 Preview pass in27.2 seconds at320/768/1440px, including expanded/collapsed
+sidebar, measured identity band and stale inset. All six post-settlement password
+captures and the phone focused-action image were visually reviewed: visible labels
+and focused controls are unobscured. No assertion, viewport, interaction or timeout
+was weakened; no application code or injected stylesheet changed. Receipt:
+TEMP/allied-preview-22fba6d9-settled/verified.json. This proves fixture geometry and
+interaction; it does not prove real-role, natural timing on every device or provider
+acceptance. The tall-header/short-screen repair remains with the independent D17 batch.
+
+The approved Docker review cleared the local disk blocker: C: now22.03GiB and the
+21.5GiB packaging preflight passes. Exact removal and preservation evidence is in
+the matching completion-tracker checkpoint; no blocked compiler deletion was retried.
+Current master6c52 full frontend/backend/secrets gates pass. Its independent release
+is in progress; preserve its lease and verify both aliases before integrating this
+test-only follow-up. Keep the full original audit and operational acceptance open.
+
+## 14 November 01:51 UTC - capture verified focus states after settlement
+
+The current6c52 compiled Preview passes25/25 focused cases, including six long-name
+People, four sidebar, seven garage, seven consent-suppression and one privacy case.
+Receipt: TEMP/allied-preview-6c52b934/verified.json. It proves fixture interactions,
+not real-role/provider/device acceptance. The older e2e1 full gate also completed:
+1,279 browser passes in41.4m and1,580 units with12 explicit skips. Newer master6c52
+backend/secrets pass; its full frontend43541388596 remains running.
+
+Visual review found that password captures precede the eventual painted-edge check.
+Some measured-inset images therefore show a transient label obstruction even though
+the later assertion passes. Move each capture after that existing assertion; retain
+all input/label edge tests, native focus/scroll steps, viewports and timeout values.
+This changes verification artifacts only, with no application or business change.
+Scoped ESLint, Prettier and diff checks pass. New post-settlement image acceptance
+is pending: local browser preflight failed20.14GiB versus20.25GiB required, so no
+browser launched. Use the exact-source hosted check; do not call old captures new.
+
+Packaging still needs21.5GiB. The separately reviewed task archives total only about
+120MiB and installers about97MiB; no unknown resource was deleted. The approved
+compiler-cache deletion remains automatically policy-blocked and was not retried.
+The owner was asked to free1.5GiB or identify another disposable folder. Continue
+independent work and preserve current production, recovery resources and D17 work.
 
 ## 14 November 01:32 UTC - current master journal formatting repair
 
