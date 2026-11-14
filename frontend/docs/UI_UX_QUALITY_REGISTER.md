@@ -13476,3 +13476,19 @@ remain the only addition; runtime config contains both independent projects.
 689cd106 backend's terminal isolated132-replay and purchase/supply checks pass;
 fresh exact-resulting-master gates and actual combined captures remain necessary.
 This is repository integration, not production publication or role/provider proof.
+
+## 14 November - tall identity and header must not cover the password label
+
+Confirmed in terminal689 CI (1478 passed,1 failed) and reproduced in compiled989
+Preview (2 passes,1 failure across3 attempts). The input is visible but its label
+is occluded by the selected-person band. The page-local label-aware adjustment
+runs before the shared input-only viewport reveal, which shifts the label back
+under the band. All nine workshop navigation cases pass in that CI run.
+
+Candidate: register ownership with the existing page-local focus listener, defer
+the competing generic nearest reveal for its focused fields and clean up ownership
+on unmount. Preserve explicit navigation/dialog behavior, native scrollIntoView,
+complete identity text, enlarged text and every strict occlusion/keyboard assertion.
+Rendered fix verification remains pending. Baseline evidence is in
+TEMP/allied-person-header-989-baseline and TEMP/allied-689-runtime-failure-20261114.
+Selected ZIP CRCs verified; the full archive digest was not fetched/verified.
