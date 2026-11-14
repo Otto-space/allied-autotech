@@ -29,12 +29,16 @@ it("keeps suppression guidance in care scope without authorising a bypass", () =
 it("versions the People explanation without widening access or treating partial checks as complete", () => {
   const article = learningArticles.find((item) => item.id === "access-review")!;
   expect(article).toMatchObject({
-    version: 10,
+    version: 11,
     gate: "access",
     href: "/admin/workforce/access",
-    reviewedAt: "2026-11-13",
+    reviewedAt: "2026-11-14",
   });
   expect(article.steps.join(" ")).toContain("select View person");
+  expect(article.steps.join(" ")).toContain(
+    "An Admin account keeps its normal workspace",
+  );
+  expect(article.steps.join(" ")).toContain("require the owner's current delegation");
   expect(article.steps.join(" ")).toContain("Use Overview");
   expect(article.steps.join(" ")).toContain("New temporary cover needs an end date");
   expect(article.steps.join(" ")).toContain(
