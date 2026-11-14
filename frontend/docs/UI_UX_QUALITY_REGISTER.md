@@ -25,6 +25,39 @@ Temporary candidate access is revoked with zero remaining grants; no cookie pers
 and the task-owned loopback process is stopped. Live-role acceptance is still blocked
 by the browser current-URL safety check. Preserve the independent active worktree.
 
+### 14 November: isolate supply recovery availability after window focus
+
+Exact70e6dce8 backend43548764313 and both secret checks pass. Frontend43548764352
+and43548771412 stop in the order-sourcing preflight before the full matrix: an
+unmocked public-capabilities request escapes the shared customer fixture to the
+CI api.example.com placeholder and returns500. The customer order fixture explicitly
+delegates that policy endpoint to its caller; this suite had omitted that dependency.
+No browser console error was ignored or allowlisted by this correction.
+
+The supply suite now supplies its explicit browse-enquiries policy for customer
+reads, retaining checkout/deposit restrictions and the guest/staff fixtures. Its
+cancelled-customer privacy journey also verifies an availability refresh on window
+focus before reload. A focused held probe with a500 fallback reproduces the gap
+(expected200/received500); all8 customer/guest privacy variants then pass with the
+same unhandled-request trap. The complete current source supply-concern suite passes
+34/34 against held70e6dce8 in isolated Chrome157, including customer choice, owned
+refund linkage, settlement/physical history, no-goods closure, cancelled reconciliation
+and private-safe refresh. Strict console, no-write and confidentiality assertions
+remain. Scoped ESLint, Prettier and focused TypeScript checks pass. Application and
+backend runtime source are unchanged; no learning policy/version/flag changed.
+
+Evidence: supply-capabilities-focus-baseline.log (expected red),
+supply-capabilities-isolation-final.log (8 passes) and
+supply-source-final-held-browser.log (34 passes), in the established private TEMP
+folder. Source70's held People/sidebar19-case Chrome run also passes, with tall/short
+screenshots inspected. These are synthetic compiled journeys, not actual provider,
+bank or real-role acceptance. Both scoped access tokens were revoked and cookie
+files removed. New exact-commit CI and all production backup/restore,20 forward
+migration, packaging/readiness and alias gates still precede publication.
+C: measured20.79GiB after testing; the20GiB reserve is retained. Local full-image
+packaging remains unfinished after the cold-cache build was stopped; no successful
+image manifest or production migration is claimed.
+
 ### 14 November: preserve current master screenshot settlement and release
 
 Merged master19aee07d, including its completed upstream release receipts and the
