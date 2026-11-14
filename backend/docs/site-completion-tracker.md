@@ -15407,3 +15407,27 @@ Evidence: TEMP/allied-allie-live-20261114/combined-release-migration-manual-revi
 and combined-migration-canonical-checkout-verified.json. Prepared restore helper
 was syntax-checked only, not executed. Public AI/live chat remain unactivated;
 coverage, current officer duties/opt-in and real delivery acceptance remain open.
+
+## 14 November 07:08 UTC - MFA layout traversal awaits method focus
+
+Candidate 2bb502cd is based on master 026d9fe2 and preserves PR96's compiled
+People focus repair and PR97's isolated MFA expiry correction. The layout test
+now waits for each method's intended focus destination before enumerating and
+traversing all original controls. No product behavior, permissions, assertions,
+timeouts, capability flags or database inputs changed.
+
+The compiled d06e2531 frontend passes all 10 MFA method/enrollment viewport cases,
+320 through 1536px, in 4.9 minutes with installed Edge and synthetic APIs. Its
+frontend runtime inputs match this candidate; this test-only repair needs no new
+application build. Scoped ESLint, formatting and diff checks pass. Evidence:
+TEMP/allied-mfa-handoff-20261114/report.json. The earlier curl-transport baseline
+hit navigation/DOM replacement errors and is not acceptance evidence. These are
+fixture checks, not real account/device acceptance. Exact-master gates and live
+publication remain required; both briefs and outstanding T01-T07 stay active.
+
+All 20 added forward migrations pass the existing non-destructive SQL guard;
+that does not replace SQL review, populated preservation/recovery or db:check.
+A subsequent backend preflight measured only 16.73 GiB free on C: and stopped
+before provider/database access. No backend build, migration or production
+publication was attempted below the reserve. Current-source 132-migration
+packaging and populated restore gates remain open; old 112 receipts do not qualify.
