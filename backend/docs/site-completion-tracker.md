@@ -65,6 +65,17 @@ after verifying zero connections. Other databases/resources remain untouched.
 Evidence: TEMP/allied-allie-live-20261114/{migration-replay.log,native-cleanup.json}.
 Free space later recovered without a measured attribution; fresh preflights govern.
 
+The newly included owned-conversation suite exposed an obsolete test-only
+parts-fitment@v3 citation. Its successful-answer fixture now uses the current
+reviewed article version; stale/malicious citation rejection remains unchanged.
+All15 HTTP tests pass against a fresh112-migration loopback database with a
+restricted runtime role. The compiled browser campaign passed18 cases before
+an empty-group assertion found that server rendering seeded two unrelated
+synthetic services. The loopback API now returns the same empty group as its
+browser fixture for that exact synthetic category. No product code or assertion
+is relaxed. Full exact-source gates must rerun. Packaging remains paused: the
+fresh disk check still reports20.3GiB, below the21.5GiB packaging requirement.
+
 Remaining: exact-source CI/integration, including the new isolated Allie/Care step;
 matching backend package and fresh recovery/runtime checks; confirm
 the OpenAI project hard USD10 monthly limit; configure API/worker settings; rebuild
