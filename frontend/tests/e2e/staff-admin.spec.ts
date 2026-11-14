@@ -885,7 +885,7 @@ for (const width of [320, 1440])
   test(`anonymous invitation check settles and an explicit retry recovers at ${width}px`, async ({
     page,
   }) => {
-    await page.setViewportSize({ width, height: 900 });
+    await page.setViewportSize({ width, height: width === 320 ? 720 : 900 });
     let anonymous = true;
     let reads = 0;
     const writes: string[] = [];
@@ -921,8 +921,18 @@ for (const width of [320, 1440])
     await expect(guidance).toBeVisible();
     await expect(checking).toHaveCount(0);
     await expect(page.getByLabel("Invitation token")).toHaveCount(0);
+    const retry = page.getByRole("button", { name: "Check session again", exact: true });
+    await expect(retry).toBeInViewport({ ratio: 1 });
+    expect(
+      await retry.evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        return element.contains(
+          document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2),
+        );
+      }),
+    ).toBe(true);
     const previousReads = reads;
-    await page.getByRole("button", { name: "Check session again", exact: true }).click();
+    await retry.click();
     await expect.poll(() => reads).toBeGreaterThan(previousReads);
     await expect(guidance).toBeVisible();
     await expect(checking).toHaveCount(0);

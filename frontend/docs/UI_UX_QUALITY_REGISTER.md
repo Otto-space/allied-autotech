@@ -1,3 +1,23 @@
+## 14 November - invitation phone action obstructed by the support bar
+
+The compiled fb2e build exposes a real320x720 defect: Check session again is
+173x48px at y627, but its centre receives Ask Allie from the fixed full-width
+support bar. Evidence: TEMP/aat-stitch-implementation-20261109/account-design-20261114/
+invitation-fb-dock-obstruction.json and invitation-fb-320-support-review.png.
+Apply the existing authentication-page dock exclusion to the invitation route,
+alongside the other six account routes. Keep its Help Centre/footer links and all
+non-auth support behaviour. The anonymous retry regression now uses320x720 and
+checks full visibility and an unobstructed native pointer target before clicking.
+This repair still requires new compiled acceptance.
+
+Separate compiled checks pass24 existing automated accessibility cases across
+six account forms and63 read-only viewport checks across all seven routes. The
+initial access-renewal attempt reached the provider login; those three failed
+checks and21 not-run cases are setup failures, not app acceptance. Intended-host
+and application identity checks now guard the successful rerun. Physical devices,
+real roles and actual account/security mutations remain untested. Group5 stays
+unpublished pending this obstruction repair and final exact-master gates.
+
 ## 14 November - compiled account recovery and natural reflow evidence
 
 The private production-environment build fb2e15c2, deployment
