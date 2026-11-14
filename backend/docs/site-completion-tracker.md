@@ -1,3 +1,26 @@
+## 14 November - menu acceptance reconciled with delegated Admin entry
+
+Master b0cf0f0e includes PR92 Admin duty entry and access-review Help v11.
+Merge conflicts were limited to these journals; preserve both histories. The
+menu CSS and hero recovery wording remain intact, as do all incoming Admin
+identity/delegation guards, tests and content. New exact-source CI, compiled
+acceptance and exact-master publication gates remain required.
+
+Prior abbf0fa9 compiled Preview acceptance:19 navigation/hero,18 customer/admin
+table,14 customer-care layout/recovery,8 support preflight guards,4 privacy modal
+and21 exact-seven-viewport review geometry cases pass. Counts overlap in scope;
+these are bounded synthetic cases, not whole-site or real-role certification.
+Enquiry/reply/privacy reviews center on both axes, use full phone width, keep
+controls reachable and preserve Escape/focus at all seven required sizes.1024
+and430 captures reviewed. No real messages, privacy requests or grants submitted.
+Receipts: TEMP/allied-{menu-compiled,table-compiled,care-compiled,care-guards,
+privacy-modal,care-geometry}-abbf0fa9/verified.json.
+
+The old frontend-only release plan is superseded: incoming master changes backend
+Help content. Reconcile with the Team release package before publication; do not
+claim old backend images contain v11. Full original briefs and T01-T07/D01-D17,
+real-role, physical-device and missing business-data limits remain open.
+
 ## 14 November - compiled menu acceptance and concurrent hero reconciliation
 
 PR91 source10220f8a has18/18 compiled Edge Preview passes with zero skips/flaky
@@ -66,6 +89,144 @@ acceptance. Full original briefs, independent D01-D17/T01-T07 work, physical-dev
 and server/provider acceptance remain open; unconfirmed Diagnostics duration and
 Engine Oil Filter identity/photo facts remain missing business inputs. Source,
 dependencies, history, databases and other active branches were preserved.
+
+## 14 November 04:11 UTC - Admin duty entry focused verification complete; integrate next
+
+The03:06-04:06 implementation package is signed through9c297935, with a final
+painted-edge test correction pending this evidence commit. Continue the04:06-05:06
+integration/release package in the same worktree; no next page group is started.
+PR92 repairs only the normal Admin session's delegated People/review entry and
+access-review v11 guidance. Full Admin baseline, server authority, frozen duties,
+Help eligibility/targets, capability flags and database schema remain unchanged.
+
+Application/selected browser-test types, scoped ESLint and formatting pass.27
+learning/retrieval units and37 isolated HTTP cases after empty112 replay pass;
+the native backend src/tests fingerprint is still exactly4e903e28a1a6bc5a991be65a53326f747b4240a49ff059f750cf94033437b5d6.
+Private compiled6e6ffd2f/dpl_915TRgXZVGNSFkBYJfbyZ2ceZRMg has unchanged runtime
+inputs through the fixture corrections. The final focused evidence is8 distinct
+cases: review2/2; People5/6 followed by the corrected denial1/1. Phone320/laptop1440
+person entry, revocation/return to the Admin baseline, no-delegation/no-fetch,
+wrong-actor/no-fetch, unavailable/retry, scoped reviews and review revocation pass.
+The denial also passes Axe, native keyboard focus,44px minimums and8 painted-edge
+hit probes per control. This does not claim a clean58-case run.
+
+Retain the initial58-case attempt:16 passed,2 failed, then stopped with remaining
+work incomplete. Failures exposed a stale Admin denial expectation and an
+inconsistent delegated fixture envelope; neither validation nor authority was
+relaxed. A subsequent5/6 run retained the bounding-rectangle corner-probe failure;
+painted corners plus all four edges now pass without application CSS changes.
+Receipts/captures: TEMP/allied-admin-duty-6e6ffd2f-20261114. The preview's actual
+public-policy response is503; these are synthetic account-API/compiled-preview
+checks, not production-policy or real signed-in role acceptance. Held production,
+all three exact-master gates and live publication remain required.
+
+At04:05 the actual backend is still ACTIVE e40c9a13 with the four6c52 digests,
+no pending rollout; both aliases still identify dpl_GABPemCubUZP16cbJ8EgZum1TSKv.
+No real grants, invitations or business submissions occurred. Disk temporarily
+failed at11.29GiB, so the next test stage stopped. A fresh check later passed at
+20.62GiB without cleanup; latest20.57GiB. Cause of the transient consumption is
+unconfirmed. Recheck every substantial stage; preserve all protected resources.
+T01-T07 remaining canonical person/account/job and media/photo/video work stays open.
+
+## 14 November 03:06 UTC - real Admin duty-entry repair; candidate only
+
+Current finite package:03:06 to04:06 UTC in allied-team-media-20261110 on
+codex/team-person-workspace-20261114. Published6c52b934 remains the live baseline.
+Its release evidence is signed locally as7a68ea5c on this follow-up branch.
+
+The actual identity contract deliberately sets workforceManaged only for enrolled
+Staff, preserving the approved full Admin account baseline. The workforce/learning
+snapshot separately records whether an Admin has a workforce record and current
+management delegation. The client entry incorrectly required the Staff-only path:
+compiled6c52 with isolated APIs reproduces one failed phone case and one not run,
+showing Responsibility management unavailable instead of the authorized People
+page. Evidence: TEMP/allied-admin-duty-baseline-6c52-20261114.
+
+The candidate checks current own identity plus existing server-returned delegation,
+binds both to the session user, and keeps the ordinary Admin workspace intact.
+Retained duty views are hidden/inert during checks, reset on scope changes and
+discarded after denial, errors or mismatched identity. No server permission, Admin
+baseline, frozen v1/v2 definition or capability flag is changed. Six new browser
+cases cover320/1440 person entry, delegation loss/return to the baseline, absent
+delegation without a directory fetch, wrong-actor response and unavailable/retry.
+The phone denial state also checks Axe, native keyboard focus and full hit areas.
+
+Access-review guidance advances to v11 with unchanged eligibility/semantic targets
+and flags.27 learning/retrieval units pass. Fresh empty112-migration replay and37
+actual HTTP cases pass with a non-owner/no-DDL/no-TRUNCATE synthetic runtime role;
+only the newly created synthetic database/role were removed. Source fingerprint
+and cleanup: TEMP/allied-people-tests-862fe72d4e29. This never used a populated
+restore as a fixture. Final source checks, compiled acceptance, exact-master gates
+and publication of this candidate remain pending.
+
+The full person sections, managed invitation/history/account composition, role/job
+workspaces and media/photo/video matrix remain open in T01-T07. The basic managed
+invitation component is not the normal real-Admin entry: do not replace or narrow
+the established Admin baseline based on an unrealistic session fixture.
+
+## 14 November 02:45 UTC - Team history and current-access reviews published
+
+Released exact master6c52b934, including PR80's readable history/current-access
+reviews, dated cover/invitations and the reconciled shared focus fixes. All three
+exact-master gates passed: frontend43541388596, backend43541388597 and secrets 43541388641. Frontend passed1,591 units with12 existing conditional skips and1,337
+production-build runtime cases in43.7minutes. Repeated sidebar/transport/media/order/
+Parts preflights overlap the matrix; do not add them as unique coverage.
+
+Backend e40c9a13-d8ae-4c4f-a50c-04353ceef4c4 is ACTIVE with all four checked6c52
+digests and no pending rollout. The PRE_DEPLOY job remained read-only and passed.
+All nine packaged-image checks,112 physical/packaged migration inputs, production
+history/schema/TLS/least-privilege checks, public liveness/readiness and13 fresh
+worker tasks passed. Only image digests changed; settings and capability flags
+were preserved. No migration, real account/grant change, invitation, stock edit or
+business submission was performed by release verification. Normal worker activity
+continues; this is not a claim of zero database activity.
+
+The verified1,007,307-byte fresh backup was actually restored into a new separate
+loopback database, allied_combined_restore_1740aa02970e_ci on127.0.0.1:63888.
+Its112-to112 history, original-column counts/hashes and rolled-back history were
+preserved; db:check passed without a migration. All six current/recovery packaged
+read-only schema probes passed against this exact backup's populated restore.
+This database contains protected production data: never submit fixtures, repurpose
+or delete it under disposable _ci cleanup. Prior populated restores also remain
+protected. Eight current managed snapshots and the existing encrypted off-device/
+seven-day PITR evidence were checked; no new managed-cloud restore is claimed.
+
+Frontend dpl_GABPemCubUZP16cbJ8EgZum1TSKv passed52/52 held-production Edge cases,
+then was promoted only after backend readiness. Both apex and www identify this
+deployment; www keeps its apex redirect. Eight post-promotion phone/desktop cases
+passed with actual public assets/policy and isolated account APIs, zero skips,
+flaky cases or errors. Three actual unauthenticated Team API requests returned401
+without record data. Actual public policy matches the pre-release snapshot except
+serverTime: browse/enquiries remains enabled while checkout, deposits, booking and
+inspection requests stay disabled. These checks do not establish signed-in real
+roles, provider delivery, physical-device, Safari or full accessibility acceptance.
+
+Evidence: TEMP/allied-team-held-6c52b934-20261114/acceptance.json,
+TEMP/allied-team-live-6c52b934-20261114/acceptance.json and
+TEMP/aat-attendance-20261104/release-backend-6c52b934-20261114. Compatible recovery
+retains the previous4gNT frontend and all four6a9318a6 images/previous deployment;
+review the pair together, because the new frontend uses new protected endpoints.
+Never undo the database to roll back an application.
+
+Feature-branch retirement stopped when GitHub GH013 rejected deletion of
+codex/team-history-20261113 under its repository rule. Both that branch and
+codex/team-reviews-20261113 remain at their verified local/remote heads; no rule
+was changed and the second deletion was not attempted. Active release/worktree,
+uncommitted evidence, stashes, other source and recovery resources are preserved.
+
+Both original briefs remain active. Vehicle V01-V05 stays released. T01/T02 still
+need canonical person sections and managed invitation/history/account composition;
+T03 task-specific workspaces, T04 media v3/library/placements, T05 bulk photos,
+T06 complete video and T07 the remaining access/device matrix remain open. The
+next finite Team package must preserve legacy/managed delegation and frozen v1/v2
+definitions. No new media position or real duty was assigned automatically.
+
+Disk preflights preserved20GiB. A fresh restore initially stopped at20.15GiB;
+automatic approval review rejected this task's generated cache/dev cleanup, and
+both targets were retained. Later free space independently rose above22GiB, so
+the unchanged0.75GiB restore allowance passed and the fresh rehearsal completed.
+Last measured free space21.21GiB; recheck before further writes. This is a preflight
+record, not a machine-wide guarantee. Preserve active worktrees and recovery data.
 
 ## 14 November - live hero verification found remaining fallback wording
 
