@@ -1,3 +1,33 @@
+### 14 November: compiled integrated focus acceptance completed
+
+Held production-environment candidate dpl_CqL2KVfDDecbhMRUa5unyXm8okaW,
+source53150d0a, passes19/19 compiled Chromium fixture journeys: three responsive
+sidebar transitions, eight directory widths320-1440 and eight person-focus cases.
+These retain keyboard Tab, enlarged full identity, measured356px band, stale header
+inset, taller header and painted label/control edge assertions; the520px-height
+case verifies release of stickiness when the complete identity cannot fit.
+The tall-header and short-screen password screenshots were visually inspected.
+The two-case edge preflight also passed. Logs are integrated-label-final-full-browser.log
+and integrated-label-final-held-browser.log in the established private TEMP evidence
+folder. Scope is rendered fixtures, not real-role, physical-device or payment acceptance.
+Temporary candidate access was revoked and its cookie file removed.
+
+Corrected the first candidate's overly conservative vertical clearance; final
+geometry retains two pixels above/below the focus band. No assertion was dropped.
+Exact-source CI is still running and PR87 remains draft. Master6c52b934 is preserved.
+Both live aliases remain dpl_4gNTdCdQRLm4MhLznG4uTZTt1T6Y; backend36687b08 is ACTIVE
+with no pending rollout. No production publication or database write occurred.
+The complete release includes20 forward migrations113-132 relative to master;
+all132 replayed in the193-test isolated financial run. Required exact-master checks,
+recovery/backup/restore, matching four-image packaging and runtime gates remain.
+
+C: measured20.12GiB after the browser run. A measured single-worker, trace/video-off
+19-case run used a bounded0.1GiB allowance; the cloud-only source upload used0.05GiB
+without local build/install/archive. Full local build capacity is not established.
+Automatic approval review rejected deletion of the tiny aborted-browser profile
+with "blocked by policy"; it remains untouched. Other active worktree caches, source,
+Git history, database volumes, current/rollback images and owner files were retained.
+
 ### 14 November: integrate current access review and complete People focus bounds
 
 Reconciled master6c52b934 with the D17 recovery batch, retaining the read-only
