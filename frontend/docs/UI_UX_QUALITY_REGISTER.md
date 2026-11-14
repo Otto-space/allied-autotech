@@ -646,6 +646,32 @@ template coverage and remaining Groups4-10 remain open.
 
 ## 13 November - consolidated T02 integration checkpoint
 
+### 2026-11-14 00:46 UTC - selected-person focus under unavailable availability
+
+The reconciled hosted combined suite passed25 cases, then failed320px enlarged-
+identity focus;23 later cases did not run. Do not count it as a full pass.
+TEMP/allied-team-held-0275e5b0-20261114/review-report.json retains the failure.
+The earlier independent navigation suite passed8/8 Chromium/Edge cases, including
+native handoff, forced focus eviction, main-content focus and open-drawer return.
+Both failed baseline cases and the incorrect width assertion remain retained.
+
+Focused diagnosis measures document inset319px after the sticky header is133px;
+the356px person band and372px margin then place focus behind the dock or the band
+as the two visibility handlers realign it. This occurs with a legitimate unavailable
+public-policy notice that scrolls offscreen. Keep the policy unavailable, not a
+matching fake healthy policy. Scope the fix to person controls: subtract document
+padding before adding the measured person top/height and16px clearance. Native
+scrolling then reserves the person band once even when the document inset is stale.
+
+An initial stylesheet-overlay attempt did not override the compiled rule (measured
+margin remained372px) and failed; it is not acceptance. An explicit inline prototype
+using the candidate calculation passes all4 original/measured/stale-inset Edge cases,
+with measured margins186px at319px inset and196px at309px inset. This verifies the
+calculation, not a new compiled artifact. Preserve focus-diagnostic, focus-overlay
+and focus-inline reports under the same TEMP folder. Add one stale-inset regression
+without changing any original occlusion, native-scroll or identity assertions.
+New compiled-source/CI acceptance remains required; no publication or real writes.
+
 ### 2026-11-14 00:28 UTC - compiled focus succeeds; added width expectation corrected
 
 Reconciled0275 private previewCvnnSkio6m9oNmU4Y7bPtTbRjrcp is READY. Its native

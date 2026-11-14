@@ -314,12 +314,13 @@ for (const [width, height] of [
     });
   });
 }
-for (const [width, measuredBand] of [
-  [320, false],
-  [1440, false],
-  [320, true],
+for (const [width, measuredBand, earlierInset] of [
+  [320, false, 0],
+  [1440, false, 0],
+  [320, true, 0],
+  [320, true, 160],
 ] as const) {
-  test(`long selected identity at ${width}px${measuredBand ? " with the measured identity band" : ""} wraps at enlarged text without covering actions`, async ({
+  test(`long selected identity at ${width}px${measuredBand ? " with the measured identity band" : ""}${earlierInset ? " and an earlier header inset" : ""} wraps at enlarged text without covering actions`, async ({
     page,
   }, info) => {
     await page.setViewportSize({ width, height: 720 });
@@ -336,15 +337,15 @@ for (const [width, measuredBand] of [
       element.style.wordSpacing = "0.16em";
     });
     if (measuredBand)
-      await selected.evaluate((element) => {
+      await selected.evaluate((element, extraInset) => {
         // Keep the valid larger band independent of platform font metrics.
         element.style.minHeight = "356px";
         const header = document.querySelector(".dashboard-top")!;
         document.documentElement.style.setProperty(
           "--viewport-header-offset",
-          `${Math.max(0, header.getBoundingClientRect().bottom) + 16}px`,
+          `${Math.max(0, header.getBoundingClientRect().bottom) + 16 + extraInset}px`,
         );
-      });
+      }, earlierInset);
     const review = page.getByRole("button", { name: "Review enrollment", exact: true });
     for (const control of [
       page.getByLabel("Your current password", { exact: true }),
