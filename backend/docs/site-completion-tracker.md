@@ -1,3 +1,33 @@
+## 14 November - final Vehicles verification and sidebar release correction
+
+Current master9bf8a26e remains unpublished: frontend43525367353 finished with
+1270/1271 passing. Both enlarged-person cases and all four gallery cases pass;
+the sole failure is Chromium desktop-to-mobile sidebar focus. Its CI screenshot,
+context and trace were retrieved through bounded archive ranges, without retaining
+the72.8MB archive. Evidence: TEMP/aat-stitch-implementation-20261109/sidebar-9bf-*.
+Five ordinary hosted Chromium153 cases pass, while delayed media-event delivery
+reproduces native blur to BODY before the handler runs, leaving the drawer closed.
+Recover focus from the hidden desktop control's focusout event when its related
+target is absent and the mobile breakpoint applies. Keep normal focus transitions
+and desktop collapse preference. Regression coverage retains the ordinary flow,
+adds the delayed native-blur case, and checks that content focus never opens the
+drawer. Corrected compiled checks and new exact-master gates remain outstanding.
+
+Independent held9bf verification passes13 workforce directory cases, nine Vehicles
+catalogue sizes, four real BMW gallery touch sizes, combined search/budget plus
+detail/Back/reload, Home controls at320/390 and Services pricing at320/390/850/930.
+Reviewed390/1440 catalogue captures and enlarged-person focus captures. WCAG-tagged
+main/footer scans pass at390/1440; unrestricted desktop Axe reports the unchanged
+nonmodal dialog role-region best-practice warning, retained as a follow-up. No real
+business writes or physical-device/real-role acceptance. Index:
+TEMP/aat-stitch-implementation-20261109/vehicles-9bf-verification-index.json.
+The alternative workforce draft PR79 is closed as superseded by PR77; source and
+evidence are retained. Account references remain read-only preparation; replace
+the pre-hydration registration desktop capture with the settled9bf capture.
+Current backend remains the6a/schema112 release. The separate task's c48 release
+is explicitly held after its earlier failed frontend gate; no rollout is pending.
+Do not duplicate it or publish incompatible frontend. Groups4-10/full119 remain.
+
 ## 14 November - release gate corrections and current calendar acceptance
 
 Held combined source2e492b81 passes16/16 booking-calendar cases in dedicated Edge:

@@ -227,35 +227,80 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
   });
 }
 
-test("sidebar preserves the desktop choice across mobile without stranding keyboard focus", async ({
-  page,
-}) => {
-  await session(page, "ADMIN");
-  await page.setViewportSize({ width: 1655, height: 960 });
-  await page.goto("/admin");
-  await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
-  await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
-  await page.setViewportSize({ width: 390, height: 844 });
-  const mobile = page.getByRole("button", { name: "Close dashboard navigation" });
-  await expect(mobile).toBeFocused();
-  const nav = page.getByRole("navigation", { name: "Administration", exact: true });
-  await expect(nav).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(nav).toBeHidden();
-  await page.setViewportSize({ width: 1024, height: 768 });
-  await expect(
-    page.getByRole("button", { name: "Expand sidebar", exact: true }),
-  ).toBeFocused();
-  await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
-  await expect(nav).toBeVisible();
-  await page.keyboard.press("Enter");
-  await expect(
-    page.getByRole("button", { name: "Collapse sidebar", exact: true }),
-  ).toBeFocused();
-  expect(
-    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-  ).toBe(true);
-});
+for (const delayedMediaEvent of [false, true])
+  test(`sidebar preserves the desktop choice across mobile without stranding keyboard focus${delayedMediaEvent ? " when media delivery follows native blur" : ""}`, async ({
+    page,
+  }) => {
+    if (delayedMediaEvent)
+      await page.addInitScript(() => {
+        const matchMedia = window.matchMedia.bind(window);
+        window.matchMedia = (query) => {
+          const media = matchMedia(query);
+          if (query !== "(max-width: 900px)") return media;
+          const add = media.addEventListener.bind(media);
+          const remove = media.removeEventListener.bind(media);
+          const listeners = new Map<EventListenerOrEventListenerObject, EventListener>();
+          Object.defineProperty(media, "addEventListener", {
+            value(
+              type: string,
+              listener: EventListenerOrEventListenerObject,
+              options?: AddEventListenerOptions | boolean,
+            ) {
+              if (type !== "change") return add(type, listener, options);
+              const deferred: EventListener = (event) => {
+                window.setTimeout(() => {
+                  if (typeof listener === "function") listener.call(media, event);
+                  else listener.handleEvent(event);
+                }, 150);
+              };
+              listeners.set(listener, deferred);
+              add(type, deferred, options);
+            },
+          });
+          Object.defineProperty(media, "removeEventListener", {
+            value(
+              type: string,
+              listener: EventListenerOrEventListenerObject,
+              options?: EventListenerOptions | boolean,
+            ) {
+              remove(type, listeners.get(listener) ?? listener, options);
+              listeners.delete(listener);
+            },
+          });
+          return media;
+        };
+      });
+    await session(page, "ADMIN");
+    await page.setViewportSize({ width: 1655, height: 960 });
+    await page.goto("/admin");
+    await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+    await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mobile = page.getByRole("button", { name: "Close dashboard navigation" });
+    await expect(mobile).toBeFocused();
+    const nav = page.getByRole("navigation", { name: "Administration", exact: true });
+    await expect(nav).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(nav).toBeHidden();
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await expect(
+      page.getByRole("button", { name: "Expand sidebar", exact: true }),
+    ).toBeFocused();
+    await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
+    await expect(nav).toBeVisible();
+    await page.keyboard.press("Enter");
+    await expect(
+      page.getByRole("button", { name: "Collapse sidebar", exact: true }),
+    ).toBeFocused();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    const refresh = page.getByRole("button", { name: "Refresh", exact: true });
+    await refresh.focus();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(refresh).toBeFocused();
+    await expect(nav).toBeHidden();
+  });
 
 test("short laptop sidebar scrolls every group while keeping its controls visible", async ({
   page,

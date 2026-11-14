@@ -1,3 +1,27 @@
+## 14 November - Vehicles verification and sidebar focus timing
+
+Held9bf8a26e passes independent13-case workforce directory checks, nine catalogue
+sizes, four actual BMW gallery native-touch sizes, combined search/budget/detail
+Back/reload, Home320/390 and Services320/390/850/930 no-jump selections. Scoped
+WCAG-tagged main/footer scans pass390/1440. An unrestricted desktop scan retains
+the existing dialog role-region best-practice warning; filter source matches the
+live release. Review semantics in a future bounded filter batch. No business
+writes, actual role/device or full accessibility acceptance is claimed. Evidence:
+TEMP/aat-stitch-implementation-20261109/vehicles-9bf-verification-index.json.
+
+Exact-master frontend43525367353 fails one of1271 cases: sidebar breakpoint focus
+in Chromium153; workforce and gallery regressions pass. Bounded CI screenshot and
+trace reads confirm the mobile drawer stays closed. Five normal hosted Chromium
+repeats pass, but delaying media delivery reproduces the browser blurring the now
+hidden desktop control before the breakpoint handler reads activeElement. Recover
+that focusout using its actual target only when relatedTarget is absent and the
+mobile breakpoint applies. Retain ordinary breakpoint coverage and add delayed
+delivery plus content-focus non-interference checks. Corrected compiled and final
+exact-master acceptance remain pending. PR79's larger workforce alternative is
+closed as superseded by the independently verified PR77 CSS correction; retained
+source/evidence are not publication. Current backend release remains unchanged;
+matching backend and live Vehicles publication are still required before Group5.
+
 ## 14 November - release gate corrections and current calendar acceptance
 
 Held combined source2e492b81 passes16/16 booking-calendar cases in dedicated Edge:

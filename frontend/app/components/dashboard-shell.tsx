@@ -216,16 +216,27 @@ export function DashboardShell({
   }, [menuOpen, session]);
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 900px)");
+    const desktopControls =
+      ".dashboard-navigation-container, .dashboard-collapse-toggle, .dashboard-logout";
+    function recoverHiddenFocus(event: FocusEvent) {
+      // Chromium can blur a newly hidden control before the media event runs.
+      // The blur still identifies which desktop control needs a visible home.
+      if (
+        mobile.matches &&
+        !event.relatedTarget &&
+        event.target instanceof Element &&
+        event.target.closest(desktopControls)
+      ) {
+        setMenuPath(pathname);
+        menuButton.current?.focus();
+      }
+    }
     function adaptNavigation() {
       const focused = document.activeElement;
       if (mobile.matches) {
         // The mobile drawer has its own full navigation. Keep the user's
         // desktop sidebar choice when a resize crosses this breakpoint.
-        if (
-          focused?.closest(
-            ".dashboard-navigation-container, .dashboard-collapse-toggle, .dashboard-logout",
-          )
-        ) {
+        if (focused?.closest(desktopControls)) {
           setMenuPath(pathname);
           menuButton.current?.focus();
         }
@@ -234,8 +245,12 @@ export function DashboardShell({
         if (focused === menuButton.current) collapseButton.current?.focus();
       }
     }
+    document.addEventListener("focusout", recoverHiddenFocus);
     mobile.addEventListener("change", adaptNavigation);
-    return () => mobile.removeEventListener("change", adaptNavigation);
+    return () => {
+      document.removeEventListener("focusout", recoverHiddenFocus);
+      mobile.removeEventListener("change", adaptNavigation);
+    };
   }, [pathname]);
   useEffect(() => {
     let active = true;
