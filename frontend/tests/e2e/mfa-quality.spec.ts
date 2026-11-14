@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { expectAuthControlReachable } from "../fixtures/auth-layout";
 import { fixture, codes } from "../fixtures/mfa";
 for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
   test(`MFA methods and enrollment fit ${width}px`, async ({ page }) => {
@@ -24,8 +25,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
         )
         .all())
         if (await control.isVisible()) {
-          await expect(control).toBeInViewport();
-          expect((await control.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+          await expectAuthControlReachable(control);
         }
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),

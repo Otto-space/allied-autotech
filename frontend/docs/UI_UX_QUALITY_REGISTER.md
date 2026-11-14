@@ -1,3 +1,39 @@
+## 14 November - compiled account recovery and natural reflow evidence
+
+The private production-environment build fb2e15c2, deployment
+`dpl_EFBh1vETWrsPUim9acL1y1b7kD9e`, passes seven invitation fixture cases.
+Anonymous401 reads settle and retry at320/1440,503 reads retain distinct error
+feedback and recover, and the existing explicit CSRF confirmation, rejection,
+uncertainty, credential clearing and cross-tab late-response checks pass. These
+use synthetic account APIs with a guard against unhandled hosted mutations;
+they are not real-role or live access-change acceptance.
+
+The first18-case layout run recorded13 passes, three failures and two cases not
+run. Reset/MFA secondary links were below the initial phone viewport. The new
+reference composition deliberately allows long forms and the complete privacy
+notice to flow vertically. The regression now exercises keyboard focus and native
+scrolling, then requires the whole control in view, its centre to receive input,
+and the existing44px minimum height. Horizontal overflow and all original form
+states/sizes remain checked. Nine focused registration/reset/MFA cases now pass
+at320/390/1440 against unchanged compiled application styles. A focus-only trial
+recorded8/9 passes and a fractional viewport-edge failure; a two-case scroll-margin
+CSS rehearsal also failed and was not applied. Neither failed attempt counts as
+acceptance. Successful compiled checks contain no injected replacement stylesheet.
+
+The ordinary Preview correctly fails closed when its availability endpoint returns 503. That exposed the registration fallback missing a level-one heading; it now
+uses the shared card and a clear contact action, without the registration-only
+information panel. The production-configured private build reads the genuine
+browse/enquiries policy with accounts enabled and commerce/booking gates unchanged.
+CLI submission succeeded, but its new structured response defeated the helper URL
+parser; the provider receipt was recovered without resubmission and both public
+domains were confirmed unchanged.
+
+Evidence is under TEMP/aat-stitch-implementation-20261109/account-design-20261114:
+invitation-fb-result.json, layout-fb-result.json, native-reflow-fb-v2-result.json,
+registration-fb-natural-reflow.json and retained initial failure captures. Full
+reference/size/accessibility review, final exact-master checks and live account-page
+verification remain required. Group5 remains open; source coverage stays repaired.
+
 ## 14 November - account reference implementation, rendered checks pending
 
 Group 5 covers the seven existing authentication routes. The four supplied account
