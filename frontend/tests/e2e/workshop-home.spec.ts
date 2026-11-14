@@ -155,7 +155,7 @@ test("all failed hero photos retain readable content and a working discovery lin
       : route.continue();
   });
   await open(page);
-  await expect(hero(page).getByText("Editorial image unavailable")).toBeVisible();
+  await expect(hero(page).getByText("Image unavailable", { exact: true })).toBeVisible();
   await expect(hero(page)).toHaveAttribute("data-rotating", "false");
   await expect(hero(page).getByRole("button", { name: "Next slide" })).toBeDisabled();
   await expect(hero(page).getByRole("heading", { level: 1 })).toContainText(
