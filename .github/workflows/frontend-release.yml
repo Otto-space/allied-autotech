@@ -30,11 +30,11 @@ jobs:
     runs-on: ubuntu-24.04
     # One production build, followed by the existing Chromium suite and the
     # bounded Firefox/WebKit responsive matrix. The fixture API is serial.
-    # The 1,337-case baseline took 43.7 minutes. Account recovery brings collection
-    # to 1,340 cases and adds native focus/scroll checks across 30 form-size cases.
+    # The 1,337-case baseline took 43.7 minutes. Explicit account coverage adds
+    # 91 layout, accessibility and invitation cases, bringing collection to 1,428.
     # Retain the serial fixture, every assertion and individual test limit. Allow
-    # 50 minutes for the matrix plus 20 for setup, build, diagnostics and upload.
-    timeout-minutes: 70
+    # 60 minutes for the matrix plus 20 for setup, build, diagnostics and upload.
+    timeout-minutes: 80
     defaults:
       run:
         working-directory: frontend
@@ -111,9 +111,9 @@ jobs:
           if-no-files-found: ignore
       - name: Verify independent runtime availability in the production build
         # A step timeout leaves the job alive to upload its synthetic evidence.
-        # The 1,337-case baseline used 43.7 minutes. Keep all added native keyboard,
-        # scroll and session-recovery assertions; individual limits are unchanged.
-        timeout-minutes: 50
+        # The 1,337-case baseline used 43.7 minutes. Keep all 91 added account
+        # cases and native interactions; individual test limits are unchanged.
+        timeout-minutes: 60
         run: npx --no-install playwright test --config playwright.runtime.config.ts --max-failures=5
       - name: Preserve synthetic browser evidence
         if: ${{ always() }}

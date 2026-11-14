@@ -1,3 +1,31 @@
+## 14 November - required account collection corrected and expanded
+
+Collection proves the previous1,340-case estimate was wrong: the existing selected
+projects still collected1,337 cases and omitted these account layout/invitation
+checks. Add an explicit account-design project with60 responsive form cases,24
+accessibility cases and seven invitation cases. The actual required collection is
+now1,428 cases in76 files. A case-identity comparison proves every previous1,337
+case remains selected. Source evidence: account-design-20261114/required-matrix-collection-audit.json.
+Allow60 minutes for the expanded matrix and80 for the job, retaining the previous
+20-minute setup/diagnostic allowance and every individual test limit/max-failure
+rule. This supersedes the earlier1,340-case budget estimate; collection is not
+execution acceptance.
+
+The new compiled5f20 build dpl_7b2qAWndYjqpd6npEFYK7nZFzcPY passes all seven
+invitation fixtures, now including the320x720 pointer obstruction regression.
+Native touch at320x720 and390x844 confirms the real anonymous session check receives
+input, returns401 guidance, stays on the page and preserves scroll. The fixed dock
+is absent under the same exclusion already used by the other authentication pages.
+An additional guest-invitation Axe scan finds zero violations. No business writes.
+Evidence: invitation-final-5f-result.json and invitation-5f-native-fixed.json.
+The real email/MFA token inputs remain single fields for their actual flows and
+copy/paste; unsupported SMS/Whatsapp six-slot verification is not introduced.
+
+Current master add252a6 is integrated, preserving its plain Home fallback wording
+and both journals exactly. Full current-source checks, final master integration,
+exact-master production build and live Group5 acceptance remain required. Current
+public release6c52 remains unchanged. Groups6-10/full inventory remain open.
+
 ## 14 November - invitation phone action obstructed by the support bar
 
 The compiled fb2e build exposes a real320x720 defect: Check session again is
