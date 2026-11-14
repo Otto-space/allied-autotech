@@ -32,6 +32,15 @@ by a successful eight-test retry), not completed real-role/provider/browser jour
 The new 132-migration native test attempt was stopped for disk reserve and does not
 count as passed. Current activation source is isolated on 112-migration master.
 
+The standard frontend matrix omitted the dedicated conversation, handoff, privacy,
+channel and owner-coverage suites. A separate compiled-build CI campaign now
+collects59 existing cases across those five suites. Its build explicitly enables
+the owner-only editor; its synthetic Allie/channel fixtures supply their declared
+browse/enquiries availability so a refresh cannot escape to the CI placeholder.
+No console assertion or unavailable-state check is relaxed. Dedicated artifacts
+retain this campaign separately, and the original full matrix keeps its existing
+per-test and45-minute step limits. Actual new-campaign results remain pending.
+
 Verify guest/customer AI start, send/follow-up, cancel, clear, quota/error recovery,
 privacy and ownership; owner schedule review/save/recovery; scoped representative
 opt-in/heartbeat/claim/reply/end; customer public messages, reconnect and handoff at
