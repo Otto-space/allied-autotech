@@ -49,13 +49,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           },
         });
         const csrf = issueCsrfToken();
+        const sessionExpiresAt = expiry();
         const session = await prisma.session.create({
           data: {
             userId: user.id,
             tokenHash: hashToken("session", randomUUID()),
             csrfTokenHash: csrf.hash,
-            expiresAt: expiry(),
-            idleExpiresAt: expiry(),
+            expiresAt: sessionExpiresAt,
+            idleExpiresAt: sessionExpiresAt,
             mfaRequired: true,
             mfaVerifiedAt: null,
           },
@@ -136,13 +137,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         },
       });
       const csrf = issueCsrfToken();
+      const sessionExpiresAt = expiry();
       const session = await prisma.session.create({
         data: {
           userId: user.id,
           tokenHash: hashToken("session", randomUUID()),
           csrfTokenHash: csrf.hash,
-          expiresAt: expiry(),
-          idleExpiresAt: expiry(),
+          expiresAt: sessionExpiresAt,
+          idleExpiresAt: sessionExpiresAt,
           mfaRequired: true,
           mfaVerifiedAt: null,
         },
@@ -211,13 +213,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         },
       });
       const csrf = issueCsrfToken();
+      const sessionExpiresAt = expiry();
       const session = await prisma.session.create({
         data: {
           userId: user.id,
           tokenHash: hashToken("session", randomUUID()),
           csrfTokenHash: csrf.hash,
-          expiresAt: expiry(),
-          idleExpiresAt: expiry(),
+          expiresAt: sessionExpiresAt,
+          idleExpiresAt: sessionExpiresAt,
           mfaRequired: true,
           mfaVerifiedAt: null,
         },

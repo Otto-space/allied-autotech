@@ -1,3 +1,15 @@
+### 14 November: corrected MFA compiled campaign passes; reconcile latest test safeguards
+
+The final corrected MFA campaign passes15/15 against the held80e build: all10
+layout widths320-1536, four automated accessibility checks and method-switch focus.
+MFA runtime is unchanged. Preserve incoming master026d9fe2's MFA atomicity fixture
+and the9ca managed-person fix. The current branch's only additional application
+change is the verified stale-fragment-entry repair, with its existing14 navigation
+checks now selected for required CI. Static lint and prior complete/frontend and
+focused browser-test types pass; the final compiled fragment campaign is pending.
+The112-to132 populated restore and protected backup receipt remain separate safety
+proof; no production schema, domains or financial/booking flag was changed.
+
 ### 14 November: retain the verified person repair; correct fragment reload entry
 
 Master9ca4e0db independently repairs the same person-focus race with a smaller
@@ -15444,3 +15456,29 @@ its active/pending gates and all132 migration/release safeguards remain preserve
 The olderdcac master run also reports the same person failure plus a separate
 MFA1024 focus failure (Home link loses focus). Record that second regression as
 unresolved; this person-only change does not claim to repair it or permit release.
+
+## 14 November - Allie release MFA fixture timing repair and migration review
+
+Exact-master9ca backend43566919313 stopped in the isolated MFA atomicity
+fixture before exercising TOTP: two independent expiry() calls crossed a
+millisecond, violating idleExpiresAt <= expiresAt. The three session fixtures
+now capture one expiry each and use it for both values. Runtime authentication,
+database constraints and the original atomicity/concurrency assertions remain.
+Fresh loopback132-migration replay/schema diff passes; the four existing cases
+pass three times (12/12) with a restricted runtime role. The task-only synthetic
+database and role were removed after zero connections; no real records were used.
+Evidence: TEMP/allied-allie-live-20261114/native-mfa-clock/{migration-replay.log,
+native-mfa-clock-{1,2,3}.log,native-verified.json,native-cleanup.json}. Scoped
+formatting and diff checks pass. Exact resulting source CI remains required.
+
+All20 SQL additions beyond the live112 baseline have completed release data-
+preservation review. No top-level historical-row rewrite, destructive DDL,
+role/grant mutation or financial execution was identified. All canonical SQL
+hashes are unchanged; Windows checkout bytes match committed Git filters. This
+review does not prove a populated upgrade: fresh backup, separate restore/forward
+migration rehearsal, original-column row/hash and complete-history preservation,
+117-model runtime probes and managed off-device recovery gates remain pending.
+Evidence: TEMP/allied-allie-live-20261114/combined-release-migration-manual-review.json
+and combined-migration-canonical-checkout-verified.json. Prepared restore helper
+was syntax-checked only, not executed. Public AI/live chat remain unactivated;
+coverage, current officer duties/opt-in and real delivery acceptance remain open.

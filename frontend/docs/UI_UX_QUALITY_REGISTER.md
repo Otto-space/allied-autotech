@@ -1,3 +1,15 @@
+### 14 November: corrected MFA compiled campaign passes; reconcile latest test safeguards
+
+The final corrected MFA campaign passes15/15 against the held80e build: all10
+layout widths320-1536, four automated accessibility checks and method-switch focus.
+MFA runtime is unchanged. Preserve incoming master026d9fe2's MFA atomicity fixture
+and the9ca managed-person fix. The current branch's only additional application
+change is the verified stale-fragment-entry repair, with its existing14 navigation
+checks now selected for required CI. Static lint and prior complete/frontend and
+focused browser-test types pass; the final compiled fragment campaign is pending.
+The112-to132 populated restore and protected backup receipt remain separate safety
+proof; no production schema, domains or financial/booking flag was changed.
+
 ### 14 November: retain the verified person repair; correct fragment reload entry
 
 Master9ca4e0db independently repairs the same person-focus race with a smaller
