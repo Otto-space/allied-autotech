@@ -10,6 +10,13 @@ non-auth support behaviour. The anonymous retry regression now uses320x720 and
 checks full visibility and an unobstructed native pointer target before clicking.
 This repair still requires new compiled acceptance.
 
+The exact6c52 job132282616901 confirms a43.7-minute full1,337-case baseline,
+with11.2 minutes before the matrix. Three session regressions bring collection
+to1,340; native keyboard/scroll checks add work across30 form-size cases. Allow
+50 minutes for the complete matrix and70 for the job, preserving the previous
+20-minute setup/diagnostic allowance. No tests, per-test limits, assertions or
+max-failure rules are removed. Evidence: account-design-20261114/matrix-runtime-budget.json.
+
 Separate compiled checks pass24 existing automated accessibility cases across
 six account forms and63 read-only viewport checks across all seven routes. The
 initial access-renewal attempt reached the provider login; those three failed
