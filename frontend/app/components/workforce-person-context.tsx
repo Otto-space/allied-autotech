@@ -59,11 +59,13 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
           dock && getComputedStyle(dock).position === "fixed"
             ? dock.getBoundingClientRect().top
             : viewportBottom,
-        ) - 2;
+        ) - 12;
       const bounds = target ? focusBounds(target) : null;
       // Compact only the padding; keep the entire identity and its text size.
       // If even that cannot leave a usable focus band, let the context scroll.
-      const required = bounds ? bounds.bottom - bounds.top + 2 : 76;
+      // Match ViewportNavigation's 16px top and 12px dock clearance. Measuring
+      // only the input left too little room for its label after the shared pass.
+      const required = bounds ? bounds.bottom - bounds.top + 16 : 76;
       bar.removeAttribute("data-compact");
       bar.removeAttribute("data-unpinned");
       let height = bar.getBoundingClientRect().height;
@@ -80,9 +82,9 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
       if (target && bounds)
         target.style.setProperty(
           "--wf-person-focus-inset",
-          `${Math.max(0, target.getBoundingClientRect().top - bounds.top) + 2}px`,
+          `${Math.max(0, target.getBoundingClientRect().top - bounds.top) + 16}px`,
         );
-      return { top: headerBottom + height + 2, bottom };
+      return { top: headerBottom + height + 16, bottom };
     };
     const keepFocusClear = () => {
       if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);

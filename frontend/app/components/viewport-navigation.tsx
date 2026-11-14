@@ -56,7 +56,25 @@ function reveal(element: HTMLElement, focus: boolean, nearest = false) {
     element instanceof HTMLInputElement && ["checkbox", "radio"].includes(element.type)
       ? element.closest("label")
       : null;
-  const box = (label ?? element).getBoundingClientRect();
+  const boxes = [(label ?? element).getBoundingClientRect()];
+  // The selected-person panel also measures field labels. Use that same painted
+  // area here so this later shared focus pass cannot hide the label again.
+  if (
+    element.closest(".workforce-panel[data-person-page='true']") &&
+    (element instanceof HTMLInputElement ||
+      element instanceof HTMLTextAreaElement ||
+      element instanceof HTMLSelectElement)
+  )
+    for (const fieldLabel of element.labels ?? []) {
+      const bounds = fieldLabel.getBoundingClientRect();
+      if (bounds.width > 1 && bounds.height > 1) boxes.push(bounds);
+    }
+  const box = {
+    top: Math.min(...boxes.map((bounds) => bounds.top)),
+    bottom: Math.max(...boxes.map((bounds) => bounds.bottom)),
+    left: Math.min(...boxes.map((bounds) => bounds.left)),
+    right: Math.max(...boxes.map((bounds) => bounds.right)),
+  };
   const top = headerOffset(element);
   const dock = document.querySelector<HTMLElement>(".support-controls");
   const dockBox =

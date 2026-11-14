@@ -1,3 +1,26 @@
+### 14 November: align selected-person label clearance and MFA transition checks
+
+Reused the existing worktree and fast-forwarded to master5cf4a8ff, preserving the
+owner-decision, account, workshop and Allie changes. Exact prior masterdcac8157
+passes backend safety and secrets; its frontend run43559788363 fails two of1470
+rendered cases (1468 pass). Protected synthetic screenshots/trace confirm the
+People label is covered while the input is visible, and MFA's deferred security-key
+focus races the layout test's Home-link focus. The newer master keeps both paths.
+
+The later shared focus reveal now includes visible associated labels within the
+selected-person page, matching the existing local handler. Both reserve the same
+16px header and12px dock clearance; the complete identity scrolls normally when
+that band cannot fit. Manual-scroll suppression and public focus behavior remain.
+The MFA test first verifies the selected method's actual focus transition before
+checking every control. No assertion, financial rule, permission, capability flag,
+D01-D17 requirement or migration input is removed or changed.
+
+Scoped ESLint, full frontend no-emit types, focused browser-test types and5/5 MFA
+units pass. Compiled rendered acceptance and exact final-source checks are pending.
+CI screenshots are synthetic; no real account, order or payment was changed. The
+current112-migration backend remains; all20 forward migrations and backup/restore,
+image/runtime gates still precede combined production publication.
+
 ## 14 November - Allie reconciled with the new 132-migration master
 
 Master dcac8157 includes the separate owner-decision/order and account-design

@@ -18,7 +18,21 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
       "Recovery code",
       "Prepare security key",
     ]) {
-      if (method) await page.getByRole("button", { name: method, exact: true }).click();
+      if (method) {
+        await page.getByRole("button", { name: method, exact: true }).click();
+        // Method preparation restores focus asynchronously. Verify that actual
+        // transition before testing the other controls, rather than racing it.
+        await expect(
+          method === "Prepare security key"
+            ? page.getByRole("button", { name: "Use security key", exact: true })
+            : page.getByLabel(
+                method === "Authenticator" ? "6-digit code" : "Recovery code",
+                {
+                  exact: true,
+                },
+              ),
+        ).toBeFocused();
+      }
       for (const control of await page
         .locator(
           ".login-content button,.login-content a,.login-content input,.login-content select",
