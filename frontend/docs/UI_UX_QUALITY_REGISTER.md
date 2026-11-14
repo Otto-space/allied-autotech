@@ -1,3 +1,31 @@
+## 14 November - compiled menu acceptance and concurrent hero reconciliation
+
+PR91 source10220f8a has18/18 compiled Edge Preview passes with zero skips/flaky
+cases on dpl_6WC8dGwCXVAUQFEk5MhNqAdbPxCb. Seven exact viewport pairs, delayed
+scripts, no-JavaScript destinations, offline overlay and menu rest/open/Escape/focus
+are covered without stylesheet overrides.320 rest/focus captures reviewed. The
+first harness omitted preview authentication on static assets and failed before
+styling loaded; corrected authenticated routing passes. Preview capabilities and
+Help differ from production, so normal production-policy acceptance remains open.
+Evidence: TEMP/allied-menu-compiled-10220f8a/{report,verified}.json.
+
+Published6c52 public service index plus four actual linked details pass35/35 at
+all seven exact sizes: actual dimensions, keyboard FAQ open/close, request heading
+in viewport, scrolling, loaded images, no page overflow or unhandled page errors.
+Desktop/320 Diagnostics and320 index captures reviewed. Job time needs assessment
+remains truthful. No enquiries/booking writes; no full form, private-role, physical
+phone or header-occlusion guarantee from these checks. Evidence:
+TEMP/allied-public-services-20261114/{report,verified}.json.
+
+Masteradd252a6 adds the separately reviewed hero image-error wording and two matching
+assertions. Preserve it along with both journal prefixes; only journal headers
+conflict. Original10220 branch frontend43551748454 is still running its45-minute
+runtime matrix; backend43551748467 and secrets43551748484 pass. These results do
+not certify the merged source. New exact-source checks/compiled acceptance and
+exact-master release gates remain required before publishing the combined batch.
+No backend runtime or schema delta from published6c52. Full original briefs and
+independent D01-D17/T01-T07, real-role/provider/device and business-data gaps remain.
+
 ## 14 November - public loading measurements and remaining menu decoration
 
 Provider observation at03:17UTC confirms backend e40c9a13 ACTIVE with no pending
@@ -38,6 +66,23 @@ acceptance. Full original briefs, independent D01-D17/T01-T07 work, physical-dev
 and server/provider acceptance remain open; unconfirmed Diagnostics duration and
 Engine Oil Filter identity/photo facts remain missing business inputs. Source,
 dependencies, history, databases and other active branches were preserved.
+
+## 14 November - hero failed-image language follow-up
+
+Newly published6c52 passes an anonymous Edge157 check: three real-time four-slide
+loops, pause/resume, keyboard/manual pause, controls and no page overflow across
+nine widths320-1920px,21-second delayed image and four failed images. Zero page
+errors; no business submissions. Receipt and safe screenshots:
+TEMP/aat-attendance-20261104/live-home-hero-acceptance-20261114.json,
+live-home-hero-390-20261114.png and live-home-hero-image-failure-320-20261114.png.
+Phone and failed-image screenshots were visually reviewed. This does not establish
+physical-device, screen-reader or new native-background-tab acceptance.
+
+The failed-image state still says "Editorial image unavailable". Replace that
+internal term with "Image unavailable" in the shared hero and the two existing
+failure assertions. No layout, media association or carousel logic changes.
+Rendered acceptance/publication for the wording correction is pending. Preserve
+the separate D17 integration and all operational/provider acceptance boundaries.
 
 ## 14 November 02:38 UTC - settled focus screenshots accepted
 

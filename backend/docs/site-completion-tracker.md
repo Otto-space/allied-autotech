@@ -1,3 +1,31 @@
+## 14 November - compiled menu acceptance and concurrent hero reconciliation
+
+PR91 source10220f8a has18/18 compiled Edge Preview passes with zero skips/flaky
+cases on dpl_6WC8dGwCXVAUQFEk5MhNqAdbPxCb. Seven exact viewport pairs, delayed
+scripts, no-JavaScript destinations, offline overlay and menu rest/open/Escape/focus
+are covered without stylesheet overrides.320 rest/focus captures reviewed. The
+first harness omitted preview authentication on static assets and failed before
+styling loaded; corrected authenticated routing passes. Preview capabilities and
+Help differ from production, so normal production-policy acceptance remains open.
+Evidence: TEMP/allied-menu-compiled-10220f8a/{report,verified}.json.
+
+Published6c52 public service index plus four actual linked details pass35/35 at
+all seven exact sizes: actual dimensions, keyboard FAQ open/close, request heading
+in viewport, scrolling, loaded images, no page overflow or unhandled page errors.
+Desktop/320 Diagnostics and320 index captures reviewed. Job time needs assessment
+remains truthful. No enquiries/booking writes; no full form, private-role, physical
+phone or header-occlusion guarantee from these checks. Evidence:
+TEMP/allied-public-services-20261114/{report,verified}.json.
+
+Masteradd252a6 adds the separately reviewed hero image-error wording and two matching
+assertions. Preserve it along with both journal prefixes; only journal headers
+conflict. Original10220 branch frontend43551748454 is still running its45-minute
+runtime matrix; backend43551748467 and secrets43551748484 pass. These results do
+not certify the merged source. New exact-source checks/compiled acceptance and
+exact-master release gates remain required before publishing the combined batch.
+No backend runtime or schema delta from published6c52. Full original briefs and
+independent D01-D17/T01-T07, real-role/provider/device and business-data gaps remain.
+
 ## 14 November - public loading measurements and remaining menu decoration
 
 Provider observation at03:17UTC confirms backend e40c9a13 ACTIVE with no pending
@@ -38,6 +66,30 @@ acceptance. Full original briefs, independent D01-D17/T01-T07 work, physical-dev
 and server/provider acceptance remain open; unconfirmed Diagnostics duration and
 Engine Oil Filter identity/photo facts remain missing business inputs. Source,
 dependencies, history, databases and other active branches were preserved.
+
+## 14 November - live hero verification found remaining fallback wording
+
+Both live domains now resolve to6c52 frontend dpl_GABPemCubUZP16cbJ8EgZum1TSKv;
+matching backend e40c9a13 is ACTIVE. PR86 is merged as19aee07d (test timing/journals
+only; application files unchanged), with new exact-master gates running.
+
+An anonymous Edge157 check on the newly published homepage passes three real-time
+four-slide autoplay loops, explicit pause/resume, keyboard arrows/manual pause,
+responsive controls/no page overflow at320/360/390/430/768/1024/1280/1440/1920px,
+a21-second delayed image, and all four failed images. Zero page errors; no business
+submissions. Image faults were intercepted locally, not changed on the server.
+Receipt: TEMP/aat-attendance-20261104/live-home-hero-acceptance-20261114.json.
+Phone and failed-image screenshots were visually reviewed. Native background-tab
+and reduced-motion evidence from the earlier unchanged-carousel run remains separate.
+
+The failed-image screenshot exposes customer text "Editorial image unavailable".
+F07 requires plain language, so replace only that label with "Image unavailable"
+and update the two existing browser assertions. Layout, authentic/illustrative asset
+associations, controls and carousel state logic are unchanged. Rendered acceptance
+and exact-source publication for this small correction are pending. D17 remains
+with its independent integration owner; do not overwrite that active worktree.
+The second historical Docker review stopped on a changed inventory before deletion;
+no additional images or volumes were removed by that review.
 
 ## 14 November 02:38 UTC - settled focus evidence verified; disk block cleared
 
