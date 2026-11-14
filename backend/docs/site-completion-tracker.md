@@ -11,7 +11,12 @@ Recover focus from the hidden desktop control's focusout event when its related
 target is absent and the mobile breakpoint applies. Keep normal focus transitions
 and desktop collapse preference. Regression coverage retains the ordinary flow,
 adds the delayed native-blur case, and checks that content focus never opens the
-drawer. Corrected compiled checks and new exact-master gates remain outstanding.
+drawer. First compiled candidatecfb5560a recovers entry to mobile but its delayed
+return-to-desktop assertion fails; extend native-blur recovery to the hidden mobile
+opener too. Two Chromium normal cases pass and two delayed return cases fail; four
+Edge cases fail to launch because channel discovery uses an absent per-user path.
+Use the verified installed Edge executable explicitly, without installing anything.
+Final corrected compiled checks and new exact-master gates remain outstanding.
 
 Independent held9bf verification passes13 workforce directory cases, nine Vehicles
 catalogue sizes, four real BMW gallery touch sizes, combined search/budget plus

@@ -16,8 +16,13 @@ repeats pass, but delaying media delivery reproduces the browser blurring the no
 hidden desktop control before the breakpoint handler reads activeElement. Recover
 that focusout using its actual target only when relatedTarget is absent and the
 mobile breakpoint applies. Retain ordinary breakpoint coverage and add delayed
-delivery plus content-focus non-interference checks. Corrected compiled and final
-exact-master acceptance remain pending. PR79's larger workforce alternative is
+delivery plus content-focus non-interference checks. First compiledcfb5560a fixes
+entry, but delayed return loses focus from the hidden mobile opener; cover that
+native blur in the reverse direction too. Two normal Chromium cases pass, two
+delayed return cases fail; four Edge cases could not launch through channel lookup.
+Use its verified installed executable explicitly; do not count those as UI failures
+or acceptance. Final corrected compiled and exact-master checks remain pending.
+PR79's larger workforce alternative is
 closed as superseded by the independently verified PR77 CSS correction; retained
 source/evidence are not publication. Current backend release remains unchanged;
 matching backend and live Vehicles publication are still required before Group5.

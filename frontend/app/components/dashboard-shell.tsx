@@ -229,6 +229,13 @@ export function DashboardShell({
       ) {
         setMenuPath(pathname);
         menuButton.current?.focus();
+      } else if (
+        !mobile.matches &&
+        !event.relatedTarget &&
+        event.target === menuButton.current
+      ) {
+        setMenuPath(null);
+        collapseButton.current?.focus();
       }
     }
     function adaptNavigation() {
