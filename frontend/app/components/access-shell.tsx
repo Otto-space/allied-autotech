@@ -41,15 +41,17 @@ const contexts = {
 export function AccessShell({
   children,
   mode = "login",
+  showRegistrationPanel = true,
 }: {
   children: ReactNode;
   mode?: keyof typeof contexts;
+  showRegistrationPanel?: boolean;
 }) {
   const { label, anchor, skip } = contexts[mode];
   return (
     <main
       id="main"
-      className={`login-page${mode === "register" ? " register-page" : ""}`}
+      className={`login-page${mode === "register" && showRegistrationPanel ? " register-page" : ""}`}
     >
       <a className="login-skip" href={`#${anchor}`}>
         {skip}
@@ -61,7 +63,7 @@ export function AccessShell({
         <p>Built on trust, driven by quality.</p>
       </div>
       <div className="login-layout">
-        {mode === "register" && (
+        {mode === "register" && showRegistrationPanel && (
           <aside className="login-editorial" aria-label="Your customer account">
             <div className="login-story">
               <span className="login-kicker">Your Allied AutoTech account</span>
