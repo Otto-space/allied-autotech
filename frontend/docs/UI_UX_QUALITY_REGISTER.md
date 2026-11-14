@@ -13509,3 +13509,17 @@ control and preserves normal next-action focus when the user has not moved.
 Two targeted regressions are included in the existing account-design selector.
 Existing layout/focus tests, security contracts and flags remain unchanged.
 Baseline: TEMP/allied-mfa-focus-baseline-d06. Rendered fix acceptance is pending.
+
+## 14 November - compiled MFA focus acceptance completed
+
+Compiled c6f4b92e passes 22/22 executions in 14.3 minutes: two new focus
+regressions repeated three times, the original 1024px scenario repeated three
+times, nine remaining layout widths and four accessibility widths (16 distinct
+scenarios). Strict existing focus/layout assertions and zero-page-error checks
+remain. Full no-emit TypeScript and scoped lint/format/diff pass. Evidence:
+TEMP/allied-mfa-focus-c6f4b92e/report.json and safe challenge-focus captures.
+These are synthetic authentication responses on a compiled protected Preview;
+real MFA hardware, account mutation and physical-device acceptance are untested.
+PR98 is integrated with master026d9fe2, preserving PR97 fixture timing repair
+and all 132 migrations. Exact resulting-master CI and recovery/release checks
+remain mandatory before publication. No capability flags were changed.
