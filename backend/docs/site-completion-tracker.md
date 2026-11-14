@@ -1,3 +1,14 @@
+### 14 November: correct the MFA method-focus fixture target
+
+The first80e compiled campaign exposed an incorrect new assertion: the TOTP
+fixture deliberately supplies two authenticators, so its first focus target is
+the Authenticator selector, not the six-digit code. Correct that expectation;
+recovery-code and security-key targets remain explicit. Tentative MFA component
+changes were reverted completely. Actual MFA runtime is unchanged from master.
+The early failed layout cases remain failed fixture evidence and do not qualify
+acceptance. Run the final corrected campaign separately; keep all existing
+keyboard, viewport, pointer, accessibility and privacy assertions.
+
 ### 14 November: align selected-person label clearance and MFA transition checks
 
 Reused the existing worktree and fast-forwarded to master5cf4a8ff, preserving the
