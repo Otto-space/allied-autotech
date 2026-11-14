@@ -12,8 +12,13 @@ the other three destinations, existing layout, approved policy and access guards
 Regression scope covers full/browse/catalogue/unavailable policy views at390/1440,
 all target IDs, enabled native navigation and zero application writes. Unchanged
 compiled679 passes the enabled case and fails the disabled case as expected after
-correcting an initial fixture-envelope error. Corrected compiled and final master
-gates remain pending; this group is not published. Evidence:
+correcting an initial fixture-envelope error. Compiledb9d159e1 passes8/8 cases after
+making the fixture await capability-listener readiness; the initial7/8 attempt is
+retained as a harness-timing failure. Two real BMW320/390 gallery cases also pass
+native edge hits, selection, stable scroll and modal focus recovery without page
+errors or writes. Reviewed the settled390 image; its initial lazy-thumb capture is
+retained separately. New exact-master gates, compatible backend and live acceptance
+remain pending; this group is not published. Evidence:
 TEMP/aat-stitch-implementation-20261109/vehicle-section-availability-20261114 and
 vehicle-inspection-link-679-baseline.json. All role/device and full119-page limits
 remain; Group5 is read-only preparation until Vehicles publication is verified.

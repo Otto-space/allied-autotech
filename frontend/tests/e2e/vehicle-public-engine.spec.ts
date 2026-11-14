@@ -54,8 +54,24 @@ test.describe("vehicle engine section navigation follows availability", () => {
         const navigation = page.getByRole("navigation", { name: "Vehicle sections" });
         await expect(navigation).toBeVisible();
         // Exercise policy states in the browser without changing server policy.
-        await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-        await expect.poll(() => state.capabilityReads).toBeGreaterThan(0);
+        await expect
+          .poll(async () => {
+            if (state.capabilityReads === 0)
+              await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+            return state.capabilityReads;
+          })
+          .toBeGreaterThan(0);
+        if (mode === "catalogue")
+          await expect(
+            page.locator(".vd-summary").getByRole("link", {
+              name: "Enquire by email",
+              exact: true,
+            }),
+          ).toBeVisible();
+        if (mode === "unavailable")
+          await expect(
+            page.getByRole("button", { name: "Check availability again", exact: true }),
+          ).toBeVisible();
         const inspection = navigation.getByRole("link", {
           name: "Inspection",
           exact: true,

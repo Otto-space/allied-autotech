@@ -17,8 +17,14 @@ Eight browser regressions cover full, browse/enquiries, catalogue and unavailabl
 states at390/1440, verify every destination, and use native enabled-state navigation.
 On unchanged compiled679, the corrected fixture baseline has one enabled pass and
 one expected disabled-mode failure; an earlier invalid API-envelope attempt is
-retained separately and is not acceptance. Corrected compiled acceptance and new
-exact-master release checks remain outstanding. Evidence is under
+retained separately and is not acceptance. Compiledb9d159e1 now passes8/8 policy
+cases. An initial7/8 attempt dispatched fixture focus before effect registration;
+the fixture now waits for an observed capability read before checking the state.
+Two actual BMW touch cases at320/390 also pass next/previous/thumbnail selection,
+stable scrolling, unobstructed44px targets and modal Escape/focus recovery, with no
+page errors or application writes. Reviewed the settled390 detail capture; the
+first capture preceded lazy thumbnail loading and is retained separately. New
+exact-master release checks and compatible backend/live acceptance remain. Evidence is under
 TEMP/aat-stitch-implementation-20261109/vehicle-section-availability-20261114 and
 vehicle-inspection-link-679-baseline.json. Group4 publication remains held; no
 production submissions, backend rollout or physical-device acceptance is claimed.
