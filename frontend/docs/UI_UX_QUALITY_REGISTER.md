@@ -1,3 +1,41 @@
+## 14 November 00:28 UTC - open drawer return regression and bounded follow-up
+
+Exact-master9bf frontend43525367353 is terminal FAILED:1,270 runtime cases passed,
+1 sidebar breakpoint case failed. Unit phase passed1,580 with12 existing skips;
+15 WebKit,21 media,13 order and15 Parts focused passes overlap the main matrix.
+The candidate and its held frontend are not publication-qualified. No backend
+apply or public promotion occurred. Failure screenshot/context/trace are retained
+under TEMP/aat-sidebar-breakpoint-9bf-ci-before-20261114; no aggregate ZIP retained.
+
+Three passive-log Edge runs did not reproduce the first direction's CI timing.
+Concurrent master6797b243 repairs focus lost before its media callback and adds
+content-focus coverage. Preserve that narrower implementation and every assertion.
+Our broader provisional focus-cache changes are retained in a named local stash,
+not applied over the concurrent repair.
+
+A stronger real application test reproduces a separate return failure on compiled
+9bf and then on compiled6797: resize to desktop while the mobile drawer stays open;
+the desktop toggle remains inactive. The6797 run is1 failed, not a passing repeat.
+Evidence: TEMP/aat-sidebar-open-return-baseline-6797-20261114/{report.json,results}.
+This uses the exact compiled preview, origin-scoped short-lived OIDC and isolated
+API fixtures. No focus property or visibility event is overridden.
+
+Follow-up in the shared shell recognises focus inside the drawer and closes its
+native modal before focusing the desktop toggle. Keep desktop expansion preference,
+existing transition-scoped focus memory, session/role guards and semantic targets.
+The added regression covers returning with the drawer open; existing collapsed
+preference and outside-content cases remain intact. An early repeated Chromium/
+Firefox/WebKit sidebar check is added without removing any full-matrix job or step.
+Workflow parsing/normalisation, local scoped lint, formatting and full TypeScript
+pass. Compiled candidate acceptance and new exact-master gates remain pending.
+Local Firefox/WebKit executables are absent and were not installed.
+
+PR78 remains draft and now carries this coherent shared navigation focus follow-up,
+the additional workforce responsive/Tab cases and completion evidence. Existing
+production is preserved. No database, real record, price, permission, capability
+flag or help eligibility/target changed. No new owner policy decision is needed.
+Full original briefs/D01-D17 and real-role/provider/device acceptance remain open.
+
 ## 13 November 23:30 UTC - current public content and remaining operator facts
 
 Anonymous current API pages contain4 services and1 product, with no next cursor.
