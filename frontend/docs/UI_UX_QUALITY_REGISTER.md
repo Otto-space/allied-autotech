@@ -5,7 +5,14 @@ generic Payment card that still asks for payment resolution. Keep the historical
 "Payment recorded" label and direct customers to payment records for refund updates,
 with Customer Care help optional. Do not infer new refunds or financial permission.
 Update the existing paid/cancelled order assertion; no control, layout, payment or
-approval logic changes. Lint/format/diff pass; new compiled acceptance is pending.
+approval logic changes. Lint/format/diff pass. Compiled Preview7ae94906 passes four
+distinct cancelled-customer read-only cases at320/1440, with no capture/returned-funds
+states, original privacy/no-write/console checks and exact new returned-funds guidance.
+Both payment-card captures were visually reviewed. Receipt:
+TEMP/allied-cancelled-copy-7ae94906/verified.json. The earlier broader run passed four,
+then its unpaid-review phase hit the restricted Preview's disabled control; one case
+did not run. It is not a six-case pass. Keep enabled unpaid review for isolated full-
+capability CI without changing deployment flags. Publication/integration are pending.
 
 The70e D17 frontend failure is traced to a500 at /api/v1/public/capabilities, not a
 failed visible privacy/state assertion. Exact artifact digest and projected network

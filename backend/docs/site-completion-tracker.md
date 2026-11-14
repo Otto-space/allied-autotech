@@ -7,7 +7,15 @@ a direction to payment records for refund updates and optional Customer Care hel
 The original payment remains recorded; this change derives no new refund outcome,
 amount, entitlement or approval. Update the existing paid/cancelled browser assertion;
 creation/cancellation restrictions and all financial state logic remain unchanged.
-Scoped lint/format/diff pass. New compiled acceptance/publication is pending.
+Scoped lint/format/diff pass. Actual compiled Preview7ae94906 passes four distinct
+read-only cancelled-customer cases at320/1440 (no capture and returned funds), with
+the original privacy/no-write/console assertions unchanged. Payment-card captures
+at both widths were visually reviewed. Receipt: TEMP/allied-cancelled-copy-7ae94906/
+verified.json. The initial broader run passed those four but stopped at an unpaid
+review control disabled by the restricted Preview; its final laptop case did not run.
+Do not call it a six-case pass. Enabled unpaid review remains for isolated full-mode
+CI; its original source assertion is retained. No server/deployment flag changed.
+Publication and final integration checks remain pending.
 
 D17 frontend43548771412 failed its strict console check after the cancelled-order
 privacy/state checks passed. The downloaded artifact14095024714 matches its SHA256;
