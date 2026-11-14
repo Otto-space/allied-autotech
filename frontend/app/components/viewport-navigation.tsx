@@ -50,31 +50,24 @@ function reveal(element: HTMLElement, focus: boolean, nearest = false) {
     element.scrollIntoView({ block: "nearest", behavior: "instant" });
     return;
   }
+  // The person workspace measures the label, sticky identity and support dock
+  // together. A later generic reveal must not move its focused field again.
+  if (
+    nearest &&
+    !focus &&
+    document.activeElement === element &&
+    element.matches("input, textarea, select, button") &&
+    !element.closest(".wf-person-context") &&
+    element.closest('[data-person-focus-managed="true"]')
+  )
+    return;
   // Custom radios/checkboxes can hide the input behind a visible label. Keep
   // the painted control and its focus ring visible, rather than its 1px input.
   const label =
     element instanceof HTMLInputElement && ["checkbox", "radio"].includes(element.type)
       ? element.closest("label")
       : null;
-  const boxes = [(label ?? element).getBoundingClientRect()];
-  // The selected-person panel also measures field labels. Use that same painted
-  // area here so this later shared focus pass cannot hide the label again.
-  if (
-    element.closest(".workforce-panel[data-person-page='true']") &&
-    (element instanceof HTMLInputElement ||
-      element instanceof HTMLTextAreaElement ||
-      element instanceof HTMLSelectElement)
-  )
-    for (const fieldLabel of element.labels ?? []) {
-      const bounds = fieldLabel.getBoundingClientRect();
-      if (bounds.width > 1 && bounds.height > 1) boxes.push(bounds);
-    }
-  const box = {
-    top: Math.min(...boxes.map((bounds) => bounds.top)),
-    bottom: Math.max(...boxes.map((bounds) => bounds.bottom)),
-    left: Math.min(...boxes.map((bounds) => bounds.left)),
-    right: Math.max(...boxes.map((bounds) => bounds.right)),
-  };
+  const box = (label ?? element).getBoundingClientRect();
   const top = headerOffset(element);
   const dock = document.querySelector<HTMLElement>(".support-controls");
   const dockBox =
@@ -230,11 +223,12 @@ export function ViewportNavigation() {
         ) ??
         main;
       if (!target || !visible(target)) return false;
-      // A visitor already reading away from the fragment keeps that position.
-      // Only correct a restored heading that is partially behind the sticky header.
+      // Reload can restore an absolute offset from before the form/font layout
+      // settled, leaving the fragment far above the viewport. Keep a visible
+      // destination; otherwise correct it unless a new interaction cancelled entry.
       if (initial && scrollY > 0) {
         const box = target.getBoundingClientRect();
-        if (box.top < 0 || box.top >= headerOffset()) return true;
+        if (box.top >= headerOffset() && box.bottom <= innerHeight) return true;
       }
       // The optional walkthrough owns focus when opened by its reserved hash.
       reveal(target, !location.hash.startsWith("#learn="));

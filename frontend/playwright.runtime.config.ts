@@ -117,6 +117,10 @@ export default defineConfig({
       grep: /workshop lift link reaches its photograph/,
     },
     {
+      name: "viewport-navigation",
+      testMatch: ["viewport-navigation.spec.ts"],
+    },
+    {
       name: "product-authoring",
       testMatch: ["work-products.spec.ts"],
       grep: /product estimates validate|edit stays locked|older catalogue/,

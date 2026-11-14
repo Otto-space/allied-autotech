@@ -1,3 +1,32 @@
+### 14 November: retain the verified person repair; correct fragment reload entry
+
+Master9ca4e0db independently repairs the same person-focus race with a smaller
+managed-focus marker and records25 compiled passes plus the short-screen case.
+Preserve that implementation byte-for-byte, replacing this branch's overlapping
+label/clearance experiment. The80e candidate's tall-header case fails because its
+identity scrolls completely out of view; it does not qualify final acceptance.
+The complete first80e campaign records31 passes and15 failures:10 incorrect new
+TOTP-target assertions,4 real fragment-reload failures and that person experiment.
+Its separate corrected1024 MFA case passes against unchanged MFA runtime.
+
+Exact hosted reload replay records workshop headings at-963.9px(phone) and
+-438.8px(desktop), while the old entry guard refuses to repair negative offsets.
+After initial fragment entry, retain a currently visible target; otherwise reveal
+it after layout settles, unless new interaction cancelled entry. Ordinary no-hash
+refresh/history and the managed person-focus marker remain. Add the existing
+viewport-navigation file to required CI; its isolated capability reply now uses
+the shared browse/enquiries fixture, preserving disabled checkout/deposits.
+Final compiled acceptance and exact-master checks still precede publication.
+
+A fresh strict-TLS snapshot backup of the actual112-migration source is verified
+(1007662bytes; protected archive/receipt retained outside Git). The separate owned
+loopback _ci restore passes guarded112-to132 migration, schema/history checks and
+original-column row counts/hashes, including prior rolled-back history. Production
+was read-only; the temporary firewall rule was removed with concurrent rules kept.
+Receipts: TEMP/aat-owner-decisions-80e630ee-20261114. The isolated copy is retained
+privately for image probes. All132 migration inputs/runtime are unchanged by these
+UI/test corrections; invoice, provider, duty and broader-policy gates remain.
+
 ### 14 November: correct the MFA method-focus fixture target
 
 The first80e compiled campaign exposed an incorrect new assertion: the TOTP
@@ -13510,3 +13539,26 @@ remain the only addition; runtime config contains both independent projects.
 689cd106 backend's terminal isolated132-replay and purchase/supply checks pass;
 fresh exact-resulting-master gates and actual combined captures remain necessary.
 This is repository integration, not production publication or role/provider proof.
+
+## 14 November - tall identity and header must not cover the password label
+
+Confirmed in terminal689 CI (1478 passed,1 failed) and reproduced in compiled989
+Preview (2 passes,1 failure across3 attempts). The input is visible but its label
+is occluded by the selected-person band. The page-local label-aware adjustment
+runs before the shared input-only viewport reveal, which shifts the label back
+under the band. All nine workshop navigation cases pass in that CI run.
+
+Candidate: register ownership with the existing page-local focus listener, defer
+the competing generic nearest reveal for its focused fields and clean up ownership
+on unmount. Preserve explicit navigation/dialog behavior, native scrollIntoView,
+complete identity text, enlarged text and every strict occlusion/keyboard assertion.
+Compiledd06e2531 passes25/25 in4.7m:10 taller-header repeats,6 other identity layouts
+and9 workshop widths; these are16 distinct scenarios. Separate short320x520
+viewport fallback passes1/1 in15.9s. Full frontend no-emit types and scoped
+lint/format/diff pass. Before/after empty-password fixture captures were reviewed.
+Receipt: TEMP/allied-person-header-d06e2531/verified.json. Real-role, physical-device
+and full final-master acceptance remain separate. Baseline evidence is in
+TEMP/allied-person-header-989-baseline and TEMP/allied-689-runtime-failure-20261114.
+Selected ZIP CRCs verified; the full archive digest was not fetched/verified.
+Older masterdcac also has a separate MFA1024 Home-link focus failure; it remains
+unresolved and is not covered by this person-context-only repair.

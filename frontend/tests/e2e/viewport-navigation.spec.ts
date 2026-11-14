@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 
 async function fixture(page: Page) {
   const errors: string[] = [];
@@ -15,6 +16,7 @@ async function fixture(page: Page) {
         json: { success: false, error: { code: "UNAUTHORIZED" } },
       });
     let data: unknown = { items: [] };
+    if (endpoint.endsWith("/public/capabilities")) data = publicCapabilitiesFixture();
     if (endpoint.endsWith("/learning/catalogue"))
       data = {
         accessKey: "a".repeat(64),

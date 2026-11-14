@@ -59,13 +59,11 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
           dock && getComputedStyle(dock).position === "fixed"
             ? dock.getBoundingClientRect().top
             : viewportBottom,
-        ) - 12;
+        ) - 2;
       const bounds = target ? focusBounds(target) : null;
       // Compact only the padding; keep the entire identity and its text size.
       // If even that cannot leave a usable focus band, let the context scroll.
-      // Match ViewportNavigation's 16px top and 12px dock clearance. Measuring
-      // only the input left too little room for its label after the shared pass.
-      const required = bounds ? bounds.bottom - bounds.top + 16 : 76;
+      const required = bounds ? bounds.bottom - bounds.top + 2 : 76;
       bar.removeAttribute("data-compact");
       bar.removeAttribute("data-unpinned");
       let height = bar.getBoundingClientRect().height;
@@ -82,9 +80,9 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
       if (target && bounds)
         target.style.setProperty(
           "--wf-person-focus-inset",
-          `${Math.max(0, target.getBoundingClientRect().top - bounds.top) + 16}px`,
+          `${Math.max(0, target.getBoundingClientRect().top - bounds.top) + 2}px`,
         );
-      return { top: headerBottom + height + 16, bottom };
+      return { top: headerBottom + height + 2, bottom };
     };
     const keepFocusClear = () => {
       if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
@@ -118,6 +116,7 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
     window.addEventListener("wheel", onManualScroll, { passive: true });
     window.addEventListener("touchmove", onManualScroll, { passive: true });
     panel.addEventListener("focusin", onFocus);
+    panel.setAttribute("data-person-focus-managed", "true");
     return () => {
       if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
       observer?.disconnect();
@@ -126,6 +125,7 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
       window.removeEventListener("wheel", onManualScroll);
       window.removeEventListener("touchmove", onManualScroll);
       panel.removeEventListener("focusin", onFocus);
+      panel.removeAttribute("data-person-focus-managed");
       bar.removeAttribute("data-compact");
       bar.removeAttribute("data-unpinned");
       panel.style.removeProperty("--wf-person-sticky-top");

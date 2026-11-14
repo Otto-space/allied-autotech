@@ -1,3 +1,32 @@
+### 14 November: retain the verified person repair; correct fragment reload entry
+
+Master9ca4e0db independently repairs the same person-focus race with a smaller
+managed-focus marker and records25 compiled passes plus the short-screen case.
+Preserve that implementation byte-for-byte, replacing this branch's overlapping
+label/clearance experiment. The80e candidate's tall-header case fails because its
+identity scrolls completely out of view; it does not qualify final acceptance.
+The complete first80e campaign records31 passes and15 failures:10 incorrect new
+TOTP-target assertions,4 real fragment-reload failures and that person experiment.
+Its separate corrected1024 MFA case passes against unchanged MFA runtime.
+
+Exact hosted reload replay records workshop headings at-963.9px(phone) and
+-438.8px(desktop), while the old entry guard refuses to repair negative offsets.
+After initial fragment entry, retain a currently visible target; otherwise reveal
+it after layout settles, unless new interaction cancelled entry. Ordinary no-hash
+refresh/history and the managed person-focus marker remain. Add the existing
+viewport-navigation file to required CI; its isolated capability reply now uses
+the shared browse/enquiries fixture, preserving disabled checkout/deposits.
+Final compiled acceptance and exact-master checks still precede publication.
+
+A fresh strict-TLS snapshot backup of the actual112-migration source is verified
+(1007662bytes; protected archive/receipt retained outside Git). The separate owned
+loopback _ci restore passes guarded112-to132 migration, schema/history checks and
+original-column row counts/hashes, including prior rolled-back history. Production
+was read-only; the temporary firewall rule was removed with concurrent rules kept.
+Receipts: TEMP/aat-owner-decisions-80e630ee-20261114. The isolated copy is retained
+privately for image probes. All132 migration inputs/runtime are unchanged by these
+UI/test corrections; invoice, provider, duty and broader-policy gates remain.
+
 ### 14 November: correct the MFA method-focus fixture target
 
 The first80e compiled campaign exposed an incorrect new assertion: the TOTP
@@ -15384,3 +15413,34 @@ alias, database or capability changed. Local reserve remains below20GiB.
 
 Automatic approval review rejected deletion of the verified80KiB aborted-browser
 profile with "blocked by policy". It was retained; no alternate deletion was used.
+
+## 14 November - confirmed tall-header person-field occlusion; candidate repair
+
+Terminal689cd106 frontend43560001195 reports1478 passes and one failure: the
+320px long-identity/taller-header case covers the current-password label with
+the sticky identity. All nine workshop-navigation cases pass. Preserve the failed
+matrix; it is not a release pass. Selected artifact14100433636 files were obtained
+using2,148,150 bounded range bytes instead of the84,618,330-byte archive. Selected
+ZIP CRCs match; the full archive SHA was not independently verified. Evidence:
+TEMP/allied-689-runtime-failure-20261114 (failure capture, context, trace and both
+workshop captures). No real records are in this isolated CI evidence.
+
+Fresh compiled989 Preview reproduces the original strict case: two passes then
+one failure across three repeats. Metrics show a focused input at575.8px and its
+label at546.8px behind an identity ending560px. The page handler positions label
+and input together; a later generic viewport reveal moves only the input. Candidate
+repair marks the page's active focus handler and defers competing generic nearest
+reveals for its focused fields. Cleanup removes the marker with its listener.
+Dialog, hash/navigation, identity text/size, permissions and financial state remain.
+Existing strict assertions are unchanged. Compiledd06e2531 passes25/25 in4.7m:
+10 repeated taller-header attempts,6 other identity layouts and9 public workshop
+widths (16 distinct scenarios). Separate320x520 unpinned-identity case passes1/1
+in15.9s. Full frontend no-emit TypeScript, scoped ESLint/format and diff pass.
+The empty-password fixture before/after capture was reviewed; complete enlarged
+identity and field label remain visible. Receipt: TEMP/allied-person-header-d06e2531/
+verified.json. This is synthetic-role compiled acceptance, not a real operator.
+Baseline: TEMP/allied-person-header-989-baseline/report.json. Current master5cf,
+its active/pending gates and all132 migration/release safeguards remain preserved.
+The olderdcac master run also reports the same person failure plus a separate
+MFA1024 focus failure (Home link loses focus). Record that second regression as
+unresolved; this person-only change does not claim to repair it or permit release.
