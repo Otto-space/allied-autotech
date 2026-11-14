@@ -1,3 +1,67 @@
+## 14 November 02:45 UTC - Team history and current-access reviews published
+
+Released exact master6c52b934, including PR80's readable history/current-access
+reviews, dated cover/invitations and the reconciled shared focus fixes. All three
+exact-master gates passed: frontend43541388596, backend43541388597 and secrets 43541388641. Frontend passed1,591 units with12 existing conditional skips and1,337
+production-build runtime cases in43.7minutes. Repeated sidebar/transport/media/order/
+Parts preflights overlap the matrix; do not add them as unique coverage.
+
+Backend e40c9a13-d8ae-4c4f-a50c-04353ceef4c4 is ACTIVE with all four checked6c52
+digests and no pending rollout. The PRE_DEPLOY job remained read-only and passed.
+All nine packaged-image checks,112 physical/packaged migration inputs, production
+history/schema/TLS/least-privilege checks, public liveness/readiness and13 fresh
+worker tasks passed. Only image digests changed; settings and capability flags
+were preserved. No migration, real account/grant change, invitation, stock edit or
+business submission was performed by release verification. Normal worker activity
+continues; this is not a claim of zero database activity.
+
+The verified1,007,307-byte fresh backup was actually restored into a new separate
+loopback database, allied_combined_restore_1740aa02970e_ci on127.0.0.1:63888.
+Its112-to112 history, original-column counts/hashes and rolled-back history were
+preserved; db:check passed without a migration. All six current/recovery packaged
+read-only schema probes passed against this exact backup's populated restore.
+This database contains protected production data: never submit fixtures, repurpose
+or delete it under disposable _ci cleanup. Prior populated restores also remain
+protected. Eight current managed snapshots and the existing encrypted off-device/
+seven-day PITR evidence were checked; no new managed-cloud restore is claimed.
+
+Frontend dpl_GABPemCubUZP16cbJ8EgZum1TSKv passed52/52 held-production Edge cases,
+then was promoted only after backend readiness. Both apex and www identify this
+deployment; www keeps its apex redirect. Eight post-promotion phone/desktop cases
+passed with actual public assets/policy and isolated account APIs, zero skips,
+flaky cases or errors. Three actual unauthenticated Team API requests returned401
+without record data. Actual public policy matches the pre-release snapshot except
+serverTime: browse/enquiries remains enabled while checkout, deposits, booking and
+inspection requests stay disabled. These checks do not establish signed-in real
+roles, provider delivery, physical-device, Safari or full accessibility acceptance.
+
+Evidence: TEMP/allied-team-held-6c52b934-20261114/acceptance.json,
+TEMP/allied-team-live-6c52b934-20261114/acceptance.json and
+TEMP/aat-attendance-20261104/release-backend-6c52b934-20261114. Compatible recovery
+retains the previous4gNT frontend and all four6a9318a6 images/previous deployment;
+review the pair together, because the new frontend uses new protected endpoints.
+Never undo the database to roll back an application.
+
+Feature-branch retirement stopped when GitHub GH013 rejected deletion of
+codex/team-history-20261113 under its repository rule. Both that branch and
+codex/team-reviews-20261113 remain at their verified local/remote heads; no rule
+was changed and the second deletion was not attempted. Active release/worktree,
+uncommitted evidence, stashes, other source and recovery resources are preserved.
+
+Both original briefs remain active. Vehicle V01-V05 stays released. T01/T02 still
+need canonical person sections and managed invitation/history/account composition;
+T03 task-specific workspaces, T04 media v3/library/placements, T05 bulk photos,
+T06 complete video and T07 the remaining access/device matrix remain open. The
+next finite Team package must preserve legacy/managed delegation and frozen v1/v2
+definitions. No new media position or real duty was assigned automatically.
+
+Disk preflights preserved20GiB. A fresh restore initially stopped at20.15GiB;
+automatic approval review rejected this task's generated cache/dev cleanup, and
+both targets were retained. Later free space independently rose above22GiB, so
+the unchanged0.75GiB restore allowance passed and the fresh rehearsal completed.
+Last measured free space21.21GiB; recheck before further writes. This is a preflight
+record, not a machine-wide guarantee. Preserve active worktrees and recovery data.
+
 ## 14 November 01:32 UTC - current master journal formatting repair
 
 Direct Git-blob formatting checks on9152db07 fail for both existing journals.
