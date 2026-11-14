@@ -15201,5 +15201,59 @@ Evidence: parts-master65f-ci-evidence.json and matching PNGs in the established 
 folder. New compiled captures, all final-master gates and a compatible backend
 remain prerequisites for Parts publication. Groups4-10 remain open.
 
+## 14 November - workshop photograph navigation and placement reconciliation
+
+Fresh anonymous Edge checks at390/1440 confirm the Home "Two-post vehicle lift"
+link opens About's text-only "How we work" section, with no lift in its target.
+Link directly to the existing lift photograph using a stable focusable equipment
+item anchor in both shared gallery variants. Preserve existing section/guide
+targets, the initially open workshop group, native scrolling, photo viewing and
+permissions. Add keyboard/navigation/reload/dialog-focus regression coverage at
+all nine brief viewports:320/360/390/430/768/1024/1280/1366/1440.
+
+The owner's9 November editorial reference implementation (29a2c442) explicitly
+supersedes the older photo hero. Retain that approved carousel and genuine
+Home/About photographs; correct four stale placement entries and obsolete hero
+framing metadata in the original asset manifest. All15 supplied originals match
+their recorded SHA256 values; no original, derivative, approved price or withheld
+asset changes. Compiled Preview9c2f1502 passes9/9 focused cases in190.3s at
+all nine widths: keyboard link, real fragment reload, photo dialog Escape/focus return,
+no overflow/page errors/business submissions, and loaded uncropped lift photo.
+Safe destination screenshots at320/390/768/1440 were visually reviewed. Receipt:
+TEMP/allied-workshop-link-9c2f1502/verified.json. Scoped lint, formatting and diff
+checks pass. PR94 remains subject to final source/master gates and publication.
+The earlier2/2 run is retained separately and overlaps this final nine-case run.
+Baseline: TEMP/aat-attendance-20261104/workshop-link-baseline-20261114.json.
+This is public read-only browser evidence, not role/provider/device acceptance.
+Keep the independent b0cf0f0e backend release and D17 migration gates intact.
+
+Integration checkpoint: reconcile current master02439cdc into PR94, retaining both
+complete journals, the scoped Admin entry and all D17 runtime/migration inputs.
+The only delta from02439 is the same six workshop files. Backend, all132 canonical
+migrations, financial tests and generated contracts match master exactly. The
+earlier9c2f compiled evidence remains target-specific pre-integration acceptance;
+fresh combined compiled acceptance and final-source/master checks are required.
+
+Coverage correction: workshop-home was absent from the production CI selectors.
+Add a workshop-navigation project selecting only these nine cases, with explicit
+anonymous/browse fixtures, page-error checks, actual image decode/contain checks
+and safe390/1440 screenshots. Collection proves9 selected cases; execution is not
+inferred. This adds the runtime config as the seventh scoped file. The combined
+0f726647 Preview is READY (dpl_14F2Q32AsAAM2hcHJEnHDBePRdoH); local browser
+execution is held by failed reserve checks (10.58, then17.78GiB). Preserve all
+earlier9c2f evidence separately. Cloud CI, combined captures and release remain.
+
+Master integration checkpoint: merge PR94 into currentdcac8157 without replacing
+the separate account-design/invitation repair or its measured80-minute job/
+60-minute matrix budget. Both journals merge cleanly. Workshop application/tests
+match689cd106 byte-for-byte; backend,132 migrations, contracts and all other current
+master runtime inputs are unchanged. Terminal backend43560000985 passes132 empty
+replay/diff/db:check, including21 purchase-review and45 supply-exception cases;
+receipt TEMP/aat-attendance-20261104/backend-ci-689cd106-verified-20261114.json.
+These remain isolated contracts, not merchant or role acceptance. Exact resulting
+master frontend/backend/secret gates precede any publication. Vercel's actual
+production Git branch remains release/public-launch-20261022; preserve it. No
+alias, database or capability changed. Local reserve remains below20GiB.
+
 Automatic approval review rejected deletion of the verified80KiB aborted-browser
 profile with "blocked by policy". It was retained; no alternate deletion was used.

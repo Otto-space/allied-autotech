@@ -112,6 +112,11 @@ export default defineConfig({
       testMatch: ["home-design.spec.ts"],
     },
     {
+      name: "workshop-navigation",
+      testMatch: ["workshop-home.spec.ts"],
+      grep: /workshop lift link reaches its photograph/,
+    },
+    {
       name: "product-authoring",
       testMatch: ["work-products.spec.ts"],
       grep: /product estimates validate|edit stays locked|older catalogue/,

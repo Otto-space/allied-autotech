@@ -13385,3 +13385,45 @@ Source lint/format and collection are checked separately from compiled acceptanc
 Evidence: parts-master65f-ci-evidence.json and matching PNGs in the established TEMP
 folder. New compiled captures, all final-master gates and a compatible backend
 remain prerequisites for Parts publication. Groups4-10 remain open.
+
+## 14 November - Home equipment link reaches the actual lift photograph
+
+Confirmed at390/1440 in anonymous installed Edge: Home's lift link opens
+About#principles ("How we work"), which contains no lift. Target the existing
+lift figure with a stable equipment-item anchor in both shared gallery modes.
+No gallery disclosure, image crop, modal logic, capability or guide target changes.
+Affected browser cases cover keyboard entry, direct fragment reload, photo
+dialog Escape/focus return and overflow. Compiled Preview9c2f1502 passes9/9 in
+190.3s at320/360/390/430/768/1024/1280/1366/1440, with no page errors or business
+submissions. The loaded lift photo retains contain framing; destination screenshots
+at320/390/768/1440 were visually reviewed. The initial2/2 run is retained separately
+as overlapping evidence; it is not added to the final nine-case total.
+Receipt: TEMP/allied-workshop-link-9c2f1502/verified.json. Scoped ESLint, format
+and diff checks pass. PR94 final source/master gates and publication remain.
+
+Reconcile the original asset manifest with owner-approved29a2c442 editorial Home:
+authentic action photographs now live in service imagery and Home/About content,
+not the superseded three-photo hero. Preserve all15 original hashes, derivative
+metadata, full seven-person team framing and the two withheld assets. Baseline
+receipt: TEMP/aat-attendance-20261104/workshop-link-baseline-20261114.json.
+No new design departure or policy decision; publication remains gated.
+
+PR94 now reconciles master02439cdc (D17 plus the current Admin baseline). Preserve
+both full histories and every master runtime/schema input. Only the existing six
+workshop files differ from master. Earlier9c2f captures remain pre-integration
+evidence; fresh combined compiled verification and final-source gates are pending.
+
+CI coverage correction: the existing runtime matrix did not select workshop-home.
+The new workshop-navigation project collects exactly9 affected cases, retaining
+deadlines and using explicit anonymous/browse fixtures. Actual image decode/contain,
+page errors and safe390/1440 captures are checked in the selected cases. This is
+collection evidence only until execution passes. Runtime config is the seventh
+scoped file. Combined Preview0f726647 is READY; local browser execution remains
+held by disk reserve (latest17.78GiB). No earlier screenshot is relabelled combined.
+
+Integrate PR94 into current masterdcac8157, preserving its account-design recovery,
+all other sources and measured80/60 CI budgets. The seven scoped workshop files
+remain the only addition; runtime config contains both independent projects.
+689cd106 backend's terminal isolated132-replay and purchase/supply checks pass;
+fresh exact-resulting-master gates and actual combined captures remain necessary.
+This is repository integration, not production publication or role/provider proof.
