@@ -1,3 +1,22 @@
+## 14 November - delegated People breadcrumb correction, verification pending
+
+Compiled a0f44e16 at320x720 shows Overview / Overview / Details on the delegated
+Admin person route. The shared shell matches only the permitted Overview sidebar
+entry; the delegated page itself has already checked identity and delegation.
+Give People/person its own breadcrumb inside that guarded page and exclude those
+routes from the shell's generic trail. Preserve existing filter/review return URLs,
+Back links and all authority checks. Mark People/Person as the current page.
+Existing320/1440 delegated entry regressions now require a single correct trail.
+No server permission, API, workflow or Help semantic target changes.
+
+Source formatting and diff checks pass. The attempted new baseline did not reach
+the page: C: preflight failed11.04GiB vs20.15GiB. The command incorrectly continued,
+but the test's independent Disk reserve stop prevented navigation; this is not
+an app regression result. Runner is terminal. New rendered acceptance, type/lint,
+exact-source CI and publication remain pending. Preserve the patch and the full
+original scope; no new release is claimed. Evidence:
+TEMP/allied-people-breadcrumb-baseline-a0f44e16/report.json.
+
 ## 14 November - menu acceptance reconciled with delegated Admin entry
 
 Master b0cf0f0e includes PR92 Admin duty entry and access-review Help v11.
