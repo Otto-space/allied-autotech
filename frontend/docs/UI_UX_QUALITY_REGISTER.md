@@ -1,3 +1,27 @@
+## 14 November - Allie and human chat activation acceptance
+
+Owner-approved target: Allie plus human live chat in production. Human coverage is
+Customer Service Officer, Port Harcourt, Monday-Saturday 08:00-18:00 Africa/Lagos.
+The production owner-only support-coverage build flag is now configured; its prior
+absence hid the editor. No frontend build/promotion or live-chat activation has
+occurred. Existing API authorization, reviewed mutation flow, branch isolation,
+explicit operator opt-in and offline queued-message fallback remain authoritative.
+
+The new backend fix aligns model output constraints with the existing validator
+after a real answer supplied an empty caveat instead of null. No visible redesign,
+new action, capability permission or help-guide target changes. Current focused
+evidence is 110 backend units and 73 frontend units (one startup failure followed
+by a successful eight-test retry), not completed real-role/provider/browser journeys.
+The new 132-migration native test attempt was stopped for disk reserve and does not
+count as passed. Current activation source is isolated on 112-migration master.
+
+Verify guest/customer AI start, send/follow-up, cancel, clear, quota/error recovery,
+privacy and ownership; owner schedule review/save/recovery; scoped representative
+opt-in/heartbeat/claim/reply/end; customer public messages, reconnect and handoff at
+390/1440px with keyboard and console checks. Hosted/real-role browser acceptance
+is outstanding: Computer Use rejected the current URL, and must not be bypassed.
+See the matching site-completion-tracker entry for provider/release dependencies.
+
 ## 14 November - hero failed-image language follow-up
 
 Newly published6c52 passes an anonymous Edge157 check: three real-time four-slide

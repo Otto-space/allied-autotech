@@ -1,3 +1,44 @@
+## 14 November - Allie and staffed live-chat activation in progress
+
+The owner requested working Allie and human live chat in production, approved up
+to USD5 for renewed isolated AI evaluation, then USD10/month initially for public
+Allie. Approved human coverage: Customer Service Officer, Allied AutoTech Port
+Harcourt branch, Monday-Saturday 08:00-18:00 Africa/Lagos. Verify current staff
+view/reply/live duties and explicit session opt-in; never infer availability from
+job title or ordinary login. Configure coverage through the audited owner API/UI.
+
+Production inspection found API deployment e40c9a13 ACTIVE with the published
+6c52 images and no OpenAI key, AI enablement or live-chat enablement settings.
+Both public domains return learning flags guides=true, practice=true, ai=false.
+The owner-only coverage editor's production Vercel flag was absent; it is now
+configured true for the next build. This does not enable chat or change live pages.
+The separate D17/132-migration work remains outside this activation batch, based
+on master add252a6 (112 migrations, backend runtime unchanged from production).
+
+Renewed real-model evaluation is in progress under a separate approval ledger;
+prior exhausted approvals are retained. Case workshop-08 returned caveat="" and
+was correctly rejected. Align the upstream JSON schema with existing output
+length/count constraints and explicitly request null when no caveat is needed.
+No runtime validator is relaxed, retry added, permission granted or schema changed.
+The corrected source passes 110 focused backend tests, scoped lint and formatting.
+Earlier frontend checks passed 65 tests; the one worker startup timeout passed
+all eight tests on a focused retry. These are not hosted workflow acceptance.
+
+A newly created synthetic loopback database replayed 132 migrations without drift;
+its native integration run was stopped after the disk reserve check failed, so no
+native-suite pass is claimed. Its exact 20MiB database and task role were removed
+after verifying zero connections. Other databases/resources remain untouched.
+Evidence: TEMP/allied-allie-live-20261114/{migration-replay.log,native-cleanup.json}.
+Free space later recovered without a measured attribution; fresh preflights govern.
+
+Remaining: finish/review model evaluation and corrected-model rechecks; exact-source
+CI/integration; matching backend package and fresh recovery/runtime checks; confirm
+the OpenAI project hard USD10 monthly limit; configure API/worker settings; rebuild
+and verify the owner editor; audited branch coverage and representative opt-in;
+actual customer/representative delivery, reconnect, isolation and AI-to-human handoff.
+Computer Use rejected the current browser URL; do not bypass that restriction or
+call fixture/API checks real-role browser acceptance. No publication is claimed.
+
 ## 14 November - live hero verification found remaining fallback wording
 
 Both live domains now resolve to6c52 frontend dpl_GABPemCubUZP16cbJ8EgZum1TSKv;
