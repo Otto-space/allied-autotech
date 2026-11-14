@@ -1,3 +1,11 @@
+## 14 November - sidebar breakpoint focus correction awaiting release
+
+Exact-master frontend run 43525367353 failed one of 1,271 browser cases: after collapsing the desktop sidebar and resizing from 1655x960 to 390x844, the mobile navigation close button was absent. The other 1,270 cases passed. Production remains unchanged; source 9bf is not publication-qualified. CI artifact 14085934613 was checksum-verified. Screenshot, context and trace are retained under TEMP/allied-9bf-ci-sidebar; only the downloaded aggregate archive was removed.
+
+An isolated Edge 157 fixture reproduces CSS hiding the focused control before the media-query callback: activeElement becomes BODY. The exact old source effect misses navigation handoff in 10/10 runs; the corrected effect passes 10/10 transitions and 20 content-focus checks across baseline/corrected fixtures. This is source-effect evidence, not compiled application acceptance. The effect retains only focus lost during the breakpoint transition, clears it after adaptation and unregisters both listeners. Desktop preference and drawer safeguards remain.
+
+The application regression establishes keyboard focus before resize, checks opener recovery and adds content-focus preservation. Existing Chromium, Firefox and WebKit CI projects select both cases. Local Firefox 1543 and WebKit 2359 executables are absent; launches failed and no browsers were installed. Types, scoped lint, formatting and diff checks pass. Compiled acceptance and new exact-source gates remain required. Hosted browser transport is held below its 20.5 GiB guard; the small isolated test passed a separate 20.1 GiB preflight without a build/server. No database, permission, policy, feature flag or semantic help destination changed. Full page, role and device scope remains active.
+
 ## 14 November - release gate corrections and current calendar acceptance
 
 Held combined source2e492b81 passes16/16 booking-calendar cases in dedicated Edge:

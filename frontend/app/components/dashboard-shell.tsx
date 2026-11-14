@@ -216,8 +216,21 @@ export function DashboardShell({
   }, [menuOpen, session]);
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 900px)");
+    let previousMobile = mobile.matches;
+    let breakpointFocus: Element | null = null;
+    function rememberBreakpointFocus(event: FocusEvent) {
+      // CSS may hide the focused control before the media-query callback runs.
+      // Retain only focus lost during this transition, never earlier page focus.
+      if (mobile.matches !== previousMobile && event.target instanceof Element)
+        breakpointFocus = event.target;
+    }
     function adaptNavigation() {
-      const focused = document.activeElement;
+      const focused =
+        document.activeElement === document.body
+          ? breakpointFocus
+          : document.activeElement;
+      previousMobile = mobile.matches;
+      breakpointFocus = null;
       if (mobile.matches) {
         // The mobile drawer has its own full navigation. Keep the user's
         // desktop sidebar choice when a resize crosses this breakpoint.
@@ -234,8 +247,12 @@ export function DashboardShell({
         if (focused === menuButton.current) collapseButton.current?.focus();
       }
     }
+    document.addEventListener("focusout", rememberBreakpointFocus);
     mobile.addEventListener("change", adaptNavigation);
-    return () => mobile.removeEventListener("change", adaptNavigation);
+    return () => {
+      document.removeEventListener("focusout", rememberBreakpointFocus);
+      mobile.removeEventListener("change", adaptNavigation);
+    };
   }, [pathname]);
   useEffect(() => {
     let active = true;
