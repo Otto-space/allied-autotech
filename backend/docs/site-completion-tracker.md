@@ -99,6 +99,30 @@ records and evidence; 13 newly inventoried routes remain not-inspected. Groups
 newer master 19aee07d, whose changes are test evidence and journals, in the next
 batch; it is not misreported as the published source.
 
+## 14 November - live hero verification found remaining fallback wording
+
+Both live domains now resolve to6c52 frontend dpl_GABPemCubUZP16cbJ8EgZum1TSKv;
+matching backend e40c9a13 is ACTIVE. PR86 is merged as19aee07d (test timing/journals
+only; application files unchanged), with new exact-master gates running.
+
+An anonymous Edge157 check on the newly published homepage passes three real-time
+four-slide autoplay loops, explicit pause/resume, keyboard arrows/manual pause,
+responsive controls/no page overflow at320/360/390/430/768/1024/1280/1440/1920px,
+a21-second delayed image, and all four failed images. Zero page errors; no business
+submissions. Image faults were intercepted locally, not changed on the server.
+Receipt: TEMP/aat-attendance-20261104/live-home-hero-acceptance-20261114.json.
+Phone and failed-image screenshots were visually reviewed. Native background-tab
+and reduced-motion evidence from the earlier unchanged-carousel run remains separate.
+
+The failed-image screenshot exposes customer text "Editorial image unavailable".
+F07 requires plain language, so replace only that label with "Image unavailable"
+and update the two existing browser assertions. Layout, authentic/illustrative asset
+associations, controls and carousel state logic are unchanged. Rendered acceptance
+and exact-source publication for this small correction are pending. D17 remains
+with its independent integration owner; do not overwrite that active worktree.
+The second historical Docker review stopped on a changed inventory before deletion;
+no additional images or volumes were removed by that review.
+
 ## 14 November 02:38 UTC - settled focus evidence verified; disk block cleared
 
 The screenshot-only correction at22fba6d9 passes all three branch checks. Frontend

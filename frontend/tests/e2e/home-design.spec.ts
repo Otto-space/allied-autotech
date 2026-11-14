@@ -245,7 +245,7 @@ test("all editorial images failing retains the task and stops rotation", async (
     page.getByRole("complementary", { name: "Online availability" }),
   ).toHaveCount(0);
   const hero = page.getByRole("region", { name: "Workshop highlights" });
-  await expect(hero.getByText("Editorial image unavailable")).toBeVisible();
+  await expect(hero.getByText("Image unavailable", { exact: true })).toBeVisible();
   await expect(hero).toHaveAttribute("data-rotating", "false");
   for (const button of await hero.getByRole("button").all())
     await expect(button).toBeDisabled();
