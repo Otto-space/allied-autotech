@@ -1,3 +1,21 @@
+### 14 November: reconcile cancelled guidance with current master and fixture repair
+
+Merged scoped availability repair b3108a85 and master add252a6 into this follow-up,
+retaining both complete journal histories. The selected caller-owned supply fixture,
+focus refresh and strict console/privacy/no-write checks match b310 byte-for-byte;
+the provisional shared customer-order transport is absent. Backend runtime, API and
+all132 migration inputs are unchanged from b310. No financial or permission rule changed.
+
+PR88's hero wording correction is merged after all three branch gates passed:
+frontend43548717414 reports1,337 browser passes and1,591 units with12 explicit skips;
+backend43548717431 and secrets43548717423 pass. Master add252a6 needs its own gates
+before publication. This combined source retains that hero correction and the new
+cancelled-payment explanation. New combined compiled acceptance remains pending;
+the earlier four-case payment preview covers its unchanged order component only.
+Enabled unpaid review remains for the isolated full-capability CI environment.
+Preserve the independent D17 worktree and all20 forward-migration/recovery/release
+gates; no production alias, database, record or capability activation occurs here.
+
 ## 14 November - live hero verification found remaining fallback wording
 
 Both live domains now resolve to6c52 frontend dpl_GABPemCubUZP16cbJ8EgZum1TSKv;
