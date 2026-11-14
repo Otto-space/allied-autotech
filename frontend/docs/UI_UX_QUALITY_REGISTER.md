@@ -1,3 +1,20 @@
+## 14 November - hero failed-image language follow-up
+
+Newly published6c52 passes an anonymous Edge157 check: three real-time four-slide
+loops, pause/resume, keyboard/manual pause, controls and no page overflow across
+nine widths320-1920px,21-second delayed image and four failed images. Zero page
+errors; no business submissions. Receipt and safe screenshots:
+TEMP/aat-attendance-20261104/live-home-hero-acceptance-20261114.json,
+live-home-hero-390-20261114.png and live-home-hero-image-failure-320-20261114.png.
+Phone and failed-image screenshots were visually reviewed. This does not establish
+physical-device, screen-reader or new native-background-tab acceptance.
+
+The failed-image state still says "Editorial image unavailable". Replace that
+internal term with "Image unavailable" in the shared hero and the two existing
+failure assertions. No layout, media association or carousel logic changes.
+Rendered acceptance/publication for the wording correction is pending. Preserve
+the separate D17 integration and all operational/provider acceptance boundaries.
+
 ## 14 November - Allie and human chat activation acceptance
 
 Owner-approved target: Allie plus human live chat in production. Human coverage is
@@ -21,23 +38,6 @@ opt-in/heartbeat/claim/reply/end; customer public messages, reconnect and handof
 390/1440px with keyboard and console checks. Hosted/real-role browser acceptance
 is outstanding: Computer Use rejected the current URL, and must not be bypassed.
 See the matching site-completion-tracker entry for provider/release dependencies.
-
-## 14 November - hero failed-image language follow-up
-
-Newly published6c52 passes an anonymous Edge157 check: three real-time four-slide
-loops, pause/resume, keyboard/manual pause, controls and no page overflow across
-nine widths320-1920px,21-second delayed image and four failed images. Zero page
-errors; no business submissions. Receipt and safe screenshots:
-TEMP/aat-attendance-20261104/live-home-hero-acceptance-20261114.json,
-live-home-hero-390-20261114.png and live-home-hero-image-failure-320-20261114.png.
-Phone and failed-image screenshots were visually reviewed. This does not establish
-physical-device, screen-reader or new native-background-tab acceptance.
-
-The failed-image state still says "Editorial image unavailable". Replace that
-internal term with "Image unavailable" in the shared hero and the two existing
-failure assertions. No layout, media association or carousel logic changes.
-Rendered acceptance/publication for the wording correction is pending. Preserve
-the separate D17 integration and all operational/provider acceptance boundaries.
 
 ## 14 November 02:38 UTC - settled focus screenshots accepted
 
