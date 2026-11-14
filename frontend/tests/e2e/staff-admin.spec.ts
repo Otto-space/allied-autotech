@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Route } from "@playwright/test";
+import { test, expect, type Page, type Route } from "../fixtures/authentication-test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
@@ -48,6 +48,7 @@ async function fixture(
 ) {
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/public/capabilities") return route.fallback();
     if (await handler(route, endpoint)) return;
     if (endpoint === "/auth/session")
       return reply(route, {
@@ -879,6 +880,108 @@ test("invitation status filtering and revocation use the selected record and pas
   await expect(page.getByText("Invitation revoked.", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Review revocation" })).toHaveCount(0);
   expect(writes).toEqual([{ currentPassword: "proof password" }]);
+});
+
+for (const width of [320, 1440])
+  test(`anonymous invitation check settles and an explicit retry recovers at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: width === 320 ? 720 : 900 });
+    let anonymous = true;
+    let reads = 0;
+    const writes: string[] = [];
+    await fixture(
+      page,
+      async (route, endpoint) => {
+        if (route.request().method() !== "GET") {
+          writes.push(endpoint);
+          await route.abort();
+          return true;
+        }
+        if (endpoint === "/auth/session") {
+          reads++;
+          if (anonymous) {
+            await route.fulfill({
+              status: 401,
+              json: { success: false, error: { code: "UNAUTHORIZED" } },
+            });
+            return true;
+          }
+        }
+      },
+      "STAFF",
+    );
+    await page.goto(`/staff/accept-invitation#token=${invitationToken}`);
+    await expect(page).toHaveURL(/\/staff\/accept-invitation$/);
+    const checking = page
+      .getByRole("status")
+      .filter({ hasText: "Checking your signed-in account" });
+    const guidance = page.getByText(
+      "Sign in as the invited staff member and complete MFA, then reopen the original invitation link.",
+    );
+    await expect(guidance).toBeVisible();
+    await expect(checking).toHaveCount(0);
+    await expect(page.getByLabel("Invitation token")).toHaveCount(0);
+    const retry = page.getByRole("button", { name: "Check session again", exact: true });
+    await expect(retry).toBeInViewport({ ratio: 1 });
+    expect(
+      await retry.evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        return element.contains(
+          document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2),
+        );
+      }),
+    ).toBe(true);
+    const previousReads = reads;
+    await retry.click();
+    await expect.poll(() => reads).toBeGreaterThan(previousReads);
+    await expect(guidance).toBeVisible();
+    await expect(checking).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Review acceptance" })).toHaveCount(0);
+    anonymous = false;
+    await page.getByRole("button", { name: "Check session again", exact: true }).click();
+    await expect(page.getByLabel("Invitation token")).toHaveValue(invitationToken);
+    await expect(page.getByLabel("Your current password")).toHaveValue("");
+    await expect(page.getByRole("button", { name: "Review acceptance" })).toBeVisible();
+    expect(writes).toEqual([]);
+  });
+
+test("an unavailable invitation session read stays distinct from signed-out guidance and retries safely", async ({
+  page,
+}) => {
+  let unavailable = true;
+  const writes: string[] = [];
+  await fixture(
+    page,
+    async (route, endpoint) => {
+      if (route.request().method() !== "GET") {
+        writes.push(endpoint);
+        await route.abort();
+        return true;
+      }
+      if (endpoint === "/auth/session" && unavailable) {
+        await route.fulfill({
+          status: 503,
+          json: { success: false, error: { code: "DATABASE_UNAVAILABLE" } },
+        });
+        return true;
+      }
+    },
+    "STAFF",
+  );
+  await page.goto(`/staff/accept-invitation#token=${invitationToken}`);
+  await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
+  await expect(
+    page.getByText(
+      "Sign in as the invited staff member and complete MFA, then reopen the original invitation link.",
+    ),
+  ).toHaveCount(0);
+  await expect(page.getByLabel("Invitation token")).toHaveCount(0);
+  unavailable = false;
+  await page.getByRole("button", { name: "Check session again", exact: true }).click();
+  await expect(page.getByLabel("Invitation token")).toHaveValue(invitationToken);
+  await expect(page.getByRole("main").getByRole("alert")).toHaveCount(0);
+  expect(writes).toEqual([]);
 });
 
 test("acceptance scrubs its fragment and requires an explicit authenticated CSRF-protected confirmation", async ({

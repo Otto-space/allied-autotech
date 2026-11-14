@@ -16,8 +16,15 @@ export function useResource<T>(
   path: string | null,
   parse: (value: unknown) => T,
   initialData?: T,
-  options?: { initialError?: string; revalidateOnMount?: boolean; refreshKey?: number },
+  options?: {
+    initialError?: string;
+    revalidateOnMount?: boolean;
+    refreshKey?: number;
+    // An anonymous GET /auth/session is an expected state on guest account pages.
+    optionalSession?: true;
+  },
 ) {
+  const optionalSession = path === "/auth/session" && options?.optionalSession === true;
   const initialSeed = useRef({
     skip: options?.revalidateOnMount === false && initialData !== undefined,
     path,
@@ -74,7 +81,10 @@ export function useResource<T>(
             revision,
           }));
       });
-      void apiRequest<unknown>(path, { signal: controller.signal })
+      void apiRequest<unknown>(path, {
+        signal: controller.signal,
+        optionalSession: optionalSession ? true : undefined,
+      })
         .then((response) => {
           const data = parse(response.data);
           if (active) setState({ path, data, status: "ready", revision });
@@ -118,7 +128,17 @@ export function useResource<T>(
       initialSeed.current.skip = false;
       active = false;
       controller.abort();
-      setState(null);
+      setState(
+        optionalSession
+          ? {
+              path: path!,
+              status: "error",
+              revision,
+              denied: true,
+              error: "Your signed-in account changed. Check your session again.",
+            }
+          : null,
+      );
       if (path?.startsWith("/public/")) refresh();
     }
     function visible() {
@@ -143,7 +163,7 @@ export function useResource<T>(
       window.removeEventListener("online", revalidate);
       document.removeEventListener("visibilitychange", visible);
     };
-  }, [path, parse, revision, refresh, revalidate, options?.refreshKey]);
+  }, [path, parse, revision, refresh, revalidate, options?.refreshKey, optionalSession]);
   const current = state?.path === path ? state : null;
   return {
     denied: current?.denied ?? false,

@@ -30,10 +30,12 @@ jobs:
     runs-on: ubuntu-24.04
     # One production build, followed by the existing Chromium suite and the
     # bounded Firefox/WebKit responsive matrix. The fixture API is serial.
-    # The 1,018-case matrix took 34.7 minutes. Vehicle and confirmation suites
-    # bring collection to 1,111 cases; retain the serial fixture and all assertions.
-    # Allow 45 minutes for that matrix plus build, diagnostics and artifact upload.
-    timeout-minutes: 65
+    # The 1,337-case baseline took 43.7 minutes. Explicit account coverage adds
+    # 91 layout, accessibility and invitation cases alongside current master.
+    # Retain the serial fixture, every assertion and individual test limit. Allow
+    # 60 minutes for the matrix plus 20 for setup, build, diagnostics and upload.
+    # Allow the separate ten-minute Allie/Care campaign without reducing the matrix.
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: frontend
@@ -46,6 +48,7 @@ jobs:
       # Exercise hosted image URL behaviour without any production identifier.
       NEXT_DEPLOYMENT_ID: isolated-media-acceptance
       NEXT_PUBLIC_HELP_LEARN_ENABLED: "true"
+      NEXT_PUBLIC_OWNER_SUPPORT_COVERAGE_ENABLED: "true"
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -73,6 +76,25 @@ jobs:
             }
           }
           NODE
+      - name: Verify Allie conversation, human handoff and owner coverage
+        timeout-minutes: 10
+        run: npx --no-install playwright test --config playwright.allie-care.config.ts --max-failures=1
+      - name: Preserve synthetic Allie and Care evidence
+        if: ${{ always() }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@v5
+        with:
+          name: allie-care-browser
+          path: |
+            frontend/test-results/allie-care/
+            /tmp/allied-allie-composer-390.png
+            /tmp/allied-allie-conversation-*.png
+            /tmp/allied-handoff-review-*.png
+            /tmp/allied-w16-care-ui-20261028/
+            /tmp/allied-w16e-coverage-390.png
+            /tmp/allied-w16e-coverage-1440.png
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Verify sidebar breakpoint focus before the full matrix
         timeout-minutes: 5
         run: npx --no-install playwright test --config playwright.runtime.config.ts --project=sidebar-breakpoint-chromium --project=sidebar-breakpoint-firefox --project=sidebar-breakpoint-webkit --repeat-each=3 --max-failures=1
@@ -111,9 +133,9 @@ jobs:
           if-no-files-found: ignore
       - name: Verify independent runtime availability in the production build
         # A step timeout leaves the job alive to upload its synthetic evidence.
-        # The 915-case source reached case 890 at the old 25-minute ceiling.
-        # Allow the combined matrix to finish; individual test limits are unchanged.
-        timeout-minutes: 45
+        # The 1,337-case baseline used 43.7 minutes. Keep all 91 added account
+        # cases and native interactions; individual test limits are unchanged.
+        timeout-minutes: 60
         run: npx --no-install playwright test --config playwright.runtime.config.ts --max-failures=5
       - name: Preserve synthetic browser evidence
         if: ${{ always() }}

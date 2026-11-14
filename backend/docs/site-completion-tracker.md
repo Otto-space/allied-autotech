@@ -1,3 +1,247 @@
+## 14 November - final navigation integration with current master
+
+Integrated master 026d9fe2, preserving account design, Allie constraints, the
+measured person-focus correction and isolated MFA expiry fix. The previous
+258b frontend run failed its taller-header person-focus case; incoming PR96
+addresses that exact failure. Both journal histories are preserved. New combined
+source checks remain required; no production publication is claimed. C:26.43GiB
+passes integration preflight. Current production remains healthy on 6c52; the
+132-migration backend still requires matching packaging and recovery gates.
+
+## 14 November - Allie reconciled with the new 132-migration master
+
+Master dcac8157 includes the separate owner-decision/order and account-design
+work. Preserve that source and its 20 forward migrations; the earlier Allie
+112-migration compatibility scope is superseded. Live backend e40c9a13 still
+uses the 112-migration 6c52 package. This combined source requires new exact-source
+checks, matching 132-migration images and the full reviewed migration, fresh backup,
+restore rehearsal, off-device recovery and runtime gates before publication.
+No migration or production activation was performed by this reconciliation.
+
+The previous Allie branch f52ca1f1 passes backend43558623326 and secrets43558623256.
+Its compiled 59-case Allie/Care campaign passes; the full frontend43558623215 is
+still running. These checks do not qualify this newly combined source. The
+owned-conversation fixture passes 15 native HTTP cases against a fresh isolated
+112-migration database; that task database/role were removed after zero sessions.
+All 17 corrected real-model rechecks remain separate provider evidence. New
+Admin/order learning content still needs the final applicable provider recheck.
+
+The owner confirms saving the USD10 hard monthly OpenAI limit. Approved support
+coverage remains Port Harcourt, Monday-Saturday 08:00-18:00 Africa/Lagos, staffed
+by the Customer Service Officer with current duties and explicit session opt-in.
+Coverage is not yet configured through the audited owner UI/API; actual
+customer/representative delivery, reconnect and handoff remain unverified.
+
+Owner-requested bounded Docker cleanup removed 6.337 GB of historical build cache.
+All retained image IDs, container IDs and volume names were verified unchanged.
+Host free space remains 17.77 GiB; cleanup bytes are not host-reclaimed bytes.
+Packaging is stopped below the 20 GiB reserve. No source, secrets, databases,
+backups, shared local dependencies or runtime/session history were removed.
+Evidence: TEMP/allied-allie-live-20261114/cleanup-docker-{native,historical-build}-result.json.
+
+## 14 November - account integration includes the current owner-decision baseline
+
+Preserved master 02439cdc, including the separately reviewed owner-decision/order
+and payment work. This adds 20 forward migrations beyond the live 112 baseline.
+It supersedes the earlier b0cf-only compatibility scope: publication of this
+combined frontend now requires the matching backend release and its full safety
+gates. No migrations or backend rollout were run by the account-design task.
+
+The other release task has a b0cf packaging receipt marked stopped-before-completion
+because its revised 2 GiB growth estimate needs 22 GiB free. That package also
+predates the 20-migration owner-decision integration; it does not qualify 02439cdc.
+Do not repeat its build or apply helpers or publish against the old backend.
+
+Combined collection now selects 1,470 tests in 77 files, including all original
+1,337 project/file/title identities and all 91 account cases. Earlier 1,434 was
+correct for b0cf and is superseded by this integration. The isolated test callback
+is named runPage to avoid React-hook lint interpretation. Inventory regeneration
+finds 120 routes and 404 interaction/boundary source files; recorded coverage and
+evidence remain unchanged. Collection is not an execution result.
+Evidence: account-design-20261114/integrated-02439cdc-required-collection.json and
+master-02439cdc-journal-merge.json. Exact integrated/master checks and held-build
+acceptance remain pending; public 6c52 and Groups 6-10 remain as recorded.
+
+## 14 November - integrated account test transport and current Admin source
+
+Integrated current master b0cf0f0e, preserving its Admin workspace changes and
+learning text. Both journals retain incoming in-place corrections and this
+account batch. The incoming backend change is learning copy only; no backend
+rollout, schema change or capability activation is part of this account release.
+
+Final local collection selects 1,434 tests in 76 files: the original 1,337 case
+titles remain, the account project adds 91 checks and current master adds six
+Admin checks. Source locations changed, so compare project, file and full title
+rather than line numbers. Collection does not establish execution acceptance.
+The account project restores availability only in the isolated loopback API and
+routes the browser policy read there; hosted checks and other projects keep their
+existing setup. Staff fixtures fall through for that policy read. Canonical
+inventory regenerated: 120 routes; all recorded coverage/evidence preserved.
+Evidence: account-design-20261114/final-required-matrix-collection.json.
+
+Compiled account evidence remains scoped to fb2e/5f20 as recorded below. All seven
+invitation fixtures, nine natural-reflow cases, 24 automated accessibility cases
+and 63 read-only viewport checks have passed in their recorded builds. Final
+integrated checks, exact-master candidate and live acceptance remain pending.
+The public release remains 6c52. Groups 6-10 and full inventory acceptance remain
+open. No real account or business mutations were used for these design checks.
+
+## 14 November - required account collection corrected and expanded
+
+Collection proves the previous1,340-case estimate was wrong: the existing selected
+projects still collected1,337 cases and omitted these account layout/invitation
+checks. Add an explicit account-design project with60 responsive form cases,24
+accessibility cases and seven invitation cases. The actual required collection is
+now1,428 cases in76 files. A case-identity comparison proves every previous1,337
+case remains selected. Source evidence: account-design-20261114/required-matrix-collection-audit.json.
+Allow60 minutes for the expanded matrix and80 for the job, retaining the previous
+20-minute setup/diagnostic allowance and every individual test limit/max-failure
+rule. This supersedes the earlier1,340-case budget estimate; collection is not
+execution acceptance.
+
+The new compiled5f20 build dpl_7b2qAWndYjqpd6npEFYK7nZFzcPY passes all seven
+invitation fixtures, now including the320x720 pointer obstruction regression.
+Native touch at320x720 and390x844 confirms the real anonymous session check receives
+input, returns401 guidance, stays on the page and preserves scroll. The fixed dock
+is absent under the same exclusion already used by the other authentication pages.
+An additional guest-invitation Axe scan finds zero violations. No business writes.
+Evidence: invitation-final-5f-result.json and invitation-5f-native-fixed.json.
+The real email/MFA token inputs remain single fields for their actual flows and
+copy/paste; unsupported SMS/Whatsapp six-slot verification is not introduced.
+
+Current master add252a6 is integrated, preserving its plain Home fallback wording
+and both journals exactly. Full current-source checks, final master integration,
+exact-master production build and live Group5 acceptance remain required. Current
+public release6c52 remains unchanged. Groups6-10/full inventory remain open.
+
+## 14 November - invitation phone action obstructed by the support bar
+
+The compiled fb2e build exposes a real320x720 defect: Check session again is
+173x48px at y627, but its centre receives Ask Allie from the fixed full-width
+support bar. Evidence: TEMP/aat-stitch-implementation-20261109/account-design-20261114/
+invitation-fb-dock-obstruction.json and invitation-fb-320-support-review.png.
+Apply the existing authentication-page dock exclusion to the invitation route,
+alongside the other six account routes. Keep its Help Centre/footer links and all
+non-auth support behaviour. The anonymous retry regression now uses320x720 and
+checks full visibility and an unobstructed native pointer target before clicking.
+This repair still requires new compiled acceptance.
+
+The exact6c52 job132282616901 confirms a43.7-minute full1,337-case baseline,
+with11.2 minutes before the matrix. Three session regressions bring collection
+to1,340; native keyboard/scroll checks add work across30 form-size cases. Allow
+50 minutes for the complete matrix and70 for the job, preserving the previous
+20-minute setup/diagnostic allowance. No tests, per-test limits, assertions or
+max-failure rules are removed. Evidence: account-design-20261114/matrix-runtime-budget.json.
+
+Separate compiled checks pass24 existing automated accessibility cases across
+six account forms and63 read-only viewport checks across all seven routes. The
+initial access-renewal attempt reached the provider login; those three failed
+checks and21 not-run cases are setup failures, not app acceptance. Intended-host
+and application identity checks now guard the successful rerun. Physical devices,
+real roles and actual account/security mutations remain untested. Group5 stays
+unpublished pending this obstruction repair and final exact-master gates.
+
+## 14 November - compiled account recovery and natural reflow evidence
+
+The private production-environment build fb2e15c2, deployment
+`dpl_EFBh1vETWrsPUim9acL1y1b7kD9e`, passes seven invitation fixture cases.
+Anonymous401 reads settle and retry at320/1440,503 reads retain distinct error
+feedback and recover, and the existing explicit CSRF confirmation, rejection,
+uncertainty, credential clearing and cross-tab late-response checks pass. These
+use synthetic account APIs with a guard against unhandled hosted mutations;
+they are not real-role or live access-change acceptance.
+
+The first18-case layout run recorded13 passes, three failures and two cases not
+run. Reset/MFA secondary links were below the initial phone viewport. The new
+reference composition deliberately allows long forms and the complete privacy
+notice to flow vertically. The regression now exercises keyboard focus and native
+scrolling, then requires the whole control in view, its centre to receive input,
+and the existing44px minimum height. Horizontal overflow and all original form
+states/sizes remain checked. Nine focused registration/reset/MFA cases now pass
+at320/390/1440 against unchanged compiled application styles. A focus-only trial
+recorded8/9 passes and a fractional viewport-edge failure; a two-case scroll-margin
+CSS rehearsal also failed and was not applied. Neither failed attempt counts as
+acceptance. Successful compiled checks contain no injected replacement stylesheet.
+
+The ordinary Preview correctly fails closed when its availability endpoint returns 503. That exposed the registration fallback missing a level-one heading; it now
+uses the shared card and a clear contact action, without the registration-only
+information panel. The production-configured private build reads the genuine
+browse/enquiries policy with accounts enabled and commerce/booking gates unchanged.
+CLI submission succeeded, but its new structured response defeated the helper URL
+parser; the provider receipt was recovered without resubmission and both public
+domains were confirmed unchanged.
+
+Evidence is under TEMP/aat-stitch-implementation-20261109/account-design-20261114:
+invitation-fb-result.json, layout-fb-result.json, native-reflow-fb-v2-result.json,
+registration-fb-natural-reflow.json and retained initial failure captures. Full
+reference/size/accessibility review, final exact-master checks and live account-page
+verification remain required. Group5 remains open; source coverage stays repaired.
+
+## 14 November - account reference implementation, rendered checks pending
+
+Group 5 covers the seven existing authentication routes. The four supplied account
+PNG/HTML references were reviewed at their real dimensions: centered white cards
+on an off-white canvas, a red edge, generous readable fields, and a separate navy
+information panel for registration. The shared AccessShell implements that family
+with the actual Allied mark, Nippo/Quicksand and existing fields/actions. MFA and
+email verification use a compact context icon; staff invitations now share the same
+shell. Registration reflows to one field column on phones. Unsupported phone or
+Whatsapp sign-in/recovery, fleet tiers, sample vehicle fields, certification/security
+badges and MFA bypass are excluded. Existing account and business gates are retained.
+
+A read-only current-release probe reproduces the anonymous invitation defect: two
+GET /auth/session responses return401, but the checking message remains after retry.
+Evidence: TEMP/aat-stitch-implementation-20261109/account-design-20261114/invitation-baseline.json.
+The resource hook now permits expected anonymous session reads only when explicitly
+requested for GET /auth/session. An external session change still aborts reads and
+discards credentials; it settles as denied instead of leaving the checking message active.
+Existing explicit and background revalidation remain. Protected resource defaults are unchanged. Unavailable
+reads display an error separately from signed-out guidance. Three isolated browser
+regressions cover anonymous retry at320/1440 and503 recovery; the existing CSRF,
+fragment, MFA and late-response acceptance assertions are retained.
+
+Local TypeScript, scoped ESLint/Prettier and all 31 API-client unit tests pass.
+This entry records source changes, not compiled acceptance or publication. Mark
+affected canonical account coverage repaired until the rendered tests, reference
+comparison, exact-master gates and live checks pass. Preserve the completed Vehicles
+release and remaining Groups 6-10/full120-route/state coverage. No real account,
+permission, email, password or MFA mutation was used for the baseline.
+
+## 14 November - Vehicles published; account pages are the next design group
+
+The checked source `6c52b934b531f9ef56b90615e73099f43e898cd2` is live at both
+public domains through frontend `dpl_GABPemCubUZP16cbJ8EgZum1TSKv`. The www alias
+redirects to apex with 308. Exact-master checks passed: frontend 43541388596
+(1,591 unit passes, 12 existing conditional skips, 1,337 browser passes), backend
+43541388597 and secrets 43541388641. The full matrix includes four touch-gallery
+cases and 15 Parts cases; no earlier or cancelled run qualifies this release.
+
+The separate approved backend release activated `e40c9a13-d8ae-4c4f-a50c-04353ceef4c4`
+with all four source-matched remote digests. Its fresh isolated populated restore,
+current/recovery image probes and 13 fresh healthy worker tasks have separate
+receipts under TEMP/aat-attendance-20261104/release-backend-6c52b934-20261114. This
+design task did not apply its backend rollout or change financial/booking flags.
+
+Live Edge 157 checks cover all nine requested viewport sizes, Hatchback filtering,
+detail navigation and retained filter state on return. Native touch emulation at
+320/390 verifies next/previous/thumbnail controls without page movement, unobstructed
+44px gallery actions, dialog arrows, Escape and focus return. The unavailable
+Inspection link is absent. Settled photographs and desktop/phone captures were
+reviewed; initial image-loading captures are retained separately. Home carousel
+next/previous/slide selection also retain scroll at 320/390; Services reflows at
+both sizes with its compact hero. No production business submissions or browser
+errors occurred. Evidence: TEMP/aat-stitch-implementation-20261109/master-6c52-20261114
+and vehicle-gallery-master-6c52-gates.json. These are browser emulation/read-only
+checks, not physical-device, real-role or provider transaction acceptance.
+
+Group 4 is published. Group 5 now covers sign-in, registration, password recovery,
+reset, email verification, MFA and staff invitations. The existing canonical
+inventory is refreshed to 120 current routes, preserving all 107 prior coverage
+records and evidence; 13 newly inventoried routes remain not-inspected. Groups
+5-10 and the remaining route/state/role/device coverage remain open. Preserve
+newer master 19aee07d, whose changes are test evidence and journals, in the next
+batch; it is not misreported as the published source.
+
 ## 14 November - reconcile verified breadcrumb with owner-decision master
 
 Compiled Preview 80be0b43 passed 25/25 focused navigation, menu, hero failure and
@@ -347,6 +591,68 @@ and exact-source publication for this small correction are pending. D17 remains
 with its independent integration owner; do not overwrite that active worktree.
 The second historical Docker review stopped on a changed inventory before deletion;
 no additional images or volumes were removed by that review.
+
+## 14 November - Allie and staffed live-chat activation in progress
+
+The owner requested working Allie and human live chat in production, approved up
+to USD5 for renewed isolated AI evaluation, then USD10/month initially for public
+Allie. Approved human coverage: Customer Service Officer, Allied AutoTech Port
+Harcourt branch, Monday-Saturday 08:00-18:00 Africa/Lagos. Verify current staff
+view/reply/live duties and explicit session opt-in; never infer availability from
+job title or ordinary login. Configure coverage through the audited owner API/UI.
+
+Production inspection found API deployment e40c9a13 ACTIVE with the published
+6c52 images and no OpenAI key, AI enablement or live-chat enablement settings.
+Both public domains return learning flags guides=true, practice=true, ai=false.
+The owner-only coverage editor's production Vercel flag was absent; it is now
+configured true for the next build. This does not enable chat or change live pages.
+The separate D17/132-migration work remains outside this activation batch, based
+on master add252a6 (112 migrations, backend runtime unchanged from production).
+
+Renewed real-model baseline: 99 validated answers, one safely rejected empty
+caveat, and ten local negative cases with zero provider calls. Prior exhausted
+approvals are retained. Case workshop-08 returned caveat="" and was correctly
+rejected. Align the upstream JSON schema with existing output length/count
+constraints and explicitly request null when no caveat is needed. All17 targeted
+corrected-source model rechecks pass, including workshop-08; factual replies were
+reviewed against the evaluation rubrics. The active ledger retains117 reservations
+and USD0.233217 conservatively reserved, not an invoice amount. Three calls remain
+within this campaign's120-request cap; never reset that ledger to obtain more.
+No runtime validator is relaxed, retry added, permission granted or schema changed.
+The corrected source passes 110 focused backend tests, scoped lint and formatting.
+TypeScript and the4,000-file secret guard pass. The release workflow previously
+omitted Allie's owned-conversation HTTP suite. Its Allie/Care step now creates a
+dedicated empty database, replays/checks schema, rejects excessive runtime grants,
+and runs owned conversations plus the existing Care suites as a non-owner role
+without DDL, TRUNCATE or migration-ledger reads. Real-model calls remain separate.
+Earlier frontend checks passed 65 tests; the one worker startup timeout passed
+all eight tests on a focused retry. These are not hosted workflow acceptance.
+
+A newly created synthetic loopback database replayed 132 migrations without drift;
+its native integration run was stopped after the disk reserve check failed, so no
+native-suite pass is claimed. Its exact 20MiB database and task role were removed
+after verifying zero connections. Other databases/resources remain untouched.
+Evidence: TEMP/allied-allie-live-20261114/{migration-replay.log,native-cleanup.json}.
+Free space later recovered without a measured attribution; fresh preflights govern.
+
+The newly included owned-conversation suite exposed an obsolete test-only
+parts-fitment@v3 citation. Its successful-answer fixture now uses the current
+reviewed article version; stale/malicious citation rejection remains unchanged.
+All15 HTTP tests pass against a fresh112-migration loopback database with a
+restricted runtime role. The compiled browser campaign passed18 cases before
+an empty-group assertion found that server rendering seeded two unrelated
+synthetic services. The loopback API now returns the same empty group as its
+browser fixture for that exact synthetic category. No product code or assertion
+is relaxed. Full exact-source gates must rerun. Packaging remains paused: the
+fresh disk check still reports20.3GiB, below the21.5GiB packaging requirement.
+
+Remaining: exact-source CI/integration, including the new isolated Allie/Care step;
+matching backend package and fresh recovery/runtime checks; confirm
+the OpenAI project hard USD10 monthly limit; configure API/worker settings; rebuild
+and verify the owner editor; audited branch coverage and representative opt-in;
+actual customer/representative delivery, reconnect, isolation and AI-to-human handoff.
+Computer Use rejected the current browser URL; do not bypass that restriction or
+call fixture/API checks real-role browser acceptance. No publication is claimed.
 
 ### 14 November: cancelled-payment guidance follows recorded status
 
@@ -8558,7 +8864,7 @@ separate-photo Home, fonts, prices, records and existing permission/financial ga
 
 Superseding facts: payment follows final parts compatibility/availability review;
 materials paid separately first, workmanship after completion/before collection;
-nearest-kobo VAT/discounts, Mon-Sat08:00-18:00 normal workshop hours, actual people
+nearest-kobo VAT/discounts, Mon-Sat 08:00-18:00 normal workshop hours, actual people
 and equipment capacity, immediate reasoned eligible cancellation, approval-based
 rescheduling, five-business-day in-stock hold, per-product timing, secure one-time
 third-party collection and explicit calendar actions. Older pay-first text is
@@ -15127,5 +15433,116 @@ Evidence: parts-master65f-ci-evidence.json and matching PNGs in the established 
 folder. New compiled captures, all final-master gates and a compatible backend
 remain prerequisites for Parts publication. Groups4-10 remain open.
 
+## 14 November - workshop photograph navigation and placement reconciliation
+
+Fresh anonymous Edge checks at390/1440 confirm the Home "Two-post vehicle lift"
+link opens About's text-only "How we work" section, with no lift in its target.
+Link directly to the existing lift photograph using a stable focusable equipment
+item anchor in both shared gallery variants. Preserve existing section/guide
+targets, the initially open workshop group, native scrolling, photo viewing and
+permissions. Add keyboard/navigation/reload/dialog-focus regression coverage at
+all nine brief viewports:320/360/390/430/768/1024/1280/1366/1440.
+
+The owner's9 November editorial reference implementation (29a2c442) explicitly
+supersedes the older photo hero. Retain that approved carousel and genuine
+Home/About photographs; correct four stale placement entries and obsolete hero
+framing metadata in the original asset manifest. All15 supplied originals match
+their recorded SHA256 values; no original, derivative, approved price or withheld
+asset changes. Compiled Preview9c2f1502 passes9/9 focused cases in190.3s at
+all nine widths: keyboard link, real fragment reload, photo dialog Escape/focus return,
+no overflow/page errors/business submissions, and loaded uncropped lift photo.
+Safe destination screenshots at320/390/768/1440 were visually reviewed. Receipt:
+TEMP/allied-workshop-link-9c2f1502/verified.json. Scoped lint, formatting and diff
+checks pass. PR94 remains subject to final source/master gates and publication.
+The earlier2/2 run is retained separately and overlaps this final nine-case run.
+Baseline: TEMP/aat-attendance-20261104/workshop-link-baseline-20261114.json.
+This is public read-only browser evidence, not role/provider/device acceptance.
+Keep the independent b0cf0f0e backend release and D17 migration gates intact.
+
+Integration checkpoint: reconcile current master02439cdc into PR94, retaining both
+complete journals, the scoped Admin entry and all D17 runtime/migration inputs.
+The only delta from02439 is the same six workshop files. Backend, all132 canonical
+migrations, financial tests and generated contracts match master exactly. The
+earlier9c2f compiled evidence remains target-specific pre-integration acceptance;
+fresh combined compiled acceptance and final-source/master checks are required.
+
+Coverage correction: workshop-home was absent from the production CI selectors.
+Add a workshop-navigation project selecting only these nine cases, with explicit
+anonymous/browse fixtures, page-error checks, actual image decode/contain checks
+and safe390/1440 screenshots. Collection proves9 selected cases; execution is not
+inferred. This adds the runtime config as the seventh scoped file. The combined
+0f726647 Preview is READY (dpl_14F2Q32AsAAM2hcHJEnHDBePRdoH); local browser
+execution is held by failed reserve checks (10.58, then17.78GiB). Preserve all
+earlier9c2f evidence separately. Cloud CI, combined captures and release remain.
+
+Master integration checkpoint: merge PR94 into currentdcac8157 without replacing
+the separate account-design/invitation repair or its measured80-minute job/
+60-minute matrix budget. Both journals merge cleanly. Workshop application/tests
+match689cd106 byte-for-byte; backend,132 migrations, contracts and all other current
+master runtime inputs are unchanged. Terminal backend43560000985 passes132 empty
+replay/diff/db:check, including21 purchase-review and45 supply-exception cases;
+receipt TEMP/aat-attendance-20261104/backend-ci-689cd106-verified-20261114.json.
+These remain isolated contracts, not merchant or role acceptance. Exact resulting
+master frontend/backend/secret gates precede any publication. Vercel's actual
+production Git branch remains release/public-launch-20261022; preserve it. No
+alias, database or capability changed. Local reserve remains below20GiB.
+
 Automatic approval review rejected deletion of the verified80KiB aborted-browser
 profile with "blocked by policy". It was retained; no alternate deletion was used.
+
+## 14 November - confirmed tall-header person-field occlusion; candidate repair
+
+Terminal689cd106 frontend43560001195 reports1478 passes and one failure: the
+320px long-identity/taller-header case covers the current-password label with
+the sticky identity. All nine workshop-navigation cases pass. Preserve the failed
+matrix; it is not a release pass. Selected artifact14100433636 files were obtained
+using2,148,150 bounded range bytes instead of the84,618,330-byte archive. Selected
+ZIP CRCs match; the full archive SHA was not independently verified. Evidence:
+TEMP/allied-689-runtime-failure-20261114 (failure capture, context, trace and both
+workshop captures). No real records are in this isolated CI evidence.
+
+Fresh compiled989 Preview reproduces the original strict case: two passes then
+one failure across three repeats. Metrics show a focused input at575.8px and its
+label at546.8px behind an identity ending560px. The page handler positions label
+and input together; a later generic viewport reveal moves only the input. Candidate
+repair marks the page's active focus handler and defers competing generic nearest
+reveals for its focused fields. Cleanup removes the marker with its listener.
+Dialog, hash/navigation, identity text/size, permissions and financial state remain.
+Existing strict assertions are unchanged. Compiledd06e2531 passes25/25 in4.7m:
+10 repeated taller-header attempts,6 other identity layouts and9 public workshop
+widths (16 distinct scenarios). Separate320x520 unpinned-identity case passes1/1
+in15.9s. Full frontend no-emit TypeScript, scoped ESLint/format and diff pass.
+The empty-password fixture before/after capture was reviewed; complete enlarged
+identity and field label remain visible. Receipt: TEMP/allied-person-header-d06e2531/
+verified.json. This is synthetic-role compiled acceptance, not a real operator.
+Baseline: TEMP/allied-person-header-989-baseline/report.json. Current master5cf,
+its active/pending gates and all132 migration/release safeguards remain preserved.
+The olderdcac master run also reports the same person failure plus a separate
+MFA1024 focus failure (Home link loses focus). Record that second regression as
+unresolved; this person-only change does not claim to repair it or permit release.
+
+## 14 November - Allie release MFA fixture timing repair and migration review
+
+Exact-master9ca backend43566919313 stopped in the isolated MFA atomicity
+fixture before exercising TOTP: two independent expiry() calls crossed a
+millisecond, violating idleExpiresAt <= expiresAt. The three session fixtures
+now capture one expiry each and use it for both values. Runtime authentication,
+database constraints and the original atomicity/concurrency assertions remain.
+Fresh loopback132-migration replay/schema diff passes; the four existing cases
+pass three times (12/12) with a restricted runtime role. The task-only synthetic
+database and role were removed after zero connections; no real records were used.
+Evidence: TEMP/allied-allie-live-20261114/native-mfa-clock/{migration-replay.log,
+native-mfa-clock-{1,2,3}.log,native-verified.json,native-cleanup.json}. Scoped
+formatting and diff checks pass. Exact resulting source CI remains required.
+
+All20 SQL additions beyond the live112 baseline have completed release data-
+preservation review. No top-level historical-row rewrite, destructive DDL,
+role/grant mutation or financial execution was identified. All canonical SQL
+hashes are unchanged; Windows checkout bytes match committed Git filters. This
+review does not prove a populated upgrade: fresh backup, separate restore/forward
+migration rehearsal, original-column row/hash and complete-history preservation,
+117-model runtime probes and managed off-device recovery gates remain pending.
+Evidence: TEMP/allied-allie-live-20261114/combined-release-migration-manual-review.json
+and combined-migration-canonical-checkout-verified.json. Prepared restore helper
+was syntax-checked only, not executed. Public AI/live chat remain unactivated;
+coverage, current officer duties/opt-in and real delivery acceptance remain open.

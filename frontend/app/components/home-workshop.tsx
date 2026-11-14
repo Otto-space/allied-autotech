@@ -102,7 +102,7 @@ export function HomeWorkshop() {
           <Link href="/about#equipment">
             3D wheel alignment <ArrowUpRight size={16} aria-hidden="true" />
           </Link>
-          <Link href="/about#principles">
+          <Link href="/about#equipment-item-service-bay-lift">
             Two-post vehicle lift <ArrowUpRight size={16} aria-hidden="true" />
           </Link>
           <Link href="/about#principles">

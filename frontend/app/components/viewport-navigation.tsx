@@ -50,6 +50,17 @@ function reveal(element: HTMLElement, focus: boolean, nearest = false) {
     element.scrollIntoView({ block: "nearest", behavior: "instant" });
     return;
   }
+  // The person workspace measures the label, sticky identity and support dock
+  // together. A later generic reveal must not move its focused field again.
+  if (
+    nearest &&
+    !focus &&
+    document.activeElement === element &&
+    element.matches("input, textarea, select, button") &&
+    !element.closest(".wf-person-context") &&
+    element.closest('[data-person-focus-managed="true"]')
+  )
+    return;
   // Custom radios/checkboxes can hide the input behind a visible label. Keep
   // the painted control and its focus ring visible, rather than its 1px input.
   const label =

@@ -92,8 +92,29 @@ export default defineConfig({
       grep: /registration completes|verification token|accepted request is generic|Retry-After blocks|duplicate submission locks|complete reset|invalid link clears|uncertain .* result|pending session selects|invalid codes clear|recovery code uses|first-factor setup requires|discarding authenticator|late enrollment|malformed enrollment|virtual security key|cancelled browser|existing factor blocks|re-register authenticator|password reveal is reversible|pending submission clears|honest .* response|invalid .* response cannot|MFA hands off|safe continuation|session change clears/,
     },
     {
+      name: "account-design",
+      testMatch: [
+        "login-quality.spec.ts",
+        "register-quality.spec.ts",
+        "forgot-password-quality.spec.ts",
+        "reset-password-quality.spec.ts",
+        "email-verification-quality.spec.ts",
+        "mfa-quality.spec.ts",
+        "staff-admin.spec.ts",
+      ],
+      // Exercise the changed forms and invitation flow in the required matrix,
+      // preserving the synthetic WebAuthn origin and all existing projects.
+      use: { baseURL: "http://localhost:3103" },
+      grep: /login fits|registration fits|recovery fits|reset link and manual entry fit|verification and resend fit|MFA methods and enrollment fit|login accessibility|registration accessible|recovery accessibility|reset accessible|verification accessible|MFA challenge accessibility|anonymous invitation check|unavailable invitation session read|acceptance scrubs|acceptance handles|cross-tab account changes discard invitation/,
+    },
+    {
       name: "home-design",
       testMatch: ["home-design.spec.ts"],
+    },
+    {
+      name: "workshop-navigation",
+      testMatch: ["workshop-home.spec.ts"],
+      grep: /workshop lift link reaches its photograph/,
     },
     {
       name: "product-authoring",

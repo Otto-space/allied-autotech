@@ -17,6 +17,7 @@ import {
 } from "../../src/modules/learning/learning.service.js";
 import { workforceFixture } from "../fixtures/workforce.js";
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
+import { learningArticles } from "../../src/modules/learning/learning.content.js";
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "owned transient Allie conversations through actual HTTP",
@@ -56,7 +57,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
                     answer: "A name match does not confirm compatibility.",
                     steps: ["Read the available compatibility evidence."],
                     caveat: null,
-                    sourceIds: ["parts-fitment@v3"],
+                    sourceIds: [
+                      `parts-fitment@v${learningArticles.find((article) => article.id === "parts-fitment")!.version}`,
+                    ],
                     actionIds: ["read:parts-fitment"],
                   }),
                 },

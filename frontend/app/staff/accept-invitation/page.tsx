@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { AuthShell } from "@/app/components/auth-shell";
+import { AccessShell } from "@/app/components/access-shell";
 import { AcceptStaffInvitation } from "@/app/components/accept-staff-invitation";
+import "./invitation.css";
 export const metadata: Metadata = {
   title: "Accept team invitation",
   referrer: "no-referrer",
@@ -8,8 +9,10 @@ export const metadata: Metadata = {
 };
 export default function Page() {
   return (
-    <AuthShell audience="staff">
-      <AcceptStaffInvitation />
-    </AuthShell>
+    <AccessShell mode="invitation">
+      <div className="login-form invitation-form">
+        <AcceptStaffInvitation />
+      </div>
+    </AccessShell>
   );
 }
