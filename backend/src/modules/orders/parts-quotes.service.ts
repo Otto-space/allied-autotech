@@ -1,3 +1,8 @@
+import {
+  readSupplyAlternativeTerms,
+  supplyAlternativeAgreementVersion,
+} from "./order-supply-alternative-terms.js";
+import { supplyAlternativeChoice } from "./order-supply-alternative.js";
 import { enqueueNotification } from "../notifications/notifications.service.js";
 import { z } from "zod";
 import { prisma } from "../../config/database.js";
@@ -41,7 +46,10 @@ export const issuePartsQuoteSchema = z
   })
   .strict();
 export const partsQuoteDecisionSchema = z
-  .object({ revision: z.number().int().positive() })
+  .object({
+    revision: z.number().int().positive(),
+    alternativeAgreementVersion: z.literal(supplyAlternativeAgreementVersion).optional(),
+  })
   .strict();
 export function partsQuoteView(quote: PartsQuote) {
   const {
@@ -54,6 +62,10 @@ export function partsQuoteView(quote: PartsQuote) {
   } = quote;
   return jsonSafe({
     ...view,
+    ...(quote.supplyRemedyChoiceId &&
+    readSupplyAlternativeTerms(_policy)?.choiceId === quote.supplyRemedyChoiceId
+      ? { alternativeAgreementVersion: supplyAlternativeAgreementVersion }
+      : {}),
     status:
       quote.status === "ISSUED" && quote.expiresAt <= new Date()
         ? "EXPIRED"
@@ -122,6 +134,7 @@ export class PartsQuotesService {
         throw supportConflict(
           "Quotations are valid for 7 days from issue. Refresh the form to use the current quotation terms.",
         );
+      const alternativeChoice = await supplyAlternativeChoice(tx, enquiryId);
       await tx.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${enquiryId}::uuid FOR UPDATE`;
       const enquiry = await tx.enquiry.findUnique({
         where: { id: enquiryId },
@@ -141,9 +154,13 @@ export class PartsQuotesService {
       const latest = await tx.partsQuote.findFirst({
         where: { enquiryId },
         orderBy: { revision: "desc" },
+        include: { order: { select: { status: true } } },
       });
       if ((latest?.revision ?? 0) !== input.expectedRevision) throw supportStale();
-      if (latest?.status === "ACCEPTED")
+      if (
+        latest?.status === "ACCEPTED" &&
+        !(latest.supplyRemedyChoiceId && latest.order?.status === "CANCELLED")
+      )
         throw supportConflict(
           "An accepted quotation cannot be replaced; use the linked order and aftercare process",
         );
@@ -171,6 +188,7 @@ export class PartsQuotesService {
       const quote = await tx.partsQuote.create({
         data: {
           enquiryId,
+          supplyRemedyChoiceId: alternativeChoice?.id ?? null,
           guestEmail,
           productId: product.id,
           createdByUserId: actor.userId,
@@ -189,6 +207,17 @@ export class PartsQuotesService {
           requestHash,
           policySnapshot: {
             finance: policySnapshot(finance),
+            ...(alternativeChoice
+              ? {
+                  supplyAlternative: {
+                    version: supplyAlternativeAgreementVersion,
+                    choiceId: alternativeChoice.id,
+                    originalOrderId: alternativeChoice.orderId,
+                    monetaryHandling: "SEPARATE_ORIGINAL_REFUND_BEFORE_NEW_PAYMENT",
+                    provenance: "ENGINEERING_UNDER_OWNER_D17_DELEGATION",
+                  },
+                }
+              : {}),
             quotation: terms.snapshot,
             branchId: enquiry.branchId,
             fulfillmentMethod: "COLLECTION",
@@ -229,7 +258,7 @@ export class PartsQuotesService {
             title: "Your parts quotation is ready",
             summary: "The team has prepared a parts quotation for your request.",
           },
-          response: `Quotation revision ${quote.revision}: ${quote.productName}. Quantity: ${quote.quantity}. Total: NGN ${(quote.totalKobo / 100n).toString()}.${(quote.totalKobo % 100n).toString().padStart(2, "0")}. Valid until ${quote.expiresAt.toISOString()}.\n\n${quote.notes}\n\nReview your quotation using private purchase access: ${new URL("/purchase", env.FRONTEND_VERIFY_EMAIL_URL).toString()}\nAn account is optional. Accepting a quotation creates an unpaid order; payment and final suitability, availability and collection readiness remain separate.`,
+          response: `Quotation revision ${quote.revision}: ${quote.productName}. Quantity: ${quote.quantity}. Total: NGN ${(quote.totalKobo / 100n).toString()}.${(quote.totalKobo % 100n).toString().padStart(2, "0")}. Valid until ${quote.expiresAt.toISOString()}.\n\n${quote.notes}\n\nReview your quotation using private purchase access: ${new URL("/purchase", env.FRONTEND_VERIFY_EMAIL_URL).toString()}\nAn account is optional. Accepting creates an unpaid order. Suitability and availability must be checked before payment. An alternative to affected original goods requires separate verified financial resolution; acceptance does not transfer the original payment or confirm a refund. Collection readiness remains separate.`,
         });
       return partsQuoteView(quote);
     });

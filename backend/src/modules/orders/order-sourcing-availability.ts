@@ -6,19 +6,23 @@ import { orderConflict } from "./orders.errors.js";
 export async function assertOrderSourcingAvailable(
   tx: Prisma.TransactionClient,
   orderId: string,
+  remaining?: ReadonlyMap<string, number>,
 ) {
   const timing = await tx.orderTimingUpdate.findFirst({
     where: { orderId },
     orderBy: { orderVersion: "desc" },
     select: { lines: true },
   });
-  if (hasUnavailableSourcing(timing?.lines))
+  if (hasUnavailableSourcing(timing?.lines, remaining))
     throw orderConflict(
       "An item is recorded as unavailable. Contact Customer Care before payment or fulfilment; existing payment remains recorded.",
     );
 }
 
-export function hasUnavailableSourcing(lines: Prisma.JsonValue | undefined) {
+export function hasUnavailableSourcing(
+  lines: Prisma.JsonValue | undefined,
+  remaining?: ReadonlyMap<string, number>,
+) {
   return (
     Array.isArray(lines) &&
     lines.some(
@@ -26,7 +30,11 @@ export function hasUnavailableSourcing(lines: Prisma.JsonValue | undefined) {
         line &&
         typeof line === "object" &&
         !Array.isArray(line) &&
-        line["sourcingStatus"] === "UNAVAILABLE",
+        line["sourcingStatus"] === "UNAVAILABLE" &&
+        !(
+          typeof line["orderItemId"] === "string" &&
+          remaining?.get(line["orderItemId"]) === 0
+        ),
     )
   );
 }

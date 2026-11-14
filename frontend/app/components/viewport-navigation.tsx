@@ -3,12 +3,25 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
-function headerOffset() {
+function headerOffset(target?: HTMLElement) {
   let bottom = 0;
   document.querySelectorAll<HTMLElement>(".site-header, .dashboard-top").forEach((el) => {
     if (["fixed", "sticky"].includes(getComputedStyle(el).position))
       bottom = Math.max(bottom, el.getBoundingClientRect().bottom);
   });
+  const context = target
+    ?.closest(".workforce-panel[data-person-page='true']")
+    ?.querySelector<HTMLElement>(".wf-person-context");
+  // Page-local and shared focus reveal must use the same sticky identity edge.
+  // Otherwise their scheduled adjustments can place the control behind each other.
+  if (
+    target &&
+    context &&
+    !context.contains(target) &&
+    context.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING &&
+    ["fixed", "sticky"].includes(getComputedStyle(context).position)
+  )
+    bottom = Math.max(bottom, context.getBoundingClientRect().bottom);
   return Math.max(0, bottom) + 16;
 }
 
@@ -44,7 +57,7 @@ function reveal(element: HTMLElement, focus: boolean, nearest = false) {
       ? element.closest("label")
       : null;
   const box = (label ?? element).getBoundingClientRect();
-  const top = headerOffset();
+  const top = headerOffset(element);
   const dock = document.querySelector<HTMLElement>(".support-controls");
   const dockBox =
     dock && getComputedStyle(dock).position === "fixed"

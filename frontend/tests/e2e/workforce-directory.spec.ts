@@ -475,15 +475,92 @@ for (const [width, height] of [
     });
   });
 }
-for (const { width, collapsed, measuredBand, earlierInset } of [
-  { width: 320, collapsed: false, measuredBand: false, earlierInset: 0 },
-  { width: 768, collapsed: false, measuredBand: false, earlierInset: 0 },
-  { width: 1440, collapsed: false, measuredBand: false, earlierInset: 0 },
-  { width: 1440, collapsed: true, measuredBand: false, earlierInset: 0 },
-  { width: 320, collapsed: false, measuredBand: true, earlierInset: 0 },
-  { width: 320, collapsed: false, measuredBand: true, earlierInset: 160 },
+test.afterEach(async ({ page }, info) => {
+  if (
+    info.status === info.expectedStatus ||
+    !info.title.startsWith("long selected identity")
+  )
+    return;
+  const geometry = await page.evaluate(() => {
+    const target = document.activeElement as HTMLElement | null;
+    const context = document.querySelector<HTMLElement>(".wf-person-context");
+    const dock = document.querySelector<HTMLElement>(".support-controls");
+    const bounds = (node: Element | null) =>
+      node
+        ? {
+            top: node.getBoundingClientRect().top,
+            bottom: node.getBoundingClientRect().bottom,
+            height: node.getBoundingClientRect().height,
+          }
+        : null;
+    return {
+      viewport: innerHeight,
+      scrollY,
+      activeTag: target?.tagName,
+      insidePersonScope: !!target?.closest(".workforce-panel[data-person-page='true']"),
+      target: bounds(target),
+      context: bounds(context),
+      dock: bounds(dock),
+      header: bounds(document.querySelector(".dashboard-top")),
+      rootTop: getComputedStyle(document.documentElement).scrollPaddingTop,
+      marginTop: target ? getComputedStyle(target).scrollMarginBlockStart : null,
+    };
+  });
+  // Geometry only: no identities, field values, credentials or record contents.
+  console.info("People focus geometry", JSON.stringify(geometry));
+});
+for (const { width, collapsed, measuredBand, earlierInset, tallerHeader } of [
+  {
+    width: 320,
+    collapsed: false,
+    measuredBand: false,
+    earlierInset: 0,
+    tallerHeader: false,
+  },
+  {
+    width: 768,
+    collapsed: false,
+    measuredBand: false,
+    earlierInset: 0,
+    tallerHeader: false,
+  },
+  {
+    width: 1440,
+    collapsed: false,
+    measuredBand: false,
+    earlierInset: 0,
+    tallerHeader: false,
+  },
+  {
+    width: 1440,
+    collapsed: true,
+    measuredBand: false,
+    earlierInset: 0,
+    tallerHeader: false,
+  },
+  {
+    width: 320,
+    collapsed: false,
+    measuredBand: true,
+    earlierInset: 0,
+    tallerHeader: false,
+  },
+  {
+    width: 320,
+    collapsed: false,
+    measuredBand: true,
+    earlierInset: 160,
+    tallerHeader: false,
+  },
+  {
+    width: 320,
+    collapsed: false,
+    measuredBand: false,
+    earlierInset: 0,
+    tallerHeader: true,
+  },
 ]) {
-  test(`long selected identity at ${width}px${measuredBand ? " with the measured identity band" : ""}${earlierInset ? " and an earlier header inset" : ""} wraps at enlarged text without covering actions${collapsed ? " with collapsed sidebar" : ""}`, async ({
+  test(`long selected identity at ${width}px${measuredBand ? " with the measured identity band" : ""}${earlierInset ? " and an earlier header inset" : ""} wraps at enlarged text without covering actions${collapsed ? " with collapsed sidebar" : ""}${tallerHeader ? " with a taller dashboard header" : ""}`, async ({
     page,
   }, info) => {
     await page.setViewportSize({ width, height: 720 });
@@ -498,6 +575,12 @@ for (const { width, collapsed, measuredBand, earlierInset } of [
       ).toBeVisible();
     }
     await page.getByText("Review legacy access and enroll", { exact: true }).click();
+    // Model a larger shell after text/header reflow. Keep the actual sticky
+    // header, measured identity and bottom dock; do not hide an occluding control.
+    if (tallerHeader)
+      await page.locator(".dashboard-top").evaluate((element) => {
+        (element as HTMLElement).style.minHeight = "148px";
+      });
     const selected = page.getByRole("complementary", { name: "Selected person" });
     await selected.locator("strong").evaluate((element) => {
       element.style.fontSize = "28px";
@@ -530,8 +613,8 @@ for (const { width, collapsed, measuredBand, earlierInset } of [
         await control.focus();
       }
       await expect(control).toBeFocused();
-      // The person-context resize/focus handler uses this native alignment.
-      // Exercise it explicitly so event timing cannot mask doubled header space.
+      // Exercise browser-native alignment after measured focus recovery as well.
+      // Event timing must not mask a duplicated header or focus gap.
       await control.evaluate((element) =>
         element.scrollIntoView({ block: "start", behavior: "instant" }),
       );
@@ -594,6 +677,53 @@ for (const { width, collapsed, measuredBand, earlierInset } of [
     expect(s.errors).toEqual([]);
   });
 }
+
+test("short person viewport releases the sticky identity so the field and label remain usable", async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 320, height: 520 });
+  const s = await setup(page);
+  s.f.workforce.accountLabel =
+    "Chidinma Alexandra Okonkwo-Emmanuel with a long recorded family name";
+  await page.goto(`${base}/${s.f.member.id}`);
+  await page.getByText("Review legacy access and enroll", { exact: true }).click();
+  const selected = page.getByRole("complementary", { name: "Selected person" });
+  await selected.locator("strong").evaluate((element) => {
+    element.style.fontSize = "28px";
+    element.style.lineHeight = "1.5";
+    element.style.letterSpacing = "0.12em";
+    element.style.wordSpacing = "0.16em";
+  });
+  const password = page.getByLabel("Your current password", { exact: true });
+  await password.focus();
+  await expect(password).toBeFocused();
+  await expect(selected).toHaveAttribute("data-unpinned", "true");
+  await password.evaluate((element) =>
+    element.scrollIntoView({ block: "start", behavior: "instant" }),
+  );
+  await expect
+    .poll(() =>
+      password.evaluate((element) => {
+        const label = (element as HTMLInputElement).labels?.[0];
+        if (!label) return false;
+        const header = document.querySelector(".dashboard-top")!.getBoundingClientRect();
+        const dock = document.querySelector(".support-controls")!.getBoundingClientRect();
+        return [element, label].every((target) => {
+          const box = target.getBoundingClientRect();
+          const front = document.elementFromPoint(box.left + box.width / 2, box.top + 2);
+          return (
+            box.top >= header.bottom &&
+            box.bottom < dock.top &&
+            (front === target || target.contains(front))
+          );
+        });
+      }),
+    )
+    .toBe(true);
+  await page.screenshot({ path: info.outputPath("person-short-password.png") });
+  expect(s.writes).toEqual([]);
+  expect(s.errors).toEqual([]);
+});
 
 test("directory filtering, pagination, clear and deep-link context use real controls", async ({
   page,

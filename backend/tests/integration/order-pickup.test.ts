@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+import type { PrismaClient } from "../../src/generated/prisma/client.js";
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import request from "supertest";
@@ -258,6 +260,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           context,
         );
       expect(final.complete).toBe(true);
+      const physical = await prisma.orderPickupHandover.findMany({
+        where: { orderId: f.order.id },
+        orderBy: { orderVersion: "asc" },
+        select: { unitRanges: true },
+      });
+      expect(physical.map((row) => row.unitRanges)).toEqual([
+        [{ orderItemId: f.lines[0]!.orderItemId, offset: 0, quantity: 2 }],
+        [{ orderItemId: f.lines[0]!.orderItemId, offset: 2, quantity: 3 }],
+      ]);
+
       const saved = await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } });
       expect(saved).toMatchObject({ status: "COMPLETED", totalKobo: 10750n });
       expect(
@@ -276,6 +288,40 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         }),
       ).rejects.toThrow();
       expect(await prisma.payment.count({ where: { orderId: f.order.id } })).toBe(1);
+    });
+    it("rejects corrupt physical unit evidence transactionally without consuming the actual pickup", async () => {
+      const f = await fixture(),
+        secret = await f.issue(),
+        body = await f.prepared(secret, 5);
+      const altered = prisma.$extends({
+        query: {
+          orderPickupHandover: {
+            create({ args, query }) {
+              args.data.unitRanges = [
+                { orderItemId: f.lines[0]!.orderItemId, offset: 1, quantity: 5 },
+              ];
+              return query(args);
+            },
+          },
+        },
+      });
+      const service = new OrderPickupService(altered as unknown as PrismaClient);
+      await expect(service.handover(f.actor, f.order.id, body, context)).rejects.toThrow(
+        /physical history/,
+      );
+      expect(
+        await prisma.orderPickupHandover.count({ where: { orderId: f.order.id } }),
+      ).toBe(0);
+      expect(
+        (
+          await prisma.orderPickupAuthorisation.findUniqueOrThrow({
+            where: { id: secret.authorisationId },
+          })
+        ).consumedAt,
+      ).toBeNull();
+      expect(
+        (await f.service.handover(f.actor, f.order.id, body, context)).complete,
+      ).toBe(true);
     });
     it("revokes old authorisations on reissue and refuses changed replay or revoked codes", async () => {
       const f = await fixture(),
@@ -411,6 +457,36 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ).revokedAt,
       ).not.toBeNull();
       expect((await f.issue(5, 3)).pickupCode).toBeTruthy();
+    });
+    it("records actual contact using the database clock when the application clock is ahead", async () => {
+      const f = await fixture();
+      const applicationTime = Date.now() + 60000;
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(applicationTime);
+      try {
+        const held = await f.service.collectionContact(
+          f.actor,
+          f.order.id,
+          {
+            expectedVersion: 0,
+            idempotencyKey: randomUUID(),
+            outcome: "NOTIFIED",
+            method: "PHONE_CALL",
+            reason:
+              "Synthetic actual contact while application and database clocks differ",
+            actualContactResultConfirmed: true,
+          },
+          context,
+        );
+        const notice = await prisma.orderCollectionEvent.findFirstOrThrow({
+          where: { orderId: f.order.id },
+        });
+        expect(notice.createdAt.getTime()).toBeLessThan(applicationTime - 30000);
+        expect(held.holding.state).toBe("HOLDING");
+        expect(held.holding.notifiedAt).toEqual(notice.createdAt);
+      } finally {
+        vi.useRealTimers();
+      }
     });
     it("starts holding only on actual successful contact, preserves failed attempts and extends with immutable reasons", async () => {
       const f = await fixture();

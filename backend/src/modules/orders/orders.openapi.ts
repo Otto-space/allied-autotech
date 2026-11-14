@@ -1,3 +1,4 @@
+import { registerSupplyExceptionOpenApi } from "./order-supply-exception.openapi.js";
 import { registerPickupOpenApi } from "./order-pickup.openapi.js";
 import { orderTimingBodySchema } from "./order-timing.schemas.js";
 import {
@@ -42,6 +43,7 @@ interface Path {
 }
 export function registerOrdersOpenApi(registry: OpenAPIRegistry): void {
   registerPickupOpenApi(registry);
+  registerSupplyExceptionOpenApi(registry);
   const paths: Path[] = [
     {
       method: "post",

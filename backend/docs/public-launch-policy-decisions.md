@@ -10,9 +10,10 @@ The date calculator has explicit pending-readiness/pending-notification states a
 uses the later event's Nigeria date, excluding that date. Queuing/attempting a
 notification is not successful customer notification. It returns a Collect by date,
 with overdue beginning on the next Nigeria date; this date-only engineering
-boundary does not invent an owner-approved closing-hour penalty. Durable evidence,
-reasoned extension, customer/staff rendering and notification-failure acceptance
-remain to be connected before D12 is complete. Do not request these settled values
+boundary does not invent an owner-approved closing-hour penalty. Durable contact
+evidence, reasoned extensions and customer/staff rendering are implemented. Six
+hosted pickup/holding journeys passed on d42f62cf; the newer combined-source full
+checks and production safeguards remain pending. Do not request these settled values
 again. No production policy publication or backfill is claimed.
 
 ## 3 November 2026: owner-approved monetary arithmetic
