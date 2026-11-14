@@ -1,3 +1,35 @@
+## 14 November 02:38 UTC - settled focus evidence verified; disk block cleared
+
+The screenshot-only correction at22fba6d9 passes all three branch checks. Frontend
+43543100658 reports1,337 runtime browser passes and1,591 unit passes with12 explicit
+skips. Backend43543100662 and secrets43543100789 pass. Six additional msedge cases
+against the unchanged compiled6c52 Preview pass in27.2 seconds at320/768/1440px,
+including expanded/collapsed sidebar, measured identity band and stale header inset.
+All six password captures and the phone focused-action capture were visually reviewed:
+the label and focused control are clear. Actual compiled styles, synthetic account
+APIs and blocked unhandled submissions were used. No CSS replacement or real writes.
+Receipt: TEMP/allied-preview-22fba6d9-settled/verified.json. This is fixture evidence;
+real-role, provider, physical-device and full screen-reader acceptance remain open.
+
+Reviewed Docker cleanup removed12 superseded local images from2586c61b/4fbc9cbb/
+3bb51d21 and28 old cache records (101.7MB reported by Docker). A second selected-cache
+pass removed0 records/0B; its1.52GB candidate estimate is not a reclaimed-space claim.
+Remote images, live/two rollback deployments, new6c52 images, all container/mount and
+volume identities were retained. The policy-blocked compiler cache was not retried.
+C: increased from20.11 to22.03GiB and the21.5GiB packaging preflight passed. Concurrent
+activity and delayed reclamation prevent attributing that whole increase to this cleanup.
+Receipts: TEMP/aat-attendance-20261104/docker-reviewed-cleanup-20261114.json and
+docker-cache-review-20261114.json. Recheck the reserve before each substantial write.
+
+Master6c52 also passes all exact-source gates: frontend43541388596 reports1,337 browser
+passes and1,591 units/12 skips; backend43541388597 and secrets43541388641 pass. The
+independent release owner has already packaged6c52 and deployment e40c9a13 is ACTIVE
+(fresh provider read). Preserve that release's source lease until frontend promotion
+and both aliases are verified; do not duplicate its rollout or merge this test-only
+batch across it. No commerce/booking activation or whole-site readiness is claimed.
+The complete original audit, approved D01-D17 and outstanding operational acceptance
+remain the goal; prior narrower completion/checkpoint statements are historical.
+
 ## 14 November 01:51 UTC - capture verified focus states after settlement
 
 The current6c52 compiled Preview passes25/25 focused cases, including six long-name

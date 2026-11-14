@@ -1,3 +1,24 @@
+## 14 November 02:38 UTC - settled focus screenshots accepted
+
+The screenshot timing correction at22fba6d9 passes the full frontend branch check
+43543100658:1,337 runtime browser passes and1,591 units,12 explicit skips. Backend
+43543100662 and secrets43543100789 pass. Six focused msedge cases against the actual
+compiled6c52 Preview pass in27.2 seconds at320/768/1440px, including expanded/collapsed
+sidebar, measured identity band and stale inset. All six post-settlement password
+captures and the phone focused-action image were visually reviewed: visible labels
+and focused controls are unobscured. No assertion, viewport, interaction or timeout
+was weakened; no application code or injected stylesheet changed. Receipt:
+TEMP/allied-preview-22fba6d9-settled/verified.json. This proves fixture geometry and
+interaction; it does not prove real-role, natural timing on every device or provider
+acceptance. The tall-header/short-screen repair remains with the independent D17 batch.
+
+The approved Docker review cleared the local disk blocker: C: now22.03GiB and the
+21.5GiB packaging preflight passes. Exact removal and preservation evidence is in
+the matching completion-tracker checkpoint; no blocked compiler deletion was retried.
+Current master6c52 full frontend/backend/secrets gates pass. Its independent release
+is in progress; preserve its lease and verify both aliases before integrating this
+test-only follow-up. Keep the full original audit and operational acceptance open.
+
 ## 14 November 01:51 UTC - capture verified focus states after settlement
 
 The current6c52 compiled Preview passes25/25 focused cases, including six long-name
