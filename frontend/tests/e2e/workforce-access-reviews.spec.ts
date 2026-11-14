@@ -34,7 +34,7 @@ async function setup(
         ok({
           id: id(301),
           user: { id: id(302), email: "manager@example.test", role: "ADMIN" },
-          workforceManaged: true,
+          workforceManaged: false,
           mfaRequired: true,
           mfaVerifiedAt: stamp,
           expiresAt: "2027-01-01T00:00:00Z",
@@ -338,7 +338,10 @@ test("delegated managers receive their scoped review and lose the route when del
   const before = s.state.reads.length;
   s.state.mode = "revoked";
   await page.reload();
-  await expect(page).toHaveURL(/\/admin\?workAccess=updated$/);
+  await expect(
+    page.getByRole("heading", { name: "Duty management unavailable", exact: true }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`${base}$`));
   expect(s.state.reads).toHaveLength(before);
   expect(s.state.writes).toEqual([]);
 });
@@ -348,7 +351,10 @@ for (const role of ["STAFF", "ADMIN"])
     await page.goto(base);
     await expect(
       page.getByRole("heading", {
-        name: "Responsibility management unavailable",
+        name:
+          role === "ADMIN"
+            ? "Duty management unavailable"
+            : "Responsibility management unavailable",
         exact: true,
       }),
     ).toBeVisible();
