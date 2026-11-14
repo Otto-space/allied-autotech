@@ -13489,6 +13489,13 @@ Candidate: register ownership with the existing page-local focus listener, defer
 the competing generic nearest reveal for its focused fields and clean up ownership
 on unmount. Preserve explicit navigation/dialog behavior, native scrollIntoView,
 complete identity text, enlarged text and every strict occlusion/keyboard assertion.
-Rendered fix verification remains pending. Baseline evidence is in
+Compiledd06e2531 passes25/25 in4.7m:10 taller-header repeats,6 other identity layouts
+and9 workshop widths; these are16 distinct scenarios. Separate short320x520
+viewport fallback passes1/1 in15.9s. Full frontend no-emit types and scoped
+lint/format/diff pass. Before/after empty-password fixture captures were reviewed.
+Receipt: TEMP/allied-person-header-d06e2531/verified.json. Real-role, physical-device
+and full final-master acceptance remain separate. Baseline evidence is in
 TEMP/allied-person-header-989-baseline and TEMP/allied-689-runtime-failure-20261114.
 Selected ZIP CRCs verified; the full archive digest was not fetched/verified.
+Older masterdcac also has a separate MFA1024 Home-link focus failure; it remains
+unresolved and is not covered by this person-context-only repair.
