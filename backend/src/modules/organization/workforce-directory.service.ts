@@ -17,6 +17,22 @@ import {
   isSupportedDelegationTemplate,
   supportedAssignmentPolicies,
 } from "./workforce-catalogue.js";
+import { workforceReview } from "./workforce-review.js";
+
+const reviewAssignmentSelect = {
+  id: true,
+  template: true,
+  templateVersion: true,
+  scope: true,
+  temporary: true,
+  startsAt: true,
+  expiresAt: true,
+  revokedAt: true,
+  branch: { select: { id: true, name: true, isActive: true } },
+} as const;
+type ReviewAssignment = Prisma.WorkforceAssignmentGetPayload<{
+  select: typeof reviewAssignmentSelect;
+}>;
 
 /** Account discovery follows the existing owner/delegation boundary of inspect().
  * No customer profiles, security factors, passwords or operational records are read.
@@ -52,7 +68,38 @@ export class WorkforceDirectoryService {
                 is: { branchId: { in: envelope?.delegatedBranchIds ?? [] } },
               },
             };
+      const now = new Date();
+      const permittedAssignments: Prisma.WorkforceAssignmentWhereInput = {
+        AND: [{ OR: supportedAssignmentPolicies() }],
+        template: {
+          in: envelope
+            ? templateSchema.options.filter(
+                (t) =>
+                  envelope.delegatedTemplates.includes(t) &&
+                  isSupportedDelegationTemplate(t, envelope.delegationPolicyVersion),
+              )
+            : [...templateSchema.options],
+        },
+        ...(envelope ? { branchId: { in: envelope.delegatedBranchIds } } : {}),
+      };
+      const activeAssignments: Prisma.WorkforceAssignmentWhereInput = {
+        AND: [permittedAssignments],
+        revokedAt: null,
+        startsAt: { lte: now },
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+        branch: { isActive: true },
+      };
+      const review = query.review
+        ? workforceReview(
+            query.review,
+            permittedAssignments,
+            activeAssignments,
+            now,
+            query.reviewDays,
+          )
+        : undefined;
       const filters: Prisma.UserWhereInput[] = [scope];
+      if (review) filters.push(review.people);
       if (query.role) filters.push({ role: query.role });
       if (query.status) filters.push({ status: query.status });
       if (query.position)
@@ -82,7 +129,6 @@ export class WorkforceDirectoryService {
         }))
       )
         workforceNotFound();
-      const now = new Date();
       const rows = await tx.user.findMany({
         where: query.cursor ? { AND: [where, { id: { gt: query.cursor } }] } : where,
         orderBy: { id: "asc" },
@@ -105,30 +151,7 @@ export class WorkforceDirectoryService {
               position: true,
               version: true,
               assignments: {
-                where: {
-                  revokedAt: null,
-                  startsAt: { lte: now },
-                  OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-                  branch: { isActive: true },
-                  AND: [
-                    {
-                      OR: supportedAssignmentPolicies(),
-                    },
-                  ],
-                  template: {
-                    in: envelope
-                      ? templateSchema.options.filter(
-                          (t) =>
-                            envelope.delegatedTemplates.includes(t) &&
-                            isSupportedDelegationTemplate(
-                              t,
-                              envelope.delegationPolicyVersion,
-                            ),
-                        )
-                      : [...templateSchema.options],
-                  },
-                  ...(envelope ? { branchId: { in: envelope.delegatedBranchIds } } : {}),
-                },
+                where: activeAssignments,
                 orderBy: [{ createdAt: "asc" }, { id: "asc" }],
                 take: 21,
                 select: {
@@ -145,6 +168,24 @@ export class WorkforceDirectoryService {
           },
         },
       });
+      // Bound matching records per person independently of active-duty summaries.
+      // Filtering happens above pagination; an empty page never hides later matches.
+      const matching = new Map<string, ReviewAssignment[]>();
+      if (review?.assignments && rows.length) {
+        const matches = await tx.workforceAccess.findMany({
+          where: { userId: { in: rows.slice(0, query.limit).map((row) => row.id) } },
+          select: {
+            userId: true,
+            assignments: {
+              where: review.assignments,
+              orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+              take: 21,
+              select: reviewAssignmentSelect,
+            },
+          },
+        });
+        for (const row of matches) matching.set(row.userId, row.assignments);
+      }
       const items = rows.slice(0, query.limit).map((row) => ({
         userId: row.id,
         name:
@@ -176,9 +217,36 @@ export class WorkforceDirectoryService {
             expiresAt: a.expiresAt?.toISOString() ?? null,
           })),
         canInspect: true,
+        ...(review
+          ? {
+              reviewMatchesMore: (matching.get(row.id)?.length ?? 0) > 20,
+              reviewMatches: (matching.get(row.id) ?? []).slice(0, 20).map((a) => ({
+                assignmentId: a.id,
+                template: a.template,
+                templateVersion: a.templateVersion,
+                scope: a.scope,
+                temporary: a.temporary,
+                startsAt: a.startsAt.toISOString(),
+                expiresAt: a.expiresAt?.toISOString() ?? null,
+                revokedAt: a.revokedAt?.toISOString() ?? null,
+                branch: a.branch,
+              })),
+            }
+          : {}),
       }));
       return {
         items,
+        ...(query.review
+          ? {
+              review: {
+                kind: query.review,
+                scope: envelope
+                  ? "DELEGATED_STAFF_AND_DUTIES"
+                  : "ALL_PRIVILEGED_ACCOUNTS",
+                ...(review?.windowEndsAt ? { windowEndsAt: review.windowEndsAt } : {}),
+              },
+            }
+          : {}),
         ...(envelope
           ? {
               managementBranches: await tx.branch.findMany({

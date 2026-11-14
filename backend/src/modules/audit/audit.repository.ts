@@ -12,6 +12,7 @@ import type {
   RefundListQuery,
   OperationalJobsQuery,
 } from "./audit.schemas.js";
+import { accessHistoryWhere } from "./access-history.js";
 
 export class AuditRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
@@ -22,6 +23,7 @@ export class AuditRepository {
   ) {
     return client.auditLog.findMany({
       where: {
+        ...(query.view === "ACCESS_CHANGES" ? accessHistoryWhere() : {}),
         ...(query.userId ? { userId: query.userId } : {}),
         ...(query.action ? { action: query.action } : {}),
         ...(query.entityType ? { entityType: query.entityType } : {}),

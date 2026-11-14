@@ -43,7 +43,7 @@ export default defineConfig({
     ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
       name: `sidebar-breakpoint-${browserName}`,
       testMatch: ["dashboard-navigation.spec.ts"],
-      grep: /sidebar preserves the desktop choice across mobile/,
+      grep: /sidebar preserves the desktop choice across mobile|sidebar restores browser-evicted focus/,
       use: {
         browserName,
         ...(browserName === "webkit"
@@ -144,9 +144,12 @@ export default defineConfig({
         "customer-overview-attention.spec.ts",
         "shared-shell-dock.spec.ts",
         "workforce-directory.spec.ts",
+        "workforce-access-reviews.spec.ts",
         "work-staff-workforce.spec.ts",
         "workforce-care-policy.spec.ts",
         "work-staff-invitations.spec.ts",
+        "access-history.spec.ts",
+        "work-audit.spec.ts",
         "saved-items-navigation.spec.ts",
         "saved-items-quality.spec.ts",
         "customer-profile-quality.spec.ts",

@@ -221,6 +221,16 @@ export const workforceDestinations = [
     articleIds: ["access-review"],
   },
   {
+    id: "accessReviews",
+    href: "/admin/workforce/reviews",
+    group: "team",
+    order: 81,
+    label: "Access reviews",
+    feature: "managed-workforce",
+    predicate: { scope: "delegation" },
+    articleIds: ["access-review"],
+  },
+  {
     id: "profile",
     href: "/admin/profile",
     group: "settings",
