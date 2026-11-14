@@ -270,6 +270,16 @@ for (const [width, height] of [
       await expect(identity.getByText("Active", { exact: true })).toBeVisible();
       await expect(page.getByText(/This is a partial access summary/)).toBeVisible();
       await expect(page.getByLabel("Job position", { exact: true })).toBeVisible();
+      if (measuredBand)
+        await selected.evaluate((element, extraInset) => {
+          // Keep the valid larger band independent of platform font metrics.
+          element.style.minHeight = "356px";
+          const header = document.querySelector(".dashboard-top")!;
+          document.documentElement.style.setProperty(
+            "--viewport-header-offset",
+            `${Math.max(0, header.getBoundingClientRect().bottom) + 16 + extraInset}px`,
+          );
+        }, earlierInset);
       const review = page.getByRole("button", { name: "Review enrollment", exact: true });
       await review.focus();
       await expect(review).toBeInViewport();
@@ -314,13 +324,15 @@ for (const [width, height] of [
     });
   });
 }
-for (const [width, measuredBand, earlierInset] of [
-  [320, false, 0],
-  [1440, false, 0],
-  [320, true, 0],
-  [320, true, 160],
-] as const) {
-  test(`long selected identity at ${width}px${measuredBand ? " with the measured identity band" : ""}${earlierInset ? " and an earlier header inset" : ""} wraps at enlarged text without covering actions`, async ({
+for (const { width, collapsed, measuredBand, earlierInset } of [
+  { width: 320, collapsed: false, measuredBand: false, earlierInset: 0 },
+  { width: 768, collapsed: false, measuredBand: false, earlierInset: 0 },
+  { width: 1440, collapsed: false, measuredBand: false, earlierInset: 0 },
+  { width: 1440, collapsed: true, measuredBand: false, earlierInset: 0 },
+  { width: 320, collapsed: false, measuredBand: true, earlierInset: 0 },
+  { width: 320, collapsed: false, measuredBand: true, earlierInset: 160 },
+]) {
+  test(`long selected identity at ${width}px${measuredBand ? " with the measured identity band" : ""}${earlierInset ? " and an earlier header inset" : ""} wraps at enlarged text without covering actions${collapsed ? " with collapsed sidebar" : ""}`, async ({
     page,
   }, info) => {
     await page.setViewportSize({ width, height: 720 });
@@ -328,6 +340,12 @@ for (const [width, measuredBand, earlierInset] of [
     const name = "Chidinma Alexandra Okonkwo-Emmanuel with a long recorded family name";
     s.f.workforce.accountLabel = name;
     await page.goto(`${base}/${s.f.member.id}`);
+    if (collapsed) {
+      await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+      await expect(
+        page.getByRole("button", { name: "Expand sidebar", exact: true }),
+      ).toBeVisible();
+    }
     await page.getByText("Review legacy access and enroll", { exact: true }).click();
     const selected = page.getByRole("complementary", { name: "Selected person" });
     await selected.locator("strong").evaluate((element) => {
@@ -336,22 +354,20 @@ for (const [width, measuredBand, earlierInset] of [
       element.style.letterSpacing = "0.12em";
       element.style.wordSpacing = "0.16em";
     });
-    if (measuredBand)
-      await selected.evaluate((element, extraInset) => {
-        // Keep the valid larger band independent of platform font metrics.
-        element.style.minHeight = "356px";
-        const header = document.querySelector(".dashboard-top")!;
-        document.documentElement.style.setProperty(
-          "--viewport-header-offset",
-          `${Math.max(0, header.getBoundingClientRect().bottom) + 16 + extraInset}px`,
-        );
-      }, earlierInset);
     const review = page.getByRole("button", { name: "Review enrollment", exact: true });
     for (const control of [
       page.getByLabel("Your current password", { exact: true }),
       review,
     ]) {
-      await control.focus();
+      if (control === review) {
+        await page.keyboard.press("Tab");
+        await expect(
+          page.getByRole("button", { name: "Show password", exact: true }),
+        ).toBeFocused();
+        await page.keyboard.press("Tab");
+      } else {
+        await control.focus();
+      }
       await expect(control).toBeFocused();
       // The person-context resize/focus handler uses this native alignment.
       // Exercise it explicitly so event timing cannot mask doubled header space.

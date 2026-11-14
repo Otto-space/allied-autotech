@@ -248,7 +248,7 @@ export function DashboardShell({
           focused === menuButton.current ||
           (focused && mobileDialog.current?.contains(focused))
         ) {
-          // The desktop sidebar is inert until the modal drawer is closed.
+          // Release the modal before moving focus back into the desktop sidebar.
           mobileDialog.current?.close();
           collapseButton.current?.focus();
         }
