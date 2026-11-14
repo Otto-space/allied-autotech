@@ -14099,7 +14099,12 @@ supersedes the older photo hero. Retain that approved carousel and genuine
 Home/About photographs; correct four stale placement entries and obsolete hero
 framing metadata in the original asset manifest. All15 supplied originals match
 their recorded SHA256 values; no original, derivative, approved price or withheld
-asset changes. Compiled candidate acceptance and publication remain pending.
+asset changes. Compiled Preview9c2f1502 passes both focused cases in28.3s at
+390/1440: keyboard link, real fragment reload, photo dialog Escape/focus return,
+no overflow/page errors/business submissions, and loaded uncropped lift photo.
+Both safe destination screenshots were visually reviewed. Receipt:
+TEMP/allied-workshop-link-9c2f1502/verified.json. Scoped lint, formatting and diff
+checks pass. PR94 remains subject to final source/master gates and publication.
 Baseline: TEMP/aat-attendance-20261104/workshop-link-baseline-20261114.json.
 This is public read-only browser evidence, not role/provider/device acceptance.
 Keep the independent b0cf0f0e backend release and D17 migration gates intact.

@@ -12441,7 +12441,11 @@ About#principles ("How we work"), which contains no lift. Target the existing
 lift figure with a stable equipment-item anchor in both shared gallery modes.
 No gallery disclosure, image crop, modal logic, capability or guide target changes.
 Two affected browser cases cover keyboard entry, direct fragment reload, photo
-dialog Escape/focus return and overflow. Compiled verification is pending.
+dialog Escape/focus return and overflow. Compiled Preview9c2f1502 passes2/2 in
+28.3s at390/1440, with no page errors or business submissions. The loaded lift
+photo retains contain framing; both destination screenshots were visually reviewed.
+Receipt: TEMP/allied-workshop-link-9c2f1502/verified.json. Scoped ESLint, format
+and diff checks pass. PR94 final source/master gates and publication remain.
 
 Reconcile the original asset manifest with owner-approved29a2c442 editorial Home:
 authentic action photographs now live in service imagery and Home/About content,
