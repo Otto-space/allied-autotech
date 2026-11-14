@@ -314,8 +314,13 @@ for (const [width, height] of [
     });
   });
 }
-for (const width of [320, 1440]) {
-  test(`long selected identity at ${width}px wraps at enlarged text without covering actions`, async ({
+for (const { width, collapsed } of [
+  { width: 320, collapsed: false },
+  { width: 768, collapsed: false },
+  { width: 1440, collapsed: false },
+  { width: 1440, collapsed: true },
+]) {
+  test(`long selected identity at ${width}px wraps at enlarged text without covering actions${collapsed ? " with collapsed sidebar" : ""}`, async ({
     page,
   }, info) => {
     await page.setViewportSize({ width, height: 720 });
@@ -323,6 +328,12 @@ for (const width of [320, 1440]) {
     const name = "Chidinma Alexandra Okonkwo-Emmanuel with a long recorded family name";
     s.f.workforce.accountLabel = name;
     await page.goto(`${base}/${s.f.member.id}`);
+    if (collapsed) {
+      await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+      await expect(
+        page.getByRole("button", { name: "Expand sidebar", exact: true }),
+      ).toBeVisible();
+    }
     await page.getByText("Review legacy access and enroll", { exact: true }).click();
     const selected = page.getByRole("complementary", { name: "Selected person" });
     await selected.locator("strong").evaluate((element) => {
@@ -336,7 +347,15 @@ for (const width of [320, 1440]) {
       page.getByLabel("Your current password", { exact: true }),
       review,
     ]) {
-      await control.focus();
+      if (control === review) {
+        await page.keyboard.press("Tab");
+        await expect(
+          page.getByRole("button", { name: "Show password", exact: true }),
+        ).toBeFocused();
+        await page.keyboard.press("Tab");
+      } else {
+        await control.focus();
+      }
       await expect(control).toBeFocused();
       // The person-context resize/focus handler uses this native alignment.
       // Exercise it explicitly so event timing cannot mask doubled header space.

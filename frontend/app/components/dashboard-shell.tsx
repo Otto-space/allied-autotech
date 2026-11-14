@@ -244,7 +244,14 @@ export function DashboardShell({
         }
       } else {
         setMenuPath(null);
-        if (focused === menuButton.current) collapseButton.current?.focus();
+        if (
+          focused === menuButton.current ||
+          (focused && mobileDialog.current?.contains(focused))
+        ) {
+          // Release the modal before moving focus back into the desktop sidebar.
+          mobileDialog.current?.close();
+          collapseButton.current?.focus();
+        }
       }
     }
     document.addEventListener("focusout", rememberBreakpointFocus);

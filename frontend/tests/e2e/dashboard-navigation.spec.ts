@@ -282,6 +282,32 @@ test("sidebar preserves the desktop choice across mobile without moving content 
   await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
 });
 
+test("sidebar preserves the desktop choice across mobile with an open drawer", async ({
+  page,
+}, info) => {
+  await session(page, "ADMIN");
+  await page.setViewportSize({ width: 1655, height: 960 });
+  await page.goto("/admin");
+  const desktop = page.getByRole("button", { name: "Collapse sidebar", exact: true });
+  await desktop.focus();
+  await expect(desktop).toBeFocused();
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await expect(
+    page.getByRole("button", { name: "Close dashboard navigation", exact: true }),
+  ).toBeFocused();
+  await page.screenshot({ path: info.outputPath("sidebar-open-drawer.png") });
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await expect(desktop).toBeFocused();
+  await expect(desktop).toHaveAttribute("aria-expanded", "true");
+  await expect(
+    page.getByRole("dialog", { name: "Dashboard navigation", exact: true }),
+  ).toBeHidden();
+  await expect(
+    page.getByRole("navigation", { name: "Administration", exact: true }),
+  ).toBeVisible();
+  await page.screenshot({ path: info.outputPath("sidebar-desktop-focus.png") });
+});
+
 test("short laptop sidebar scrolls every group while keeping its controls visible", async ({
   page,
 }) => {
