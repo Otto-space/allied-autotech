@@ -1,3 +1,21 @@
+### 14 November: latest master UI fixes reconciled with D17
+
+Integrated masterd951b240, preserving open-drawer desktop focus return, capability-
+aware vehicle section navigation, garage focus-ring padding and stronger tablet/
+collapsed-sidebar keyboard assertions. The enlarged320px/tall-header People case
+and privacy-safe geometry diagnostics are retained alongside those new cases.
+Backend runtime/SQL are unchanged from fc271455's132 replay and193 native/77 unit
+passes. The existing generic refund form's unchanged request body supports the new
+bounded backend recovery; no frontend permission or transaction field was added.
+
+Frontend6df28b6e43534523080 passes the complete gate:1602 units/12 explicit skips,
+1309 runtime browser cases and all smaller transport/media/browser checks. That
+older-source pass does not qualify the changed merged UI; fresh compiled targeted
+acceptance and exact-master checks remain required. The Vercel connector omits Git
+configuration; authenticated CLI inspection verifies the project is unlinked from
+Git, so updating master cannot silently assign its public domains. No provider
+configuration, live alias, database, price or permission was changed.
+
 ### 14 November: actual buyer cancellation refund recovery (source)
 
 The existing Payment records request now supports actual pre-confirmation account
@@ -249,6 +267,204 @@ reconciliation. Verified invoice identifiers/applicability, operating account/re
 facts, independent provider/role acceptance, exact integrated-master checks and safe
 fresh backup/off-device recovery/restore/migration/runtime publication remain. Broader
 returns/warranty is deferred. Booking and purchasing readiness remain separate.
+
+## 14 November - garage modal focus-ring clearance
+
+Rendered430px scrolled Add a vehicle inspection confirmed the close button ends
+at y69 and its3px outline plus3px offset extends to y75, while the scrolling body
+starts at y69. The earlier28 shared-modal passes did not assert this overlap.
+Increase garage-dialog heading bottom padding to8px at desktop/mobile and add
+a regression requiring body content to clear the complete focused-button outline.
+No permissions, submissions, help targets or security policy change.
+
+Seven viewport cases pass with the candidate spacing supplied as an isolated
+same-origin CSS fixture against compiled518ebb40; this is a CSS rehearsal, not
+compiled candidate acceptance. Initial inline injection was correctly blocked by
+CSP and is retained as a harness failure. Formatting, scoped ESLint and diff checks
+pass. Compilation/integration, exact-source CI and final rendered candidate checks
+remain before publication. Evidence: TEMP/allied-garage-geometry-518ebb40 and
+TEMP/allied-garage-clearance-candidate-css. Full original briefs remain active.
+
+## 14 November - Vehicles section navigation follows actual availability
+
+Independent compiled6797b243 sidebar acceptance passes8/8 ordinary/delayed-media
+cases in Chromium153 and installed Edge157, including both breakpoint directions
+and content-focus preservation. Alternative PR81 is closed as superseded; its
+source and differential evidence remain. Held679 also passes nine catalogue sizes
+and four real BMW gallery touch sizes; reviewed390/1440 catalogue and1440 detail
+captures. The existing detail gallery/price columns and real condition disclosures
+retain the reference's useful structure without its unsupported guarantees.
+
+Final detail review found an unconditionally rendered Inspection section link,
+while browse/enquiries and catalogue modes omit that section. Native activation
+sets#inspection but has no destination and leaves scroll unchanged. Make section
+navigation consume the same inspectionRequestsEnabled capability as its content.
+Retain Overview, Specifications and Condition. No policy or permission is enabled.
+Eight browser regressions cover full, browse/enquiries, catalogue and unavailable
+states at390/1440, verify every destination, and use native enabled-state navigation.
+On unchanged compiled679, the corrected fixture baseline has one enabled pass and
+one expected disabled-mode failure; an earlier invalid API-envelope attempt is
+retained separately and is not acceptance. Compiledb9d159e1 now passes8/8 policy
+cases. An initial7/8 attempt dispatched fixture focus before effect registration;
+the fixture now waits for an observed capability read before checking the state.
+Two actual BMW touch cases at320/390 also pass next/previous/thumbnail selection,
+stable scrolling, unobstructed44px targets and modal Escape/focus recovery, with no
+page errors or application writes. Reviewed the settled390 detail capture; the
+first capture preceded lazy thumbnail loading and is retained separately. New
+exact-master release checks and compatible backend/live acceptance remain. Evidence is under
+TEMP/aat-stitch-implementation-20261109/vehicle-section-availability-20261114 and
+vehicle-inspection-link-679-baseline.json. Group4 publication remains held; no
+production submissions, backend rollout or physical-device acceptance is claimed.
+
+## 14 November 00:28 UTC - open drawer return regression and bounded follow-up
+
+Exact-master9bf frontend43525367353 is terminal FAILED:1,270 runtime cases passed,
+1 sidebar breakpoint case failed. Unit phase passed1,580 with12 existing skips;
+15 WebKit,21 media,13 order and15 Parts focused passes overlap the main matrix.
+The candidate and its held frontend are not publication-qualified. No backend
+apply or public promotion occurred. Failure screenshot/context/trace are retained
+under TEMP/aat-sidebar-breakpoint-9bf-ci-before-20261114; no aggregate ZIP retained.
+
+Three passive-log Edge runs did not reproduce the first direction's CI timing.
+Concurrent master6797b243 repairs focus lost before its media callback and adds
+content-focus coverage. Preserve that narrower implementation and every assertion.
+Our broader provisional focus-cache changes are retained in a named local stash,
+not applied over the concurrent repair.
+
+A stronger real application test reproduces a separate return failure on compiled
+9bf and then on compiled6797: resize to desktop while the mobile drawer stays open;
+the desktop toggle remains inactive. The6797 run is1 failed, not a passing repeat.
+Evidence: TEMP/aat-sidebar-open-return-baseline-6797-20261114/{report.json,results}.
+This uses the exact compiled preview, origin-scoped short-lived OIDC and isolated
+API fixtures. No focus property or visibility event is overridden.
+
+Follow-up in the shared shell recognises focus inside the drawer and closes its
+native modal before focusing the desktop toggle. Keep desktop expansion preference,
+existing transition-scoped focus memory, session/role guards and semantic targets.
+The added regression covers returning with the drawer open; existing collapsed
+preference and outside-content cases remain intact. An early repeated Chromium/
+Firefox/WebKit sidebar check is added without removing any full-matrix job or step.
+Workflow parsing/normalisation, local scoped lint, formatting and full TypeScript
+pass. Compiled candidate acceptance and new exact-master gates remain pending.
+Local Firefox/WebKit executables are absent and were not installed.
+
+PR78 remains draft and now carries this coherent shared navigation focus follow-up,
+the additional workforce responsive/Tab cases and completion evidence. Existing
+production is preserved. No database, real record, price, permission, capability
+flag or help eligibility/target changed. No new owner policy decision is needed.
+Full original briefs/D01-D17 and real-role/provider/device acceptance remain open.
+
+## 13 November 23:30 UTC - current public content and remaining operator facts
+
+Anonymous current API pages contain4 services and1 product, with no next cursor.
+No workbook/spreadsheet/Codex/development notes occur in service descriptions or
+short descriptions, or in the product description. Three service records have no
+managed image, but approved frontend photo fallbacks already cover those services;
+this metadata observation alone is not a rendered-image defect.
+
+The sole public product, Engine Oil Filter, currently has no brand, manufacturer
+part number, image or compatibility entries. Its Port Harcourt branch is listed
+in stock. Those genuine product facts need operator evidence; do not substitute
+workshop imagery, invent identifiers/fitment or infer suitability from stock.
+Public quantities/reservations remain private. Receipt: TEMP/aat-attendance-20261104/
+public-content-readiness-20261113.json. No price or business record changed.
+
+The normal connected-browser inventory was rechecked: native pipe and browser host
+remain unavailable. No owner tab/session was accessed and no login bypass used.
+The existing restoration question remains pending; do not ask it again.
+
+## 13 November 23:22 UTC - compiled workforce acceptance and concurrent repair preserved
+
+PR77 merged while this branch was being prepared. Preserve its shared CSS fix and
+Ubuntu24.04 workflow exactly; this follow-up adds only regression coverage and
+completion evidence. Keep the native scrollIntoView(start) assertion as well as
+actual Tab through Show password to Review enrollment. Add768px tablet and1440px
+collapsed-sidebar coverage alongside320px and1440px expanded.
+
+The final compiled master9bf8a26e preview dpl_7JkQ4W7gtutG86xfikzLmbZrxiPo passes
+all4 cases in25.0s, with zero skipped/flaky/unexpected cases. No stylesheet override
+is used. Existing short-lived Vercel OIDC is scoped to this preview origin only;
+no token is logged/persisted and no Trusted Sources rule changed. All data are
+isolated fixtures and unintercepted submissions are refused. This proves compiled
+rendering/focus/geometry, not real-role, backend persistence or physical devices.
+Evidence is separately retained under TEMP/aat-workforce-compiled-9bf8a26e-20261113/
+{source.json,report.json,results}. The stylesheet matches master exactly.
+
+The earlier source-CSS prototype passed4/4 in terminal session82703. Its shared
+local report was overwritten by final-CSS relay attempt99548, which timed out
+fetching an asset before rendering:1 infrastructure failure,3 not run. That report
+is failure evidence and must not be cited as four passes. The compiled run above
+uses a distinct output folder and supersedes that attempt's acceptance limit.
+The original failing CI screenshot remains preserved in its separate folder.
+
+Master9bf frontend43525367353 has passed browser installation and WebKit transport
+checks and entered the full runtime matrix on the pinned runner. It remains live,
+not passed. Preserve this specific run while the latest follow-up waits. Failed
+c48/2e gates remain failed; the c48 backend apply was never executed and its held
+frontend remains ineligible. No application publication or capability activation
+is claimed. The full original briefs, D01-D17, real-role/provider/device acceptance
+and genuine missing operator facts remain open.
+
+## 13 November 23:13 UTC - workforce focus repair; native hero lifecycle verified
+
+Frontend source c48cf7b1 is not release-qualified. Its exact-master runtime run
+43517656682 ended with 1,266 passes and one failure: at320px, enlarged selected
+identity text pushed the focused password control beneath the support dock.
+Safe failing fixture capture: TEMP/aat-attendance-20261104/workforce-selector-
+c48-ci-before/test-failed-1.png. The failing test and its hit-testing assertion
+remain; no flaky pass or source publication is claimed.
+
+Cause: root scroll-padding already includes the measured header, while the shared
+WorkforcePersonContext scroll margin added it again. Deduct that existing root
+inset in workforce-person-context.css. Keep the identity, font sizes, header,
+support controls, form state and permissions intact. Strengthen the existing
+stress regression with actual Tab through Show password to Review enrollment,
+plus tablet and collapsed-sidebar laptop coverage.
+
+Exact candidate CSS, appended through same-origin stylesheet responses to the
+held c48 production build with CSP preserved, passes4/4 cases:320x720,768x720,
+1440x720 expanded and1440x720 collapsed sidebar. Assertions cover enlarged-text
+identity visibility/height, password and review action hit testing, keyboard
+focus, overflow, no page errors and no fixture writes. Phone and laptop captures
+were visually inspected. Prior2-case passes overlap; do not sum them. This is
+source-stylesheet/isolated-fixture evidence, not final packaged or live-role
+acceptance. Evidence: TEMP/aat-workforce-clearance-20261113/{report.json,results}.
+Scoped ESLint, formatting and full TypeScript checking pass; final source gates
+remain required. Browser plugin is unavailable; regular Playwright is used.
+
+The later2e492b81 run43520835587 failed earlier at browser dependency installation:
+its Ubuntu26.04 AWS image20261111.82.6 exposed only the Microsoft package source
+and could not locate required fonts/media/GTK packages. The earlier Azure26.04
+image reached the runtime matrix, so26.04 is not classified as unsupported.
+Pin this frontend workflow to supported ubuntu-24.04. All engines, dependencies,
+test steps, triggers, permissions and protected master scheduling remain unchanged;
+YAML comparison verifies only runs-on changed. The new hosted install is pending.
+
+Hero background acceptance now passes3/3 public cases on e002 deployment4gNT:
+actual hidden-tab pause for8.5s, visible return with a fresh interval/no immediate
+catch-up, and persistent manual pause through tab switching. Native headless Edge
+157.0.4341.46 uses a fresh owned profile and supported connectOverCDP noDefaults:true,
+so Playwright never enables focus overrides. No synthetic visibility event or
+application change is involved. Earlier headed/override attempts remain failed.
+The browser endpoint closed. This supersedes the earlier unverified browser-engine
+lifecycle status; physical-device acceptance remains separate. Receipt:
+TEMP/aat-attendance-20261104/live-hero-native-headless-visibility-20261113.json.
+
+Held production dpl_AxqGAwVKevJsieyrU6P68AKmA6BK is READY, exact source c48, with
+no apex/www assignment. Its7 suppression viewport checks and1 privacy cancellation/
+focus/guarded-save fixture check pass8/8; these overlap existing suite scenarios.
+Its failed source gate prohibits promotion. The prepared backend rollout was never
+executed. New candidate checks, matching packages and release review are required.
+Automated backup read confirms8 retained backups, newest under24h; the separate
+schema112 restore and6 read-only current/recovery image probes remain preserved.
+
+C: was20.39GiB free after these checks. No local build/dependency install ran.
+Automatic approval review rejected deletion of the two task-owned native browser
+profiles as blocked by policy; they and the previously approved compiler cache
+remain, with no alternate deletion attempt. Authenticated browser host access,
+real-role/provider/device acceptance, genuine operator facts and the separate
+active D17 work remain open. Full original briefs/D01-D17 stay active; no flags,
+real records, schema, grants or financial policies changed in this batch.
 
 ## 14 November - sidebar breakpoint focus correction awaiting release
 

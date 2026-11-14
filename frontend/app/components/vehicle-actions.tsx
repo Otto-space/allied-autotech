@@ -61,6 +61,18 @@ type VehicleActionsProps = {
   children: ReactNode;
 };
 
+export function VehicleSectionNavigation() {
+  const { inspectionRequestsEnabled } = usePublicCapabilities();
+  return (
+    <nav className="vd-section-nav" aria-label="Vehicle sections">
+      <a href="#vehicle-overview">Overview</a>
+      <a href="#vehicle-specifications">Specifications</a>
+      <a href="#vehicle-condition">Condition</a>
+      {inspectionRequestsEnabled && <a href="#inspection">Inspection</a>}
+    </nav>
+  );
+}
+
 export function VehicleActions(props: VehicleActionsProps) {
   const { catalogueOnly, inspectionRequestsEnabled } = usePublicCapabilities();
   if (catalogueOnly())

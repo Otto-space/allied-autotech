@@ -348,12 +348,14 @@ test.afterEach(async ({ page }, info) => {
   // Geometry only: no identities, field values, credentials or record contents.
   console.info("People focus geometry", JSON.stringify(geometry));
 });
-for (const [width, tallerHeader] of [
-  [320, false],
-  [1440, false],
-  [320, true],
-] as const) {
-  test(`long selected identity at ${width}px wraps at enlarged text without covering actions${tallerHeader ? " with a taller dashboard header" : ""}`, async ({
+for (const { width, collapsed, tallerHeader } of [
+  { width: 320, collapsed: false, tallerHeader: false },
+  { width: 768, collapsed: false, tallerHeader: false },
+  { width: 1440, collapsed: false, tallerHeader: false },
+  { width: 1440, collapsed: true, tallerHeader: false },
+  { width: 320, collapsed: false, tallerHeader: true },
+]) {
+  test(`long selected identity at ${width}px wraps at enlarged text without covering actions${collapsed ? " with collapsed sidebar" : ""}${tallerHeader ? " with a taller dashboard header" : ""}`, async ({
     page,
   }, info) => {
     await page.setViewportSize({ width, height: 720 });
@@ -361,6 +363,12 @@ for (const [width, tallerHeader] of [
     const name = "Chidinma Alexandra Okonkwo-Emmanuel with a long recorded family name";
     s.f.workforce.accountLabel = name;
     await page.goto(`${base}/${s.f.member.id}`);
+    if (collapsed) {
+      await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+      await expect(
+        page.getByRole("button", { name: "Expand sidebar", exact: true }),
+      ).toBeVisible();
+    }
     await page.getByText("Review legacy access and enroll", { exact: true }).click();
     // Model a larger shell after text/header reflow. Keep the actual sticky
     // header, measured identity and bottom dock; do not hide an occluding control.
@@ -380,7 +388,15 @@ for (const [width, tallerHeader] of [
       page.getByLabel("Your current password", { exact: true }),
       review,
     ]) {
-      await control.focus();
+      if (control === review) {
+        await page.keyboard.press("Tab");
+        await expect(
+          page.getByRole("button", { name: "Show password", exact: true }),
+        ).toBeFocused();
+        await page.keyboard.press("Tab");
+      } else {
+        await control.focus();
+      }
       await expect(control).toBeFocused();
       // Exercise browser-native alignment after measured focus recovery as well.
       // Event timing must not mask a duplicated header or focus gap.
