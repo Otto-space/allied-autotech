@@ -95,6 +95,19 @@ for (const [width, height, securityRole] of [
       await expect(
         page.getByRole("button", { name: "Close vehicle dialog" }),
       ).toBeFocused();
+      // Scrolled field help must stay clear of the close button's focus ring.
+      const clearance = await dialog.evaluate((element) => {
+        const close = element.querySelector(".garage-dialog-heading button")!;
+        const body = element.querySelector(".garage-dialog-body")!;
+        const style = getComputedStyle(close);
+        return (
+          body.getBoundingClientRect().top -
+          close.getBoundingClientRect().bottom -
+          parseFloat(style.outlineWidth) -
+          parseFloat(style.outlineOffset)
+        );
+      });
+      expect(clearance).toBeGreaterThanOrEqual(0);
       await page.screenshot({ path: info.outputPath("vehicle-form.png") });
       await page.keyboard.press("Escape");
       await expect(dialog).toHaveCount(0);
