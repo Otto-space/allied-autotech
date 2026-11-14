@@ -63,7 +63,7 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
       const bounds = target ? focusBounds(target) : null;
       // Compact only the padding; keep the entire identity and its text size.
       // If even that cannot leave a usable focus band, let the context scroll.
-      const required = bounds ? bounds.bottom - bounds.top + 4 : 76;
+      const required = bounds ? bounds.bottom - bounds.top + 2 : 76;
       bar.removeAttribute("data-compact");
       bar.removeAttribute("data-unpinned");
       let height = bar.getBoundingClientRect().height;
@@ -80,9 +80,9 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
       if (target && bounds)
         target.style.setProperty(
           "--wf-person-focus-inset",
-          `${Math.max(0, target.getBoundingClientRect().top - bounds.top) + 4}px`,
+          `${Math.max(0, target.getBoundingClientRect().top - bounds.top) + 2}px`,
         );
-      return { top: headerBottom + height + 4, bottom };
+      return { top: headerBottom + height + 2, bottom };
     };
     const keepFocusClear = () => {
       if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
