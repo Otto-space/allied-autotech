@@ -1,3 +1,11 @@
+## 14 November - sidebar breakpoint focus correction awaiting release
+
+Exact-master frontend run 43525367353 failed one of 1,271 browser cases: after collapsing the desktop sidebar and resizing from 1655x960 to 390x844, the mobile navigation close button was absent. The other 1,270 cases passed. Production remains unchanged; source 9bf is not publication-qualified. CI artifact 14085934613 was checksum-verified. Screenshot, context and trace are retained under TEMP/allied-9bf-ci-sidebar; only the downloaded aggregate archive was removed.
+
+An isolated Edge 157 fixture reproduces CSS hiding the focused control before the media-query callback: activeElement becomes BODY. The exact old source effect misses navigation handoff in 10/10 runs; the corrected effect passes 10/10 transitions and 20 content-focus checks across baseline/corrected fixtures. This is source-effect evidence, not compiled application acceptance. The effect retains only focus lost during the breakpoint transition, clears it after adaptation and unregisters both listeners. Desktop preference and drawer safeguards remain.
+
+The application regression establishes keyboard focus before resize, checks opener recovery and adds content-focus preservation. Existing Chromium, Firefox and WebKit CI projects select both cases. Local Firefox 1543 and WebKit 2359 executables are absent; launches failed and no browsers were installed. Types, scoped lint, formatting and diff checks pass. Compiled acceptance and new exact-source gates remain required. Hosted browser transport is held below its 20.5 GiB guard; the small isolated test passed a separate 20.1 GiB preflight without a build/server. No database, permission, policy, feature flag or semantic help destination changed. Full page, role and device scope remains active.
+
 ## 14 November - release gate corrections and current calendar acceptance
 
 Held combined source2e492b81 passes16/16 booking-calendar cases in dedicated Edge:
@@ -637,6 +645,30 @@ Neither that correction nor this Vehicles package is claimed live yet. Full119
 template coverage and remaining Groups4-10 remain open.
 
 ## 13 November - consolidated T02 integration checkpoint
+
+### 2026-11-14 00:20 UTC - concurrent sidebar fix preserved; open-drawer baseline reproduced
+
+Reconciled master6797b243/PR82 with review work. Preserved its transition-only
+focusout capture, previous-breakpoint guard, explicit keyboard setup, opener
+recovery and form-content focus regression. The earlier local last-focused
+alternative is superseded and retained in source history. Only the supplemental
+open-drawer return remains as a shared-shell runtime delta: close the modal before
+focusing the desktop sidebar. No permission/navigation destination changed.
+
+A native compiled baseline separately reproduces the open-drawer problem: after
+opening mobile navigation and resizing to desktop, Collapse sidebar is visible but
+inactive. TEMP/allied-team-reviews-20261113/open-drawer-baseline-report.json records
+that expected failure. The final forced-eviction regression includes the open-drawer
+return; native and content-focus assertions stay intact. Types, scoped lint, format
+and diff checks pass. Discovery selects9 cases across three engines; discovery is
+not execution. Final compiled source and CI remain required before publication.
+
+The earlier505 compiled preview's isolated paging/window/filter/reload/Back/person
+return test passes with the hosted relay allowance (1.7min test). Its initial20s
+transport timeout is retained separately. That result does not certify the later
+shared-shell source or normal production availability. All APIs use synthetic
+fixtures except read-only public-policy transport; no account writes or protection
+changes occurred. The original broad Team/media requirements remain active.
 
 ### 2026-11-14 00:12 UTC - shared sidebar focus correction candidate
 

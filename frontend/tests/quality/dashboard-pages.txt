@@ -28,7 +28,7 @@ dashboard-navigation.spec.ts > shared navigation is accessible at 320px
 dashboard-navigation.spec.ts > shared navigation is accessible at 1440px
 dashboard-navigation.spec.ts > sidebar preserves the desktop choice across mobile without stranding keyboard focus
 dashboard-navigation.spec.ts > sidebar restores browser-evicted focus while preserving the desktop choice
-dashboard-navigation.spec.ts > resizing preserves focus in the main content without opening navigation
+dashboard-navigation.spec.ts > sidebar preserves the desktop choice across mobile without moving content focus
 garage-photos-quality.spec.ts > photo accessibility 390
 garage-photos-quality.spec.ts > photo accessibility 1440
 saved-items-quality.spec.ts > parts is readable at 320px

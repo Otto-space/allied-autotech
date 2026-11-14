@@ -216,25 +216,21 @@ export function DashboardShell({
   }, [menuOpen, session]);
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 900px)");
-    let lastFocused: HTMLElement | null = null;
-    function rememberFocus(event: FocusEvent) {
-      lastFocused = event.target instanceof HTMLElement ? event.target : null;
-    }
-    function forgetVisibleFocus(event: FocusEvent) {
-      // A breakpoint can hide a focused control before the media-query event.
-      // Keep that control just for the handoff; ordinary blurs discard it.
-      if (event.target === lastFocused && lastFocused?.getClientRects().length)
-        lastFocused = null;
+    let previousMobile = mobile.matches;
+    let breakpointFocus: Element | null = null;
+    function rememberBreakpointFocus(event: FocusEvent) {
+      // CSS may hide the focused control before the media-query callback runs.
+      // Retain only focus lost during this transition, never earlier page focus.
+      if (mobile.matches !== previousMobile && event.target instanceof Element)
+        breakpointFocus = event.target;
     }
     function adaptNavigation() {
-      const active = document.activeElement;
       const focused =
-        active === document.body &&
-        lastFocused?.isConnected &&
-        !lastFocused.getClientRects().length
-          ? lastFocused
-          : active;
-      lastFocused = null;
+        document.activeElement === document.body
+          ? breakpointFocus
+          : document.activeElement;
+      previousMobile = mobile.matches;
+      breakpointFocus = null;
       if (mobile.matches) {
         // The mobile drawer has its own full navigation. Keep the user's
         // desktop sidebar choice when a resize crosses this breakpoint.
@@ -258,12 +254,10 @@ export function DashboardShell({
         }
       }
     }
-    document.addEventListener("focusin", rememberFocus);
-    document.addEventListener("focusout", forgetVisibleFocus);
+    document.addEventListener("focusout", rememberBreakpointFocus);
     mobile.addEventListener("change", adaptNavigation);
     return () => {
-      document.removeEventListener("focusin", rememberFocus);
-      document.removeEventListener("focusout", forgetVisibleFocus);
+      document.removeEventListener("focusout", rememberBreakpointFocus);
       mobile.removeEventListener("change", adaptNavigation);
     };
   }, [pathname]);
