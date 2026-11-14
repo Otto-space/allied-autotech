@@ -14,6 +14,11 @@ async function setup(page: Page, delegated = false, managedSession = true) {
     responsibilityGrantsOnly: true,
     ...(delegated ? {} : { independentCapabilities: [] }),
   };
+  if (delegated) {
+    f.workforce.management.canEnroll = false;
+    f.workforce.management.branchIds = [id(101)];
+    f.workforce.branches = f.workforce.branches.filter((branch) => branch.id === id(101));
+  }
   const state = {
     mode: "normal",
     reads: [] as URL[],
@@ -154,7 +159,6 @@ for (const width of [320, 1440])
     page,
   }) => {
     const s = await setup(page, true, false);
-    s.f.workforce.management.canEnroll = false;
     await page.setViewportSize({ width, height: 720 });
     await page.goto(base);
     await expect(
