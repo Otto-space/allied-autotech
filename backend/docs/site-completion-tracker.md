@@ -1,3 +1,34 @@
+## 14 November - Allie reconciled with the new 132-migration master
+
+Master dcac8157 includes the separate owner-decision/order and account-design
+work. Preserve that source and its 20 forward migrations; the earlier Allie
+112-migration compatibility scope is superseded. Live backend e40c9a13 still
+uses the 112-migration 6c52 package. This combined source requires new exact-source
+checks, matching 132-migration images and the full reviewed migration, fresh backup,
+restore rehearsal, off-device recovery and runtime gates before publication.
+No migration or production activation was performed by this reconciliation.
+
+The previous Allie branch f52ca1f1 passes backend43558623326 and secrets43558623256.
+Its compiled 59-case Allie/Care campaign passes; the full frontend43558623215 is
+still running. These checks do not qualify this newly combined source. The
+owned-conversation fixture passes 15 native HTTP cases against a fresh isolated
+112-migration database; that task database/role were removed after zero sessions.
+All 17 corrected real-model rechecks remain separate provider evidence. New
+Admin/order learning content still needs the final applicable provider recheck.
+
+The owner confirms saving the USD10 hard monthly OpenAI limit. Approved support
+coverage remains Port Harcourt, Monday-Saturday 08:00-18:00 Africa/Lagos, staffed
+by the Customer Service Officer with current duties and explicit session opt-in.
+Coverage is not yet configured through the audited owner UI/API; actual
+customer/representative delivery, reconnect and handoff remain unverified.
+
+Owner-requested bounded Docker cleanup removed 6.337 GB of historical build cache.
+All retained image IDs, container IDs and volume names were verified unchanged.
+Host free space remains 17.77 GiB; cleanup bytes are not host-reclaimed bytes.
+Packaging is stopped below the 20 GiB reserve. No source, secrets, databases,
+backups, shared local dependencies or runtime/session history were removed.
+Evidence: TEMP/allied-allie-live-20261114/cleanup-docker-{native,historical-build}-result.json.
+
 ## 14 November - account integration includes the current owner-decision baseline
 
 Preserved master 02439cdc, including the separately reviewed owner-decision/order
@@ -421,6 +452,68 @@ and exact-source publication for this small correction are pending. D17 remains
 with its independent integration owner; do not overwrite that active worktree.
 The second historical Docker review stopped on a changed inventory before deletion;
 no additional images or volumes were removed by that review.
+
+## 14 November - Allie and staffed live-chat activation in progress
+
+The owner requested working Allie and human live chat in production, approved up
+to USD5 for renewed isolated AI evaluation, then USD10/month initially for public
+Allie. Approved human coverage: Customer Service Officer, Allied AutoTech Port
+Harcourt branch, Monday-Saturday 08:00-18:00 Africa/Lagos. Verify current staff
+view/reply/live duties and explicit session opt-in; never infer availability from
+job title or ordinary login. Configure coverage through the audited owner API/UI.
+
+Production inspection found API deployment e40c9a13 ACTIVE with the published
+6c52 images and no OpenAI key, AI enablement or live-chat enablement settings.
+Both public domains return learning flags guides=true, practice=true, ai=false.
+The owner-only coverage editor's production Vercel flag was absent; it is now
+configured true for the next build. This does not enable chat or change live pages.
+The separate D17/132-migration work remains outside this activation batch, based
+on master add252a6 (112 migrations, backend runtime unchanged from production).
+
+Renewed real-model baseline: 99 validated answers, one safely rejected empty
+caveat, and ten local negative cases with zero provider calls. Prior exhausted
+approvals are retained. Case workshop-08 returned caveat="" and was correctly
+rejected. Align the upstream JSON schema with existing output length/count
+constraints and explicitly request null when no caveat is needed. All17 targeted
+corrected-source model rechecks pass, including workshop-08; factual replies were
+reviewed against the evaluation rubrics. The active ledger retains117 reservations
+and USD0.233217 conservatively reserved, not an invoice amount. Three calls remain
+within this campaign's120-request cap; never reset that ledger to obtain more.
+No runtime validator is relaxed, retry added, permission granted or schema changed.
+The corrected source passes 110 focused backend tests, scoped lint and formatting.
+TypeScript and the4,000-file secret guard pass. The release workflow previously
+omitted Allie's owned-conversation HTTP suite. Its Allie/Care step now creates a
+dedicated empty database, replays/checks schema, rejects excessive runtime grants,
+and runs owned conversations plus the existing Care suites as a non-owner role
+without DDL, TRUNCATE or migration-ledger reads. Real-model calls remain separate.
+Earlier frontend checks passed 65 tests; the one worker startup timeout passed
+all eight tests on a focused retry. These are not hosted workflow acceptance.
+
+A newly created synthetic loopback database replayed 132 migrations without drift;
+its native integration run was stopped after the disk reserve check failed, so no
+native-suite pass is claimed. Its exact 20MiB database and task role were removed
+after verifying zero connections. Other databases/resources remain untouched.
+Evidence: TEMP/allied-allie-live-20261114/{migration-replay.log,native-cleanup.json}.
+Free space later recovered without a measured attribution; fresh preflights govern.
+
+The newly included owned-conversation suite exposed an obsolete test-only
+parts-fitment@v3 citation. Its successful-answer fixture now uses the current
+reviewed article version; stale/malicious citation rejection remains unchanged.
+All15 HTTP tests pass against a fresh112-migration loopback database with a
+restricted runtime role. The compiled browser campaign passed18 cases before
+an empty-group assertion found that server rendering seeded two unrelated
+synthetic services. The loopback API now returns the same empty group as its
+browser fixture for that exact synthetic category. No product code or assertion
+is relaxed. Full exact-source gates must rerun. Packaging remains paused: the
+fresh disk check still reports20.3GiB, below the21.5GiB packaging requirement.
+
+Remaining: exact-source CI/integration, including the new isolated Allie/Care step;
+matching backend package and fresh recovery/runtime checks; confirm
+the OpenAI project hard USD10 monthly limit; configure API/worker settings; rebuild
+and verify the owner editor; audited branch coverage and representative opt-in;
+actual customer/representative delivery, reconnect, isolation and AI-to-human handoff.
+Computer Use rejected the current browser URL; do not bypass that restriction or
+call fixture/API checks real-role browser acceptance. No publication is claimed.
 
 ### 14 November: cancelled-payment guidance follows recorded status
 
@@ -8632,7 +8725,7 @@ separate-photo Home, fonts, prices, records and existing permission/financial ga
 
 Superseding facts: payment follows final parts compatibility/availability review;
 materials paid separately first, workmanship after completion/before collection;
-nearest-kobo VAT/discounts, Mon-Sat08:00-18:00 normal workshop hours, actual people
+nearest-kobo VAT/discounts, Mon-Sat 08:00-18:00 normal workshop hours, actual people
 and equipment capacity, immediate reasoned eligible cancellation, approval-based
 rescheduling, five-business-day in-stock hold, per-product timing, secure one-time
 third-party collection and explicit calendar actions. Older pay-first text is

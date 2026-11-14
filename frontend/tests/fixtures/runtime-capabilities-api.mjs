@@ -309,6 +309,12 @@ export function createRuntimeCapabilityApi() {
       return;
     }
     if (url.pathname === "/api/v1/public/services/discovery") {
+      // The Allie citation case represents an empty service group. Match its
+      // browser fixture when Next seeds the catalogue on the server.
+      if (url.searchParams.get("categoryId") === "f8000000-0000-4000-8000-000000000006") {
+        success({ items: [], totalMatches: 0 });
+        return;
+      }
       success({ items: services, totalMatches: services.length });
       return;
     }
