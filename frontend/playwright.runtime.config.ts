@@ -43,7 +43,7 @@ export default defineConfig({
     ...(["chromium", "firefox", "webkit"] as const).map((browserName) => ({
       name: `sidebar-breakpoint-${browserName}`,
       testMatch: ["dashboard-navigation.spec.ts"],
-      grep: /sidebar preserves the desktop choice across mobile/,
+      grep: /sidebar preserves the desktop choice across mobile|sidebar restores browser-evicted focus|resizing preserves focus in the main content/,
       use: {
         browserName,
         ...(browserName === "webkit"

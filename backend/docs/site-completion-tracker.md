@@ -656,6 +656,43 @@ and full119-template/state acceptance remain open.
 
 ## 13 November - consolidated T02 integration checkpoint
 
+### 2026-11-14 00:12 UTC - shared sidebar focus correction candidate
+
+The review integration package completed around00:07 UTC; the next bounded package
+started then, targeting01:07 UTC. Master9bf frontend43525367353 failed1 of1271
+runtime cases: the desktop-to-mobile sidebar test could not find/focus the drawer
+close button. The selected-person fix passed. Preserve this failure, not a retry
+waiver. Backend/secrets for review source5052811d pass; its frontend remains live.
+
+The resize handler read activeElement after the breakpoint had hidden the desktop
+control. A controlled early focus-eviction listener reproduces the same closed-drawer
+assertion locally; it does not establish identical Linux timing. Preserve baseline
+failure under TEMP/allied-team-reviews-20261113/sidebar-baseline-results and the
+hash-verified CI screenshot/context/trace under TEMP/allied-ci-9bf-sidebar-20261114.
+The72.8MB archive stayed in memory; only its three failure files were saved.
+
+Candidate keeps the last focus only when the control becomes hidden, discards
+ordinary visible blurs and transfers focus during the breakpoint change. Closing
+an open drawer precedes focus return because the desktop sidebar is inert while
+the dialog is modal. Desktop collapsed/expanded preference remains unchanged.
+Keep the original transition test, add browser-evicted focus/open-drawer return
+and no-drawer main-content focus checks. All three are selected for Chromium,
+Firefox and WebKit, with an early bounded preflight before the unchanged full matrix.
+Scoped formatting/lint pass; rendered new-source acceptance and exact CI are pending.
+
+The source505 private previewGKfUtph2AzawvhYNSTMoXZhTxskj is READY, not published.
+Its server reports public availability unavailable; a conflicting local policy
+fixture caused repeated refresh/navigation in the first attempt (two failures,
+then interrupted). Routing only public-policy reads to the actual preview stabilizes
+that state. All eight review widths/Axe pass; pagination timed out through the
+read-only relay and is being isolated. This is compiled synthetic UI evidence in
+an unavailable-policy state, not normal production-policy or real-role acceptance.
+No production writes or protections changed; unmocked APIs/writes are refused.
+
+The20GiB reserve remains mandatory. C: last measured20.34GiB; local build remains
+held and no extra image/database/cache cleanup occurred after the explicit640 review.
+Publication, remaining Team composition and all outstanding media work remain open.
+
 ### 2026-11-13 23:53 UTC - assigned-record review correction and disk review
 
 Final contract review found a real client mismatch: valid Sales Representative /

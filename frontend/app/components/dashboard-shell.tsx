@@ -216,8 +216,25 @@ export function DashboardShell({
   }, [menuOpen, session]);
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 900px)");
+    let lastFocused: HTMLElement | null = null;
+    function rememberFocus(event: FocusEvent) {
+      lastFocused = event.target instanceof HTMLElement ? event.target : null;
+    }
+    function forgetVisibleFocus(event: FocusEvent) {
+      // A breakpoint can hide a focused control before the media-query event.
+      // Keep that control just for the handoff; ordinary blurs discard it.
+      if (event.target === lastFocused && lastFocused?.getClientRects().length)
+        lastFocused = null;
+    }
     function adaptNavigation() {
-      const focused = document.activeElement;
+      const active = document.activeElement;
+      const focused =
+        active === document.body &&
+        lastFocused?.isConnected &&
+        !lastFocused.getClientRects().length
+          ? lastFocused
+          : active;
+      lastFocused = null;
       if (mobile.matches) {
         // The mobile drawer has its own full navigation. Keep the user's
         // desktop sidebar choice when a resize crosses this breakpoint.
@@ -231,11 +248,24 @@ export function DashboardShell({
         }
       } else {
         setMenuPath(null);
-        if (focused === menuButton.current) collapseButton.current?.focus();
+        if (
+          focused === menuButton.current ||
+          (focused && mobileDialog.current?.contains(focused))
+        ) {
+          // The desktop sidebar is inert until the modal drawer is closed.
+          mobileDialog.current?.close();
+          collapseButton.current?.focus();
+        }
       }
     }
+    document.addEventListener("focusin", rememberFocus);
+    document.addEventListener("focusout", forgetVisibleFocus);
     mobile.addEventListener("change", adaptNavigation);
-    return () => mobile.removeEventListener("change", adaptNavigation);
+    return () => {
+      document.removeEventListener("focusin", rememberFocus);
+      document.removeEventListener("focusout", forgetVisibleFocus);
+      mobile.removeEventListener("change", adaptNavigation);
+    };
   }, [pathname]);
   useEffect(() => {
     let active = true;

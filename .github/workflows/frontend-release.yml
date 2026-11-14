@@ -71,6 +71,9 @@ jobs:
             }
           }
           NODE
+      - name: Verify responsive navigation focus before the full matrix
+        timeout-minutes: 3
+        run: npx --no-install playwright test --config playwright.runtime.config.ts --project=sidebar-breakpoint-chromium --project=sidebar-breakpoint-firefox --project=sidebar-breakpoint-webkit --max-failures=1
       - name: Verify WebKit calendar and search transport before the full matrix
         run: npx --no-install playwright test booking-calendar.spec.ts public-search-recovery.spec.ts --config playwright.runtime.config.ts --project=responsive-webkit --grep "calendar 320x720|public search recovery" --repeat-each=3 --max-failures=1
       - name: Verify exact media URLs and image decoding before the full matrix
