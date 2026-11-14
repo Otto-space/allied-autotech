@@ -116,6 +116,7 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
     window.addEventListener("wheel", onManualScroll, { passive: true });
     window.addEventListener("touchmove", onManualScroll, { passive: true });
     panel.addEventListener("focusin", onFocus);
+    panel.setAttribute("data-person-focus-managed", "true");
     return () => {
       if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
       observer?.disconnect();
@@ -124,6 +125,7 @@ export function WorkforcePersonContext({ account }: { account?: WorkforceAccount
       window.removeEventListener("wheel", onManualScroll);
       window.removeEventListener("touchmove", onManualScroll);
       panel.removeEventListener("focusin", onFocus);
+      panel.removeAttribute("data-person-focus-managed");
       bar.removeAttribute("data-compact");
       bar.removeAttribute("data-unpinned");
       panel.style.removeProperty("--wf-person-sticky-top");

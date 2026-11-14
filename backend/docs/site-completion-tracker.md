@@ -15350,3 +15350,34 @@ alias, database or capability changed. Local reserve remains below20GiB.
 
 Automatic approval review rejected deletion of the verified80KiB aborted-browser
 profile with "blocked by policy". It was retained; no alternate deletion was used.
+
+## 14 November - confirmed tall-header person-field occlusion; candidate repair
+
+Terminal689cd106 frontend43560001195 reports1478 passes and one failure: the
+320px long-identity/taller-header case covers the current-password label with
+the sticky identity. All nine workshop-navigation cases pass. Preserve the failed
+matrix; it is not a release pass. Selected artifact14100433636 files were obtained
+using2,148,150 bounded range bytes instead of the84,618,330-byte archive. Selected
+ZIP CRCs match; the full archive SHA was not independently verified. Evidence:
+TEMP/allied-689-runtime-failure-20261114 (failure capture, context, trace and both
+workshop captures). No real records are in this isolated CI evidence.
+
+Fresh compiled989 Preview reproduces the original strict case: two passes then
+one failure across three repeats. Metrics show a focused input at575.8px and its
+label at546.8px behind an identity ending560px. The page handler positions label
+and input together; a later generic viewport reveal moves only the input. Candidate
+repair marks the page's active focus handler and defers competing generic nearest
+reveals for its focused fields. Cleanup removes the marker with its listener.
+Dialog, hash/navigation, identity text/size, permissions and financial state remain.
+Existing strict assertions are unchanged. Compiledd06e2531 passes25/25 in4.7m:
+10 repeated taller-header attempts,6 other identity layouts and9 public workshop
+widths (16 distinct scenarios). Separate320x520 unpinned-identity case passes1/1
+in15.9s. Full frontend no-emit TypeScript, scoped ESLint/format and diff pass.
+The empty-password fixture before/after capture was reviewed; complete enlarged
+identity and field label remain visible. Receipt: TEMP/allied-person-header-d06e2531/
+verified.json. This is synthetic-role compiled acceptance, not a real operator.
+Baseline: TEMP/allied-person-header-989-baseline/report.json. Current master5cf,
+its active/pending gates and all132 migration/release safeguards remain preserved.
+The olderdcac master run also reports the same person failure plus a separate
+MFA1024 focus failure (Home link loses focus). Record that second regression as
+unresolved; this person-only change does not claim to repair it or permit release.
