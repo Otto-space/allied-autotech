@@ -12440,10 +12440,12 @@ Confirmed at390/1440 in anonymous installed Edge: Home's lift link opens
 About#principles ("How we work"), which contains no lift. Target the existing
 lift figure with a stable equipment-item anchor in both shared gallery modes.
 No gallery disclosure, image crop, modal logic, capability or guide target changes.
-Two affected browser cases cover keyboard entry, direct fragment reload, photo
-dialog Escape/focus return and overflow. Compiled Preview9c2f1502 passes2/2 in
-28.3s at390/1440, with no page errors or business submissions. The loaded lift
-photo retains contain framing; both destination screenshots were visually reviewed.
+Affected browser cases cover keyboard entry, direct fragment reload, photo
+dialog Escape/focus return and overflow. Compiled Preview9c2f1502 passes9/9 in
+190.3s at320/360/390/430/768/1024/1280/1366/1440, with no page errors or business
+submissions. The loaded lift photo retains contain framing; destination screenshots
+at320/390/768/1440 were visually reviewed. The initial2/2 run is retained separately
+as overlapping evidence; it is not added to the final nine-case total.
 Receipt: TEMP/allied-workshop-link-9c2f1502/verified.json. Scoped ESLint, format
 and diff checks pass. PR94 final source/master gates and publication remain.
 

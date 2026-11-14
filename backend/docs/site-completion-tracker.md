@@ -14092,19 +14092,21 @@ link opens About's text-only "How we work" section, with no lift in its target.
 Link directly to the existing lift photograph using a stable focusable equipment
 item anchor in both shared gallery variants. Preserve existing section/guide
 targets, the initially open workshop group, native scrolling, photo viewing and
-permissions. Add two keyboard/navigation/reload/dialog-focus regression cases.
+permissions. Add keyboard/navigation/reload/dialog-focus regression coverage at
+all nine brief viewports:320/360/390/430/768/1024/1280/1366/1440.
 
 The owner's9 November editorial reference implementation (29a2c442) explicitly
 supersedes the older photo hero. Retain that approved carousel and genuine
 Home/About photographs; correct four stale placement entries and obsolete hero
 framing metadata in the original asset manifest. All15 supplied originals match
 their recorded SHA256 values; no original, derivative, approved price or withheld
-asset changes. Compiled Preview9c2f1502 passes both focused cases in28.3s at
-390/1440: keyboard link, real fragment reload, photo dialog Escape/focus return,
+asset changes. Compiled Preview9c2f1502 passes9/9 focused cases in190.3s at
+all nine widths: keyboard link, real fragment reload, photo dialog Escape/focus return,
 no overflow/page errors/business submissions, and loaded uncropped lift photo.
-Both safe destination screenshots were visually reviewed. Receipt:
+Safe destination screenshots at320/390/768/1440 were visually reviewed. Receipt:
 TEMP/allied-workshop-link-9c2f1502/verified.json. Scoped lint, formatting and diff
 checks pass. PR94 remains subject to final source/master gates and publication.
+The earlier2/2 run is retained separately and overlaps this final nine-case run.
 Baseline: TEMP/aat-attendance-20261104/workshop-link-baseline-20261114.json.
 This is public read-only browser evidence, not role/provider/device acceptance.
 Keep the independent b0cf0f0e backend release and D17 migration gates intact.
