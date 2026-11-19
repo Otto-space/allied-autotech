@@ -1,3 +1,34 @@
+### 19 November: full frontend CI exposed contrast and fragment-entry failures
+
+GitHub Frontend release checks for verified PR #102 commit `ed3ed39` failed the
+36.3-minute production-build browser matrix: 1,504 passed, four failed. Home
+desktop 1440px and mobile 390px axe scans identify a `color-contrast` fault for
+"Image unavailable" at foreground `#60717c` on `#edf1f5` (4.45:1, below
+the 4.5:1 WCAG AA text threshold). Use established neutral `#536676`, whose
+calculated contrast is 5.24:1, without changing the flat palette. Two fragment
+refresh cases (390px and 1440px) showed a manual upward scroll reset to just
+16px from the header. The existing initial-fragment visibility guard required
+the whole destination section to fit below the viewport; a tall section never
+satisfied it. Use the already established first-48px visibility criterion to
+preserve a visible heading after manual scroll while still correcting offscreen
+fragments. Keep both existing browser regressions and their assertions intact.
+These are source corrections awaiting exact-branch compiled CI and visual proof;
+no current-source browser pass is claimed.
+
+### 19 November: booking fallback action matches its destination (preview verification)
+
+On the verified PR #102 Vercel preview at 390px, `/services/request` correctly
+keeps online booking disabled when the backend capability service is unavailable.
+Its "Describe your concern" button, however, led to `/contact#enquiry`, which
+currently presents call, WhatsApp and email options rather than a concern form.
+This mismatch could make a customer expect an online submission. Label the
+existing link "See contact options" without changing the capability gate, route,
+booking policy or contact destinations. Update the existing services-design and
+runtime-capabilities regression selectors; add a navigation assertion that the
+contact page actually offers a phone action. The original preview observation
+was manual, with a mobile DOM/screenshot and real click; final-source compiled
+and hosted acceptance is pending.
+
 ### 19 November: release dependency security repair, visual acceptance pending
 
 Source baseline `master` `8d37ab1` could compile but failed its production build
