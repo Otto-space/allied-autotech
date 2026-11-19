@@ -88,7 +88,7 @@ function CoverageSelector({ userId }: { userId: string }) {
         representatives available.
       </p>
       <section aria-labelledby="support-representative-heading">
-        <h3 id="support-representative-heading">Add a support representative</h3>
+        <h2 id="support-representative-heading">Add a support representative</h2>
         <p>
           Find the officer by name or work email in People. Select their account and
           assign Customer Care duties for the Port Harcourt branch: view cases, reply to

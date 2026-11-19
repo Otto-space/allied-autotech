@@ -1,3 +1,36 @@
+### 19 November: security patch and isolated source verification (unreleased)
+
+The latest available `master` source at the start of this work was `8d37ab1`.
+An isolated Linux checkout reproduced a blocked frontend production build on
+Next.js 16.4.3: compilation succeeded, but the release gate reported an affected
+security version. The review branch updates `next` and the matching
+`eslint-config-next` package to 16.4.6, including the lockfile. An optimized
+production build and standalone asset preparation now complete successfully;
+the frontend production-dependency audit reports zero known vulnerabilities.
+
+On the original source, frontend type checking, lint and 1,613 unit tests passed
+(12 skipped), as did backend type checking, lint and 1,176 tests (1,817 skipped;
+database-backed acceptance was not enabled). The backend source secret guard
+passed across 4,060 non-ignored files using the non-IPC TypeScript runner. These
+results are isolated source evidence, **not** matching production-image, real
+payment, populated-restore, signed-in role, browser, or full release acceptance.
+After the dependency change, the optimized frontend build, lint and all 1,613
+frontend unit tests pass again. The two original frontend Prettier defects
+(a heading spacer and a wrapped test assertion) now have minimal, behavior-
+preserving corrections. GitHub CI and rendered acceptance remain pending.
+The first exact-head GitHub Actions run passed backend database safety and
+the secret guard, but frontend release checks failed at the 390px Customer
+Care owner-coverage axe scan: the new representative heading used `<h3>`
+without an intervening `<h2>`. The scoped heading-level correction is awaiting
+exact-source CI and hosted preview verification.
+
+Booking requests, payment activation, workshop resources and support coverage
+retain their existing gated business rules. The documented 112-to-132 migration
+gap, current provider/finance prerequisites, populated restore, exact-commit CI,
+accessibility and hosted interaction acceptance remain open. No database write,
+production deployment, customer charge or credential change was made. Do not
+publish this code until the existing release and backup requirements are met.
+
 ### 14 November: owner-approved flat palette and deferred representative setup
 
 Owner requests removing all interface gradients, a dark-blue footer and a clear way
