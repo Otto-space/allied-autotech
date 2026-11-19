@@ -29,6 +29,23 @@ contact page actually offers a phone action. The original preview observation
 was manual, with a mobile DOM/screenshot and real click; final-source compiled
 and hosted acceptance is pending.
 
+### 20 November: manual-scroll regression timing correction (PR #106 review)
+
+Both exact-head full browser matrices passed 1,506/1,508 cases. The two
+390/1440px fragment-refresh failures observed 16px instead of over 100px after
+an upward wheel delivered immediately after DOMContentLoaded. The test did not
+establish that native hash restoration had scrolled the document down before
+wheel delivery, so that movement could be physically impossible. It now first
+confirms that the fragment is below the sticky header in the viewport with
+scrollY over 100, then checks a real upward movement and the settled heading
+offset. The production navigation implementation is unaltered in this update;
+the earlier deferred-layout and manual-interaction assertions remain.
+
+Local optimized build, TypeScript, formatting and diff checks pass. The scratch
+runner's Chromium launch was blocked by local socket permissions (not an app
+assertion); new signed exact-head CI is still needed. This does not constitute
+real-browser, authenticated-role or production acceptance.
+
 ### 19 November: release dependency security repair, visual acceptance pending
 
 Source baseline `master` `8d37ab1` could compile but failed its production build
