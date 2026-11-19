@@ -1,3 +1,16 @@
+### 19 November: Paystack timestamped signing-secret support (source candidate)
+
+Paystack's current webhook reference adds a timestamped `Paystack-Signature`
+header with a separate `whsec_` secret and a five-minute replay window. Existing
+Allied code accepted only the transitional API-key HMAC header. This review-only
+branch adds fail-closed new-header verification whenever the independent secret
+is configured, while retaining legacy support when it is absent. A valid legacy
+header cannot bypass an invalid new header in signing-secret mode. The business
+payment decision, reference/amount/currency checks, ledger and provider mode
+remain unchanged. Source/CI verification and a real isolated test-mode Paystack
+webhook are required before any configuration or rollout. No payment, provider
+credential, deployment, database or master ref is changed by this work.
+
 ### 19 November: security patch and isolated source verification (unreleased)
 
 The latest available `master` source at the start of this work was `8d37ab1`.
