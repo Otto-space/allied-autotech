@@ -287,7 +287,9 @@ for (const width of [390, 1440]) {
     const errors = await fixture(page);
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/contact#workshop");
-    await expect(page.getByRole("textbox", { name: "Subject", exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("textbox", { name: "Subject", exact: true }),
+    ).toBeVisible();
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     const workshopOffset = () =>
       page.locator("#workshop").evaluate((el) => {

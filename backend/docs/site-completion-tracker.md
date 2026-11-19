@@ -15,11 +15,9 @@ passed across 4,060 non-ignored files using the non-IPC TypeScript runner. These
 results are isolated source evidence, **not** matching production-image, real
 payment, populated-restore, signed-in role, browser, or full release acceptance.
 After the dependency change, the optimized frontend build, lint and all 1,613
-frontend unit tests pass again. The full frontend Prettier gate still reports
-two files (`docs/UI_UX_QUALITY_REGISTER.md` and
-`tests/e2e/viewport-navigation.spec.ts`) that also fail formatting at the
-unchanged baseline; that pre-existing formatting debt was not rewritten during
-this bounded security fix. GitHub CI and rendered acceptance remain pending.
+frontend unit tests pass again. The two original frontend Prettier defects
+(a heading spacer and a wrapped test assertion) now have minimal, behavior-
+preserving corrections. GitHub CI and rendered acceptance remain pending.
 
 Booking requests, payment activation, workshop resources and support coverage
 retain their existing gated business rules. The documented 112-to-132 migration

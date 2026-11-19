@@ -4,9 +4,9 @@ Source baseline `master` `8d37ab1` could compile but failed its production build
 because Next.js 16.4.3 was flagged as affected by a security advisory. The
 review branch upgrades `next` and `eslint-config-next` to 16.4.6. The optimized
 build now passes, and the production dependency audit finds no known issues.
-All 1,613 frontend unit tests and lint pass after the patch. The existing
-formatting gate still flags this register and the viewport-navigation test on
-the unchanged baseline; avoid broad formatting churn in a security-only patch.
+All 1,613 frontend unit tests and lint pass after the patch. Two original
+Prettier issues (a heading spacer here and one wrapped test assertion) received
+minimal corrections without changing runtime behavior.
 This is a framework security update, not a completed public-page or dashboard
 redesign. Existing journey designs and runtime capability gates were retained.
 No rendered screenshot, browser interaction, real-role permission, mobile zoom,
@@ -13660,6 +13660,7 @@ real MFA hardware, account mutation and physical-device acceptance are untested.
 PR98 is integrated with master026d9fe2, preserving PR97 fixture timing repair
 and all 132 migrations. Exact resulting-master CI and recovery/release checks
 remain mandatory before publication. No capability flags were changed.
+
 # 14 November: deferred fragment layout correction
 
 Private compiled4c967141 campaign:47/48 passes; desktop fragment refresh remains
