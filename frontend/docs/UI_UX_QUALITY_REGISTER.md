@@ -7,6 +7,11 @@ build now passes, and the production dependency audit finds no known issues.
 All 1,613 frontend unit tests and lint pass after the patch. Two original
 Prettier issues (a heading spacer here and one wrapped test assertion) received
 minimal corrections without changing runtime behavior.
+The first GitHub `Frontend release checks` run on `0b066d8` exposed a separate
+owner Customer Care accessibility defect at 390px: the new representative
+heading skipped from the page's `<h1>` to `<h3>`. Its semantic level is now
+`<h2>`; the existing Playwright axe regression remains the release gate, with
+an exact-commit rerun still pending.
 This is a framework security update, not a completed public-page or dashboard
 redesign. Existing journey designs and runtime capability gates were retained.
 No rendered screenshot, browser interaction, real-role permission, mobile zoom,

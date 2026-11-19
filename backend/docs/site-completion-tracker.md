@@ -18,6 +18,11 @@ After the dependency change, the optimized frontend build, lint and all 1,613
 frontend unit tests pass again. The two original frontend Prettier defects
 (a heading spacer and a wrapped test assertion) now have minimal, behavior-
 preserving corrections. GitHub CI and rendered acceptance remain pending.
+The first exact-head GitHub Actions run passed backend database safety and
+the secret guard, but frontend release checks failed at the 390px Customer
+Care owner-coverage axe scan: the new representative heading used `<h3>`
+without an intervening `<h2>`. The scoped heading-level correction is awaiting
+exact-source CI and hosted preview verification.
 
 Booking requests, payment activation, workshop resources and support coverage
 retain their existing gated business rules. The documented 112-to-132 migration
