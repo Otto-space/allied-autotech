@@ -10,6 +10,7 @@ process.env.SMS_DELIVERY_ENABLED = "false";
 process.env.PAYSTACK_MODE = "disabled";
 process.env.PAYSTACK_LIVE_ENABLED = "false";
 delete process.env.PAYSTACK_SECRET_KEY;
+delete process.env.PAYSTACK_WEBHOOK_SECRET;
 process.env.MONNIFY_MODE = "disabled";
 process.env.MONNIFY_LIVE_ENABLED = "false";
 delete process.env.MONNIFY_API_KEY;
