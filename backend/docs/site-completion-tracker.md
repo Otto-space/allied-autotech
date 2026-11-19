@@ -1,3 +1,21 @@
+### 19 November: reconcile stale PR #91 without changing release gates (review only)
+
+Against protected master `ecb8321`, PR #91 is conflicted and carries older
+historical journals. A separate review candidate reapplies only its current
+mobile-menu resting-style and delegated People breadcrumb fixes, with new exact-
+source checks for the six mobile/compact menu widths and delegated 320/1440px
+People/Person routes. The 46px menu geometry, active/focus behavior, back/filter
+links, authority checks and owner workforce overview are preserved. Older PR #91
+notes are retained in their original branch, not copied over newer master history.
+
+This is source work pending signed GitHub verification, CI, hosted visual checks,
+real-role acceptance and explicit owner merge authorization. PRs #106 (booking/
+Home) and #108 (Paystack signature) are separate draft reviews, not deployed to
+master. Live migrations 113-132, immediately fresh exact-production backup,
+populated isolated restore, matched backend images and test-mode provider flows
+remain release prerequisites. No live database, payment setting, permission or
+production release was changed by this reconciliation.
+
 ### 19 November: security patch and isolated source verification (unreleased)
 
 The latest available `master` source at the start of this work was `8d37ab1`.
