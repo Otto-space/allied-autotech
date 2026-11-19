@@ -1,3 +1,20 @@
+### 20 November: PR #106 exact-head CI exposes two wheel precondition races
+
+Both PR #106 full frontend check runs finished with 1,506/1,508 browser cases
+passing, failing only the newly added 390/1440px fragment-refresh manual-wheel
+assertion. The prior DOMContentLoaded-only test sent a negative wheel before
+native hash restoration could place the page below scrollY 100; a wheel at the
+top cannot move upward. The source test now explicitly waits for visible native
+fragment restoration, records its scrollY, confirms a physical upward movement
+and rechecks the heading offset after font/form settling. The runtime navigation
+fix and all other production behaviour remain unchanged.
+
+Local optimized frontend build, TypeScript, Prettier and diff checks passed;
+the Linux scratch browser runner cannot launch Chromium under its socket
+restrictions, so no local targeted rendered pass is claimed. New signed exact-
+commit GitHub CI and review are required. Backend, payment, master and production
+release gates remain unchanged.
+
 ### 19 November: exact-commit frontend CI failed four viewport checks (new fix branch)
 
 The verified PR #102 frontend matrix finished with 1,504 passed and four failed:
