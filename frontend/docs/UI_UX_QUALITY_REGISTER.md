@@ -1,3 +1,19 @@
+### 19 November: release dependency security repair, visual acceptance pending
+
+Source baseline `master` `8d37ab1` could compile but failed its production build
+because Next.js 16.4.3 was flagged as affected by a security advisory. The
+review branch upgrades `next` and `eslint-config-next` to 16.4.6. The optimized
+build now passes, and the production dependency audit finds no known issues.
+All 1,613 frontend unit tests and lint pass after the patch. The existing
+formatting gate still flags this register and the viewport-navigation test on
+the unchanged baseline; avoid broad formatting churn in a security-only patch.
+This is a framework security update, not a completed public-page or dashboard
+redesign. Existing journey designs and runtime capability gates were retained.
+No rendered screenshot, browser interaction, real-role permission, mobile zoom,
+Safari or screen-reader acceptance is claimed for the updated build. The
+viewport-navigation and account/MFA follow-up cases from 14 November remain
+priority hosted checks before publication; source tests alone do not close them.
+
 ### 14 November: owner-approved flat palette and deferred representative setup
 
 Owner requests removing all interface gradients, a dark-blue footer and a clear way
