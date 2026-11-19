@@ -271,8 +271,13 @@ for (const [width, height] of [
       page.getByRole("heading", { name: "Contact the workshop", exact: true }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "Describe your concern", exact: true }),
+      page.getByRole("link", { name: "See contact options", exact: true }),
     ).toHaveAttribute("href", "/contact#enquiry");
+    await page.getByRole("link", { name: "See contact options", exact: true }).click();
+    await expect(page).toHaveURL(/\/contact#enquiry$/);
+    await expect(
+      page.getByRole("link", { name: "Call our team", exact: true }).first(),
+    ).toBeVisible();
     expect(state.writes).toEqual([]);
     expect(state.unexpectedWrites).toEqual([]);
     expect(errors).toEqual([]);

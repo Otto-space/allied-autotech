@@ -1,3 +1,26 @@
+### 19 November: exact-commit frontend CI failed four viewport checks (new fix branch)
+
+The verified PR #102 frontend matrix finished with 1,504 passed and four failed:
+Home fallback image text contrasted at only 4.45:1 on both 390px and 1440px;
+fragment reload at both widths reset an immediate manual upward scroll. These
+are regression gates, not grounds to bypass CI. Prepare the accessible Home
+neutral colour and preserve a visible fragment heading even when its section
+extends below the viewport, retaining the existing full matrix and mobile
+checks. The source change is not yet verified on a signed head. The previously
+merged master commits and live production deployment remain untouched.
+
+### 19 November: booking contact fallback clarity (review branch only)
+
+Observed on the verified PR #102 hosted preview at 390px: when online booking
+was unavailable, `/services/request` offered "Describe your concern" but its
+destination `/contact#enquiry` only displayed contact methods. Correct the action
+to "See contact options", retain the same link and add a click-through regression
+to confirm the phone contact path. No enabled booking request, Paystack checkout,
+real customer communication, migration, provider setting or production release is
+part of this review-only UI batch. Complete exact-commit checks and rendered
+verification before any merge; the live production frontend remains on its
+separately verified deployment.
+
 ### 19 November: security patch and isolated source verification (unreleased)
 
 The latest available `master` source at the start of this work was `8d37ab1`.
