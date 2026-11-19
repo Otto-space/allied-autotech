@@ -1,3 +1,21 @@
+### 19 November: mobile menu and delegated People navigation reconciliation (review)
+
+Isolated from `master` `ecb8321` to replace only stale PR #91's still-applicable
+four source fixes. The public menu now has a transparent 46px resting control;
+hover, open, disabled, focus and Escape behavior remain unchanged. The permission-
+gated People listing and Person detail own a single Overview / People / Person
+breadcrumb (or Access reviews for review-linked detail); the generic dashboard
+trail is suppressed on those routes. The SUPER_ADMIN workforce overview also
+gets the correct local trail. Back links, filters and delegated Admin guards stay
+intact. Playwright checks now explicitly cover one breadcrumb at 320/1440px,
+the owner overview, and transparent menu geometry in compact viewport coverage.
+
+Rendered baseline on the exact PR #106 Vercel preview at 320px observed the old
+filled 46px menu (computed background alpha .035 and border alpha .1); open,
+Escape and focus return worked. New exact-candidate CI/preview, authenticated
+role and device checks are still required. This is not production acceptance or
+authorization to merge, publish, or enable online transactions.
+
 ### 19 November: release dependency security repair, visual acceptance pending
 
 Source baseline `master` `8d37ab1` could compile but failed its production build

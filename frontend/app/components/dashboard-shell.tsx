@@ -557,6 +557,9 @@ export function DashboardShell({
             !/^\/dashboard\/support\/(enquiries|complaints)\/[^/]+$/.test(pathname) &&
             !/^\/dashboard\/orders\/[^/]+\/aftercare$/.test(pathname) &&
             pathname !== "/admin/bookings" &&
+            pathname !== "/admin/workforce" &&
+            pathname !== "/admin/workforce/access" &&
+            !pathname.startsWith("/admin/workforce/access/") &&
             pathname !== "/admin/workforce/jobs" &&
             pathname !== "/admin/workforce/bookings" &&
             pathname !== "/admin/workforce/enquiries" &&
