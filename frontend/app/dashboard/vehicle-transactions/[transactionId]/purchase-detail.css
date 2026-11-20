@@ -55,12 +55,12 @@
   border: 1px solid #dce3ed;
   border-radius: 10px;
   background: #fff;
-  box-shadow: 0 3px 15px #091b3805;
+  box-shadow: 0 3px 15px #10141905;
 }
 .pd-identity-row {
   display: grid;
   grid-template-columns: 32% minmax(0, 1fr);
-  background: #091b38;
+  background: #101419;
 }
 .pd-photo {
   position: relative;
@@ -105,7 +105,7 @@
   padding: 4px 12px;
   border-radius: 20px;
   background: #e7edf5;
-  color: #091b38;
+  color: #101419;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.35;
@@ -156,7 +156,7 @@
 .pd-alert {
   background: #edf1f7;
   border: 1px solid #d6dfeb;
-  border-left: 3px solid #091b38;
+  border-left: 3px solid #101419;
   padding: 14px 18px;
   margin: 16px 0;
   border-radius: 6px;

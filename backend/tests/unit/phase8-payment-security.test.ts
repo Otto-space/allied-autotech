@@ -10,12 +10,14 @@ import {
   manualPaymentBodySchema,
   paymentCreateBodySchema,
   refundCreateBodySchema,
+  webhookHeadersSchema,
 } from "../../src/modules/payments/payments.schemas.js";
 import { paymentJsonSafe } from "../../src/modules/payments/payments.types.js";
 import {
   parsePaystackWebhook,
   paystackPayloadSha256,
   verifyPaystackSignature,
+  verifyPaystackTimestampedSignature,
 } from "../../src/providers/payments/paystack-webhook.js";
 import {
   issuePaymentEvidenceTicket,
@@ -136,6 +138,80 @@ describe("Phase 8 payment security contracts", () => {
       amountKobo: 12500n,
       currency: "NGN",
     });
+  });
+
+  it("verifies timestamped Paystack signing-secret headers without a legacy downgrade", () => {
+    const secret = "whsec_synthetic_only_not_a_real_credential";
+    const nowSeconds = 1_795_130_000;
+    const raw = Buffer.from('{"event":"charge.success","data":{}}');
+    const sign = (body: Buffer, seconds = nowSeconds) =>
+      createHmac("sha512", secret).update(`${seconds}.`).update(body).digest("hex");
+    const header = `t=${nowSeconds},v1=whk_old:${"0".repeat(128)},v1=whk_new:${sign(raw)}`;
+    expect(verifyPaystackTimestampedSignature(raw, header, secret, nowSeconds)).toBe(
+      true,
+    );
+    expect(
+      verifyPaystackTimestampedSignature(
+        Buffer.concat([raw, Buffer.from(" ")]),
+        header,
+        secret,
+        nowSeconds,
+      ),
+    ).toBe(false);
+    expect(
+      verifyPaystackTimestampedSignature(raw, header, secret, nowSeconds + 301),
+    ).toBe(false);
+    expect(
+      verifyPaystackTimestampedSignature(raw, header, secret, nowSeconds + 300),
+    ).toBe(true);
+    expect(
+      verifyPaystackTimestampedSignature(raw, header, secret, nowSeconds - 301),
+    ).toBe(false);
+    expect(
+      verifyPaystackTimestampedSignature(raw, header, secret, nowSeconds - 300),
+    ).toBe(true);
+    expect(
+      verifyPaystackTimestampedSignature(
+        raw,
+        `t=${nowSeconds},t=${nowSeconds},v1=whk_new:${sign(raw)}`,
+        secret,
+        nowSeconds,
+      ),
+    ).toBe(false);
+    expect(
+      verifyPaystackTimestampedSignature(
+        raw,
+        `t=${nowSeconds},v1=whk_new:${sign(raw).toUpperCase()}`,
+        secret,
+        nowSeconds,
+      ),
+    ).toBe(false);
+    expect(verifyPaystackTimestampedSignature(raw, sign(raw), secret, nowSeconds)).toBe(
+      false,
+    );
+    expect(
+      verifyPaystackTimestampedSignature(
+        raw,
+        `t=${nowSeconds},v1=whk_new:${sign(raw)}`,
+        "sk_test_wrong_kind",
+        nowSeconds,
+      ),
+    ).toBe(false);
+    expect(
+      verifyPaystackTimestampedSignature(
+        raw,
+        `t=${nowSeconds},v1=whk_new:${sign(raw)}`,
+        "whsec_synthetic_wrong_key",
+        nowSeconds,
+      ),
+    ).toBe(false);
+    expect(webhookHeadersSchema.safeParse({ "paystack-signature": header }).success).toBe(
+      true,
+    );
+    expect(
+      webhookHeadersSchema.safeParse({ "x-paystack-signature": sign(raw) }).success,
+    ).toBe(true);
+    expect(webhookHeadersSchema.safeParse({}).success).toBe(false);
   });
 
   it("rejects malformed provider payloads and serializes money safely", () => {

@@ -2,11 +2,11 @@
 :root {
   /* Sampled from supplied original marks; functional text/action pairs stay accessible. */
   --brand-source-red: #de1f26;
-  --brand-source-dark: #06181f;
+  --brand-source-dark: #202124;
   --brand-source-black: #040707;
   --palette-black: #080c0f;
   --palette-charcoal: #101419;
-  --palette-navy: #0b2038;
+  --palette-navy: var(--palette-charcoal);
   --palette-red: #d71920;
   --palette-red-hover: #b51218;
   --palette-red-pressed: #950e14;
@@ -19,7 +19,7 @@
   --palette-grey-300: #818894;
   --palette-grey-600: #626975;
   --palette-grey-900: #22262d;
-  --palette-blue: #1d4ed8;
+  --palette-blue: var(--palette-red);
 
   --surface: var(--palette-grey-50);
   --surface-raised: var(--palette-white);
@@ -65,10 +65,10 @@
   --warning-fill: #fefce8;
   --error-ink: #991b1b;
   --error-fill: #fef2f2;
-  --info-ink: #1e40af;
-  --info-fill: #eff6ff;
-  --neutral-ink: #334155;
-  --neutral-fill: #f1f5f9;
+  --info-ink: #4b2024;
+  --info-fill: #fff0f1;
+  --neutral-ink: #30343a;
+  --neutral-fill: #f5f6f8;
   --destructive: var(--error-ink);
   --on-destructive: var(--palette-white);
   --destructive-hover: #7f1d1d;
@@ -83,13 +83,13 @@
   --hero-scrim-mobile: #080c0fcc;
   --editorial-scrim-mobile: #080c0fcc;
 
-  /* Compatibility aliases for existing consumers; blue is not a primary action. */
+  /* Historical alias names remain for compatibility; their rendered values use the approved palette. */
   --brand-red: var(--action-primary);
   --brand-red-dark: var(--action-hover);
   --brand-red-on-dark: var(--link-inverse);
   --blue: var(--action-primary);
   --blue-dark: var(--action-hover);
-  --marketplace-blue: #091b38;
+  --marketplace-blue: var(--palette-charcoal);
   --orange: #a64b08;
   --success: var(--success-ink);
   --danger: var(--destructive);

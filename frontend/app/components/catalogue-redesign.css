@@ -1262,7 +1262,7 @@
   position: relative;
   isolation: isolate;
   margin: 0;
-  background: var(--marketplace-blue, #091b38);
+  background: var(--marketplace-blue, #101419);
 }
 .shop-page .catalogue-banner--shop::before {
   content: "";

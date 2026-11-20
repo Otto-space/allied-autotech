@@ -57,8 +57,8 @@
   overflow-wrap: anywhere;
 }
 .workflow-stages li[aria-current="step"] {
-  border-color: var(--status-ink, #1d4ed8);
-  background: var(--status-fill, #eff6ff);
+  border-color: var(--status-ink, #b51218);
+  background: var(--status-fill, #fff0f1);
   color: var(--status-ink, #1e3a8a);
   border-radius: 0.3rem;
 }

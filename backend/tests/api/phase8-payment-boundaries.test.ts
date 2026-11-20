@@ -1,6 +1,9 @@
+import { createHmac } from "node:crypto";
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createApp } from "../../src/app.js";
+import { env } from "../../src/config/env.js";
+import { paymentsService } from "../../src/modules/payments/payments.service.js";
 
 describe("Phase 8 payment HTTP boundaries", () => {
   const app = createApp({ checkReadiness: async () => undefined });
@@ -20,6 +23,70 @@ describe("Phase 8 payment HTTP boundaries", () => {
       .send({ event: "charge.success", data: {} });
     expect(response.status).toBe(422);
     expect(response.body.error.code).toBe("VALIDATION_FAILED");
+  });
+
+  it("accepts a fresh signing-secret header and rejects legacy downgrade", async () => {
+    const previous = {
+      mode: env.PAYSTACK_MODE,
+      apiKey: env.PAYSTACK_SECRET_KEY,
+      signingKey: env.PAYSTACK_WEBHOOK_SECRET,
+    };
+    env.PAYSTACK_MODE = "test";
+    env.PAYSTACK_SECRET_KEY = "sk_test_synthetic_http_boundary";
+    env.PAYSTACK_WEBHOOK_SECRET = "whsec_synthetic_http_boundary";
+    const ingest = vi
+      .spyOn(paymentsService, "ingestWebhook")
+      .mockResolvedValue({ accepted: true, duplicate: false });
+    try {
+      const raw = JSON.stringify({ event: "ping", data: {} });
+      const freshTimestamp = Math.floor(Date.now() / 1_000);
+      const freshSignature = createHmac("sha512", env.PAYSTACK_WEBHOOK_SECRET)
+        .update(`${freshTimestamp}.`)
+        .update(raw)
+        .digest("hex");
+      const good = await request(app)
+        .post("/api/v1/webhooks/paystack")
+        .set("Content-Type", "application/json")
+        .set("x-paystack-signature", "bad-legacy-header")
+        .set(
+          "paystack-signature",
+          `t=${freshTimestamp},v1=whk_synthetic:${freshSignature}`,
+        )
+        .send(raw);
+      expect(good.status).toBe(200);
+      expect(ingest).toHaveBeenCalledOnce();
+      expect(ingest.mock.calls[0]?.[0]).toMatchObject({ eventType: "ping" });
+      ingest.mockClear();
+
+      const timestamp = Math.floor(Date.now() / 1_000) - 301;
+      const newSignature = createHmac("sha512", env.PAYSTACK_WEBHOOK_SECRET)
+        .update(`${timestamp}.`)
+        .update(raw)
+        .digest("hex");
+      const legacySignature = createHmac("sha512", env.PAYSTACK_SECRET_KEY)
+        .update(raw)
+        .digest("hex");
+      const withBoth = await request(app)
+        .post("/api/v1/webhooks/paystack")
+        .set("Content-Type", "application/json")
+        .set("x-paystack-signature", legacySignature)
+        .set("paystack-signature", `t=${timestamp},v1=whk_synthetic:${newSignature}`)
+        .send(raw);
+      expect(withBoth.status).toBe(401);
+
+      const legacyOnly = await request(app)
+        .post("/api/v1/webhooks/paystack")
+        .set("Content-Type", "application/json")
+        .set("x-paystack-signature", legacySignature)
+        .send(raw);
+      expect(legacyOnly.status).toBe(401);
+      expect(ingest).not.toHaveBeenCalled();
+    } finally {
+      ingest.mockRestore();
+      env.PAYSTACK_MODE = previous.mode;
+      env.PAYSTACK_SECRET_KEY = previous.apiKey;
+      env.PAYSTACK_WEBHOOK_SECRET = previous.signingKey;
+    }
   });
 
   it("fails closed when Monnify is disabled and exposes no provider detail", async () => {

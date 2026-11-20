@@ -78,11 +78,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Verified Paystack dispute webhook",
   () => {
     const app = createApp({ checkReadiness: async () => undefined });
-    const prior = { mode: env.PAYSTACK_MODE, key: env.PAYSTACK_SECRET_KEY };
+    const prior = {
+      mode: env.PAYSTACK_MODE,
+      key: env.PAYSTACK_SECRET_KEY,
+      webhook: env.PAYSTACK_WEBHOOK_SECRET,
+    };
     const hashes: string[] = [];
     beforeEach(() => {
       env.PAYSTACK_MODE = "test";
       env.PAYSTACK_SECRET_KEY = "sk_test_synthetic_dispute_contract";
+      env.PAYSTACK_WEBHOOK_SECRET = "whsec_synthetic_dispute_contract";
       vi.stubGlobal("fetch", vi.fn());
     });
     afterEach(async () => {
@@ -94,6 +99,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       vi.unstubAllGlobals();
       env.PAYSTACK_MODE = prior.mode;
       env.PAYSTACK_SECRET_KEY = prior.key;
+      env.PAYSTACK_WEBHOOK_SECRET = prior.webhook;
     });
     afterAll(() => prisma.$disconnect());
     async function setup() {
@@ -138,8 +144,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           .post("/api/v1/webhooks/paystack")
           .set("Content-Type", "application/json")
           .set(
-            "x-paystack-signature",
-            createHmac("sha512", env.PAYSTACK_SECRET_KEY!).update(raw).digest("hex"),
+            "paystack-signature",
+            (() => {
+              const timestamp = Math.floor(Date.now() / 1_000);
+              const signature = createHmac("sha512", env.PAYSTACK_WEBHOOK_SECRET!)
+                .update(`${timestamp}.`)
+                .update(raw)
+                .digest("hex");
+              return `t=${timestamp},v1=whk_synthetic:${signature}`;
+            })(),
           )
           .send(raw);
         return {
