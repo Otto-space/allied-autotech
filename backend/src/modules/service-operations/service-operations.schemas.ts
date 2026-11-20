@@ -324,9 +324,20 @@ const quoteFields = {
   notes: nullableText(4_000),
   expiresAt: dateTime,
 } as const;
-export const quoteCreateBodySchema = z.object(quoteFields).strict();
+export const quoteCreateBodySchema = z
+  .object({
+    ...quoteFields,
+    additionalWork: z
+      .strictObject({ expectedBookingVersion: version, reason: cleanText(1000) })
+      .optional(),
+  })
+  .strict();
 export const quoteReplaceBodySchema = z
-  .object({ ...quoteFields, expectedRevision: version })
+  .object({
+    ...quoteFields,
+    expectedRevision: version,
+    amendmentReason: cleanText(1000).optional(),
+  })
   .strict();
 export const quoteTransitionBodySchema = z.object({ expectedRevision: version }).strict();
 
@@ -383,6 +394,18 @@ export type BookingDisruptionResolutionInput = z.infer<
 export type ServiceLineItemInput = z.infer<typeof serviceLineItemSchema>;
 export type QuoteCreateInput = z.infer<typeof quoteCreateBodySchema>;
 export type QuoteReplaceInput = z.infer<typeof quoteReplaceBodySchema>;
+export const quoteDecisionBodySchema = quoteTransitionBodySchema.extend({
+  acceptedAdditionalWork: z
+    .object({
+      invoiceNumber: cleanText(50),
+      quoteVersion: version.min(1),
+      reason: cleanText(1000),
+    })
+    .strict()
+    .optional(),
+});
+export type QuoteDecisionInput = z.infer<typeof quoteDecisionBodySchema>;
+
 export type QuoteTransitionInput = z.infer<typeof quoteTransitionBodySchema>;
 export type WorkOrderCreateInput = z.infer<typeof workOrderCreateBodySchema>;
 export type WorkOrderUpdateInput = z.infer<typeof workOrderUpdateBodySchema>;
@@ -441,3 +464,120 @@ export const bookingTimingOverrideBodySchema = z
   })
   .strict();
 export type BookingTimingOverrideInput = z.infer<typeof bookingTimingOverrideBodySchema>;
+
+export const bookingWorkReviewBodySchema = z
+  .object({
+    expectedVersion: version,
+    resourcePolicyVersionId: uuid,
+    remainingMinutes: z.number().int().min(1).max(1440),
+    cleanupMinutes: z.number().int().min(0).max(1440),
+    resourceIds: z
+      .array(uuid)
+      .max(40)
+      .refine((ids) => new Set(ids.map((id) => id.toLowerCase())).size === ids.length, {
+        message: "Choose each physical unit once",
+      }),
+    reason: cleanText(1000).min(10),
+  })
+  .strict();
+export type BookingWorkReviewInput = z.infer<typeof bookingWorkReviewBodySchema>;
+
+export const bookingWorkEstimateSchema = z
+  .object({
+    reviewedAt: z.iso.datetime({ offset: true }),
+    remainingMinutes: z.number().int().min(1).max(1440),
+    estimatedWorkEndsAt: z.iso.datetime({ offset: true }),
+  })
+  .strict();
+export const bookingWorkReviewRecordSchema = z
+  .object({
+    id: uuid,
+    bookingVersion: version,
+    resourcePolicyVersionId: uuid,
+    reviewedAt: z.iso.datetime({ offset: true }),
+    remainingMinutes: z.number().int().min(1).max(1440),
+    cleanupMinutes: z.number().int().min(0).max(1440),
+    expectedWorkEndsAt: z.iso.datetime({ offset: true }),
+    resourceIds: z.array(uuid).max(40),
+    resourceNames: z.array(z.string()).max(40).optional(),
+    reason: z.string().max(1000),
+    performedByUserId: uuid,
+  })
+  .strict();
+export const bookingWorkReviewOptionsResponseSchema = z
+  .object({
+    bookingId: uuid,
+    version,
+    scheduleVersion: version,
+    status: z.string(),
+    branchId: uuid.nullable(),
+    serviceId: uuid.nullable(),
+    staffId: uuid.nullable(),
+    startedAt: z.iso.datetime({ offset: true }).nullable(),
+    canReview: z.boolean(),
+    resourcePolicyVersionId: uuid.nullable(),
+    cleanupMinutes: z.number().int().min(0).max(1440).nullable(),
+    requirements: z.array(
+      z.object({ pool: z.string(), quantity: z.number().int().positive() }),
+    ),
+    resources: z.array(
+      z.object({
+        id: uuid,
+        name: z.string(),
+        kind: z.string(),
+        status: z.string(),
+        pools: z.array(z.string()),
+      }),
+    ),
+    current: bookingWorkReviewRecordSchema.nullable(),
+  })
+  .strict();
+export const bookingWorkReviewReceiptSchema = z
+  .object({
+    id: uuid,
+    branchId: uuid,
+    serviceId: uuid,
+    staffId: uuid,
+    version,
+    scheduleVersion: version,
+    status: z.string(),
+    scheduledAt: z.iso.datetime({ offset: true }),
+    startedAt: z.iso.datetime({ offset: true }),
+    performedByUserId: uuid,
+    review: bookingWorkReviewRecordSchema,
+  })
+  .strict();
+
+export const serviceVehicleReleaseBodySchema = z
+  .object({
+    expectedBookingVersion: version,
+    financialReviewHash: z.string().regex(/^[a-f0-9]{64}$/),
+    idempotencyKey: uuid,
+    recipientName: cleanText(120),
+    verificationNote: cleanText(1000, true).refine(
+      (v) => v.length >= 12,
+      "Record the actual identity and collection-authority review",
+    ),
+    identityAndAuthorityVerified: z.literal(true),
+  })
+  .strict();
+export type ServiceVehicleReleaseInput = z.infer<typeof serviceVehicleReleaseBodySchema>;
+
+export const serviceVehicleReleaseReceiptSchema = z
+  .object({
+    id: uuid,
+    bookingId: uuid,
+    releasedAt: dateTime,
+    recipientName: cleanText(120),
+  })
+  .strict();
+
+export const serviceVehicleReleaseReadinessSchema = z
+  .object({
+    bookingId: uuid,
+    bookingVersion: version,
+    financialReviewHash: z.string().regex(/^[a-f0-9]{64}$/),
+    ready: z.literal(true),
+    checkedAt: dateTime,
+  })
+  .strict();

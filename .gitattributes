@@ -32,3 +32,6 @@ backend/prisma/migrations/20261102091000_vehicle_document_user_reviewer/migratio
 # Guest purchase forward migrations are first validated locally with LF bytes.
 backend/prisma/migrations/20261102223000_purchase_guest_access/migration.sql text eol=lf
 backend/prisma/migrations/20261102224000_purchase_guest_order_ownership/migration.sql text eol=lf
+
+# New attendance history is first reviewed/replayed with stable LF bytes.
+backend/prisma/migrations/20261104002000_booking_attendance_history/migration.sql text eol=lf

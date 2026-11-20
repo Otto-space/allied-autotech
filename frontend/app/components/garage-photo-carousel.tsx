@@ -43,6 +43,7 @@ export function GaragePhotoCarousel({
             fill
             sizes={size === "feature" ? "(max-width: 800px) 100vw, 900px" : "240px"}
             src={photo.url}
+            overrideSrc={photo.url}
             alt={photo.altText || `${vehicleName}, photo ${index + 1}`}
             className={styles.image}
             onError={() => setFailedId(photo.id)}
@@ -100,6 +101,7 @@ export function GaragePhotoCarousel({
                 fill
                 sizes="76px"
                 src={image.url}
+                overrideSrc={image.url}
                 alt=""
                 className={styles.thumbnailImage}
               />

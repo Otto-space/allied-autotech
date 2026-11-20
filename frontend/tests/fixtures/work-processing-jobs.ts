@@ -82,7 +82,15 @@ export async function workJobsFixture(page: Page, role = "ADMIN") {
         });
       if (selected)
         return row
-          ? reply(row)
+          ? reply(
+              url.searchParams.get("diagnostics") === "safe_delivery"
+                ? row
+                : Object.fromEntries(
+                    Object.entries(row).filter(
+                      ([key]) => key !== "deliverySuppressionReason",
+                    ),
+                  ),
+            )
           : route.fulfill({
               status: 404,
               json: { success: false, error: { code: "NOT_FOUND" } },
@@ -102,7 +110,13 @@ export async function workJobsFixture(page: Page, role = "ADMIN") {
       const items = rows.slice(0, 25).map((row) => {
         const rest = Object.fromEntries(
           Object.entries(row).filter(
-            ([key]) => !["publishedAt", "processedAt", "failedAt"].includes(key),
+            ([key]) =>
+              ![
+                "publishedAt",
+                "processedAt",
+                "failedAt",
+                "deliverySuppressionReason",
+              ].includes(key),
           ),
         );
         if (row.source === "OUTBOX") {

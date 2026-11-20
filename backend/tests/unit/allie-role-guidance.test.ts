@@ -44,7 +44,9 @@ describe("provider-observed role guidance regressions", () => {
       const article = view.articles.find((a) => a.id === "care-triage")!;
       expect(article.summary).toContain("do not permit customer replies");
       expect(article.steps.join(" ")).toContain("do not establish staffed live chat");
-      expect(article.version).toBe(3);
+      expect(article.version).toBe(4);
+      expect(article.steps.join(" ")).toContain("Do not change consent");
+      expect(article.steps.join(" ")).toContain("queued retry never proves delivery");
       expect(article.steps.join(" ")).toContain("does not create another inbox");
       expect(article.steps.join(" ")).toContain("does not mark a notification as read");
       expect(article.steps.join(" ")).toContain(
@@ -142,7 +144,7 @@ describe("provider-observed role guidance regressions", () => {
     };
     const permitted = catalogue(access);
     const article = permitted.articles.find((a) => a.id === "booking-confirmation")!;
-    expect(article.version).toBe(11);
+    expect(article.version).toBe(15);
     expect(article.steps.join(" ")).toContain("Propose another time");
     expect(article.steps.join(" ")).toContain(
       "preserves the original appointment, staff and reminders",
@@ -179,6 +181,10 @@ describe("provider-observed role guidance regressions", () => {
     });
     const refund = entitled.articles.find((a) => a.id === "refund-work")!;
     expect(refund.href).toBe("/admin/refunds");
+    expect(refund.version).toBe(12);
+    expect(refund.steps.join(" ")).toContain("creating a request does not settle it");
+    expect(refund.steps.join(" ")).toContain("actual current customer remedy request");
+    expect(refund.steps.join(" ")).toContain("not money returned");
     expect(refund.steps.join(" ")).toContain("independent of the requester");
     expect(
       retrieveAllieContext(

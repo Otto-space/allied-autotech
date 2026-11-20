@@ -63,6 +63,7 @@ export function SupportWidget() {
       "/reset-password",
       "/verify-email",
       "/mfa",
+      "/staff/accept-invitation",
     ].includes(pathname)
   )
     return null;

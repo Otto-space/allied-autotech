@@ -39,7 +39,7 @@
     "sha256": "853910ece45ef37b6b1514d93e86d1b511d4fdeaff0debb36b77d0bc3eb224f9",
     "originalWidth": 3744,
     "originalHeight": 5616,
-    "placement": "Home service bay; About equipment",
+    "placement": "About workshop equipment: two-post vehicle lift",
     "framing": "Both posts; natural portrait ratio",
     "derivatives": [
       {
@@ -56,8 +56,8 @@
     "sha256": "d69d52f03082b3e6cd6d6a32d54b895416ecf217b7a00e7174b3386fd057571a",
     "originalWidth": 5616,
     "originalHeight": 3744,
-    "placement": "Hero 1; diagnostics; About team at work",
-    "framing": "62% 50%; copy outside photo",
+    "placement": "Diagnostics service imagery; About team at work",
+    "framing": "Landscape workshop action; text outside photo",
     "derivatives": [
       {
         "path": "/images/workshop/owner/diagnostics-at-work.webp",
@@ -90,8 +90,8 @@
     "sha256": "7705817d34806fe29986bc49c4e1d639211af793140047a7ff8f0c404b9bd2b2",
     "originalWidth": 5616,
     "originalHeight": 3744,
-    "placement": "Hero 2; alignment; About team at work",
-    "framing": "62% 50%; preserve person and equipment",
+    "placement": "Home workshop grid; alignment service imagery; About team at work",
+    "framing": "Landscape workshop action; preserve person and equipment",
     "derivatives": [
       {
         "path": "/images/workshop/owner/alignment-at-work.webp",
@@ -124,7 +124,7 @@
     "sha256": "cd137ebfa3556747f2f46e44cfa469af1fd6263a70a176014d319da7dee67e9b",
     "originalWidth": 5616,
     "originalHeight": 3744,
-    "placement": "Hero 3; About introduction",
+    "placement": "Tyre service imagery; About introduction",
     "framing": "50% 50%; landscape tyre action",
     "derivatives": [
       {

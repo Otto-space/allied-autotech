@@ -1,3 +1,4 @@
+import { supplyAlternativeAgreementVersion } from "./order-supply-alternative-terms.js";
 import { z } from "zod";
 import { guestCheckoutBodySchema } from "./orders.schemas.js";
 import { purchaseOfferAcceptanceSchema } from "./purchase-review.schemas.js";
@@ -27,7 +28,10 @@ export const purchaseQuoteDecisionSchema = z
   .object({ revision: z.number().int().positive() })
   .strict();
 export const purchaseQuoteAcceptSchema = purchaseQuoteDecisionSchema
-  .extend({ contact: guestCheckoutBodySchema.shape.contact })
+  .extend({
+    contact: guestCheckoutBodySchema.shape.contact,
+    alternativeAgreementVersion: z.literal(supplyAlternativeAgreementVersion).optional(),
+  })
   .strict();
 export const purchaseQuoteListSchema = z
   .object({

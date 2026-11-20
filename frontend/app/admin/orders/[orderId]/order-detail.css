@@ -273,7 +273,7 @@
 .work-order-detail-skeleton {
   height: 300px;
   margin-top: 20px;
-  background: repeating-linear-gradient(#e9eef2 0 40px, transparent 40px 60px);
+  background: #edf1f5;
 }
 @media (max-width: 1279px) {
   .work-order-detail-layout {

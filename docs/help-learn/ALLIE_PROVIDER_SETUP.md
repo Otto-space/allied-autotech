@@ -1,5 +1,31 @@
 # Allie: private local provider setup
 
+## 14 November 2026 renewal and production activation
+
+The owner supplied a key privately in ignored backend/.env and approved a new
+isolated evaluation allowance of up to USD5, followed by an initial USD10/month
+production allowance. The old encrypted provider configuration and exhausted
+120-reservation ledger remain preserved; do not reset them or rerun the old helper
+as a way to erase usage. The renewed bounded runner uses a separate dated approval
+and retains its stricter USD1 reservation cap. Receipt paths and completion status
+are recorded in backend/docs/site-completion-tracker.md.
+
+The current source corrects a model contract mismatch exposed by workshop-08:
+the provider previously permitted an empty caveat, but the app requires nonempty
+text or null. Send the existing length/count bounds upstream and explicitly request
+null for an absent caveat; preserve independent output validation. Complete real
+provider rechecks before publication. See the official
+[Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs).
+
+The production key belongs in encrypted backend runtime settings, never Vercel
+public variables. Local .env does not update hosted settings. Confirm the provider
+project hard monthly limit, shared daily token allowance, encryption/hash keys,
+healthy retention worker and customer privacy notice before activation. The human
+support release remains independently gated by audited coverage, existing staff
+duties, explicit opted-in presence and actual delivery/reconnect acceptance.
+
+## Historical initial evaluation setup
+
 This prepares isolated evaluation credentials. It does not enable public Allie,
 change production settings, make a provider request or apply database migrations.
 The application remains `HELP_LEARN_AI_ENABLED=false`; reviewed help keeps working.

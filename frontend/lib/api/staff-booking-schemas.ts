@@ -17,7 +17,9 @@ export const serviceLineSchema = z.object({
   unitPriceKobo: money,
   subtotalKobo: money,
 });
-export const staffQuoteSchema = quoteSchema.extend({ items: z.array(serviceLineSchema) });
+export const staffQuoteSchema = quoteSchema.safeExtend({
+  items: z.array(serviceLineSchema),
+});
 export const workOrderSchema = z.object({
   id: z.string().uuid(),
   workOrderNumber: z.string(),

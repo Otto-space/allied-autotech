@@ -4,19 +4,23 @@ import { safeErrorAttributes } from "../common/observability/safe-error.js";
 import { prisma } from "../config/database.js";
 import { Prisma, type PrismaClient } from "../generated/prisma/client.js";
 import { enqueueNotification } from "../modules/notifications/notifications.service.js";
+import { isCurrentBookingReminder } from "./booking-reminder-current.js";
 
 interface ClaimedReminder {
   id: string;
   attempts: number;
 }
 
-const reminderLabels = {
-  ONE_HOUR: "1 hour",
-  SEVEN_DAYS: "7 days",
-  THREE_DAYS: "72 hours",
-  TWO_DAYS: "48 hours",
-  ONE_DAY: "24 hours",
-} as const;
+const appointmentDateTime = new Intl.DateTimeFormat("en-NG", {
+  timeZone: "Africa/Lagos",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  hourCycle: "h23",
+  minute: "2-digit",
+});
 
 export class BookingReminderWorker {
   constructor(private readonly database: PrismaClient = prisma) {}
@@ -106,17 +110,25 @@ export class BookingReminderWorker {
         reminder.attempts !== attempts
       )
         return "superseded";
+      const now = new Date();
       if (
-        reminder.booking.status !== "CONFIRMED" ||
-        reminder.booking.scheduleVersion !== reminder.scheduleVersion
+        !isCurrentBookingReminder(
+          reminder.booking,
+          reminder.scheduleVersion,
+          now.getTime(),
+        )
       ) {
         await transaction.bookingReminder.update({
           where: { id },
           data: {
             status: "CANCELLED",
-            cancelledAt: new Date(),
+            cancelledAt: now,
             lockedAt: null,
             nextAttemptAt: null,
+            lastErrorCode:
+              reminder.booking.scheduledAt.getTime() <= now.getTime()
+                ? "APPOINTMENT_TIME_PASSED"
+                : null,
           },
         });
         return "cancelled";
@@ -136,10 +148,11 @@ export class BookingReminderWorker {
         userId: reminder.booking.customer.userId,
         type: "BOOKING",
         category: "TRANSACTIONAL",
-        title: `Appointment reminder: ${reminderLabels[reminder.kind]}`,
-        message: `Your Allied AutoTech appointment is scheduled for ${reminder.booking.scheduledAt.toISOString()}. Sign in to your booking to confirm attendance or cancel without a cancellation fee. No response does not cancel your appointment.`,
+        title: "Appointment reminder",
+        message: `Your Allied AutoTech appointment is scheduled for ${appointmentDateTime.format(reminder.booking.scheduledAt)} Nigeria time. Sign in to your booking to confirm attendance or cancel without a cancellation fee. No response does not cancel your appointment.`,
         resourceType: "BOOKING",
         resourceId: reminder.booking.id,
+        expiresAt: reminder.booking.scheduledAt,
         deduplicationKey: `booking:${reminder.booking.id}:reminder:${reminder.scheduleVersion}:${reminder.kind}`,
         channels: ["EMAIL"],
         bookingAction: {

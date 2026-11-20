@@ -1,4 +1,6 @@
 "use client";
+import { BookingAttendance, BookingAttendanceHistory } from "./booking-attendance";
+import { workforceAllows, workforceActionPredicates } from "@/lib/workforce-registry";
 import { SlotCatalogPicker } from "./slot-catalog-picker";
 import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
@@ -524,6 +526,20 @@ export function WorkforceJobDetail({
       )}
       {job && (
         <>
+          {workforceAllows(job.access, workforceActionPredicates.jobWork, job) ? (
+            <BookingAttendance
+              bookingId={job.id}
+              managed
+              showInlineNotice={false}
+              blocked={blocked}
+              onUpdated={(notice) => {
+                setMessage(notice);
+                refresh();
+              }}
+            />
+          ) : (
+            <BookingAttendanceHistory events={job.attendanceEvents} />
+          )}
           <WorkflowProgress workflow="booking" status={job.status} />
           {work && <WorkflowProgress workflow="workOrder" status={work.status} />}
           <div className="wjd-states">

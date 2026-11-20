@@ -1,0 +1,41 @@
+.card {
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #cfd8df;
+  border-radius: 12px;
+  background: #f7f9fa;
+  color: #182c3b;
+  box-shadow: 0 3px 12px #182c3b08;
+  overflow-wrap: anywhere;
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+.card p {
+  line-height: 1.6;
+}
+.card dl {
+  margin: 16px 0;
+  display: grid;
+  gap: 12px;
+}
+.card dl > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+.card dt {
+  line-height: 1.5;
+}
+.card dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 440px) {
+  .card dl > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+}

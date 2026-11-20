@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { money } from "./commerce-schemas";
+import { servicePaymentPlanSchema, serviceStage } from "./service-payment-schemas";
 
 export const invoiceDocumentSchema = z
   .object({
@@ -25,10 +26,12 @@ export const invoiceDocumentSchema = z
       reference: z.string().uuid(),
     }),
     source: z.object({
-      type: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION"]),
+      type: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION", "SERVICE_ADDITION"]),
       id: z.string().uuid(),
       reference: z.string().min(1).max(100),
       description: z.string().min(1).max(1000),
+      originalInvoiceNumber: z.string().min(1).max(50).optional(),
+      amendmentReason: z.string().min(1).max(1000).optional(),
     }),
     lines: z
       .array(
@@ -44,6 +47,7 @@ export const invoiceDocumentSchema = z
     discountKobo: money,
     deliveryKobo: money,
     detailBasis: z.enum(["SNAPSHOT", "SOURCE_RECORDS", "LEGACY_SUMMARY"]),
+    servicePaymentPlan: servicePaymentPlanSchema.optional(),
     subtotalKobo: money,
     taxKobo: money,
     depositCreditKobo: money,
@@ -63,6 +67,7 @@ export const invoiceDocumentSchema = z
             "EXPIRED",
           ]),
           succeededAt: z.string().datetime().nullable(),
+          serviceStage: serviceStage.optional(),
         }),
       )
       .max(200),
@@ -74,11 +79,47 @@ export const invoiceDocumentSchema = z
           amountKobo: money,
           confirmedAt: z.string().datetime(),
           refundedKobo: money,
+          serviceStage: serviceStage.optional(),
         }),
       )
       .max(200),
   })
   .superRefine((record, context) => {
+    const plan = record.servicePaymentPlan;
+    if (
+      record.source.type === "SERVICE_ADDITION" &&
+      (!plan ||
+        !record.source.originalInvoiceNumber ||
+        !record.source.amendmentReason ||
+        record.source.id !== plan.quoteId ||
+        record.depositCreditKobo !== "0")
+    )
+      context.addIssue({
+        code: "custom",
+        message:
+          "The separate additional invoice needs its complete saved payment plan and agreement context",
+      });
+    if (
+      plan &&
+      (!["BOOKING", "SERVICE_ADDITION"].includes(record.source.type) ||
+        plan.lines.length !== record.lines.length ||
+        plan.lines.some(
+          (line, index) => line.subtotalKobo !== record.lines[index]?.subtotalKobo,
+        ) ||
+        BigInt(plan.materials.subtotalKobo) + BigInt(plan.workmanship.subtotalKobo) !==
+          BigInt(record.subtotalKobo) ||
+        BigInt(plan.materials.taxKobo) + BigInt(plan.workmanship.taxKobo) !==
+          BigInt(record.taxKobo) ||
+        BigInt(plan.materials.creditKobo) + BigInt(plan.workmanship.creditKobo) !==
+          BigInt(record.depositCreditKobo) ||
+        BigInt(plan.materials.totalKobo) + BigInt(plan.workmanship.totalKobo) !==
+          BigInt(record.totalKobo))
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Service payment stages do not match the saved invoice",
+      });
+    }
     if (
       new Set(record.paymentRequests.map((payment) => payment.id)).size !==
       record.paymentRequests.length

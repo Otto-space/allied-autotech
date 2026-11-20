@@ -27,6 +27,7 @@ import {
 } from "@/lib/api/client";
 
 import { Brand } from "./brand";
+import { useHydrated } from "@/lib/use-hydrated";
 
 const sessionSchema = z.object({
   user: z.object({
@@ -55,6 +56,7 @@ export function SiteHeader() {
 }
 
 function HeaderContent({ pathname }: { pathname: string }) {
+  const ready = useHydrated();
   const {
     checkoutEnabled,
     bookingRequestsEnabled,
@@ -374,6 +376,8 @@ function HeaderContent({ pathname }: { pathname: string }) {
               aria-label={open ? "Close navigation" : "Open navigation"}
               aria-expanded={open}
               aria-controls="mobile-menu"
+              aria-busy={!ready}
+              disabled={!ready}
               onClick={() => setOpen((value) => !value)}
             >
               {open ? (
@@ -385,6 +389,24 @@ function HeaderContent({ pathname }: { pathname: string }) {
           </div>
         </div>
       </header>
+
+      <noscript>
+        <nav className="mobile-navigation-fallback" aria-label="Primary navigation">
+          {navigation.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              aria-current={
+                pathname === item.href || pathname.startsWith(`${item.href}/`)
+                  ? "page"
+                  : undefined
+              }
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      </noscript>
 
       {/* MOBILE BACKDROP */}
       <button

@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { publicCapabilitiesFixture } from "./public-capabilities";
 export type AllieFixtureRole = "PUBLIC" | "CUSTOMER" | "STAFF" | "ADMIN" | "SUPER_ADMIN";
 const id = "b0000000-0000-4000-8000-000000000001";
 export async function allieConversationFixture(
@@ -81,6 +82,8 @@ export async function allieConversationFixture(
           meta: { requestId: "allie-browser" },
         },
       });
+    if (endpoint === "/public/capabilities" && method === "GET")
+      return ok(publicCapabilitiesFixture());
     if (endpoint === "/auth/session")
       return role === "PUBLIC"
         ? fail(401, "AUTHENTICATION_REQUIRED")

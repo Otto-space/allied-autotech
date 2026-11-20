@@ -62,6 +62,7 @@ function Photo({
         <Image
           unoptimized
           src={image.url}
+          overrideSrc={image.url}
           alt={image.altText || fallback}
           width={image.width}
           height={image.height}

@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import { overviewFixture } from "../fixtures/overview";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 
 async function session(page: Page, role: string) {
   const reads: string[] = [];
@@ -10,24 +11,26 @@ async function session(page: Page, role: string) {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
     reads.push(endpoint);
     const data =
-      endpoint === "/auth/session"
-        ? {
-            id: "b0000000-0000-4000-8000-000000000001",
-            user: {
-              id: "b0000000-0000-4000-8000-000000000002",
-              email: "dashboard@example.test",
-              role,
-            },
-            mfaRequired: role !== "CUSTOMER",
-            mfaVerifiedAt: role === "CUSTOMER" ? null : "2026-09-17T10:00:00Z",
-            expiresAt: "2027-01-01T00:00:00Z",
-            idleExpiresAt: "2027-01-01T00:00:00Z",
-          }
-        : endpoint.endsWith("/overview")
-          ? overviewFixture(role)
-          : endpoint === "/admin/operations/status"
-            ? { queues: [], openPaymentAnomalies: 0, lastReconciliation: null }
-            : { items: [] };
+      endpoint === "/public/capabilities"
+        ? publicCapabilitiesFixture("browse_enquiries")
+        : endpoint === "/auth/session"
+          ? {
+              id: "b0000000-0000-4000-8000-000000000001",
+              user: {
+                id: "b0000000-0000-4000-8000-000000000002",
+                email: "dashboard@example.test",
+                role,
+              },
+              mfaRequired: role !== "CUSTOMER",
+              mfaVerifiedAt: role === "CUSTOMER" ? null : "2026-09-17T10:00:00Z",
+              expiresAt: "2027-01-01T00:00:00Z",
+              idleExpiresAt: "2027-01-01T00:00:00Z",
+            }
+          : endpoint.endsWith("/overview")
+            ? overviewFixture(role)
+            : endpoint === "/admin/operations/status"
+              ? { queues: [], openPaymentAnomalies: 0, lastReconciliation: null }
+              : { items: [] };
     await route.fulfill({
       json: {
         success: true,
@@ -224,29 +227,110 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
   });
 }
 
-test("sidebar adapts between compact desktop and mobile without stranding keyboard focus", async ({
+for (const evictHiddenFocus of [false, true])
+  test(`${evictHiddenFocus ? "sidebar restores browser-evicted focus while preserving the desktop choice" : "sidebar preserves the desktop choice across mobile without stranding keyboard focus"}`, async ({
+    page,
+  }) => {
+    if (evictHiddenFocus)
+      await page.addInitScript(() => {
+        const mobile = matchMedia("(max-width: 900px)");
+        // Exercise engines that clear hidden focus before React's resize handler.
+        mobile.addEventListener("change", () => {
+          if (
+            document.activeElement instanceof HTMLElement &&
+            !document.activeElement.getClientRects().length
+          )
+            document.activeElement.blur();
+        });
+      });
+    await session(page, "ADMIN");
+    await page.setViewportSize({ width: 1655, height: 960 });
+    await page.goto("/admin");
+    await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+    await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
+    await page.getByRole("button", { name: "Expand sidebar", exact: true }).focus();
+    await expect(
+      page.getByRole("button", { name: "Expand sidebar", exact: true }),
+    ).toBeFocused();
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mobile = page.getByRole("button", { name: "Close dashboard navigation" });
+    await expect(mobile).toBeFocused();
+    const nav = page.getByRole("navigation", { name: "Administration", exact: true });
+    await expect(nav).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(nav).toBeHidden();
+    await expect(
+      page.getByRole("button", { name: "Open dashboard navigation", exact: true }),
+    ).toBeFocused();
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await expect(
+      page.getByRole("button", { name: "Expand sidebar", exact: true }),
+    ).toBeFocused();
+    await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
+    await expect(nav).toBeVisible();
+    await page.keyboard.press("Enter");
+    await expect(
+      page.getByRole("button", { name: "Collapse sidebar", exact: true }),
+    ).toBeFocused();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    if (evictHiddenFocus) {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await expect(mobile).toBeFocused();
+      await page.setViewportSize({ width: 1024, height: 768 });
+      await expect(
+        page.getByRole("button", { name: "Collapse sidebar", exact: true }),
+      ).toBeFocused();
+      await expect(
+        page.getByRole("dialog", { name: "Dashboard navigation" }),
+      ).toBeHidden();
+      await expect(page.locator(".sidebar")).toHaveCSS("width", "256px");
+    }
+  });
+
+test("sidebar preserves the desktop choice across mobile without moving content focus", async ({
   page,
 }) => {
   await session(page, "ADMIN");
   await page.setViewportSize({ width: 1655, height: 960 });
   await page.goto("/admin");
   await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
-  await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
+  const from = page.getByLabel("From", { exact: true });
+  await from.focus();
+  await expect(from).toBeFocused();
   await page.setViewportSize({ width: 390, height: 844 });
-  const mobile = page.getByRole("button", { name: "Close dashboard navigation" });
-  await expect(mobile).toBeFocused();
-  const nav = page.getByRole("navigation", { name: "Administration", exact: true });
-  await expect(nav).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(nav).toBeHidden();
+  await expect(from).toBeFocused();
+  await expect(page.getByRole("dialog", { name: "Dashboard navigation" })).toBeHidden();
   await page.setViewportSize({ width: 1024, height: 768 });
+  await expect(from).toBeFocused();
+  await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
+});
+
+test("sidebar preserves the desktop choice across mobile with an open drawer", async ({
+  page,
+}, info) => {
+  await session(page, "ADMIN");
+  await page.setViewportSize({ width: 1655, height: 960 });
+  await page.goto("/admin");
+  const desktop = page.getByRole("button", { name: "Collapse sidebar", exact: true });
+  await desktop.focus();
+  await expect(desktop).toBeFocused();
+  await page.setViewportSize({ width: 768, height: 1024 });
   await expect(
-    page.getByRole("button", { name: "Collapse sidebar", exact: true }),
+    page.getByRole("button", { name: "Close dashboard navigation", exact: true }),
   ).toBeFocused();
-  await expect(nav).toBeVisible();
-  expect(
-    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-  ).toBe(true);
+  await page.screenshot({ path: info.outputPath("sidebar-open-drawer.png") });
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await expect(desktop).toBeFocused();
+  await expect(desktop).toHaveAttribute("aria-expanded", "true");
+  await expect(
+    page.getByRole("dialog", { name: "Dashboard navigation", exact: true }),
+  ).toBeHidden();
+  await expect(
+    page.getByRole("navigation", { name: "Administration", exact: true }),
+  ).toBeVisible();
+  await page.screenshot({ path: info.outputPath("sidebar-desktop-focus.png") });
 });
 
 test("short laptop sidebar scrolls every group while keeping its controls visible", async ({

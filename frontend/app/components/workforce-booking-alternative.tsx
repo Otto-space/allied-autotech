@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { BookingAlternativeTimes } from "./booking-alternative-times";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { apiRequest, ApiError } from "@/lib/api/client";
@@ -287,19 +288,14 @@ export function WorkforceBookingAlternative({
             review(new FormData(e.currentTarget));
           }}
         >
-          <p>
-            The customer reviews your suggestion before their appointment changes. Choose
-            a time within the published booking window.
-          </p>
-          <div className="field">
-            <label htmlFor="workforce-alternative-time">Proposed time (Lagos)</label>
-            <input
-              id="workforce-alternative-time"
-              name="preferredAt"
-              type="datetime-local"
-              required
-            />
-          </div>
+          <BookingAlternativeTimes
+            key={`${row.id}:${row.version}`}
+            path={`/staff/workforce/bookings/${row.id}`}
+            bookingId={row.id}
+            version={row.version}
+            scheduledAt={row.scheduledAt}
+            inputId="workforce-alternative-time"
+          />
           <div className="field">
             <label htmlFor="workforce-alternative-reason">Reason shown to customer</label>
             <textarea

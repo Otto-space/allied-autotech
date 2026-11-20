@@ -25,6 +25,14 @@
 .wf-effective-boundary {
   color: #42596b;
 }
+.wf-effective-periods {
+  margin-block: 8px;
+  padding-inline-start: 18px;
+  color: #42596b;
+}
+.wf-effective-periods li + li {
+  margin-top: 6px;
+}
 .wf-effective summary {
   cursor: pointer;
   font-weight: 600;

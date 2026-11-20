@@ -15,6 +15,7 @@ import {
 import { CareTableRegion } from "./care-table-region";
 import { CopyableValue } from "./copyable-value";
 import { CustomerAccountAction } from "./customer-account-action";
+import { useAccountActionRefresh } from "./use-account-action-refresh";
 import { StatusBadge } from "./status-progress";
 import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { Feedback } from "./feedback";
@@ -89,6 +90,15 @@ function CustomerWorkspace() {
     error = records.error || records.refreshError,
     busy = records.loading || records.refreshing,
     blocked = busy || !!error || !data;
+  const {
+    headingRef: accountHeadingRef,
+    onChanged: refreshAccount,
+    onReviewClosed: restoreAccountFocus,
+  } = useAccountActionRefresh({
+    refresh: records.refresh,
+    refreshing: busy,
+    settledRevision: records.settledRevision,
+  });
   const filters = new URLSearchParams(query.params);
   filters.delete("cursor");
   filters.delete("_trail");
@@ -101,7 +111,7 @@ function CustomerWorkspace() {
       </nav>
       <header className="wi-header">
         <div>
-          <h1 id="wc-title" tabIndex={-1}>
+          <h1 id="wc-title" ref={accountHeadingRef} tabIndex={-1}>
             Customers
           </h1>
           <p>Find a customer and review their account and activity.</p>
@@ -270,7 +280,8 @@ function CustomerWorkspace() {
                       customer={r}
                       returnParams={query.params.toString()}
                       disabled={blocked}
-                      onChanged={records.refresh}
+                      onChanged={refreshAccount}
+                      onReviewClosed={restoreAccountFocus}
                     />
                   ))}
                 </tbody>
@@ -463,11 +474,13 @@ function CustomerRecord({
   returnParams,
   disabled,
   onChanged,
+  onReviewClosed,
 }: {
   customer: WorkCustomer;
   returnParams: string;
   disabled: boolean;
   onChanged: () => void;
+  onReviewClosed: (opener: HTMLElement | null) => void;
 }) {
   const session = useAccountSession();
   const name = (r.firstName + " " + r.lastName).trim() || "Unnamed customer",
@@ -514,6 +527,7 @@ function CustomerRecord({
             customer={r}
             disabled={disabled}
             onChanged={onChanged}
+            onReviewClosed={onReviewClosed}
             compact
           />
         </div>

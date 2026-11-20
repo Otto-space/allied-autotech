@@ -43,3 +43,26 @@ describe("owner BMW preparation", () => {
     expect(() => importVehicleDraft(draft, "")).toThrow();
   });
 });
+
+it("imports full engine details and comma-bearing feature items without inventing related facts", () => {
+  const engineDetails = "2.0L I-4 DI, DOHC, VVT, TURBO, PREMIUM, 252HP";
+  const values = importVehicleDraft(
+    {
+      ...draft,
+      vehicle: {
+        ...draft.vehicle,
+        engineDetails,
+        engineCapacityCc: 1998,
+        features: ["Audio, navigation", "Sunroof"],
+      },
+    },
+    branch,
+  );
+  expect(vehicleRecordBody(values)).toMatchObject({
+    engineDetails,
+    engineCapacityCc: 1998,
+    features: ["Audio, navigation", "Sunroof"],
+    fuelType: null,
+    powertrain: null,
+  });
+});

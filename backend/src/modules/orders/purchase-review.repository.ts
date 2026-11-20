@@ -68,6 +68,7 @@ export async function loadPurchaseFitment(
   order: PurchaseReviewOrder,
   requirements: PurchaseRequirements,
   stage: "PAYMENT" | "FULFILMENT" = "PAYMENT",
+  remaining?: ReadonlyMap<string, number>,
 ) {
   if (!order.branchId || !order.branch?.isActive || order.currency !== "NGN")
     throw orderConflict("Choose an active collection branch before review.");
@@ -75,8 +76,14 @@ export async function loadPurchaseFitment(
     order.items.map((item) => item.id),
     requirements.lines.map((line) => line.orderItemId),
   );
-  const productIds = [...new Set(order.items.map((item) => item.productId))].sort();
-  if (!productIds.length) throw orderConflict("The order has no product lines.");
+  const applicableItems = order.items.filter(
+    (item) => stage !== "FULFILMENT" || remaining?.get(item.id) !== 0,
+  );
+  const productIds = [...new Set(applicableItems.map((item) => item.productId))].sort();
+  if (!productIds.length) {
+    if (stage === "FULFILMENT" && remaining) return [];
+    throw orderConflict("The order has no product lines.");
+  }
   const values = productIds.map((id) => Prisma.sql`${id}::uuid`);
   // Lock products before evidence in a consistent order. The caller must use a
   // serializable transaction: row locks alone cannot detect inserted exclusions.
@@ -119,7 +126,7 @@ export async function loadPurchaseFitment(
       "The quotation expired or changed. Request a revised offer before payment.",
     );
   const results = [];
-  for (const item of order.items) {
+  for (const item of applicableItems) {
     const product = products.find((entry) => entry.id === item.productId);
     if (
       !product?.isActive ||
@@ -154,7 +161,10 @@ export async function loadPurchaseFitment(
     results.push({
       orderItemId: item.id,
       productId: item.productId,
-      quantity: item.quantity,
+      quantity:
+        stage === "FULFILMENT"
+          ? (remaining?.get(item.id) ?? item.quantity)
+          : item.quantity,
       evidence: verifyPurchaseFitment({
         rules: product.compatibilities,
         branchId: order.branchId,

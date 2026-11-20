@@ -1,8 +1,13 @@
+import { verifyConsole } from "../fixtures/preview-console";
 import { test, expect, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import type { StaffBooking } from "@/lib/api/staff-booking-schemas";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
+import { bookingRuntimeCapabilities } from "../fixtures/booking-runtime-capabilities";
+
+test.beforeEach(async ({ request, page }) => bookingRuntimeCapabilities(request, page));
 const id = (n: number) => `20000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const record = () => ({
   id: id(1),
@@ -57,6 +62,10 @@ test("booking confirmation requires an active grant and a resource review, then 
   const writes: unknown[] = [];
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/public/capabilities")
+      return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+        ? route.fallback()
+        : reply(route, publicCapabilitiesFixture("full", false));
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(8),
@@ -154,6 +163,10 @@ for (const paid of [false, true])
   }) => {
     await page.route("**/api/v1/**", async (route) => {
       const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+      if (endpoint === "/public/capabilities")
+        return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+          ? route.fallback()
+          : reply(route, publicCapabilitiesFixture("full", false));
       if (endpoint === "/auth/session")
         return reply(route, {
           id: id(8),
@@ -202,11 +215,27 @@ for (const paid of [false, true])
       paid ? 0 : 1,
     );
   });
-test("staff no-show requires explicit review, sends the version and cannot replay an uncertain result", async ({
+test("staff verifies missed attendance after grace and reconciles an uncertain save without replay", async ({
   page,
 }) => {
   let mutations = 0;
   let reads = 0;
+  let attendanceEvent: Record<string, unknown> | null = null;
+  const snapshot = () => ({
+    bookingId: id(1),
+    bookingVersion: mutations ? 8 : 7,
+    scheduleVersion: 0,
+    status: mutations ? "NO_SHOW" : "CONFIRMED",
+    startedAt: null,
+    serverTime: "2026-09-25T09:20:00Z",
+    checkAt: "2026-09-25T09:15:00Z",
+    policy: { graceMinutes: 15, source: "DELEGATED_DEFAULT", policyVersionId: null },
+    workReviewRequired: false,
+    checkAttendance: !mutations,
+    current: attendanceEvent,
+    events: attendanceEvent ? [attendanceEvent] : [],
+    receipt: attendanceEvent,
+  });
   await page.route("**/api/v1/**", async (route) => {
     const path = new URL(route.request().url()).pathname.replace("/api/v1", "");
     if (path === "/auth/session")
@@ -247,15 +276,30 @@ test("staff no-show requires explicit review, sends the version and cannot repla
         ...(mutations ? { status: "NO_SHOW", version: 8 } : {}),
       });
     }
-    if (path === `/staff/bookings/${id(1)}/status`) {
+    if (path === `/staff/bookings/${id(1)}/attendance`) {
+      if (route.request().method() === "GET") return reply(route, snapshot());
       mutations++;
-      expect(route.request().postDataJSON()).toEqual({
-        status: "NO_SHOW",
+      const body = route.request().postDataJSON();
+      expect(body).toEqual({
+        operationId: expect.any(String),
         expectedVersion: 7,
-        staffNotes: null,
+        kind: "ABSENCE_CONFIRMED",
+        reason: "Synthetic staff checked reception: no arrival.",
       });
+      expect(route.request().headers()["x-csrf-token"]).toBeTruthy();
+      attendanceEvent = {
+        id: body.operationId,
+        kind: "ABSENCE_CONFIRMED",
+        reason: body.reason,
+        createdAt: "2026-09-25T09:20:00Z",
+        bookingVersion: 8,
+        scheduleVersion: 0,
+        graceMinutes: 15,
+        graceSource: "DELEGATED_DEFAULT",
+      };
       return route.abort("failed");
     }
+    if (path === "/public/capabilities") return route.fallback();
     return route.fulfill({
       status: 404,
       json: { success: false, error: { code: "NOT_FOUND" } },
@@ -275,21 +319,40 @@ test("staff no-show requires explicit review, sends the version and cannot repla
     page.getByRole("link", { name: "Workshop bookings", exact: true }).first(),
   ).toBeVisible();
   await page.getByRole("button", { name: "Close dashboard navigation" }).click();
-  await page.getByLabel("Next status").selectOption("NO_SHOW");
-  await page.getByRole("button", { name: "Review status change" }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog.getByText(/no automatic fee or deposit forfeiture/)).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Go back" })).toBeFocused();
+  await expect(
+    page.getByLabel("Next status").locator("option[value=NO_SHOW]"),
+  ).toHaveCount(0);
+  await page.getByLabel("Update", { exact: true }).selectOption("ABSENCE_CONFIRMED");
+  const save = page.getByRole("button", {
+    name: "Confirm missed appointment",
+    exact: true,
+  });
+  await expect(save).toBeDisabled();
+  await page
+    .getByLabel("Factual note", { exact: true })
+    .fill("Synthetic staff checked reception: no arrival.");
+  await page
+    .getByLabel("I checked that the customer has not arrived.", { exact: true })
+    .check();
+  await expect(
+    page.getByText(/does not apply a fee, forfeiture or automatic refund decision/),
+  ).toBeVisible();
   expect(mutations).toBe(0);
   const accessibility = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
     .analyze();
   expect(accessibility.violations).toEqual([]);
-  await dialog.getByRole("button", { name: "Confirm change" }).click();
-  await expect(dialog.getByText(/outcome could not be confirmed/)).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Confirm change" })).toBeDisabled();
-  await dialog.getByRole("button", { name: "Close & review record" }).click();
-  await expect(page.locator(".booking-detail-status")).toHaveText("No show");
+  await save.click();
+  await expect(
+    page.getByText("The saved update has been found in this appointment's history.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  expect(mutations).toBe(1);
+  await page
+    .getByRole("button", { name: "Continue with saved update", exact: true })
+    .click();
+  await expect(page.locator(".booking-detail-status")).toHaveText("Missed appointment");
   await expect(page.getByLabel("Next status")).toHaveCount(0);
   expect(reads).toBeGreaterThan(1);
   expect(mutations).toBe(1);
@@ -347,6 +410,10 @@ test("quotation issue and work-order milestones use revisions and refresh the pa
   let internalNotes: string | null = null;
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/public/capabilities")
+      return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+        ? route.fallback()
+        : reply(route, publicCapabilitiesFixture("full", false));
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(8),
@@ -555,6 +622,10 @@ for (const lostOperation of ["none", "create", "replace"] as const) {
       };
       await page.route("**/api/v1/**", async (route) => {
         const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+        if (endpoint === "/public/capabilities")
+          return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+            ? route.fallback()
+            : reply(route, publicCapabilitiesFixture("full", false));
         if (endpoint === "/auth/session")
           return reply(route, {
             id: id(8),
@@ -789,6 +860,10 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.route("**/api/v1/**", async (route) => {
       const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+      if (endpoint === "/public/capabilities")
+        return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+          ? route.fallback()
+          : reply(route, publicCapabilitiesFixture("full", false));
       if (endpoint === "/auth/session")
         return reply(route, {
           id: id(8),
@@ -889,13 +964,18 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
       let alternativeStartsAt: string | null = null;
       let alternativeReason: string | null = null;
       let alternativeVersion: number | null = null;
-      let scheduledAt = new Date(Date.now() + 8 * 86400000).toISOString();
+      const scheduledAt = new Date(Date.now() + 8 * 86400000).toISOString();
       const originalTime = scheduledAt;
       const writes: { endpoint: string; body: Record<string, unknown> }[] = [];
       await page.setViewportSize({ width, height: 900 });
       await page.route("**/api/v1/**", async (route) => {
         const req = route.request();
         const endpoint = new URL(req.url()).pathname.replace("/api/v1", "");
+        // Preserve the real-contract capability fixture on periodic/focus refresh.
+        if (endpoint === "/public/capabilities")
+          return process.env.CAPABILITY_TEST_CONTROL_ORIGIN
+            ? route.fallback()
+            : reply(route, publicCapabilitiesFixture("full", false));
         if (endpoint === "/auth/session")
           return reply(route, {
             id: id(8),
@@ -948,6 +1028,15 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
             depositPaidAt: null,
             depositPayment: null,
           });
+        if (endpoint.endsWith("/alternative-options")) {
+          const day = new URL(req.url()).searchParams.get("day")!;
+          return reply(route, {
+            bookingId: id(1),
+            bookingVersion: version,
+            day,
+            items: [{ startsAt: `${day}T10:00:00.000Z` }],
+          });
+        }
         if (endpoint.endsWith("/alternative")) {
           const body = req.postDataJSON();
           writes.push({ endpoint, body });
@@ -960,7 +1049,7 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
         if (endpoint.endsWith("/alternative-response")) {
           const body = req.postDataJSON();
           writes.push({ endpoint, body });
-          if (body.decision === "ACCEPT") scheduledAt = alternativeStartsAt!;
+          // Acceptance requests independent approval; it does not move the appointment.
           alternativeStartsAt = null;
           alternativeReason = null;
           alternativeVersion = null;
@@ -971,7 +1060,13 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
       });
       await page.goto(`/admin/bookings/${id(1)}`);
       const preferred = new Date(Date.now() + 10 * 86400000).toISOString().slice(0, 16);
-      await page.getByLabel("Proposed time (Lagos)", { exact: true }).fill(preferred);
+      await page.getByLabel("Date to check (Nigeria time)").fill(preferred.slice(0, 10));
+      await page
+        .getByRole("button", { name: "Check available times", exact: true })
+        .click();
+      await page
+        .getByLabel("Available time (Nigeria time)", { exact: true })
+        .selectOption(`${preferred.slice(0, 10)}T11:00`);
       await page
         .getByLabel("Reason shown to customer", { exact: true })
         .fill("Please review this alternative workshop time.");
@@ -989,7 +1084,6 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
       await expect(page.getByText(/Current proposal:/)).toBeVisible();
       expect(scheduledAt).toBe(originalTime);
       expect(writes[0].body.expectedVersion).toBe(7);
-      const proposedTime = alternativeStartsAt;
       role = "CUSTOMER";
       await page.goto(`/dashboard/bookings/${id(1)}`);
       await expect(
@@ -1002,6 +1096,19 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
         (await new AxeBuilder({ page }).include(".booking-changes").analyze()).violations,
       ).toEqual([]);
       await page.screenshot({ path: info.outputPath("alternative-proposal.png") });
+      // A real focus refresh must retain the isolated capabilities contract.
+      const capabilityRead = page.waitForResponse(
+        (response) => new URL(response.url()).pathname === "/api/v1/public/capabilities",
+      );
+      await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+      expect((await (await capabilityRead).json()).data.release.mode).toBe("full");
+      await expect(
+        page.getByRole("button", {
+          name: decision === "ACCEPT" ? "Review proposed time" : "Decline proposed time",
+          exact: true,
+        }),
+      ).toBeEnabled();
+
       await page
         .getByRole("button", {
           name: decision === "ACCEPT" ? "Review proposed time" : "Decline proposed time",
@@ -1010,8 +1117,16 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
         .click();
       expect(writes).toHaveLength(1);
       await expect(page.getByRole("dialog")).toContainText(
-        decision === "ACCEPT" ? "not a confirmed appointment" : "stay unchanged",
+        decision === "ACCEPT" ? "needs staff approval" : "stay unchanged",
       );
+      if (decision === "ACCEPT") {
+        await expect(page.getByRole("dialog")).toContainText(
+          "original appointment stays unchanged until approval",
+        );
+        await expect(page.getByRole("dialog")).toContainText(
+          "does not use your customer reschedule allowance",
+        );
+      }
       await page
         .getByRole("dialog")
         .getByRole("button", { name: "Confirm change" })
@@ -1020,7 +1135,7 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
         page.getByRole("heading", { name: "The workshop proposed another time" }),
       ).toHaveCount(0);
       expect(writes[1].body).toEqual({ decision, expectedVersion: 8 });
-      expect(scheduledAt).toBe(decision === "ACCEPT" ? proposedTime : originalTime);
+      expect(scheduledAt).toBe(originalTime);
       await expect(
         page.locator(".booking-appointment .booking-detail-status"),
       ).toHaveText(/Requested/);
@@ -1030,3 +1145,215 @@ for (const decision of ["ACCEPT", "DECLINE"] as const) {
     });
   }
 }
+
+for (const [width, mode] of [
+  [320, "normal"],
+  [1440, "normal"],
+  [320, "wrong-receipt"],
+  [320, "unverified-readiness"],
+  [320, "staff"],
+] as const)
+  test(`vehicle collection ${mode} preserves verified review, uncertainty and recorded history at ${width}px`, async ({
+    page,
+  }, info) => {
+    const errors: string[] = [],
+      warnings: string[] = [],
+      writes: Record<string, unknown>[] = [];
+    let saved: { id: string; releasedAt: string } | null = null,
+      checks = 0;
+    const role = mode === "staff" ? "STAFF" : "ADMIN";
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+      if (m.type() === "warning") warnings.push(m.text());
+    });
+    await page.route("**/api/v1/**", async (route) => {
+      const request = route.request(),
+        endpoint = new URL(request.url()).pathname.replace("/api/v1", "");
+      if (endpoint === "/public/capabilities") return route.fallback();
+      if (endpoint === "/auth/session")
+        return reply(route, {
+          id: id(8),
+          expiresAt: "2027-01-01T00:00:00Z",
+          idleExpiresAt: "2027-01-01T00:00:00Z",
+          mfaRequired: true,
+          mfaVerifiedAt: "2026-11-09T09:00:00Z",
+          user: { id: id(9), email: "collection@example.test", role },
+        });
+      if (endpoint === "/staff/profile")
+        return reply(route, {
+          id: id(9),
+          email: "collection@example.test",
+          role,
+          status: "ACTIVE",
+          capabilities: [],
+          staffProfile: {
+            id: id(6),
+            firstName: "Synthetic",
+            lastName: "Collector reviewer",
+            branchId: id(5),
+          },
+        });
+      if (endpoint === "/auth/csrf")
+        return reply(route, { csrfToken: "synthetic-collection-csrf-token".repeat(2) });
+      if (endpoint === `/staff/bookings/${id(1)}`)
+        return reply(route, {
+          ...record(),
+          status: "COMPLETED",
+          version: saved ? 8 : 7,
+          vehicleRelease: saved,
+          depositPayment: undefined,
+          depositAmountKobo: null,
+          depositPaidAt: null,
+          workOrder: {
+            id: id(31),
+            workOrderNumber: "SYNTHETIC-COMPLETED",
+            status: "COMPLETED",
+            version: 4,
+            diagnosis: null,
+            internalNotes: null,
+            items: [],
+          },
+        });
+      if (endpoint === `/staff/bookings/${id(1)}/vehicle-release-readiness`) {
+        checks++;
+        expect(request.method()).toBe("GET");
+        return reply(route, {
+          bookingId: id(1),
+          bookingVersion: 7,
+          financialReviewHash: "a".repeat(64),
+          ready: mode !== "unverified-readiness",
+          checkedAt: "2026-11-09T12:00:00Z",
+        });
+      }
+      if (endpoint === `/staff/bookings/${id(1)}/vehicle-release`) {
+        expect(request.method()).toBe("POST");
+        const body = request.postDataJSON();
+        writes.push(body);
+        expect(request.headers()["x-csrf-token"]).toBeTruthy();
+        saved = { id: id(41), releasedAt: "2026-11-09T12:05:00Z" };
+        return reply(route, {
+          ...saved,
+          bookingId: mode === "wrong-receipt" ? id(999) : id(1),
+          recipientName: body.recipientName,
+        });
+      }
+      if (request.method() !== "GET")
+        throw Error(`Unexpected synthetic write ${endpoint}`);
+      return reply(route, { items: [], unreadCount: 0, count: 0 });
+    });
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`/admin/bookings/${id(1)}`);
+    const check = page.getByRole("button", {
+      name: "Check collection readiness",
+      exact: true,
+    });
+    if (mode === "staff") {
+      await expect(
+        page.getByRole("heading", { name: "Work order", exact: true }),
+      ).toBeVisible();
+      await expect(check).toHaveCount(0);
+      expect(checks).toBe(0);
+      expect(writes).toHaveLength(0);
+      await verifyConsole(page, errors, warnings);
+      return;
+    }
+    await expect(check).toBeEnabled();
+    await check.click();
+    if (mode === "unverified-readiness") {
+      await expect(
+        page.locator('[aria-labelledby="vehicle-collection-title"]').getByRole("alert"),
+      ).toContainText("Collection readiness could not be verified.");
+      await expect(
+        page.getByRole("textbox", { name: "Collector name", exact: true }),
+      ).toHaveCount(0);
+      expect(writes).toHaveLength(0);
+      await verifyConsole(page, errors, warnings);
+      return;
+    }
+    const collector = page.getByRole("textbox", { name: "Collector name", exact: true });
+    await expect(collector).toBeFocused();
+    await collector.fill("Synthetic authorised collector");
+    await page
+      .getByLabel("Identity and collection-authority review (internal)", { exact: true })
+      .fill("Synthetic identity and collection authority checked in person.");
+    await page
+      .getByRole("checkbox", {
+        name: "I verified the identity and collection authority of this person.",
+        exact: true,
+      })
+      .check();
+    const review = page.getByRole("button", {
+      name: "Review vehicle collection",
+      exact: true,
+    });
+    await review.click();
+    await expect(page.getByRole("dialog")).toContainText(
+      "Synthetic authorised collector",
+    );
+    expect(writes).toHaveLength(0);
+    await page.getByRole("button", { name: "Go back", exact: true }).click();
+    expect(writes).toHaveLength(0);
+    await expect(review).toBeEnabled();
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include('[aria-labelledby="vehicle-collection-title"]')
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.screenshot({
+      path: info.outputPath(`collection-review-${mode}-${width}.png`),
+    });
+    await review.click();
+    await page.getByRole("button", { name: "Confirm change", exact: true }).click();
+    if (mode === "wrong-receipt") {
+      await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
+        "outcome could not be confirmed",
+      );
+      await expect(
+        page.getByRole("button", { name: "Confirm change", exact: true }),
+      ).toBeDisabled();
+      await page
+        .getByRole("button", { name: "Close & review record", exact: true })
+        .click();
+    }
+    const heading = page.getByRole("heading", {
+      name: "Vehicle collection recorded",
+      exact: true,
+    });
+    await expect(heading).toBeFocused();
+    expect(await heading.evaluate((e) => getComputedStyle(e).outlineStyle)).toBe("none");
+    expect(writes).toHaveLength(1);
+    expect(writes[0]).toEqual({
+      expectedBookingVersion: 7,
+      financialReviewHash: "a".repeat(64),
+      idempotencyKey: expect.any(String),
+      recipientName: "Synthetic authorised collector",
+      verificationNote: "Synthetic identity and collection authority checked in person.",
+      identityAndAuthorityVerified: true,
+    });
+    await page.reload();
+    await expect(heading).toBeVisible();
+    await expect(heading).not.toBeFocused();
+    await expect(check).toHaveCount(0);
+    expect(writes).toHaveLength(1);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include('[aria-label="Vehicle collection"]')
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: info.outputPath(`collection-record-${mode}-${width}.png`),
+    });
+    await verifyConsole(page, errors, warnings);
+  });

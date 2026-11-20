@@ -12,6 +12,10 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  verifyMigrationInputs,
+  verifyPackagedMigrationInputs,
+} from "./migration-inputs.mjs";
+import {
   images,
   keyNames,
   parseTemplate,
@@ -230,6 +234,7 @@ try {
       assertNew(buildPath);
       const commit = revision();
       const sourceTreeClean = clean();
+      verifyMigrationInputs(backend, commit);
       for (const image of images) {
         console.log(`Building ${image.name} at ${commit}.`);
         run(
@@ -253,6 +258,7 @@ try {
         throw new Error(
           "Source state changed during build; build evidence was not recorded.",
         );
+      verifyMigrationInputs(backend, commit);
       const built = images.map((image) => ({
         ...image,
         tag: commit,
@@ -280,6 +286,12 @@ try {
       assertNew(manifestPath);
       const built = readJson(buildPath);
       assertCleanCommit(built);
+      verifyMigrationInputs(backend, built.commit);
+      verifyPackagedMigrationInputs(
+        backend,
+        built.commit,
+        built.images.find((image) => image.name === "migrate")?.imageId,
+      );
       const { registry } = readJson(inputPath);
       if (!/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(registry))
         throw new Error("Supply the verified existing registry name.");

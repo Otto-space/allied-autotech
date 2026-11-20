@@ -50,11 +50,22 @@ export const serviceLineInput = z
         });
     }
   });
-export const serviceLinesFormSchema = z.object({
-  items: z.array(serviceLineInput).min(1, "Add at least one line item.").max(100),
-  notes: paragraph(4000),
-  expiresAt: z.string(),
-});
+export const serviceLinesFormSchema = z
+  .object({
+    additionalWork: z.boolean().optional(),
+    amendmentReason: paragraph(1000).optional(),
+    items: z.array(serviceLineInput).min(1, "Add at least one line item.").max(100),
+    notes: paragraph(4000),
+    expiresAt: z.string(),
+  })
+  .superRefine((values, context) => {
+    if (values.additionalWork && !values.amendmentReason?.trim())
+      context.addIssue({
+        code: "custom",
+        path: ["amendmentReason"],
+        message: "Explain why this additional work is needed.",
+      });
+  });
 export type ServiceLinesForm = z.infer<typeof serviceLinesFormSchema>;
 export const emptyServiceLine = (): ServiceLinesForm["items"][number] => ({
   type: "LABOUR",

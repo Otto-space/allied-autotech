@@ -1,4 +1,6 @@
 "use client";
+import { ProductTiming } from "./product-timing";
+
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -183,6 +185,7 @@ function ProductRecord({ productId, owner }: { productId: string; owner: string 
               </button>
             </section>
           )}
+          <ProductTiming product={record} showUnknown headingLevel={2} />
           <dl className="product-detail-summary">
             <div>
               <dt>Selling price</dt>

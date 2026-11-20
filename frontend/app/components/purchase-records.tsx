@@ -1,4 +1,7 @@
 "use client";
+import { OrderSupplyConcerns } from "./order-supply-concerns";
+import { OrderPickup } from "./order-pickup";
+import { OrderTimingSummary } from "./order-timing";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -215,7 +218,9 @@ export function PurchaseOrderPage({ orderId }: { orderId: string }) {
 }
 function OrderDetail({ orderId }: { orderId: string }) {
   const now = usePurchaseClock();
-  const resource = usePurchaseResource(`/purchase/orders/${orderId}`, parseGuestOrder),
+  const resource = usePurchaseResource(`/purchase/orders/${orderId}`, parseGuestOrder, {
+      revalidateOnFocus: true,
+    }),
     router = useRouter();
   const { checkoutEnabled } = usePublicCapabilities();
   const [busy, setBusy] = useState(false),
@@ -287,9 +292,28 @@ function OrderDetail({ orderId }: { orderId: string }) {
           </button>
         </section>
       )}
+
       {resource.data && (
         <>
           <OrderSummary order={resource.data} />
+          <OrderSupplyConcerns
+            order={resource.data}
+            audience="guest"
+            disabled={busy || resource.loading}
+            onSaved={resource.refresh}
+            onBusyChange={setBusy}
+          />
+          <OrderPickup
+            order={resource.data}
+            audience="guest"
+            disabled={busy || resource.loading || resource.refreshing}
+            onSaved={resource.revalidate}
+            onBusyChange={setBusy}
+          />
+          <OrderTimingSummary
+            updates={resource.data.timingUpdates}
+            items={resource.data.items}
+          />
           <PurchaseSuitability
             order={resource.data}
             offerUnavailable={offerUnavailable}

@@ -674,7 +674,7 @@
 .dashboard .dashboard-content .cart-page .cart-skeleton div {
   height: 95px;
   border-radius: 5px;
-  background: linear-gradient(105deg, #eef2f5, #f8fafb, #eef2f5);
+  background: #edf1f5;
 }
 @media (max-width: 1199px) {
   .dashboard .dashboard-content .cart-page .cart-layout {

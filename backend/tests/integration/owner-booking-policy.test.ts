@@ -869,10 +869,18 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       await confirm();
       const reminders = await prisma.bookingReminder.findMany({
         where: { bookingId: f.booking.id },
+        orderBy: { scheduledFor: "asc" },
       });
-      expect(reminders).toHaveLength(1);
-      expect(reminders[0]!.kind).toBe("ONE_HOUR");
-      expect(reminders[0]!.scheduledFor.getTime()).toBe(f.startsAt.getTime() - 3_600_000);
+      expect(
+        reminders.map((row) => [
+          row.kind,
+          (f.startsAt.getTime() - row.scheduledFor.getTime()) / 60000,
+        ]),
+      ).toEqual([
+        ["NOTICE_1", 1440],
+        ["NOTICE_2", 120],
+        ["NOTICE_3", 30],
+      ]);
       await prisma.bookingReminder.update({
         where: { id: reminders[0]!.id },
         data: { scheduledFor: new Date(Date.now() - 1000) },
@@ -881,7 +889,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       await new BookingReminderWorker(prisma).runOnce();
       expect(
         await prisma.notification.count({
-          where: { resourceId: f.booking.id, title: "Appointment reminder: 1 hour" },
+          where: { resourceId: f.booking.id, title: "Appointment reminder" },
         }),
       ).toBe(1);
     });

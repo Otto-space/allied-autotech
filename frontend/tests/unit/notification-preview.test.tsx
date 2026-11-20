@@ -115,8 +115,13 @@ describe("notification bell preview", () => {
     render(<NotificationPreview customer count={0} unavailable />);
     fireEvent.click(screen.getByRole("button", { name: /unread status unavailable/ }));
     expect(await screen.findByText("Recent updates could not be loaded.")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    const retry = screen.getByRole("button", { name: "Try again" });
+    retry.focus();
+    fireEvent.click(retry);
+    const close = screen.getByRole("button", { name: "Close notification preview" });
+    expect(document.activeElement).toBe(close);
     expect(await screen.findByText(/You’re up to date/)).toBeTruthy();
+    expect(document.activeElement).toBe(close);
     expect(
       screen.getByRole("link", { name: "View all notifications" }).getAttribute("href"),
     ).toBe("/dashboard/notifications");

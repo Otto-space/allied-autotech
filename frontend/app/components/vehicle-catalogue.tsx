@@ -103,7 +103,7 @@ export function VehicleCatalogue({
       </noscript>
       <div className="vehicle-search-panel">
         <div className="vehicle-inventory-heading">
-          <h2 id="vehicle-results-heading" className="sr-only" tabIndex={-1}>
+          <h2 id="vehicle-results-heading" tabIndex={-1}>
             Explore current listings
           </h2>
           <p role="status" aria-live="polite">
@@ -204,7 +204,7 @@ export function VehicleCatalogue({
                         ? value === "true"
                           ? "Featured only"
                           : "Non-featured only"
-                        : `${vehicleLabel(key === "bodyType" ? "Body" : key === "fuelType" ? "Fuel" : key === "conditions" ? "Condition" : key === "powertrains" ? "Powertrain Technology" : key)}: ${["make", "model", "year"].includes(key) ? value : vehicleLabel(value)}`;
+                        : `${vehicleLabel(key === "bodyType" ? "Body" : key === "conditions" ? "Condition" : key)}: ${["make", "model", "year"].includes(key) ? value : vehicleLabel(value)}`;
                 return (
                   <button
                     type="button"

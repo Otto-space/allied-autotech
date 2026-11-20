@@ -5,6 +5,7 @@ import {
   parseJobPage,
   parseCurrentJob,
   validateJobRetry,
+  jobSuppressionExplanation,
   type CurrentJob,
 } from "@/lib/admin/work-processing-jobs";
 const id = "d1000000-0000-4000-8000-000000400000",
@@ -24,6 +25,27 @@ const row: CurrentJob = {
   lockedAt: null,
   publishedAt: null,
 };
+it("accepts legacy inspection but rejects private or contradictory suppression diagnostics", () => {
+  expect(jobSuppressionExplanation(parseCurrentJob(row, `outbox:${id}`))).toBeNull();
+  const suppressed = {
+    ...row,
+    eventType: "support.customer-email.requested",
+    aggregateType: "SupportCustomerEmail",
+    deliverySuppressionReason: "CONSENT_WITHDRAWN",
+  };
+  expect(jobSuppressionExplanation(parseCurrentJob(suppressed, `outbox:${id}`))).toBe(
+    "Operational email consent is off.",
+  );
+  for (const change of [
+    { deliverySuppressionReason: "private diagnostic" },
+    { eventType: "synthetic" },
+    { aggregateType: "Other" },
+    { status: "PUBLISHED" },
+    { lastError: "private" },
+  ]) {
+    expect(() => parseCurrentJob({ ...suppressed, ...change }, `outbox:${id}`)).toThrow();
+  }
+});
 it("preserves opaque cursor case through scoped URL history and rejects contradictory URLs", () => {
   const cursor = "AbC".repeat(30),
     first = new URLSearchParams("source=OUTBOX&status=FAILED"),

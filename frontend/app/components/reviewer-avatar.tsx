@@ -17,6 +17,7 @@ export function ReviewerAvatar({
       {photoUrl && !failed ? (
         <Image
           src={photoUrl}
+          overrideSrc={photoUrl}
           alt=""
           width={48}
           height={48}

@@ -20,6 +20,7 @@ import { IdentityService } from "../../src/modules/identity/identity.service.js"
 import type { PrismaClient } from "../../src/generated/prisma/client.js";
 import type { UserRole } from "../../src/generated/prisma/enums.js";
 import { testOwner } from "../helpers/owner.js";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 const enabled = process.env.RUN_DATABASE_TESTS === "true";
 const origin = "http://localhost:3000";
 const app = createApp({ checkReadiness: async () => undefined });
@@ -89,6 +90,7 @@ function post(
 }
 describe.skipIf(!enabled)("MFA enrollment authorization and atomicity", () => {
   beforeAll(async () => {
+    await assertIsolatedLoopbackDatabase();
     passwordHash = await hashPassword(password);
   });
   afterAll(async () => {

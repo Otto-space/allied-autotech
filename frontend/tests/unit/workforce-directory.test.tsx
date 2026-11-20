@@ -37,6 +37,22 @@ vi.mock("@/app/components/workforce-access-panel", () => ({
   ),
 }));
 const id = (n: number) => `a4800000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+vi.mock("@/app/components/admin-branch-picker", () => ({
+  AdminBranchPicker: ({
+    id: inputId,
+    value,
+    onChange,
+  }: {
+    id: string;
+    value: string;
+    onChange: (value: string) => void;
+  }) => (
+    <select id={inputId} value={value} onChange={(event) => onChange(event.target.value)}>
+      <option value="">All branches</option>
+      <option value={id(2)}>Fixture branch</option>
+    </select>
+  ),
+}));
 const person = {
   userId: id(1),
   name: "Ada Scope",
@@ -78,11 +94,11 @@ afterEach(cleanup);
 
 it("shows separate account role, recorded position and independently scoped responsibilities", () => {
   render(<WorkforceDirectory />);
-  expect(screen.getByRole("columnheader", { name: "Account role" })).toBeTruthy();
-  expect(screen.getByRole("columnheader", { name: "Business position" })).toBeTruthy();
+  expect(screen.getByRole("columnheader", { name: "Account level" })).toBeTruthy();
+  expect(screen.getByRole("columnheader", { name: "Job position" })).toBeTruthy();
   expect(screen.getByRole("region", { name: "Workforce accounts" }).tabIndex).toBe(0);
   expect(
-    screen.getByRole("link", { name: "View/manage Ada Scope" }).getAttribute("href"),
+    screen.getByRole("link", { name: "View person: Ada Scope" }).getAttribute("href"),
   ).toBe(`/admin/workforce/access/${id(1)}`);
   expect(screen.getByText("Branch records", { exact: false })).toBeTruthy();
 });
@@ -92,10 +108,10 @@ it("submits server-side URL filters without carrying the previous page cursor", 
   fireEvent.change(screen.getByLabelText("Find a person"), {
     target: { value: "  Ada Scope  " },
   });
-  fireEvent.change(screen.getByLabelText("Business position"), {
+  fireEvent.change(screen.getByLabelText("Job position"), {
     target: { value: "CUSTOMER_SERVICE" },
   });
-  fireEvent.click(screen.getByRole("button", { name: "Search workforce" }));
+  fireEvent.click(screen.getByRole("button", { name: "Search people" }));
   expect(state.push).toHaveBeenCalledWith(
     "/admin/workforce/access?q=Ada+Scope&position=CUSTOMER_SERVICE",
   );
@@ -103,16 +119,48 @@ it("submits server-side URL filters without carrying the previous page cursor", 
   expect(new URL(next, "http://fixture.invalid").searchParams.get("q")).toBe("old");
   expect(new URL(next, "http://fixture.invalid").searchParams.get("cursor")).toBe(id(1));
 });
+it("shows an email-only identity once and gives its person link a clear name", () => {
+  const response = data();
+  response.items[0]!.name = person.email;
+  state.resource = { data: parseWorkforceDirectory(response), loading: false };
+  render(<WorkforceDirectory />);
+  expect(screen.getAllByText(person.email, { exact: true })).toHaveLength(1);
+  expect(screen.getByRole("link", { name: `View person: ${person.email}` })).toBeTruthy();
+});
+it("removes one applied filter while preserving the others and resets pagination", () => {
+  state.search = `q=Ada&status=ACTIVE&branchId=${id(2)}&cursor=${id(4)}`;
+  render(<WorkforceDirectory />);
+  const remove = screen.getByRole("link", { name: "Remove Search: Ada filter" });
+  expect(remove.getAttribute("href")).toBe(
+    `/admin/workforce/access?status=ACTIVE&branchId=${id(2)}`,
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Search people" }));
+  expect(state.push).toHaveBeenCalledWith(
+    `/admin/workforce/access?q=Ada&status=ACTIVE&branchId=${id(2)}`,
+  );
+});
+it("flags existing open-ended temporary cover without implying it was revoked", () => {
+  const response = data();
+  response.items[0]!.responsibilities[0]!.temporary = true;
+  state.resource = { data: parseWorkforceDirectory(response), loading: false };
+  render(<WorkforceDirectory />);
+  expect(
+    screen.getByText("No end date recorded. Review this existing temporary cover."),
+  ).toBeTruthy();
+  expect(
+    screen
+      .getByText("No end date recorded. Review this existing temporary cover.")
+      .closest("li")?.textContent,
+  ).toContain("Customer Service Officer");
+});
 it("keeps filtered directory context on detail/back navigation and rejects malformed account references", () => {
   state.search = "q=Ada";
   state.pathname += `/${id(1)}`;
   const view = render(<WorkforceDirectory />);
   expect(screen.getByText(`Reviewed account ${id(1)}`)).toBeTruthy();
-  expect(
-    screen
-      .getByRole("link", { name: "Back to workforce directory" })
-      .getAttribute("href"),
-  ).toBe("/admin/workforce/access?q=Ada");
+  expect(screen.getByRole("link", { name: "Back to People" }).getAttribute("href")).toBe(
+    "/admin/workforce/access?q=Ada",
+  );
   state.pathname = "/admin/workforce/access/not-an-account";
   view.rerender(<WorkforceDirectory />);
   expect(screen.getByRole("alert").textContent).toContain("invalid");
@@ -124,12 +172,40 @@ it("keeps filtered directory context on detail/back navigation and rejects malfo
 it("does not offer owner-only tier controls to a delegated administrator", () => {
   state.role = "ADMIN";
   const view = render(<WorkforceDirectory />);
-  expect(screen.queryByLabelText("Account role")).toBeNull();
+  expect(screen.queryByLabelText("Account level")).toBeNull();
   state.pathname += `/${id(1)}`;
   view.rerender(<WorkforceDirectory />);
   expect(
     screen.queryByRole("link", { name: "Open account status and role controls" }),
   ).toBeNull();
+});
+it("limits delegated branch choices to the server response and clears them when access is uncertain", () => {
+  state.role = "ADMIN";
+  const response = {
+    ...data(),
+    managementBranches: [{ id: id(2), name: "Fixture branch", isActive: true }],
+  };
+  state.resource = { data: parseWorkforceDirectory(response), loading: false };
+  const view = render(<WorkforceDirectory />);
+  const branch = screen.getByLabelText("Account branch") as HTMLSelectElement;
+  expect([...branch.options].map((option) => option.text)).toEqual([
+    "All permitted branches",
+    "Fixture branch",
+  ]);
+  fireEvent.change(branch, { target: { value: id(2) } });
+  fireEvent.click(screen.getByRole("button", { name: "Search people" }));
+  expect(state.push).toHaveBeenLastCalledWith(
+    `/admin/workforce/access?branchId=${id(2)}`,
+  );
+  state.resource = {
+    data: parseWorkforceDirectory(response),
+    refreshError: "Current access unavailable",
+  };
+  view.rerender(<WorkforceDirectory />);
+  expect((screen.getByLabelText("Account branch") as HTMLSelectElement).disabled).toBe(
+    true,
+  );
+  expect(screen.queryByRole("option", { name: "Fixture branch" })).toBeNull();
 });
 it.each(["loading", "refreshError", "error", "invalidFilter"])(
   "hides previously loaded private rows during %s",
@@ -150,8 +226,8 @@ it("distinguishes an empty permitted result from a failed request and provides c
     loading: false,
   };
   render(<WorkforceDirectory />);
-  expect(screen.getByText(/No workforce accounts match/)).toBeTruthy();
-  fireEvent.click(screen.getByRole("button", { name: "Refresh workforce" }));
+  expect(screen.getByText(/No people are available within/)).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Refresh people" }));
   expect(state.refresh).toHaveBeenCalledOnce();
   expect(screen.getByRole("link", { name: "Clear filters" }).getAttribute("href")).toBe(
     "/admin/workforce/access",

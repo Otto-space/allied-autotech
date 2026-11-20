@@ -19,6 +19,7 @@ export function PrivacyRequestForm({
   onSend,
   onRejected,
   onReviewChange,
+  onReviewClosed,
 }: {
   userId: string;
   disabled: boolean;
@@ -27,8 +28,10 @@ export function PrivacyRequestForm({
   onSend?: () => boolean;
   onRejected?: () => void;
   onReviewChange?: (open: boolean) => void;
+  onReviewClosed?: (opener: HTMLElement | null) => void;
 }) {
   const form = useRef<HTMLFormElement>(null);
+  const reviewButton = useRef<HTMLButtonElement>(null);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [invalid, setInvalid] = useState<string>();
   const [validation, setValidation] = useState<string>();
@@ -195,7 +198,9 @@ export function PrivacyRequestForm({
               documents.
             </span>
           </div>
-          <button className="button">Review privacy request</button>
+          <button ref={reviewButton} className="button">
+            Review privacy request
+          </button>
         </fieldset>
       </form>
       <p className="privacy-duplicate-note">
@@ -208,6 +213,7 @@ export function PrivacyRequestForm({
           onClose={() => {
             setProposal(null);
             onReviewChange?.(false);
+            onReviewClosed?.(reviewButton.current);
           }}
           onSuccess={() => {
             form.current?.reset();

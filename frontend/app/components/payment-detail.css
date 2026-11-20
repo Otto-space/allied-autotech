@@ -487,7 +487,8 @@
   line-height: 1.65;
 }
 .dashboard .dashboard-content .customer-payment .mutation-review {
-  width: min(620px, calc(100vw - 32px));
+  /* Shared modal max-inline-size provides the responsive/safe-area limit. */
+  width: 620px;
   max-height: calc(100dvh - 32px);
   padding: 22px;
   border-radius: 10px;

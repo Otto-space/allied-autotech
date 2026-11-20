@@ -403,9 +403,7 @@
   margin: 0;
 }
 .services-contact {
-  background:
-    radial-gradient(ellipse at right bottom, #4a151a, transparent 65%),
-    var(--services-ink);
+  background: var(--palette-navy);
   color: #fff;
   padding: 44px 0;
 }

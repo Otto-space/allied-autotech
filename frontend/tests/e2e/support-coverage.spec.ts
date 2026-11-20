@@ -64,6 +64,12 @@ test("owner reviews empty coverage without invented hours at 390px", async ({ pa
   page.on("pageerror", (error) => errors.push(error.message));
   await open(page, state);
   await expect(
+    page.getByRole("link", { name: "Choose an account or add a staff email" }),
+  ).toHaveAttribute("href", "/admin/workforce/access");
+  await expect(
+    page.getByText(/The representative must sign in and switch on/),
+  ).toBeVisible();
+  await expect(
     page.getByRole("group", { name: "Support window 1", exact: true }),
   ).toHaveCount(0);
   await fill(page);

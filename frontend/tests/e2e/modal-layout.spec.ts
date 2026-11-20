@@ -1,5 +1,6 @@
 import { test, expect, type Locator } from "@playwright/test";
 import { garageFixture } from "../fixtures/customer-garage";
+import { fixture as securityFixture } from "../fixtures/security";
 import {
   notificationsFixture,
   notificationItem,
@@ -14,21 +15,65 @@ async function geometry(dialog: Locator, width: number, height: number) {
   expect(box.height).toBeLessThanOrEqual(height - 24);
   expect(await dialog.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
 }
-for (const [width, height] of [
-  [1280, 720],
-  [1024, 768],
-  [768, 1024],
-  [430, 932],
-  [390, 844],
-  [360, 800],
-  [320, 720],
-]) {
+for (const [width, height, securityRole] of [
+  [1280, 720, "CUSTOMER"],
+  [1024, 768, "STAFF"],
+  [768, 1024, "ADMIN"],
+  [430, 932, "SUPER_ADMIN"],
+  [390, 844, "CUSTOMER"],
+  [360, 800, "STAFF"],
+  [320, 720, "ADMIN"],
+] as const) {
   test.describe(`shared modals ${width}x${height}`, () => {
     test.use({
       viewport: { width, height },
-      isMobile: width <= 430,
+      // Firefox has no isMobile emulation; retain the exact responsive viewport.
+      isMobile: async ({ browserName }, provide) => {
+        await provide(browserName !== "firefox" && width <= 430);
+      },
       hasTouch: width <= 768,
       reducedMotion: "reduce",
+    });
+    test("security password review uses shared geometry and clears cancelled credentials", async ({
+      page,
+    }, info) => {
+      const state = await securityFixture(page, securityRole);
+      await page.goto(
+        securityRole === "CUSTOMER" ? "/dashboard/security" : "/admin/security",
+      );
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+        width,
+        height,
+      ]);
+      await expect(
+        page.getByRole("heading", { name: "Test authenticator", exact: true }),
+      ).toBeVisible();
+      const fields = ["Current password", "New password", "Confirm new password"];
+      for (const [index, label] of fields.entries())
+        await page
+          .getByLabel(label, { exact: true })
+          .fill(index ? "new-isolated-passphrase" : "old-isolated-passphrase");
+      const opener = page.getByRole("button", {
+        name: "Review password change",
+        exact: true,
+      });
+      await opener.click();
+      const dialog = page.getByRole("dialog", { name: "Change your password?" });
+      await geometry(dialog, width, height);
+      await expect(dialog).not.toContainText("isolated-passphrase");
+      await dialog.getByRole("button", { name: "Confirm change", exact: true }).focus();
+      await expect(
+        dialog.getByRole("button", { name: "Confirm change", exact: true }),
+      ).toBeInViewport();
+      await page.keyboard.press("Tab");
+      expect(await dialog.evaluate((e) => e.contains(document.activeElement))).toBe(true);
+      await page.screenshot({ path: info.outputPath("security-password-review.png") });
+      await page.keyboard.press("Escape");
+      await expect(dialog).toHaveCount(0);
+      await expect(opener).toBeFocused();
+      for (const label of fields)
+        await expect(page.getByLabel(label, { exact: true })).toHaveValue("");
+      expect(state.writes).toEqual([]);
     });
     test("vehicle form keeps fields and footer reachable", async ({ page }, info) => {
       const state = await garageFixture(page);
@@ -50,6 +95,19 @@ for (const [width, height] of [
       await expect(
         page.getByRole("button", { name: "Close vehicle dialog" }),
       ).toBeFocused();
+      // Scrolled field help must stay clear of the close button's focus ring.
+      const clearance = await dialog.evaluate((element) => {
+        const close = element.querySelector(".garage-dialog-heading button")!;
+        const body = element.querySelector(".garage-dialog-body")!;
+        const style = getComputedStyle(close);
+        return (
+          body.getBoundingClientRect().top -
+          close.getBoundingClientRect().bottom -
+          parseFloat(style.outlineWidth) -
+          parseFloat(style.outlineOffset)
+        );
+      });
+      expect(clearance).toBeGreaterThanOrEqual(0);
       await page.screenshot({ path: info.outputPath("vehicle-form.png") });
       await page.keyboard.press("Escape");
       await expect(dialog).toHaveCount(0);
@@ -83,6 +141,65 @@ for (const [width, height] of [
       await page.keyboard.press("Escape");
       await expect(opener).toBeFocused();
       expect(state.writes).toEqual([]);
+    });
+    test("notification preview retry preserves focus through failure, recovery and cancellation", async ({
+      page,
+    }, info) => {
+      const state = await notificationsFixture(page, securityRole);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.goto(
+        securityRole === "CUSTOMER" ? "/dashboard/notifications" : "/admin/notifications",
+      );
+      expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+        width,
+        height,
+      ]);
+      const opener = page.getByRole("button", {
+        name: "Open notifications, 1 unread",
+        exact: true,
+      });
+      await expect(opener).toBeVisible();
+      state.failInbox = true;
+      await opener.click();
+      const dialog = page.getByRole("dialog", { name: "Notifications", exact: true });
+      const retry = dialog.getByRole("button", { name: "Try again", exact: true });
+      const close = dialog.getByRole("button", { name: "Close notification preview" });
+      const all = dialog.getByRole("link", { name: "View all notifications" });
+      await expect(retry).toBeVisible();
+      state.readDelay = 500;
+      await retry.focus();
+      await page.keyboard.press("Enter");
+      await expect(close).toBeFocused();
+      await expect(dialog.getByRole("status")).toHaveText("Loading recent updates…");
+      await expect(retry).toBeVisible();
+      await expect(close).toBeFocused();
+      state.failInbox = false;
+      await retry.click();
+      await expect(close).toBeFocused();
+      await expect(dialog.getByRole("status")).toHaveText("Loading recent updates…");
+      await all.focus();
+      await expect(dialog.getByRole("link", { name: /Booking update/ })).toBeVisible();
+      await expect(all).toBeFocused();
+      await geometry(dialog, width, height);
+      await page.screenshot({ path: info.outputPath("notification-retry.png") });
+      await page.keyboard.press("Tab");
+      await expect(close).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(opener).toBeFocused();
+
+      state.failInbox = true;
+      await opener.click();
+      await expect(retry).toBeVisible();
+      state.failInbox = false;
+      await retry.click();
+      await expect(close).toBeFocused();
+      await expect(dialog.getByRole("status")).toHaveText("Loading recent updates…");
+      await page.keyboard.press("Escape");
+      await expect(dialog).not.toBeVisible();
+      await expect(opener).toBeFocused();
+      expect(state.writes).toEqual([]);
+      expect(errors).toEqual([]);
     });
   });
 }

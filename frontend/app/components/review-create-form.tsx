@@ -23,12 +23,15 @@ export function ReviewCreateForm({
   guard,
   onSaved,
   onReviewChange,
+  onReviewClosed,
 }: {
   userId: string;
   guard: ReturnType<typeof useReviewWrite>;
   onSaved: () => void;
   onReviewChange: (open: boolean) => void;
+  onReviewClosed?: (opener: HTMLElement | null) => void;
 }) {
+  const reviewButton = useRef<HTMLButtonElement>(null);
   const [target, setTarget] = useState<ReviewTarget>("BUSINESS");
   const [source, setSource] = useState<ReviewSource>();
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
@@ -218,7 +221,12 @@ export function ReviewCreateForm({
             </p>
           </div>
           <div className="cr-form-footer">
-            <button className="button" type="submit" disabled={sourceBlocked}>
+            <button
+              ref={reviewButton}
+              className="button"
+              type="submit"
+              disabled={sourceBlocked}
+            >
               Review submission
             </button>
             <p>You can check everything before sending.</p>
@@ -231,6 +239,7 @@ export function ReviewCreateForm({
           onClose={() => {
             setProposal(null);
             onReviewChange(false);
+            onReviewClosed?.(reviewButton.current);
           }}
           onSuccess={() => {}}
           confirmLabel="Submit for moderation"

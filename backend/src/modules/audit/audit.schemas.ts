@@ -14,6 +14,12 @@ const isoDate = z.iso.datetime({ offset: true });
 export const auditListQuerySchema = z
   .object({
     ...page,
+    view: z
+      .literal("ACCESS_CHANGES")
+      .optional()
+      .describe(
+        "Opt-in recorded duty, account-level, branch and invitation changes with minimal current staff context. Other activity remains in the full audit log.",
+      ),
     userId: z.uuid().optional(),
     action: auditActionSchema.optional(),
     entityType: auditEntityTypeSchema.optional(),
@@ -105,6 +111,11 @@ export const refundListQuerySchema = z
   })
   .strict();
 export const operationsEmptyQuerySchema = z.object({}).strict().default({});
+export const operationalJobQuerySchema = z
+  .object({
+    diagnostics: z.literal("safe_delivery").optional(),
+  })
+  .strict();
 
 export type AuditListQuery = z.infer<typeof auditListQuerySchema>;
 export type OperationalJobsQuery = z.infer<typeof operationalJobsQuerySchema>;

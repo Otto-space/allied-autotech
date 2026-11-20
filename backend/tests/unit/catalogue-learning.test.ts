@@ -1,8 +1,97 @@
 import { expect, it } from "vitest";
 import {
+  learningEligible,
+  publicLearningAccess,
+} from "../../src/modules/learning/learning.service.js";
+import {
   learningArticles,
   learningGuides,
 } from "../../src/modules/learning/learning.content.js";
+
+it("keeps suppression guidance in care scope without authorising a bypass", () => {
+  const item = learningArticles.find((article) => article.id === "care-triage")!;
+  expect(item).toMatchObject({
+    version: 4,
+    gate: "care",
+    href: "/admin/workforce/enquiries",
+  });
+  expect(item.steps.join(" ")).toContain("Do not change consent");
+  expect(item.steps.join(" ")).toContain("queued retry never proves delivery");
+  expect(learningEligible(publicLearningAccess, item.gate)).toBe(false);
+  expect(
+    learningEligible(
+      { ...publicLearningAccess, role: "CUSTOMER", verified: true },
+      item.gate,
+    ),
+  ).toBe(false);
+});
+
+it("versions the People explanation without widening access or treating partial checks as complete", () => {
+  const article = learningArticles.find((item) => item.id === "access-review")!;
+  expect(article).toMatchObject({
+    version: 11,
+    gate: "access",
+    href: "/admin/workforce/access",
+    reviewedAt: "2026-11-14",
+  });
+  expect(article.steps.join(" ")).toContain("select View person");
+  expect(article.steps.join(" ")).toContain(
+    "An Admin account keeps its normal workspace",
+  );
+  expect(article.steps.join(" ")).toContain("require the owner's current delegation");
+  expect(article.steps.join(" ")).toContain("Use Overview");
+  expect(article.steps.join(" ")).toContain("New temporary cover needs an end date");
+  expect(article.steps.join(" ")).toContain(
+    "Lagos time, regardless of this device's time zone",
+  );
+  expect(article.steps.join(" ")).toContain("partial summary");
+  expect(article.steps.join(" ")).toContain("choose Give a customer staff access");
+  expect(article.steps.join(" ")).toContain("does not remove existing account access");
+  expect(article.steps.join(" ")).toContain("not names at event time");
+  expect(article.steps.join(" ")).toContain("help does not grant audit access");
+  expect(article.steps.join(" ")).toContain(
+    "Reviews never revoke duties or send reminders",
+  );
+  expect(article.steps.join(" ")).toContain("does not mean no other access");
+  expect(article.steps.join(" ")).toContain(
+    "An unavailable check does not mean no access",
+  );
+  for (const role of ["PUBLIC", "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"] as const) {
+    const access = {
+      ...publicLearningAccess,
+      role,
+      verified: true,
+      managed: true,
+      canManage: role === "SUPER_ADMIN",
+    };
+    expect(learningEligible(access, article.gate)).toBe(role === "SUPER_ADMIN");
+    expect(
+      learningEligible(
+        { ...access, canManage: ["ADMIN", "SUPER_ADMIN"].includes(role) },
+        article.gate,
+      ),
+    ).toBe(["ADMIN", "SUPER_ADMIN"].includes(role));
+    expect(learningEligible({ ...access, verified: false }, article.gate)).toBe(false);
+  }
+});
+
+it("keeps product estimates in the administrator audience without collection authority", () => {
+  const item = learningArticles.find((article) => article.id === "product-timing")!;
+  expect(item.version).toBe(1);
+  expect(item.gate).toBe("admin");
+  expect(item.steps.join(" ")).toContain("calendar days");
+  expect(item.steps.join(" ")).toContain("Leave unknown values blank");
+  expect(item.steps.join(" ")).toContain("not an order promise");
+  expect(item.steps.join(" ")).toContain("For an uncertain save");
+  for (const role of ["PUBLIC", "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"] as const) {
+    expect(
+      learningEligible({ ...publicLearningAccess, role, verified: true }, item.gate),
+    ).toBe(role === "ADMIN" || role === "SUPER_ADMIN");
+    expect(
+      learningEligible({ ...publicLearningAccess, role, verified: false }, item.gate),
+    ).toBe(false);
+  }
+});
 
 it("explains controllable workshop highlights without turning a discovery request into an appointment", () => {
   const home = learningArticles.find((item) => item.id === "home-next-step")!;
@@ -23,8 +112,9 @@ it("explains controllable workshop highlights without turning a discovery reques
 it("versions catalogue instructions without changing public guide targets or write permissions", () => {
   const parts = learningArticles.find((item) => item.id === "parts-fitment")!;
   const vehicles = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
-  expect([parts.version, vehicles.version]).toEqual([14, 5]);
+  expect([parts.version, vehicles.version]).toEqual([15, 6]);
   expect(parts.steps.join(" ")).toContain("payment without another staff approval");
+  expect(parts.steps.join(" ")).toContain("does not transfer your original payment");
   expect(parts.steps.join(" ")).toContain("changing only quantity retains the vehicle");
   expect(parts.steps.join(" ")).toContain("If the offer changes, refresh and review");
   expect(parts.steps.join(" ")).toContain(
@@ -73,7 +163,7 @@ it("versions reversal guidance without granting live lookups or writes", () => {
 
 it("versions guest refund handoff guidance while preserving separate financial authority", () => {
   const guidance = learningArticles.find((item) => item.id === "financial-aftercare")!;
-  expect(guidance.version).toBe(5);
+  expect(guidance.version).toBe(6);
   expect(guidance.gate).toBe("financial-aftercare");
   expect(guidance.steps).toHaveLength(6);
   expect(guidance.steps.join(" ")).toContain("full remaining pre-confirmation refund");
@@ -83,7 +173,7 @@ it("versions guest refund handoff guidance while preserving separate financial a
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(28);
+  expect(article.version).toBe(35);
   expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
   expect(article.steps.join(" ")).toContain("wait for the current availability check");
   expect(article.steps.join(" ")).toContain(
@@ -190,21 +280,23 @@ it("explains reasoned pending reschedules without releasing the original appoint
 it("versions saved financial breakdown guidance without expanding its independent duties", () => {
   const aftercare = learningArticles.find((value) => value.id === "financial-aftercare")!;
   const policy = learningArticles.find((value) => value.id === "financial-policy-work")!;
-  expect(aftercare.version).toBe(5);
+  expect(aftercare.version).toBe(6);
   expect(aftercare.gate).toBe("financial-aftercare");
   expect(aftercare.steps.join(" ")).toContain("Saved order amounts");
   expect(aftercare.steps.join(" ")).toContain(
     "does not prove payment or approve a partial refund",
   );
-  expect(policy.version).toBe(5);
+  expect(policy.version).toBe(9);
   expect(policy.gate).toBe("financial-policy");
   expect(policy.steps.join(" ")).toContain("exact halves rounded up");
   expect(policy.steps.join(" ")).toContain("Preserve issued historical amounts");
+  expect(policy.steps.join(" ")).toContain("do not issue duplicate sales");
+  expect(policy.steps.join(" ")).toContain("not a new owner finance approval");
 });
 
 it("explains recorded-start cancellation and missed reminder boundaries without inventing a cutoff", () => {
   const article = learningArticles.find((value) => value.id === "service-request")!;
-  expect(article.version).toBe(28);
+  expect(article.version).toBe(35);
   const text = article.steps.join(" ");
   expect(text).toContain("only before work starts");
   expect(text).toContain("older status still says Confirmed");
@@ -213,7 +305,7 @@ it("explains recorded-start cancellation and missed reminder boundaries without 
 
 it("explains resource-aware offers without promising a reservation or hiding preferred-time requests", () => {
   const article = learningArticles.find((value) => value.id === "service-request")!;
-  expect(article.version).toBe(28);
+  expect(article.version).toBe(35);
   expect(article.gate).toBe("public");
   const text = article.steps.join(" ");
   for (const phrase of [
@@ -224,4 +316,14 @@ it("explains resource-aware offers without promising a reservation or hiding pre
     "workshop must still confirm it",
   ])
     expect(text).toContain(phrase);
+});
+
+it("explains supplied engine and feature information without changing vehicle learning audiences", () => {
+  const work = learningArticles.find((item) => item.id === "vehicle-operations")!;
+  const enquiry = learningArticles.find((item) => item.id === "vehicle-enquiry")!;
+  expect(work.version).toBe(3);
+  expect(work.gate).toBe("vehicle-admin");
+  expect(enquiry.gate).toBe("public");
+  expect(work.steps.join(" ")).toContain("commas within an item are preserved");
+  expect(enquiry.steps.join(" ")).toContain("not a certification");
 });

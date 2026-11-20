@@ -71,7 +71,10 @@ for (const [width, height] of [
   test.describe(`calendar ${width}x${height}`, () => {
     test.use({
       viewport: { width, height },
-      isMobile: width <= 430,
+      // Firefox has no isMobile emulation; retain the exact responsive viewport.
+      isMobile: async ({ browserName }, provide) => {
+        await provide(browserName !== "firefox" && width <= 430);
+      },
       hasTouch: width <= 768,
       reducedMotion: "reduce",
     });
@@ -314,11 +317,13 @@ test("a delayed prior month cannot replace the newly selected month", async ({
 
 test("touch date selection opens the owned booking details", async ({
   browser,
+  browserName,
 }, info) => {
   const context = await browser.newContext({
     baseURL: info.project.use.baseURL,
+    ignoreHTTPSErrors: info.project.use.ignoreHTTPSErrors,
     hasTouch: true,
-    isMobile: true,
+    isMobile: browserName !== "firefox",
     viewport: { width: 390, height: 844 },
   });
   try {

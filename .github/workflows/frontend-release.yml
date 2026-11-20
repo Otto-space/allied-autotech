@@ -20,12 +20,22 @@ permissions:
 
 concurrency:
   group: frontend-release-${{ github.ref }}
-  cancel-in-progress: true
+  # Let the active master gate finish while the latest candidate waits.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 jobs:
   check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Keep the browser dependency baseline stable; ubuntu-latest moved to
+    # 26.04, where the runner's package sources could not resolve required libs.
+    runs-on: ubuntu-24.04
+    # One production build, followed by the existing Chromium suite and the
+    # bounded Firefox/WebKit responsive matrix. The fixture API is serial.
+    # The 1,337-case baseline took 43.7 minutes. Explicit account coverage adds
+    # 91 layout, accessibility and invitation cases alongside current master.
+    # Retain the serial fixture, every assertion and individual test limit. Allow
+    # 60 minutes for the matrix plus 20 for setup, build, diagnostics and upload.
+    # Allow the separate ten-minute Allie/Care campaign without reducing the matrix.
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: frontend
@@ -35,7 +45,10 @@ jobs:
       SITE_ORIGIN: https://www.example.com
       SITE_INDEXING: disabled
       NEXT_TELEMETRY_DISABLED: "1"
+      # Exercise hosted image URL behaviour without any production identifier.
+      NEXT_DEPLOYMENT_ID: isolated-media-acceptance
       NEXT_PUBLIC_HELP_LEARN_ENABLED: "true"
+      NEXT_PUBLIC_OWNER_SUPPORT_COVERAGE_ENABLED: "true"
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -46,12 +59,87 @@ jobs:
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run check:production
-      - name: Install only the browser used by the isolated regression
-        run: npx --no-install playwright install --with-deps chromium
+      - name: Typecheck the responsive navigation regressions
+        run: npx --no-install tsc --noEmit --project tsconfig.navigation-tests.json
+      - name: Install the three engines used by the isolated regression
+        run: npx --no-install playwright install --with-deps chromium firefox webkit
+      - name: Record browser engine versions and test platform
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium, firefox, webkit } from 'playwright';
+          for (const engine of [chromium, firefox, webkit]) {
+            const browser = await engine.launch();
+            try {
+              console.log(JSON.stringify({ engine: engine.name(), version: browser.version(), platform: process.platform, physicalDevice: false }));
+            } finally {
+              await browser.close();
+            }
+          }
+          NODE
+      - name: Verify Allie conversation, human handoff and owner coverage
+        timeout-minutes: 10
+        run: npx --no-install playwright test --config playwright.allie-care.config.ts --max-failures=1
+      - name: Preserve synthetic Allie and Care evidence
+        if: ${{ always() }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@v5
+        with:
+          name: allie-care-browser
+          path: |
+            frontend/test-results/allie-care/
+            /tmp/allied-allie-composer-390.png
+            /tmp/allied-allie-conversation-*.png
+            /tmp/allied-handoff-review-*.png
+            /tmp/allied-w16-care-ui-20261028/
+            /tmp/allied-w16e-coverage-390.png
+            /tmp/allied-w16e-coverage-1440.png
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Verify sidebar breakpoint focus before the full matrix
+        timeout-minutes: 5
+        run: npx --no-install playwright test --config playwright.runtime.config.ts --project=sidebar-breakpoint-chromium --project=sidebar-breakpoint-firefox --project=sidebar-breakpoint-webkit --repeat-each=3 --max-failures=1
+      - name: Verify WebKit calendar and search transport before the full matrix
+        run: npx --no-install playwright test booking-calendar.spec.ts public-search-recovery.spec.ts --config playwright.runtime.config.ts --project=responsive-webkit --grep "calendar 320x720|public search recovery" --repeat-each=3 --max-failures=1
+      - name: Verify exact media URLs and image decoding before the full matrix
+        timeout-minutes: 5
+        run: npx --no-install playwright test --config playwright.runtime.config.ts --project=media-contract-chromium --project=media-contract-firefox --project=media-contract-webkit --max-failures=1
+      - name: Verify order sourcing review and recovery before the full matrix
+        timeout-minutes: 3
+        run: npx --no-install playwright test order-timing.spec.ts order-pickup.spec.ts order-supply-concerns.spec.ts --config playwright.runtime.config.ts --project=runtime --max-failures=1
+      - name: Preserve pickup and sourcing acceptance captures
+        # The later full Playwright run clears its output directory.
+        uses: actions/upload-artifact@v5
+        timeout-minutes: 2
+        with:
+          name: pickup-sourcing-browser
+          path: |
+            frontend/test-results/runtime-capabilities/order-pickup-*/
+            frontend/test-results/runtime-capabilities/order-timing-*/
+            frontend/test-results/runtime-capabilities/order-supply-concerns-*/
+          retention-days: 7
+          if-no-files-found: error
+      - name: Verify Parts discovery and unobstructed gallery controls before the full matrix
+        timeout-minutes: 3
+        run: npx --no-install playwright test --config playwright.runtime.config.ts --project=parts-design --max-failures=1
+      - name: Preserve Parts acceptance captures
+        # Keep the focused evidence before the full matrix clears its output.
+        if: ${{ always() }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@v5
+        with:
+          name: parts-design-browser
+          path: frontend/test-results/runtime-capabilities/parts-design-*/
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Verify independent runtime availability in the production build
-        run: npx --no-install playwright test --config playwright.runtime.config.ts
+        # A step timeout leaves the job alive to upload its synthetic evidence.
+        # The 1,337-case baseline used 43.7 minutes. Keep all 91 added account
+        # cases and native interactions; individual test limits are unchanged.
+        timeout-minutes: 60
+        run: npx --no-install playwright test --config playwright.runtime.config.ts --max-failures=5
       - name: Preserve synthetic browser evidence
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
+        timeout-minutes: 2
         uses: actions/upload-artifact@v5
         with:
           name: runtime-capabilities-browser

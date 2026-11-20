@@ -1,4 +1,6 @@
-import { engineLitres, vehiclePresentation } from "@/lib/vehicle-presentation";
+import { VehicleEngineSummary } from "@/app/components/vehicle-engine-summary";
+import { VehicleFeatures } from "@/app/components/vehicle-features";
+import { vehiclePresentation } from "@/lib/vehicle-presentation";
 import { VehicleOwnerDisclosure } from "../../components/vehicle-owner-disclosure";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -26,7 +28,10 @@ import { VehicleGallery } from "./vehicle-gallery";
 import { mileageLabel } from "@/lib/vehicle-detail";
 import { vehicleLabel } from "@/lib/vehicle-discovery";
 import "./vehicle-detail.css";
-import { VehicleActions } from "../../components/vehicle-actions";
+import {
+  VehicleActions,
+  VehicleSectionNavigation,
+} from "../../components/vehicle-actions";
 import { vehicleEnquiryHref } from "@/lib/catalogue-enquiry";
 const getListing = cache(async (id: string) => {
   if (!z.uuid().safeParse(id).success) notFound();
@@ -158,24 +163,7 @@ export default async function ListingPage({
     ...(vehicle.manufactureCountryCode
       ? { "Final assembly country": label(vehicle.manufactureCountryCode) }
       : {}),
-    ...(vehicle.powertrain ? { Powertrain: label(vehicle.powertrain) } : {}),
-    ...(vehicle.engineCapacityCc == null
-      ? {}
-      : {
-          "Engine capacity": `${engineLitres(vehicle.engineCapacityCc)} (${vehicle.engineCapacityCc.toLocaleString("en-NG")} cc)`,
-        }),
-    ...(vehicle.features?.length
-      ? { "Recorded features": vehicle.features.join(", ") }
-      : {}),
     ...(vehicle.color ? { Colour: vehicle.color } : {}),
-    ...(vehicle.engineCode ? { "Engine code": vehicle.engineCode } : {}),
-    ...(vehicle.cylinders != null ? { Cylinders: vehicle.cylinders } : {}),
-    ...(vehicle.engineSize && vehicle.engineCapacityCc == null
-      ? { "Engine size": vehicle.engineSize }
-      : {}),
-    ...(vehicle.driveType
-      ? { "Drive type": vehicle.driveType === "FOUR_WD" ? "4WD" : vehicle.driveType }
-      : {}),
     ...(vehicle.doors != null ? { Doors: vehicle.doors } : {}),
     ...(vehicle.seats != null ? { Seats: vehicle.seats } : {}),
   };
@@ -260,12 +248,7 @@ export default async function ListingPage({
               {formatKobo(listing.priceKobo, { hideZeroDecimals: true })}
             </p>
           </header>
-          <nav className="vd-section-nav" aria-label="Vehicle sections">
-            <a href="#vehicle-overview">Overview</a>
-            <a href="#vehicle-specifications">Specifications</a>
-            <a href="#vehicle-condition">Condition</a>
-            <a href="#inspection">Inspection</a>
-          </nav>
+          <VehicleSectionNavigation />
           <VehicleActions
             enquiryHref={enquiryHref}
             key={listing.id}
@@ -311,7 +294,7 @@ export default async function ListingPage({
                     </div>
                   ))}
                 </dl>
-                <VehicleOwnerDisclosure vehicle={vehicle} />
+                <VehicleOwnerDisclosure vehicle={vehicle} headingLevel={2} />
                 <p className="vd-branch">
                   <MapPin size={19} aria-hidden="true" />
                   <span>
@@ -340,6 +323,8 @@ export default async function ListingPage({
                       </div>
                     ))}
                   </dl>
+                  <VehicleEngineSummary vehicle={vehicle} className="vd-specs" />
+                  <VehicleFeatures features={vehicle.features} />
                   <details className="vd-description">
                     <summary>About this vehicle</summary>
                     <p>

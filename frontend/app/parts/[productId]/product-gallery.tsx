@@ -80,7 +80,7 @@ export function ProductGallery({ images, title }: { images: Photo[]; title: stri
     };
   }, [open]);
   const controls = (expanded: boolean) => (
-    <div className="pd-gallery-controls">
+    <div className="pd-gallery-controls" data-carousel-controls>
       {photos.length > 1 && (
         <button
           className="icon-button"
@@ -118,7 +118,7 @@ export function ProductGallery({ images, title }: { images: Photo[]; title: stri
   );
   const thumbnails = () =>
     photos.length > 1 && (
-      <div className="pd-thumbnails" aria-label="Choose a photo">
+      <div className="pd-thumbnails" data-carousel-controls aria-label="Choose a photo">
         {photos.map((photo, i) => (
           <button
             type="button"

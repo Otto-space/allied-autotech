@@ -1,21 +1,29 @@
+import {
+  bookingWorkReviewOptionsResponseSchema,
+  bookingWorkReviewReceiptSchema,
+} from "../../src/modules/service-operations/service-operations.schemas.js";
 import { bookingPolicy } from "../../src/modules/service-operations/service-operations.service.js";
 import { ServiceOperationsRepository } from "../../src/modules/service-operations/service-operations.repository.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
-import { beforeAll, afterAll, describe, it, expect, vi } from "vitest";
+import { beforeAll, beforeEach, afterAll, describe, it, expect, vi } from "vitest";
 import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { workforceFixture } from "../fixtures/workforce.js";
 import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import { testBranchCapacity, testCapability } from "../helpers/owner-policy.js";
-const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 }),
-  note = "Synthetic actual people, equipment and shared-space review";
+let app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+const note = "Synthetic actual people, equipment and shared-space review";
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "atomic workshop resource lifecycle",
   () => {
     let f: Awaited<ReturnType<typeof workforceFixture>>,
       owner: Awaited<ReturnType<Awaited<ReturnType<typeof workforceFixture>>["session"]>>,
       admin: Awaited<ReturnType<Awaited<ReturnType<typeof workforceFixture>>["account"]>>;
+    // Keep independent fixture cases from consuming one another's real middleware limits.
+    beforeEach(() => {
+      app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+    });
     beforeAll(async () => {
       await assertIsolatedLoopbackDatabase();
       f = await workforceFixture();
@@ -241,6 +249,619 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         claim,
       };
     }
+    async function recordedWorkFixture(
+      key: "a" | "c" = "a",
+      unknown = false,
+      status: "CONFIRMED" | "IN_PROGRESS" = "IN_PROGRESS",
+      beforeStart?: (v: Awaited<ReturnType<typeof fixture>>) => Promise<void>,
+    ) {
+      const v = await fixture(),
+        past = new Date();
+      past.setUTCDate(past.getUTCDate() - 2);
+      past.setUTCHours(9, 0, 0, 0);
+      const old = await v.book(
+        v[key].id,
+        key === "c" ? v.w3.user.staffProfile!.id : v.w1.user.staffProfile!.id,
+        past,
+      );
+      if (!unknown) expect((await v.status(old.id, 0, "CONFIRMED")).status).toBe(200);
+      const slot = await v.publish(),
+        technicalSlot = await v.publish(v.c.id, v.w3.user.staffProfile!.id);
+      if (beforeStart) await beforeStart(v);
+      if (unknown)
+        await prisma.service.update({
+          where: { id: v.a.id },
+          data: { durationMinutes: null, preparationMinutes: null, cleanupMinutes: null },
+        });
+      await prisma.booking.update({
+        where: { id: old.id },
+        data: { status, confirmedAt: past, startedAt: past },
+      });
+      const before = await prisma.booking.findUniqueOrThrow({ where: { id: old.id } }),
+        allocations = await v.allocations(old.id),
+        timings = await prisma.bookingTimingSnapshot.findMany({
+          where: { bookingId: old.id },
+        });
+      return {
+        ...v,
+        old,
+        before,
+        originalAllocations: allocations,
+        originalTimings: timings,
+        slot,
+        technicalSlot,
+      };
+    }
+    async function declaredWorkReviewClock<T>(
+      run: (now: Date) => Promise<T>,
+      hour = 8,
+      dayOffset = 1,
+    ) {
+      const previousAdmin = admin,
+        previousOwner = owner,
+        now = new Date();
+      now.setUTCDate(now.getUTCDate() + dayOffset);
+      now.setUTCHours(hour, 0, 0, 0);
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(now);
+      try {
+        admin = { ...admin, ...(await f.session(admin.user.id, "ADMIN")) };
+        owner = await f.session(f.owner.id, "SUPER_ADMIN");
+        return await run(now);
+      } finally {
+        vi.useRealTimers();
+        admin = previousAdmin;
+        owner = previousOwner;
+      }
+    }
+    async function workOptions(id: string) {
+      const r = await request(app)
+        .get("/api/v1/staff/bookings/" + id + "/work-review")
+        .set(admin.headers);
+      expect(r.status, JSON.stringify(r.body)).toBe(200);
+      return bookingWorkReviewOptionsResponseSchema.parse(r.body.data);
+    }
+    function workReview(id: string, body: Record<string, unknown>) {
+      return request(app)
+        .post("/api/v1/staff/bookings/" + id + "/work-review")
+        .set(admin.headers)
+        .send(body);
+    }
+    function workInput(
+      options: Awaited<ReturnType<typeof workOptions>>,
+      ids: string[] = [],
+    ) {
+      return {
+        expectedVersion: options.version,
+        resourcePolicyVersionId: options.resourcePolicyVersionId,
+        remainingMinutes: 45,
+        cleanupMinutes: 30,
+        resourceIds: ids,
+        reason: "Synthetic actual remaining-work and physical-unit assessment",
+      };
+    }
+    it.each(["IN_PROGRESS", "CONFIRMED"] as const)(
+      "reviews remaining work in %s without moving the visit, inventing completion or rewriting history",
+      async (status) => {
+        const v = await recordedWorkFixture("a", false, status);
+        expect((await v.list()).body.data.items).toEqual([]);
+        const result = await declaredWorkReviewClock(async () => {
+          const options = await workOptions(v.old.id);
+          expect(options.canReview).toBe(true);
+          const priorMachine = v.originalAllocations[0]!.resourceIds.find(
+              (id) => id !== v.bay,
+            ),
+            machine = priorMachine === v.machine1 ? v.machine2 : v.machine1;
+          const input = workInput(options, [v.bay, machine]),
+            response = await workReview(v.old.id, input);
+          expect(response.status, JSON.stringify(response.body)).toBe(200);
+          const receipt = bookingWorkReviewReceiptSchema.parse(response.body.data);
+          expect(receipt.review.resourceIds.sort()).toEqual(input.resourceIds.sort());
+          expect(receipt.startedAt).toBe(v.before.startedAt!.toISOString());
+          expect(receipt.status).toBe(status);
+          expect(receipt.scheduleVersion).toBe(v.before.scheduleVersion);
+          expect(receipt.version).toBe(v.before.version + 1);
+          expect(receipt.scheduledAt).toBe(v.before.scheduledAt.toISOString());
+          expect((await workReview(v.old.id, input)).status).toBe(409);
+          return receipt;
+        });
+        expect(await v.allocations(v.old.id)).toHaveLength(
+          v.originalAllocations.length + 1,
+        );
+        expect(
+          (await v.allocations(v.old.id)).slice(0, v.originalAllocations.length),
+        ).toEqual(v.originalAllocations);
+        expect(
+          await prisma.bookingTimingSnapshot.findMany({ where: { bookingId: v.old.id } }),
+        ).toEqual(v.originalTimings);
+        expect(
+          (await prisma.booking.findUniqueOrThrow({ where: { id: v.old.id } }))
+            .policySnapshot,
+        ).toEqual(v.before.policySnapshot);
+        expect((await v.list()).body.data.items.map((x: { id: string }) => x.id)).toEqual(
+          [v.slot.id],
+        );
+        const customer = await request(app)
+          .get("/api/v1/customers/bookings/" + v.old.id)
+          .set(v.old.buyer.headers);
+        expect(customer.status).toBe(200);
+        expect(customer.body.data.workEstimate).toEqual({
+          reviewedAt: result.review.reviewedAt,
+          remainingMinutes: 45,
+          estimatedWorkEndsAt: result.review.expectedWorkEndsAt,
+        });
+        for (const secret of [
+          v.bay,
+          result.review.resourceIds[1]!,
+          result.review.resourcePolicyVersionId,
+          result.review.reason,
+        ])
+          expect(JSON.stringify(customer.body)).not.toContain(secret);
+        expect(customer.body.data.resourceAllocations).toBeUndefined();
+        expect((await v.cancel(v.old, result.version)).status).toBe(409);
+      },
+    );
+    it("assesses remaining work without fabricating an unknown original duration or setup buffer", async () => {
+      const v = await recordedWorkFixture("a", true, "CONFIRMED");
+      await declaredWorkReviewClock(async () => {
+        const options = await workOptions(v.old.id);
+        expect(options.cleanupMinutes).toBeNull();
+        const r = await workReview(v.old.id, workInput(options, [v.bay, v.machine1]));
+        expect(r.status, JSON.stringify(r.body)).toBe(200);
+      });
+      const [saved] = await prisma.bookingTimingSnapshot.findMany({
+        where: { bookingId: v.old.id },
+      });
+      expect(saved).toMatchObject({
+        durationMinutes: null,
+        preparationMinutes: null,
+        cleanupMinutes: null,
+        source: "LEGACY_CAPTURE",
+      });
+      expect((await v.list()).body.data.items.map((x: { id: string }) => x.id)).toEqual([
+        v.slot.id,
+      ]);
+    });
+    it("reviews technician-only work with an explicit empty equipment choice while independent work remains available", async () => {
+      const v = await recordedWorkFixture("c");
+      expect((await v.list(v.c.id)).body.data.items).toEqual([]);
+      await declaredWorkReviewClock(async () => {
+        const o = await workOptions(v.old.id);
+        expect(o.requirements).toEqual([]);
+        expect(o.resources).toHaveLength(3);
+        expect((await workReview(v.old.id, workInput(o))).status).toBe(200);
+      });
+      expect(
+        (await v.list(v.c.id)).body.data.items.map((x: { id: string }) => x.id),
+      ).toEqual([v.technicalSlot.id]);
+      expect((await v.list()).body.data.items.map((x: { id: string }) => x.id)).toEqual([
+        v.slot.id,
+      ]);
+    });
+    it("rejects a stale resource plan and preserves all booking, allocation and estimate history", async () => {
+      const v = await recordedWorkFixture(),
+        options = await workOptions(v.old.id);
+      await v.approve();
+      await declaredWorkReviewClock(async () =>
+        expect(
+          (await workReview(v.old.id, workInput(options, [v.bay, v.machine1]))).status,
+        ).toBe(409),
+      );
+      expect(await prisma.booking.findUniqueOrThrow({ where: { id: v.old.id } })).toEqual(
+        v.before,
+      );
+      expect(await v.allocations(v.old.id)).toEqual(v.originalAllocations);
+    });
+    it("rejects duplicate or unknown physical units and arbitrary client review timestamps", async () => {
+      const v = await recordedWorkFixture();
+      await declaredWorkReviewClock(async () => {
+        const o = await workOptions(v.old.id),
+          body = workInput(o, [v.bay, v.machine1]);
+        expect(
+          (
+            await workReview(v.old.id, {
+              ...body,
+              resourceIds: [v.bay, v.bay.toUpperCase()],
+            })
+          ).status,
+        ).toBe(422);
+        expect(
+          (
+            await workReview(v.old.id, {
+              ...body,
+              workReviewedAt: new Date().toISOString(),
+            })
+          ).status,
+        ).toBe(422);
+        expect(
+          (
+            await workReview(v.old.id, {
+              ...body,
+              resourceIds: [v.bay, v.machine1, randomUUID()],
+            })
+          ).status,
+        ).toBe(409);
+      });
+      expect(await v.allocations(v.old.id)).toEqual(v.originalAllocations);
+    });
+    it("rechecks the full remaining job and cleanup against the approved closing time", async () => {
+      const v = await recordedWorkFixture();
+      await declaredWorkReviewClock(async () => {
+        const o = await workOptions(v.old.id);
+        expect(
+          (
+            await workReview(v.old.id, {
+              ...workInput(o, [v.bay, v.machine1]),
+              remainingMinutes: 180,
+              cleanupMinutes: 30,
+            })
+          ).status,
+        ).toBe(409);
+      }, 15);
+      expect(
+        (await prisma.booking.findUniqueOrThrow({ where: { id: v.old.id } })).version,
+      ).toBe(v.before.version);
+    });
+    it("serializes simultaneous reviews so only one resource decision and notification is recorded", async () => {
+      const v = await recordedWorkFixture();
+      await declaredWorkReviewClock(async () => {
+        const o = await workOptions(v.old.id),
+          body = workInput(o, [v.bay, v.machine1]);
+        const responses = await Promise.all([
+          workReview(v.old.id, body),
+          workReview(v.old.id, body),
+        ]);
+        expect(responses.map((r) => r.status).sort()).toEqual([200, 409]);
+      });
+      expect(await v.allocations(v.old.id)).toHaveLength(
+        v.originalAllocations.length + 1,
+      );
+      expect(
+        (await prisma.booking.findUniqueOrThrow({ where: { id: v.old.id } })).version,
+      ).toBe(v.before.version + 1);
+    });
+    it("requires the independent confirmation grant rather than an admin title alone", async () => {
+      const v = await recordedWorkFixture(),
+        ungranted = await f.account(null, "ADMIN");
+      const response = await request(app)
+        .get("/api/v1/staff/bookings/" + v.old.id + "/work-review")
+        .set(ungranted.headers);
+      expect(response.status).toBe(403);
+      expect(await v.allocations(v.old.id)).toEqual(v.originalAllocations);
+    });
+    it("supports scoped workshop leads and rejects another branch or a revoked confirmation grant", async () => {
+      const v = await recordedWorkFixture();
+      await testCapability(v.lead.user.id, "BOOKING_CONFIRM");
+      expect(
+        (
+          await request(app)
+            .get("/api/v1/staff/workforce/bookings/" + v.old.id + "/work-review")
+            .set(v.lead.headers)
+        ).status,
+      ).toBe(403);
+      await f.assignment(v.lead.user.id, "CUSTOMER_SERVICE", false, v.branch.id);
+      await declaredWorkReviewClock(async () => {
+        const lead = await f.session(v.lead.user.id, "STAFF"),
+          url = "/api/v1/staff/workforce/bookings/" + v.old.id + "/work-review";
+        const read = await request(app).get(url).set(lead.headers);
+        expect(read.status, JSON.stringify(read.body)).toBe(200);
+        const options = bookingWorkReviewOptionsResponseSchema.parse(read.body.data);
+        const response = await request(app)
+          .post(url)
+          .set(lead.headers)
+          .send(workInput(options, [v.bay, v.machine1]));
+        expect(response.status, JSON.stringify(response.body)).toBe(200);
+        await prisma.userCapability.updateMany({
+          where: {
+            userId: v.lead.user.id,
+            capability: "BOOKING_CONFIRM",
+            revokedAt: null,
+          },
+          data: { revokedAt: new Date() },
+        });
+        expect((await request(app).get(url).set(lead.headers)).status).toBe(403);
+      });
+    });
+    it.each(["booking", "work-order", "managed-work"] as const)(
+      "preserves the actual start and reviewed units when correcting legacy status through %s",
+      async (method) => {
+        const v = await recordedWorkFixture("a", false, "CONFIRMED");
+        await declaredWorkReviewClock(async () => {
+          const o = await workOptions(v.old.id),
+            r = await workReview(v.old.id, workInput(o, [v.bay, v.machine1]));
+          expect(r.status).toBe(200);
+          const before = await v.allocations(v.old.id);
+          if (method === "booking") {
+            const response = await v.status(
+              v.old.id,
+              v.before.version + 1,
+              "IN_PROGRESS",
+            );
+            expect(response.status, JSON.stringify(response.body)).toBe(200);
+          } else {
+            const order = await prisma.workOrder.create({
+              data: {
+                bookingId: v.old.id,
+                workOrderNumber: "REVIEW-" + randomUUID().slice(0, 12),
+                status: "APPROVED",
+                openedAt: v.before.startedAt!,
+                startedAt: v.before.startedAt,
+              },
+            });
+            const response =
+              method === "work-order"
+                ? await request(app)
+                    .post(
+                      "/api/v1/staff/bookings/" +
+                        v.old.id +
+                        "/work-orders/" +
+                        order.id +
+                        "/status",
+                    )
+                    .set(admin.headers)
+                    .send({ expectedVersion: 0, status: "IN_PROGRESS" })
+                : await request(app)
+                    .patch("/api/v1/staff/workforce/jobs/" + v.old.id + "/work")
+                    .set((await f.session(v.w1.user.id, "STAFF")).headers)
+                    .send({
+                      expectedVersion: 0,
+                      status: "IN_PROGRESS",
+                      diagnosis: "Synthetic recorded technical work status correction",
+                    });
+            expect(response.status, JSON.stringify(response.body)).toBe(200);
+            expect(
+              (await prisma.workOrder.findUniqueOrThrow({ where: { id: order.id } }))
+                .startedAt,
+            ).toEqual(v.before.startedAt);
+          }
+          expect(
+            (await prisma.booking.findUniqueOrThrow({ where: { id: v.old.id } }))
+              .startedAt,
+          ).toEqual(v.before.startedAt);
+          expect(await v.allocations(v.old.id)).toEqual(before);
+        });
+      },
+    );
+    it.each(["resource", "technician"] as const)(
+      "rejects a remaining-work extension that would displace an existing %s appointment",
+      async (kind) => {
+        let otherId: string | undefined;
+        const v = await recordedWorkFixture("a", false, "IN_PROGRESS", async (v) => {
+          const at = new Date();
+          at.setUTCDate(at.getUTCDate() + 1);
+          at.setUTCHours(9, 0, 0, 0);
+          const other = await v.book(
+            kind === "resource" ? v.b.id : v.a.id,
+            kind === "resource" ? v.w2.user.staffProfile!.id : v.w1.user.staffProfile!.id,
+            at,
+          );
+          expect((await v.status(other.id, 0, "CONFIRMED")).status).toBe(200);
+          otherId = other.id;
+        });
+        const other = await prisma.booking.findUniqueOrThrow({ where: { id: otherId! } }),
+          otherHistory = await v.allocations(other.id);
+        await declaredWorkReviewClock(async () => {
+          const o = await workOptions(v.old.id),
+            response = await workReview(v.old.id, {
+              ...workInput(o, [v.bay, v.machine1]),
+              remainingMinutes: 120,
+            });
+          expect(response.status, JSON.stringify(response.body)).toBe(409);
+        });
+        expect(
+          await prisma.booking.findUniqueOrThrow({ where: { id: v.old.id } }),
+        ).toEqual(v.before);
+        expect(await v.allocations(v.old.id)).toEqual(v.originalAllocations);
+        expect(
+          await prisma.booking.findUniqueOrThrow({ where: { id: other.id } }),
+        ).toEqual(other);
+        expect(await v.allocations(other.id)).toEqual(otherHistory);
+      },
+    );
+    it("does not reveal review choices outside a capable operator's branch scope", async () => {
+      const v = await recordedWorkFixture(),
+        outsider = await f.account("CUSTOMER_SERVICE", "STAFF", f.other.id);
+      await testCapability(outsider.user.id, "BOOKING_CONFIRM");
+      const response = await request(app)
+        .get("/api/v1/staff/workforce/bookings/" + v.old.id + "/work-review")
+        .set(outsider.headers);
+      expect(response.status).toBe(404);
+      expect(JSON.stringify(response.body)).not.toContain(v.bay);
+      expect(await v.allocations(v.old.id)).toEqual(v.originalAllocations);
+    });
+    it("does not infer completion from an elapsed operational estimate and retains its recovery record", async () => {
+      let v: Awaited<ReturnType<typeof recordedWorkFixture>> | undefined;
+      await declaredWorkReviewClock(
+        async () => {
+          v = await recordedWorkFixture();
+          const o = await workOptions(v.old.id),
+            response = await workReview(v.old.id, workInput(o, [v.bay, v.machine1]));
+          expect(response.status, JSON.stringify(response.body)).toBe(200);
+        },
+        8,
+        -1,
+      );
+      const job = v!;
+      expect((await job.list()).body.data.items).toEqual([]);
+      const history = await job.allocations(job.old.id);
+      await prisma.booking.update({
+        where: { id: job.old.id },
+        data: { status: "COMPLETED", completedAt: new Date(), version: { increment: 1 } },
+      });
+      expect(
+        (await job.list()).body.data.items.map((row: { id: string }) => row.id),
+      ).toEqual([job.slot.id]);
+      expect(await job.allocations(job.old.id)).toEqual(history);
+    });
+    it.each(["a", "c"] as const)(
+      "uses the reviewed cleanup after recorded completion at the exact %s resource boundary",
+      async (key) => {
+        const v = await recordedWorkFixture(key);
+        await declaredWorkReviewClock(async (now) => {
+          const o = await workOptions(v.old.id),
+            review = await workReview(v.old.id, {
+              ...workInput(o, key === "a" ? [v.bay, v.machine1] : []),
+              cleanupMinutes: 60,
+            });
+          expect(review.status, JSON.stringify(review.body)).toBe(200);
+          const completedAt = new Date(now.getTime() + 10 * 60000);
+          vi.setSystemTime(completedAt);
+          admin = { ...admin, ...(await f.session(admin.user.id, "ADMIN")) };
+          // Explicit synthetic completion state, not evidence of physical work or payment.
+          await prisma.booking.update({
+            where: { id: v.old.id },
+            data: { status: "COMPLETED", completedAt, version: { increment: 1 } },
+          });
+          const service = key === "a" ? v.b : v.c,
+            staff = key === "a" ? v.w2 : v.w3,
+            boundary = new Date(completedAt.getTime() + (60 + 15) * 60000);
+          const early = await v.book(
+            service.id,
+            staff.user.staffProfile!.id,
+            new Date(boundary.getTime() - 1),
+          );
+          expect((await v.status(early.id, 0, "CONFIRMED")).status).toBe(409);
+          expect((await v.cancel(early, 0)).status).toBe(200);
+          const touching = await v.book(
+            service.id,
+            staff.user.staffProfile!.id,
+            boundary,
+          );
+          expect((await v.status(touching.id, 0, "CONFIRMED")).status).toBe(200);
+          const current = await workOptions(v.old.id);
+          expect(current.canReview).toBe(false);
+          expect(current.current?.id).toBe(review.body.data.review.id);
+        });
+      },
+    );
+    it.each(["missing-start", "future-start", "COMPLETED", "CANCELLED"] as const)(
+      "refuses a remaining-work write for %s instead of starting, completing or reopening a job",
+      async (mode) => {
+        const v = await recordedWorkFixture();
+        await declaredWorkReviewClock(async (now) => {
+          await prisma.booking.update({
+            where: { id: v.old.id },
+            data:
+              mode === "missing-start"
+                ? { status: "CONFIRMED", startedAt: null }
+                : mode === "future-start"
+                  ? { startedAt: new Date(now.getTime() + 60000) }
+                  : mode === "COMPLETED"
+                    ? { status: "COMPLETED", completedAt: now }
+                    : {
+                        status: "CANCELLED",
+                        cancelledAt: now,
+                        cancellationReason:
+                          "Synthetic operator outcome for immutable-state guard",
+                      },
+          });
+          const before = await prisma.booking.findUniqueOrThrow({
+              where: { id: v.old.id },
+            }),
+            o = await workOptions(v.old.id);
+          expect(o.canReview).toBe(false);
+          const response = await workReview(v.old.id, {
+            ...workInput(o, [v.bay, v.machine1]),
+            resourcePolicyVersionId: v.originalAllocations[0]!.policyVersionId,
+          });
+          expect(response.status, JSON.stringify(response.body)).toBe(409);
+          expect(
+            await prisma.booking.findUniqueOrThrow({ where: { id: v.old.id } }),
+          ).toEqual(before);
+          expect(await v.allocations(v.old.id)).toEqual(v.originalAllocations);
+        });
+      },
+    );
+    it("retains the real sensitive review rate limit within one operator journey", async () => {
+      const v = await recordedWorkFixture();
+      await declaredWorkReviewClock(async () => {
+        const o = await workOptions(v.old.id),
+          body = workInput(o, [v.bay, v.machine1]);
+        expect((await workReview(v.old.id, body)).status).toBe(200);
+        for (let i = 0; i < 19; i++)
+          expect((await workReview(v.old.id, body)).status).toBe(409);
+        expect((await workReview(v.old.id, body)).status).toBe(429);
+      });
+      expect(await v.allocations(v.old.id)).toHaveLength(
+        v.originalAllocations.length + 1,
+      );
+    });
+    it.each(["a", "c"] as const)(
+      "can reserve additional approved physical units for an assessed %s job with an explicit reason",
+      async (key) => {
+        const v = await recordedWorkFixture(key);
+        await declaredWorkReviewClock(async () => {
+          const o = await workOptions(v.old.id),
+            ids = key === "a" ? [v.bay, v.machine1, v.machine2] : [v.bay],
+            response = await workReview(v.old.id, workInput(o, ids));
+          expect(response.status, JSON.stringify(response.body)).toBe(200);
+          expect(new Set(response.body.data.review.resourceIds)).toEqual(new Set(ids));
+          const saved = await workOptions(v.old.id);
+          expect(saved.current?.resourceNames).toHaveLength(ids.length);
+        });
+      },
+    );
+    it("does not reserve an extra shared space already occupied by another confirmed job", async () => {
+      let otherId: string | undefined;
+      const v = await recordedWorkFixture("c", false, "IN_PROGRESS", async (v) => {
+        const at = new Date();
+        at.setUTCDate(at.getUTCDate() + 1);
+        at.setUTCHours(9, 0, 0, 0);
+        const other = await v.book(v.b.id, v.w2.user.staffProfile!.id, at);
+        expect((await v.status(other.id, 0, "CONFIRMED")).status).toBe(200);
+        otherId = other.id;
+      });
+      await declaredWorkReviewClock(async () => {
+        const o = await workOptions(v.old.id);
+        expect(
+          (
+            await workReview(v.old.id, {
+              ...workInput(o, [v.bay]),
+              remainingMinutes: 120,
+            })
+          ).status,
+        ).toBe(409);
+      });
+      expect(await v.allocations(v.old.id)).toEqual(v.originalAllocations);
+      expect(
+        (await prisma.booking.findUniqueOrThrow({ where: { id: otherId! } })).status,
+      ).toBe("CONFIRMED");
+    });
+    it("keeps review metadata append-only and rejects a mismatched remaining-work interval at the database boundary", async () => {
+      const v = await recordedWorkFixture();
+      await declaredWorkReviewClock(async () => {
+        const o = await workOptions(v.old.id);
+        expect(
+          (await workReview(v.old.id, workInput(o, [v.bay, v.machine1]))).status,
+        ).toBe(200);
+      });
+      const rows = await v.allocations(v.old.id),
+        saved = rows.at(-1)!;
+      await expect(
+        prisma.bookingResourceAllocation.update({
+          where: { id: saved.id },
+          data: { remainingMinutes: 50 },
+        }),
+      ).rejects.toThrow();
+      await expect(
+        prisma.$transaction(async (tx) => {
+          await tx.booking.update({
+            where: { id: v.old.id },
+            data: { version: { increment: 1 } },
+          });
+          await tx.bookingResourceAllocation.create({
+            data: {
+              ...saved,
+              id: randomUUID(),
+              bookingVersion: saved.bookingVersion + 1,
+              remainingMinutes: saved.remainingMinutes! + 1,
+            },
+          });
+        }),
+      ).rejects.toThrow();
+      expect(await v.allocations(v.old.id)).toEqual(rows);
+    });
+
     it("treats uppercase public service and branch UUIDs as the same approved identities", async () => {
       const v = await fixture(),
         slot = await v.publish();

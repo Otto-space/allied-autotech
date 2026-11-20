@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 import { workInvoiceFixture, id } from "./work-invoices";
+import { directoryRow } from "./work-staff-directory";
 export { id };
 export function invitationRow(n = 0) {
   const status = (["PENDING", "ACCEPTED", "REVOKED", "EXPIRED"] as const)[n % 4];
@@ -30,6 +31,7 @@ export async function workStaffInvitationsFixture(page: Page, role = "ADMIN") {
     candidateMode: "normal",
     writeMode: "reject",
     candidateRole: "CUSTOMER" as "CUSTOMER" | "STAFF",
+    candidateEmail: "ada.okoro@example.test",
     rows: Array.from({ length: 4 }, (_, n) => invitationRow(n)),
     reads: [] as URL[],
     writes: [] as { path: string; body: unknown }[],
@@ -46,6 +48,31 @@ export async function workStaffInvitationsFixture(page: Page, role = "ADMIN") {
     const url = new URL(r.request().url());
     if (r.request().method() !== "GET") {
       state.writes.push({ path: url.pathname, body: r.request().postDataJSON() });
+      if (state.writeMode === "success") {
+        if (url.pathname.endsWith("/promotions")) {
+          const staff = directoryRow();
+          return r.fulfill(ok({ ...staff, id: id(280000), email: state.candidateEmail }));
+        }
+        if (url.pathname.endsWith("/revoke")) {
+          const row = state.rows.find((item) =>
+            url.pathname.endsWith(`/${item.id}/revoke`),
+          );
+          if (!row || row.usedAt || row.revokedAt) return r.fulfill({ status: 409 });
+          row.status = "REVOKED";
+          row.revokedAt = new Date().toISOString();
+          return r.fulfill(ok(row));
+        }
+        if (url.pathname.endsWith("/invitations")) {
+          const row = {
+            ...invitationRow(),
+            recipientId: id(280000),
+            email: state.candidateEmail,
+          };
+          state.rows = state.rows.filter((item) => item.id !== row.id);
+          state.rows.unshift(row);
+          return r.fulfill(ok({ invitation: row, delivery: "QUEUED" }));
+        }
+      }
       if (state.writeMode === "lost") return r.abort("failed");
       if (state.writeMode === "malformed")
         return r.fulfill(
@@ -71,7 +98,8 @@ export async function workStaffInvitationsFixture(page: Page, role = "ADMIN") {
           error: { code: mode === "denied" ? "FORBIDDEN" : "DATABASE_UNAVAILABLE" },
         },
       });
-    if (isCandidate)
+    if (isCandidate) {
+      state.candidateEmail = url.searchParams.get("email") ?? "";
       return r.fulfill(
         ok({
           items:
@@ -101,13 +129,15 @@ export async function workStaffInvitationsFixture(page: Page, role = "ADMIN") {
                           }
                         : null,
                     management: {
-                      canPromote: state.candidateRole === "CUSTOMER",
-                      canInvite: state.candidateRole === "STAFF",
+                      canPromote:
+                        mode !== "ineligible" && state.candidateRole === "CUSTOMER",
+                      canInvite: mode !== "ineligible" && state.candidateRole === "STAFF",
                     },
                   },
                 ],
         }),
       );
+    }
     const detailId = url.pathname.match(/\/invitations\/([^/]+)$/)?.[1];
     if (detailId) {
       const row = state.rows.find((item) => item.id === detailId);

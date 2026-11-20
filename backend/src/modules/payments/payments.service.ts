@@ -1,8 +1,28 @@
+import { databaseClock } from "../../common/database/clock.js";
+import { recordPaymentAttemptObservation } from "./payment-attempt-observation.js";
+import {
+  assertSupplyRefundBinding,
+  preconfirmationSupplyCancellationBasis,
+} from "../orders/order-supply-refund.js";
+import {
+  additionalInvoiceQuoteSelect,
+  assertSupplementalInvoiceCurrent,
+  serviceInvoiceBooking,
+} from "../billing/service-invoice-context.js";
 import {
   hasVerificationHold,
   holdUnallocatableProviderResult,
   recordConflictingProviderFacts,
 } from "./provider-observation.js";
+import {
+  servicePaymentBinding,
+  servicePaymentPlanFromSnapshot,
+  serviceStagePaid,
+  serviceStagePayable,
+  hasServiceFinancialHold,
+  type ServicePaymentBinding,
+} from "../billing/service-payment-plan.js";
+import { servicePaymentReadSelect } from "../billing/service-payment-summary.js";
 import { snapshotRefundClock } from "../policies/refund-clock.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { assertReviewedPurchasePayable } from "../orders/purchase-review-payable.js";
@@ -163,6 +183,7 @@ type PaymentSource = {
   amountKobo: bigint;
   expiresAt: Date | null;
   purchaseReview?: z.infer<typeof purchaseReviewPaymentBindingSchema>;
+  servicePayment?: ServicePaymentBinding;
 };
 
 export class PaymentsService {
@@ -332,6 +353,23 @@ export class PaymentsService {
             existing.vehicleTransactionId ===
               (input.targetType === "VEHICLE_TRANSACTION" ? input.targetId : null);
           if (!same) throw paymentIdempotencyConflict();
+          if (input.targetType === "INVOICE") {
+            const saved = await tx.payment.findUniqueOrThrow({
+              where: { id: existing.id },
+              select: { policySnapshot: true },
+            });
+            const binding = servicePaymentBinding(saved.policySnapshot);
+            const accepted = input.acceptedServiceStage;
+            if (
+              Boolean(binding) !== Boolean(accepted) ||
+              (binding &&
+                accepted &&
+                (binding.stage !== accepted.stage ||
+                  binding.invoiceVersion !== accepted.invoiceVersion ||
+                  binding.amountKobo !== accepted.amountKobo))
+            )
+              throw paymentIdempotencyConflict();
+          }
           if (input.targetType === "ORDER" && input.acceptedReview) {
             const saved = await tx.payment.findUniqueOrThrow({
               where: { id: existing.id },
@@ -365,7 +403,12 @@ export class PaymentsService {
             input.acceptedReview.revision !== source.purchaseReview.revision)
         )
           throw paymentOfferChanged();
-        await assertNoCompetingPayment(tx, input);
+        await assertNoCompetingPayment(
+          tx,
+          input,
+          undefined,
+          Boolean(source.servicePayment),
+        );
         const expiresAt =
           source.expiresAt ??
           new Date(Date.now() + env.PAYMENT_INTENT_TTL_SECONDS * 1_000);
@@ -383,6 +426,7 @@ export class PaymentsService {
             policySnapshot: {
               ...policySnapshot(finance),
               ...(source.purchaseReview ? { purchaseReview: source.purchaseReview } : {}),
+              ...(source.servicePayment ? { servicePayment: source.servicePayment } : {}),
             },
             ...(input.targetType === "ORDER" ? { orderId: input.targetId } : {}),
             ...(input.targetType === "INVOICE" ? { invoiceId: input.targetId } : {}),
@@ -996,6 +1040,8 @@ export class PaymentsService {
           existing.requestedByUserId !== actor.userId ||
           existing.paymentAttemptId !== input.paymentAttemptId ||
           existing.amountKobo !== input.amountKobo ||
+          (existing.supplyRemedyChoiceId ?? null) !==
+            (input.supplyRemedyChoiceId ?? null) ||
           existing.reason !== input.reason
         )
           throw paymentIdempotencyConflict();
@@ -1018,6 +1064,15 @@ export class PaymentsService {
       )
         throw paymentNotFound();
       await this.assertBranch(actor, attempt.paymentId, tx);
+      const cancellationRecovery = !input.supplyRemedyChoiceId
+        ? await preconfirmationSupplyCancellationBasis(tx, attempt.payment.orderId)
+        : undefined;
+      if (!cancellationRecovery)
+        await assertSupplyRefundBinding(tx, {
+          orderId: attempt.payment.orderId,
+          choiceId: input.supplyRemedyChoiceId,
+          amountKobo: input.amountKobo,
+        });
       if (
         await tx.paymentDispute.count({
           where: { paymentAttemptId: attempt.id, status: { not: "WON" } },
@@ -1050,7 +1105,10 @@ export class PaymentsService {
           },
           select: { id: true },
         });
-        if (cancelledGuestOrder && input.amountKobo !== attempt.amountKobo - committed)
+        if (
+          (cancelledGuestOrder || cancellationRecovery) &&
+          input.amountKobo !== attempt.amountKobo - committed
+        )
           throw paymentConflict(
             "Cancellation before confirmation is free. Request the full remaining verified amount; a separate operator must approve the refund.",
           );
@@ -1060,8 +1118,14 @@ export class PaymentsService {
         select: refundQueueSelect,
         data: {
           policyVersionId: refundPolicy.id,
-          policySnapshot: policySnapshot(refundPolicy),
+          policySnapshot: {
+            ...policySnapshot(refundPolicy),
+            ...(cancellationRecovery
+              ? { preConfirmationCancellation: cancellationRecovery }
+              : {}),
+          },
           paymentAttemptId: input.paymentAttemptId,
+          supplyRemedyChoiceId: input.supplyRemedyChoiceId ?? null,
           requestedByUserId: actor.userId,
           refundNumber: refundNumber(),
           idempotencyKeyHash: keyHash,
@@ -1077,6 +1141,9 @@ export class PaymentsService {
         entityId: refund.id,
         newValues: {
           amountKobo: refund.amountKobo.toString(),
+          ...(input.supplyRemedyChoiceId
+            ? { supplyRemedyChoiceId: input.supplyRemedyChoiceId }
+            : {}),
           paymentAttemptId: input.paymentAttemptId,
         },
         context,
@@ -1151,7 +1218,7 @@ export class PaymentsService {
             "Reconcile the dispute and any chargeback before approving this refund",
           );
       }
-      const now = new Date();
+      const now = await databaseClock(tx);
       const requiresOfflineProcessing =
         input.decision === "APPROVED" &&
         (refund.paymentAttempt.provider === "MANUAL" ||
@@ -2079,6 +2146,7 @@ export class PaymentsService {
         include: { payment: true },
       });
       if (!attempt) throw paymentNotFound();
+      await recordPaymentAttemptObservation(tx, attempt, result);
       const now = new Date();
       const exact =
         result.reference === attempt.internalReference &&
@@ -2444,9 +2512,29 @@ export class PaymentsService {
         });
     }
     if (payment.invoiceId) {
+      const source = await tx.invoice.findUniqueOrThrow({
+        where: { id: payment.invoiceId },
+        select: {
+          documentSnapshot: true,
+          subtotalKobo: true,
+          taxKobo: true,
+          depositCreditKobo: true,
+          totalKobo: true,
+          payments: { select: { status: true, amountKobo: true, policySnapshot: true } },
+        },
+      });
+      const plan = servicePaymentPlanFromSnapshot(source.documentSnapshot, source);
+      const paid = plan ? serviceStagePaid(plan, source.payments) : null;
+      const fullyPaid =
+        !plan ||
+        (paid!.MATERIALS === BigInt(plan.materials.totalKobo) &&
+          paid!.WORKMANSHIP === BigInt(plan.workmanship.totalKobo));
       const updated = await tx.invoice.updateMany({
         where: { id: payment.invoiceId, status: "ISSUED" },
-        data: { status: "PAID", paidAt: occurredAt, version: { increment: 1 } },
+        data: {
+          ...(fullyPaid ? { status: "PAID", paidAt: occurredAt } : {}),
+          version: { increment: 1 },
+        },
       });
       if (updated.count === 0) {
         const invoice = await tx.invoice.findUniqueOrThrow({
@@ -2571,6 +2659,7 @@ export class PaymentsService {
       invoiceId: string | null;
       vehicleTransactionId: string | null;
       amountKobo: bigint;
+      policySnapshot?: unknown;
     },
   ) {
     if (payment.orderId) {
@@ -2594,8 +2683,51 @@ export class PaymentsService {
       await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${payment.invoiceId}::uuid FOR UPDATE`;
       const invoice = await tx.invoice.findUniqueOrThrow({
         where: { id: payment.invoiceId },
-        select: { status: true },
+        select: {
+          status: true,
+          documentSnapshot: true,
+          subtotalKobo: true,
+          taxKobo: true,
+          depositCreditKobo: true,
+          totalKobo: true,
+          booking: { select: { status: true, completedAt: true } },
+          additionalQuote: { select: additionalInvoiceQuoteSelect },
+          payments: {
+            where: { id: { not: payment.id } },
+            select: servicePaymentReadSelect,
+          },
+        },
       });
+      // A verified capture remains real money even if a stage was revoked or
+      // already settled. Hold it for reconciliation instead of throwing and
+      // rolling back the capture ledger, or marking workmanship paid early.
+      try {
+        await assertSupplementalInvoiceCurrent(tx, payment.invoiceId);
+        const booking = serviceInvoiceBooking(invoice);
+        const plan = servicePaymentPlanFromSnapshot(invoice.documentSnapshot, invoice);
+        if (plan) {
+          if (hasServiceFinancialHold(invoice.payments)) return true;
+          if (invoice.status !== "ISSUED" || booking?.status === "CANCELLED") return true;
+          const binding = servicePaymentBinding(payment.policySnapshot);
+          if (
+            !binding ||
+            binding.quoteId !== plan.quoteId ||
+            binding.quoteVersion !== plan.quoteVersion ||
+            BigInt(binding.amountKobo) !== payment.amountKobo
+          )
+            return true;
+          return (
+            serviceStagePayable(
+              plan,
+              serviceStagePaid(plan, invoice.payments),
+              binding.stage,
+              booking?.status === "COMPLETED" && booking.completedAt !== null,
+            ) !== payment.amountKobo
+          );
+        }
+      } catch {
+        return true;
+      }
       return invoice.status === "PAID";
     }
     if (payment.vehicleTransactionId) {
@@ -2755,12 +2887,32 @@ export class PaymentsService {
   ) {
     const target = paymentTarget(payment);
     if (!target) throw paymentNotFound();
+    const savedService =
+      target.targetType === "INVOICE"
+        ? servicePaymentBinding(
+            (
+              await tx.payment.findUniqueOrThrow({
+                where: { id: payment.id },
+                select: { policySnapshot: true },
+              })
+            ).policySnapshot,
+          )
+        : null;
     const input = paymentCreateBodySchema.safeParse({
       ...target,
       purpose: payment.purpose,
+      ...(savedService
+        ? {
+            acceptedServiceStage: {
+              stage: savedService.stage,
+              invoiceVersion: savedService.invoiceVersion,
+              amountKobo: savedService.amountKobo,
+            },
+          }
+        : {}),
     });
     if (!input.success) throw paymentConflict();
-    await assertNoCompetingPayment(tx, target, payment.id);
+    await assertNoCompetingPayment(tx, target, payment.id, Boolean(savedService));
     const guestOrder =
       !payment.customerId && payment.orderId
         ? await tx.order.findUnique({
@@ -2798,6 +2950,14 @@ export class PaymentsService {
     if (source.amountKobo !== payment.amountKobo || payment.currency !== "NGN")
       throw paymentConflict(
         "The amount due changed. Review the existing payment before continuing.",
+      );
+    if (
+      savedService &&
+      (!source.servicePayment ||
+        JSON.stringify(savedService) !== JSON.stringify(source.servicePayment))
+    )
+      throw paymentConflict(
+        "The service payment stage changed. Review the existing request before continuing.",
       );
     if (source.expiresAt && source.expiresAt <= new Date())
       throw paymentConflict("The payable has expired");
@@ -2887,6 +3047,7 @@ export class PaymentsService {
       source?.order?.branchId ??
       source?.invoice?.order?.branchId ??
       source?.invoice?.booking?.branchId ??
+      source?.invoice?.additionalQuote?.booking.branchId ??
       source?.invoice?.vehicleTransaction?.vehicleListing.branchId ??
       source?.vehicleTransaction?.vehicleListing.branchId ??
       source?.booking?.branchId ??
@@ -2921,10 +3082,49 @@ export class PaymentsService {
         !source ||
         source.currency !== "NGN" ||
         source.status !== "ISSUED" ||
-        source.bookingId === null
+        (source.bookingId === null && !source.additionalQuote)
       )
         throw paymentNotFound();
-      return { amountKobo: source.totalKobo, expiresAt: source.dueAt };
+      await assertSupplementalInvoiceCurrent(tx, input.targetId);
+      const booking = serviceInvoiceBooking(source);
+      const plan = servicePaymentPlanFromSnapshot(source.documentSnapshot, source);
+      if (!plan) {
+        if (input.acceptedServiceStage)
+          throw paymentConflict(
+            "This historical invoice does not have a staged payment plan",
+          );
+        return { amountKobo: source.totalKobo, expiresAt: source.dueAt };
+      }
+      const accepted = input.acceptedServiceStage;
+      if (hasServiceFinancialHold(source.payments))
+        throw paymentConflict(
+          "A service payment adjustment needs staff review before another payment",
+        );
+      if (
+        !accepted ||
+        accepted.invoiceVersion !== source.version ||
+        booking?.status === "CANCELLED"
+      )
+        throw paymentConflict(
+          "Refresh the invoice and review the current service payment stage",
+        );
+      const amountKobo = serviceStagePayable(
+        plan,
+        serviceStagePaid(plan, source.payments),
+        accepted.stage,
+        booking?.status === "COMPLETED" && booking.completedAt !== null,
+      );
+      if (amountKobo.toString() !== accepted.amountKobo)
+        throw paymentConflict("The service amount due changed. Refresh the invoice.");
+      return {
+        amountKobo,
+        expiresAt: source.dueAt,
+        servicePayment: {
+          ...accepted,
+          quoteId: plan.quoteId,
+          quoteVersion: plan.quoteVersion,
+        },
+      };
     }
     await tx.$queryRaw`SELECT "id" FROM "VehicleTransaction" WHERE "id" = ${input.targetId}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`;
     const source = await this.repository.vehicleTransaction(

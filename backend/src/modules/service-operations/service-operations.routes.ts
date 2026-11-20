@@ -1,3 +1,10 @@
+import { serviceVehicleReleaseBodySchema } from "./service-operations.schemas.js";
+import { alternativeOptionsQuerySchema } from "./booking-alternatives.js";
+import {
+  bookingAttendanceBodySchema,
+  bookingAttendanceQuerySchema,
+} from "./booking-attendance.js";
+import { bookingWorkReviewBodySchema } from "./service-operations.schemas.js";
 import { bookingTimingOverrideBodySchema } from "./service-operations.schemas.js";
 import {
   bookingRescheduleDecisionBodySchema,
@@ -40,6 +47,7 @@ import {
   quoteCreateBodySchema,
   quoteParamsSchema,
   quoteReplaceBodySchema,
+  quoteDecisionBodySchema,
   quoteTransitionBodySchema,
   serviceCreateBodySchema,
   serviceOperationsEmptyQuerySchema,
@@ -173,7 +181,7 @@ export function createCustomerServiceOperationsRouter(): Router {
     requireCsrf,
     validate({
       params: quoteParamsSchema,
-      body: quoteTransitionBodySchema,
+      body: quoteDecisionBodySchema,
       query: serviceOperationsEmptyQuerySchema,
     }),
     controller.acceptQuote,
@@ -195,6 +203,27 @@ export function createStaffServiceOperationsRouter(): Router {
   const router = Router();
   const controller = new ServiceOperationsController();
   router.use(authenticate(), requireStaff);
+  router.get(
+    "/bookings/:bookingId/vehicle-release-readiness",
+    requireAdministrator,
+    createSensitiveRateLimit(15),
+    validate({ params: bookingParamsSchema, query: serviceOperationsEmptyQuerySchema }),
+    controller.reviewVehicleRelease,
+  );
+
+  router.post(
+    "/bookings/:bookingId/vehicle-release",
+    requireAdministrator,
+    requireCsrf,
+    createSensitiveRateLimit(10),
+    validate({
+      params: bookingParamsSchema,
+      query: serviceOperationsEmptyQuerySchema,
+      body: serviceVehicleReleaseBodySchema,
+    }),
+    controller.releaseCompletedVehicle,
+  );
+
   router.get(
     "/booking-slots",
     validate({ query: staffBookingSlotListQuerySchema }),
@@ -230,6 +259,11 @@ export function createStaffServiceOperationsRouter(): Router {
     validate({ params: bookingParamsSchema, query: serviceOperationsEmptyQuerySchema }),
     controller.staffBooking,
   );
+  router.get(
+    "/bookings/:bookingId/alternative-options",
+    validate({ params: bookingParamsSchema, query: alternativeOptionsQuerySchema }),
+    controller.bookingAlternativeOptions,
+  );
   router.post(
     "/bookings/:bookingId/alternative",
     requireCsrf,
@@ -239,6 +273,22 @@ export function createStaffServiceOperationsRouter(): Router {
       query: serviceOperationsEmptyQuerySchema,
     }),
     controller.proposeBookingAlternative,
+  );
+  router.get(
+    "/bookings/:bookingId/work-review",
+    validate({ params: bookingParamsSchema, query: serviceOperationsEmptyQuerySchema }),
+    controller.bookingWorkReviewOptions,
+  );
+  router.post(
+    "/bookings/:bookingId/work-review",
+    requireCsrf,
+    createSensitiveRateLimit(20),
+    validate({
+      params: bookingParamsSchema,
+      query: serviceOperationsEmptyQuerySchema,
+      body: bookingWorkReviewBodySchema,
+    }),
+    controller.reviewBookingWork,
   );
   router.post(
     "/bookings/:bookingId/timing",
@@ -272,6 +322,22 @@ export function createStaffServiceOperationsRouter(): Router {
       query: serviceOperationsEmptyQuerySchema,
     }),
     controller.assignBooking,
+  );
+  router.get(
+    "/bookings/:bookingId/attendance",
+    validate({ params: bookingParamsSchema, query: bookingAttendanceQuerySchema }),
+    controller.readBookingAttendance,
+  );
+  router.post(
+    "/bookings/:bookingId/attendance",
+    requireCsrf,
+    createSensitiveRateLimit(30),
+    validate({
+      params: bookingParamsSchema,
+      body: bookingAttendanceBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.recordBookingAttendance,
   );
   router.post(
     "/bookings/:bookingId/status",

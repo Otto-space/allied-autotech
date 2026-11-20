@@ -100,11 +100,15 @@ export const allieJsonSchema = {
   additionalProperties: false,
   properties: {
     kind: { type: "string", enum: ["answer", "clarification", "unavailable", "human"] },
-    answer: { type: "string" },
-    steps: { type: "array", items: { type: "string" } },
-    caveat: { type: ["string", "null"] },
-    sourceIds: { type: "array", items: { type: "string" } },
-    actionIds: { type: "array", items: { type: "string" } },
+    answer: { type: "string", minLength: 1, maxLength: 2400 },
+    steps: {
+      type: "array",
+      items: { type: "string", minLength: 1, maxLength: 400 },
+      maxItems: 6,
+    },
+    caveat: { type: ["string", "null"], minLength: 1, maxLength: 500 },
+    sourceIds: { type: "array", items: { type: "string", maxLength: 100 }, maxItems: 4 },
+    actionIds: { type: "array", items: { type: "string", maxLength: 120 }, maxItems: 3 },
   },
   required: ["kind", "answer", "steps", "caveat", "sourceIds", "actionIds"],
 } as const;

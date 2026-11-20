@@ -8,6 +8,7 @@ import { formatKobo } from "@/lib/format/money";
 import type { MutationProposal } from "./mutation-review";
 import { ServiceLineTable } from "./service-line-table";
 import { ServiceLineEntry } from "./service-line-entry";
+import { AdditionalQuoteNotice } from "./additional-quote-notice";
 import "./staff-quotations.css";
 export function StaffQuoteRecords({
   booking,
@@ -53,9 +54,18 @@ export function StaffQuoteRecords({
       title: `${action === "issue" ? "Issue" : action === "void" ? "Void" : "Expire"} this quotation?`,
       description:
         action === "issue"
-          ? "The customer has seven days from issuance to accept or reject the quotation. The server records the new acceptance deadline. Other issued quotations for this booking will be voided."
+          ? "The customer has seven days from issuance to accept or reject the quotation. The server records the new acceptance deadline. Only other pending quotations for the same scope are superseded; accepted work and the original invoice remain intact."
           : "This closes the quotation for customer acceptance. It does not record a payment or refund.",
       facts: [
+        ...(quote.originalInvoice
+          ? [
+              {
+                label: "Scope",
+                value: `Additional work · Original invoice ${quote.originalInvoice.invoiceNumber}`,
+              },
+              { label: "Reason", value: quote.amendmentReason! },
+            ]
+          : []),
         { label: "Quotation", value: quote.quoteNumber },
         { label: "Revision", value: String(quote.revision) },
         { label: "Total", value: formatKobo(quote.totalKobo) },
@@ -156,6 +166,7 @@ export function StaffQuoteRecords({
                 </p>
               </header>
               {quote.notes && <p className="quotation-notes">{quote.notes}</p>}
+              <AdditionalQuoteNotice quote={quote} />
               <ServiceLineTable
                 items={quote.items}
                 label={`${quote.quoteNumber} line items`}

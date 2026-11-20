@@ -120,7 +120,7 @@ wrapper.get("/__booking-test-evidence", async (_request, response) => {
       where: { userId: f.care.user.id, entityId: booking.id, action: "STATUS_CHANGE" },
     }),
     reminderCount: await prisma.bookingReminder.count({
-      where: { bookingId: booking.id, kind: "ONE_HOUR" },
+      where: { bookingId: booking.id, status: "PENDING" },
     }),
   });
 });

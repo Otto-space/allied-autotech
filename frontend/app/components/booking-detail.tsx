@@ -1,4 +1,6 @@
 "use client";
+import { BookingAttendanceHistory } from "./booking-attendance";
+import { BookingWorkEstimate } from "./booking-work-estimate";
 import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { usePublicCapabilities } from "./public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
@@ -97,6 +99,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
       : undefined;
   const disruption =
     current?.status === "CONFIRMED" &&
+    !current.startedAt &&
     !!current.disruptionRequestedAt &&
     current.disruptionResolution === "PENDING";
   const hasDeposit = !!current?.depositPayment && !!current.depositPaidAt;
@@ -105,6 +108,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
   );
   const canReschedule =
     !pendingReschedule &&
+    !current?.startedAt &&
     current?.status === "CONFIRMED" &&
     !!current.branch &&
     !!verifiedPolicy &&
@@ -218,13 +222,33 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
     if (!quoteOpen(quote, now)) return;
     ask({
       title: `${action === "accept" ? "Accept" : "Reject"} this quotation?`,
-      description: "Review the quotation total before confirming.",
+      description: quote.originalInvoice
+        ? "Review these additional items and their reason. Acceptance adds this agreement alongside the original invoice; it does not replace previous work, make a payment or release the vehicle."
+        : "Review the quotation total before confirming.",
       path: `${path}/quotes/${quote.id}/${action}`,
       method: "POST",
-      body: { expectedRevision: quote.revision },
+      body: {
+        expectedRevision: quote.revision,
+        ...(action === "accept" && quote.originalInvoice
+          ? {
+              acceptedAdditionalWork: {
+                invoiceNumber: quote.originalInvoice.invoiceNumber,
+                quoteVersion: quote.version,
+                reason: quote.amendmentReason!,
+              },
+            }
+          : {}),
+      },
       quote,
       facts: [
         { label: "Quotation", value: quote.quoteNumber },
+        ...(quote.originalInvoice
+          ? [
+              { label: "Original invoice", value: quote.originalInvoice.invoiceNumber },
+              { label: "Reason", value: quote.amendmentReason! },
+            ]
+          : []),
+        { label: "Version", value: String(quote.version) },
         { label: "Revision", value: String(quote.revision) },
         { label: "Total", value: formatKobo(quote.totalKobo) },
         { label: "Expires", value: formatBusinessDate(quote.expiresAt) },
@@ -299,13 +323,29 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
           <div className="booking-detail-grid">
             <div className="booking-detail-primary">
               <BookingAppointment booking={current} now={now} current={fresh} />
+              <BookingWorkEstimate
+                estimate={current.workEstimate}
+                status={current.status}
+              />
               <BookingDeposit booking={current} />
             </div>
             <BookingProgress booking={current} />
+            {current.vehicleRelease ? (
+              <section className="detail-section" aria-label="Vehicle collection">
+                <h2>Vehicle collection recorded</h2>
+                <p>{formatBusinessDate(current.vehicleRelease.releasedAt)}</p>
+              </section>
+            ) : current.status === "COMPLETED" ? (
+              <p className="booking-detail-notice">
+                Work completion and vehicle collection are separate. The workshop checks
+                all agreed invoice balances before handover.
+              </p>
+            ) : null}
           </div>
           <section className="booking-changes" aria-labelledby="booking-changes-title">
             <h2 id="booking-changes-title">Appointment changes</h2>
             {current.alternativeStartsAt &&
+              !current.startedAt &&
               ["REQUESTED", "CONFIRMED"].includes(current.status) && (
                 <section
                   className="booking-detail-notice"
@@ -498,6 +538,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
               </section>
             )}
             <BookingRescheduleHistory requests={current.rescheduleRequests} />
+            <BookingAttendanceHistory events={current.attendanceEvents} />
             {canReschedule && !disruption && (
               <button
                 className="button secondary"
@@ -755,6 +796,10 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
               )}
           </section>
           <BookingQuotations
+            additionalAcceptanceOpen={
+              !["CANCELLED", "COMPLETED"].includes(current.status) &&
+              current.workOrder?.status !== "COMPLETED"
+            }
             quotes={current.quotes}
             now={now}
             disabled={disabled}

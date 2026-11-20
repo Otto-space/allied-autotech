@@ -39,16 +39,21 @@ export default async function ConcernRequestPage({
         </nav>
         <div className="public-wrap concern-layout">
           <header>
+            <p className="concern-eyebrow">Workshop requests</p>
             <h1>Tell us what your vehicle needs</h1>
             <p>
-              Describe the problem and suggest a workshop visit. Our team will review the
-              request before confirming a time or service.
+              {bookingRequestsEnabled
+                ? "Describe the problem and suggest a workshop visit. Our team will review the request before confirming a time or service."
+                : "Tell the workshop what you have noticed about your vehicle and discuss the next step with our team."}
             </p>
           </header>
           {!bookingRequestsEnabled ? (
-            <section>
+            <section className="concern-unavailable">
               <h2>Contact the workshop</h2>
-              <p>Online booking requests are not available in this release.</p>
+              <p>
+                Online booking requests are unavailable right now. Contact our team to
+                discuss your vehicle and agree visit arrangements.
+              </p>
               <Link className="button" href={enquiryHref}>
                 Describe your concern
               </Link>

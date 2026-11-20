@@ -61,19 +61,21 @@ export default async function VehiclesPage({
     <>
       <SiteHeader />
       <main id="main" className="public-site marketplace-site vehicles-page">
-        <nav className="public-wrap vehicle-breadcrumb" aria-label="Breadcrumb">
-          <ol>
-            <li>
-              <Link href="/">Home</Link>
-            </li>
-            <li>
-              <ChevronRight size={14} aria-hidden="true" />
-              <span aria-current="page">Vehicles</span>
-            </li>
-          </ol>
-        </nav>
         <CatalogueBanner
           kind="vehicles"
+          breadcrumbs={
+            <nav className="vehicle-breadcrumb" aria-label="Breadcrumb">
+              <ol>
+                <li>
+                  <Link href="/">Home</Link>
+                </li>
+                <li>
+                  <ChevronRight size={14} aria-hidden="true" />
+                  <span aria-current="page">Vehicles</span>
+                </li>
+              </ol>
+            </nav>
+          }
           title={
             emptyCatalogue
               ? "Tell us what you’re looking for"

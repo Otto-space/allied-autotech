@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import { readFile } from "node:fs/promises";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
@@ -72,17 +73,23 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         { database: string; host: string; port: number }[]
       >`SELECT current_database() AS database,host(inet_server_addr()) AS host,inet_server_port() AS port`;
       expect(identity?.database).toBe(env.DB_NAME);
-      expect(identity?.port).toBe(env.DB_PORT);
-      if (process.env.GITHUB_ACTIONS === "true") {
-        // The fresh CI service is reached through its localhost port mapping;
-        // PostgreSQL reports its container-side address rather than that client alias.
-        expect(env.DB_HOST).toBe("localhost");
-        expect(env.DB_NAME).toBe("allied_autotech_schema_ci");
-        expect(env.DB_PORT).toBe(5432);
-        expect(identity?.host).toMatch(
-          /^(?:127\.|10\.|172\.(?:1[6-9]|2[0-9]|3[01])\.|192\.168\.|::1$)/,
-        );
-      } else expect(identity?.host).toBe(env.DB_HOST);
+      if (process.env["TEST_DATABASE_CONTAINER_ID"]) {
+        // A dynamic local Docker port differs from PostgreSQL's internal port.
+        // Prove the exact task-owned tmpfs container and NAT mapping instead.
+        await assertIsolatedLoopbackDatabase();
+      } else {
+        expect(identity?.port).toBe(env.DB_PORT);
+        if (process.env.GITHUB_ACTIONS === "true") {
+          // The fresh CI service is reached through its localhost port mapping;
+          // PostgreSQL reports its container-side address rather than that client alias.
+          expect(env.DB_HOST).toBe("localhost");
+          expect(env.DB_NAME).toBe("allied_autotech_schema_ci");
+          expect(env.DB_PORT).toBe(5432);
+          expect(identity?.host).toMatch(
+            /^(?:127\.|10\.|172\.(?:1[6-9]|2[0-9]|3[01])\.|192\.168\.|::1$)/,
+          );
+        } else expect(identity?.host).toBe(env.DB_HOST);
+      }
       expect(identity!.database).toMatch(/_(test|ci)$/);
       const prefix = randomUUID().slice(0, 8);
       const branch = await prisma.branch.create({
@@ -114,6 +121,11 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const body = vehicleCreateBodySchema.parse({
         ...draft.vehicle,
+        // Boundary-length supplied text is synthetic and must round-trip intact.
+        engineDetails: "2.0L I-4 DI, DOHC, VVT, TURBO, PREMIUM, 252HP\n".padEnd(500, "x"),
+        engineCapacityCc: 1998,
+        condition: "FOREIGN_USED",
+        features: ["Synthetic audio, navigation", "F".repeat(80)],
         branchId: branch.id,
         stockNumber: `BMW-${prefix}`,
       });
@@ -129,6 +141,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(created.status).toBe(201);
       const stock = created.body.data;
       expect(stock).toMatchObject({
+        engineDetails: body.engineDetails,
+        features: body.features,
         engineCode: "N46",
         cylinders: 4,
         mileageKm: null,
@@ -221,12 +235,17 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ownerReportedCondition: draft.vehicle.ownerReportedCondition,
         mileageKm: null,
         cylinders: 4,
+        engineDetails: body.engineDetails,
+        features: body.features,
         engineCode: "N46",
         conditionReports: [],
       });
       expect(published.body.data.vehicle).not.toHaveProperty("vin");
       const update = {
         expectedVersion: 0,
+        engineDetails: body.engineDetails,
+        engineCapacityCc: body.engineCapacityCc,
+        features: body.features,
         ownerReportedIssues: "Owner correction: AC still not working; cause unverified.",
       };
       expect(
@@ -245,6 +264,41 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         (await request(app).patch(`${path}/${stock.id}`).set(admin.headers).send(update))
           .status,
       ).toBe(409);
+      const unchanged = await request(app).get(`${path}/${stock.id}`).set(admin.headers);
+      expect(unchanged.body.data).toMatchObject({
+        engineDetails: body.engineDetails,
+        features: body.features,
+        condition: body.condition,
+      });
+      expect(unchanged.body.data.engineDetails).toHaveLength(500);
+      expect(unchanged.body.data.engineCapacityCc).toBe(1998);
+      const publicAfter = await request(app).get(publicPath);
+      expect(publicAfter.body.data.vehicle).toMatchObject({
+        engineDetails: body.engineDetails,
+        engineCapacityCc: 1998,
+        features: body.features,
+        ownerReportedIssues: update.ownerReportedIssues,
+      });
+      for (const invalid of [
+        { engineDetails: "x".repeat(501) },
+        { features: ["x".repeat(81)] },
+        { features: ["Audio, navigation", " audio, NAVIGATION "] },
+        { features: Array.from({ length: 41 }, (_, index) => `Feature ${index}`) },
+      ]) {
+        const rejected = await request(app)
+          .patch(`${path}/${stock.id}`)
+          .set(admin.headers)
+          .send({ expectedVersion: 1, ...invalid });
+        expect(rejected.status).toBe(422);
+      }
+      expect(
+        await prisma.vehicle.findUniqueOrThrow({ where: { id: stock.id } }),
+      ).toMatchObject({
+        version: 1,
+        engineDetails: body.engineDetails,
+        features: body.features,
+        condition: "FOREIGN_USED",
+      });
       const audit = await prisma.auditLog.findFirstOrThrow({
         where: { entityId: stock.id, action: "UPDATE" },
       });

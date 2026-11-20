@@ -28,6 +28,7 @@ export type MutationProposal = {
   disputeChange?: HandlingChange;
   presentation?: "quotation" | "agreement";
   title: string;
+  subject?: string;
   description: string;
   facts: { label: string; value: string }[];
   submit: () => Promise<unknown>;
@@ -122,6 +123,7 @@ export function MutationReview({
       ref={dialog}
       className={`support-dialog mutation-review${proposal.presentation === "quotation" ? " quotation-review" : proposal.presentation === "agreement" ? " agreement-review" : ""}`}
       aria-labelledby="mutation-title"
+      aria-describedby={proposal.subject ? "mutation-subject" : undefined}
       onCancel={(event) => {
         if (busy) event.preventDefault();
         else onClose();
@@ -129,6 +131,11 @@ export function MutationReview({
       onClose={onClose}
     >
       <h2 id="mutation-title">{proposal.title}</h2>
+      {proposal.subject && (
+        <p id="mutation-subject" className="mutation-review-subject">
+          {proposal.subject}
+        </p>
+      )}
       <div
         className="mutation-review-content"
         role="region"

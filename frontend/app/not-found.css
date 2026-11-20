@@ -3,7 +3,7 @@
   min-height: min(680px, calc(100svh - 80px));
   padding: clamp(64px, 9vw, 112px) 20px;
   place-items: center;
-  background: radial-gradient(circle at 80% 22%, #e0192410, transparent 36%), #fff;
+  background: var(--palette-white);
 }
 
 .missing-page__inner {

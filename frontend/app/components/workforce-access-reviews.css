@@ -1,0 +1,66 @@
+.wf-review-people {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+.wf-review-people > li {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.wf-review-person {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.wf-review-person > div {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+.wf-review-person h3,
+.wf-review-duty h4 {
+  margin: 0 0 8px;
+}
+.wf-review-person p {
+  margin: 4px 0;
+}
+.wf-review-duty {
+  border-top: 1px solid var(--line, #d5deea);
+  padding-top: 16px;
+  margin-top: 16px;
+}
+.wf-review-dates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: 16px;
+  margin: 12px 0 0;
+}
+.wf-review-dates dt {
+  font-weight: 600;
+}
+.wf-review-dates dd {
+  margin: 4px 0 0;
+}
+.workforce-reviews .wf-directory-filter-grid select {
+  min-width: 0;
+  max-width: 100%;
+}
+.workforce-reviews .wf-directory-filters {
+  display: block;
+}
+.workforce-reviews .wf-directory-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+  align-items: end;
+}
+.workforce-reviews .wf-directory-filter-grid > div {
+  min-width: 0;
+}
+.workforce-reviews .wf-directory-filter-grid label {
+  display: block;
+  margin-bottom: 8px;
+}

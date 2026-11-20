@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import request from "supertest";
-import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../src/app.js";
 import { prisma } from "../../src/config/database.js";
 import { sessionCookieName } from "../../src/common/security/cookies.js";
@@ -13,12 +13,14 @@ import type { UserRole } from "../../src/generated/prisma/enums.js";
 import { testOwner } from "../helpers/owner.js";
 import { sessionWindow } from "../helpers/session-window.js";
 import { CustomersRepository } from "../../src/modules/customers/customers.repository.js";
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "customer profile revisions",
   () => {
     const app = createApp();
     const path = "/api/v1/customers/profile";
+    beforeAll(assertIsolatedLoopbackDatabase);
     afterAll(() => prisma.$disconnect());
     afterEach(() => vi.restoreAllMocks());
     async function fixture(role: UserRole = "CUSTOMER") {

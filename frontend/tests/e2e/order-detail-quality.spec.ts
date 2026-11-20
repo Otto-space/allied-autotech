@@ -355,7 +355,10 @@ test("confirmed unpaid orders can review; paid and cancelled orders cannot creat
   state.order.status = "CANCELLED";
   await page.getByRole("button", { name: "Refresh order" }).click();
   await expect(
-    page.getByText(/Payment was received, but this order is cancelled/),
+    page.getByText(
+      "Payment was received for this cancelled order. Check payment records for refund updates, or contact customer care if you need help.",
+      { exact: true },
+    ),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Cancel order", exact: true }),

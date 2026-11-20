@@ -13,6 +13,7 @@ import { lockAccessActor } from "../organization/team-access-security.js";
 import { auditBadRequest, auditConflict, auditNotFound } from "./audit.errors.js";
 import { assertAuditAdministrator } from "./audit.policy.js";
 import { AuditRepository } from "./audit.repository.js";
+import { unsuppressedJobPredicate } from "./job-delivery-diagnostic.js";
 import { anomalySelect } from "./anomaly-record.js";
 import type {
   AnomalyListQuery,
@@ -24,6 +25,7 @@ import type {
   OperationalRetryInput,
 } from "./audit.schemas.js";
 import type { AppendAuditEvent } from "./audit.types.js";
+import { currentAccessHistoryContext } from "./access-history.js";
 
 export async function appendAuditEvent(
   transaction: Prisma.TransactionClient,
@@ -73,6 +75,10 @@ export class AuditOperationsService {
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
       const result = page(await this.repository.list(query, transaction), query.limit);
+      const history =
+        query.view === "ACCESS_CHANGES"
+          ? await currentAccessHistoryContext(transaction, actor, result.items)
+          : undefined;
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "READ",
@@ -81,7 +87,7 @@ export class AuditOperationsService {
         newValues: { resource: "AUDIT_LOG", resultCount: result.items.length },
         context,
       });
-      return result;
+      return history ? { ...result, items: history } : result;
     });
   }
 
@@ -131,11 +137,17 @@ export class AuditOperationsService {
     source: "outbox" | "webhook",
     id: string,
     context: RequestSecurityContext,
+    safeDeliveryDiagnostic = false,
   ) {
     assertAuditAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
-      const record = await this.repository.job(source, id, transaction);
+      const record = await this.repository.job(
+        source,
+        id,
+        transaction,
+        safeDeliveryDiagnostic,
+      );
       if (!record) throw auditNotFound();
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
@@ -262,6 +274,7 @@ export class AuditOperationsService {
                 attempts: input.expectedAttempts,
                 ...revision,
                 status: { in: ["FAILED", "DEAD_LETTER"] },
+                AND: [unsuppressedJobPredicate],
               },
               data: {
                 status: "PENDING",

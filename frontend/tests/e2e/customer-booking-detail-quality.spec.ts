@@ -1,5 +1,7 @@
-﻿import { test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { verifyConsole } from "../fixtures/preview-console";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 import {
   bookingDetailFixture,
   detailId,
@@ -7,6 +9,122 @@ import {
 } from "../fixtures/customer-booking-detail";
 import { bookingId } from "../fixtures/customer-bookings";
 const route = `/dashboard/bookings/${detailId}`;
+for (const width of [320, 1440])
+  test(`customer reviews additional quotation and reloads its decision at ${width}px`, async ({
+    page,
+  }, info) => {
+    const errors: string[] = [],
+      warnings: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(message.text());
+      if (message.type() === "warning") warnings.push(message.text());
+    });
+    await page.setViewportSize({ width, height: 900 });
+    const state = await bookingDetailFixture(page);
+    await page.route("**/api/v1/public/capabilities", (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          message: "Synthetic booking enabled; payments disabled",
+          data: publicCapabilitiesFixture("full", false),
+          meta: { requestId: "additional-quote-gate" },
+        },
+      }),
+    );
+    Object.assign(state.record.quotes[0], {
+      originalInvoice: { invoiceNumber: "INV-ORIGINAL-QA" },
+      amendmentReason: "Synthetic additional inspection beyond the original agreement",
+    });
+    await page.goto(route);
+    const quotation = page.locator(".booking-quotation").first();
+    await expect(quotation).toContainText("Additional work");
+    await expect(quotation).toContainText("INV-ORIGINAL-QA");
+    await quotation
+      .getByRole("button", { name: "Accept quotation", exact: true })
+      .click();
+    let dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText(
+      "does not replace previous work, make a payment or release the vehicle",
+    );
+    await expect(dialog).toContainText("INV-ORIGINAL-QA");
+    await expect(dialog.getByText("Version", { exact: true })).toBeVisible();
+    await dialog.getByRole("button", { name: "Go back", exact: true }).click();
+    expect(state.writes).toHaveLength(0);
+    await quotation
+      .getByRole("button", { name: "Accept quotation", exact: true })
+      .click();
+    dialog = page.getByRole("dialog");
+    await dialog.getByRole("button", { name: "Confirm change", exact: true }).click();
+    await expect(
+      quotation.locator('.booking-detail-status[data-status="ACCEPTED"]'),
+    ).toHaveText("Accepted");
+    await page.reload();
+    await expect(
+      quotation.locator('.booking-detail-status[data-status="ACCEPTED"]'),
+    ).toHaveText("Accepted");
+    expect(state.writes).toHaveLength(1);
+    expect(state.writes[0]).toMatchObject({
+      path: expect.stringContaining("/accept"),
+      body: {
+        expectedRevision: 2,
+        acceptedAdditionalWork: {
+          invoiceNumber: "INV-ORIGINAL-QA",
+          quoteVersion: state.record.quotes[0].version,
+          reason: state.record.quotes[0].amendmentReason,
+        },
+      },
+    });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include(".booking-quotations")
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await quotation.evaluate((element) =>
+      window.scrollTo({
+        top:
+          window.scrollY +
+          element.getBoundingClientRect().top -
+          (window.innerWidth < 768 ? 160 : 96),
+        behavior: "instant",
+      }),
+    );
+    await page.screenshot({
+      path: info.outputPath(`additional-quotation-customer-${width}.png`),
+    });
+    await verifyConsole(page, errors, warnings);
+  });
+test("additional quotation with incomplete agreement context fails closed", async ({
+  page,
+}) => {
+  const state = await bookingDetailFixture(page);
+  Object.assign(state.record.quotes[0], {
+    originalInvoice: { invoiceNumber: "INV-ORIGINAL-QA" },
+    amendmentReason: null,
+  });
+  await page.route("**/api/v1/public/capabilities", (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        message: "Synthetic closed gate",
+        data: publicCapabilitiesFixture("browse_enquiries"),
+        meta: { requestId: "additional-quote-closed" },
+      },
+    }),
+  );
+  await page.goto(route);
+  await expect(page.getByRole("heading", { name: "Booking unavailable" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Accept quotation", exact: true }),
+  ).toHaveCount(0);
+  expect(state.writes).toHaveLength(0);
+});
 for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
   test(`booking detail fits ${width}px`, async ({ page }) => {
     await bookingDetailFixture(page);
@@ -534,4 +652,60 @@ for (const width of [390, 1440])
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
     await page.screenshot({ path: info.outputPath("saved-concern.png") });
+  });
+
+for (const closed of ["booking", "work-order"] as const)
+  test(`closed ${closed} keeps additional quotation readable and rejectable without acceptance`, async ({
+    page,
+  }) => {
+    const errors: string[] = [],
+      warnings: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+      if (m.type() === "warning") warnings.push(m.text());
+    });
+    await page.setViewportSize({ width: 320, height: 900 });
+    const f = await bookingDetailFixture(page);
+    await page.route("**/api/v1/public/capabilities", (r) =>
+      r.fulfill({
+        json: {
+          success: true,
+          data: publicCapabilitiesFixture("full", false),
+          message: "Synthetic booking-only capabilities",
+          meta: { requestId: "closed-addition" },
+        },
+      }),
+    );
+    Object.assign(f.record.quotes[0], {
+      originalInvoice: { invoiceNumber: "INV-ORIGINAL-QA" },
+      amendmentReason: "Additional work offered before this visit closed",
+    });
+    if (closed === "booking") f.record.status = "COMPLETED";
+    else
+      f.record.workOrder = {
+        workOrderNumber: "SYNTHETIC-COMPLETE",
+        status: "COMPLETED",
+        diagnosis: null,
+      };
+    await page.goto(route);
+    await expect(
+      page.getByRole("button", { name: "Accept quotation", exact: true }),
+    ).toBeDisabled();
+    await expect(page.getByText("This visit is closed.", { exact: false })).toBeVisible();
+    expect(f.writes).toHaveLength(0);
+    await page.getByRole("button", { name: "Reject quotation", exact: true }).click();
+    await page.getByRole("button", { name: "Confirm change", exact: true }).click();
+    await expect(
+      page.locator('.booking-quotation .booking-detail-status[data-status="REJECTED"]'),
+    ).toBeVisible();
+    expect(f.writes).toHaveLength(1);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await verifyConsole(page, errors, warnings);
+    expect(f.writes[0]).toMatchObject({
+      path: expect.stringContaining("/reject"),
+      body: { expectedRevision: 2 },
+    });
   });

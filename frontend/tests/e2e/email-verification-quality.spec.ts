@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page } from "../fixtures/authentication-test";
 import AxeBuilder from "@axe-core/playwright";
 import { verificationFixture, verifyToken } from "../fixtures/email-verification";
 const linked = `/verify-email#token=${encodeURIComponent(verifyToken)}`;

@@ -55,6 +55,8 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
       - run: npm ci
+      - name: Verify migration checkout and packaged-input safeguards
+        run: node --test scripts/deployment/migration-inputs.test.mjs
       - run: npm run prisma:generate
       - name: Replay migrations and reject missing schema migrations
         run: npm run test:migrations
@@ -65,7 +67,7 @@ jobs:
       - name: Verify backup, command and startup protection
         run: npx --no-install vitest run tests/unit/database-schema-safety.test.ts tests/unit/database-migration-safety.test.ts tests/unit/database-health.test.ts tests/unit/database-error-mapping.test.ts --maxWorkers=2
       - name: Verify unknown service durations and public workshop guidance
-        run: npx --no-install vitest run tests/unit/service-duration.test.ts tests/unit/public-service-copy.test.ts tests/unit/phase5-service-operations-security.test.ts tests/unit/catalogue-learning.test.ts tests/unit/promotion-rounding.test.ts tests/unit/order-money-allocation.test.ts tests/unit/openapi-handover.test.ts tests/unit/owner-policy-money.test.ts tests/unit/quotation-terms.test.ts tests/unit/vehicle-operator-migration.test.ts tests/unit/vehicle-operations-learning.test.ts --maxWorkers=1
+        run: npx --no-install vitest run tests/unit/service-duration.test.ts tests/unit/public-service-copy.test.ts tests/unit/phase5-service-operations-security.test.ts tests/unit/catalogue-learning.test.ts tests/unit/promotion-rounding.test.ts tests/unit/order-money-allocation.test.ts tests/unit/openapi-handover.test.ts tests/unit/owner-policy-money.test.ts tests/unit/quotation-terms.test.ts tests/unit/vehicle-operator-migration.test.ts tests/unit/vehicle-operations-learning.test.ts tests/unit/vehicle-engine-details.test.ts --maxWorkers=1
       - name: Verify booking and financial review with isolated runtime privileges
         env:
           DB_NAME: allied_booking_acceptance_ci
@@ -107,9 +109,11 @@ jobs:
             tests/unit/booking-timing.test.ts tests/unit/booking-slot-timing.test.ts \
             tests/unit/workshop-resources.test.ts tests/integration/workshop-resource-policy.test.ts \
             tests/integration/workshop-resource-options.test.ts tests/unit/isolated-resource-database.test.ts \
-            tests/unit/booking-reminder-window.test.ts tests/unit/workshop-resource-learning.test.ts \
+            tests/unit/booking-reminder-current.test.ts tests/unit/booking-reminder-window.test.ts tests/unit/workshop-resource-learning.test.ts \
             tests/integration/workforce-aftercare.test.ts \
             tests/integration/booking-resource-lifecycle.test.ts \
+            tests/unit/booking-attendance.test.ts tests/unit/booking-attendance-learning.test.ts tests/integration/booking-attendance.test.ts \
+            tests/integration/missed-writer-compatibility.test.ts \
             tests/unit/booking-reschedule-notifications.test.ts tests/unit/booking-reschedule-learning.test.ts \
             tests/unit/catalogue-learning.test.ts tests/integration/booking-reschedule-approval.test.ts \
             tests/integration/workforce-booking-reschedule.test.ts tests/integration/booking-timing.test.ts \
@@ -117,6 +121,45 @@ jobs:
             tests/integration/workforce-booking-confirmation.test.ts tests/integration/workforce-bookings.test.ts \
             tests/integration/booking-response.test.ts \
             tests/integration/booking-settlement-race.test.ts tests/integration/concern-booking-journey.test.ts
+      - name: Verify private profiles, media and authentication with isolated runtime privileges
+        env:
+          DB_NAME: allied_profile_acceptance_ci
+          TEST_DB_NAME: allied_profile_acceptance_ci
+        run: |
+          docker exec "${{ job.services.postgres.id }}" createdb --username=postgres allied_profile_acceptance_ci
+          npm run test:migrations
+          npm run db:check
+          docker exec -i "${{ job.services.postgres.id }}" psql --username=postgres --dbname=allied_profile_acceptance_ci -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE allied_profile_runtime_ci LOGIN PASSWORD 'isolated-ci-only-password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;
+          GRANT CONNECT ON DATABASE allied_profile_acceptance_ci TO allied_profile_runtime_ci;
+          GRANT USAGE ON SCHEMA public TO allied_profile_runtime_ci;
+          GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO allied_profile_runtime_ci;
+          GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO allied_profile_runtime_ci;
+          REVOKE ALL ON TABLE "_prisma_migrations" FROM allied_profile_runtime_ci;
+          DO $$ BEGIN
+            IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'allied_profile_runtime_ci' AND (rolsuper OR rolcreatedb OR rolcreaterole))
+              OR has_schema_privilege('allied_profile_runtime_ci', 'public', 'CREATE')
+              OR has_database_privilege('allied_profile_runtime_ci', 'allied_profile_acceptance_ci', 'CREATE')
+              OR has_table_privilege('allied_profile_runtime_ci', 'public."CustomerProfile"', 'TRUNCATE')
+              OR has_table_privilege('allied_profile_runtime_ci', 'public."_prisma_migrations"', 'SELECT')
+            THEN RAISE EXCEPTION 'Profile CI runtime privileges exceed the allowed scope'; END IF;
+          END $$;
+          SQL
+          # The existing guard verifies the actual loopback database before fixtures.
+          # Photo bytes use memory storage; no real delivery or cloud upload is enabled.
+          docker run --rm --network "container:${{ job.services.postgres.id }}" \
+            --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
+            -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
+            -e DB_NAME=allied_profile_acceptance_ci -e TEST_DB_NAME=allied_profile_acceptance_ci \
+            -e DB_USER=allied_profile_runtime_ci -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
+            -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
+            node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/integration/profile-revision.test.ts tests/integration/profile-photo.test.ts \
+            tests/integration/profile-photo-http.test.ts \
+            tests/integration/password-change-atomicity.test.ts \
+            tests/integration/mfa-challenge-atomicity.test.ts \
+            tests/integration/mfa-enrollment-security.test.ts --maxWorkers=1
       - name: Verify administrator authoring on the new isolated CI database
         run: |
           docker run --rm --network "container:${{ job.services.postgres.id }}" \
@@ -138,7 +181,7 @@ jobs:
             -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
-            tests/unit/purchase-review.test.ts tests/unit/purchase-offer-view.test.ts tests/unit/fitment-engine.test.ts tests/unit/owner-transaction-retry.test.ts tests/integration/purchase-review.test.ts --maxWorkers=1
+            tests/unit/order-supply-exception.test.ts tests/integration/order-supply-exception.test.ts tests/unit/order-collection-clock.test.ts tests/integration/order-pickup.test.ts tests/unit/order-pickup.test.ts tests/unit/order-timing.test.ts tests/integration/order-timing.test.ts tests/unit/purchase-review.test.ts tests/unit/purchase-offer-view.test.ts tests/unit/fitment-engine.test.ts tests/unit/owner-transaction-retry.test.ts tests/integration/purchase-review.test.ts --maxWorkers=1
       - name: Verify isolated guest purchase access without customer-account access
         env:
           DB_NAME: allied_purchase_guest_access_ci
@@ -191,7 +234,9 @@ jobs:
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/integration/workforce-access.test.ts tests/integration/workforce-session-policy.test.ts \
-            tests/integration/workforce-role-transition.test.ts tests/integration/workforce-directory.test.ts --maxWorkers=1
+            tests/integration/workforce-role-transition.test.ts tests/integration/workforce-directory.test.ts \
+            tests/integration/workforce-effective-access.test.ts tests/integration/access-history.test.ts \
+            tests/integration/workforce-access-reviews.test.ts --maxWorkers=1
       - name: Prove missing-column protection against isolated PostgreSQL
         env:
           TEST_DB_NAME: allied_autotech_schema_ci
@@ -246,6 +291,7 @@ jobs:
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/integration/refund-processing.test.ts \
+            tests/integration/job-suppression.test.ts \
             tests/integration/dispute-workflow.test.ts --maxWorkers=1
       - name: Verify reconciliation queue, backfill and retries on isolated PostgreSQL
         run: |
@@ -275,6 +321,11 @@ jobs:
             tests/integration/payment-initialization-race.test.ts \
             tests/integration/payment-capture-accounting.test.ts \
             tests/integration/payment-target-concurrency.test.ts \
+            tests/integration/service-payment-stages.test.ts \
+            tests/unit/service-payment-plan.test.ts \
+            tests/unit/service-payment-summary.test.ts \
+            tests/unit/agreed-service-work.test.ts \
+            tests/unit/additional-service-quote.test.ts \
             tests/integration/order-expiry-payment.test.ts \
             tests/integration/vehicle-expiry-payment.test.ts \
             tests/unit/refund-request-session-boundary.test.ts \
@@ -308,25 +359,51 @@ jobs:
             -e HELP_LEARN_ENABLED=true -e HELP_LEARN_GUIDES_ENABLED=true -e HELP_LEARN_PRACTICE_ENABLED=true \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
             tests/integration/learning.test.ts tests/integration/booking-calendar.test.ts tests/integration/runtime-capabilities.test.ts --maxWorkers=1
-      - name: Verify shared Care availability, lifecycle and durable recovery
+      - name: Verify owned Allie and shared Care lifecycle with restricted runtime privileges
         # Native loopback checks remain strict inside the disposable DB namespace.
         # Provider replies are injected fixtures; no external delivery is enabled.
+        env:
+          DB_NAME: allied_allie_care_acceptance_ci
+          TEST_DB_NAME: allied_allie_care_acceptance_ci
         run: |
+          docker exec "${{ job.services.postgres.id }}" createdb --username=postgres allied_allie_care_acceptance_ci
+          npm run test:migrations
+          npm run db:check
+          docker exec -i "${{ job.services.postgres.id }}" psql --username=postgres --dbname=allied_allie_care_acceptance_ci -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE allied_allie_care_runtime_ci LOGIN PASSWORD 'isolated-ci-only-password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;
+          GRANT CONNECT ON DATABASE allied_allie_care_acceptance_ci TO allied_allie_care_runtime_ci;
+          GRANT USAGE ON SCHEMA public TO allied_allie_care_runtime_ci;
+          GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO allied_allie_care_runtime_ci;
+          GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO allied_allie_care_runtime_ci;
+          REVOKE ALL ON TABLE "_prisma_migrations" FROM allied_allie_care_runtime_ci;
+          DO $$ BEGIN
+            IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'allied_allie_care_runtime_ci' AND (rolsuper OR rolcreatedb OR rolcreaterole))
+              OR has_schema_privilege('allied_allie_care_runtime_ci', 'public', 'CREATE')
+              OR has_database_privilege('allied_allie_care_runtime_ci', 'allied_allie_care_acceptance_ci', 'CREATE')
+              OR has_table_privilege('allied_allie_care_runtime_ci', 'public."User"', 'TRUNCATE')
+              OR has_table_privilege('allied_allie_care_runtime_ci', 'public."_prisma_migrations"', 'SELECT')
+            THEN RAISE EXCEPTION 'Allie/Care CI runtime privileges exceed the allowed scope'; END IF;
+          END $$;
+          SQL
           docker run --rm --network "container:${{ job.services.postgres.id }}" \
             --mount "type=bind,source=$PWD,target=/workspace" --workdir /workspace \
             -e NODE_ENV=test -e DEPLOYMENT_ENV=local -e DB_HOST=127.0.0.1 -e DB_PORT=5432 \
-            -e DB_NAME=allied_autotech_schema_ci -e TEST_DB_NAME=allied_autotech_schema_ci \
-            -e DB_USER=postgres -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
+            -e DB_NAME=allied_allie_care_acceptance_ci -e TEST_DB_NAME=allied_allie_care_acceptance_ci \
+            -e DB_USER=allied_allie_care_runtime_ci -e DB_PASSWORD=isolated-ci-only-password -e DB_SSL_MODE=disable \
             -e CONFIRM_EMPTY_MIGRATION_DATABASE=true -e RUN_DATABASE_TESTS=true \
             -e EMAIL_DELIVERY_ENABLED=false -e SMS_DELIVERY_ENABLED=false \
             -e HELP_LEARN_ENABLED=true -e HELP_LEARN_GUIDES_ENABLED=true -e HELP_LEARN_PRACTICE_ENABLED=true \
             -e HELP_LEARN_AI_ENABLED=false -e SUPPORT_LIVE_CHAT_ENABLED=false \
             node:24.13.0 node node_modules/vitest/vitest.mjs run \
+            tests/integration/allie-conversations.test.ts \
             tests/integration/support-live-availability.test.ts \
             tests/integration/support-coverage-recovery.test.ts \
             tests/integration/support-channel.test.ts \
             tests/integration/support-channel-discovery.test.ts \
             tests/unit/support-live-contracts.test.ts \
+            tests/unit/allie-provider-core.test.ts \
+            tests/unit/allie-evaluation.test.ts \
+            tests/unit/allie-state.test.ts \
             tests/unit/allie-role-guidance.test.ts \
             tests/unit/learning-retrieval-coverage.test.ts \
             tests/unit/privacy-learning.test.ts --maxWorkers=1

@@ -566,10 +566,7 @@ function PrivacyWorkspace({
               ? "Save privacy review"
               : "Confirm hold change"
           }
-          onClose={() => {
-            setProposal(null);
-            record.refresh();
-          }}
+          onClose={() => setProposal(null)}
           onSuccess={() => {}}
         />
       )}

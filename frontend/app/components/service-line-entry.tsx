@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
@@ -48,6 +48,8 @@ export function ServiceLineEntry({
   const form = useForm<ServiceLinesForm>({
     resolver: zodResolver(serviceLinesFormSchema),
     defaultValues: {
+      additionalWork: !!quote?.originalInvoice,
+      amendmentReason: quote?.amendmentReason ?? "",
       items: quote
         ? quote.items.map((item) => ({
             type: item.type,
@@ -62,6 +64,22 @@ export function ServiceLineEntry({
       expiresAt: localExpiry(quote?.expiresAt),
     },
   });
+  const selectedAdditional = !!useWatch({
+    control: form.control,
+    name: "additionalWork",
+  });
+  const additional = quote ? !!quote.originalInvoice : selectedAdditional;
+  const selectionFocusRequested = useRef(false);
+  const reason = useRef<HTMLTextAreaElement | null>(null);
+  useEffect(() => {
+    if (additional && selectionFocusRequested.current) {
+      reason.current?.focus({ preventScroll: true });
+      reason.current?.scrollIntoView({ block: "nearest" });
+    }
+    selectionFocusRequested.current = false;
+  }, [additional]);
+  const reasonField = form.register("amendmentReason");
+  const additionalField = form.register("additionalWork");
   const prefix = mode === "quote" ? "quote-editor" : "work-items";
   function review(values: ServiceLinesForm, submittedAt: number) {
     if (disabled || uncertain) return;
@@ -97,6 +115,16 @@ export function ServiceLineEntry({
         notes: values.notes || null,
         expiresAt,
         ...(quote ? { expectedRevision: quote.revision } : {}),
+        ...(additional
+          ? quote
+            ? { amendmentReason: values.amendmentReason! }
+            : {
+                additionalWork: {
+                  expectedBookingVersion: booking.version,
+                  reason: values.amendmentReason!,
+                },
+              }
+          : {}),
       };
       path = `/staff/bookings/${booking.id}/quotes${quote ? `/${quote.id}` : ""}`;
       method = quote ? "PUT" : "POST";
@@ -105,6 +133,14 @@ export function ServiceLineEntry({
         { label: "Draft expires", value: formatBusinessDate(expiresAt) },
       );
       if (values.notes) facts.push({ label: "Quotation notes", value: values.notes });
+      if (additional)
+        facts.push(
+          {
+            label: "Scope",
+            value: "Additional work; original invoice and payments remain intact",
+          },
+          { label: "Reason", value: values.amendmentReason! },
+        );
     } else {
       if (!booking.workOrder) return;
       body = { expectedVersion: booking.workOrder.version, addItems: items };
@@ -135,7 +171,13 @@ export function ServiceLineEntry({
   }
   return (
     <form
-      data-draft-key={JSON.stringify(["service-line-entry:1", booking?.id, mode])}
+      data-draft-key={JSON.stringify([
+        "service-line-entry:2",
+        booking?.id,
+        mode,
+        quote?.id ?? "new",
+        quote?.revision ?? null,
+      ])}
       className={`line-entry-form${mode === "quote" ? " quotation-editor" : ""}`}
       onSubmit={(event) => {
         const submittedAt = Date.now();
@@ -161,6 +203,69 @@ export function ServiceLineEntry({
       </header>
       {uncertain && (
         <Feedback message="The save outcome is uncertain. Review the refreshed booking before starting another draft or adding items. This form cannot be submitted again." />
+      )}
+      {mode === "quote" && (
+        <>
+          {quote ? (
+            quote.originalInvoice && (
+              <p className="field-hint">
+                Editing additional work for original invoice{" "}
+                {quote.originalInvoice.invoiceNumber}. The original agreement stays
+                intact.
+              </p>
+            )
+          ) : (
+            <div className="field">
+              <label>
+                <input
+                  type="checkbox"
+                  disabled={disabled || uncertain}
+                  {...additionalField}
+                  onChange={(event) => {
+                    selectionFocusRequested.current =
+                      event.nativeEvent.isTrusted && event.currentTarget.checked;
+                    void additionalField.onChange(event);
+                  }}
+                />{" "}
+                Additional work for an existing issued service invoice
+              </label>
+              <p className="field-hint">
+                Choose this only for new items beyond the original agreed work. Include
+                only the additional items; the original invoice stays intact.
+              </p>
+            </div>
+          )}
+          {additional && (
+            <div className="field">
+              <label htmlFor="quote-amendment-reason">
+                Why is this additional work needed?
+              </label>
+              <textarea
+                id="quote-amendment-reason"
+                rows={3}
+                maxLength={1000}
+                disabled={disabled || uncertain}
+                {...reasonField}
+                ref={(node) => {
+                  reasonField.ref(node);
+                  reason.current = node;
+                }}
+                aria-invalid={!!form.formState.errors.amendmentReason}
+                aria-describedby="quote-amendment-hint"
+              />
+              <p
+                id="quote-amendment-hint"
+                className={
+                  form.formState.errors.amendmentReason ? "field-error" : "field-hint"
+                }
+                role={form.formState.errors.amendmentReason ? "alert" : undefined}
+              >
+                {form.formState.errors.amendmentReason?.message ??
+                  "The customer sees this reason with the itemised quotation before accepting. New work and payment still need their separate checks."}
+              </p>
+            </div>
+          )}
+        </>
       )}
       <div className={mode === "quote" ? "quotation-editor-grid" : undefined}>
         <div className="quotation-lines">

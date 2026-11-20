@@ -172,7 +172,7 @@
 }
 .product-category-skeleton {
   height: 200px;
-  background: repeating-linear-gradient(#f4f6f8 0 44px, #fff 44px 60px);
+  background: #edf1f5;
   margin-top: 18px;
 }
 @media (max-width: 1200px) {

@@ -8,14 +8,15 @@ export type HeroState = {
   revision: number;
   announcement: number | null;
 };
-export const initialHeroState: HeroState = {
+export const createHeroState = (count: number): HeroState => ({
   current: 0,
-  ready: [false, false, false],
-  failed: [false, false, false],
+  ready: Array.from({ length: count }, () => false),
+  failed: Array.from({ length: count }, () => false),
   pending: null,
   revision: 0,
   announcement: null,
-};
+});
+export const initialHeroState = createHeroState(3);
 type Action =
   | { type: "cancel-auto" }
   | { type: "go"; index?: number; direction: number; manual: boolean }

@@ -5,9 +5,49 @@ import type {
 } from "@/lib/api/workforce-effective-access";
 import { formatBusinessDate } from "@/lib/format/date";
 import { capabilityLabels } from "@/lib/api/capability-schemas";
+import type { WorkforceAccount } from "@/lib/api/workforce-schemas";
 import "./workforce-effective-access.css";
 
-function Grants({ rows }: { rows: EffectiveWorkforceGrant[] }) {
+const taskGroups = [
+  {
+    label: "View",
+    actions: [
+      "BOOKINGS_READ",
+      "ORDERS_READ",
+      "CARE_CASE_VIEW",
+      "FINANCE_READ",
+      "JOBS_READ",
+    ],
+  },
+  {
+    label: "Prepare and edit",
+    actions: [
+      "ORDERS_PREPARE",
+      "FITMENT_AUTHOR",
+      "CUSTOMER_ENQUIRIES",
+      "COMPLAINTS",
+      "CARE_PUBLIC_REPLY",
+      "CARE_LIVE_ACCEPT",
+      "SALES_ENQUIRIES",
+      "JOBS_UPDATE",
+    ],
+  },
+  {
+    label: "Independently review and approve",
+    actions: ["FITMENT_REVIEW", "QUALITY_APPROVE"],
+  },
+  {
+    label: "Coordinate work",
+    actions: ["CARE_CASE_ASSIGN", "ENQUIRIES_ASSIGN", "JOBS_ASSIGN"],
+  },
+] as const;
+function Grants({
+  rows,
+  assignments = [],
+}: {
+  rows: EffectiveWorkforceGrant[];
+  assignments?: WorkforceAccount["assignments"];
+}) {
   if (!rows.length) return <p>None.</p>;
   return (
     <ul className="wf-effective-grants">
@@ -19,8 +59,37 @@ function Grants({ rows }: { rows: EffectiveWorkforceGrant[] }) {
             {row.scope === "BRANCH" ? "Branch-wide work" : "Assigned work only"}
           </p>
           <p className="wf-effective-source">
-            Supplied by: {[...new Set(row.sources.map((s) => s.label))].join("; ")}.
+            Why this access is available:{" "}
+            {[...new Set(row.sources.map((s) => s.label))].join("; ")}.
           </p>
+          {row.sources.some(
+            (source) =>
+              source.assignmentId &&
+              assignments.some((assignment) => assignment.id === source.assignmentId),
+          ) && (
+            <ul className="wf-effective-periods">
+              {row.sources.flatMap((source) => {
+                const assignment = source.assignmentId
+                  ? assignments.find((item) => item.id === source.assignmentId)
+                  : undefined;
+                return assignment
+                  ? [
+                      <li key={assignment.id}>
+                        {assignment.temporary ? "Temporary cover" : "Job duty"}:{" "}
+                        {source.label}. Starts {formatBusinessDate(assignment.startsAt)};{" "}
+                        {assignment.expiresAt
+                          ? `ends ${formatBusinessDate(assignment.expiresAt)}`
+                          : "no end date recorded"}
+                        .
+                        {assignment.temporary &&
+                          !assignment.expiresAt &&
+                          " Review this existing open-ended cover."}
+                      </li>,
+                    ]
+                  : [];
+              })}
+            </ul>
+          )}
         </li>
       ))}
     </ul>
@@ -30,21 +99,23 @@ function Boundaries({ delegated }: { delegated: boolean }) {
   return (
     <p className="wf-effective-boundary">
       {delegated &&
-        "Only capabilities and branches within your management envelope are shown. Other grant sources stay private. "}
-      This breakdown covers responsibility grants. Account baseline and separately granted
-      permissions keep their existing rules. Independent approval is still required where
-      applicable.
+        "Only allowed actions and branches within what you may manage are shown. Other access sources stay private. "}
+      This is a partial access summary. It lists job duties; account-level permissions are
+      not itemized here. Separately approved duties are shown only when your current
+      access permits that check. Existing independent approval rules still apply.
     </p>
   );
 }
 export function WorkforceEffectiveAccess({
   value,
+  assignments,
 }: {
   value: EffectiveWorkforceAccess | undefined;
+  assignments?: WorkforceAccount["assignments"];
 }) {
   return (
-    <section className="wf-effective" aria-label="Effective responsibility access">
-      <h3>Effective responsibility access</h3>
+    <section className="wf-effective" aria-label="What this person can access">
+      <h3>What this person can access</h3>
       {!value ? (
         <p>Refresh responsibility access to check the current grant breakdown.</p>
       ) : (
@@ -63,8 +134,8 @@ export function WorkforceEffectiveAccess({
           )}
           {value.baseline === "LEGACY" && (
             <p>
-              This account retains its existing legacy access until an authorised
-              enrollment review. No responsibility is inferred from its position.
+              This account retains its earlier access setup until an authorised enrollment
+              review. No responsibility is inferred from its position.
             </p>
           )}
           <Boundaries delegated={value.visibility === "DELEGATED"} />
@@ -92,8 +163,39 @@ export function WorkforceEffectiveAccess({
           )}
           {value.grants.length ? (
             <details>
-              <summary>Capabilities and grant sources ({value.grants.length})</summary>
-              <Grants rows={value.grants} />
+              <summary>
+                Allowed actions and why they are available ({value.grants.length})
+              </summary>
+              {taskGroups.map((group) => {
+                const rows = value.grants.filter((row) =>
+                  group.actions.some((action) => action === row.capability),
+                );
+                return rows.length ? (
+                  <section key={group.label} aria-label={group.label}>
+                    <h4>{group.label}</h4>
+                    <Grants rows={rows} assignments={assignments} />
+                  </section>
+                ) : null;
+              })}
+              {value.grants.some(
+                (row) =>
+                  !taskGroups.some((group) =>
+                    group.actions.some((action) => action === row.capability),
+                  ),
+              ) && (
+                <section aria-label="Other allowed work">
+                  <h4>Other allowed work</h4>
+                  <Grants
+                    rows={value.grants.filter(
+                      (row) =>
+                        !taskGroups.some((group) =>
+                          group.actions.some((action) => action === row.capability),
+                        ),
+                    )}
+                    assignments={assignments}
+                  />
+                </section>
+              )}
             </details>
           ) : (
             <p>No currently active responsibility grants.</p>

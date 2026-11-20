@@ -1,4 +1,6 @@
 "use client";
+import { VehicleEngineFields } from "./vehicle-engine-fields";
+import { VehicleFeatureFields } from "./vehicle-feature-fields";
 import { VehicleOwnerFields } from "./vehicle-owner-fields";
 import { importVehicleDraft } from "@/lib/forms/vehicle-draft-import";
 import { CountryField } from "./country-field";
@@ -297,7 +299,7 @@ function CreationWorkspace({
             : "Not recorded",
         },
         {
-          label: "Powertrain",
+          label: "Engine / Power type",
           value: body.powertrain ? vehicleLabel(body.powertrain) : "Not recorded",
         },
         {
@@ -308,12 +310,15 @@ function CreationWorkspace({
               : String(body.engineCapacityCc),
         },
         {
-          label: "Recorded features",
-          value: body.features?.join(", ") || "Not recorded",
+          label: "Additional features",
+          value:
+            body.features?.map((item, index) => `${index + 1}. ${item}`).join("\n") ||
+            "Not recorded",
         },
         { label: "Fuel type", value: human(body.fuelType) },
         { label: "Body type", value: human(body.bodyType) },
-        { label: "Drive type", value: human(body.driveType) },
+        { label: "Engine details", value: body.engineDetails || "Not recorded" },
+        { label: "Drive system", value: human(body.driveType) },
         { label: "Engine code", value: body.engineCode ?? "Not recorded" },
         { label: "Cylinders", value: String(body.cylinders ?? "Not recorded") },
         {
@@ -581,7 +586,6 @@ type TextField =
   | "trim"
   | "mileageKm"
   | "engineCapacityCc"
-  | "features"
   | "engineCode"
   | "cylinders"
   | "engineSize"
@@ -718,6 +722,7 @@ function CreationForm({
           "powertrain",
           "engineCapacityCc",
           "features",
+          "engineDetails",
           "engineCode",
           "cylinders",
           "ownerReportedCondition",
@@ -733,7 +738,12 @@ function CreationForm({
           "acquiredAt",
         ];
         const first = order.find((name) => errors[name]);
-        if (first) form.setFocus(first);
+        if (first === "features") {
+          const index = form
+            .getValues("features")
+            .findIndex((_, i) => errors.features?.[i]?.value);
+          form.setFocus(`features.${Math.max(index, 0)}.value`);
+        } else if (first) form.setFocus(first);
       })}
     >
       <fieldset disabled={disabled}>
@@ -834,9 +844,6 @@ function CreationForm({
           "Specifications",
           <>
             {input("mileageKm", "Mileage (optional, km)", 8)}
-            {select("transmission", "Transmission")}
-            {select("powertrain", "Powertrain")}
-            {select("fuelType", "Fuel type")}
             <div className="field">
               <label htmlFor="vehicle-record-manufactureCountryCode">
                 Final assembly country (optional)
@@ -867,13 +874,9 @@ function CreationForm({
                 Use documented final assembly country. Leave unknown origin blank.
               </small>
             </div>
-            {input("engineCapacityCc", "Engine capacity (optional, cc)", 5)}
-            {input("features", "Recorded features (optional, comma separated)", 3239)}
+            <VehicleEngineFields form={form} />
+            <VehicleFeatureFields form={form} />
             {select("bodyType", "Body type")}
-            {select("driveType", "Drive type")}
-            {input("engineCode", "Engine code (optional)", 40)}
-            {input("cylinders", "Cylinders (optional)", 2)}
-            {input("engineSize", "Engine size (optional)", 40)}
             <VehicleOwnerFields form={form} />
             {input("color", "Colour (optional)", 40)}
             {input("doors", "Doors (optional)", 2)}

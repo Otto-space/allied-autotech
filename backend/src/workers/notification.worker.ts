@@ -14,6 +14,7 @@ import type { NotificationDeliveryPayload } from "../modules/notifications/notif
 import type { EmailProvider } from "../providers/messaging/email-provider.port.js";
 import type { SmsProvider } from "../providers/messaging/sms-provider.port.js";
 import { renewMessagingClaim } from "./messaging-claim.js";
+import { isCurrentBookingReminder } from "./booking-reminder-current.js";
 
 class LostNotificationClaim extends Error {}
 
@@ -147,16 +148,12 @@ export class NotificationDeliveryWorker {
       if (payload.bookingAction) {
         const booking = await this.database.booking.findUnique({
           where: { id: payload.bookingAction.bookingId },
-          select: { status: true, scheduleVersion: true },
+          select: { status: true, scheduleVersion: true, scheduledAt: true },
         });
-        if (
-          !booking ||
-          booking.status !== "CONFIRMED" ||
-          booking.scheduleVersion !== payload.bookingAction.scheduleVersion
-        ) {
+        if (!isCurrentBookingReminder(booking, payload.bookingAction.scheduleVersion)) {
           code = "STALE_BOOKING_REMINDER";
           terminal = true;
-          throw new Error("Appointment changed before reminder delivery");
+          throw new Error("Appointment reminder is no longer current");
         }
       }
       if (payload.channel !== event.channel) throw new Error("Delivery channel mismatch");

@@ -1,3 +1,6 @@
+import type { ServiceVehicleReleaseInput } from "./service-operations.schemas.js";
+import { type BookingAttendanceInput } from "./booking-attendance.js";
+import type { BookingWorkReviewInput } from "./service-operations.schemas.js";
 import type { BookingTimingOverrideInput } from "./service-operations.schemas.js";
 import type {
   BookingRescheduleDecisionInput,
@@ -30,6 +33,7 @@ import type {
   PublicBookingSlotListQuery,
   QuoteCreateInput,
   QuoteReplaceInput,
+  QuoteDecisionInput,
   QuoteTransitionInput,
   ServiceCreateInput,
   ServiceUpdateInput,
@@ -269,6 +273,79 @@ export class ServiceOperationsController {
           ),
         ),
       );
+  readBookingAttendance = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Appointment attendance",
+          req.id,
+          await this.service.readBookingAttendance(
+            actor(req),
+            ids(res).bookingId,
+            context(req),
+            false,
+            validated<{ receiptId?: string }>(res, "query").receiptId,
+          ),
+        ),
+      );
+  recordBookingAttendance = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Appointment attendance recorded",
+          req.id,
+          await this.service.recordBookingAttendance(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingAttendanceInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+  bookingAlternativeOptions = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Available appointment alternatives",
+          req.id,
+          await this.service.bookingAlternativeOptions(
+            actor(req),
+            ids(res).bookingId,
+            validated<{ day: string }>(res, "query").day,
+          ),
+        ),
+      );
+  bookingWorkReviewOptions = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Current work review options",
+          req.id,
+          await this.service.bookingWorkReviewOptions(actor(req), ids(res).bookingId),
+        ),
+      );
+  reviewBookingWork = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Remaining work estimate recorded",
+          req.id,
+          await this.service.reviewBookingWork(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingWorkReviewInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
   overrideBookingTiming = async (req: Request, res: Response) =>
     res
       .status(200)
@@ -356,7 +433,7 @@ export class ServiceOperationsController {
             actor(req),
             ids(res).bookingId,
             ids(res).quoteId!,
-            validated<QuoteTransitionInput>(res, "body"),
+            validated<QuoteDecisionInput>(res, "body"),
             context(req),
           ),
         ),
@@ -567,6 +644,33 @@ export class ServiceOperationsController {
           ),
         ),
       );
+  reviewVehicleRelease = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Collection readiness checked",
+          req.id,
+          await this.service.reviewVehicleRelease(actor(req), ids(res).bookingId),
+        ),
+      );
+
+  releaseCompletedVehicle = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Vehicle collection recorded",
+          req.id,
+          await this.service.releaseCompletedVehicle(
+            actor(req),
+            ids(res).bookingId,
+            validated<ServiceVehicleReleaseInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+
   createWorkOrder = async (req: Request, res: Response) =>
     res
       .status(201)

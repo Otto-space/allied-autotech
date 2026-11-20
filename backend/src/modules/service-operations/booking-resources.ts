@@ -1,3 +1,4 @@
+import { currentWorkEstimate } from "./booking-work-estimate.js";
 import { eligibleWorkshopTechnicianWhere } from "./workshop-technician-eligibility.js";
 import {
   workshopResourceAvailabilitySelect,
@@ -10,6 +11,7 @@ import { validateWorkshopResourceReferences } from "../policies/workshop-resourc
 import { timingWindow } from "./booking-timing.js";
 import {
   selectWorkshopResources,
+  resourceWindowAvailable,
   workshopResourceSettingsSchema,
 } from "./workshop-resources.js";
 import {
@@ -96,19 +98,34 @@ export async function allocateBookingResources(
     throw serviceOperationConflict(
       "Review this appointment's saved timing before reserving resources",
     );
-  const planned = timingWindow(booking.scheduledAt, timing);
-  const startsAt = new Date(
-    Math.min(planned.startsAt.getTime(), booking.startedAt?.getTime() ?? Infinity),
-  );
-  const endsAt = new Date(
-    Math.max(
-      planned.endsAt.getTime(),
-      booking.startedAt
-        ? booking.startedAt.getTime() +
-            (timing.durationMinutes! + timing.cleanupMinutes!) * 60000
-        : -Infinity,
-    ),
-  );
+  const latest = await tx.bookingResourceAllocation.findFirst({
+    where: { bookingId },
+    orderBy: { bookingVersion: "desc" },
+  });
+  const workReview = latest && currentWorkEstimate(booking, [latest]) ? latest : null;
+  if (workReview && workReview.endsAt <= new Date())
+    throw serviceOperationConflict(
+      "Review the remaining work again before changing its operational status; its earlier estimate has elapsed.",
+    );
+  const planned = workReview
+    ? { startsAt: workReview.startsAt, endsAt: workReview.endsAt }
+    : timingWindow(booking.scheduledAt, timing);
+  const startsAt = workReview
+    ? planned.startsAt
+    : new Date(
+        Math.min(planned.startsAt.getTime(), booking.startedAt?.getTime() ?? Infinity),
+      );
+  const endsAt = workReview
+    ? planned.endsAt
+    : new Date(
+        Math.max(
+          planned.endsAt.getTime(),
+          booking.startedAt
+            ? booking.startedAt.getTime() +
+                (timing.durationMinutes! + timing.cleanupMinutes!) * 60000
+            : -Infinity,
+        ),
+      );
   const { policy, settings } = await approvedWorkshopResources(tx, booking.branchId);
   await validateWorkshopResourceReferences(tx, actor, booking.branchId, {
     ...settings,
@@ -127,7 +144,7 @@ export async function allocateBookingResources(
     );
   const needsResources =
     (settings.services.find((row) => row.serviceId === booking.serviceId)?.requirements
-      .length ?? 0) > 0;
+      .length ?? 0) > 0 || (workReview?.resourceIds.length ?? 0) > 0;
   // Lock all candidate identities in stable global order, including units shared
   // between branch plans. Other bookings cannot select the last unit concurrently.
   for (const id of settings.resources.map((row) => row.id).sort())
@@ -146,9 +163,11 @@ export async function allocateBookingResources(
     throw serviceOperationConflict(
       "Review resource allocations for existing work in this period before confirming another appointment. No existing appointment was displaced.",
     );
-  const prior = await tx.bookingResourceAllocation.findUnique({
-    where: { bookingId_bookingVersion: { bookingId, bookingVersion: booking.version } },
-  });
+  const prior =
+    workReview ??
+    (await tx.bookingResourceAllocation.findUnique({
+      where: { bookingId_bookingVersion: { bookingId, bookingVersion: booking.version } },
+    }));
   if (
     prior &&
     (prior.policyVersionId !== policy.id ||
@@ -163,6 +182,21 @@ export async function allocateBookingResources(
       "The resource review changed; review the current appointment revision",
     );
   const busy = new Set(availability.busyResourceIds.map((id) => id.toLowerCase()));
+  if (
+    workReview &&
+    workReview.resourceIds.some((id) => {
+      const unit = settings.resources.find((r) => r.id === id);
+      return (
+        !unit ||
+        unit.status !== "AVAILABLE" ||
+        busy.has(id) ||
+        !resourceWindowAvailable(unit, startsAt, endsAt)
+      );
+    })
+  )
+    throw serviceOperationConflict(
+      "A reviewed physical unit is no longer available. Review the remaining work before changing its status.",
+    );
   if (prior)
     for (const unit of settings.resources)
       if (!prior.resourceIds.includes(unit.id)) busy.add(unit.id);

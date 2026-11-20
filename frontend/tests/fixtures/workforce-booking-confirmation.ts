@@ -1,3 +1,4 @@
+import type { BookingWorkEstimate } from "../../lib/api/booking-work-review-schemas";
 import type { z } from "zod";
 import type { bookingTimingSnapshotSchema } from "../../lib/api/booking-timing-schemas";
 import type { BookingRescheduleRequest } from "../../lib/api/booking-schemas";
@@ -49,6 +50,8 @@ export async function workforceBookingConfirmationFixture(
       timingSnapshots: [] as z.infer<typeof bookingTimingSnapshotSchema>[],
       scheduledAt: "2040-01-02T09:00:00.000Z",
       confirmedAt: null as string | null,
+      startedAt: null as string | null,
+      workEstimate: null as BookingWorkEstimate | null,
       rescheduleRequests: [] as BookingRescheduleRequest[],
       alternativeStartsAt: null as string | null,
       alternativeReason: null as string | null,
@@ -125,6 +128,17 @@ export async function workforceBookingConfirmationFixture(
   await page.route("**/api/v1/staff/workforce/bookings/**", async (route) => {
     const request = route.request(),
       pathname = new URL(request.url()).pathname;
+    if (request.method() === "GET" && pathname.endsWith("/alternative-options")) {
+      const day = new URL(request.url()).searchParams.get("day")!;
+      return route.fulfill(
+        ok({
+          bookingId: state.booking.id,
+          bookingVersion: state.booking.version,
+          day,
+          items: [{ startsAt: `${day}T10:00:00.000Z` }],
+        }),
+      );
+    }
     if (request.method() === "GET") {
       if (state.readMode === "error")
         return route.fulfill({

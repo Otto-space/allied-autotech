@@ -1,3 +1,12 @@
+import {
+  registerBuyerSupplyRoutes,
+  registerStaffSupplyRoutes,
+} from "./order-supply-exception.routes.js";
+import {
+  registerBuyerPickupRoutes,
+  registerStaffPickupRoutes,
+} from "./order-pickup.routes.js";
+import { orderTimingBodySchema } from "./order-timing.schemas.js";
 import { Router } from "express";
 import { authenticate } from "../../common/middleware/authenticate.js";
 import {
@@ -28,6 +37,8 @@ export function createCustomerOrdersRouter(): Router {
   const router = Router();
   const controller = new OrdersController();
   router.use(authenticate(), requireCustomer);
+  registerBuyerPickupRoutes(router);
+  registerBuyerSupplyRoutes(router);
   router.post(
     "/checkout",
     requireCsrf,
@@ -74,6 +85,8 @@ export function createStaffOrdersRouter(): Router {
   const router = Router();
   const controller = new OrdersController();
   router.use(authenticate(), requireStaff);
+  registerStaffPickupRoutes(router);
+  registerStaffSupplyRoutes(router);
   router.get("/", validate({ query: staffOrderListQuerySchema }), controller.staffList);
   router.get(
     "/:orderId",
@@ -96,6 +109,16 @@ export function createAdminOrderOperationsRouter(): Router {
   const router = Router();
   const controller = new OrdersController();
   router.use(authenticate(), requireAdministrator);
+  router.post(
+    "/:orderId/timing",
+    requireCsrf,
+    validate({
+      params: orderParamsSchema,
+      body: orderTimingBodySchema,
+      query: ordersEmptyQuerySchema,
+    }),
+    controller.updateTiming,
+  );
   router.post(
     "/:orderId/purchase-review/decision",
     requireCsrf,

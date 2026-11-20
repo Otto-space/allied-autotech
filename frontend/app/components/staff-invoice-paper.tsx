@@ -45,6 +45,18 @@ export function StaffInvoicePaper({
         <div>
           <span>{p.source.description}</span>
           <strong>{p.source.reference}</strong>
+          {p.source.originalInvoiceNumber && (
+            <>
+              <span>Original invoice</span>
+              <strong>{p.source.originalInvoiceNumber}</strong>
+            </>
+          )}
+          {p.source.amendmentReason && (
+            <>
+              <span>Additional work reason</span>
+              <strong>{p.source.amendmentReason}</strong>
+            </>
+          )}
           <span>Workshop</span>
           <strong>{branch}</strong>
         </div>
@@ -128,6 +140,18 @@ export function StaffInvoicePaper({
         </div>
       </dl>
       <div className="wid-paper-dates">
+        {p.servicePaymentPlan && (
+          <>
+            <p>
+              <span>Materials stage, including VAT and credits</span>
+              <strong>{formatKobo(p.servicePaymentPlan.materials.totalKobo)}</strong>
+            </p>
+            <p>
+              <span>Workmanship and fees stage, including VAT and credits</span>
+              <strong>{formatKobo(p.servicePaymentPlan.workmanship.totalKobo)}</strong>
+            </p>
+          </>
+        )}
         <p>
           <span>Due (Lagos)</span>
           <strong>{p.dueAt ? formatStockInstant(p.dueAt) : "Not set"}</strong>

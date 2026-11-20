@@ -146,6 +146,58 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           .send(input);
       return { who, booking, pending, slot, body, selectedStaff, decide };
     }
+    it("reads scoped day alternatives through the full HTTP dispatcher without exposing private capacity", async () => {
+      const v = await fixture();
+      const day = new Date(v.slot.startsAt.getTime() + 3600000)
+        .toISOString()
+        .slice(0, 10);
+      const path = `/api/v1/staff/workforce/bookings/${v.booking.id}/alternative-options`;
+      const result = await request(app)
+        .get(path + "?day=" + day)
+        .set(v.who.headers)
+        .expect(200);
+      expect(result.headers["cache-control"]).toBe("private, no-store");
+      expect(Object.keys(result.body.data).sort()).toEqual([
+        "bookingId",
+        "bookingVersion",
+        "day",
+        "items",
+      ]);
+      expect(result.body.data).toMatchObject({
+        bookingId: v.booking.id,
+        bookingVersion: 1,
+        day,
+      });
+      expect(
+        result.body.data.items.some(
+          (i: { startsAt: string }) => i.startsAt === v.slot.startsAt.toISOString(),
+        ),
+      ).toBe(true);
+      expect(JSON.stringify(result.body.data)).not.toMatch(
+        /staffId|resourceIds|staffNotes|policySnapshot/,
+      );
+      await request(app)
+        .get(path + "?day=tomorrow")
+        .set(v.who.headers)
+        .expect(422);
+      await request(app)
+        .get(path + "?day=" + day + "&limit=100")
+        .set(v.who.headers)
+        .expect(422);
+      await request(app)
+        .get(path + "?day=" + day)
+        .set(f.customer.headers)
+        .expect(403);
+      await request(app)
+        .get(
+          `/api/v1/staff/workforce/bookings/${f.foreignJob.id}/alternative-options?day=${day}`,
+        )
+        .set(v.who.headers)
+        .expect(404);
+      expect(
+        (await prisma.booking.findUniqueOrThrow({ where: { id: v.booking.id } })).version,
+      ).toBe(1);
+    });
     it.each(["STAFF", "ADMIN"] as const)(
       "lets scoped %s confirm the existing technician through HTTP without leaking financial/private details",
       async (role) => {

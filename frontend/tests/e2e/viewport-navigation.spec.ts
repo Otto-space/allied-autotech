@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
+import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 
 async function fixture(page: Page) {
   const errors: string[] = [];
@@ -15,6 +16,7 @@ async function fixture(page: Page) {
         json: { success: false, error: { code: "UNAUTHORIZED" } },
       });
     let data: unknown = { items: [] };
+    if (endpoint.endsWith("/public/capabilities")) data = publicCapabilitiesFixture();
     if (endpoint.endsWith("/learning/catalogue"))
       data = {
         accessKey: "a".repeat(64),
@@ -118,7 +120,9 @@ for (const [width, height] of [
     await dialog.getByRole("button", { name: "Find reviewed help" }).click();
     await expect(dialog.locator(".allie-answer")).toContainText("Find the workshop");
     const content = dialog.locator(".allie-dialog-body");
-    await expect(content).toHaveCSS("scrollbar-width", "none");
+    // The shared modal treatment uses a thin scrollbar; keep the actual
+    // overflow, scrolling, heading visibility and accessibility assertions below.
+    await expect(content).toHaveCSS("scrollbar-width", "thin");
     await expect
       .poll(() => content.evaluate((el) => el.scrollHeight > el.clientHeight))
       .toBe(true);
@@ -277,6 +281,42 @@ for (const width of [390, 1440]) {
 }
 
 for (const width of [390, 1440]) {
+  test(`Fragment entry follows deferred form layout until the visitor scrolls at ${width}`, async ({
+    page,
+  }) => {
+    const errors = await fixture(page);
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/contact#workshop");
+    await expect(
+      page.getByRole("textbox", { name: "Subject", exact: true }),
+    ).toBeVisible();
+    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    const workshopOffset = () =>
+      page.locator("#workshop").evaluate((el) => {
+        const box = el.getBoundingClientRect();
+        const header = document.querySelector(".site-header")!.getBoundingClientRect();
+        return { top: box.top - header.bottom, bottom: box.bottom };
+      });
+    await expect.poll(async () => (await workshopOffset()).top).toBeGreaterThanOrEqual(0);
+    // Represent deferred form content without depending on network timing.
+    await page.locator(".contact-form-panel").evaluate((panel) => {
+      const content = document.createElement("div");
+      content.style.height = "800px";
+      panel.prepend(content);
+    });
+    await expect.poll(async () => (await workshopOffset()).bottom).toBeLessThan(844);
+    await page.mouse.wheel(0, -350);
+    await expect.poll(async () => (await workshopOffset()).top).toBeGreaterThan(100);
+    await page.locator(".contact-form-panel").evaluate((panel) => {
+      const content = document.createElement("div");
+      content.style.height = "240px";
+      panel.prepend(content);
+    });
+    await page.waitForTimeout(1000);
+    expect((await workshopOffset()).top).toBeGreaterThan(100);
+    expect(errors).toEqual([]);
+  });
+
   test(`Fragment refresh respects the header and immediate manual scrolling at ${width}`, async ({
     page,
   }) => {

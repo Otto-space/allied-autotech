@@ -25,6 +25,7 @@ export function orderRecord(
       {
         id: orderId(3000 + n),
         revision: 1,
+        availability: [],
         status: "APPROVED",
         createdAt: "2026-10-08T09:00:00Z",
         decidedAt: "2026-10-08T09:05:00Z",

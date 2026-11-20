@@ -4,6 +4,7 @@ import {
   selectionSchema,
 } from "../fitment/fitment.schemas.js";
 import { z } from "zod";
+import { productTimingFields, validProductTiming } from "./product-timing.js";
 import { isDurablePublicImageUrl } from "./image-url.js";
 import {
   productFamilySchema,
@@ -182,6 +183,7 @@ export const adminProductListQuerySchema = productListQuerySchema.safeExtend({
 });
 
 const productFields = {
+  ...productTimingFields,
   ...recordedProductFields,
   categoryId: z.uuid(),
   condition: z.enum(["NEW", "USED", "REFURBISHED"]).nullable().optional(),
@@ -209,6 +211,10 @@ const validPrices = (value: {
 export const productCreateBodySchema = z
   .object(productFields)
   .strict()
+  .refine(validProductTiming, {
+    path: ["sourcingDaysMax"],
+    message: "Provide both sourcing estimates in order, or clear both",
+  })
   .refine(validRecordedProduct, {
     path: ["family"],
     message: "Use only fields appropriate to the selected product family",
@@ -219,6 +225,7 @@ export const productCreateBodySchema = z
   });
 export const productUpdateBodySchema = z
   .object({
+    ...productTimingFields,
     ...recordedProductFields,
     expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }).optional(),
     categoryId: productFields.categoryId.optional(),
@@ -238,6 +245,10 @@ export const productUpdateBodySchema = z
     featured: z.boolean().optional(),
   })
   .strict()
+  .refine(validProductTiming, {
+    path: ["sourcingDaysMax"],
+    message: "Provide both sourcing estimates in order, or clear both",
+  })
   .refine(
     (value) => Object.keys(value).some((key) => key !== "expectedUpdatedAt"),
     "At least one product field is required",

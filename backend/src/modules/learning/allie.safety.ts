@@ -23,6 +23,8 @@ export function containsAllieSecret(value: string) {
     ),
   ];
   return (
+    // Private pickup codes are opaque bearer secrets, including when pasted alone.
+    /(?:^|[^A-Za-z0-9_-])[A-Za-z0-9_-]{43}(?=$|[^A-Za-z0-9_-])/.test(value) ||
     /\b(?:sk-(?:proj-)?[a-z\d_-]{12,}|bearer\s+[a-z\d._~-]{12,}|eyJ[a-z\d_-]{8,}\.[a-z\d_-]+\.[a-z\d_-]+)\b/i.test(
       value,
     ) ||

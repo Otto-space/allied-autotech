@@ -38,4 +38,27 @@ body:has(.mobile-menu--open) .support-controls {
   .support-controls .support-control-label {
     white-space: nowrap;
   }
+  /* Public pages use the reference's compact side dock so the full-width bar
+     cannot cover carousel or catalogue controls. Its shape stays fixed on scroll. */
+  body:has(.public-site) .support-controls {
+    inset-inline-start: auto;
+    inset-inline-end: max(12px, env(safe-area-inset-right));
+    width: 48px;
+    flex-direction: column;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  body:has(.public-site) .support-controls :is(.support-trigger, .whatsapp-control) {
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    padding: 4px;
+    border-radius: 8px;
+  }
+  body:has(.public-site) .support-control-label {
+    display: none;
+  }
 }

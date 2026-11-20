@@ -22,6 +22,11 @@ export const vehicleDraftImportSchema = z
           .min(1886)
           .max(new Date().getUTCFullYear() + 1),
         engineCapacityCc: z.number().int().min(1).max(30000).optional(),
+        engineDetails: z.string().trim().min(1).max(500).optional(),
+        features: z.array(z.string().trim().min(1).max(80)).max(40).optional(),
+        powertrain: z.enum(vehicleEnums.powertrain).optional(),
+        fuelType: z.enum(vehicleEnums.fuelType).optional(),
+        transmission: z.enum(vehicleEnums.transmission).optional(),
         engineCode: z.string().trim().min(1).max(40).optional(),
         cylinders: z.number().int().min(1).max(24).optional(),
         bodyType: z.enum(vehicleEnums.bodyType).optional(),
@@ -42,7 +47,10 @@ export function importVehicleDraft(
   const values = vehicleDefaults(undefined, branchId);
   values.stockNumber = draft.stockNumber;
   for (const [key, field] of Object.entries(draft.vehicle))
-    (values as Record<string, unknown>)[key] = String(field);
+    (values as Record<string, unknown>)[key] =
+      key === "features"
+        ? (field as string[]).map((value) => ({ value }))
+        : String(field);
   // No fabricated mileage, price, branch, country, fuel or transmission.
   return recordSchema.parse(values);
 }

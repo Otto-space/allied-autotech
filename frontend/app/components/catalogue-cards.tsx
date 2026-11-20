@@ -30,12 +30,14 @@ export function PartCard({
   href,
   vehicleChoicesAvailable = false,
   wide = false,
+  compact = false,
 }: {
   product: Product;
   params?: URLSearchParams;
   href?: string;
   vehicleChoicesAvailable?: boolean;
   wide?: boolean;
+  compact?: boolean;
 }) {
   const photo = product.images.find((image) => image.isPrimary) ?? product.images[0];
   const availability = productAvailability(product.availability);
@@ -60,7 +62,9 @@ export function PartCard({
             sizes={
               wide
                 ? "(max-width: 540px) 92vw, 400px"
-                : "(max-width: 540px) 92vw, (max-width: 1100px) 50vw, 33vw"
+                : compact
+                  ? "(max-width: 374px) 92vw, (max-width: 1023px) 46vw, (max-width: 1199px) 33vw, 25vw"
+                  : "(max-width: 540px) 92vw, (max-width: 1100px) 50vw, 33vw"
             }
           />
 

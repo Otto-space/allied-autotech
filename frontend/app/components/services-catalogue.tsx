@@ -81,10 +81,9 @@ export function ServicesCatalogue({
   }
   function pageTo(next: URLSearchParams) {
     navigate(next);
-    document.getElementById("service-results-heading")?.focus({ preventScroll: true });
-    document
-      .getElementById("service-catalogue")
-      ?.scrollIntoView({ behavior: "instant", block: "start" });
+    const heading = document.getElementById("service-results-heading");
+    heading?.focus({ preventScroll: true });
+    heading?.scrollIntoView({ behavior: "instant", block: "start" });
   }
   const pricingLabel = servicePricing.find(([value]) => value === pricing)?.[1];
   return (
@@ -125,9 +124,6 @@ export function ServicesCatalogue({
       )}
       <div className="services-discovery-panel">
         <div className="services-results-heading">
-          <h2 id="service-results-heading" className="sr-only" tabIndex={-1}>
-            Find your service
-          </h2>
           <p role="status" aria-live="polite">
             {resource.loading
               ? "Loading services…"
@@ -167,6 +163,9 @@ export function ServicesCatalogue({
           </div>
         </fieldset>
       </div>
+      <h2 id="service-results-heading" className="services-inventory-title" tabIndex={-1}>
+        Find your service
+      </h2>
       <div className="services-filter-summary">
         {filtered ? (
           <>
@@ -347,7 +346,7 @@ export function ServicesCatalogue({
                   </div>
                   <Link
                     href={`/services/${service.id}`}
-                    className="text-link"
+                    className="button services-view-link"
                     aria-label={`View ${service.name}`}
                   >
                     View service <ArrowUpRight size={17} aria-hidden="true" />

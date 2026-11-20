@@ -22,6 +22,10 @@ export function CreatePaymentRequest({
   invoice: Invoice;
   disabled?: boolean;
 }) {
+  const accepted = invoice.servicePayment?.nextPayment;
+  const amount = accepted?.amountKobo ?? invoice.totalKobo;
+  const stageLabel =
+    accepted?.stage === "MATERIALS" ? "Materials" : "Workmanship and fees";
   const attempt = useRef<{ key: string; sent: boolean } | null>(null);
   const pending = useRef<AbortController | null>(null),
     active = useRef(true);
@@ -29,6 +33,16 @@ export function CreatePaymentRequest({
     [existing, setExisting] = useState(false),
     [uncertain, setUncertain] = useState(false);
   const [payment, setPayment] = useState<z.infer<typeof paymentSchema>>();
+  const paymentLink = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    if (!payment) return;
+    const frame = requestAnimationFrame(() => {
+      const link = paymentLink.current;
+      link?.focus({ preventScroll: true });
+      link?.scrollIntoView({ block: "nearest" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [payment]);
   useEffect(() => {
     active.current = true;
     function clear() {
@@ -47,14 +61,24 @@ export function CreatePaymentRequest({
     };
   }, [invoice.id]);
   function review() {
-    if (disabled || existing || payment || !active.current) return;
+    if (
+      disabled ||
+      existing ||
+      payment ||
+      !active.current ||
+      (invoice.servicePayment && !accepted)
+    )
+      return;
     setProposal({
-      title: "Prepare invoice payment",
+      title: accepted
+        ? `Prepare ${accepted.stage === "MATERIALS" ? "materials" : "workmanship"} payment`
+        : "Prepare invoice payment",
       description:
         "Create a payment request for this invoice. You will choose a payment method on the next page. This does not charge you or confirm a payment.",
       facts: [
         { label: "Invoice", value: invoice.invoiceNumber },
-        { label: "Amount", value: formatKobo(invoice.totalKobo) },
+        ...(accepted ? [{ label: "Payment stage", value: stageLabel }] : []),
+        { label: "Amount", value: formatKobo(amount) },
       ],
       retrySafely: true,
       retryAfterRejection: false,
@@ -78,8 +102,14 @@ export function CreatePaymentRequest({
               fresh.id !== invoice.id ||
               fresh.version !== invoice.version ||
               fresh.status !== "ISSUED" ||
-              !fresh.booking ||
-              fresh.booking.id !== invoice.booking?.id ||
+              (!fresh.booking && !fresh.additionalQuote) ||
+              fresh.booking?.id !== invoice.booking?.id ||
+              fresh.additionalQuote?.id !== invoice.additionalQuote?.id ||
+              fresh.additionalQuote?.booking.id !== invoice.additionalQuote?.booking.id ||
+              fresh.additionalQuote?.originalInvoice.invoiceNumber !==
+                invoice.additionalQuote?.originalInvoice.invoiceNumber ||
+              fresh.additionalQuote?.amendmentReason !==
+                invoice.additionalQuote?.amendmentReason ||
               fresh.totalKobo !== invoice.totalKobo ||
               BigInt(fresh.totalKobo) <= BigInt(0) ||
               (fresh.dueAt &&
@@ -87,9 +117,24 @@ export function CreatePaymentRequest({
                   Date.parse(fresh.dueAt) <= Date.now()))
             )
               throw new ApiError(409, { error: { code: "STALE_VERSION" } });
+            const next = fresh.servicePayment?.nextPayment;
+            if (
+              Boolean(fresh.servicePayment) !== Boolean(invoice.servicePayment) ||
+              (accepted &&
+                (!next ||
+                  next.stage !== accepted.stage ||
+                  next.invoiceVersion !== accepted.invoiceVersion ||
+                  next.amountKobo !== accepted.amountKobo))
+            )
+              throw new ApiError(409, { error: { code: "STALE_VERSION" } });
             if (
               fresh.payments.some(
-                (value) => !["CANCELLED", "EXPIRED"].includes(value.status),
+                (value) =>
+                  !(
+                    accepted
+                      ? ["SUCCEEDED", "CANCELLED", "EXPIRED"]
+                      : ["CANCELLED", "EXPIRED"]
+                  ).includes(value.status),
               )
             )
               throw new ApiError(409, { error: { code: "PAYMENT_TARGET_PENDING" } });
@@ -105,6 +150,7 @@ export function CreatePaymentRequest({
               targetType: "INVOICE",
               targetId: invoice.id,
               purpose: "SERVICE_INVOICE",
+              ...(accepted ? { acceptedServiceStage: accepted } : {}),
             },
           });
           const result = z
@@ -116,7 +162,7 @@ export function CreatePaymentRequest({
             result.vehicleTransactionId !== null ||
             result.bookingId !== null ||
             result.purpose !== "SERVICE_INVOICE" ||
-            result.amountKobo !== invoice.totalKobo
+            result.amountKobo !== amount
           )
             throw new Error("Mismatched payment request");
           if (active.current && !controller.signal.aborted) {
@@ -143,8 +189,12 @@ export function CreatePaymentRequest({
     <div className="invoice-payment-create">
       {payment ? (
         <>
-          <p>Payment request ready: {payment.paymentNumber}</p>
-          <Link className="button" href={`/dashboard/payments/${payment.id}`}>
+          <p role="status">Payment request ready: {payment.paymentNumber}</p>
+          <Link
+            ref={paymentLink}
+            className="button"
+            href={`/dashboard/payments/${payment.id}`}
+          >
             Review payment &amp; checkout options
           </Link>
         </>
@@ -165,8 +215,16 @@ export function CreatePaymentRequest({
               ? "The outcome is unconfirmed. Check the same request before starting another."
               : "Review the invoice, then prepare your payment."}
           </p>
-          <button className="button" disabled={disabled} onClick={review}>
-            {uncertain ? "Check the same payment request" : "Prepare invoice payment"}
+          <button
+            className="button"
+            disabled={disabled || Boolean(invoice.servicePayment && !accepted)}
+            onClick={review}
+          >
+            {uncertain
+              ? "Check the same payment request"
+              : accepted
+                ? `Prepare ${accepted.stage === "MATERIALS" ? "materials" : "workmanship"} payment`
+                : "Prepare invoice payment"}
           </button>
         </>
       )}

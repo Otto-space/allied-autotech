@@ -1,3 +1,4 @@
+import type { BookingWorkEstimate } from "../../lib/api/booking-work-review-schemas";
 import type { BookingRescheduleRequest } from "@/lib/api/booking-schemas";
 import type { Page } from "@playwright/test";
 import { workBookingsFixture, workBooking, bookingId } from "./work-bookings";
@@ -7,6 +8,8 @@ export async function workBookingDetailFixture(page: Page, role = "ADMIN") {
   const state = {
     record: {
       ...workBooking(1, "CONFIRMED"),
+      startedAt: null as string | null,
+      workEstimate: null as BookingWorkEstimate | null,
       rescheduleRequests: [] as BookingRescheduleRequest[],
       depositAmountKobo: null,
       depositPaidAt: null,

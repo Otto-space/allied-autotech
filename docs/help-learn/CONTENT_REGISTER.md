@@ -1,3 +1,522 @@
+### 14 November: actual buyer cancellation recovery
+
+Refund-work v12, financial-aftercare v6 and administrator order-sourcing v11 explain
+the existing full remaining pre-confirmation recovery, original account/verified-
+guest cancellation evidence and separate financial duties. No staff cancellation
+is presented as buyer consent; broader terms remain unapproved. Existing targets,
+eligibility and feature flags stay. See the
+[recovery checkpoint](SUPPLY_CANCELLATION_RECOVERY_20261114.md).
+
+### 14 November: current provider-observed cancelled-payment review
+
+Customer parts-collection v7, staff-parts-collection v6, administrator order-sourcing
+v10 and restricted refund-work v11 explain failed/abandoned status versus actual
+current provider evidence, pending/reversal holds and later conflicting money.
+Existing gates, targets and feature flags remain. See the
+[implementation checkpoint](PROVIDER_NEGATIVE_OBSERVATION_20261114.md).
+
+### 13 November: cancelled original reconciliation (prepared source)
+
+Customer parts-collection v6, staff-parts-collection v5, administrator order-sourcing
+v9 and restricted refund-work v10 distinguish no captured payment recorded from
+actual full return of every capture, preserve unknown bank evidence and separate
+replacement acceptance. Eligibility, semantic targets and feature flags remain.
+See [reconciliation checkpoint](CANCELLED_SUPPLY_RECONCILIATION_20261113.md).
+
+### 13 November: distinct no-goods financial closure (source)
+
+Customer parts-collection v5, staff-parts-collection v4, admin order-sourcing v8
+and restricted refund-work v9 explain actual financial closure separately from
+physical handover and stock returns. Original amounts and independent financial
+duties remain; guide targets, eligibility and publication flags are unchanged.
+See [closure checkpoint](NO_GOODS_FINANCIAL_CLOSURE_20261113.md) for actual evidence,
+unchanged permissions and remaining reconciliation/acceptance gates.
+
+### 13 November: remaining-goods learning checkpoint (source)
+
+Customer parts-collection v4, staff-parts-collection v3, administrator
+order-sourcing v7 and restricted
+refund-work v8 now explain current resolved refund coverage, exact remaining goods,
+private partial collection and preservation of original money/physical history.
+Audience checks, guide targets and publication flags remain unchanged. See
+[remaining-goods checkpoint](RESOLVED_SUPPLY_FULFILMENT_20261113.md) for evidence,
+acceptance boundaries and the distinct unfinished financial-closure paths.
+
+### 13 November: integrated supply resolution review verified; D17 remains active
+
+Runtime source 3746fe79290c22f8c11e6788cc07a2e2cdd3f106 preserves master 6e910f9b,
+including Parts, People, reminders, mobile scrollbar and saved-item focus fixes.
+Final held deployment dpl_8CevpHYqk1LwqQN52dTMWWXEuNER is READY; no custom public
+alias was promoted. Both apex/www still resolve to dpl_EdMgppUipQ81msnEmHCef4jZxx6m
+(the www alias redirects to apex). Desktop owner's hero edit remains untouched.
+
+Backend runtime is unchanged from integrated 173cce6d: all 134 native cases/11 files,
+120-migration empty replay/schema diff/db:check and restricted-runtime checks pass.
+Its owned tmpfs database was removed. Correcting the synthetic anomaly resolver
+identity fixed the earlier fixture failure; the other case passes with unchanged
+30-second limits. All 17 frontend units, 35 backend/learning units, source and focused
+test types, scoped lint/formatting, OpenAPI 471 paths/mounted 554 operations plus 4
+infrastructure routes and secret guard 4019 files pass. Canonical types regenerated.
+
+Rendered source 173cce6d passed 10/10 Chromium fixture cases: account/guest 320/1440,
+admin concern 320/1440, refund 390 and resolution 320/768/1440. Visual review removed
+the redundant old refund-request prompt for an already reconciled case. Final
+source 3746fe79 then passed 3/3 affected resolution journeys at 320/768/1440 with the
+new absence assertion, saved refresh, exact amounts/quantities, scoped Axe and no
+page overflow. Screenshots were visually inspected. The initial new-browser run
+failed because PowerShell input encoded the naira test literal as a question mark;
+the test now uses its exact Unicode escape, preserving the currency assertion.
+Browser plugin unavailable; existing Playwright was used. These are intercepted
+synthetic APIs and emulated sizes, not actual role/provider/bank/device acceptance.
+
+Receipts under TEMP/aat-d03-service-payments-20261109/:
+
+- native-supply-resolution-final.log (134/134;120 migrations; owned cleanup)
+- resolution-held-browser-final.log (10/10 on173cce6d)
+- resolution-final-held-browser.log (3/3 on3746fe79)
+- resolution-final-held-results/.../supply-resolution-320.png and1440.png
+  Temporary held-access cookie files were removed after the runs. No real money,
+  application database, role/grant, policy activation or public-domain change.
+
+Remaining implementation: connect current verified resolution to net original
+financial coverage and exact remaining pickup/fulfilment/closure; handle actual
+zero-capture/cancelled and technical-reversal reconciliation distinctly. Generic
+cancelLocked restocks CONSUMED reservations for confirmed cancellations, so it
+must not be reused blindly for refunded supply goods. Future SQL must preserve
+legacy physical rows while admitting only proved unfulfilled refunded gaps.
+A cancelled replacement must not erase its historical accepted original refund;
+unknown/late money and technical cases remain review. No fee, fake handover,
+automatic stock return, forced credit or general returns/warranty is approved.
+
+The D01-D17 status snapshot is in owner-decision-checklist.md. Before publication,
+finish that independent D17 work and obtain actual invoice/operating/account facts,
+provider/role acceptance, exact-master GitHub checks and guarded backup/restore/
+migration/release evidence. Booking readiness is separate from purchasing readiness.
+The full goal stays active; this verified resolution batch is not launch completion.
+
+### 13 November: actual supply settlement and disposition review (source)
+
+Order-sourcing v6 remains administrator-only; refund-work v7 retains explicit
+refund-duty eligibility. The new order resolution action independently requires
+current administrator MFA and CSRF. Learning never grants that authority.
+Review requires the exact original affected refund, successful independent checking
+or verified provider evidence and its canonical debit. The immutable event derives
+unfulfilled/previously handed-over ranges from actual history. Unused pickup codes
+are revoked; active pickup review must be reconciled first. It returns no stock,
+does not invent physical collection and does not itself clear payment/collection.
+Current financial and physical proof must be rechecked before later clearance.
+Actual wrong/used/installed technical assessments remain distinct; no general
+returns/warranty terms, fees, credit or policy publication are introduced.
+UI, types, native and rendered verification for this batch are tracked in the
+site completion tracker; publication flags remain unchanged.
+
+### 10 November: alternative acceptance verified in the integrated held build
+
+Current runtime source04f23adf preserves masterb1222a11 confirmation/recovery focus
+repairs, earlier service-card sizing and vehicle fields. Backend117-migration empty
+replay, empty schema diff, db:check and restricted runtime pass. All112 native cases
+across9 files pass: actual account/guest alternative acceptance and explicit-version
+rejection, current-session SQL proof, exact original refund caps, late-capture
+retention, cancellation/revised offers, ordinary guest quotes, pickup and vehicle
+regressions. Owned tmpfs target was removed; only shared BuildKit remains.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-alternative-integrated.log.
+
+Held deployment dpl_7yKx1ZUtfZnq4ctZ6v3JFrnTefP7 passes25/25 Chromium fixture cases
+across320/360/768/1280/1366/1440: original supply controls, actual alternative reviews,
+administrator quotation authoring, guest ordinary/alternative decisions, interrupted
+acceptance recovery, access removal, expiry, read errors and capability transitions.
+Screenshots were visually inspected; scoped Axe/overflow checks pass where tested.
+The first held run exposed a fixture assumption about enabled initial capabilities;
+it was stopped after confirming that the real restricted server state was preserved.
+Fixtures now explicitly fetch/assert their mocked enabled capability after hydration,
+retaining every interaction/assertion. No real release flag was changed.
+
+Frontend units13/13, learning units48/48, backend/frontend and focused test types,
+scoped lint, secret guard4000 files, canonical OpenAPI470 paths and mounted coverage
+553 operations plus4 infrastructure routes pass. Public domain aliases, application
+DB, financial policy and restricted capability publication remain unchanged. These
+are isolated/fixture results, not provider, actual role or physical-device acceptance.
+
+Next required D17 work: bind verified refund settlement to immutable resolved unit
+ranges, reconcile original financial coverage and remaining physical obligations,
+then support truthful partial pickup/closure without inventing handover, restocking,
+credit or new charges. New alternative payment remains held until that resolution.
+Exact-master CI, fresh populated restore and guarded release safeguards remain
+required before production. Broader returns/warranty is still expressly deferred.
+
+### 10 November: actual alternative quotation and acceptance binding
+
+D17 reuses the actual Care Parts quotation and existing account/private-guest
+acceptance. Issuance binds the current alternative request. The immutable offer
+retains separate-original-refund-before-new-payment terms, labelled engineering
+under the D17 delegation. Acceptance explicitly acknowledges that version, creates
+one actual unpaid same-buyer order, and retains current customer/guest session proof
+without storing a token. SQL preserves offer terms and acceptance proof. Stale,
+technical, foreign and unacknowledged offers cannot be accepted. Cancellation of an
+unpaid replacement permits a fresh customer choice/revised alternative; committed
+refunds still require reconciliation. This is not forced credit or a money transfer.
+
+An original affected-portion refund after alternative acceptance uses the existing
+independent approval/provider/cap safeguards. New alternative payment and collection
+stay held pending the original verified financial/resolved-unit workflow. Actual
+late successful capture evidence remains recordable; it does not mark an order paid.
+Broader returns/warranty and real owner/accountant/provider prerequisites remain.
+Forward116/117 replay/schema diff/db:check and35 native cases passed on an isolated
+restricted target, then owned tmpfs cleanup. Final integrated rerun and rendered
+acceptance are pending. First116 run had34 passes/one missing synthetic policy
+sourceQuestion; the fixture was corrected, no guard removed. UI units13/13 and
+learning48/48 pass. Restricted sourcing v5/refund-work v6 and public parts guidance
+v15 reflect the same sequence; publication flags and production data are unchanged.
+D17 is incomplete until verified settlement and truthful resolved-unit fulfilment
+are connected. Do not promote this held source as a complete production workflow.
+
+### 10 November: integrated supply interface rendered acceptance
+
+Source2abf201f preserves master7af6c51c, including service-card sizing and vehicle
+engine/features work. Only evidence-history conflicts needed manual reconciliation;
+both histories were retained. Held deployment dpl_4N2QUtE4ogEuKhYhGogVZFYgM5sY
+passes7/7 synthetic rendered cases: account/guest request review, cancellation,
+recovery/refresh at320/1440, administrator actual-unit intake at320/1440 and the
+390px verified-capture refund request/link/focus. Six scoped Axe and overflow checks
+pass; screenshots were inspected. Browser plugin unavailable; existing Playwright
+was used. This proves fixture UI, not actual roles/provider settlement or devices.
+The first build passed4/7: guest console assertions misclassified the intentional
+account-session401, now checked by exact endpoint/status separately; a real refund
+focus race with dialog restoration/refresh was reproduced and repaired. All other
+console errors remain failures. Final types/scoped lint/11 interface units and48
+collection/learning/vehicle units pass; secret guard3995 files passes. Prisma client
+was regenerated using isolated test environment defaults. Public domains, production
+DB and capability flags remain unchanged. D17 alternative acceptance and verified
+settlement/resolved-unit fulfilment remain unfinished, with its source held.
+
+### 10 November: customer and administrator supply interface checkpoint
+
+Owned account and private-guest order details now show actual supply concerns only
+when the backend advertises capability version1. Customer requests require explicit
+review; interrupted saves reconcile their original request rather than duplicate it.
+Session/access changes discard private state. Staff cannot enter customer choices.
+Administrator intake selects actual unit ranges and separates public/private notes.
+Refund requests select an actual verified capture, bind the current customer choice
+and exact saved affected amount, then link to the existing independent refund queue.
+Requested/approved is never presented as money returned. No payment gate is enabled.
+
+Actual verification:11 focused frontend tests and focused test TypeScript pass;
+19 native API cases passed with114-migration replay/db:check/restricted runtime and
+owned tmpfs cleanup. Restricted order-sourcing v4 and refund-work v5 guidance plus
+collection calendar/eligibility checks pass46 tests. Seven rendered fixture cases
+are prepared but not yet run. Visual/browser acceptance remains outstanding.
+D17 alternative acceptance and settled-unit fulfilment remain incomplete and held.
+The separate schema110 candidate608d3c0d passed frontend42728871961 (984/984 full
+browser matrix,1549 units;12 pre-existing skips), backend42728871883 and secret 42728871576. These are candidate checks, not exact-master production approval.
+No production database, alias, feature flag or private owner hero edit changed.
+
+### 10 November: financial linkage verified; complete resolution remains held
+
+Refund-work guidance is now restricted v4. Actual current customer refund choices
+bind the existing independently approved refund workflow to exact saved affected
+gross, discount and tax; no fee or live financial-policy approval is invented.
+Original captures and earlier commitments cap requests; unbound money/unknown
+charges require reconciliation. Used/installed/disputed goods stay in assessment.
+A committed refund prevents a competing choice. Safe owned reads show actual refund
+status, never bank/operator evidence. Requested/approved is not money returned.
+95 native cases across7 suites passed with114-migration replay/db:check/restricted
+runtime and owned tmpfs cleanup. Separate eligibility/session/approval units26/26.
+See site-completion-tracker for failed fixture attempts and exact evidence scope.
+Customer/operator UI, actual alternative acceptance and settled unit resolution
+remain incomplete. No feature flag, financial policy or production record changed.
+
+### 10 November: actual customer remedy choices verified; resolution remains held
+
+D17 now retains an append-only choice from the actual owned customer or private
+purchase guest: refund review, suitable-alternative review, or technical review for
+used/installed/disputed goods. These are requests, not financial approval, substitute
+acceptance, credit consent, payment or settlement. No staff member can impersonate
+this customer choice. Both service locks and SQL guards verify the actual current
+principal, order and concern. Guest writes require their own CSRF; account/guest
+mixed cookies are rejected. Replay rechecks current access before returning history.
+
+Current order versions serialize competing choices. Changed choices append rather
+than overwrite, and duplicate UUID/body replay cannot duplicate an alert or entry.
+The safe projection omits private operator notes and actor/session/replay identities.
+Existing scoped Care alerts are reused; the original financial/collection hold stays.
+Technical requests do not infer a general returns period or financial entitlement.
+
+Actual evidence:84/84 across six native suites;113 migrations replayed into a new
+isolated loopback tmpfs test DB, empty schema diff, db:check and restricted runtime
+passed. Task DB/container removed. Applied113 is now immutable. Separate four-file
+units/learning/routing:38/38 after updating the order-sourcing v3 expectation. Receipt:
+TEMP/aat-d03-service-payments-20261109/native-supply-choice.log. Canonical OpenAPI
+adds only two owned choice paths; no existing path changed/removed. Backend/frontend types and scoped lint pass; secret guard3975 files, OpenAPI470
+paths and mounted-route coverage553 operations plus4 infrastructure routes pass.
+
+The actual interface, acceptance of a suitable offered alternative, linkage to the
+independent refund workflow, verified settlement and resolved unit fulfilment remain
+to implement. D17 is incomplete and held locally; do not publish this source or enable
+purchasing to demonstrate it. Schema110 release candidate dab976c7 is unchanged.
+Its backend42721896518 and secret42721896435 passed; frontend42721896492 remains
+running in the full matrix. No production database, transaction or flag was changed.
+
+### 10 November: supply concern intake and Care handoff verified in isolation
+
+D17 now retains actual affected unit ranges, the immutable original monetary basis
+where available, and a linked owned/branch Care enquiry. Unavailable sourcing creates
+one unresolved case for uncovered units; repeats do not duplicate cases/alerts and
+later estimates do not silently resolve it. Existing current-recipient Care alerts
+and opt-in encrypted department delivery are reused. A queued/disabled email is not
+successful delivery. Missing/invalid historical money remains a reconciliation state;
+used/installed/diagnosis reports stay in technical assessment without inventing a
+returns period, fee or entitlement. Financial approval is always false at intake.
+
+Current Admin/Super Admin MFA authoring, scoped Staff reads, actual buyer/guest
+ownership, strict CSRF, version/replay checks and immutable history are connected.
+Unresolved concerns stop new payment preparation and physical fulfilment while
+preserving captured money and stock records. Actual independent remedy consent,
+alternative-quote binding, refund/adjustment linkage, resolved quantities, operational
+UI and rendered acceptance remain to implement. This intake is not D17 completion
+and is held from production until its resolution journey is connected.
+
+Actual evidence: 79/79 in six native suites; 112-migration empty isolated replay,
+empty schema diff, db:check and restricted runtime checks passed. The first run had
+71 passes/eight failures caused by a trigger alias colliding with implicit OLD.
+Forward112 repairs that function; applied111 is untouched. Owned tmpfs DB removed.
+Separate four-file units/learning/routing: 37/37; backend types/scoped lint pass.
+Receipt: TEMP/aat-d03-service-payments-20261109/native-supply-exception-forward-fix.log.
+Order-sourcing learning is admin-only v2; existing publication/commerce flags remain.
+
+## 9 November 22:28 UTC - combined audit candidate; no publication
+
+Reconcile committed pickup/holding/staged-service source62815e7c with reminder
+source27c07434. Preserve its owner-set collection calendar: Monday to Saturday,
+public holidays included, after actual readiness and successful notification,
+including imported/custom parts. Do not reask these values. This source has111
+migrations; no previously applied migration is rewritten. The other worktree's
+unfinished supply-exception/refund edits are untouched and are not included.
+
+Merge service-request guidance as v35, keeping staged invoices, actual vehicle
+release, calendar and saved reminder boundaries. Existing eligibility and flags
+remain unchanged. Pickup CI42708988094 failed after3 preliminary passes because
+the customer test's CSRF fixture omits the mandatory response message; fix the
+fixture envelope while retaining one-time display, browser-storage, refresh and
+exact-write assertions. Clean malformed collection labels/punctuation. Combined
+rendered, database replay/restore, types and exact-source gates are pending.
+
+Reminder source27c07434 backend42708086011 and secrets42708086182 pass; frontend
+42708085978 ended at its25-minute cumulative limit after890 cases. Three-engine
+sidebar and320/768/1440 reminder cases pass; this is not a full matrix pass.
+Individual test deadlines/assertions are unchanged; the combined job now budgets
+35 minutes for its full matrix and55 minutes overall. The other committed source's backend42708988327 and
+secrets42708988374 pass; its full rendered matrix did not run after the early
+pickup failure. Neither independent set proves this combined source.
+
+A separately signed102-schema recovery sourceb4c4c505 passes four native read-only
+repository projections of synthetic NOTICE jobs; temporary read role removed.
+Its old capacity parser rejects custom reminder settings. It is neither packaged
+nor compatible proof for this111-schema candidate. Preserve its verified generated
+client separately; regenerate111 before combined checks. Renew all compatibility,
+populated restore, packaged image and exact-master gates for eventual release.
+
+Disk preflights continue to hold packaging and larger checks. A merge preview
+accidentally ran after a failed20.25GiB preflight; it made no branch/worktree change.
+The actual merge was gated on a successful fresh check at20.75GiB. No production
+records, grants, paid allocations, business settings, capability flags or deployment
+changed. The full original audit and operational/provider/role/device acceptance
+remain active; source integration is not launch readiness.
+
+Combined local verification: generated111 client;111 units in10 suites pass,
+465 OpenAPI paths validate and547 operations are inventoried. Initial merge units
+failed retrieval for service-request in all five audiences: the passage exceeded
+the existing8000-character allowance. Concise v35 wording preserves all12 steps,
+staged-payment and reminder conditions; the unchanged retrieval tests now pass.
+Both backend/frontend types, backend lint and scoped frontend lint pass.
+Rendered acceptance remains pending at this checkpoint. Page composition
+is retained; the pickup UI edit only corrects visible labels and punctuation.
+
+---
+
+## 9 November - configurable appointment reminders
+
+Service-request v31 keeps its public gate, twelve steps and targets. Owner-only
+booking-reminders v1 explains reviewed branch timing, delegated defaults, explicit
+none, saved appointment policy and delivery limits. Its destination is allowlisted
+without broadening eligibility. No practice or feature flag is enabled. See
+REMINDER_SCHEDULE_20261109.md for actual checks and pending acceptance.
+
+---
+
+## 9 November - delayed appointment reminder checks
+
+Service-request v30 retains its public gate, twelve steps, existing semantic targets
+and permission boundaries. It explains current confirmed-future reminder eligibility,
+provider delay and unchanged attendance/cancellation. This does not publish learning
+flags or change reminder timings. See REMINDER_EXPIRY_20261109.md for actual checks.
+
+---
+
+---
+
+### 9 November: collection holding is connected; release acceptance remains open
+
+D12 now records immutable actual phone/in-person contact results separately from
+failed attempts. The first successful contact for the actual ready event anchors
+five Monday-Saturday days in Nigeria time, including public holidays and excluding
+the anchor date; imported/custom parts use the same rule. Later contacts do not
+reset the clock. Authorised current branch/MFA operators may extend to a later
+collection day with a private reason; original dates and history remain. No fee,
+cancellation, refund, resale or paid-stock release follows from overdue status.
+
+Forward migration 110 replayed on a new isolated loopback tmpfs DB. Schema diff,
+db:check and restricted runtime checks passed. Final native run: 68/68 in four
+suites, including repeated successful notification retaining the first anchor.
+The final saved-policy comparison is covered separately for JSONB key ordering and
+unknown-policy refusal; exact combined hosted checks remain required.
+Customer/guest/staff order detail UI shows current holding state and exact date;
+contact/extension controls require the actual backend capability. Pickup/holding
+learning definitions are now v2, server-restricted. No production publication or
+new financial activation is claimed; hosted browser acceptance is still pending.
+
+The earlier 4b6d9ac7 hosted backend 42704388499 passed all stages for schema109.
+Its frontend run42704388600 failed because learningHref rejected the two new exact
+order destinations. The frontend allowlist now contains those existing routes;
+60/60 learning tests pass. No browser or full release pass is inferred from that
+failed build. Exact combined-source checks and production safeguards remain open.
+
+### 9 November: durable private parts pickup source and owner collection calendar
+
+D14 now has forward migrations 108/109, private buyer/guest routes, current branch/
+MFA Staff routes, exclusive session-bound physical review, exact partial quantities,
+financial rechecks and immutable one-time handover. Native 67/67 in four suites
+passed with 109-migration replay, empty schema diff, db:check and restricted runtime;
+owned tmpfs DB removed. Source UI and version-1 restricted learning are connected.
+Browser/real-role/physical acceptance and exact combined-source release gates are
+still open. Token lifetime is engineering security, never business hold policy.
+
+D12 calendar decisions are now settled in the owner decision register: Mon-Sat,
+public holidays count, after both readiness and notification, imported/custom same.
+Date calculator and pending-notification logic are tested; durable hold/extension
+journey remains open. Do not reask these settled values. No new payment activation,
+production migration, real transaction, grant or publication is claimed.
+See docs/help-learn/PARTS_PICKUP_20261109.md for exact evidence and remaining scope.
+
+### 9 November: per-order sourcing guide (unpublished)
+
+Administrative order-sourcing v1 explains actual order/item estimates, Nigeria-time
+arrival ranges, unknown versus zero preparation, separate internal/customer notes,
+review, stale/uncertain recovery and unavailable-item holds. Eligibility checks keep
+it out of public, customer and Staff catalogues. It grants no authority and changes
+no tutorial/practice/AI/commerce flag. Product-timing v1 and service-request v34 are
+preserved. See ORDER_SOURCING_20261109.md for exact acceptance and remaining scope.
+
+### 9 November: combined collection and product guidance retained
+
+Service-request v34, admin-only service-vehicle-collection v1 and product-timing v1
+coexist with existing eligibility/targets and the unchanged retrieval/step budgets.
+The combined 308-case isolated acceptance includes authenticated Help and all-audience
+retrieval checks. Product defaults remain distinct from per-order readiness/holding,
+and vehicle collection is not D14 private parts pickup. No grant, practice/tutorial
+or transaction flag is enabled. See SERVICE_VEHICLE_COLLECTION_20261109.md for failed
+attempts, exact evidence and remaining hosted/real-role/provider/release scope.
+
+### 9 November: separate collection facts and current clearance (unpublished)
+
+Service-request v34 adds the separate collection/balance boundary while retaining
+its twelve-step/8,000-character budget (actual passage 7,909). Administrative
+service-vehicle-collection v1 explains current MFA, completion, all original/additional
+obligations, human identity/authority review, fresh proof and immutable history.
+Public/customer/staff catalogues omit the administrative article. Actual guidance
+checks pass 68/68; no guide target, practice flag or grant changes. See
+SERVICE_VEHICLE_COLLECTION_20261109.md for failures and current held acceptance.
+
+### 9 November: preserve service-request retrieval and original restrictions
+
+Unpublished service-request v33 now fits the existing 8,000-character Allie budget
+at 7,823 characters without changing its twelve-step bound. All-audience retrieval,
+eligibility and related resource/payment/booking guide units pass 67/67; the earlier
+hosted failure is retained in SUPPLEMENTAL_SERVICE_INVOICES_20261109.md. No widened
+audience, guide target, provider access, publication flag or financial approval.
+
+### 9 November: separate accepted additional-work obligations (unpublished)
+
+Service-request v33 and restricted financial-policy-work v9 explain a separately
+reviewed additional invoice, original reference/reason, no reused booking credit,
+materials first and workmanship only after actual completion. Existing eligibility,
+permissions, guide targets and publication flags remain. Closed visits cannot
+authorise new agreement/issue from old completion; rejection remains available.
+Isolated final acceptance includes 32 learning/identifier units within 273 passing
+cases; five provisioned-workspace cases are explicitly skipped. Physical issue/use,
+vehicle release and production/provider acceptance remain separate. See
+SUPPLEMENTAL_SERVICE_INVOICES_20261109.md for failures, evidence and held scope.
+
+### 10 November: vehicle terminology, engine descriptions and individual features (unpublished)
+
+Vehicle-operations v3 and vehicle-enquiry v6 describe Engine / Power type, Fuel type,
+Drive system, supplied Engine details and individual Additional features. Private
+edit guidance explains that saved public facts update existing listings without
+creating a listing or changing its status. Limits
+stay 40/80; engine description limit is500. Faults/inspection remain separate and
+no tested/working claim is inferred. Existing audiences, targets, permissions,
+practice and publication flags are unchanged. Focused learning units pass; isolated
+HTTP acceptance and coherent schema/server/frontend publication are pending.
+See the active vehicle/Team/media ledger in the existing quality register.
+
+### 9 November: final D11 source checkpoint
+
+Booking-confirmation v15 retains its existing audience/permission/publication gates.
+39 affected learning/attendance units and 51 isolated workflow cases pass, including
+the classified concern-to-offer/acceptance/approval journey. Same-visit continuation
+and real-resource guidance are source-verified; exact-source CI and protected release
+remain pending. No learning, booking or payment capability was activated.
+
+### 9 November: available late alternatives and continued physical visits
+
+Restricted booking-confirmation v15 adds checked alternatives, normal versus late
+notice, repeated availability checks and immutable same-visit evidence. Existing
+permission/eligibility and publication gates remain. The full passage stays within
+the existing retrieval budget; 39 affected units including permitted/denied Allie
+retrieval pass. This source is not production publication or operational acceptance.
+Service-request v29 and assigned-findings v5 are preserved. See the current tracker
+for schema-100 replay, 46 isolated workflow cases and remaining release requirements.
+
+### 9 November: attendance/work-review application release evidence
+
+Application source e947a205 is released with booking-confirmation v14,
+assigned-findings v5 and service-request v29, retaining existing eligibility and
+publication settings. Staff attendance and remaining-work review coexist; no
+learning content grants permissions. Exact-source gates, 250 browser cases,
+111 native workflow cases and 22 compiled-Linux attendance cases pass. Real-role
+and provider delivery acceptance remain separate. D11 actual available late-arrival
+alternatives are still incomplete; do not describe waiting history as a complete
+replacement-time offer/approval journey. Existing deferred owner decisions remain.
+
+### 9 November: combine attendance with remaining-work reviews
+
+Booking-confirmation v14 preserves both physical attendance and remaining-work
+review guidance; assigned-findings remains v5 and service-request remains v29.
+Existing eligibility, permission and publication gates are unchanged. The combined
+candidate has 99 migrations and regenerated canonical contracts. Local focused
+checks pass (57 backend and 32 frontend); new combined hosted/browser acceptance
+is still required. Historical single-feature results below remain separate.
+
+### 9 November: preserve the newly merged missed-writer safeguard
+
+Candidate 7d5ec4eb passed Backend 42606466337, Secrets 42606466356 and Frontend
+42606466323: 1,507 units passed, twelve existing skips, and 239 production-browser
+cases passed, including all thirteen work reviews and both public-search cases.
+Before merge/publication, master advanced to 80b4c8ac with the missed-writer
+transition safeguard. This combined candidate preserves that refusal, hidden raw
+missed-status option, independent role guidance and all compatibility tests.
+Booking-confirmation v13 combines both v12 histories; service-request stays v29.
+New exact-source acceptance is required. Full attendance remains a separate draft.
+The only schema addition here is the remaining-work review migration (98 total).
+Future attendance publication must rehearse against this current ledger and retain
+a migrator aware of every applied migration; fixed historical migration counts do
+not authorize an older recovery image. Production has not changed in this batch.
+
+4 November D07 operational review source checkpoint: booking-confirmation v12 and
+service-request v29 explain remaining-work estimates, actual approved physical-unit
+choices and uncertain-result inspection. Eligibility and existing guide targets
+stay unchanged; owner resource-plan v1 remains draft. Guide/practice flags are not
+activated. Native and rendered verification of this new workflow remains pending.
+
 4 November recorded-work capacity checkpoint: booking-confirmation v11 explains
 actual-start protection for older Confirmed records. Gate and semantic target stay
 unchanged; owner resource-plan v1 remains draft. Native regression verification is
@@ -275,34 +794,35 @@ below reflect current source definitions, including W9-W13 corrections. Publishe
 status in source means eligible for filtering when explicitly enabled; it does not
 mean a production publication. Feature flags remain off in committed examples.
 
-| Article                 | Eligibility gate     | Version / review | Actual destination           | Authority                                                                                                                                   |
-| ----------------------- | -------------------- | ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| privacy-and-allie       | public               | 1 / 2026-11-01   | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff                                         |
-| financial-aftercare     | financial-aftercare  | 5 / 2026-11-03   | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
-| booking-confirmation    | booking-confirmation | 11 / 2026-11-04   | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
-| workshop-resource-plan | owner | 1 / 2026-11-03, draft | /admin/booking-resources | Owner-only lookup, current record, versioned approval and uncertain-result recovery; not published |
-| refund-work             | refunds              | 3 / 2026-10-27   | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
-| dispute-work            | disputes             | 3 / 2026-10-27   | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
-| privacy-work            | privacy              | 3 / 2026-10-27   | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
-| financial-policy-work   | financial-policy     | 5 / 2026-11-03   | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
-| parts-fitment           | public               | 14 / 2026-11-03  | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
-| vehicle-enquiry         | public               | 5 / 2026-11-02   | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
-| service-request         | public               | 28 / 2026-11-04  | /services                    | Public launch mode and Services page                                                                                                        |
-| security-basics         | public               | 2 / 2026-10-26   | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
-| no-live-lookup          | public               | 2 / 2026-10-26   | /help                        | Launch restrictions and existing status contracts                                                                                           |
-| own-conversation        | customer             | 4 / 2026-10-27   | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |
-| work-access             | work                 | 5 / 2026-10-27   | /admin                       | Current workforce scope, registered navigation and access-change recovery                                                                   |
-| care-triage             | care                 | 3 / 2026-10-27   | /admin/workforce/enquiries   | Managed care scope, public/internal separation and delivery acknowledgements                                                                |
-| sales-enquiries         | sales                | 3 / 2026-10-27   | /admin/workforce/enquiries   | SALES_ENQUIRIES and ENQUIRIES_ASSIGN contracts                                                                                              |
-| product-photos          | admin                | 3 / 2026-10-27   | /admin                       | ProductExtrasEditor, ProductImageForm and administrator-only product-media routes                                                           |
-| finance-meaning         | finance              | 3 / 2026-10-27   | /admin/workforce/finance     | Workforce finance projection and permission boundary                                                                                        |
-| assigned-findings       | jobs                 | 3 / 2026-10-27   | /admin/workforce/jobs        | JOBS_READ/JOBS_UPDATE, assigned scope and work review                                                                                       |
-| job-assignment          | assign               | 3 / 2026-10-27   | /admin/workforce/jobs        | JOBS_ASSIGN and QUALITY_APPROVE routes                                                                                                      |
-| mixed-queues            | operations           | 3 / 2026-10-27   | /admin                       | OPERATIONS template and effective assignment union                                                                                          |
-| oversight-scope         | oversight            | 3 / 2026-10-27   | /admin                       | CEO_MD position and permission-filtered overview                                                                                            |
-| customer-account-review | admin                | 3 / 2026-10-27   | /admin/customers             | Customer account lock, session enforcement and audit contract                                                                               |
-| access-review           | access               | 4 / 2026-10-27   | /admin/workforce/access      | Team access security, pinned delegation and reviewed responsibility impact                                                                  |
-| privileged-recovery     | owner                | 3 / 2026-10-27   | /admin/security              | Existing identity/governance safeguards                                                                                                     |
+| Article                 | Eligibility gate     | Version / review      | Actual destination           | Authority                                                                                                                                   |
+| ----------------------- | -------------------- | --------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| privacy-and-allie       | public               | 1 / 2026-11-01        | /privacy                     | Published Privacy notice v2, actual encrypted Allie history lifecycle and reviewed customer handoff                                         |
+| financial-aftercare     | financial-aftercare  | 5 / 2026-11-03        | /admin/workforce/aftercare   | Scoped financial aftercare adapter, shared OrderAftercareService fee/inspection/audit core and customerAftercareView review-note projection |
+| booking-confirmation    | booking-confirmation | 13 / 2026-11-09       | /admin/workforce/bookings    | Scoped confirmation adapter, shared ServiceOperations transition/capacity/schedule/reminders and reviewed booking form                      |
+| workshop-resource-plan  | owner                | 1 / 2026-11-03, draft | /admin/booking-resources     | Owner-only lookup, current record, versioned approval and uncertain-result recovery; not published                                          |
+| refund-work             | refunds              | 3 / 2026-10-27        | /admin/refunds               | ManualRefundsService scope/current/check, PaymentsService refund decisions and StaffRefunds review/recovery                                 |
+| dispute-work            | disputes             | 3 / 2026-10-27        | /admin/payment-disputes/work | DisputesRouter authorized/current/assignment and WorkDisputeHandling review/recovery                                                        |
+| privacy-work            | privacy              | 3 / 2026-10-27        | /admin/privacy               | PrivacyRouter assertCapability, hold protection and WorkPrivacy review/recovery                                                             |
+| financial-policy-work   | financial-policy     | 5 / 2026-11-03        | /admin/finance-policy        | readFinancePolicy and publishPolicy FINANCE branch, FinancePolicy current/version/review                                                    |
+| parts-fitment           | public               | 14 / 2026-11-03       | /parts                       | Parts discovery, fitment evidence and approved collection-only launch                                                                       |
+| vehicle-enquiry         | public               | 5 / 2026-11-02        | /vehicles                    | Vehicle discovery and listing-less enquiry contracts                                                                                        |
+| booking-reminders       | owner                | 1 / 2026-11-09        | /admin/booking-capacity      | Reviewed branch reminder policy and saved appointment schedule                                                                              |
+| service-request         | public               | 31 / 2026-11-09       | /services                    | Public launch mode and Services page                                                                                                        |
+| security-basics         | public               | 2 / 2026-10-26        | /forgot-password             | Identity recovery and published account security guidance                                                                                   |
+| no-live-lookup          | public               | 2 / 2026-10-26        | /help                        | Launch restrictions and existing status contracts                                                                                           |
+| own-conversation        | customer             | 4 / 2026-10-27        | /dashboard/support           | Customer support ownership, drafts and review-before-send                                                                                   |
+| work-access             | work                 | 5 / 2026-10-27        | /admin                       | Current workforce scope, registered navigation and access-change recovery                                                                   |
+| care-triage             | care                 | 3 / 2026-10-27        | /admin/workforce/enquiries   | Managed care scope, public/internal separation and delivery acknowledgements                                                                |
+| sales-enquiries         | sales                | 3 / 2026-10-27        | /admin/workforce/enquiries   | SALES_ENQUIRIES and ENQUIRIES_ASSIGN contracts                                                                                              |
+| product-photos          | admin                | 3 / 2026-10-27        | /admin                       | ProductExtrasEditor, ProductImageForm and administrator-only product-media routes                                                           |
+| finance-meaning         | finance              | 3 / 2026-10-27        | /admin/workforce/finance     | Workforce finance projection and permission boundary                                                                                        |
+| assigned-findings       | jobs                 | 3 / 2026-10-27        | /admin/workforce/jobs        | JOBS_READ/JOBS_UPDATE, assigned scope and work review                                                                                       |
+| job-assignment          | assign               | 3 / 2026-10-27        | /admin/workforce/jobs        | JOBS_ASSIGN and QUALITY_APPROVE routes                                                                                                      |
+| mixed-queues            | operations           | 3 / 2026-10-27        | /admin                       | OPERATIONS template and effective assignment union                                                                                          |
+| oversight-scope         | oversight            | 3 / 2026-10-27        | /admin                       | CEO_MD position and permission-filtered overview                                                                                            |
+| customer-account-review | admin                | 3 / 2026-10-27        | /admin/customers             | Customer account lock, session enforcement and audit contract                                                                               |
+| access-review           | access               | 11 / 2026-11-14       | /admin/workforce/access      | Admin baseline and current delegation, selected-person context, Lagos dates, required temporary-cover end and reviewed access impact        |
+| privileged-recovery     | owner                | 3 / 2026-10-27        | /admin/security              | Existing identity/governance safeguards                                                                                                     |
 
 ## Guides
 
@@ -495,3 +1015,19 @@ D06 resource-aware offer checkpoint (4 November): service-request v26 explains f
 Combined service-request v26 retains both the v25 overview vehicle-selection clarification and the resource-aware offer guidance; gates, targets and practice permissions are unchanged.
 
 4 November calendar presentation: service-request v28 adds Month/Schedule navigation and Today in Lagos time, preserving own-record access and the rule that the calendar never offers or reserves new times. Eligibility, practice permissions, guide destinations and live flags are unchanged. The styling/focus changes do not grant new modal actions.
+
+Combined 4 November source: service-request v29 retains both the v28 Month/Schedule calendar navigation and the D07 remaining-work estimate clarification. Existing twelve steps, eligibility and guide targets remain unchanged.
+
+10 November2026: access-review v5 follows People / View person and the named identity header. It explicitly explains partial account-level and separately approved duty coverage. Existing access eligibility, pinned duties, independent approval rules and all feature flags remain unchanged. Local learning tests and the People acceptance checkpoint are tracked in the existing quality register.
+
+13 November2026: access-review v6 explains the persistent Selected person bar and keyboard-accessible Overview return during long edits. Task groups use the current server-returned allowed actions; visible assignment sources include recorded start/end dates in Lagos time. Missing identity or partial access remains explicitly unavailable, not evidence of no access. Eligibility and feature flags are unchanged; current rendered evidence belongs to the People checkpoint in the quality register.
+
+13 November2026: access-review v7 adds the new temporary-cover end requirement and explicit Africa/Lagos date entry independent of device time zone. Existing open-ended cover remains for review; the new request rule does not alter historical records or revocation. Eligibility, pinned duty meanings, independent approvals and feature flags are unchanged. The isolated HTTP and device-timezone browser checkpoints belong to the existing People coverage matrix and T02 ledger.
+
+13 November2026: access-review v8 explains the explicit customer-to-staff and staff-to-administrator task choice, named current/proposed account-level review, cancellation of unused links, historical accepted status and uncertain-result reconciliation. Eligibility, MFA/password/session checks, delegation and all feature flags remain unchanged. Invitation fixture and source checks are recorded in the existing T02 quality checkpoint.
+
+13 November2026: access-review v9 explains the scoped Change history view for existing audit readers, current-versus-recorded identity, missing earlier facts, preserved raw evidence and audited reads. The help gate and all feature flags remain unchanged; help grants no history permission. Managed workforce composition remains an explicit T03 follow-up, with no role or duty expansion.
+
+13 November2026: access-review v10 explains current scoped Access reviews, explicit server-time ending windows, retained open-ended records, recorded versus active duties and Staff-only setup checks. Other access and protected owner/Admin baselines remain distinct. Reviews never revoke duties or send reminders. Existing help eligibility, guide permissions and feature flags remain unchanged. Isolated HTTP and rendered evidence is recorded in the T02 quality checkpoint.
+
+14 November2026: access-review v11 distinguishes the normal Admin account workspace from explicit current authority to manage duties or open Access reviews. The matching client route no longer mistakes the Staff-only session indicator for an Admin permission. Eligibility, guide targets, v1/v2 duty definitions and all feature flags are unchanged. Candidate source and negative-access/rendered acceptance are tracked in the existing quality register; this entry does not claim publication or grant privileges.

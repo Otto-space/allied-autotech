@@ -76,7 +76,14 @@ export class AuditController {
         successResponse(
           "Current processing job retrieved",
           req.id,
-          await this.service.job(actor(req), params.source, params.jobId, context(req)),
+          await this.service.job(
+            actor(req),
+            params.source,
+            params.jobId,
+            context(req),
+            validated<{ diagnostics?: "safe_delivery" }>(res, "query").diagnostics ===
+              "safe_delivery",
+          ),
         ),
       );
   };

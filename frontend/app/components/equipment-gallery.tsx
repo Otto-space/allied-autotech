@@ -6,7 +6,7 @@ function EquipmentItems({ group }: { group: (typeof equipmentGroups)[number] }) 
   return (
     <div className="equipment-grid">
       {group.items.map((item) => (
-        <figure key={item.slug}>
+        <figure key={item.slug} id={`equipment-item-${item.slug}`} tabIndex={-1}>
           <EquipmentPhoto
             {...item}
             sizes="(max-width: 760px) 85vw, (max-width: 1200px) 36vw, 320px"
@@ -53,7 +53,7 @@ export function EquipmentGallery({ collapsible = false }: { collapsible?: boolea
             </div>
             <div className="equipment-grid">
               {group.items.map((item) => (
-                <figure key={item.slug}>
+                <figure key={item.slug} id={`equipment-item-${item.slug}`} tabIndex={-1}>
                   <EquipmentPhoto
                     {...item}
                     sizes="(max-width: 520px) 90vw, (max-width: 900px) 44vw, 280px"

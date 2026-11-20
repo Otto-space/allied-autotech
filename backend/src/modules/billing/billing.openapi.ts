@@ -23,7 +23,7 @@ export function registerBillingOpenApi(registry: OpenAPIRegistry): void {
     path: "/staff/invoices/sources",
     summary: "List minimal eligible invoice sources",
     description:
-      "Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing.",
+      "Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name, accepted additional-quotation-number or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing.",
     security: [{ sessionCookie: [] }],
     request: { query: invoiceSourceListQuerySchema },
     responses: {
@@ -75,7 +75,7 @@ export function registerBillingOpenApi(registry: OpenAPIRegistry): void {
     path: "/staff/invoices",
     summary: "Create an invoice from a server-owned source",
     description:
-      "ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative.",
+      "ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative. SERVICE_ADDITION uses the explicitly accepted additional quotation as its unique source. Only its new items are billed, with no original deposit credit. Original amounts and payments are preserved; invoice issue, payment stages and work authorisation require independent checks.",
     security: [{ sessionCookie: [] }],
     request: {
       headers,

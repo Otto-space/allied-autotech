@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { attendanceEventSchema } from "./booking-attendance";
 import { workforceEffectiveAccessSchema } from "./workforce-effective-access";
 import { capabilitySchema } from "./capability-schemas";
 export const parseWorkforceAssignees = (value: unknown) =>
@@ -198,6 +199,7 @@ const work = z.object({
   qualityApprovedAt: z.iso.datetime().nullable(),
 });
 export const workforceJobSchema = z.object({
+  attendanceEvents: z.array(attendanceEventSchema).max(30).optional(),
   id: z.uuid(),
   branchId: z.uuid().nullable(),
   scheduledAt: z.iso.datetime(),
@@ -251,6 +253,16 @@ export const parseWorkforceJobs = (value: unknown) =>
 export const workforceAccountSchema = z.object({
   userId: z.uuid(),
   accountLabel: z.string().min(1),
+  identity: z
+    .object({
+      role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]),
+      status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]),
+      verified: z.boolean(),
+      accountBranch: z
+        .object({ id: z.uuid(), name: z.string(), isActive: z.boolean() })
+        .nullable(),
+    })
+    .optional(),
   branches: z.array(
     z.object({ id: z.uuid(), name: z.string(), code: z.string(), isActive: z.boolean() }),
   ),

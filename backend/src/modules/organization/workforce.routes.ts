@@ -1,3 +1,8 @@
+import { alternativeOptionsQuerySchema } from "../service-operations/booking-alternatives.js";
+import {
+  bookingAttendanceBodySchema,
+  bookingAttendanceQuerySchema,
+} from "../service-operations/booking-attendance.js";
 import { Router, type Request, type Response } from "express";
 import { workforceSupportLiveRouter } from "../support/support-live.routes.js";
 import { z } from "zod";
@@ -130,10 +135,31 @@ export const workforceRouteDefinitions = [
   ],
   ["get", "/staff/workforce/jobs/:id", "job", empty, schemas.workforceRecordParams],
   [
+    "get",
+    "/staff/workforce/bookings/:id/alternative-options",
+    "bookingAlternativeOptions",
+    alternativeOptionsQuerySchema,
+    schemas.workforceRecordParams,
+  ],
+  [
     "post",
     "/staff/workforce/bookings/:id/alternative",
     "bookingAlternative",
     schemas.workforceBookingAlternativeSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "get",
+    "/staff/workforce/bookings/:id/work-review",
+    "bookingWorkReviewOptions",
+    empty,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
+    "/staff/workforce/bookings/:id/work-review",
+    "bookingWorkReview",
+    schemas.workforceBookingWorkReviewSchema,
     schemas.workforceRecordParams,
   ],
   [
@@ -155,6 +181,20 @@ export const workforceRouteDefinitions = [
     "/staff/workforce/bookings/:id/reschedule-assignees",
     "bookingRescheduleAssignees",
     schemas.workforceBookingRescheduleAssigneesSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "get",
+    "/staff/workforce/bookings/:id/attendance",
+    "bookingAttendanceRead",
+    bookingAttendanceQuerySchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
+    "/staff/workforce/bookings/:id/attendance",
+    "bookingAttendance",
+    bookingAttendanceBodySchema,
     schemas.workforceRecordParams,
   ],
   [
@@ -316,6 +356,7 @@ export function createWorkforceRouter(): Router {
             : [
                   "jobAssignees",
                   "bookingRescheduleAssignees",
+                  "bookingAlternativeOptions",
                   "enquiryAssignees",
                   "complaintAssignees",
                   "bookings",
@@ -449,12 +490,39 @@ export function createWorkforceRouter(): Router {
         case "booking":
           data = await work.booking(actor, id, ctx);
           break;
+        case "bookingAlternativeOptions":
+          res.set("Cache-Control", "private, no-store");
+          data = await new ServiceOperationsService().bookingAlternativeOptions(
+            actor,
+            id,
+            alternativeOptionsQuerySchema.parse(req.query).day,
+            true,
+          );
+          break;
         case "bookingAlternative":
           data = await new ServiceOperationsService().proposeWorkforceBookingAlternative(
             actor,
             id,
             schemas.workforceBookingAlternativeSchema.parse(body),
             ctx,
+          );
+          break;
+        case "bookingWorkReviewOptions":
+          res.set("Cache-Control", "private, no-store");
+          data = await new ServiceOperationsService().bookingWorkReviewOptions(
+            actor,
+            id,
+            true,
+          );
+          break;
+        case "bookingWorkReview":
+          res.set("Cache-Control", "private, no-store");
+          data = await new ServiceOperationsService().reviewBookingWork(
+            actor,
+            id,
+            schemas.workforceBookingWorkReviewSchema.parse(body),
+            ctx,
+            true,
           );
           break;
         case "bookingTiming":
@@ -489,6 +557,24 @@ export function createWorkforceRouter(): Router {
           );
           break;
         }
+        case "bookingAttendanceRead":
+          data = await new ServiceOperationsService().readBookingAttendance(
+            actor,
+            id,
+            ctx,
+            true,
+            bookingAttendanceQuerySchema.parse(req.query).receiptId,
+          );
+          break;
+        case "bookingAttendance":
+          data = await new ServiceOperationsService().recordBookingAttendance(
+            actor,
+            id,
+            bookingAttendanceBodySchema.parse(body),
+            ctx,
+            true,
+          );
+          break;
         case "bookingConfirmation":
           data = await new ServiceOperationsService().confirmWorkforceBooking(
             actor,

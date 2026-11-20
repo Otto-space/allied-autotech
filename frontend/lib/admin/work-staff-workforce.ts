@@ -52,6 +52,10 @@ export function workforceBody(action: WorkforceAction, input: unknown) {
         path: ["expiresAt"],
         message: "Expiry must be after the start time.",
       })
+      .refine((v) => !v.temporary || v.expiresAt !== null, {
+        path: ["expiresAt"],
+        message: "Choose an end date and time for temporary cover.",
+      })
       .parse(input);
   if (action === "delegate")
     return base
@@ -191,20 +195,43 @@ export function verifyWorkforceReceipt(
   }
   return result;
 }
+/** Interpret the form's wall time in Lagos, independently of the device timezone. */
 export function workforceLocalTime(value: FormDataEntryValue | null) {
   const text = String(value ?? "");
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(text))
     throw Error("Choose a valid date and time.");
-  const date = new Date(text);
+  const date = new Date(`${text}:00Z`);
   if (!Number.isFinite(date.getTime())) throw Error("Choose a valid date and time.");
   const [year, month, day, hour, minute] = text.split(/[-T:]/).map(Number);
   if (
-    date.getFullYear() !== year ||
-    date.getMonth() + 1 !== month ||
-    date.getDate() !== day ||
-    date.getHours() !== hour ||
-    date.getMinutes() !== minute
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() + 1 !== month ||
+    date.getUTCDate() !== day ||
+    date.getUTCHours() !== hour ||
+    date.getUTCMinutes() !== minute
   )
-    throw Error("Choose a valid local date and time.");
-  return date.toISOString();
+    throw Error("Choose a valid Lagos date and time.");
+  const format = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Africa/Lagos",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+  let instant = date.getTime();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const parts = Object.fromEntries(
+      format.formatToParts(instant).map((part) => [part.type, Number(part.value)]),
+    );
+    const wall = new Date(0);
+    wall.setUTCFullYear(parts.year, parts.month - 1, parts.day);
+    wall.setUTCHours(parts.hour, parts.minute, parts.second, 0);
+    const correction = date.getTime() - wall.getTime();
+    if (!correction) return new Date(instant).toISOString();
+    instant += correction;
+  }
+  throw Error("Choose a valid Lagos date and time.");
 }

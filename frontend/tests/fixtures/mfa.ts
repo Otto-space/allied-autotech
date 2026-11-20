@@ -1,4 +1,5 @@
 import type { Page, Route } from "@playwright/test";
+import { publicCapabilitiesFixture } from "./public-capabilities";
 export const id = (n: number) => `a3000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 export const secret = "ABCDEFGHIJKLMNOP";
 export const codes = Array.from(
@@ -56,6 +57,10 @@ export async function fixture(page: Page) {
   await page.route("**/api/v1/**", async (route) => {
     const request = route.request();
     const endpoint = new URL(request.url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/public/capabilities")
+      return reply(route, publicCapabilitiesFixture());
+    if (endpoint === "/customers/notifications/summary")
+      return reply(route, { unreadCount: 0, groups: [] });
     if (endpoint === "/auth/session")
       return reply(
         route,
@@ -77,6 +82,7 @@ export async function fixture(page: Page) {
       return state.verified
         ? reply(route, { factors: state.factors })
         : fail(route, "MFA_REQUIRED", 403);
+    if (request.method() === "GET") return fail(route, "NOT_FOUND", 404);
     const body = request.postDataJSON() as Record<string, unknown>;
     state.writes.push({ endpoint, body, csrf: request.headers()["x-csrf-token"] });
     if (endpoint === "/auth/mfa/challenge/options") {

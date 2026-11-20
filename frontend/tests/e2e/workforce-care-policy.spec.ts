@@ -177,7 +177,7 @@ for (const width of [320, 390, 768, 1440])
       ).toHaveCount(version === 2 ? 1 : 0);
       await form.getByLabel("Responsibility", { exact: true }).selectOption(template);
       await form.getByLabel("Branch", { exact: true }).selectOption(id(101));
-      await form.getByLabel("Starts at (your device time)").fill("2026-10-27T01:00");
+      await form.getByLabel("Starts at (Lagos time, required)").fill("2026-10-27T01:00");
       await form
         .getByLabel("Reason", { exact: true })
         .fill("Reviewed synthetic branch Care duty");

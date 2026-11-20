@@ -36,12 +36,19 @@ export function MfaChallenge({
   const firstMethod = useRef<HTMLButtonElement>(null);
   const [options, setOptions] = useState<Options>();
   const keyAction = useRef<HTMLButtonElement>(null);
+  const preparationFocus = useRef<Element | null>(null);
   useEffect(() => {
-    if (options?.method === "webauthn") keyAction.current?.focus();
+    if (options?.method !== "webauthn") return;
+    const active = document.activeElement;
+    const origin = preparationFocus.current;
+    preparationFocus.current = null;
+    // The response may arrive after the user has chosen another control.
+    if (active === origin || active === document.body) keyAction.current?.focus();
   }, [options]);
   const [unavailable, setUnavailable] = useState<string>();
   const [canSetup, setCanSetup] = useState(false);
   async function prepare(method: Method) {
+    preparationFocus.current = document.activeElement;
     setOptions(undefined);
     setUnavailable(undefined);
     setCanSetup(false);
@@ -237,58 +244,60 @@ export function MfaChallenge({
           Use security key
         </button>
       )}
-      {options && !operation.uncertain && !operation.requiresMfa && (
-        <button
-          type="button"
-          className="mfa-text-button"
-          disabled={disabled}
-          onClick={() => {
-            setOptions(undefined);
-            setUnavailable(undefined);
-            operation.clearError();
-            requestAnimationFrame(() => firstMethod.current?.focus());
-          }}
-        >
-          Choose another method
-        </button>
-      )}
-      {operation.uncertain || operation.requiresMfa ? (
-        <button className="button secondary" onClick={onCheck}>
-          Check session status
-        </button>
-      ) : !options && !replacement ? (
-        <div className="mfa-first-factor">
+      <div className="mfa-secondary-actions">
+        {options && !operation.uncertain && !operation.requiresMfa && (
           <button
+            type="button"
             className="mfa-text-button"
             disabled={disabled}
-            onClick={() => void checkSetup()}
+            onClick={() => {
+              setOptions(undefined);
+              setUnavailable(undefined);
+              operation.clearError();
+              requestAnimationFrame(() => firstMethod.current?.focus());
+            }}
           >
-            Check first-factor setup
+            Choose another method
           </button>
-          {canSetup && (
-            <button className="button" disabled={disabled} onClick={onSetup}>
-              Set up first MFA factor
+        )}
+        {operation.uncertain || operation.requiresMfa ? (
+          <button className="button secondary" onClick={onCheck}>
+            Check session status
+          </button>
+        ) : !options && !replacement ? (
+          <div className="mfa-first-factor">
+            <button
+              className="mfa-text-button"
+              disabled={disabled}
+              onClick={() => void checkSetup()}
+            >
+              Check first-factor setup
             </button>
-          )}
-        </div>
-      ) : null}
-      {!replacement && (
-        <button
-          type="button"
-          className="mfa-text-button"
-          disabled={disabled}
-          onClick={() => {
-            setOptions(undefined);
-            setUnavailable(undefined);
-            setCanSetup(false);
-            operation.clearError();
-            onReplaceAuthenticator();
-            requestAnimationFrame(() => firstMethod.current?.focus());
-          }}
-        >
-          Set up authenticator again
-        </button>
-      )}
+            {canSetup && (
+              <button className="button" disabled={disabled} onClick={onSetup}>
+                Set up first MFA factor
+              </button>
+            )}
+          </div>
+        ) : null}
+        {!replacement && (
+          <button
+            type="button"
+            className="mfa-text-button"
+            disabled={disabled}
+            onClick={() => {
+              setOptions(undefined);
+              setUnavailable(undefined);
+              setCanSetup(false);
+              operation.clearError();
+              onReplaceAuthenticator();
+              requestAnimationFrame(() => firstMethod.current?.focus());
+            }}
+          >
+            Set up authenticator again
+          </button>
+        )}
+      </div>
       <AuthenticatorHelp />
     </>
   );

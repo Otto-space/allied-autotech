@@ -1,5 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures/authentication-test";
 import AxeBuilder from "@axe-core/playwright";
+import { expectAuthControlReachable } from "../fixtures/auth-layout";
 import { resetFixture, resetToken, resetPassword } from "../fixtures/password-reset";
 const linked = `/reset-password#token=${encodeURIComponent(resetToken)}`;
 
@@ -82,8 +83,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
         )
         .all())
         if (await control.isVisible()) {
-          await expect(control).toBeInViewport();
-          expect((await control.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+          await expectAuthControlReachable(control);
         }
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -154,7 +154,14 @@ test("complete reset clears secrets, announces session change and offers sign in
 }) => {
   const state = await resetFixture(page);
   state.delay = true;
+  await page.route("**/api/v1/public/capabilities", (route) =>
+    route.fulfill({ status: 503, json: { success: false } }),
+  );
   await page.goto(linked);
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await expect(
+    page.getByRole("complementary", { name: "Online availability" }),
+  ).toBeVisible();
   await page.evaluate(() => {
     (window as typeof window & { resetEvents?: number }).resetEvents = 0;
     window.addEventListener("aat:session-changed", () => {
@@ -183,9 +190,9 @@ test("complete reset clears secrets, announces session change and offers sign in
       () => (window as typeof window & { resetEvents: number }).resetEvents,
     ),
   ).toBe(1);
-  await expect(page.getByRole("status")).toHaveText(
-    "Your password has been reset. Sign in with your new password.",
-  );
+  await expect(
+    page.getByRole("region", { name: "Password reset", exact: true }).getByRole("status"),
+  ).toHaveText("Your password has been reset. Sign in with your new password.");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.getByRole("link", { name: "Return to sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/login$/);

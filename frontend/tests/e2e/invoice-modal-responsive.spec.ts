@@ -13,7 +13,10 @@ for (const [width, height] of [
   test.describe(`${width}x${height}`, () => {
     test.use({
       viewport: { width, height },
-      isMobile: width <= 430,
+      // Firefox has no isMobile emulation; retain the exact responsive viewport.
+      isMobile: async ({ browserName }, provide) => {
+        await provide(browserName !== "firefox" && width <= 430);
+      },
       hasTouch: width <= 768,
       reducedMotion: "reduce",
     });

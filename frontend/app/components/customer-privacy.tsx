@@ -2,7 +2,7 @@
 
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, RefreshCw, ShieldCheck } from "lucide-react";
 import {
   parsePrivacyPage,
@@ -16,6 +16,7 @@ import { useAccountSession } from "./dashboard-shell";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { Feedback } from "./feedback";
 import { PrivacyRequestForm } from "./privacy-request-form";
+import { useAccountActionRefresh } from "./use-account-action-refresh";
 
 function RequestRecord({ record }: { record: PrivacyRequest }) {
   return (
@@ -76,6 +77,7 @@ function CustomerRequests({ userId }: { userId: string }) {
     refreshed: boolean;
   }>();
   const [reviewOpen, setReviewOpen] = useState(false);
+  const recoveryFocus = useRef<HTMLElement>(null);
   const [storageError, setStorageError] = useState<string>();
   useEffect(() => {
     let active = true;
@@ -97,6 +99,15 @@ function CustomerRequests({ userId }: { userId: string }) {
   }, [marker]);
   const stale = !!(records.error || records.refreshError);
   const unavailable = records.loading || records.refreshing || stale || !records.data;
+  const {
+    headingRef: confirmationHeadingRef,
+    onChanged: refreshAfterConfirmation,
+    onReviewClosed: restoreConfirmationFocus,
+  } = useAccountActionRefresh({
+    refresh: records.refresh,
+    refreshing: records.loading || records.refreshing,
+    settledRevision: records.settledRevision,
+  });
   const canAcknowledge =
     !!recovery?.refreshed &&
     !unavailable &&
@@ -151,7 +162,12 @@ function CustomerRequests({ userId }: { userId: string }) {
       </header>
       <Feedback message={storageError} />
       {recovery?.uncertain && (
-        <section className="cpv-recovery" aria-label="Request recovery">
+        <section
+          className="cpv-recovery"
+          aria-label="Request recovery"
+          ref={recoveryFocus}
+          tabIndex={-1}
+        >
           <Feedback
             tone="warning"
             message="We could not confirm your request. Refresh your latest requests and check the saved explanation before making another request."
@@ -220,6 +236,12 @@ function CustomerRequests({ userId }: { userId: string }) {
           userId={userId}
           disabled={!recovery || unavailable || !!recovery?.uncertain}
           onReviewChange={setReviewOpen}
+          onReviewClosed={(opener) =>
+            restoreConfirmationFocus(
+              opener,
+              recovery?.uncertain ? recoveryFocus.current : null,
+            )
+          }
           onSend={() => {
             try {
               sessionStorage.setItem(marker, "pending");
@@ -239,7 +261,7 @@ function CustomerRequests({ userId }: { userId: string }) {
           onSaved={() => {
             clearMarker();
             pagination.reset();
-            records.refresh();
+            refreshAfterConfirmation();
           }}
         />
       </div>
@@ -250,7 +272,9 @@ function CustomerRequests({ userId }: { userId: string }) {
       >
         <div className="cpv-history-heading">
           <div>
-            <h2 id="privacy-history-title">Your requests</h2>
+            <h2 id="privacy-history-title" ref={confirmationHeadingRef} tabIndex={-1}>
+              Your requests
+            </h2>
             <p>Latest requests first. All times shown in Lagos time.</p>
           </div>
           {!recovery?.uncertain && refreshButton}

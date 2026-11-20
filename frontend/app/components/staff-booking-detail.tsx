@@ -1,4 +1,8 @@
 "use client";
+import { BookingAlternativeTimes } from "./booking-alternative-times";
+import { BookingAttendance, BookingAttendanceHistory } from "./booking-attendance";
+import { BookingWorkReview } from "./booking-work-review";
+import { BookingWorkEstimate } from "./booking-work-estimate";
 import { BookingTimingReview } from "./booking-timing-review";
 import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { BookingRescheduleReview } from "./booking-reschedule-review";
@@ -8,7 +12,7 @@ import { BookingReference } from "./booking-reference";
 import { bookingLabel } from "@/lib/customer-booking-query";
 import Link from "next/link";
 import { AppointmentTiming } from "./appointment-timing";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
@@ -21,6 +25,7 @@ import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
 import { SlotCatalogPicker } from "./slot-catalog-picker";
 import { StaffPicker } from "./staff-picker";
+import { StaffVehicleCollection } from "./staff-vehicle-collection";
 import { StaffWorkOrder } from "./staff-work-order";
 import { StaffQuoteRecords } from "./staff-quote-records";
 import { MutationReview, type MutationProposal } from "./mutation-review";
@@ -29,7 +34,7 @@ type NextStatus = RequestBody<"/staff/bookings/{bookingId}/status", "post">["sta
 const transitions: Record<string, readonly NextStatus[]> = {
   REQUESTED: ["CONFIRMED", "CANCELLED"],
   AWAITING_DEPOSIT: ["CANCELLED"],
-  CONFIRMED: ["IN_PROGRESS", "CANCELLED", "NO_SHOW"],
+  CONFIRMED: ["IN_PROGRESS", "CANCELLED"],
   IN_PROGRESS: ["COMPLETED", "CANCELLED"],
 };
 const textField = (max: number) =>
@@ -64,6 +69,10 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
   }>();
   const [classificationBlocked, setClassificationBlocked] = useState(true);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
+  const reviewOpener = useRef<HTMLElement | null>(null);
+  const restoreReviewFocus = useRef(false);
+  const reviewClosedAtRevision = useRef<number | null>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
   const [validation, setValidation] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [invalidField, setInvalidField] = useState<string>();
@@ -102,6 +111,41 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
     !verifiedAccess ||
     !!proposal;
   const canChangeQuotes = canOperate;
+  useEffect(() => {
+    if (
+      !restoreReviewFocus.current ||
+      proposal ||
+      booking.settledRevision === reviewClosedAtRevision.current ||
+      booking.loading ||
+      booking.refreshing ||
+      access.loading ||
+      access.refreshing
+    )
+      return;
+    // Closing a review refreshes the booking and temporarily disables its opener.
+    // Restore only after that read settles; never steal focus moved by the user.
+    const frame = requestAnimationFrame(() => {
+      restoreReviewFocus.current = false;
+      const opener = reviewOpener.current;
+      const focused = document.activeElement;
+      if (focused && focused !== document.body && focused !== opener) return;
+      const target =
+        opener?.isConnected &&
+        !opener.matches(":disabled") &&
+        opener.getClientRects().length
+          ? opener
+          : heading.current;
+      target?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [
+    proposal,
+    booking.loading,
+    booking.refreshing,
+    booking.settledRevision,
+    access.loading,
+    access.refreshing,
+  ]);
   const choices = current
     ? (transitions[current.status] ?? []).filter((status) =>
         status === "CONFIRMED" ? canConfirm && !!current.service : canOperate,
@@ -126,6 +170,8 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
   }
   function reviewProposal(next: MutationProposal) {
     if (disabled) return;
+    reviewOpener.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setProposal({ ...next, retryAfterRejection: false });
   }
   function review(
@@ -319,7 +365,9 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
       </nav>
       <header className="booking-detail-heading">
         <div>
-          <h1>Manage workshop booking</h1>
+          <h1 ref={heading} tabIndex={-1}>
+            Manage workshop booking
+          </h1>
           <p>Review the appointment, coordinate the team and record service progress.</p>
         </div>
         <button
@@ -335,7 +383,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
           Refresh booking
         </button>
       </header>
-      <Feedback message={message} tone="success" toast="Booking change recorded." />
+      <Feedback message={message} tone="success" toast={message} />
       {readError && (
         <section className="booking-detail-state">
           <h2>Booking unavailable</h2>
@@ -424,6 +472,28 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
               </div>
             </dl>
           </section>
+          {canOperate ? (
+            <BookingAttendance
+              bookingId={current.id}
+              showInlineNotice={false}
+              blocked={disabled}
+              onUpdated={(notice) => {
+                setMessage(notice);
+                booking.refresh();
+              }}
+            />
+          ) : (
+            <BookingAttendanceHistory events={current.attendanceEvents} />
+          )}
+          <BookingWorkEstimate estimate={current.workEstimate} status={current.status} />
+          <BookingWorkReview
+            key={"work:" + session.user.id + ":" + current.id + ":" + current.version}
+            booking={{ ...current, branchId: current.branch?.id ?? null }}
+            owner={session.user.id}
+            canReview={canConfirm}
+            disabled={disabled}
+            onSaved={booking.refresh}
+          />
           <BookingTimingReview
             key={`timing:${session.user.id}:${current.id}:${current.version}`}
             booking={{ ...current, branchId: current.branch?.id ?? null }}
@@ -534,18 +604,15 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
                     review("alternative", new FormData(event.currentTarget));
                   }}
                 >
-                  <div className="field">
-                    <label htmlFor="booking-alternative-time">
-                      Proposed time (Lagos)
-                    </label>
-                    <input
-                      id="booking-alternative-time"
-                      name="preferredAt"
-                      type="datetime-local"
-                      required
-                      {...fieldError("booking-alternative-time")}
-                    />
-                  </div>
+                  <BookingAlternativeTimes
+                    key={`${bookingId}:${current.version}`}
+                    path={`/staff/bookings/${bookingId}`}
+                    bookingId={bookingId}
+                    version={current.version}
+                    scheduledAt={current.scheduledAt}
+                    inputId="booking-alternative-time"
+                    disabled={disabled}
+                  />
                   <div className="field">
                     <label htmlFor="booking-alternative-reason">
                       Reason shown to customer
@@ -767,12 +834,21 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
             canChange={canOperate}
             onReview={reviewProposal}
           />
+          <StaffVehicleCollection
+            booking={current}
+            canRelease={!!admin}
+            disabled={disabled}
+            onReview={reviewProposal}
+            onRefresh={booking.refresh}
+          />
         </>
       )}
       {proposal && current && verifiedAccess && !stale && (
         <MutationReview
           proposal={proposal}
           onClose={() => {
+            reviewClosedAtRevision.current = booking.settledRevision;
+            restoreReviewFocus.current = true;
             setProposal(null);
             booking.refresh();
           }}

@@ -205,7 +205,14 @@ export class WorkforceAccessService {
         email: true,
         status: true,
         emailVerifiedAt: true,
-        staffProfile: { select: { branchId: true, firstName: true, lastName: true } },
+        staffProfile: {
+          select: {
+            branchId: true,
+            firstName: true,
+            lastName: true,
+            branch: { select: { id: true, name: true, isActive: true } },
+          },
+        },
         workforceAccess: {
           include: { assignments: { orderBy: { createdAt: "desc" } } },
         },
@@ -304,6 +311,12 @@ export class WorkforceAccessService {
         ? `${target.staffProfile.firstName} ${target.staffProfile.lastName}`.trim() ||
           target.email
         : target.email,
+      identity: {
+        role: target.role,
+        status: target.status,
+        verified: target.emailVerifiedAt !== null,
+        accountBranch: target.staffProfile?.branch ?? null,
+      },
       branches,
       management: {
         canEnroll: actor.role === "SUPER_ADMIN" && manageable && eligible,
@@ -520,6 +533,8 @@ export class WorkforceAccessService {
         {
           workforceAction: "ENROLL_OR_UPDATE_POSITION",
           position: input.position,
+          previousPosition: target.workforceAccess?.position ?? null,
+          sessionEffect: target.workforceAccess ? "KEPT" : "REVOKED",
           reason: input.reason,
           legacyAccessReplaced: !target.workforceAccess,
           version: access.version,
@@ -611,6 +626,8 @@ export class WorkforceAccessService {
           scope: assignment.scope,
           branchId: assignment.branchId,
           temporary: assignment.temporary,
+          startsAt: assignment.startsAt.toISOString(),
+          expiresAt: assignment.expiresAt?.toISOString() ?? null,
           reason: input.reason,
         },
         context,
@@ -666,6 +683,10 @@ export class WorkforceAccessService {
           template: assignment.template,
           templateVersion: assignment.templateVersion,
           branchId: assignment.branchId,
+          scope: assignment.scope,
+          temporary: assignment.temporary,
+          startsAt: assignment.startsAt.toISOString(),
+          expiresAt: assignment.expiresAt?.toISOString() ?? null,
           reason: input.reason,
         },
         context,

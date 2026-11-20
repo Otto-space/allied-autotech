@@ -1,3 +1,5 @@
+import { assertAgreedWorkCanProceed } from "../service-operations/agreed-service-work.js";
+import { currentWorkEstimate } from "../service-operations/booking-work-estimate.js";
 import { allocateBookingResources } from "../service-operations/booking-resources.js";
 import {
   bookedJobMinutes,
@@ -121,6 +123,7 @@ export const jobSelect = {
 } satisfies Prisma.BookingSelect;
 const jobDetailSelect = {
   ...jobSelect,
+  attendanceEvents: bookingSelect.attendanceEvents,
   branch: { select: { id: true, name: true } },
   assignedStaff: { select: { id: true, firstName: true, lastName: true } },
 } satisfies Prisma.BookingSelect;
@@ -386,6 +389,11 @@ export class WorkforceWorkService {
           customerConcern: true,
           scheduleVersion: true,
           timingSnapshots: bookingSelect.timingSnapshots,
+          attendanceEvents: bookingSelect.attendanceEvents,
+          resourceAllocations: bookingSelect.resourceAllocations,
+          serviceId: true,
+          assignedStaffId: true,
+          startedAt: true,
           alternativeStartsAt: true,
           alternativeReason: true,
           alternativeVersion: true,
@@ -430,8 +438,15 @@ export class WorkforceWorkService {
         { workforceAction: "BOOKING_DETAIL" },
         true,
       );
+      const {
+        resourceAllocations,
+        serviceId: _serviceId,
+        assignedStaffId: _staffId,
+        ...safe
+      } = row;
       return {
-        ...row,
+        ...safe,
+        workEstimate: currentWorkEstimate(row, resourceAllocations),
         service: row.service
           ? {
               ...row.service,
@@ -620,7 +635,11 @@ export class WorkforceWorkService {
       await tx.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const booking = await tx.booking.findFirst({
         where: { AND: [{ id }, bookingScope(access, "JOBS_UPDATE")] },
-        select: jobSelect,
+        select: {
+          ...jobSelect,
+          startedAt: true,
+          workOrder: { select: { ...jobSelect.workOrder.select, startedAt: true } },
+        },
       });
       if (!booking?.workOrder) workforceNotFound();
       const work = booking.workOrder;
@@ -639,6 +658,8 @@ export class WorkforceWorkService {
       };
       if (input.status && !transitions[work.status]?.includes(input.status))
         workforceConflict("The requested work transition is unavailable");
+      if (input.status === "IN_PROGRESS" || input.status === "QUALITY_CHECK")
+        await assertAgreedWorkCanProceed(tx, id);
       const now = new Date();
       const updated = await tx.workOrder.updateMany({
         where: { id: work.id, version: input.expectedVersion, status: work.status },
@@ -648,7 +669,7 @@ export class WorkforceWorkService {
             ? {}
             : { internalNotes: input.internalNotes }),
           ...(input.status ? { status: input.status } : {}),
-          ...(input.status === "IN_PROGRESS" ? { startedAt: now } : {}),
+          ...(input.status === "IN_PROGRESS" ? { startedAt: work.startedAt ?? now } : {}),
           workedByUserIds: [...new Set([...work.workedByUserIds, actor.userId])],
           version: { increment: 1 },
         },
@@ -657,7 +678,11 @@ export class WorkforceWorkService {
       if (input.status === "IN_PROGRESS" && booking.status === "CONFIRMED")
         await tx.booking.update({
           where: { id },
-          data: { status: "IN_PROGRESS", startedAt: now, version: { increment: 1 } },
+          data: {
+            status: "IN_PROGRESS",
+            startedAt: booking.startedAt ?? now,
+            version: { increment: 1 },
+          },
         });
       if (input.status === "IN_PROGRESS")
         await allocateBookingResources(
@@ -705,6 +730,7 @@ export class WorkforceWorkService {
         booking.status !== "IN_PROGRESS"
       )
         workforceConflict();
+      await assertAgreedWorkCanProceed(tx, id, true);
       const now = new Date();
       const changed = await tx.workOrder.updateMany({
         where: { id: work.id, version: input.expectedVersion, status: "QUALITY_CHECK" },

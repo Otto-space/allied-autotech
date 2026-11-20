@@ -3,12 +3,25 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
-function headerOffset() {
+function headerOffset(target?: HTMLElement) {
   let bottom = 0;
   document.querySelectorAll<HTMLElement>(".site-header, .dashboard-top").forEach((el) => {
     if (["fixed", "sticky"].includes(getComputedStyle(el).position))
       bottom = Math.max(bottom, el.getBoundingClientRect().bottom);
   });
+  const context = target
+    ?.closest(".workforce-panel[data-person-page='true']")
+    ?.querySelector<HTMLElement>(".wf-person-context");
+  // Page-local and shared focus reveal must use the same sticky identity edge.
+  // Otherwise their scheduled adjustments can place the control behind each other.
+  if (
+    target &&
+    context &&
+    !context.contains(target) &&
+    context.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING &&
+    ["fixed", "sticky"].includes(getComputedStyle(context).position)
+  )
+    bottom = Math.max(bottom, context.getBoundingClientRect().bottom);
   return Math.max(0, bottom) + 16;
 }
 
@@ -37,13 +50,37 @@ function reveal(element: HTMLElement, focus: boolean, nearest = false) {
     element.scrollIntoView({ block: "nearest", behavior: "instant" });
     return;
   }
-  const box = element.getBoundingClientRect();
-  const top = headerOffset();
+  // The person workspace measures the label, sticky identity and support dock
+  // together. A later generic reveal must not move its focused field again.
+  if (
+    nearest &&
+    !focus &&
+    document.activeElement === element &&
+    element.matches("input, textarea, select, button") &&
+    !element.closest(".wf-person-context") &&
+    element.closest('[data-person-focus-managed="true"]')
+  )
+    return;
+  // Custom radios/checkboxes can hide the input behind a visible label. Keep
+  // the painted control and its focus ring visible, rather than its 1px input.
+  const label =
+    element instanceof HTMLInputElement && ["checkbox", "radio"].includes(element.type)
+      ? element.closest("label")
+      : null;
+  const box = (label ?? element).getBoundingClientRect();
+  const top = headerOffset(element);
   const dock = document.querySelector<HTMLElement>(".support-controls");
-  const bottom =
+  const dockBox =
     dock && getComputedStyle(dock).position === "fixed"
-      ? Math.min(innerHeight - 16, dock.getBoundingClientRect().top - 12)
-      : innerHeight - 16;
+      ? dock.getBoundingClientRect()
+      : null;
+  // The compact public dock occupies a side rail. Controls alongside it do not
+  // need to jump above its row; only overlapping controls need that clearance.
+  const overlapsDock =
+    dockBox && box.right > dockBox.left - 8 && box.left < dockBox.right + 8;
+  const bottom = overlapsDock
+    ? Math.min(innerHeight - 16, dockBox.top - 12)
+    : innerHeight - 16;
   // Large revealed sections need their beginning visible, not their entire height.
   if (nearest && box.top >= top && Math.min(box.bottom, box.top + 48) <= bottom) return;
   window.scrollTo({ top: Math.max(0, scrollY + box.top - top), behavior: "instant" });
@@ -171,10 +208,14 @@ export function ViewportNavigation() {
     let frame = 0;
     let cancelled = false;
     let observer: MutationObserver | undefined;
+    let layoutObserver: ResizeObserver | undefined;
+    let layoutTimeout: number | undefined;
     const cancelEntry = () => {
       cancelled = true;
       cancelAnimationFrame(frame);
       observer?.disconnect();
+      layoutObserver?.disconnect();
+      clearTimeout(layoutTimeout);
     };
     const enter = () => {
       if (cancelled) return true;
@@ -186,11 +227,12 @@ export function ViewportNavigation() {
         ) ??
         main;
       if (!target || !visible(target)) return false;
-      // A visitor already reading away from the fragment keeps that position.
-      // Only correct a restored heading that is partially behind the sticky header.
+      // Reload can restore an absolute offset from before the form/font layout
+      // settled, leaving the fragment far above the viewport. Keep a visible
+      // destination; otherwise correct it unless a new interaction cancelled entry.
       if (initial && scrollY > 0) {
         const box = target.getBoundingClientRect();
-        if (box.top < 0 || box.top >= headerOffset()) return true;
+        if (box.top >= headerOffset() && box.bottom <= innerHeight) return true;
       }
       // The optional walkthrough owns focus when opened by its reserved hash.
       reveal(target, !location.hash.startsWith("#learn="));
@@ -200,6 +242,7 @@ export function ViewportNavigation() {
     // for those only on initial fragment entry; explicit navigation stays immediate.
     const schedule = () => {
       if (cancelled) return;
+      cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         frame = requestAnimationFrame(() => {
           if (!enter()) {
@@ -212,6 +255,14 @@ export function ViewportNavigation() {
       });
     };
     const loaded = () => {
+      // Suspended forms can expand after load and font settlement. Keep the
+      // fragment visible through that short entry window; any new interaction
+      // immediately releases ownership so a visitor's scroll is never undone.
+      if (!cancelled && location.hash) {
+        layoutObserver = new ResizeObserver(schedule);
+        layoutObserver.observe(document.querySelector("main") ?? document.body);
+        layoutTimeout = window.setTimeout(() => layoutObserver?.disconnect(), 10000);
+      }
       void document.fonts.ready.then(schedule);
     };
     if (initial) {
@@ -301,6 +352,10 @@ export function ViewportNavigation() {
         );
     }
     function selection(control: HTMLElement) {
+      // Carousel buttons update their own frame. Re-revealing them after a tap
+      // can move the entire page past the hero, despite the button being visible.
+      // Keyboard focus still uses the normal visibility handling below.
+      if (control.closest("[data-carousel-controls]")) return;
       afterRender(() => {
         if (pointerHeld) return;
         const target = controlledTarget(control);

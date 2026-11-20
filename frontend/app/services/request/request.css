@@ -19,7 +19,34 @@
   max-width: 800px;
 }
 .concern-layout h1 {
-  font-size: clamp(26px, 4vw, 38px);
+  font-size: clamp(32px, 4.2vw, 52px);
+  line-height: 1.12;
+  text-wrap: balance;
+}
+.concern-layout > header {
+  padding-block: 20px 28px;
+}
+.concern-layout .concern-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--link);
+  margin: 0 0 16px;
+}
+.concern-unavailable {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: clamp(24px, 4vw, 36px);
+  box-shadow: var(--elevation-low);
+}
+.concern-unavailable h2 {
+  margin-top: 0;
+  font-size: 26px;
+}
+.concern-unavailable .button {
+  margin-top: 12px;
 }
 .concern-layout p {
   line-height: 1.65;

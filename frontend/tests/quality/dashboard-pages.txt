@@ -26,12 +26,17 @@ customer-security-quality.spec.ts > customer security fits 320px
 customer-security-quality.spec.ts > customer security fits 1440px
 dashboard-navigation.spec.ts > shared navigation is accessible at 320px
 dashboard-navigation.spec.ts > shared navigation is accessible at 1440px
+dashboard-navigation.spec.ts > sidebar preserves the desktop choice across mobile without stranding keyboard focus
+dashboard-navigation.spec.ts > sidebar restores browser-evicted focus while preserving the desktop choice
+dashboard-navigation.spec.ts > sidebar preserves the desktop choice across mobile without moving content focus
 garage-photos-quality.spec.ts > photo accessibility 390
 garage-photos-quality.spec.ts > photo accessibility 1440
 saved-items-quality.spec.ts > parts is readable at 320px
 saved-items-quality.spec.ts > parts is readable at 1440px
 work-aftercare.spec.ts > named navigation, actual history facts and selected review survive responsive layouts
 work-audit.spec.ts > audit history and expanded inspection at 320
+workforce-access-reviews.spec.ts > access review layout and controls at 320
+workforce-access-reviews.spec.ts > access review layout and controls at 1440
 work-booking-detail-quality.spec.ts > long service and line descriptions remain readable on mobile
 work-bookings-quality.spec.ts > workshop records and expanded filters fit 320px
 work-branches.spec.ts > branch workspace foundation at 320
@@ -163,6 +168,7 @@ enquiry-table-responsive.spec.ts
 
 # Revision 4: scoped workforce discovery, filters, failure and access invalidation.
 workforce-directory.spec.ts
+# People identity group includes 1440/1280/1024/768/430/390/360/320 CSS-pixel fixtures.
 # Revision 4 W5: current-access redirects, private draft disposal and cross-tab rechecks.
 workforce-session-revocation.spec.ts
 
@@ -211,3 +217,57 @@ booking-calendar.spec.ts
 invoice-modal-responsive.spec.ts
 modal-layout.spec.ts
 catalogue-modal-layout.spec.ts
+
+# Synthetic attendance coverage; real-role persistence and delivery remain separate.
+booking-attendance.spec.ts > records arrival, agreed waiting and leaving in the dashboard at 390px
+booking-attendance.spec.ts > records arrival, agreed waiting and leaving in the dashboard at 768px
+booking-attendance.spec.ts > records arrival, agreed waiting and leaving in the dashboard at 1440px
+booking-attendance.spec.ts > requires a factual absence check and never marks missed merely because time elapsed
+booking-attendance.spec.ts > recovers a saved attendance operation across reload without retaining the note or replaying the write
+booking-attendance.spec.ts > handles early attendance without exposing an unsafe action
+booking-attendance.spec.ts > handles denied attendance without exposing an unsafe action
+booking-attendance.spec.ts > handles slow attendance without exposing an unsafe action
+booking-attendance.spec.ts > assigned technician records arrival from the job without a booking-confirmation grant at 390px
+booking-attendance.spec.ts > assigned technician records arrival from the job without a booking-confirmation grant at 1440px
+staff-bookings.spec.ts > staff verifies missed attendance after grace and reconciles an uncertain save without replay
+
+workforce-directory.spec.ts > workforce directory 1280x720 > directory at 1280px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 1024x768 > directory at 1024px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 768x1024 > directory at 768px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 430x932 > directory at 430px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 390x844 > directory at 390px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 360x800 > directory at 360px keeps filters, table and actions accessible
+workforce-directory.spec.ts > workforce directory 320x720 > directory at 320px keeps filters, table and actions accessible
+
+workforce-booking-confirmation.spec.ts > available alternatives preserve loading, retry, empty and keyboard states
+workforce-booking-confirmation.spec.ts > workforce proposes a reviewed time
+
+# Saved collection navigation uses the isolated loopback runtime fixture.
+saved-items-navigation.spec.ts > saved navigation 1280x720 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 1024x768 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 768x1024 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 430x932 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 390x844 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 360x800 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > saved navigation 320x720 > vehicle collection survives detail, Back, Forward and reload
+saved-items-navigation.spec.ts > an open removal review stays bound to its collection through a URL change
+saved-items-navigation.spec.ts > saving a vehicle opens its vehicle collection from the receipt
+
+access-history.spec.ts > recorded access history fits 320
+access-history.spec.ts > recorded access history fits 360
+access-history.spec.ts > recorded access history fits 390
+access-history.spec.ts > recorded access history fits 430
+access-history.spec.ts > recorded access history fits 768
+access-history.spec.ts > recorded access history fits 1024
+access-history.spec.ts > recorded access history fits 1280
+access-history.spec.ts > recorded access history fits 1440
+access-history.spec.ts > missing historical facts stay missing while current names remain explicitly current
+access-history.spec.ts > history filters retain the scoped view and full audit keeps the original response
+access-history.spec.ts > an unrelated server event is rejected instead of being counted as an access change
+access-history.spec.ts > denial clears recorded identities and ordinary staff never fetches history
+access-history.spec.ts > ordinary staff cannot fetch the history view
+access-history.spec.ts > long current names and enlarged history text preserve keyboard inspection at 320
+access-history.spec.ts > long current names and enlarged history text preserve keyboard inspection at 1440
+access-history.spec.ts > the owner can open the current history destination
+access-history.spec.ts > history cursor paging retains its scoped view without putting references in the URL
+access-history.spec.ts > history distinguishes an unavailable read from no recorded changes and recovers

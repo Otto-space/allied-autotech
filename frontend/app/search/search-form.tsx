@@ -26,7 +26,12 @@ export function PublicSearchForm({
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => form.current?.reset());
     };
-    window.addEventListener("pageshow", reset);
+    // Initial loading must not clear a search the visitor has already typed.
+    // Only a document restored from the back/forward cache needs reconciliation.
+    const restored = (event: PageTransitionEvent) => {
+      if (event.persisted) reset();
+    };
+    window.addEventListener("pageshow", restored);
     window.addEventListener("popstate", reset);
     // A history traversal may reload instead of restoring a cached document.
     // In that case pageshow can precede hydration, so reconcile after mounting.
@@ -35,7 +40,7 @@ export function PublicSearchForm({
     if (navigation?.type === "back_forward") reset();
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener("pageshow", reset);
+      window.removeEventListener("pageshow", restored);
       window.removeEventListener("popstate", reset);
     };
   }, []);

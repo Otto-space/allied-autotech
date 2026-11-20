@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import {
   ArrowRight,
   Bookmark,
@@ -52,6 +53,8 @@ const savedVehiclesSchema = z
 const parseFavourites = (value: unknown) => favouritesSchema.parse(value);
 const parseSavedVehicles = (value: unknown) => savedVehiclesSchema.parse(value);
 type Collection = "parts" | "vehicles";
+const collectionFromQuery = (selected: readonly string[]): Collection =>
+  selected.length === 1 && selected[0] === "vehicles" ? "vehicles" : "parts";
 const labels = { parts: "Favourite products", vehicles: "Saved vehicles" };
 const human = (value: string) =>
   value
@@ -72,12 +75,22 @@ type SavedCardData = {
 export function SavedItems() {
   const session = useAccountSession();
   return session?.user.role === "CUSTOMER" ? (
-    <SavedCollections key={`${session.id}:${session.user.id}`} />
+    <Suspense fallback={<p role="status">Loading saved items…</p>}>
+      <SavedCollections key={`${session.id}:${session.user.id}`} />
+    </Suspense>
   ) : null;
 }
 
 function SavedCollections() {
-  const [collection, setCollection] = useState<Collection>("parts");
+  const search = useSearchParams();
+  const selected = search.getAll("collection");
+  const [proposal, setProposal] = useState<
+    (MutationProposal & { collection: Collection }) | null
+  >(null);
+  const requestedCollection = collectionFromQuery(selected);
+  // Keep an open review bound to its original collection, including during
+  // browser history changes. The URL never contains private records or cursors.
+  const collection = proposal?.collection ?? requestedCollection;
   const [sessionValid, setSessionValid] = useState(true);
   const pagination = useCursorPage();
   const vehiclePagination = useCursorPage();
@@ -93,7 +106,6 @@ function SavedCollections() {
       : null,
     parseSavedVehicles,
   );
-  const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
   const active = useRef(true),
     uncertain = useRef(false),
@@ -101,6 +113,7 @@ function SavedCollections() {
   const controller = useRef<AbortController | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const focusAfterRevision = useRef<number | null>(null);
+  const focusAfterReview = useRef<Collection | null>(null);
   const partTab = useRef<HTMLButtonElement>(null),
     vehicleTab = useRef<HTMLButtonElement>(null);
   const resource = collection === "parts" ? parts : vehicles;
@@ -125,9 +138,22 @@ function SavedCollections() {
     return () => cancelAnimationFrame(frame);
   }, [proposal, resource.settledRevision]);
   useEffect(() => {
+    const target = focusAfterReview.current;
+    if (proposal || !sessionValid || !target || collection !== target) return;
+    // Wait for the committed collection and closed dialog. A frame scheduled
+    // from onClose can run while the modal still makes the tab inert.
+    const frame = requestAnimationFrame(() => {
+      if (!active.current || focusAfterReview.current !== target) return;
+      focusAfterReview.current = null;
+      (target === "parts" ? partTab : vehicleTab).current?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [collection, proposal, sessionValid]);
+  useEffect(() => {
     active.current = true;
     function discard() {
       active.current = false;
+      focusAfterReview.current = null;
       controller.current?.abort();
       setSessionValid(false);
       setProposal(null);
@@ -142,7 +168,13 @@ function SavedCollections() {
   }, []);
   function choose(next: Collection, focus = false) {
     if (proposal || !sessionValid) return;
-    setCollection(next);
+    focusAfterReview.current = null;
+    const url = new URL(window.location.href);
+    if (next === "parts") url.searchParams.delete("collection");
+    else url.searchParams.set("collection", next);
+    // Tab/arrow changes update the return location without filling browser
+    // history with every keyboard selection or resetting either cursor page.
+    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
     setMessage(undefined);
     if (focus) (next === "parts" ? partTab : vehicleTab).current?.focus();
   }
@@ -166,6 +198,7 @@ function SavedCollections() {
     uncertain.current = false;
     removed.current = false;
     setProposal({
+      collection,
       title: "Remove saved item?",
       description:
         "This removes the item from your shortlist. You can save it again from its detail page.",
@@ -190,11 +223,21 @@ function SavedCollections() {
     });
   }
   function closeReview() {
-    setProposal(null);
-    if (!active.current) return;
+    if (!active.current) {
+      setProposal(null);
+      return;
+    }
     if (uncertain.current || removed.current) {
       refreshCollection();
     }
+    const target = collectionFromQuery(
+      new URLSearchParams(window.location.search).getAll("collection"),
+    );
+    if (collection !== target) {
+      focusAfterRevision.current = null;
+      focusAfterReview.current = target;
+    }
+    setProposal(null);
   }
   function refreshCollection() {
     focusAfterRevision.current = (resource.settledRevision ?? 0) + 1;

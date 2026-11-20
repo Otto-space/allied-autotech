@@ -159,7 +159,9 @@ async function fixture(page: Page) {
   await expect(page).toHaveURL(/search=QA/);
   await expect.poll(() => state.requests.at(-1)?.searchParams.get("search")).toBe("QA");
   await expect(
-    page.getByRole("status").filter({ hasText: "3 vehicles on this page" }),
+    page
+      .getByRole("status")
+      .filter({ hasText: "4 vehicles \u00b7 Showing 3 on this page" }),
   ).toBeVisible();
   return state;
 }
@@ -729,3 +731,74 @@ for (const width of [1440, 390]) {
     expect(errors).toEqual([]);
   });
 }
+
+test("power, legacy fuel and drive filters remain distinct through reload and Back", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  const openFilters = async () => {
+    const panel = page.locator("#vehicle-filter-panel");
+    await expect(panel).toHaveAttribute("data-layout-ready", "true");
+    const trigger = page.getByRole("button", { name: /^Filters/ });
+    await expect(trigger).toBeEnabled();
+    if ((await trigger.getAttribute("aria-expanded")) !== "true") await trigger.click();
+    await expect(panel).toBeVisible();
+  };
+  await openFilters();
+  await page
+    .locator("summary")
+    .filter({ hasText: /^More specifications$/ })
+    .click();
+  await page.getByRole("checkbox", { name: /^Hybrid \(HEV\)/ }).check();
+  await page.getByLabel("Fuel type", { exact: true }).selectOption("HYBRID");
+  await page.getByLabel("Drive system", { exact: true }).selectOption("AWD");
+  await page.getByRole("button", { name: "Apply filters", exact: true }).click();
+  const assertFilters = async () => {
+    await expect
+      .poll(() => {
+        const params = new URL(page.url()).searchParams;
+        return [
+          params.get("powertrains"),
+          params.get("fuelType"),
+          params.get("driveType"),
+        ];
+      })
+      .toEqual(["HEV", "HYBRID", "AWD"]);
+    await expect
+      .poll(() => {
+        const params = state.requests.at(-1)?.searchParams;
+        return [
+          params?.get("powertrains"),
+          params?.get("fuelType"),
+          params?.get("driveType"),
+        ];
+      })
+      .toEqual(["HEV", "HYBRID", "AWD"]);
+  };
+  await assertFilters();
+  await expect(
+    page.getByRole("button", {
+      name: "Remove Engine / Power type: Hybrid (HEV)",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Remove Fuel type: Hybrid", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Remove Drive system: AWD", exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await assertFilters();
+  await openFilters();
+  await expect(page.getByRole("checkbox", { name: /^Hybrid \(HEV\)/ })).toBeChecked();
+  await expect(page.getByLabel("Fuel type", { exact: true })).toHaveValue("HYBRID");
+  await expect(page.getByLabel("Drive system", { exact: true })).toHaveValue("AWD");
+  await page.getByLabel("Fuel type", { exact: true }).selectOption("ELECTRIC");
+  await page.getByRole("button", { name: "Apply filters", exact: true }).click();
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get("fuelType"))
+    .toBe("ELECTRIC");
+  await page.goBack();
+  await assertFilters();
+});

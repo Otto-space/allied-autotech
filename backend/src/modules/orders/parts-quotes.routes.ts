@@ -105,7 +105,7 @@ export function partsQuotesRouter(staff = false) {
       }),
       async (req, res) => {
         const { id } = params.parse(res.locals.validated?.["params"]);
-        const { revision } = partsQuoteDecisionSchema.parse(
+        const { revision, alternativeAgreementVersion } = partsQuoteDecisionSchema.parse(
           res.locals.validated?.["body"],
         );
         const headers = orderIdempotencyHeadersSchema.parse(
@@ -135,7 +135,11 @@ export function partsQuotesRouter(staff = false) {
                 { branchId: quote.enquiry.branchId, fulfillmentMethod: "COLLECTION" },
                 headers["idempotency-key"],
                 context(req),
-                { id, revision },
+                {
+                  id,
+                  revision,
+                  ...(alternativeAgreementVersion ? { alternativeAgreementVersion } : {}),
+                },
               ),
             ),
           );

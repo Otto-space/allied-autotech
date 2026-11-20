@@ -26,6 +26,7 @@ export function workOrder(n = 0): WorkOrder {
       code: "QA",
     },
     items: [],
+    purchaseReviews: [],
   };
 }
 export async function workOrdersFixture(page: Page, role = "ADMIN") {

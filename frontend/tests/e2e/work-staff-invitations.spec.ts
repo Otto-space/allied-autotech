@@ -5,21 +5,42 @@ import {
   invitationRow,
   id,
 } from "../fixtures/work-staff-invitations";
-for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
-  test(`invitation workspace foundation at ${width}`, async ({ page }) => {
+for (const [width, height] of [
+  [320, 720],
+  [360, 800],
+  [390, 844],
+  [430, 932],
+  [768, 1024],
+  [1024, 768],
+  [1280, 720],
+  [1440, 900],
+] as const)
+  test(`invitation workspace foundation at ${width}`, async ({ page }, testInfo) => {
     const f = await workStaffInvitationsFixture(page),
       errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    await page.setViewportSize({ width, height: 1050 });
+    await page.setViewportSize({ width, height });
     await page.goto("/admin/staff/invite");
     await expect(
-      page.getByRole("heading", { name: "Promotions & invitations", exact: true }),
+      page.getByRole("heading", { name: "Invitations & staff access", exact: true }),
     ).toBeVisible();
     await expect(page.getByText("4 on this page", { exact: true })).toBeVisible();
+    await expect(page.getByLabel("Account email", { exact: true })).toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Search account", exact: true }),
+    ).toBeDisabled();
+    await expect(
+      page.getByRole("radio", {
+        name: "Invite staff to administrator access",
+        exact: true,
+      }),
+    ).toBeEnabled();
+    await expect(page.getByRole("radio", { checked: true })).toHaveCount(0);
+    expect(f.reads.filter((url) => url.pathname.endsWith("/candidates"))).toEqual([]);
     const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
     await expect(breadcrumb).toHaveCount(1);
     await expect(breadcrumb.locator('ol [aria-current="page"]')).toHaveText(
-      "Promotions & invitations",
+      "Invitations & staff access",
     );
     await expect(page.locator('.wsi-row input[type="password"]:visible')).toHaveCount(0);
     expect(
@@ -34,6 +55,27 @@ for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
     ).toEqual([]);
     expect(errors).toEqual([]);
     expect(f.writes).toEqual([]);
+    await page.evaluate(() => scrollTo(0, 0));
+    expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([width, height]);
+    const choices = await page.locator(".wsi-task").evaluateAll((labels) =>
+      labels.map((label) => {
+        const box = label.getBoundingClientRect();
+        const input = label.querySelector("input")!.getBoundingClientRect();
+        const hit = document.elementFromPoint(
+          input.x + input.width / 2,
+          input.y + input.height / 2,
+        );
+        return {
+          comfortable: box.width >= 44 && box.height >= 44,
+          clear: hit !== null && label.contains(hit),
+        };
+      }),
+    );
+    expect(choices).toEqual([
+      { comfortable: true, clear: true },
+      { comfortable: true, clear: true },
+    ]);
+    await page.screenshot({ path: testInfo.outputPath("task-choice.png") });
   });
 for (const mode of ["mismatch", "inactive", "denied"])
   test(`invitation private reads require current identity: ${mode}`, async ({ page }) => {
@@ -50,6 +92,9 @@ test("selected candidate has named facts and password clears and re-hides before
   const f = await workStaffInvitationsFixture(page);
   f.candidateRole = "STAFF";
   await page.goto("/admin/staff/invite");
+  await page
+    .getByRole("radio", { name: "Invite staff to administrator access", exact: true })
+    .check();
   await page.getByLabel("Account email", { exact: true }).fill("ada.okoro@example.test");
   await page.getByRole("button", { name: "Search account" }).click();
   await expect(
@@ -77,14 +122,16 @@ test("revocation proof is disclosed per invitation and clears before review", as
   const row = page.locator(".wsi-row").filter({
     has: page.getByRole("heading", { name: "ada.okoro@example.test", exact: true }),
   });
-  await row.getByText("Revoke invitation", { exact: true }).click();
+  await row.getByText("Cancel unused invitation", { exact: true }).click();
   const password = row.getByLabel(
-    "Your current password to revoke ada.okoro@example.test",
+    "Your current password to cancel the invitation for ada.okoro@example.test",
     { exact: true },
   );
   await password.fill("synthetic revocation proof");
   await row.getByRole("button", { name: "Show password", exact: true }).click();
-  await row.getByRole("button", { name: "Review revocation", exact: true }).click();
+  await row
+    .getByRole("button", { name: "Review invitation cancellation", exact: true })
+    .click();
   await expect(password).toHaveValue("");
   await expect(password).toHaveAttribute("type", "password");
   await expect(page.getByRole("dialog")).not.toContainText("synthetic revocation proof");
@@ -144,6 +191,34 @@ test("a foreign invitation cannot be rendered as an administrator's record", asy
   expect(f.writes).toEqual([]);
 });
 
+test("the owner can read invitations created by another administrator", async ({
+  page,
+}) => {
+  const f = await workStaffInvitationsFixture(page, "SUPER_ADMIN");
+  f.rows[0]!.invitedById = id(999);
+  await page.goto("/admin/staff/invite");
+  await expect(page.locator(".wsi-row")).toHaveCount(4);
+  await expect(page.getByText(/All administrator invitations/)).toBeVisible();
+  expect(f.writes).toEqual([]);
+});
+
+test("ordinary staff cannot open invitation tasks or fetch protected invitation records", async ({
+  page,
+}) => {
+  const f = await workStaffInvitationsFixture(page, "STAFF");
+  await page.goto("/admin/staff/invite");
+  await expect(
+    page.getByText("Administrator access is required to manage team access.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("radio", { name: "Give a customer staff access", exact: true }),
+  ).toHaveCount(0);
+  expect(f.reads).toEqual([]);
+  expect(f.writes).toEqual([]);
+});
+
 for (const mode of ["lost", "malformed"])
   test(`an invitation with ${mode} response stays locked across reload and requires reconciliation`, async ({
     page,
@@ -152,6 +227,9 @@ for (const mode of ["lost", "malformed"])
     f.candidateRole = "STAFF";
     f.writeMode = mode;
     await page.goto("/admin/staff/invite");
+    await page
+      .getByRole("radio", { name: "Invite staff to administrator access", exact: true })
+      .check();
     await page
       .getByLabel("Account email", { exact: true })
       .fill("ada.okoro@example.test");
@@ -181,6 +259,12 @@ for (const mode of ["lost", "malformed"])
       page.getByRole("heading", { name: "Check the previous access change" }),
     ).toBeVisible();
     await expect(
+      page.getByRole("radio", {
+        name: "Invite staff to administrator access",
+        exact: true,
+      }),
+    ).toBeDisabled();
+    await expect(
       page.getByRole("button", { name: "Search account", exact: true }),
     ).toBeDisabled();
     expect(f.writes).toHaveLength(1);
@@ -194,6 +278,9 @@ for (const mode of ["lost", "malformed"])
     ).toBeDisabled();
     await page.getByRole("checkbox", { name: "I independently reconciled" }).check();
     await page.getByRole("button", { name: "Finish reconciliation" }).click();
+    await page
+      .getByRole("radio", { name: "Invite staff to administrator access", exact: true })
+      .check();
     await expect(
       page.getByRole("button", { name: "Search account", exact: true }),
     ).toBeEnabled();
@@ -206,6 +293,9 @@ test("changed candidate eligibility and changed actor both stop the write before
   const f = await workStaffInvitationsFixture(page);
   f.candidateRole = "STAFF";
   await page.goto("/admin/staff/invite");
+  await page
+    .getByRole("radio", { name: "Invite staff to administrator access", exact: true })
+    .check();
   await page.getByLabel("Account email", { exact: true }).fill("ada.okoro@example.test");
   await page.getByRole("button", { name: "Search account", exact: true }).click();
   await page
@@ -271,12 +361,18 @@ test("failed account lookup permits a corrected exact-email search", async ({ pa
   f.candidateMode = "error";
   await page.goto("/admin/staff/invite");
   await page
+    .getByRole("radio", { name: "Invite staff to administrator access", exact: true })
+    .check();
+  await page
     .getByLabel("Account email", { exact: true })
     .fill("unavailable@example.test");
   await page.getByRole("button", { name: "Search account", exact: true }).click();
   await expect(page.getByRole("button", { name: "Retry account search" })).toBeVisible();
   f.candidateMode = "normal";
   f.candidateRole = "STAFF";
+  await page
+    .getByRole("radio", { name: "Invite staff to administrator access", exact: true })
+    .check();
   await page.getByLabel("Account email", { exact: true }).fill("ada.okoro@example.test");
   await page.getByRole("button", { name: "Search account", exact: true }).click();
   await expect(
@@ -300,6 +396,9 @@ test("unavailable recovery storage prevents a mutation before it is sent", async
     };
   });
   await page.goto("/admin/staff/invite");
+  await page
+    .getByRole("radio", { name: "Invite staff to administrator access", exact: true })
+    .check();
   await page.getByLabel("Account email", { exact: true }).fill("ada.okoro@example.test");
   await page.getByRole("button", { name: "Search account", exact: true }).click();
   await page
@@ -315,4 +414,245 @@ test("unavailable recovery storage prevents a mutation before it is sent", async
   ).toBeDisabled();
   await expect(page.getByRole("button", { name: "Go back", exact: true })).toBeEnabled();
   expect(f.writes).toEqual([]);
+});
+
+for (const width of [320, 1440])
+  test(`switching access tasks clears the previous account, branch and password at ${width}`, async ({
+    page,
+  }, testInfo) => {
+    const f = await workStaffInvitationsFixture(page);
+    await page.setViewportSize({ width, height: width === 320 ? 720 : 900 });
+    await page.goto("/admin/staff/invite");
+    const staffTask = page.getByRole("radio", {
+      name: "Give a customer staff access",
+      exact: true,
+    });
+    await staffTask.focus();
+    await page.keyboard.press("Space");
+    await expect(staffTask).toBeChecked();
+    await page
+      .getByLabel("Account email", { exact: true })
+      .fill("ada.okoro@example.test");
+    await page.getByRole("button", { name: "Search account", exact: true }).click();
+    await page.getByLabel("Active staff branch").selectOption(id(101));
+    await page
+      .getByLabel("Your current password", { exact: true })
+      .fill("synthetic discarded proof");
+    await page
+      .getByRole("radio", { name: "Invite staff to administrator access", exact: true })
+      .check();
+    await expect(page.getByLabel("Account email", { exact: true })).toHaveValue("");
+    await expect(
+      page.getByRole("heading", { name: "Ada Okoro", exact: true }),
+    ).toHaveCount(0);
+    await expect(page.getByLabel("Active staff branch")).toHaveCount(0);
+    await expect(page.getByLabel("Your current password", { exact: true })).toHaveCount(
+      0,
+    );
+    f.candidateRole = "STAFF";
+    await page
+      .getByLabel("Account email", { exact: true })
+      .fill("ada.okoro@example.test");
+    await page.getByRole("button", { name: "Search account", exact: true }).click();
+    const proof = page.getByLabel("Your current password", { exact: true });
+    await expect(proof).toHaveValue("");
+    await proof.fill("synthetic new proof");
+    await page
+      .getByRole("button", { name: "Review administrator invitation", exact: true })
+      .click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toHaveAccessibleDescription("Selected person: Ada Okoro");
+    await expect(dialog).toContainText("Current account levelStaff");
+    await expect(dialog).toContainText(
+      "Proposed account levelAdministrator, only after acceptance",
+    );
+    await expect(dialog).toContainText("sessions stay unchanged until acceptance");
+    await expect(dialog).not.toContainText("synthetic new proof");
+    await page.screenshot({ path: testInfo.outputPath("administrator-review.png") });
+    await page.getByRole("button", { name: "Go back", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: "Review administrator invitation", exact: true }),
+    ).toBeFocused();
+    expect(new URL(page.url()).search).toBe("");
+    expect(f.writes).toEqual([]);
+  });
+
+for (const task of ["customer", "administrator"] as const)
+  test(`the ${task} task does not offer the other account-level change`, async ({
+    page,
+  }) => {
+    const f = await workStaffInvitationsFixture(page);
+    f.candidateRole = task === "customer" ? "STAFF" : "CUSTOMER";
+    await page.goto("/admin/staff/invite");
+    await page
+      .getByRole("radio", {
+        name:
+          task === "customer"
+            ? "Give a customer staff access"
+            : "Invite staff to administrator access",
+        exact: true,
+      })
+      .check();
+    await page
+      .getByLabel("Account email", { exact: true })
+      .fill("ada.okoro@example.test");
+    await page.getByRole("button", { name: "Search account", exact: true }).click();
+    await expect(
+      page.getByText(/No eligible .* account matches this task and email/),
+    ).toBeVisible();
+    await expect(page.getByLabel("Your current password", { exact: true })).toHaveCount(
+      0,
+    );
+    await expect(
+      page.getByRole("heading", { name: "Ada Okoro", exact: true }),
+    ).toHaveCount(0);
+    expect(f.writes).toEqual([]);
+  });
+
+test("server-declared invitation ineligibility never offers a review", async ({
+  page,
+}) => {
+  const f = await workStaffInvitationsFixture(page);
+  f.candidateRole = "STAFF";
+  f.candidateMode = "ineligible";
+  await page.goto("/admin/staff/invite");
+  await page
+    .getByRole("radio", { name: "Invite staff to administrator access", exact: true })
+    .check();
+  await page.getByLabel("Account email", { exact: true }).fill("ada.okoro@example.test");
+  await page.getByRole("button", { name: "Search account", exact: true }).click();
+  await expect(
+    page.getByText(
+      "This account is not currently eligible for the selected access change. Its access has not changed.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Review administrator invitation" }),
+  ).toHaveCount(0);
+  expect(f.writes).toEqual([]);
+});
+
+for (const task of ["customer", "administrator"] as const)
+  test(`a confirmed ${task} change reports only the authoritative fixture outcome`, async ({
+    page,
+  }) => {
+    const f = await workStaffInvitationsFixture(page);
+    f.candidateRole = task === "customer" ? "CUSTOMER" : "STAFF";
+    f.writeMode = "success";
+    await page.goto("/admin/staff/invite");
+    await page
+      .getByRole("radio", {
+        name:
+          task === "customer"
+            ? "Give a customer staff access"
+            : "Invite staff to administrator access",
+        exact: true,
+      })
+      .check();
+    await page
+      .getByLabel("Account email", { exact: true })
+      .fill("ada.okoro@example.test");
+    await page.getByRole("button", { name: "Search account", exact: true }).click();
+    if (task === "customer")
+      await page.getByLabel("Active staff branch").selectOption(id(101));
+    await page
+      .getByLabel("Your current password", { exact: true })
+      .fill("synthetic confirmation proof");
+    await page
+      .getByRole("button", {
+        name:
+          task === "customer" ? "Review staff access" : "Review administrator invitation",
+        exact: true,
+      })
+      .click();
+    await expect(page.getByRole("dialog")).toHaveAccessibleDescription(
+      "Selected person: Ada Okoro",
+    );
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Confirm change", exact: true })
+      .click();
+    await expect(
+      page.getByText(
+        task === "customer"
+          ? "Staff access recorded. Existing sessions were revoked."
+          : "Administrator invitation queued. Email delivery and acceptance are not yet confirmed.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    expect(f.writes).toHaveLength(1);
+    expect(f.writes[0]!.path).toMatch(
+      task === "customer" ? /\/promotions$/ : /\/invitations$/,
+    );
+    expect(f.writes[0]!.body).toEqual(
+      task === "customer"
+        ? {
+            customerUserId: id(280000),
+            branchId: id(101),
+            currentPassword: "synthetic confirmation proof",
+          }
+        : {
+            email: "ada.okoro@example.test",
+            role: "ADMIN",
+            currentPassword: "synthetic confirmation proof",
+          },
+    );
+    expect(
+      await page.evaluate(() =>
+        Object.entries(sessionStorage).filter(([key]) =>
+          key.startsWith("aat:invitation-change:"),
+        ),
+      ),
+    ).toEqual([]);
+  });
+
+test("cancelling an unused link preserves the distinction from removing account access", async ({
+  page,
+}) => {
+  const f = await workStaffInvitationsFixture(page);
+  f.writeMode = "success";
+  await page.goto("/admin/staff/invite");
+  const row = page.locator(".wsi-row").filter({
+    has: page.getByRole("heading", { name: "ada.okoro@example.test", exact: true }),
+  });
+  await row.getByText("Cancel unused invitation", { exact: true }).click();
+  await row
+    .getByLabel(
+      "Your current password to cancel the invitation for ada.okoro@example.test",
+      { exact: true },
+    )
+    .fill("synthetic cancellation proof");
+  await row
+    .getByRole("button", { name: "Review invitation cancellation", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveAccessibleDescription(
+    "Invitation for: ada.okoro@example.test",
+  );
+  await expect(page.getByRole("dialog")).toContainText(
+    "does not change an existing account role",
+  );
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Confirm change", exact: true })
+    .click();
+  await expect(
+    page.getByText("Unused invitation cancelled. Existing account access is unchanged.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(row.locator(".wsi-status")).toHaveText("Cancelled");
+  await expect(row.getByText("Cancel unused invitation", { exact: true })).toHaveCount(0);
+  expect(f.writes).toHaveLength(1);
+  expect(f.writes[0]!.path).toMatch(/\/revoke$/);
+  expect(f.writes[0]!.body).toEqual({ currentPassword: "synthetic cancellation proof" });
+  const accepted = page.locator(".wsi-row").filter({
+    has: page.getByRole("heading", { name: "chidi.obi@example.test", exact: true }),
+  });
+  await expect(accepted).toContainText(
+    "Accepted previously. Check the person's current access",
+  );
+  await expect(
+    accepted.getByText("Cancel unused invitation", { exact: true }),
+  ).toHaveCount(0);
 });

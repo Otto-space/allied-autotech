@@ -199,6 +199,7 @@ function exampleFromSchema(schema: unknown, fieldName = "value", depth = 0): unk
   if (!isObject(schema) || depth > 8) return null;
   if (schema["example"] !== undefined) return schema["example"];
   if (schema["const"] !== undefined) return schema["const"];
+  if (schema["type"] === "null") return null;
   if (Array.isArray(schema["enum"]) && schema["enum"].length > 0)
     return schema["enum"][0];
   const alternatives = schema["oneOf"] ?? schema["anyOf"];

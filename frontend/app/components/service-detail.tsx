@@ -533,6 +533,7 @@ export function ServiceDetail({
             >
               <div className="sd-container sd-hero">
                 <div className="sd-identity">
+                  <p className="sd-eyebrow">Workshop service</p>
                   <h1 id="sd-title">{current.name}</h1>
                   {current.shortDescription && (
                     <p className="sd-intro">{current.shortDescription}</p>

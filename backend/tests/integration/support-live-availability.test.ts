@@ -285,6 +285,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       async (state) => {
         const a = await agent();
         await setPresence(a);
+        // Both expiry fields must use one clock read to satisfy idle <= absolute.
+        const expiredAt = new Date(Date.now() - 1);
         await prisma.session.update({
           where: { id: a.record.id },
           data:
@@ -292,8 +294,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
               ? { revokedAt: new Date() }
               : state === "expired"
                 ? {
-                    expiresAt: new Date(Date.now() - 1),
-                    idleExpiresAt: new Date(Date.now() - 1),
+                    expiresAt: expiredAt,
+                    idleExpiresAt: expiredAt,
                   }
                 : { mfaVerifiedAt: null },
         });

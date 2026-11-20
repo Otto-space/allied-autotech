@@ -271,6 +271,7 @@ export function BookingTimingReview({
     !booking.assignedStaff ||
     !booking.service ||
     !booking.scheduledAt ||
+    booking.startedAt != null ||
     clock === null ||
     Date.parse(booking.scheduledAt) <= clock ||
     !["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED"].includes(booking.status)

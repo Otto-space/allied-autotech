@@ -13,6 +13,8 @@ export const learningHref = z.enum([
   "/contact",
   "/forgot-password",
   "/dashboard/support",
+  "/dashboard/orders",
+  "/staff/orders",
   "/admin",
   "/admin/vehicles",
   "/admin/profile",
@@ -32,6 +34,7 @@ export const learningHref = z.enum([
   "/admin/payment-disputes/work",
   "/admin/privacy",
   "/admin/finance-policy",
+  "/admin/booking-capacity",
 ]);
 export const articleSchema = z.object({
   id,

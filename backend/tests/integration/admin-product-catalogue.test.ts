@@ -71,6 +71,87 @@ async function product(active = true) {
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "administrator product direct read and observed update",
   () => {
+    it("records optional product estimates, protects stale reviews, audits changes and clears unknown timing", async () => {
+      const actor = await account(),
+        row = await product();
+      const timing = { sourcingDaysMin: 3, sourcingDaysMax: 7, preparationMinutes: 60 };
+      const saved = await request(app)
+        .patch(`${endpoint}/${row.id}`)
+        .set(actor.headers)
+        .send({ ...timing, expectedUpdatedAt: row.updatedAt.toISOString() });
+      expect(saved.status).toBe(200);
+      expect(saved.body.data).toMatchObject(timing);
+      const publicRead = await request(app).get(
+        `/api/v1/public/catalog/products/${row.id}`,
+      );
+      expect(publicRead.status).toBe(200);
+      expect(publicRead.body.data).toMatchObject(timing);
+      expect(
+        (
+          await prisma.auditLog.findFirstOrThrow({
+            where: { entityId: row.id },
+            orderBy: { createdAt: "desc" },
+          })
+        ).newValues,
+      ).toMatchObject(timing);
+      expect(
+        (
+          await request(app)
+            .patch(`${endpoint}/${row.id}`)
+            .set(actor.headers)
+            .send({
+              preparationMinutes: 15,
+              expectedUpdatedAt: row.updatedAt.toISOString(),
+            })
+        ).status,
+      ).toBe(409);
+      const clear = await request(app)
+        .patch(`${endpoint}/${row.id}`)
+        .set(actor.headers)
+        .send({
+          sourcingDaysMin: null,
+          sourcingDaysMax: null,
+          preparationMinutes: null,
+          expectedUpdatedAt: saved.body.data.updatedAt,
+        });
+      expect(clear.status).toBe(200);
+      expect(clear.body.data).toMatchObject({
+        sourcingDaysMin: null,
+        sourcingDaysMax: null,
+        preparationMinutes: null,
+      });
+      expect(clear.body.data.priceKobo).toBe("123456");
+    });
+    it("rejects incomplete/reversed/fractional timing before writes and guards direct database writers", async () => {
+      const actor = await account(),
+        row = await product();
+      for (const body of [
+        { sourcingDaysMin: 3 },
+        { sourcingDaysMax: 7 },
+        { sourcingDaysMin: 8, sourcingDaysMax: 7 },
+        { sourcingDaysMin: null, sourcingDaysMax: 7 },
+        { preparationMinutes: -1 },
+        { preparationMinutes: 1.5 },
+      ])
+        expect(
+          (
+            await request(app)
+              .patch(`${endpoint}/${row.id}`)
+              .set(actor.headers)
+              .send(body)
+          ).status,
+        ).toBe(422);
+      await expect(
+        prisma.product.update({ where: { id: row.id }, data: { sourcingDaysMin: 3 } }),
+      ).rejects.toThrow(/Product_sourcing_estimate_range/);
+      await expect(
+        prisma.product.update({
+          where: { id: row.id },
+          data: { preparationMinutes: -1 },
+        }),
+      ).rejects.toThrow(/Product_preparation_estimate_range/);
+      expect(await prisma.auditLog.count({ where: { entityId: row.id } })).toBe(0);
+    });
     it("records and clears real part attributes through the observed product update", async () => {
       const actor = await account(),
         row = await product();

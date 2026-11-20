@@ -1,4 +1,8 @@
 import { prisma } from "../../config/database.js";
+import {
+  servicePaymentBinding,
+  type ServicePaymentStage,
+} from "./service-payment-plan.js";
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import { assertInvoiceCustomer, assertInvoiceOperator } from "./billing.policy.js";
@@ -60,6 +64,7 @@ export function confirmedReceipt(payment: ReceiptPayment): {
   confirmedAt: string;
   refundedKobo: string;
   method: string;
+  serviceStage?: ServicePaymentStage;
 } | null {
   const attempt = payment.settledAttempt;
   if (
@@ -93,11 +98,18 @@ export function confirmedReceipt(payment: ReceiptPayment): {
           : attempt.provider === "PAYSTACK"
             ? "Paystack"
             : "Monnify";
+  const binding = servicePaymentBinding(payment.policySnapshot);
+  if (
+    binding &&
+    (!payment.invoiceId || BigInt(binding.amountKobo) !== payment.amountKobo)
+  )
+    return null;
   return {
     amountKobo: attempt.verifiedAmountKobo.toString(),
     confirmedAt: payment.succeededAt.toISOString(),
     refundedKobo: refunded.toString(),
     method,
+    ...(binding ? { serviceStage: binding.stage } : {}),
   };
 }
 
@@ -177,6 +189,7 @@ export class FinancialDocumentsService {
             guestId: true,
             orderId: true,
             bookingId: true,
+            additionalQuoteId: true,
             vehicleTransactionId: true,
             currency: true,
             status: true,
@@ -213,12 +226,17 @@ export class FinancialDocumentsService {
           : await buildInvoiceSnapshot(database, invoice, true);
         assertDocumentTotals(snapshot, invoice);
         const expectedSource =
-          invoice.orderId ?? invoice.bookingId ?? invoice.vehicleTransactionId;
+          invoice.orderId ??
+          invoice.bookingId ??
+          invoice.additionalQuoteId ??
+          invoice.vehicleTransactionId;
         const expectedType = invoice.orderId
           ? "ORDER"
           : invoice.bookingId
             ? "BOOKING"
-            : "VEHICLE_TRANSACTION";
+            : invoice.additionalQuoteId
+              ? "SERVICE_ADDITION"
+              : "VEHICLE_TRANSACTION";
         if (
           snapshot.billTo.reference !== (invoice.customerId ?? invoice.guestId) ||
           snapshot.source.id !== expectedSource ||
@@ -255,6 +273,7 @@ export class FinancialDocumentsService {
                   amountKobo: receipt.amountKobo,
                   confirmedAt: receipt.confirmedAt,
                   refundedKobo: receipt.refundedKobo,
+                  ...(receipt.serviceStage ? { serviceStage: receipt.serviceStage } : {}),
                 },
               ]
             : [];
@@ -289,6 +308,9 @@ export class FinancialDocumentsService {
             amountKobo: payment.amountKobo.toString(),
             status: payment.status,
             succeededAt: payment.succeededAt?.toISOString() ?? null,
+            ...(servicePaymentBinding(payment.policySnapshot)
+              ? { serviceStage: servicePaymentBinding(payment.policySnapshot)!.stage }
+              : {}),
           })),
         });
         if (staff && buyer.kind === "account")

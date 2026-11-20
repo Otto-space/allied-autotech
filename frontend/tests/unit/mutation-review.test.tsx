@@ -28,6 +28,28 @@ afterAll(() => {
   else Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal");
 });
 afterEach(cleanup);
+it("keeps the reviewed subject outside scrolling details and describes the dialog", () => {
+  render(
+    <MutationReview
+      proposal={{
+        title: "Review duty",
+        subject: "Selected person: Ada Okoro",
+        description: "Review dates and scope",
+        facts: [],
+        submit: async () => undefined,
+      }}
+      onClose={vi.fn()}
+      onSuccess={vi.fn()}
+    />,
+  );
+  const subject = screen.getByText("Selected person: Ada Okoro", { exact: true });
+  expect(screen.getByRole("dialog")).toHaveAccessibleDescription(
+    "Selected person: Ada Okoro",
+  );
+  expect(screen.getByRole("region", { name: "Review details" })).not.toContainElement(
+    subject,
+  );
+});
 it("restores the opener when opening the review disables and blurs its fieldset", async () => {
   function Harness() {
     const [open, setOpen] = useState(false);

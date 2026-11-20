@@ -9,11 +9,13 @@ export function CustomerAccountAction({
   customer,
   disabled = false,
   onChanged,
+  onReviewClosed,
   compact = false,
 }: {
   customer: WorkCustomer;
   disabled?: boolean;
   onChanged: () => void;
+  onReviewClosed?: (opener: HTMLElement | null) => void;
   compact?: boolean;
 }) {
   const [review, setReview] = useState<WorkCustomer | null>(null);
@@ -75,6 +77,7 @@ export function CustomerAccountAction({
           action={review.status === "ACTIVE" ? "Suspend account" : "Reactivate account"}
           onClose={() => setReview(null)}
           onChanged={onChanged}
+          onReviewClosed={onReviewClosed}
         />
       )}
     </>
@@ -85,14 +88,17 @@ function AccountDialog({
   action,
   onClose,
   onChanged,
+  onReviewClosed,
 }: {
   customer: WorkCustomer;
   action: string;
   onClose: () => void;
   onChanged: () => void;
+  onReviewClosed?: (opener: HTMLElement | null) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null),
     opener = useRef<Element | null>(null),
+    closeReported = useRef(false),
     active = useRef(true),
     submitting = useRef(false);
   const [reason, setReason] = useState(""),
@@ -102,15 +108,25 @@ function AccountDialog({
   useEffect(() => {
     active.current = true;
     opener.current ??= document.activeElement;
-    dialog.current?.showModal();
+    const modal = dialog.current;
+    modal?.showModal();
     return () => {
       active.current = false;
       const previous = opener.current;
       queueMicrotask(() => {
+        if (!modal?.isConnected && !closeReported.current) {
+          closeReported.current = true;
+          onReviewClosed?.(previous instanceof HTMLElement ? previous : null);
+        }
         if (previous instanceof HTMLElement && previous.isConnected) previous.focus();
       });
     };
-  }, []);
+  }, [onReviewClosed]);
+  function close() {
+    closeReported.current = true;
+    onClose();
+    onReviewClosed?.(opener.current instanceof HTMLElement ? opener.current : null);
+  }
   async function submit() {
     if (submitting.current || uncertain) return;
     if (reason.trim().length < 10) {
@@ -142,7 +158,7 @@ function AccountDialog({
       )
         throw new Error("Unexpected result");
       onChanged();
-      onClose();
+      close();
     } catch (failure) {
       if (!active.current) return;
       setUncertain(true);
@@ -165,7 +181,7 @@ function AccountDialog({
       aria-labelledby="customer-account-title"
       onCancel={(event) => {
         event.preventDefault();
-        if (!busy) onClose();
+        if (!busy) close();
       }}
     >
       <h2 id="customer-account-title">{action}</h2>
@@ -208,7 +224,7 @@ function AccountDialog({
             className="button secondary"
             type="button"
             disabled={busy}
-            onClick={onClose}
+            onClick={close}
           >
             Cancel
           </button>

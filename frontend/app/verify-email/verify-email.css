@@ -91,9 +91,6 @@
   .verify-form h1 {
     font-size: 27px;
   }
-  .login-form-area:has(.verify-form) {
-    padding-top: 16px;
-  }
   .verify-form .login-help {
     padding-top: 6px;
   }

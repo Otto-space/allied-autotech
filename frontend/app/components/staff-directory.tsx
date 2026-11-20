@@ -74,7 +74,16 @@ function DirectoryAccess({ owner, role }: { owner: string; role: string }) {
       </div>
     );
   return (
-    <DirectoryWorkspace owner={owner} onDenied={deny} refreshAccess={access.refresh} />
+    <>
+      {role === "SUPER_ADMIN" && (
+        <p className="notice">
+          People brings account level, job position, branch and duties together.{" "}
+          <Link href="/admin/workforce/access">Open People</Link>. This earlier account
+          directory remains available for existing links.
+        </p>
+      )}
+      <DirectoryWorkspace owner={owner} onDenied={deny} refreshAccess={access.refresh} />
+    </>
   );
 }
 function useDirectoryPage(path: string | null) {

@@ -36,6 +36,15 @@ export const currentJobSchema = z.discriminatedUnion("source", [
     .extend({
       status: z.enum(["PENDING", "PROCESSING", "PUBLISHED", "FAILED", "DEAD_LETTER"]),
       publishedAt: date.nullable(),
+      deliverySuppressionReason: z
+        .enum([
+          "CHANNEL_DISABLED",
+          "CONSENT_WITHDRAWN",
+          "NO_RECIPIENT",
+          "SUPPORT_REPLY_ADDRESS_MISSING",
+        ])
+        .nullable()
+        .optional(),
     })
     .strict(),
   webhook
@@ -47,6 +56,15 @@ export const currentJobSchema = z.discriminatedUnion("source", [
     .strict(),
 ]);
 export type CurrentJob = z.infer<typeof currentJobSchema>;
+export function jobSuppressionExplanation(row: CurrentJob) {
+  if (row.source !== "OUTBOX" || !row.deliverySuppressionReason) return null;
+  return {
+    CHANNEL_DISABLED: "Email delivery is disabled.",
+    CONSENT_WITHDRAWN: "Operational email consent is off.",
+    NO_RECIPIENT: "No customer email address is available.",
+    SUPPORT_REPLY_ADDRESS_MISSING: "The support reply address needs configuration.",
+  }[row.deliverySuppressionReason];
+}
 export type QueueJob = z.infer<typeof queueJob>;
 export const jobKey = (row: { id: string; source: string }) =>
   `${row.source === "OUTBOX" ? "outbox" : "webhook"}:${row.id}`;
@@ -148,6 +166,14 @@ export function parseJobPage(value: unknown, query: URLSearchParams) {
 }
 export function parseCurrentJob(value: unknown, key: string) {
   const row = currentJobSchema.parse(value);
+  if (
+    row.source === "OUTBOX" &&
+    row.deliverySuppressionReason &&
+    (row.eventType !== "support.customer-email.requested" ||
+      row.aggregateType !== "SupportCustomerEmail" ||
+      !["FAILED", "DEAD_LETTER"].includes(row.status))
+  )
+    throw Error("Unexpected delivery diagnostic scope");
   if (jobKey(row) !== key) throw Error("Unexpected current job");
   return row;
 }

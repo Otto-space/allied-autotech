@@ -249,8 +249,6 @@
 }
 .dashboard .dashboard-content .account-security .mutation-review {
   padding: 24px;
-  max-width: 540px;
-  width: calc(100vw - 32px);
   border: 1px solid #cbd5df;
   border-radius: 8px;
 }

@@ -31,6 +31,7 @@ export const listingSchema = z.object({
     manufactureCountryCode: z.string().nullable().optional(),
     powertrain: z.enum(["BEV", "HEV", "PHEV", "ICE"]).nullable().optional(),
     engineCapacityCc: z.number().int().nullable().optional(),
+    engineDetails: z.string().max(500).nullable().optional(),
     engineCode: z.string().nullable().optional(),
     doors: z.number().int().nullable().optional(),
     driveType: z.string().nullable().optional(),

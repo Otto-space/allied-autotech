@@ -36,15 +36,17 @@ async function matchesIsolatedEndpoint(target: { host: string; port: number }) {
     return true;
   const id = process.env["TEST_DATABASE_CONTAINER_ID"];
   if (!id || !/^[a-f0-9]{64}$/.test(id)) return false;
-  const match = /^aat_(d04|d06|d10)_([a-f0-9]{12})_test$/.exec(env.DB_NAME);
+  const match = /^aat_(d03|d04|d06|d10)_([a-f0-9]{12})_test$/.exec(env.DB_NAME);
   if (!match) return false;
   const [, task, suffix] = match;
   const label =
-    task === "d04"
-      ? "d04-prepayment"
-      : task === "d06"
-        ? "d06-resources"
-        : "d10-reschedule";
+    task === "d03"
+      ? "d03-service-payments"
+      : task === "d04"
+        ? "d04-prepayment"
+        : task === "d06"
+          ? "d06-resources"
+          : "d10-reschedule";
   const format =
     '{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Config.Labels}},"ports":{{json .NetworkSettings.Ports}},"networks":{{json .NetworkSettings.Networks}},"tmpfs":{{json .HostConfig.Tmpfs}},"mounts":{{json .Mounts}}}';
   try {

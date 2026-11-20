@@ -13,10 +13,75 @@ const modalImages = (kind) =>
     isPrimary: index === 0,
   }));
 const modalProduct = { ...product, images: modalImages("catalog/products") };
+// Dedicated, read-only Parts design records; normal regression queries are unchanged.
+const partsDesignCategory = {
+  ...product.category,
+  id: id(94111),
+  name: "Synthetic parts category",
+  slug: "stitch-fixture-parts",
+  parentId: null,
+};
+const partsDesignChild = {
+  ...partsDesignCategory,
+  id: id(94112),
+  name: "Synthetic empty subcategory",
+  slug: "stitch-fixture-empty",
+  parentId: partsDesignCategory.id,
+};
+const partsDesignProducts = [0, 1, 2, 3].map((index) => ({
+  ...modalProduct,
+  id: id(94101 + index),
+  name: `Synthetic stitch-fixture part ${index + 1}`,
+  slug: `stitch-fixture-part-${index + 1}`,
+  sku: `STITCH-FIXTURE-${index + 1}`,
+  priceKobo: String((index + 1) * 100000),
+  category: partsDesignCategory,
+  sourcingDaysMin: index === 0 ? 3 : null,
+  sourcingDaysMax: index === 0 ? 7 : null,
+  preparationMinutes: index === 0 ? 60 : null,
+  availability: product.availability.map((row) => ({ ...row, inStock: index % 2 === 0 })),
+}));
+// Dedicated synthetic product-detail records. No existing fixture gains estimates.
+const timingProducts = [true, false].map((known, index) => ({
+  ...product,
+  id: id(90140 + index),
+  name: `Synthetic ${known ? "recorded" : "unknown"} timing part`,
+  priceKobo: "100000",
+  sourcingDaysMin: known ? 3 : null,
+  sourcingDaysMax: known ? 7 : null,
+  preparationMinutes: known ? 60 : null,
+  availability: known ? product.availability : [],
+}));
 const modalListing = {
   ...listing,
   vehicle: { ...listing.vehicle, images: modalImages("vehicles") },
 };
+
+// Dedicated vehicle-description fixtures; shared catalogue samples stay unchanged.
+const vehicleDetailFixtures = ["BEV", "HEV", "PHEV", "ICE"].map((powertrain, index) => ({
+  ...modalListing,
+  id: id(90200 + index),
+  vehicle: {
+    ...modalListing.vehicle,
+    id: id(91200 + index),
+    make: "Synthetic",
+    model: `Vehicle ${powertrain}`,
+    powertrain,
+    driveType: "RWD",
+    fuelType: powertrain === "BEV" ? "ELECTRIC" : "PETROL",
+    engineCapacityCc: powertrain === "BEV" ? null : 1998,
+    cylinders: powertrain === "BEV" ? null : 4,
+    engineDetails:
+      powertrain === "BEV"
+        ? null
+        : "2.0L I-4 DI, DOHC, VVT, TURBO, PREMIUM, 252HP\n".padEnd(500, "x"),
+    features:
+      powertrain === "BEV"
+        ? []
+        : ["Audio, navigation", "Long supplied equipment description ".padEnd(80, "x")],
+    ownerReportedIssues: "Owner reports broken air conditioning. Diagnosis pending.",
+  },
+}));
 
 const group = {
   id: "37ec8bcf-7edc-4ec7-a185-ec849d71c5de",
@@ -136,6 +201,56 @@ export function createRuntimeCapabilityApi() {
     }
     if (url.pathname.startsWith("/api/v1/public/catalog/")) {
       const route = url.pathname;
+      const designProduct = partsDesignProducts.find(
+        (row) => route === `/api/v1/public/catalog/products/${row.id}`,
+      );
+      if (designProduct) {
+        success(designProduct);
+        return;
+      }
+      const designCategory = [partsDesignCategory, partsDesignChild].find(
+        (row) => route === `/api/v1/public/catalog/categories/${row.id}`,
+      );
+      if (designCategory) {
+        success(designCategory);
+        return;
+      }
+      if (
+        [
+          "/api/v1/public/catalog/products/discovery",
+          "/api/v1/public/catalog/products",
+        ].includes(route) &&
+        (url.searchParams.get("search")?.startsWith("stitch-fixture") ||
+          [partsDesignCategory.id, partsDesignChild.id].includes(
+            url.searchParams.get("categoryId"),
+          ))
+      ) {
+        const search = url.searchParams.get("search")?.toLowerCase();
+        const stock = url.searchParams.get("availability");
+        let items = partsDesignProducts.filter(
+          (row) =>
+            (!search || row.name.toLowerCase().includes(search)) &&
+            url.searchParams.get("categoryId") !== partsDesignChild.id &&
+            (!stock ||
+              row.availability.some((entry) => entry.inStock === (stock === "in_stock"))),
+        );
+        const sort = url.searchParams.get("sort");
+        if (sort === "price_asc" || sort === "price_desc")
+          items = [...items].sort(
+            (a, b) =>
+              (Number(a.priceKobo) - Number(b.priceKobo)) *
+              (sort === "price_asc" ? 1 : -1),
+          );
+        success({ items, totalMatches: items.length });
+        return;
+      }
+      const timingProduct = timingProducts.find(
+        (record) => route === `/api/v1/public/catalog/products/${record.id}`,
+      );
+      if (timingProduct) {
+        success(timingProduct);
+        return;
+      }
       if (
         route === "/api/v1/public/catalog/products/discovery" &&
         settings.searchUnavailable
@@ -165,6 +280,13 @@ export function createRuntimeCapabilityApi() {
       );
       return;
     }
+    const vehicleDetail = vehicleDetailFixtures.find(
+      (record) => url.pathname === `/api/v1/public/vehicles/${record.id}`,
+    );
+    if (vehicleDetail) {
+      success(vehicleDetail);
+      return;
+    }
     if (url.pathname.startsWith("/api/v1/public/vehicles")) {
       const route = url.pathname;
       success(
@@ -187,6 +309,12 @@ export function createRuntimeCapabilityApi() {
       return;
     }
     if (url.pathname === "/api/v1/public/services/discovery") {
+      // The Allie citation case represents an empty service group. Match its
+      // browser fixture when Next seeds the catalogue on the server.
+      if (url.searchParams.get("categoryId") === "f8000000-0000-4000-8000-000000000006") {
+        success({ items: [], totalMatches: 0 });
+        return;
+      }
       success({ items: services, totalMatches: services.length });
       return;
     }

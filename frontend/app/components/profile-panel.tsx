@@ -441,6 +441,7 @@ function ProfileIdentity({ profile }: { profile: Profile }) {
         <Image
           unoptimized
           src={profile.photo.url}
+          overrideSrc={profile.photo.url}
           width={80}
           height={80}
           alt={profile.photo.altText || "Your profile photo"}

@@ -226,7 +226,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(appointment.status).toBe(200);
       expect(appointment.body.data).toMatchObject({
         id: "service-request",
-        version: 28,
+        version: 35,
         href: "/services",
       });
       expect(appointment.body.data.steps.join(" ")).toContain(
@@ -240,10 +240,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const vehicle = await read(null, "/public/learning/articles/vehicle-enquiry");
       expect(vehicle.status).toBe(200);
-      expect(vehicle.body.data).toMatchObject({ version: 5, href: "/vehicles" });
+      expect(vehicle.body.data).toMatchObject({ version: 6, href: "/vehicles" });
       expect(vehicle.body.data.steps.join(" ")).toContain(
         "only when the listing offers it",
       );
+      expect(vehicle.body.data.steps.join(" ")).toContain("Engine / Power type");
+      expect(vehicle.body.data.steps.join(" ")).toContain("not a certification");
       expect(
         (await read(null, "/public/learning/articles/vehicle-operations")).status,
       ).toBe(404);
@@ -352,7 +354,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       for (const identity of [admin, owner]) {
         const vehicle = await read(identity, "/learning/articles/vehicle-operations");
         expect(vehicle.status).toBe(200);
-        expect(vehicle.body.data).toMatchObject({ version: 2, href: "/admin/vehicles" });
+        expect(vehicle.body.data).toMatchObject({ version: 3, href: "/admin/vehicles" });
         expect(vehicle.body.data.steps.join(" ")).toContain("Edit details");
       }
       expect(ids(await read(owner))).toContain("privileged-recovery");
@@ -361,7 +363,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       );
       const accessReview = await read(f.scopedAdmin, "/learning/articles/access-review");
       expect(accessReview.status).toBe(200);
-      expect(accessReview.body.data).toMatchObject({ version: 4 });
+      expect(accessReview.body.data).toMatchObject({ version: 11 });
+      expect(accessReview.body.data.steps.join(" ")).toContain(
+        "An Admin account keeps its normal workspace",
+      );
+      expect(accessReview.body.data.steps.join(" ")).toContain(
+        "Reviews never revoke duties or send reminders",
+      );
+      expect(accessReview.body.data.steps.join(" ")).toContain(
+        "Open People in Team & Access and select View person.",
+      );
       expect(accessReview.body.data.steps.join(" ")).toContain(
         "review access added, removed and retained",
       );

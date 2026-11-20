@@ -14,10 +14,14 @@ export default async function Page() {
   if (availability.mode === "catalogue") redirect("/contact#enquiry");
   if (!availability.customerAccountsEnabled)
     return (
-      <AccessShell mode="register">
-        <h2>Account creation is temporarily unavailable</h2>
-        <p>Please try again shortly or contact our team.</p>
-        <Link href="/contact">Contact Allied AutoTech</Link>
+      <AccessShell mode="register" showRegistrationPanel={false}>
+        <div className="login-form">
+          <h1>Account creation is temporarily unavailable</h1>
+          <p className="login-intro">Please try again shortly or contact our team.</p>
+          <Link className="button login-submit" href="/contact">
+            Contact Allied AutoTech
+          </Link>
+        </div>
       </AccessShell>
     );
   return (

@@ -15,6 +15,7 @@ export const bookingTimingSnapshotSchema = z.object({
   createdAt: z.iso.datetime(),
 });
 export type TimingBooking = {
+  startedAt?: string | null;
   id: string;
   version: number;
   branchId: string | null;

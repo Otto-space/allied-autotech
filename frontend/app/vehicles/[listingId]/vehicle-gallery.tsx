@@ -87,7 +87,7 @@ export function VehicleGallery({ images, title }: { images: Photo[]; title: stri
     };
   }, [open]);
   const controls = (expanded: boolean) => (
-    <div className="vd-gallery-controls">
+    <div className="vd-gallery-controls" data-carousel-controls>
       {photos.length > 1 && (
         <button
           className="icon-button"
@@ -116,16 +116,19 @@ export function VehicleGallery({ images, title }: { images: Photo[]; title: stri
           ref={expand}
           type="button"
           className="vd-expand"
+          aria-label="View photos"
+          title="View photos"
           onClick={() => setOpen(true)}
         >
-          <Expand size={17} aria-hidden="true" /> View photos
+          <Expand size={17} aria-hidden="true" />
+          <span className="vd-expand-label">View photos</span>
         </button>
       )}
     </div>
   );
   const thumbnails = () =>
     photos.length > 1 && (
-      <div className="vd-thumbnails" aria-label="Choose a photo">
+      <div className="vd-thumbnails" data-carousel-controls aria-label="Choose a photo">
         {photos.map((photo, i) => (
           <button
             type="button"

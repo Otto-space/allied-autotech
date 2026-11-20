@@ -410,7 +410,8 @@
 }
 .dashboard .dashboard-content .quotation-review {
   --quote-border: #82939f;
-  width: min(560px, calc(100vw - 32px));
+  /* Shared modal max-inline-size supplies the viewport and safe-area limit. */
+  width: 560px;
   border-radius: 8px;
 }
 .dashboard .dashboard-content .quotation-review > h2 {

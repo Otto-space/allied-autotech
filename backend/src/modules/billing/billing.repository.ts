@@ -1,5 +1,7 @@
+import { additionalInvoiceQuoteSelect } from "./service-invoice-context.js";
 import { prisma } from "../../config/database.js";
 import { z } from "zod";
+import { servicePaymentReadSelect } from "./service-payment-summary.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import type {
   CustomerInvoiceListQuery,
@@ -18,6 +20,7 @@ export const invoiceableVehicleStatuses = [
 const branchSelect = { id: true, code: true, name: true } as const;
 const literalPattern = (value: string) => value.replace(/[\\%_]/g, "\\$&");
 export const invoiceSelect = {
+  additionalQuote: { select: additionalInvoiceQuoteSelect },
   id: true,
   invoiceNumber: true,
   currency: true,
@@ -25,6 +28,7 @@ export const invoiceSelect = {
   taxKobo: true,
   depositCreditKobo: true,
   totalKobo: true,
+  documentSnapshot: true,
   status: true,
   version: true,
   issuedAt: true,
@@ -45,6 +49,7 @@ export const invoiceSelect = {
     select: {
       id: true,
       status: true,
+      completedAt: true,
       branch: { select: { id: true, code: true, name: true } },
     },
   },
@@ -62,10 +67,9 @@ export const invoiceSelect = {
     select: {
       id: true,
       paymentNumber: true,
-      status: true,
-      amountKobo: true,
       currency: true,
       succeededAt: true,
+      ...servicePaymentReadSelect,
     },
     orderBy: { createdAt: "desc" as const },
   },
@@ -104,15 +108,18 @@ export class BillingRepository {
           ? { orderId: query.sourceId ?? { not: null } }
           : query.sourceType === "BOOKING"
             ? { bookingId: query.sourceId ?? { not: null } }
-            : query.sourceType === "VEHICLE_TRANSACTION"
-              ? { vehicleTransactionId: query.sourceId ?? { not: null } }
-              : {}),
+            : query.sourceType === "SERVICE_ADDITION"
+              ? { additionalQuoteId: query.sourceId ?? { not: null } }
+              : query.sourceType === "VEHICLE_TRANSACTION"
+                ? { vehicleTransactionId: query.sourceId ?? { not: null } }
+                : {}),
         ...(branchId === undefined || branchId === null
           ? {}
           : {
               OR: [
                 { order: { branchId } },
                 { booking: { branchId } },
+                { additionalQuote: { booking: { branchId } } },
                 { vehicleTransaction: { vehicleListing: { branchId } } },
               ],
             }),
@@ -141,6 +148,47 @@ export class BillingRepository {
       query.search && !exact
         ? { startsWith: literalPattern(query.search), mode: "insensitive" as const }
         : undefined;
+    if (query.sourceType === "SERVICE_ADDITION") {
+      const rows = await this.database.serviceQuote.findMany({
+        where: {
+          status: "ACCEPTED",
+          acceptedAdditionalContext: { not: Prisma.DbNull },
+          originalInvoice: {
+            status: { in: ["ISSUED", "PAID"] },
+            documentSnapshot: { path: ["servicePaymentPlan", "version"], equals: 1 },
+          },
+          booking: {
+            status: { notIn: ["CANCELLED", "COMPLETED"] },
+            OR: [
+              { workOrder: null },
+              { workOrder: { status: { not: "COMPLETED" }, completedAt: null } },
+            ],
+          },
+          supplementalInvoice: null,
+          ...(reference ? { id: reference } : {}),
+          ...(text ? { quoteNumber: text } : {}),
+        },
+        select: {
+          id: true,
+          quoteNumber: true,
+          amendmentReason: true,
+          createdAt: true,
+          updatedAt: true,
+          originalInvoice: { select: { invoiceNumber: true } },
+          booking: { select: { branch: { select: branchSelect } } },
+        },
+        ...pagination,
+      });
+      return rows.map((row) => ({
+        id: row.id,
+        sourceType: query.sourceType,
+        reference: row.quoteNumber,
+        label: `${row.quoteNumber} ? Additional work for ${row.originalInvoice!.invoiceNumber} ? ${row.amendmentReason}`,
+        branch: row.booking.branch,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      }));
+    }
     if (query.sourceType === "ORDER") {
       const rows = await this.database.order.findMany({
         where: {
@@ -172,7 +220,7 @@ export class BillingRepository {
       const rows = await this.database.booking.findMany({
         where: {
           status: { not: "CANCELLED" },
-          quotes: { some: { status: "ACCEPTED" } },
+          quotes: { some: { status: "ACCEPTED", originalInvoiceId: null } },
           invoice: null,
           ...(reference ? { id: reference } : {}),
           ...(text ? { service: { name: text } } : {}),
@@ -278,7 +326,8 @@ export class BillingRepository {
           },
         },
         quotes: {
-          where: { status: "ACCEPTED" },
+          where: { status: "ACCEPTED", originalInvoiceId: null },
+          orderBy: { version: "desc" },
           select: { subtotalKobo: true, taxKobo: true, totalKobo: true, currency: true },
           take: 1,
         },

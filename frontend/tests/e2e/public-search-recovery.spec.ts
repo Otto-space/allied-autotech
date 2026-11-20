@@ -1,4 +1,4 @@
-import { test, expect, type APIRequestContext } from "@playwright/test";
+import { test, expect, type APIRequestContext, type Request } from "@playwright/test";
 
 const origin = process.env.CAPABILITY_TEST_CONTROL_ORIGIN;
 async function searchAvailability(request: APIRequestContext, unavailable: boolean) {
@@ -23,8 +23,55 @@ for (const [width, height] of [
   test.describe("public search recovery " + width, () => {
     test.use({
       viewport: { width, height },
-      isMobile: width === 320,
+      // Firefox has no isMobile emulation; retain the exact responsive viewport.
+      isMobile: async ({ browserName }, provide) => {
+        await provide(browserName !== "firefox" && width === 320);
+      },
       hasTouch: width === 320,
+    });
+    test("initial slow image loading preserves the visitor's unsent search", async ({
+      page,
+    }, info) => {
+      let releaseLogo!: () => void;
+      const logoReady = new Promise<void>((resolve) => {
+        releaseLogo = resolve;
+      });
+      let heldLogoReads = 0;
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.route("**/brand/r2/mark-red.png*", async (route) => {
+        heldLogoReads++;
+        await logoReady;
+        await route.continue();
+      });
+      try {
+        await page.goto("/search", { waitUntil: "domcontentloaded" });
+        await expect(
+          page.getByRole("button", { name: "Close search", exact: true }),
+        ).toBeEnabled();
+        await expect.poll(() => heldLogoReads).toBeGreaterThan(0);
+        expect(await page.evaluate(() => document.readyState)).not.toBe("complete");
+        const query = page.getByLabel("Search for", { exact: true });
+        const scope = page.getByLabel("Search in", { exact: true });
+        await query.fill("Synthetic");
+        await scope.selectOption("services");
+        releaseLogo();
+        await page.waitForLoadState("load");
+        await page.evaluate(
+          () =>
+            new Promise<void>((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+            ),
+        );
+        await expect(query).toHaveValue("Synthetic");
+        await expect(scope).toHaveValue("services");
+        await page.screenshot({ path: info.outputPath("search-keeps-unsent-query.png") });
+        await query.press("Enter");
+        await expect(page).toHaveURL(/\/services\?search=Synthetic$/);
+        expect(errors).toEqual([]);
+      } finally {
+        releaseLogo();
+      }
     });
     test("one failed catalogue remains distinct from no matches and retry preserves the query", async ({
       page,
@@ -33,6 +80,23 @@ for (const [width, height] of [
       await searchAvailability(request, false);
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
+      const reads = new Set<Request>();
+      let lastReadActivity = Date.now();
+      page.on("request", (read) => {
+        reads.add(read);
+        lastReadActivity = Date.now();
+      });
+      const finishRead = (read: Request) => {
+        if (reads.delete(read)) lastReadActivity = Date.now();
+      };
+      page.on("requestfinished", finishRead);
+      page.on("requestfailed", finishRead);
+      const settleReads = () =>
+        expect
+          .poll(() => reads.size === 0 && Date.now() - lastReadActivity >= 500, {
+            message: "Current document reads and deferred prefetches have settled",
+          })
+          .toBe(true);
       await page.route("**/api/v1/**", async (route) => {
         expect(route.request().method()).toBe("GET");
         const url = new URL(route.request().url());
@@ -49,6 +113,10 @@ for (const [width, height] of [
         page.getByRole("button", { name: "Close search", exact: true }),
       ).toBeEnabled();
       await expect(shop).toContainText("Synthetic maker · Part no. TEST-MPN");
+      // A recorded WebKit networkidle load state returned while new RSC reads
+      // were still active. Observe current requests before changing fixture
+      // state; this case covers settled recovery, not interrupted prefetches.
+      await settleReads();
       await searchAvailability(request, true);
       await page.reload();
       await expect(shop.getByRole("status")).toContainText(
@@ -60,6 +128,7 @@ for (const [width, height] of [
       await expect(page.getByText("Shop: no matches", { exact: true })).toHaveCount(0);
       await expect(query).toHaveValue("Synthetic");
       await page.screenshot({ path: info.outputPath("partial-search-failure.png") });
+      await settleReads();
       await searchAvailability(request, false);
       await expect(
         page.getByRole("button", { name: "Close search", exact: true }),
@@ -77,6 +146,7 @@ for (const [width, height] of [
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
       ).toBe(false);
+      await settleReads();
       expect(errors).toEqual([]);
       await page.screenshot({ path: info.outputPath("search-recovered.png") });
     });

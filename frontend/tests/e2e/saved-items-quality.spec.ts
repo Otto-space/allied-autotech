@@ -38,6 +38,16 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
         await expect(
           page.getByRole("heading", { name: "Engine oil filter" }),
         ).toBeVisible();
+      await expect
+        .poll(() =>
+          page
+            .locator(".saved-card .product-media img")
+            .first()
+            .evaluate(
+              (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
+            ),
+        )
+        .toBe(true);
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       ).toBe(true);
@@ -359,9 +369,12 @@ test("switching accounts drops the previous customer's vehicle page and cursor",
   await expect(page.getByRole("heading", { name: "Saved vehicle 13" })).toHaveCount(0);
   await page.getByRole("button", { name: "Verify session again" }).click();
   await switchVehicles(page);
-  expect(state.reads.filter((p) => p.includes("saved-vehicles"))).toEqual([
-    "/customers/saved-vehicles/page?limit=12",
-  ]);
+  const reads = state.reads.filter((path) => path.includes("saved-vehicles"));
+  expect(reads.length).toBeGreaterThan(0);
+  // Include cancelled development remount reads: none may retain the old cursor.
+  expect(reads.every((path) => path === "/customers/saved-vehicles/page?limit=12")).toBe(
+    true,
+  );
 });
 
 test("long item identity and large exact amounts remain readable at 320px", async ({

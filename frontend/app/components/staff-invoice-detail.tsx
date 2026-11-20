@@ -42,6 +42,7 @@ import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { StaffInvoicePaper, StaffInvoiceLifecycle } from "./staff-invoice-paper";
 import { DocumentActions } from "./document-actions";
+import { ServicePaymentSummary } from "./service-payment-summary";
 
 export function StaffInvoiceDetail({ invoiceId }: { invoiceId: string }) {
   const session = useAccountSession();
@@ -481,17 +482,7 @@ function InvoiceWorkspace({
       <header className="wid-heading">
         <div>
           <h1>{current?.invoiceNumber ?? "Invoice details"}</h1>
-          {current && (
-            <>
-              <WorkflowProgress workflow="invoice" status={current.status} />
-              <span
-                className={`wid-status wid-status-${current.status.toLowerCase()}`}
-                data-status={current.status}
-              >
-                {invoiceStatusLabels[current.status]}
-              </span>
-            </>
-          )}
+          {current && <WorkflowProgress workflow="invoice" status={current.status} />}
           <p>Review the source, document and recorded payments before issuing.</p>
         </div>
         <div className="wid-refresh">
@@ -711,6 +702,24 @@ function InvoiceWorkspace({
                   </section>
                 </aside>
                 <div className="wid-document">
+                  {current.additionalQuote && (
+                    <section
+                      aria-label="Additional service invoice"
+                      className="field-hint"
+                    >
+                      <h2>Additional work</h2>
+                      <p>
+                        Original invoice:{" "}
+                        {current.additionalQuote.originalInvoice.invoiceNumber}
+                      </p>
+                      <p>{current.additionalQuote.amendmentReason}</p>
+                      <p>
+                        Only the new accepted items are billed here. Original amounts and
+                        payments remain separate; no previous deposit credit is reused.
+                      </p>
+                    </section>
+                  )}
+                  <ServicePaymentSummary summary={current.servicePayment} />
                   <Feedback message={paperError} />
                   {document.loading && <p role="status">Loading invoice document…</p>}
                   {document.refreshing && <p role="status">Checking invoice document…</p>}
@@ -797,6 +806,13 @@ function InvoiceWorkspace({
                           <div>
                             <h3>{p.paymentNumber}</h3>
                             <p>{statusLabel(p.status)}</p>
+                            {p.serviceStage && (
+                              <p>
+                                {p.serviceStage === "MATERIALS"
+                                  ? "Materials"
+                                  : "Workmanship and fees"}
+                              </p>
+                            )}
                             <span className="wid-reference">{p.id}</span>
                           </div>
                           <div>

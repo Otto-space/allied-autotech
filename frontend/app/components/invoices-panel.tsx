@@ -220,6 +220,11 @@ export function InvoicesPanel() {
                           <strong>Order {invoice.order.orderNumber}</strong>
                         )}
                         {invoice.booking && <strong>Service booking</strong>}
+                        {invoice.additionalQuote && (
+                          <strong>
+                            Additional work ? {invoice.additionalQuote.quoteNumber}
+                          </strong>
+                        )}
                         {invoice.vehicleTransaction && (
                           <strong>
                             Vehicle purchase{" "}
@@ -228,7 +233,8 @@ export function InvoicesPanel() {
                         )}
                         {!invoice.order &&
                           !invoice.booking &&
-                          !invoice.vehicleTransaction && (
+                          !invoice.vehicleTransaction &&
+                          !invoice.additionalQuote && (
                             <strong>See invoice details</strong>
                           )}
                       </div>
@@ -236,7 +242,8 @@ export function InvoicesPanel() {
                         {[
                           { id: invoice.order?.id, path: "orders", label: "View order" },
                           {
-                            id: invoice.booking?.id,
+                            id:
+                              invoice.booking?.id ?? invoice.additionalQuote?.booking.id,
                             path: "bookings",
                             label: "View booking",
                           },

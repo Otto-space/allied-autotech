@@ -6,6 +6,7 @@
   --brand-source-black: #040707;
   --palette-black: #080c0f;
   --palette-charcoal: #101419;
+  --palette-navy: #0b2038;
   --palette-red: #d71920;
   --palette-red-hover: #b51218;
   --palette-red-pressed: #950e14;
@@ -74,23 +75,13 @@
   --destructive-pressed: #651717;
   --overlay: #080c0fa6;
   --shadow-overlay: 0 16px 60px #080c0f33;
-  --gradient-brand: linear-gradient(
-    125deg,
-    var(--palette-black) 15%,
-    #210e12 52%,
-    var(--palette-red-deep)
-  );
-  --gradient-promo: linear-gradient(
-    115deg,
-    var(--palette-red-pressed),
-    var(--palette-red-deep) 48%,
-    var(--palette-black)
-  );
-  --gradient-subtle: linear-gradient(115deg, #fff0f1, var(--palette-white) 75%);
-  --gradient-nav: linear-gradient(165deg, var(--palette-black) 40%, #310d13);
-  --hero-scrim: linear-gradient(90deg, #080c0ff5, #080c0fbf 48%, #080c0f24 85%);
-  --hero-scrim-mobile: linear-gradient(180deg, #080c0f 40%, #080c0f70 75%, #080c0fe6);
-  --editorial-scrim-mobile: linear-gradient(90deg, #080c0ff5, #080c0fcc);
+  --gradient-brand: var(--palette-charcoal);
+  --gradient-promo: var(--palette-red-deep);
+  --gradient-subtle: var(--palette-white);
+  --gradient-nav: var(--palette-charcoal);
+  --hero-scrim: #080c0fcc;
+  --hero-scrim-mobile: #080c0fcc;
+  --editorial-scrim-mobile: #080c0fcc;
 
   /* Compatibility aliases for existing consumers; blue is not a primary action. */
   --brand-red: var(--action-primary);

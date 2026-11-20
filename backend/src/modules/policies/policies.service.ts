@@ -122,7 +122,8 @@ export async function safeCapabilities(
     booking: {
       confirmation: "STAFF_REVIEW" as const,
       cancellationFeeKobo: "0" as const,
-      reminderMinutes: 60 as const,
+      reminderMinutes: null,
+      reminderTiming: "APPOINTMENT_POLICY" as const,
     },
     marketing: { enabled: false as const },
     destructiveRetention: { enabled: false as const },

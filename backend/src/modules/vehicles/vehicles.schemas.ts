@@ -278,6 +278,9 @@ export const vehicleCreateBodySchema = z
     cylinders: z.number().int().min(1).max(24).nullable().optional(),
     ownerReportedCondition: nullableClean(2000),
     ownerReportedIssues: nullableClean(4000),
+    engineDetails: nullableClean(500).describe(
+      "Supplied engine description, up to 500 characters. Separate from capacity, engine code and features; no inferred specifications.",
+    ),
     engineSize: nullableClean(40),
     driveType: z.enum(["FWD", "RWD", "AWD", "FOUR_WD", "OTHER"]).nullable().optional(),
     color: nullableClean(40),
@@ -297,7 +300,10 @@ export const vehicleCreateBodySchema = z
   })
   .strict();
 export const vehicleUpdateBodySchema = vehicleCreateBodySchema
-  .omit({ branchId: true, stockNumber: true })
+  .omit({ branchId: true, stockNumber: true, condition: true })
+  .extend({
+    condition: z.enum(["NEW", "USED", "FOREIGN_USED", "LOCALLY_USED"]).optional(),
+  })
   .partial()
   .safeExtend({ expectedVersion: version })
   .refine((value) => Object.keys(value).length > 1, "At least one change is required");

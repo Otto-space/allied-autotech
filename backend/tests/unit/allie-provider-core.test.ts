@@ -113,6 +113,14 @@ describe("Allie outbound provider boundary", () => {
       max_output_tokens: 1200,
       text: { format: { type: "json_schema", strict: true, name: "allie_answer" } },
     });
+    // A real evaluation returned caveat:"", which the app correctly rejected.
+    // The outbound model contract must rule it out before generation as well.
+    expect(body.text.format.schema.properties.caveat).toEqual({
+      type: ["string", "null"],
+      minLength: 1,
+      maxLength: 500,
+    });
+    expect(body.instructions).toContain("Use null for caveat when none is needed");
     expect(body).not.toHaveProperty("previous_response_id");
     expect(body).not.toHaveProperty("conversation");
     expect(JSON.stringify(body)).not.toContain(settings.apiKey);

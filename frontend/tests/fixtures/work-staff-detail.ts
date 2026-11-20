@@ -12,6 +12,12 @@ export function staffWorkforceRecord(): WorkforceAccount {
   return {
     userId: directoryRow().id,
     accountLabel: "Ada Okoro",
+    identity: {
+      role: "STAFF",
+      status: "ACTIVE",
+      verified: true,
+      accountBranch: { id: id(101), name: "Stadium Road workshop", isActive: true },
+    },
     access: null,
     assignments: [],
     activeAssignmentIds: [],

@@ -33,6 +33,8 @@ import {
 } from "./staff-change-coordinator";
 import "./workforce-access-panel.css";
 import { WorkforceEffectiveAccess } from "./workforce-effective-access";
+import { WorkforcePersonHeader } from "./workforce-person-header";
+import { WorkforcePersonContext } from "./workforce-person-context";
 import {
   parseWorkforceAccessPreview,
   type WorkforceAccessPreview,
@@ -93,19 +95,32 @@ function PasswordProof({ prefix }: { prefix: string }) {
     </div>
   );
 }
-export function WorkforceAccessPanel({ userId }: { userId: string }) {
+export function WorkforceAccessPanel({
+  userId,
+  personPage = false,
+}: {
+  userId: string;
+  personPage?: boolean;
+}) {
   const coordinator = useStaffChangeCoordinator();
   const session = useAccountSession();
   return coordinator ? (
     <WorkforcePanel
       key={`${session?.id}:${session?.user.id}:${session?.user.role}:${userId}`}
       userId={userId}
+      personPage={personPage}
     />
   ) : (
-    <StandaloneWorkforce userId={userId} />
+    <StandaloneWorkforce userId={userId} personPage={personPage} />
   );
 }
-function StandaloneWorkforce({ userId }: { userId: string }) {
+function StandaloneWorkforce({
+  userId,
+  personPage,
+}: {
+  userId: string;
+  personPage: boolean;
+}) {
   const session = useAccountSession(),
     own = useOwnStaffPermissions();
   const allowed =
@@ -120,6 +135,7 @@ function StandaloneWorkforce({ userId }: { userId: string }) {
   if (!allowed || !session || !validTarget)
     return (
       <section className="detail-section">
+        {personPage && <h1>Person</h1>}
         <Feedback
           message={
             own.error ||
@@ -156,13 +172,14 @@ function StandaloneWorkforce({ userId }: { userId: string }) {
           <WorkforcePanel
             key={`${session.id}:${userId}:${change.epoch}`}
             userId={userId}
+            personPage={personPage}
           />
         </>
       )}
     </StaffChangeCoordinator>
   );
 }
-function WorkforcePanel({ userId }: { userId: string }) {
+function WorkforcePanel({ userId, personPage }: { userId: string; personPage: boolean }) {
   const coordinator = useStaffChangeCoordinator()!,
     session = useAccountSession();
   const parse = useCallback(
@@ -280,11 +297,14 @@ function WorkforcePanel({ userId }: { userId: string }) {
     coordinator.review(
       {
         title,
+        subject: `Selected person: ${data.accountLabel}`,
         workforceAccessChange: preview,
         description:
           action === "enroll" && !data.access
-            ? "Enrollment replaces broad legacy operational access with explicit responsibilities and revokes existing sessions. No assignments are created automatically. Existing financial grants and business histories are retained. Review previously approved duties before confirming."
-            : "Current MFA, password, delegation, target and version will be checked on the server. No system role is changed.",
+            ? "First enrollment revokes existing sessions, requiring a fresh sign-in, and cancels unused access invitations. Staff accounts replace earlier broad operational access with explicit duties; Admin accounts retain their account-level administration access. No duties are assigned automatically. Separately approved duties and business history are retained."
+            : action === "enroll"
+              ? "This position-only update keeps existing sessions and duties, and cancels unused access invitations. A job position does not change the account level or grant duties. Current MFA, password, target and version will be checked on the server."
+              : "Current MFA, password, delegation, target and version will be checked on the server. The account level is unchanged. Existing sessions stay signed in; current duties are checked on protected requests.",
         facts: [
           { label: "Account", value: data.accountLabel },
           ...facts,
@@ -378,7 +398,17 @@ function WorkforcePanel({ userId }: { userId: string }) {
     <section
       className="detail-section workforce-panel"
       aria-labelledby="workforce-access-title"
+      data-person-page={personPage || undefined}
     >
+      {personPage && (
+        <WorkforcePersonHeader
+          account={!error && !busy ? data : undefined}
+          unavailable={!!error}
+        />
+      )}
+      {personPage && (
+        <WorkforcePersonContext account={!error && !busy ? data : undefined} />
+      )}
       <div className="wf-heading">
         <h2 id="workforce-access-title">Responsibilities & temporary cover</h2>
         <button
@@ -406,9 +436,11 @@ function WorkforcePanel({ userId }: { userId: string }) {
       {data && (
         <>
           <p>
-            {data.access
-              ? `Enrolled ${formatBusinessDate(data.access.enabledAt)}. Position: ${workforcePositionLabels[data.access.position as keyof typeof workforcePositionLabels] ?? data.access.position}.`
-              : "Legacy access is still active. No responsibilities have been silently assigned."}
+            {data.effectiveAccess?.baseline === "OWNER"
+              ? "This protected Super Admin account uses the owner baseline. A job position does not change that authority."
+              : data.access
+                ? `Enrolled ${formatBusinessDate(data.access.enabledAt)}. Position: ${workforcePositionLabels[data.access.position as keyof typeof workforcePositionLabels] ?? data.access.position}.`
+                : "This account uses an earlier access setup. No job duties have been assigned automatically."}
           </p>
           {!Object.values(data.management).some((v) => v === true) && (
             <p className="notice">
@@ -416,7 +448,10 @@ function WorkforcePanel({ userId }: { userId: string }) {
               access.
             </p>
           )}
-          <WorkforceEffectiveAccess value={data.effectiveAccess} />
+          <WorkforceEffectiveAccess
+            value={data.effectiveAccess}
+            assignments={data.assignments}
+          />
           <WorkforceEditors
             key={`${userId}:${epoch}`}
             data={data}
@@ -450,6 +485,7 @@ function WorkforceEditors({
     [error, setError] = useState<string>();
   const [branchId, setBranchId] = useState(""),
     [branchLabel, setBranchLabel] = useState("");
+  const [temporaryCover, setTemporaryCover] = useState(false);
   const [delegated, setDelegated] = useState(data.access?.delegatedBranchIds ?? []),
     [labels, setLabels] = useState<Record<string, string>>({});
   const changed = draftVersion !== (data.access?.version ?? null),
@@ -602,11 +638,11 @@ function WorkforceEditors({
                       <dd>{formatBusinessDate(a.startsAt)}</dd>
                     </div>
                     <div>
-                      <dt>Expires</dt>
+                      <dt>Ends</dt>
                       <dd>
                         {a.expiresAt
                           ? formatBusinessDate(a.expiresAt)
-                          : "No expiry specified"}
+                          : "No end date recorded"}
                       </dd>
                     </div>
                     <div>
@@ -733,10 +769,10 @@ function WorkforceEditors({
                     },
                     { label: "Starts", value: formatBusinessDate(startsAt) },
                     {
-                      label: "Expires",
+                      label: "Ends",
                       value: expiresAt
                         ? formatBusinessDate(expiresAt)
-                        : "No expiry specified",
+                        : "No end date (regular duty)",
                     },
                   ],
                 );
@@ -788,22 +824,38 @@ function WorkforceEditors({
                 )}
               </div>
               <div className="field">
-                <label htmlFor="workforce-starts">Starts at (your device time)</label>
+                <label htmlFor="workforce-starts">Starts at (Lagos time, required)</label>
                 <input
                   id="workforce-starts"
                   name="startsAt"
                   type="datetime-local"
                   required
+                  aria-describedby="workforce-dates-help"
                 />
               </div>
               <div className="field">
                 <label htmlFor="workforce-expires">
-                  Expires at (optional, your device time)
+                  Ends at (Lagos time, {temporaryCover ? "required" : "optional"})
                 </label>
-                <input id="workforce-expires" name="expiresAt" type="datetime-local" />
+                <input
+                  id="workforce-expires"
+                  name="expiresAt"
+                  type="datetime-local"
+                  required={temporaryCover}
+                  aria-describedby="workforce-dates-help"
+                />
               </div>
+              <p className="muted wf-wide" id="workforce-dates-help">
+                Dates use Lagos time (Africa/Lagos), regardless of this device&apos;s time
+                zone. Temporary cover needs an end date.
+              </p>
               <label className="wf-check wf-wide">
-                <input type="checkbox" name="temporary" />
+                <input
+                  type="checkbox"
+                  name="temporary"
+                  checked={temporaryCover}
+                  onChange={(event) => setTemporaryCover(event.target.checked)}
+                />
                 Temporary cover
               </label>
               <PasswordReason passwordEpoch={passwordEpoch} prefix="workforce-assign" />

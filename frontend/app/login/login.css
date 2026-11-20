@@ -3,29 +3,50 @@ html:has(.login-page) {
 }
 .login-page {
   min-height: 100dvh;
-  display: grid;
-  grid-template-columns: 46% 54%;
+  padding: 36px 24px 32px;
   color: var(--ink);
-  background: #fff;
+  background: var(--surface);
   font-family: var(--font-quicksand), sans-serif;
 }
+.login-masthead {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.login-masthead p {
+  margin: 10px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.login-layout {
+  width: 100%;
+  max-width: 640px;
+  margin-inline: auto;
+}
+.register-page .login-layout {
+  max-width: 1120px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 32px;
+}
 .login-editorial {
-  position: sticky;
-  top: 0;
+  margin-top: 56px;
   align-self: start;
-  height: 100svh;
   min-height: 400px;
   color: white;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background: var(--gradient-brand);
+  background: var(--marketplace-blue, var(--surface-inverse));
+  border-radius: 12px;
+  box-shadow: 0 4px 12px #080c0f0d;
 }
 .login-brand {
   display: flex;
   width: fit-content;
   align-items: center;
-  margin: 30px 42px;
+  margin: 0 auto;
   min-height: 44px;
 }
 .login-story {
@@ -33,45 +54,51 @@ html:has(.login-page) {
   flex: 1;
   flex-direction: column;
   justify-content: center;
-  padding: 30px 42px 42px;
+  padding: 36px;
 }
-.login-story::before {
-  content: "";
-  width: 44px;
-  height: 3px;
+.login-kicker {
+  display: block;
   margin-bottom: 24px;
-  background: var(--brand-red);
+  font-size: 12px;
+  line-height: 1.7;
+  font-weight: 700;
+  color: var(--text-inverse-muted);
 }
 .login-story h2 {
   font-family: var(--font-heading);
-  font-size: clamp(28px, 3vw, 46px);
+  font-size: clamp(26px, 3vw, 34px);
   font-weight: 500;
   line-height: 1.17;
   margin: 0 0 16px;
   letter-spacing: -0.035em;
 }
-.login-story h2 span,
 .login-form h1 span {
   color: var(--brand-red);
-}
-.login-story h2 span {
-  color: var(--link-inverse);
 }
 .login-story p {
   font-size: 14px;
   line-height: 1.7;
-  color: #d8e1e7;
+  color: var(--text-inverse-muted);
   margin: 0;
+}
+.login-story-help {
+  border-top: 1px solid #ffffff40;
+  padding-top: 24px;
+  margin-top: 36px;
+}
+.login-story-help a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .login-content {
   min-width: 0;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  padding: 30px clamp(30px, 5.5vw, 88px) 40px;
-}
-.login-mobile-brand {
-  display: none;
+  width: 100%;
 }
 .login-breadcrumb ol {
   display: flex;
@@ -79,7 +106,7 @@ html:has(.login-page) {
   align-items: center;
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 0 12px;
   font-size: 13px;
 }
 .login-breadcrumb li {
@@ -98,9 +125,12 @@ html:has(.login-page) {
 }
 .login-form-area {
   width: 100%;
-  max-width: 440px;
-  margin: 0 auto;
-  padding: clamp(44px, 9svh, 96px) 0 44px;
+  padding: 40px;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--action-primary);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  box-shadow: 0 8px 32px #080c0f0a;
   outline: none;
 }
 .login-form h1 {
@@ -110,6 +140,19 @@ html:has(.login-page) {
   letter-spacing: -0.04em;
   line-height: 1.2;
   margin: 0 0 12px;
+}
+.login-card-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 24px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--action-primary);
+}
+.login-form:is(.verify-form, .mfa-form) > :is(h1, .login-intro) {
+  text-align: center;
 }
 .login-intro {
   color: #435563;
@@ -132,8 +175,8 @@ html:has(.login-page) {
   min-width: 0;
   height: 48px;
   border: 1px solid var(--border-control);
-  border-radius: 6px;
-  background: #fff;
+  border-radius: 8px;
+  background: var(--surface);
   color: var(--ink);
   padding: 10px 13px;
   font:
@@ -148,6 +191,7 @@ html:has(.login-page) {
 }
 .login-field input:focus {
   border-color: var(--brand-red);
+  background: var(--surface-raised);
 }
 .login-field input:disabled {
   background: #f1f4f6;
@@ -229,8 +273,11 @@ html:has(.login-page) {
   margin: 18px 0;
 }
 .login-help {
-  border-top: 1px solid #cbd5df;
-  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 24px;
+  background: var(--surface);
 }
 .login-help p {
   display: flex;
@@ -264,6 +311,24 @@ html:has(.login-page) {
 .login-spinner {
   animation: login-spin 1s linear infinite;
 }
+.login-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 24px;
+  margin: 24px auto 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.login-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 @keyframes login-spin {
   to {
     transform: rotate(360deg);
@@ -271,37 +336,31 @@ html:has(.login-page) {
 }
 @media (max-width: 899px) {
   .login-page {
+    padding: 24px 20px 32px;
+  }
+  .register-page .login-layout {
     display: block;
+    max-width: 640px;
+  }
+  .login-masthead {
+    margin-bottom: 24px;
   }
   .login-editorial {
     display: none;
-    background: var(--gradient-brand);
-  }
-  .login-content {
-    min-height: 0;
-    max-width: 520px;
-    margin: auto;
-    padding: 24px 24px 40px;
-  }
-  .login-mobile-brand {
-    display: flex;
-    width: fit-content;
-    min-height: 44px;
-    align-items: center;
-    margin-bottom: 18px;
   }
   .login-form-area {
-    margin: 0;
-    padding: 28px 0 0;
-    max-width: none;
+    padding: 28px;
   }
   .login-form h1 {
     font-size: 30px;
   }
 }
 @media (max-width: 360px) {
-  .login-content {
-    padding-inline: 20px;
+  .login-page {
+    padding-inline: 16px;
+  }
+  .login-form-area {
+    padding: 24px 20px;
   }
   .login-form h1 {
     font-size: 28px;
