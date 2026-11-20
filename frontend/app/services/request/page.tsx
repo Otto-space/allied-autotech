@@ -55,7 +55,7 @@ export default async function ConcernRequestPage({
                 discuss your vehicle and agree visit arrangements.
               </p>
               <Link className="button" href={enquiryHref}>
-                Describe your concern
+                See contact options
               </Link>
             </section>
           ) : (

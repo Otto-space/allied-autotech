@@ -7,6 +7,7 @@ import {
   parsePaystackWebhook,
   paystackPayloadSha256,
   verifyPaystackSignature,
+  verifyPaystackTimestampedSignature,
 } from "../../providers/payments/paystack-webhook.js";
 import {
   monnifyPayloadSha256,
@@ -268,12 +269,23 @@ export class PaymentsController {
   webhook = async (req: Request, res: Response) => {
     assertPaystackMode();
     const raw = req.body as Buffer;
-    const signature = validated<{ "x-paystack-signature": string }>(res, "headers")[
-      "x-paystack-signature"
-    ];
+    const headers = validated<{
+      "x-paystack-signature"?: string;
+      "paystack-signature"?: string;
+    }>(res, "headers");
     if (
       env.PAYSTACK_SECRET_KEY === undefined ||
-      !verifyPaystackSignature(raw, signature, env.PAYSTACK_SECRET_KEY)
+      (env.PAYSTACK_WEBHOOK_SECRET !== undefined
+        ? !verifyPaystackTimestampedSignature(
+            raw,
+            headers["paystack-signature"] ?? "",
+            env.PAYSTACK_WEBHOOK_SECRET,
+          )
+        : !verifyPaystackSignature(
+            raw,
+            headers["x-paystack-signature"] ?? "",
+            env.PAYSTACK_SECRET_KEY,
+          ))
     )
       throw webhookUnauthorized();
     const event = parsePaystackWebhook(raw);

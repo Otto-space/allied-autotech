@@ -233,8 +233,13 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
     path: "/webhooks/paystack",
     tags: ["Payments"],
     summary: "Receive a signature-verified Paystack webhook",
-    description: `${verificationBehavior} A persisted duplicate is acknowledged without bypassing its retry schedule, active lease or dead-letter decision. Retry completion and related financial writes commit only while the same event attempt owns the record. Refund correlation is limited to Paystack payment attempts. Completed refunds remain immutable; conflicting refund observations are retained as anomalies. Later pending or failed observations cannot clear an existing refund review hold. Acknowledgement means accepted for processing, not necessarily settled.`,
-    request: { headers: z.object({ "x-paystack-signature": z.string() }) },
+    description: `${verificationBehavior} When PAYSTACK_WEBHOOK_SECRET is configured, the timestamped Paystack-Signature header is mandatory with a 300-second replay window; the legacy x-paystack-signature is accepted only when the dedicated signing secret is not configured. A persisted duplicate is acknowledged without bypassing its retry schedule, active lease or dead-letter decision. Retry completion and related financial writes commit only while the same event attempt owns the record. Refund correlation is limited to Paystack payment attempts. Completed refunds remain immutable; conflicting refund observations are retained as anomalies. Later pending or failed observations cannot clear an existing refund review hold. Acknowledgement means accepted for processing, not necessarily settled.`,
+    request: {
+      headers: z.object({
+        "x-paystack-signature": z.string().optional(),
+        "paystack-signature": z.string().optional(),
+      }),
+    },
     responses: {
       "200": { description: "Webhook accepted" },
       "401": { description: "Invalid signature" },

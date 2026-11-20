@@ -339,11 +339,43 @@ for (const width of [390, 1440]) {
         .toBe(true);
     }
     await page.reload({ waitUntil: "domcontentloaded" });
+    // DOMContentLoaded can precede the browser's native hash restoration and
+    // hydration. A wheel sent while scrollY is still zero cannot move upward;
+    // that is not evidence that the app overrode the visitor's scroll.
+    await expect
+      .poll(() =>
+        page.locator("#workshop").evaluate((el) => {
+          const box = el.getBoundingClientRect();
+          const header = document.querySelector(".site-header")!.getBoundingClientRect();
+          return scrollY > 100 && box.top >= header.bottom && box.bottom < innerHeight;
+        }),
+      )
+      .toBe(true);
+    // The fragment may be visible before the client navigation effect has
+    // mounted. Its CSS offset is set only after the manual-scroll cancellation
+    // listeners are active; otherwise the wheel can race a delayed reveal.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            getComputedStyle(document.documentElement)
+              .getPropertyValue("--viewport-header-offset")
+              .trim().length > 0,
+        ),
+      )
+      .toBe(true);
+    const restoredY = await page.evaluate(() => scrollY);
+    // The edge gutter is page scroll surface at both widths. The middle of the
+    // workshop can contain an embedded map, whose frame traps wheel input.
+    expect(
+      await page.evaluate(() => document.elementFromPoint(8, 160)?.tagName),
+    ).not.toBe("IFRAME");
+    await page.mouse.move(8, 160);
     await page.mouse.wheel(0, -350);
-    await page.waitForTimeout(120);
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(restoredY - 100);
     await page.waitForTimeout(1000);
-    // Form/font layout may change document pixels during hydration. The manual
-    // upward scroll must still leave the fragment below its automatic entry offset.
+    // Form/font layout may change document pixels after restoration. A real
+    // upward scroll must still leave the fragment below its entry offset.
     expect(
       await page
         .locator("#workshop")

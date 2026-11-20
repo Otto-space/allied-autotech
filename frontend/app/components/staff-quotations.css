@@ -296,7 +296,7 @@
   .dashboard-content
   .staff-quotations
   .quotation-status[data-status="ACCEPTED"] {
-  background: #091b38;
+  background: #101419;
   color: white;
 }
 .dashboard .dashboard-content .staff-quotations .quotation-deadline {
