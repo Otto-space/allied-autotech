@@ -351,9 +351,26 @@ for (const width of [390, 1440]) {
         }),
       )
       .toBe(true);
+    // The fragment may be visible before the client navigation effect has
+    // mounted. Its CSS offset is set only after the manual-scroll cancellation
+    // listeners are active; otherwise the wheel can race a delayed reveal.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            getComputedStyle(document.documentElement)
+              .getPropertyValue("--viewport-header-offset")
+              .trim().length > 0,
+        ),
+      )
+      .toBe(true);
     const restoredY = await page.evaluate(() => scrollY);
-    // Wheel over document content rather than the sticky header at (0,0).
-    await page.mouse.move(width / 2, 400);
+    // The edge gutter is page scroll surface at both widths. The middle of the
+    // workshop can contain an embedded map, whose frame traps wheel input.
+    expect(
+      await page.evaluate(() => document.elementFromPoint(8, 160)?.tagName),
+    ).not.toBe("IFRAME");
+    await page.mouse.move(8, 160);
     await page.mouse.wheel(0, -350);
     await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(restoredY - 100);
     await page.waitForTimeout(1000);
