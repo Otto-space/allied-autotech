@@ -44,15 +44,17 @@ setTimeout(() => {
   process.exit(124);
 }, 45 * 60_000).unref();
 
-// Never derive the database identity from a variable alone: exact host, port,
-// source name, server version, migration journal and account must all match.
-const url = new URL(process.env.QA_DATABASE_URL || "postgresql://invalid:invalid@invalid/invalid");
+// Bind individual database component fields in App Platform, not a database
+// URL: the source database name is fixed here, irrespective of its defaultdb.
+// No administrator password is ever copied into a source file or app form.
+const suppliedHost = process.env.DB_HOST || "";
+const suppliedPort = Number(process.env.DB_PORT);
+const suppliedUser = process.env.DB_USER || "";
 if (
-  url.protocol !== "postgresql:" && url.protocol !== "postgres:" ||
-  url.hostname !== expectedHost ||
-  Number(url.port) !== 25060 ||
-  decodeURIComponent(url.pathname.slice(1)) !== sourceDatabase ||
-  url.username !== "doadmin"
+  suppliedHost !== expectedHost ||
+  suppliedPort !== 25060 ||
+  suppliedUser !== "doadmin" ||
+  !process.env.DB_PASSWORD
 ) {
   throw new Error("Database target mismatch: only the exact isolated QA staging database is permitted.");
 }
@@ -62,7 +64,9 @@ if (process.env.DB_SSL_MODE !== "verify-full") {
 
 const workspace = mkdtempSync(join(tmpdir(), "allied-qa-rehearsal-"));
 const caFile = join(workspace, "qa-ca.pem");
-const caBytes = Buffer.from(process.env.DB_SSL_CA_BASE64 || "", "base64");
+const caBytes = process.env.DB_SSL_CA_CERT
+  ? Buffer.from(process.env.DB_SSL_CA_CERT, "utf8")
+  : Buffer.from(process.env.DB_SSL_CA_BASE64 || "", "base64");
 const caText = caBytes.toString("utf8");
 if (
   caBytes.length < 200 || caBytes.length > 1_048_576 ||
@@ -73,11 +77,11 @@ if (
 writeFileSync(caFile, caBytes, { mode: 0o600, flag: "wx" });
 
 const target = {
-  host: url.hostname,
-  port: Number(url.port),
+  host: suppliedHost,
+  port: suppliedPort,
   database: sourceDatabase,
-  user: decodeURIComponent(url.username),
-  password: decodeURIComponent(url.password),
+  user: suppliedUser,
+  password: process.env.DB_PASSWORD,
 };
 const pgEnv = (database) => ({
   ...process.env,
