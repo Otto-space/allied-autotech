@@ -6151,7 +6151,7 @@ export interface paths {
         put?: never;
         /**
          * Receive a signature-verified Paystack webhook
-         * @description Successful provider facts are immutable. Each distinct provider receipt is recorded once; reuse of its transaction identity on another attempt is held for review without a second credit. Different receipts on an already-settled payment are retained without settling the payable twice. Positive NGN amount mismatches record the actual received amount under review. Repeated mismatch reports are idempotent; conflicting later observations are retained as anomalies. A wrong reference, unsupported currency, missing transaction identity or non-positive successful amount is held for reconciliation without inventing NGN capture facts. Such a hold blocks checkout replay and new attempts, and is not automatically cleared by later reports. Mismatched funds are not automatically allocated or refunded. A persisted duplicate is acknowledged without bypassing its retry schedule, active lease or dead-letter decision. Retry completion and related financial writes commit only while the same event attempt owns the record. Refund correlation is limited to Paystack payment attempts. Completed refunds remain immutable; conflicting refund observations are retained as anomalies. Later pending or failed observations cannot clear an existing refund review hold. Acknowledgement means accepted for processing, not necessarily settled. Receive a signature-verified Paystack webhook. Access boundary: provider-webhook. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Successful provider facts are immutable. Each distinct provider receipt is recorded once; reuse of its transaction identity on another attempt is held for review without a second credit. Different receipts on an already-settled payment are retained without settling the payable twice. Positive NGN amount mismatches record the actual received amount under review. Repeated mismatch reports are idempotent; conflicting later observations are retained as anomalies. A wrong reference, unsupported currency, missing transaction identity or non-positive successful amount is held for reconciliation without inventing NGN capture facts. Such a hold blocks checkout replay and new attempts, and is not automatically cleared by later reports. Mismatched funds are not automatically allocated or refunded. When PAYSTACK_WEBHOOK_SECRET is configured, the timestamped Paystack-Signature header is mandatory with a 300-second replay window; the legacy x-paystack-signature is accepted only when the dedicated signing secret is not configured. A persisted duplicate is acknowledged without bypassing its retry schedule, active lease or dead-letter decision. Retry completion and related financial writes commit only while the same event attempt owns the record. Refund correlation is limited to Paystack payment attempts. Completed refunds remain immutable; conflicting refund observations are retained as anomalies. Later pending or failed observations cannot clear an existing refund review hold. Acknowledgement means accepted for processing, not necessarily settled. Receive a signature-verified Paystack webhook. Access boundary: provider-webhook. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
          */
         post: operations["postWebhooksPaystack"];
         delete?: never;
@@ -104891,12 +104891,17 @@ export interface operations {
     postWebhooksPaystack: {
         parameters: {
             query?: never;
-            header: {
+            header?: {
                 /**
                  * @description Provider-generated webhook signature verified against the exact raw request bytes.
                  * @example synthetic-x-paystack-signature
                  */
-                "x-paystack-signature": string;
+                "x-paystack-signature"?: string;
+                /**
+                 * @description Provider-generated webhook signature verified against the exact raw request bytes.
+                 * @example synthetic-paystack-signature
+                 */
+                "paystack-signature"?: string;
             };
             path?: never;
             cookie?: never;

@@ -1,3 +1,69 @@
+### 19 November: full frontend CI exposed contrast and fragment-entry failures
+
+GitHub Frontend release checks for verified PR #102 commit `ed3ed39` failed the
+36.3-minute production-build browser matrix: 1,504 passed, four failed. Home
+desktop 1440px and mobile 390px axe scans identify a `color-contrast` fault for
+"Image unavailable" at foreground `#60717c` on `#edf1f5` (4.45:1, below
+the 4.5:1 WCAG AA text threshold). Use established neutral `#536676`, whose
+calculated contrast is 5.24:1, without changing the flat palette. Two fragment
+refresh cases (390px and 1440px) showed a manual upward scroll reset to just
+16px from the header. The existing initial-fragment visibility guard required
+the whole destination section to fit below the viewport; a tall section never
+satisfied it. Use the already established first-48px visibility criterion to
+preserve a visible heading after manual scroll while still correcting offscreen
+fragments. Keep both existing browser regressions and their assertions intact.
+These are source corrections awaiting exact-branch compiled CI and visual proof;
+no current-source browser pass is claimed.
+
+### 19 November: booking fallback action matches its destination (preview verification)
+
+On the verified PR #102 Vercel preview at 390px, `/services/request` correctly
+keeps online booking disabled when the backend capability service is unavailable.
+Its "Describe your concern" button, however, led to `/contact#enquiry`, which
+currently presents call, WhatsApp and email options rather than a concern form.
+This mismatch could make a customer expect an online submission. Label the
+existing link "See contact options" without changing the capability gate, route,
+booking policy or contact destinations. Update the existing services-design and
+runtime-capabilities regression selectors; add a navigation assertion that the
+contact page actually offers a phone action. The original preview observation
+was manual, with a mobile DOM/screenshot and real click; final-source compiled
+and hosted acceptance is pending.
+
+### 20 November: manual-scroll regression timing correction (PR #106 review)
+
+Both exact-head full browser matrices passed 1,506/1,508 cases. The two
+390/1440px fragment-refresh failures observed 16px instead of over 100px after
+an upward wheel delivered immediately after DOMContentLoaded. The test did not
+establish that native hash restoration had scrolled the document down before
+wheel delivery, so that movement could be physically impossible. It now first
+confirms that the fragment is below the sticky header in the viewport with
+scrollY over 100, then checks a real upward movement and the settled heading
+offset. The production navigation implementation is unaltered in this update;
+the earlier deferred-layout and manual-interaction assertions remain.
+
+Local optimized build, TypeScript, formatting and diff checks pass. The scratch
+runner's Chromium launch was blocked by local socket permissions (not an app
+assertion); new signed exact-head CI is still needed. This does not constitute
+real-browser, authenticated-role or production acceptance.
+
+### 19 November: mobile menu and delegated People navigation reconciliation (review)
+
+Isolated from `master` `ecb8321` to replace only stale PR #91's still-applicable
+four source fixes. The public menu now has a transparent 46px resting control;
+hover, open, disabled, focus and Escape behavior remain unchanged. The permission-
+gated People listing and Person detail own a single Overview / People / Person
+breadcrumb (or Access reviews for review-linked detail); the generic dashboard
+trail is suppressed on those routes. The SUPER_ADMIN workforce overview also
+gets the correct local trail. Back links, filters and delegated Admin guards stay
+intact. Playwright checks now explicitly cover one breadcrumb at 320/1440px,
+the owner overview, and transparent menu geometry in compact viewport coverage.
+
+Rendered baseline on the exact PR #106 Vercel preview at 320px observed the old
+filled 46px menu (computed background alpha .035 and border alpha .1); open,
+Escape and focus return worked. New exact-candidate CI/preview, authenticated
+role and device checks are still required. This is not production acceptance or
+authorization to merge, publish, or enable online transactions.
+
 ### 19 November: release dependency security repair, visual acceptance pending
 
 Source baseline `master` `8d37ab1` could compile but failed its production build
@@ -13677,3 +13743,14 @@ The scoped fix observes main layout only during initial fragment entry for at mo
 16 People and3 sidebar cases passed separately within the same campaign; they
 do not convert its remaining public navigation failure into acceptance. Final
 source compiled checks and exact-master gates still precede publication.
+
+### 20 November: approved red, white and charcoal palette review
+
+Integration review groups the current booking, Paystack and People PR changes
+without weakening their separate interaction and permission checks. Shared CSS
+compatibility aliases for legacy blue/navy names now resolve to charcoal or red,
+including the Parts, footer and marketplace consumers. Hard-coded deep navy in
+several purchase and dashboard CSS files is replaced with charcoal. All remaining
+cool-blue literals across page-specific CSS, state variants and media still need
+an explicit contrast and browser pass. No all-pages visual acceptance is claimed.
+Retain status semantics, 44px controls and the existing production no-write gates.
