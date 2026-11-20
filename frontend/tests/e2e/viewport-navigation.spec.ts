@@ -339,11 +339,27 @@ for (const width of [390, 1440]) {
         .toBe(true);
     }
     await page.reload({ waitUntil: "domcontentloaded" });
+    // DOMContentLoaded can precede the browser's native hash restoration and
+    // hydration. A wheel sent while scrollY is still zero cannot move upward;
+    // that is not evidence that the app overrode the visitor's scroll.
+    await expect
+      .poll(() =>
+        page.locator("#workshop").evaluate((el) => {
+          const box = el.getBoundingClientRect();
+          const header = document.querySelector(".site-header")!.getBoundingClientRect();
+          return scrollY > 100 && box.top >= header.bottom && box.bottom < innerHeight;
+        }),
+      )
+      .toBe(true);
+    const restoredY = await page.evaluate(() => scrollY);
+    // Put the wheel over the document content, not at Playwright's default (0,0)
+    // position on the sticky header, so the input reliably scrolls the page.
+    await page.mouse.move(width / 2, 400);
     await page.mouse.wheel(0, -350);
-    await page.waitForTimeout(120);
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(restoredY - 100);
     await page.waitForTimeout(1000);
-    // Form/font layout may change document pixels during hydration. The manual
-    // upward scroll must still leave the fragment below its automatic entry offset.
+    // Form/font layout may change document pixels after restoration. A real
+    // upward scroll must still leave the fragment below its entry offset.
     expect(
       await page
         .locator("#workshop")

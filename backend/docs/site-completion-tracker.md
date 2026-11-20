@@ -1,3 +1,54 @@
+### 20 November: PR #106 exact-head CI exposes two wheel precondition races
+
+Both PR #106 full frontend check runs finished with 1,506/1,508 browser cases
+passing, failing only the newly added 390/1440px fragment-refresh manual-wheel
+assertion. The prior DOMContentLoaded-only test sent a negative wheel before
+native hash restoration could place the page below scrollY 100; a wheel at the
+top cannot move upward. The source test now explicitly waits for visible native
+fragment restoration, records its scrollY, confirms a physical upward movement
+and rechecks the heading offset after font/form settling. The runtime navigation
+fix and all other production behaviour remain unchanged.
+
+Local optimized frontend build, TypeScript, Prettier and diff checks passed;
+the Linux scratch browser runner cannot launch Chromium under its socket
+restrictions, so no local targeted rendered pass is claimed. New signed exact-
+commit GitHub CI and review are required. Backend, payment, master and production
+release gates remain unchanged.
+
+### 19 November: exact-commit frontend CI failed four viewport checks (new fix branch)
+
+The verified PR #102 frontend matrix finished with 1,504 passed and four failed:
+Home fallback image text contrasted at only 4.45:1 on both 390px and 1440px;
+fragment reload at both widths reset an immediate manual upward scroll. These
+are regression gates, not grounds to bypass CI. Prepare the accessible Home
+neutral colour and preserve a visible fragment heading even when its section
+extends below the viewport, retaining the existing full matrix and mobile
+checks. The source change is not yet verified on a signed head. The previously
+merged master commits and live production deployment remain untouched.
+
+### 19 November: booking contact fallback clarity (review branch only)
+
+Observed on the verified PR #102 hosted preview at 390px: when online booking
+was unavailable, `/services/request` offered "Describe your concern" but its
+destination `/contact#enquiry` only displayed contact methods. Correct the action
+to "See contact options", retain the same link and add a click-through regression
+to confirm the phone contact path. No enabled booking request, Paystack checkout,
+real customer communication, migration, provider setting or production release is
+part of this review-only UI batch. Complete exact-commit checks and rendered
+verification before any merge; the live production frontend remains on its
+separately verified deployment.
+### 19 November: Paystack timestamped signing-secret support (source candidate)
+
+Paystack's current webhook reference adds a timestamped `Paystack-Signature`
+header with a separate `whsec_` secret and a five-minute replay window. Existing
+Allied code accepted only the transitional API-key HMAC header. This review-only
+branch adds fail-closed new-header verification whenever the independent secret
+is configured, while retaining legacy support when it is absent. A valid legacy
+header cannot bypass an invalid new header in signing-secret mode. The business
+payment decision, reference/amount/currency checks, ledger and provider mode
+remain unchanged. Source/CI verification and a real isolated test-mode Paystack
+webhook are required before any configuration or rollout. No payment, provider
+credential, deployment, database or master ref is changed by this work.
 ### 19 November: reconcile stale PR #91 without changing release gates (review only)
 
 Against protected master `ecb8321`, PR #91 is conflicted and carries older
@@ -15622,3 +15673,19 @@ real MFA hardware, account mutation and physical-device acceptance are untested.
 PR98 is integrated with master026d9fe2, preserving PR97 fixture timing repair
 and all 132 migrations. Exact resulting-master CI and recovery/release checks
 remain mandatory before publication. No capability flags were changed.
+### 20 November: three-PR integration and charcoal palette review candidate
+
+An unreleased review branch combines the current signed heads of PRs #106,
+#108 and #110. Their overlapping tracker and UX journal entries were retained,
+not overwritten. The shared palette now resolves historical navy/blue aliases
+to charcoal or red; exact hard-coded navy in selected purchase, invoice, refund,
+order, product and service-detail surfaces is replaced with charcoal. Semantic
+information surfaces use charcoal/red on white, with existing green success and
+amber warning states preserved for status clarity. This is an incremental colour
+pass, **not** complete all-route brand or browser acceptance. Existing remaining
+cool-blue literals require a rendered per-page review before claiming completion.
+
+This integration is not on master or deployed. No payment capability, booking
+availability, database migration, staff permission or Paystack credential was
+enabled. Exact-head CI, browser and real signed-in role acceptance, real provider
+test-mode webhook delivery, fresh backup and isolated restore gates remain open.
