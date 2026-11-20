@@ -352,6 +352,8 @@ for (const width of [390, 1440]) {
       )
       .toBe(true);
     const restoredY = await page.evaluate(() => scrollY);
+    // Wheel over document content rather than the sticky header at (0,0).
+    await page.mouse.move(width / 2, 400);
     await page.mouse.wheel(0, -350);
     await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(restoredY - 100);
     await page.waitForTimeout(1000);
