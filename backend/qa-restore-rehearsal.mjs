@@ -31,6 +31,10 @@ if (!["--preflight", "--rehearse"].includes(mode) || process.argv.length !== 3) 
 
 const expectedHost =
   "allied-autotech-restore-acceptance-20261120-do-user-44970995-0.k.db.ondigitalocean.com";
+// App Platform can resolve attached database HOSTNAME to this exact private
+// endpoint in the same QA VPC instead of the public cluster endpoint.
+const expectedPrivateHost =
+  "private-allied-autotech-restore-acceptance-20261120-do-user-449.k.db.ondigitalocean.com";
 const sourceDatabase = "allied_autotech_staging";
 const expectedFingerprint = "27b094f565badb0bed039bed3d9d30ff";
 const bucket = "allied-autotech-restore-qa-20261120";
@@ -51,12 +55,17 @@ const suppliedHost = process.env.DB_HOST || "";
 const suppliedPort = Number(process.env.DB_PORT);
 const suppliedUser = process.env.DB_USER || "";
 if (
-  suppliedHost !== expectedHost ||
+  ![expectedHost, expectedPrivateHost].includes(suppliedHost) ||
   suppliedPort !== 25060 ||
   suppliedUser !== "doadmin" ||
   !process.env.DB_PASSWORD
 ) {
-  throw new Error("Database target mismatch: only the exact isolated QA staging database is permitted.");
+  throw new Error(
+    "Database target mismatch: exact QA connection required. " +
+    `host allowed=${[expectedHost, expectedPrivateHost].includes(suppliedHost)}, ` +
+    `port allowed=${suppliedPort === 25060}, role allowed=${suppliedUser === "doadmin"}, ` +
+    `credential bound=${Boolean(process.env.DB_PASSWORD)}.`,
+  );
 }
 if (process.env.DB_SSL_MODE !== "verify-full") {
   throw new Error("Database TLS must use verify-full.");
