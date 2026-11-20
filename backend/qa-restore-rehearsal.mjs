@@ -54,16 +54,19 @@ setTimeout(() => {
 const suppliedHost = process.env.DB_HOST || "";
 const suppliedPort = Number(process.env.DB_PORT);
 const suppliedUser = process.env.DB_USER || "";
+const roleAllowed = mode === "--preflight"
+  ? ["allied_restore_qa_runtime", "doadmin"].includes(suppliedUser)
+  : suppliedUser === "doadmin";
 if (
   ![expectedHost, expectedPrivateHost].includes(suppliedHost) ||
   suppliedPort !== 25060 ||
-  suppliedUser !== "doadmin" ||
+  !roleAllowed ||
   !process.env.DB_PASSWORD
 ) {
   throw new Error(
     "Database target mismatch: exact QA connection required. " +
     `host allowed=${[expectedHost, expectedPrivateHost].includes(suppliedHost)}, ` +
-    `port allowed=${suppliedPort === 25060}, role allowed=${suppliedUser === "doadmin"}, ` +
+    `port allowed=${suppliedPort === 25060}, role allowed=${roleAllowed}, ` +
     `credential bound=${Boolean(process.env.DB_PASSWORD)}.`,
   );
 }
@@ -147,7 +150,7 @@ try {
   );
   if (
     identity.rows[0]?.database !== sourceDatabase ||
-    identity.rows[0]?.role !== "doadmin" ||
+    identity.rows[0]?.role !== suppliedUser ||
     Number(identity.rows[0]?.version) < 180000 ||
     Number(identity.rows[0]?.version) >= 190000
   ) throw new Error("QA database identity/version check failed.");
