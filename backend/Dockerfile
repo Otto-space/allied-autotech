@@ -124,3 +124,25 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD ["node", "-e", "fetch('http://127.0.0.1:' + (process.env.PORT || '5000') + '/api/v1/health/live').then((response) => { if (!response.ok) process.exit(1); }).catch(() => process.exit(1));"]
 
 CMD ["node", "dist/server.js"]
+
+
+# Isolated QA-only backup/restore rehearsal. This is the default stage only on
+# the separate QA rehearsal branch; it is never used for production images.
+# PostgreSQL 18 tools match the isolated managed PostgreSQL 18 cluster.
+FROM postgres:18-bookworm AS qa-rehearsal
+
+WORKDIR /app
+
+COPY --from=dependencies /usr/local/bin/node /usr/local/bin/node
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY --chown=postgres:postgres package.json prisma.config.ts ./
+COPY --chown=postgres:postgres prisma ./prisma
+COPY --chown=postgres:postgres scripts/backup-database.ts scripts/migrate-safely.ts scripts/check-database-safety.ts scripts/verify-restore-migration-history.mjs scripts/prepare-isolated-restore-migrator.mjs ./scripts/
+COPY --chown=postgres:postgres scripts/lib/database-safety.ts ./scripts/lib/
+COPY --chown=postgres:postgres src/config/database-tls.ts src/config/database-url.ts src/config/prisma-command-safety.ts ./src/config/
+COPY --chown=postgres:postgres qa-restore-rehearsal.mjs ./
+
+ENV NODE_ENV=production
+USER postgres
+
+CMD ["node", "qa-restore-rehearsal.mjs", "--preflight"]
