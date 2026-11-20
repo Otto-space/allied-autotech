@@ -352,6 +352,9 @@ for (const width of [390, 1440]) {
       )
       .toBe(true);
     const restoredY = await page.evaluate(() => scrollY);
+    // Put the wheel over the document content, not at Playwright's default (0,0)
+    // position on the sticky header, so the input reliably scrolls the page.
+    await page.mouse.move(width / 2, 400);
     await page.mouse.wheel(0, -350);
     await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(restoredY - 100);
     await page.waitForTimeout(1000);
