@@ -160,12 +160,25 @@ const action = process.argv[2];
 try {
   if (process.argv.length !== 3)
     throw new Error(
-      "Provide one action: preflight, init, keys, private-access, build, push, spec, validate.",
+      "Provide one action: verify, preflight, init, keys, private-access, build, push, spec, validate.",
     );
   switch (action) {
+    case "verify":
+      // Pure contract checks run before packaging, without Docker, a database,
+      // provider authentication or populated private deployment inputs.
+      run(
+        process.execPath,
+        [
+          "--test",
+          "scripts/deployment/spec.test.mjs",
+          "scripts/deployment/production-spec.test.mjs",
+          "scripts/deployment/public-cutover.test.mjs",
+        ],
+        { visible: true },
+      );
+      break;
     case "preflight": {
       run("git", ["--version"]);
-      run("docker", ["info", "--format", "{{.OSType}}"]);
       checkAuth();
       // Explicit projections avoid doctl's full app specs and DB credentials.
       for (const [label, args, select] of [
@@ -372,7 +385,7 @@ try {
       break;
     default:
       throw new Error(
-        "Unknown action. Use preflight, init, keys, private-access, build, push, spec, or validate.",
+        "Unknown action. Use verify, preflight, init, keys, private-access, build, push, spec, or validate.",
       );
   }
 } catch (error) {
