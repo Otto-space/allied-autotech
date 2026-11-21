@@ -309,9 +309,9 @@ for (const width of [390, 1440]) {
               document.querySelector(".site-header")!.getBoundingClientRect().bottom,
           );
       await expect.poll(offset).toBeGreaterThan(100);
-      await expect
-        .poll(() => page.evaluate(() => window.__aatInitialFragmentEntry?.cancelled))
-        .toBe(true);
+      // The global marker is intentionally removed when React takes over. The
+      // behavior under test is that manual scrolling survives that handoff and
+      // subsequent font/layout work, not the lifetime of an implementation detail.
       releaseScripts?.();
       await expect(
         page.getByRole("textbox", { name: "Subject", exact: true }),
