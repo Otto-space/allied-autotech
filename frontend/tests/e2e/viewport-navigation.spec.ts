@@ -408,7 +408,12 @@ for (const width of [390, 1440]) {
         ),
       )
       .toBe(true);
-    const restoredY = await page.evaluate(() => scrollY);
+    const workshopOffset = () =>
+      page.locator("#workshop").evaluate((el) => {
+        const header = document.querySelector(".site-header")!.getBoundingClientRect();
+        return el.getBoundingClientRect().top - header.bottom;
+      });
+    const restoredOffset = await workshopOffset();
     // The edge gutter is page scroll surface at both widths. The middle of the
     // workshop can contain an embedded map, whose frame traps wheel input.
     expect(
@@ -416,19 +421,14 @@ for (const width of [390, 1440]) {
     ).not.toBe("IFRAME");
     await page.mouse.move(8, 160);
     await page.mouse.wheel(0, -350);
-    await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(restoredY - 100);
+    // Deferred content can change the absolute document offset while native
+    // scroll anchoring preserves the visual position. Test the visitor-visible
+    // movement relative to the fixed header, not the unstable scrollY value.
+    await expect.poll(workshopOffset).toBeGreaterThan(restoredOffset + 100);
     await page.waitForTimeout(1000);
     // Form/font layout may change document pixels after restoration. A real
     // upward scroll must still leave the fragment below its entry offset.
-    expect(
-      await page
-        .locator("#workshop")
-        .evaluate(
-          (el) =>
-            el.getBoundingClientRect().top -
-            document.querySelector(".site-header")!.getBoundingClientRect().bottom,
-        ),
-    ).toBeGreaterThan(100);
+    expect(await workshopOffset()).toBeGreaterThan(restoredOffset + 100);
     expect(errors).toEqual([]);
   });
 }
