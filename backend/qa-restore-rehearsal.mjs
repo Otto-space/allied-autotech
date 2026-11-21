@@ -327,12 +327,16 @@ const isolated = /^Disposable migration runtime: (.+)$/m.exec(prepared)?.[1];
 if (!isolated?.startsWith("/tmp/allied-restore-migrator-")) {
   throw new Error("Isolated migration source preparation failed.");
 }
+// The verified-backup guard refuses archives inside the migrator's parent
+// (/tmp). Keep the restored database's fresh pre-migration backup in its own
+// private /var/tmp directory, away from both isolated source and QA dump.
+const migrationBackupWorkspace = mkdtempSync("/var/tmp/allied-qa-migration-backup-");
 const migrationEnv = {
   ...pgEnv(restoredDatabase),
   DB_HOST: target.host, DB_PORT: String(target.port), DB_NAME: restoredDatabase,
   DB_USER: target.user, DB_PASSWORD: target.password,
   DB_SSL_MODE: "verify-full", DB_SSL_CA_FILE: caFile,
-  DB_BACKUP_DIRECTORY: workspace,
+  DB_BACKUP_DIRECTORY: migrationBackupWorkspace,
   DB_MIGRATION_TARGET: `${target.host}:${target.port}/${restoredDatabase}`,
   NODE_ENV: "production",
 };
