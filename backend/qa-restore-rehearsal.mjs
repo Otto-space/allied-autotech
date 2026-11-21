@@ -2,12 +2,13 @@
  * One-off, fail-closed QA database acceptance runner.
  *
  * This file is deliberately isolated on a staging-only branch. It never
- * connects to a production host, never alters the source QA database, and
+ * connects to a production host, and
  * never embeds database or Spaces credentials in its outputs.
  *
  * --preflight: read-only database identity and 59-migration history proof.
  * --rehearse: fresh encrypted Spaces backup, independent populated restore,
  *             then guarded forward migration on the RESTORED database only.
+ * --promote-staging: owner-approved forward migration on isolated staging.
  */
 
 import { createHash, hkdfSync, randomBytes } from "node:crypto";
@@ -25,8 +26,8 @@ import {
 import pg from "pg";
 
 const mode = process.argv[2];
-if (!["--preflight", "--rehearse"].includes(mode) || process.argv.length !== 3) {
-  throw new Error("Use --preflight or --rehearse; no operation was performed.");
+if (!["--preflight", "--rehearse", "--promote-staging"].includes(mode) || process.argv.length !== 3) {
+  throw new Error("Use --preflight, --rehearse, or --promote-staging; no operation was performed.");
 }
 
 const expectedHost =
@@ -269,6 +270,43 @@ if (personalRecordsPresent) {
     "QA_TEST_ACCOUNTS_APPROVED: exactly 4 users, 4 customer profiles, " +
     "1 staff profile, 8 sessions, and no other listed personal records.\n",
   );
+}
+
+if (mode === "--promote-staging") {
+  // This write is allowed ONLY against the pinned isolated staging database.
+  // The independent, off-device-backed 59->132 restoration rehearsal passed
+  // before promotion. The normal safe migrator revalidates history, exact
+  // target, reviewed SQL and a fresh backup before writing any migration.
+  const prepared = await command(
+    "node", ["scripts/prepare-isolated-restore-migrator.mjs", "--prepare"], process.env,
+  );
+  const isolated = /^Disposable migration runtime: (.+)$/m.exec(prepared)?.[1];
+  if (!isolated?.startsWith("/tmp/allied-restore-migrator-")) {
+    throw new Error("Isolated migration source preparation failed.");
+  }
+  const backupDirectory = mkdtempSync("/var/tmp/allied-qa-staging-backup-");
+  const migrateEnv = {
+    ...pgEnv(sourceDatabase),
+    DB_HOST: target.host, DB_PORT: String(target.port), DB_NAME: sourceDatabase,
+    DB_USER: target.user, DB_PASSWORD: target.password,
+    DB_SSL_MODE: "verify-full", DB_SSL_CA_FILE: caFile,
+    DB_BACKUP_DIRECTORY: backupDirectory,
+    DB_MIGRATION_TARGET: `${target.host}:${target.port}/${sourceDatabase}`,
+    NODE_ENV: "production",
+  };
+  await command("node", ["--import", "tsx", "scripts/migrate-safely.ts"], migrateEnv, isolated);
+  client = await dbClient(sourceDatabase);
+  try {
+    const result = await client.query(
+      `SELECT count(*)::int AS total FROM public."_prisma_migrations"
+       WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL`,
+    );
+    if (result.rows[0]?.total !== 132) throw new Error("Staging migration count is not 132.");
+  } finally {
+    await client.end();
+  }
+  process.stdout.write("QA_STAGING_MIGRATION_OK: 59->132 on isolated staging; production untouched.\n");
+  process.exit(0);
 }
 
 const accessId = process.env.QA_SPACES_ACCESS_KEY_ID || "";
