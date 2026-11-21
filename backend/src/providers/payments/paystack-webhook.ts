@@ -61,6 +61,55 @@ export function verifyPaystackSignature(
   return supplied.length === expected.length && timingSafeEqual(supplied, expected);
 }
 
+/** Paystack's timestamped Paystack-Signature format uses an independent whsec_
+ * signing secret. Never fall back to the legacy API-key signature when this mode
+ * is configured: a missing or invalid timestamp must fail closed. */
+export function verifyPaystackTimestampedSignature(
+  rawBody: Buffer,
+  header: string,
+  secret: string,
+  nowSeconds = Math.floor(Date.now() / 1_000),
+): boolean {
+  if (!secret.startsWith("whsec_") || header.length > 4_096) return false;
+  let timestamp: string | undefined;
+  const signatures: string[] = [];
+  for (const field of header.split(",")) {
+    const separator = field.indexOf("=");
+    if (separator < 0) continue;
+    const name = field.slice(0, separator).trim();
+    const value = field.slice(separator + 1).trim();
+    if (name === "t") {
+      if (timestamp !== undefined || !/^[1-9]\d*$/u.test(value)) return false;
+      timestamp = value;
+    } else if (name === "v1") {
+      const keySeparator = value.indexOf(":");
+      if (
+        keySeparator > 0 &&
+        /^whk_[A-Za-z0-9_-]+$/u.test(value.slice(0, keySeparator)) &&
+        /^[0-9a-f]{128}$/u.test(value.slice(keySeparator + 1))
+      )
+        signatures.push(value.slice(keySeparator + 1));
+    }
+  }
+  if (timestamp === undefined || signatures.length === 0 || signatures.length > 8)
+    return false;
+  const signedSeconds = Number(timestamp);
+  if (
+    !Number.isSafeInteger(signedSeconds) ||
+    !Number.isSafeInteger(nowSeconds) ||
+    Math.abs(nowSeconds - signedSeconds) > 300
+  )
+    return false;
+  const expected = createHmac("sha512", secret)
+    .update(timestamp)
+    .update(".")
+    .update(rawBody)
+    .digest();
+  return signatures.some((signature) =>
+    timingSafeEqual(Buffer.from(signature, "hex"), expected),
+  );
+}
+
 export function paystackPayloadSha256(rawBody: Buffer): string {
   return createHash("sha256").update(rawBody).digest("hex");
 }

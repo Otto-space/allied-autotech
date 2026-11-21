@@ -75,6 +75,11 @@ for (const [width, height] of [
         if (width <= 1050) {
           await expect(opener).toBeEnabled();
           await expect(opener).toHaveAttribute("aria-busy", "false");
+          await expect(opener).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+          await expect(opener).toHaveCSS("border-top-color", "rgba(0, 0, 0, 0)");
+          const bounds = await opener.boundingBox();
+          expect(bounds?.width).toBeGreaterThanOrEqual(45);
+          expect(bounds?.height).toBeGreaterThanOrEqual(45);
           if (width <= 768) await opener.tap();
           else await opener.click();
           const menu = page.getByRole("dialog", {

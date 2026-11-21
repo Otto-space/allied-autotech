@@ -224,6 +224,10 @@ const environmentSchema = z.object({
     .max(30_000)
     .default(8_000),
   PAYSTACK_SECRET_KEY: optionalNonEmptyString,
+  PAYSTACK_WEBHOOK_SECRET: optionalNonEmptyString.refine(
+    (value) => value === undefined || value.startsWith("whsec_"),
+    "Paystack webhook signing secret must start with whsec_",
+  ),
   PAYSTACK_MODE: z.enum(["disabled", "test", "live"]).default("disabled"),
   PAYSTACK_LIVE_ENABLED: booleanValue(false),
   PAYSTACK_CALLBACK_URL: optionalNonEmptyString.pipe(httpUrl.optional()),
@@ -650,6 +654,10 @@ export function assertPaystackMode(runtime: typeof env = env): void {
   if (runtime.PAYSTACK_MODE === "disabled") {
     if (key !== undefined)
       throw new Error("PAYSTACK_SECRET_KEY must be unset when PAYSTACK_MODE is disabled");
+    if (runtime.PAYSTACK_WEBHOOK_SECRET !== undefined)
+      throw new Error(
+        "PAYSTACK_WEBHOOK_SECRET must be unset when PAYSTACK_MODE is disabled",
+      );
     return;
   }
   if (key === undefined)
