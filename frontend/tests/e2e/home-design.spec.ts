@@ -15,6 +15,10 @@ const viewports = [
   [320, 720],
 ];
 const destinations = ["/services?search=diagnostics", "/services", "/parts", "/vehicles"];
+test.afterEach(async ({ page }) => {
+  // Let isolated API reads finish before Playwright disposes their response bodies.
+  await page.unrouteAll({ behavior: "wait" });
+});
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/v1/**", async (route) => {
     const path = new URL(route.request().url()).pathname;

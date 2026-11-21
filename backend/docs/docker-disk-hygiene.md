@@ -6,6 +6,16 @@ The database-preservation rules in `AGENTS.md` always take precedence.
 
 ## Before creating anything
 
+Use native tools first. Frontend checks, browser checks, source review and cloud
+inventory do not need Docker. `npm run check:deployment` from `backend` runs the
+deployment contract suite without a daemon, database or provider credentials;
+`release.ps1 preflight` also works without Docker. Prefer the existing isolated
+native PostgreSQL setup or isolated CI for ordinary database tests where supported.
+Reserve Docker for final packaging and checks that specifically exercise container
+entrypoints, Linux image behaviour or container-specific database configuration.
+Run those checks for the completed backend candidate, not for every frontend edit.
+The four-image release, provenance and recovery requirements still apply.
+
 Owner's reserve: keep at least **20 GiB free on C:**. Before substantial local
 writes, run the shared read-only checker:
 

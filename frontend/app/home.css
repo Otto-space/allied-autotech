@@ -251,7 +251,7 @@
 }
 .home-page .media-placeholder {
   background: #edf1f5;
-  color: #536676;
+  color: var(--text-secondary);
   gap: 10px;
   font-size: 12px;
   font-weight: 500;

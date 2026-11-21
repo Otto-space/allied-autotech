@@ -1,10 +1,9 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { randomBytes } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { generateKeyPairSync, randomBytes, X509Certificate } from "node:crypto";
+import { readFileSync } from "node:fs";
 import path from "node:path";
-import { after, test } from "node:test";
+import { test } from "node:test";
+import { rootCertificates } from "node:tls";
 import { fileURLToPath } from "node:url";
 import {
   images,
@@ -18,32 +17,21 @@ const backend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.
 const template = parseTemplate(
   readFileSync(path.join(backend, "ops/digitalocean/staging.app.yaml.template"), "utf8"),
 );
-const directory = mkdtempSync(path.join(tmpdir(), "aat-release-test-"));
-after(() => rmSync(directory, { recursive: true, force: true }));
-const windowsOpenSsl = "C:/Program Files/Git/usr/bin/openssl.exe";
-const openssl =
-  process.platform === "win32" && existsSync(windowsOpenSsl) ? windowsOpenSsl : "openssl";
-execFileSync(
-  openssl,
-  [
-    "req",
-    "-x509",
-    "-newkey",
-    "rsa:2048",
-    "-nodes",
-    "-days",
-    "1",
-    "-subj",
-    "/CN=synthetic-release-test",
-    "-addext",
-    "basicConstraints=critical,CA:TRUE",
-    "-keyout",
-    path.join(directory, "key.pem"),
-    "-out",
-    path.join(directory, "ca.pem"),
-  ],
-  { stdio: "ignore", windowsHide: true },
-);
+// A public CA is sufficient for configuration validation; no connection is made.
+// Match the production-spec fixture without an OpenSSL process or disk files.
+const ca = rootCertificates.find((pem) => {
+  const certificate = new X509Certificate(pem);
+  return (
+    certificate.ca &&
+    Date.parse(certificate.validFrom) < Date.now() &&
+    Date.parse(certificate.validTo) > Date.now()
+  );
+});
+assert.ok(ca, "A currently valid CA fixture is required.");
+const privateKey = generateKeyPairSync("ed25519").privateKey.export({
+  type: "pkcs8",
+  format: "pem",
+});
 
 function fixtures() {
   const commit = "a".repeat(40);
@@ -68,7 +56,7 @@ function fixtures() {
       DB_PASSWORD: randomBytes(24).toString("hex"),
       MIGRATION_DB_USER: "synthetic_migrator",
       MIGRATION_DB_PASSWORD: randomBytes(24).toString("hex"),
-      DB_SSL_CA_BASE64: readFileSync(path.join(directory, "ca.pem")).toString("base64"),
+      DB_SSL_CA_BASE64: Buffer.from(ca).toString("base64"),
       PAYSTACK_SECRET_KEY: "sk_test_synthetic_provider_credential",
       OBJECT_STORAGE_ENDPOINT: "https://lon1.digitaloceanspaces.com",
       OBJECT_STORAGE_BUCKET: "synthetic-private-bucket",
@@ -247,10 +235,7 @@ for (const [description, mutate] of [
   [
     "private key mixed into CA",
     ({ input }) => {
-      input.values.DB_SSL_CA_BASE64 = Buffer.from(
-        readFileSync(path.join(directory, "ca.pem"), "utf8") +
-          readFileSync(path.join(directory, "key.pem"), "utf8"),
-      ).toString("base64");
+      input.values.DB_SSL_CA_BASE64 = Buffer.from(ca + privateKey).toString("base64");
     },
   ],
   [
