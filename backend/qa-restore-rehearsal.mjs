@@ -38,6 +38,21 @@ const expectedPrivateHost =
 const sourceDatabase = "allied_autotech_staging";
 const expectedFingerprint = "27b094f565badb0bed039bed3d9d30ff";
 const bucket = "allied-autotech-restore-qa-20261120";
+// Mike approved this QA-only encrypted transfer on 21 November 2026 after
+// confirming all four users are test accounts. The named admin and owner may
+// still have genuine identities/session material, so the exception is opt-in,
+// count-bound and confined to this exact isolated QA snapshot. A changed
+// profile fails closed instead of silently transferring new personal records.
+const qaTestAccountConfirmation = "qa-test-accounts-encrypted-backup-20261121";
+const approvedTestAccountCounts = new Map([
+  ["User", "4"], ["CustomerProfile", "4"],
+  ["StaffProfile", "1"], ["Session", "8"],
+]);
+const personalTables = new Set([
+  "User", "Session", "StaffProfile", "CustomerProfile", "CustomerVehicle",
+  "Booking", "Order", "Payment", "Invoice", "Enquiry", "Complaint",
+  "InspectionRequest", "Review", "Notification", "Quotation",
+]);
 
 if (process.env.QA_REHEARSAL_CONFIRM !== "isolated-qa-staging-20261120") {
   throw new Error("Explicit isolated QA-only confirmation is required.");
@@ -180,11 +195,6 @@ try {
     const result = await client.query(`SELECT count(*)::bigint AS total FROM public."${safe}"`);
     sourceCounts.set(name, String(result.rows[0].total));
   }
-  const personalTables = new Set([
-    "User", "Session", "StaffProfile", "CustomerProfile", "CustomerVehicle",
-    "Booking", "Order", "Payment", "Invoice", "Enquiry", "Complaint",
-    "InspectionRequest", "Review", "Notification", "Quotation",
-  ]);
   personalRecordsPresent = [...sourceCounts].some(
     ([name, total]) => personalTables.has(name) && total !== "0",
   );
@@ -198,7 +208,24 @@ process.stdout.write(
 );
 if (mode === "--preflight") process.exit(0);
 if (personalRecordsPresent) {
-  throw new Error("QA source contains possible personal records; no data backup or transfer is authorized.");
+  const exactApprovedSnapshot = [...approvedTestAccountCounts].every(
+    ([name, expected]) => sourceCounts.get(name) === expected,
+  ) && [...personalTables].every(
+    (name) => (sourceCounts.get(name) ?? "0") === (approvedTestAccountCounts.get(name) ?? "0"),
+  );
+  if (
+    process.env.QA_TEST_ACCOUNT_BACKUP_CONFIRM !== qaTestAccountConfirmation ||
+    !exactApprovedSnapshot
+  ) {
+    throw new Error(
+      "Personal records require the exact approved QA-only test-account snapshot and " +
+      "a separate explicit backup confirmation; no transfer was attempted.",
+    );
+  }
+  process.stdout.write(
+    "QA_TEST_ACCOUNTS_APPROVED: exactly 4 users, 4 customer profiles, " +
+    "1 staff profile, 8 sessions, and no other listed personal records.\n",
+  );
 }
 
 const accessId = process.env.QA_SPACES_ACCESS_KEY_ID || "";
@@ -226,6 +253,26 @@ if (!listing.split(/\r?\n/).some(line => line.trim() === `;     dbname: ${source
   throw new Error("PostgreSQL dump archive identity did not match QA source.");
 }
 const digest = await fileHash(backup);
+// Check all 83 source-table counts again before any outbound transfer. This
+// catches source changes during the dump without exposing any row contents.
+client = await dbClient(sourceDatabase);
+try {
+  const now = (await client.query(
+    "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public' ORDER BY tablename"
+  )).rows.map(row => row.tablename);
+  if (now.length !== sourceCounts.size || now.some(name => !sourceCounts.has(name))) {
+    throw new Error("QA source table set changed during backup; transfer blocked.");
+  }
+  for (const [name, expected] of sourceCounts) {
+    const safe = name.replaceAll('"', '""');
+    const actual = await client.query(`SELECT count(*)::bigint AS total FROM public."${safe}"`);
+    if (String(actual.rows[0]?.total) !== expected) {
+      throw new Error("QA source table counts changed during backup; transfer blocked.");
+    }
+  }
+} finally {
+  await client.end();
+}
 const key = `rehearsals/2026-11-20/${Date.now()}-${randomBytes(8).toString("hex")}.dump`;
 const sourceSize = statSync(backup).size;
 await s3.send(new PutObjectCommand({
