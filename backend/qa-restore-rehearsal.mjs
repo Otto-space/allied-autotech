@@ -153,14 +153,24 @@ async function command(program, args, env, cwd = "/app") {
         ["backup-tool", /pg_dump failed|pg_restore failed|Backup archive target could not be verified/i],
         ["backup-receipt", /A fresh, unchanged backup for the exact database target is required/i],
         ["migration-history", /Applied migration history differs|unresolved failed migration/i],
-        ["migration-safety", /A pending migration contains potentially destructive operations/i],
+        ["migration-safety", /A pending migration contains potentially destructive operations|Reviewed derived-field migration changed/i],
         ["migration-target", /Explicit DB_MIGRATION_TARGET/i],
         ["file-permission", /EACCES|EPERM|permission denied/i],
         ["connection", /ECONNREFUSED|ETIMEDOUT|ENOTFOUND|password authentication failed/i],
         ["tls", /certificate|sslmode|SSL handshake|TLS handshake/i],
         ["prisma", /\bP[0-9]{4}\b|Prisma schema validation|Prisma CLI/i],
+        ["runtime-exception", /(?:^|\n)(?:TypeError|ReferenceError|RangeError|SyntaxError):/m],
       ];
-      const category = categories.find(([, pattern]) => pattern.test(message))?.[0] ?? "unclassified";
+      const stageCategories = {
+        "target-rejected": "migration-target",
+        "sql-review-checksum": "migration-safety",
+        "sql-review-destructive": "migration-safety",
+        "sql-review-exception": "sql-review-exception",
+        "sql-safety-review": "sql-review-exception",
+      };
+      const category = categories.find(([, pattern]) => pattern.test(message))?.[0]
+        ?? stageCategories[stage]
+        ?? "unclassified";
       const prismaCode = message.match(/\bP[0-9]{4}\b/)?.[0] ?? "none";
       process.stderr.write(
         `QA_MIGRATION_DIAGNOSTIC: stage=${stage}, category=${category}, ` +

@@ -27,19 +27,41 @@ qaStage("configuration");
 const history = await inspectMigrationHistory(settings);
 qaStage("migration-history");
 if (history.pending.length) {
+  // Distinguish target authorization from pending-SQL review without logging
+  // the target, migration names, SQL, or any database record.
+  qaStage("target-authorization");
   const confirmed = process.env["DB_MIGRATION_TARGET"];
   const localDevelopment =
     (process.env["NODE_ENV"] ?? "development") === "development" &&
     ["localhost", "127.0.0.1", "::1"].includes(settings.DB_HOST);
-  if (!localDevelopment && confirmed !== target)
+  if (!localDevelopment && confirmed !== target) {
+    qaStage("target-rejected");
     throw new Error(
       `Explicit DB_MIGRATION_TARGET=${target} is required before modifying a shared/remote database.`,
     );
+  }
+  qaStage("target-authorized");
   // Existing databases must never receive an unreviewed destructive/backfill change.
   // Initial replay on an empty database cannot remove pre-existing business data.
+  qaStage("sql-safety-review");
   if (!history.empty)
-    for (const name of history.pending)
-      assertNonDestructiveMigration(history.local.get(name)!.sql, name);
+    for (const name of history.pending) {
+      try {
+        assertNonDestructiveMigration(history.local.get(name)!.sql, name);
+      } catch (error) {
+        // Fixed, non-identifying failure tags survive even when subprocess
+        // stderr is unavailable. The original error still stops the runner.
+        const message = error instanceof Error ? error.message : "";
+        qaStage(
+          message.startsWith("Reviewed derived-field migration changed")
+            ? "sql-review-checksum"
+            : message.startsWith("A pending migration contains potentially destructive operations")
+              ? "sql-review-destructive"
+              : "sql-review-exception",
+        );
+        throw error;
+      }
+    }
   qaStage("sql-safety-gate");
   const receipt =
     process.env["DB_SAFE_MIGRATION_BACKUP"] ?? (await createVerifiedBackup());
