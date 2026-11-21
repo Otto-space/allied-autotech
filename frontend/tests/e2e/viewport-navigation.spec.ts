@@ -281,6 +281,50 @@ for (const width of [390, 1440]) {
 }
 
 for (const width of [390, 1440]) {
+  test(`Fragment entry preserves scrolling before hydration at ${width}`, async ({
+    page,
+  }) => {
+    const errors = await fixture(page);
+    await page.setViewportSize({ width, height: 844 });
+    let releaseScripts: (() => void) | undefined;
+    const pending = new Promise<void>((resolve) => {
+      releaseScripts = resolve;
+    });
+    await page.route("**/_next/static/**/*.js", async (route) => {
+      await pending;
+      return route.continue();
+    });
+    try {
+      await page.goto("/contact#workshop", { waitUntil: "domcontentloaded" });
+      await expect
+        .poll(() => page.evaluate(() => !!window.__aatInitialFragmentEntry))
+        .toBe(true);
+      await page.mouse.wheel(0, -350);
+      const offset = () =>
+        page
+          .locator("#workshop")
+          .evaluate(
+            (el) =>
+              el.getBoundingClientRect().top -
+              document.querySelector(".site-header")!.getBoundingClientRect().bottom,
+          );
+      await expect.poll(offset).toBeGreaterThan(100);
+      // The global marker is intentionally removed when React takes over. The
+      // behavior under test is that manual scrolling survives that handoff and
+      // subsequent font/layout work, not the lifetime of an implementation detail.
+      releaseScripts?.();
+      await expect(
+        page.getByRole("textbox", { name: "Subject", exact: true }),
+      ).toBeVisible();
+      await page.evaluate(() => document.fonts.ready.then(() => undefined));
+      await page.waitForTimeout(1000);
+      expect(await offset()).toBeGreaterThan(100);
+      expect(errors).toEqual([]);
+    } finally {
+      releaseScripts?.();
+    }
+  });
+
   test(`Fragment entry follows deferred form layout until the visitor scrolls at ${width}`, async ({
     page,
   }) => {

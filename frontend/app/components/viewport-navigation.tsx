@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import type {} from "@/lib/initial-fragment-entry";
 
 function headerOffset(target?: HTMLElement) {
   let bottom = 0;
@@ -183,6 +184,7 @@ export function ViewportNavigation() {
   const pathname = usePathname();
   const previousPath = useRef(pathname);
   const restoring = useRef<string | null>(null);
+  const documentEntry = useRef<Window["__aatInitialFragmentEntry"]>(undefined);
 
   useEffect(() => {
     const restore = () => {
@@ -202,9 +204,16 @@ export function ViewportNavigation() {
       performance
         .getEntriesByType("navigation")
         .some((entry) => (entry as PerformanceNavigationTiming).type === "back_forward");
+    const initialEntry = documentEntry.current ?? window.__aatInitialFragmentEntry;
+    documentEntry.current = initialEntry;
+    const earlyInteraction =
+      initial && initialEntry?.href === location.href && initialEntry.cancelled;
+    initialEntry?.stop();
+    delete window.__aatInitialFragmentEntry;
     // Preserve native history and ordinary refresh positions. A refreshed fragment
     // may need one correction after fonts/load if its heading sits behind the header.
-    if (historyRestore || historyEntry || (initial && !location.hash)) return;
+    if (earlyInteraction || historyRestore || historyEntry || (initial && !location.hash))
+      return;
     let frame = 0;
     let cancelled = false;
     let observer: MutationObserver | undefined;

@@ -1,3 +1,27 @@
+### 21 November: release contrast and initial-navigation repair
+
+Reconciled the terminal ecb8321e frontend run:1504 passes,4 failures. The homepage
+fallback label was4.45:1 on its existing light background; use the approved
+secondary-text token. Initial-fragment input is captured before hydration using
+the existing CSP nonce and retained through StrictMode handoff, then its startup
+listeners are removed. Preserve manual scrolling, history, managed person focus,
+the carousel reducer/timers, photo crops and approved flat palette.
+
+Reserve the carousel's existing58px control row and text slots during server
+rendering; only the active slide remains readable/focusable. This fixes the
+observed58px phone height change during hydration without adding controls or
+changing their geometry. Add390/1440 delayed-JavaScript scroll regressions; retain
+all original strict assertions. Wait for isolated Home route reads during teardown.
+
+Eight focused native browser scenarios and8 hero unit tests pass, with zero
+relevant fixture page errors. The browser result combines7 full-campaign passes
+and the remaining phone case after a fixture response-cleanup fix. Environment:
+local Next16.4.6 development server, synthetic loopback API and isolated Edge;
+Browser plugin not available. Evidence: TEMP/allied-release-20261121/evidence/
+first-focused-report.json and report.json. Production CI/rendered acceptance,
+real roles, physical devices and Safari remain separate and unverified.
+No design reference, imagery, business policy, permission or live capability changed.
+
 ### 19 November: release dependency security repair, visual acceptance pending
 
 Source baseline `master` `8d37ab1` could compile but failed its production build
