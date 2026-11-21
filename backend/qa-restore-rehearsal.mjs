@@ -124,18 +124,51 @@ const pgEnv = (database) => ({
 
 async function command(program, args, env, cwd = "/app") {
   const child = spawn(program, args, { env, cwd, shell: false, stdio: ["ignore", "pipe", "pipe"] });
+  const migrationDiagnostic = program === "node" && args.includes("scripts/migrate-safely.ts");
   let output = "";
+  let errorOutput = "";
   child.stdout.on("data", chunk => {
     output += chunk.toString("utf8");
     if (output.length > 256_000) child.kill();
   });
-  // Never echo stderr: database and storage tools can include connection detail.
-  child.stderr.resume();
+  // Keep only bounded migration diagnostics in memory. Never echo raw stderr:
+  // database and Prisma tools may contain connection details or SQL records.
+  child.stderr.on("data", chunk => {
+    if (migrationDiagnostic && errorOutput.length < 65_536) {
+      errorOutput += chunk.toString("utf8").slice(0, 65_536 - errorOutput.length);
+    }
+  });
   const exitCode = await new Promise((resolve, reject) => {
     child.once("error", () => reject(new Error(`${program} could not start; stopped safely.`)));
     child.once("exit", resolve);
   });
-  if (exitCode !== 0) throw new Error(`${program} failed; stopped safely without modifying the source database.`);
+  if (exitCode !== 0) {
+    if (migrationDiagnostic) {
+      const stages = [...output.matchAll(/^QA_MIGRATOR_STAGE: ([a-z-]+)$/gm)];
+      const stage = stages.at(-1)?.[1] ?? "module-startup";
+      const message = `${output}\n${errorOutput}`;
+      const categories = [
+        ["module-load", /ERR_MODULE_NOT_FOUND|Cannot find (?:module|package)|MODULE_NOT_FOUND/i],
+        ["backup-location", /Backups must be stored outside|DB_BACKUP_DIRECTORY/i],
+        ["backup-tool", /pg_dump failed|pg_restore failed|Backup archive target could not be verified/i],
+        ["backup-receipt", /A fresh, unchanged backup for the exact database target is required/i],
+        ["migration-history", /Applied migration history differs|unresolved failed migration/i],
+        ["migration-safety", /A pending migration contains potentially destructive operations/i],
+        ["migration-target", /Explicit DB_MIGRATION_TARGET/i],
+        ["file-permission", /EACCES|EPERM|permission denied/i],
+        ["connection", /ECONNREFUSED|ETIMEDOUT|ENOTFOUND|password authentication failed/i],
+        ["tls", /certificate|sslmode|SSL handshake|TLS handshake/i],
+        ["prisma", /\bP[0-9]{4}\b|Prisma schema validation|Prisma CLI/i],
+      ];
+      const category = categories.find(([, pattern]) => pattern.test(message))?.[0] ?? "unclassified";
+      const prismaCode = message.match(/\bP[0-9]{4}\b/)?.[0] ?? "none";
+      process.stderr.write(
+        `QA_MIGRATION_DIAGNOSTIC: stage=${stage}, category=${category}, ` +
+        `prismaCode=${prismaCode}, exit=${exitCode}; raw output suppressed.\n`,
+      );
+    }
+    throw new Error(`${program} failed; stopped safely without modifying the source database.`);
+  }
   return output;
 }
 

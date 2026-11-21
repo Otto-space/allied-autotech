@@ -12,9 +12,20 @@ import {
   runPrisma,
 } from "./lib/database-safety.js";
 
+// Deliberately generic breadcrumbs for the owner-approved isolated QA restore
+// rehearsal. Never include SQL, database identifiers, credentials, or rows.
+const qaDiagnostics =
+  process.env["QA_REHEARSAL_CONFIRM"] === "isolated-qa-staging-20261120";
+function qaStage(stage: string): void {
+  if (qaDiagnostics) process.stdout.write(`QA_MIGRATOR_STAGE: ${stage}\n`);
+}
+
+qaStage("startup");
 const settings = databaseSettings();
 const target = databaseTarget(process.env);
+qaStage("configuration");
 const history = await inspectMigrationHistory(settings);
+qaStage("migration-history");
 if (history.pending.length) {
   const confirmed = process.env["DB_MIGRATION_TARGET"];
   const localDevelopment =
@@ -29,9 +40,12 @@ if (history.pending.length) {
   if (!history.empty)
     for (const name of history.pending)
       assertNonDestructiveMigration(history.local.get(name)!.sql, name);
+  qaStage("sql-safety-gate");
   const receipt =
     process.env["DB_SAFE_MIGRATION_BACKUP"] ?? (await createVerifiedBackup());
+  qaStage("backup-created");
   verifyBackupReceipt(receipt, process.env);
+  qaStage("backup-verified");
   const current = localMigrations();
   if (
     current.size !== history.local.size ||
@@ -45,13 +59,17 @@ if (history.pending.length) {
   process.stdout.write(
     `Applying ${history.pending.length} reviewed migrations to ${target}. Verified backup receipt: ${receipt}\n`,
   );
+  qaStage("prisma-deploy");
   await runPrisma(["migrate", "deploy"], {
     ...process.env,
     DB_SAFE_MIGRATION_BACKUP: receipt,
     DB_SAFE_MIGRATION_RUNNER: "verified-forward-migrations",
   });
+  qaStage("prisma-deploy-complete");
 }
+qaStage("schema-verification");
 await checkDatabase(settings);
+qaStage("complete");
 process.stdout.write(
   "Safe migration verification passed. No reset or data-removing repair was performed.\n",
 );
