@@ -96,7 +96,8 @@ export function assertNonDestructiveMigration(sql: string, migrationName?: strin
     "20261102090000_vehicle_operator_actor_history":
       "f20ccbd5764db6c657fa73e73b7cfd7cb345f0c76e6370d6f59b95f9a7bb7e0c",
     "20261030190000_booking_concern_intake":
-      "269654ebfa2f8b39453c4355e6d5a20aab9c4f2373168fe56db41958891eaa2b",
+      // The reviewed SQL is unchanged; this checkout stores LF rather than CRLF bytes.
+      "3fc7beee1d19150c41bbed1887c7091cc733b76e89f550c12b57093c5bd8b82b",
     "20261025132000_catalogue_word_search":
       "4740f38e0d45255a3b1c1eaf7977970a07434f87a8f0584f21ce8af4e249e0e1",
     "20261025133000_catalogue_brand_options":
