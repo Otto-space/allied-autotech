@@ -14,6 +14,7 @@
     "check": "npm run check:secrets && npm run check:prisma && npm run typecheck && npm run check:scripts && npm run check:openapi && npm run check:routes && npm run lint && npm run format:check && npm test && npm run check:prisma-config",
     "check:secrets": "tsx scripts/check-secrets.ts",
     "check:secrets:history": "tsx scripts/check-secrets.ts --history",
+    "check:deployment": "node scripts/deployment/release.mjs verify",
     "check:prisma": "npm run db:check",
     "check:prisma-config": "tsc --noEmit --ignoreConfig --module NodeNext --moduleResolution NodeNext --target esnext --esModuleInterop true --types node prisma.config.ts",
     "check:scripts": "tsc -p tsconfig.scripts.json",

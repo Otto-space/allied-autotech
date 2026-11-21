@@ -158,7 +158,6 @@ export function HomeHero() {
       <div className={styles.layout}>
         <div className={styles.content}>
           {slides.map((slide, index) => {
-            if (index !== 0 && !enhanced) return null;
             const active = index === state.current;
             const Title = active ? "h1" : "div";
             return (

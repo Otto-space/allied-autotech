@@ -1,3 +1,61 @@
+### 21 November: production release resumed; confirmed frontend failures repaired locally
+
+Current master ecb8321e remains unreleased. The latest full frontend gate,
+44811928494, completed1504 cases and failed4: homepage missing-image contrast at
+390/1440 and fragment refresh overriding manual scrolling at both widths. Backend
+database safety and repository secret checks passed for that source; do not repeat
+the completed security upgrade or Customer Care heading repair.
+
+The candidate uses the existing secondary-text token for the homepage fallback,
+preserves initial fragment input through a nonce-protected pre-hydration capture
+and React StrictMode handoff, and reserves server-rendered carousel text/control
+geometry. The original strict layout, axe and scroll assertions remain. Add two
+delayed-JavaScript scroll cases. Home fixture cleanup waits for pending isolated
+reads instead of disposing responses during navigation.
+
+Native Next16.4.6 checks pass all8 focused browser scenarios across390/1440 and8
+hero unit tests. Browser evidence combines7 passes from the full focused campaign
+with the remaining phone case passing after its fixture-cleanup correction; this
+is synthetic development-server evidence, not final production or real-role
+acceptance. Evidence: TEMP/allied-release-20261121/evidence/first-focused-report.json
+and report.json. Scoped lint/format/diff pass; final exact-source CI is still needed.
+The local install now matches the existing approved dependency versions. npm's
+platform lockfile rewrite was discarded; approved package/lock bytes were restored.
+The original shared dependency tree remains intact.
+
+Read-only production inspection on21November verifies112 applied migrations,
+20 pending, matching applied checksums, strict TLS and8 managed backups (latest
+05:22:11UTC). No application data was written; pre-existing network access was
+reused without adding or removing a rule. Both public aliases still target
+dpl_GABPemCubUZP16cbJ8EgZum1TSKv; backend6fda069d retains the6c52 image digests.
+Current-source images, fresh backup/populated restore, guarded migration, packaged
+runtime/recovery verification, held-production acceptance and publication remain.
+No payment, booking, AI, support-coverage or permission flag was activated.
+
+### 20 November: native deployment checks; reduced local Docker use
+
+Owner requests less Docker use. Cloud-inventory preflight no longer requires a
+Docker daemon. `npm run check:deployment` / `release.ps1 verify` runs the staging
+spec, production spec and public-cutover contract suites natively. The staging
+fixture now uses a valid public CA and an in-memory synthetic private key rather
+than launching OpenSSL and writing certificate/key files. All existing rejection
+assertions remain, including mixed private-key rejection and immutable image,
+permission, TLS and gated-payment boundaries.
+
+The native action passes 54/54 tests; JavaScript syntax, scoped Prettier and diff
+checks pass. No Docker command, image build, database connection, provider write
+or production publication was performed for this batch. The separate synthetic
+Git migration-input suite and final container-specific tests remain required in
+their existing contexts; this batch does not claim they ran. Updated the release
+and disk-hygiene guides to use native checks first and reserve Docker for final
+packaging/container acceptance. Existing four-image and database safeguards remain.
+
+Disk preflight for temporary fixtures failed at19.9GiB free (20.05GiB required);
+later read-only measurement was19.23GiB. No install, build or cleanup was attempted.
+The native action's 54 checks now use in-memory fixtures. Remaining application
+release/132-migration acceptance below is still open; tooling checks are not launch
+acceptance. Preserve the current master security/accessibility fixes fromecb8321e.
+
 ### 19 November: security patch and isolated source verification (unreleased)
 
 The latest available `master` source at the start of this work was `8d37ab1`.
