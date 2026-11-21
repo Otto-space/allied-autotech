@@ -63,6 +63,7 @@ filled 46px menu (computed background alpha .035 and border alpha .1); open,
 Escape and focus return worked. New exact-candidate CI/preview, authenticated
 role and device checks are still required. This is not production acceptance or
 authorization to merge, publish, or enable online transactions.
+
 ### 21 November: release contrast and initial-navigation repair
 
 Reconciled the terminal ecb8321e frontend run:1504 passes,4 failures. The homepage
