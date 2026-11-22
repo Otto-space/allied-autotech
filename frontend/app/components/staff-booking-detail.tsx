@@ -65,16 +65,17 @@ function ReplacementSlotPicker({
       }).toString()}`
     : null;
   const slots = useResource(path, parseWorkSlots);
-  const available = slots.data?.items.filter(
-    (slot) =>
-      slot.id !== currentSlotId &&
-      slot.branchId === branchId &&
-      slot.serviceId === serviceId &&
-      slot.staff.id === staffId &&
-      slot.status === "OPEN" &&
-      Date.parse(slot.startsAt) === start &&
-      !slot.timingReviewRequired,
-  ) ?? [];
+  const available =
+    slots.data?.items.filter(
+      (slot) =>
+        slot.id !== currentSlotId &&
+        slot.branchId === branchId &&
+        slot.serviceId === serviceId &&
+        slot.staff.id === staffId &&
+        slot.status === "OPEN" &&
+        Date.parse(slot.startsAt) === start &&
+        !slot.timingReviewRequired,
+    ) ?? [];
   const unavailable =
     slots.loading || slots.refreshing || !!slots.error || !!slots.refreshError;
   return (
@@ -110,7 +111,9 @@ function ReplacementSlotPicker({
         </button>
       )}
       {!unavailable && available.length === 0 && (
-        <p className="field-hint">No matching open slot is published for this staff member.</p>
+        <p className="field-hint">
+          No matching open slot is published for this staff member.
+        </p>
       )}
     </div>
   );
@@ -287,7 +290,10 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
         assignedStaffId.data !== current.assignedStaff?.id;
       const replacement = String(form.get("replacementSlotId") ?? "");
       if (slotTransfer && !z.string().uuid().safeParse(replacement).success) {
-        invalidate("Choose the published slot for the new staff member.", "booking-replacement-slot");
+        invalidate(
+          "Choose the published slot for the new staff member.",
+          "booking-replacement-slot",
+        );
         return;
       }
       if (
