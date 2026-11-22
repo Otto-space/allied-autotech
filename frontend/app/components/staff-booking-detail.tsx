@@ -33,6 +33,7 @@ import { MutationReview, type MutationProposal } from "./mutation-review";
 
 type NextStatus = RequestBody<"/staff/bookings/{bookingId}/status", "post">["status"];
 // Match the original appointment start before offering a staff transfer.
+// Published slot selection never confirms a booking by itself.
 function ReplacementSlotPicker({
   branchId,
   serviceId,
