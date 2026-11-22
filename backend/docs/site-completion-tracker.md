@@ -1,3 +1,31 @@
+### 22 November: continuation handoff reconciled against current remote state
+
+Remote master is 180c28eabe50b01ac3171c0fdbe0bae769963772. Its backend safety
+and secret checks pass, but frontend run44951262603 fails Home320x720 with
+`route.fulfill: Route is already handled!`. New draft PR124, reconciliation head
+4c36e84261063fd41121db12e02a3b3f542bd522, passes all three checks; its frontend
+run44961189023 completes the full1511-case browser matrix. This is isolated
+production-build evidence, not a production deployment or real-role/provider pass.
+The existing reconciliation worktree is clean at that head. The main working
+checkout is on staging-integrated head4944d605, whose three checks also pass.
+Preserve the newer reconciliation and do not restart from superseded9a2ef482.
+
+Both public aliases still identify dpl_GABPemCubUZP16cbJ8EgZum1TSKv/source6c52b934.
+Fresh public capabilities remain browse/enquiries with accounts enabled and
+booking/inspection requests, checkout and vehicle deposits disabled. The existing
+DigitalOcean API helper returns401 Unauthorized, so the backend deployment and
+production migration count could not be freshly verified. The21November112-applied/
+20-pending observation is historical. No deployment, migration, financial record,
+permission or capability setting was changed by this handoff. C: reserve preflight
+passes at approximately34GiB free; disk is not the present access blocker.
+
+The full ready-to-copy continuation prompt is
+`docs/CONTINUATION_PROMPT_20261122.md`. It separates source integration, secure
+provider access, staging acceptance, fresh recovery/four-image/exact-master
+release, public verification, D01-D17 acceptance and the open T01-T07/design
+coverage. Old TEMP/allied-release-20261121 release helpers are unexecuted templates
+with stale source/tree assumptions; review them against the newer candidate.
+
 ### 20 November: PR #106 exact-head CI exposes two wheel precondition races
 
 Both PR #106 full frontend check runs finished with 1,506/1,508 browser cases
