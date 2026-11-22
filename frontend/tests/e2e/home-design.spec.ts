@@ -1,4 +1,5 @@
-﻿import { test, expect } from "@playwright/test";
+// Home regression: route public reads directly to the isolated API.
+import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 
