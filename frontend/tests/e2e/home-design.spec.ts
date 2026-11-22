@@ -33,10 +33,11 @@ test.beforeEach(async ({ page }) => {
       });
     if (path.startsWith("/api/v1/public/")) {
       const url = new URL(route.request().url());
-      const response = await route.fetch({
+      // Forward directly: a late route.fetch response can outlive the browser request
+      // and race with Playwright's route cleanup at the end of this test.
+      return route.continue({
         url: `http://127.0.0.1:5024${url.pathname}${url.search}`,
       });
-      return route.fulfill({ response });
     }
     return route.fulfill({
       status: 401,
