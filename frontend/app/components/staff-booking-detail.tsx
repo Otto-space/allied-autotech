@@ -32,6 +32,7 @@ import { StaffQuoteRecords } from "./staff-quote-records";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 
 type NextStatus = RequestBody<"/staff/bookings/{bookingId}/status", "post">["status"];
+// Match the original appointment start before offering a staff transfer.
 function ReplacementSlotPicker({
   branchId,
   serviceId,
