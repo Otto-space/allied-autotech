@@ -219,7 +219,12 @@ export const bookingCancelBodySchema = z
   .object({ reason: cleanText(500), expectedVersion: version })
   .strict();
 export const bookingAssignmentBodySchema = z
-  .object({ assignedStaffId: uuid, expectedVersion: version, serviceId: uuid.optional() })
+  .object({
+    assignedStaffId: uuid,
+    expectedVersion: version,
+    serviceId: uuid.optional(),
+    replacementSlotId: uuid.optional(),
+  })
   .strict();
 export const bookingTransitionBodySchema = z
   .object({
