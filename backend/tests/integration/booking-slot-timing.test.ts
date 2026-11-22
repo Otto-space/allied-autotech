@@ -82,8 +82,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     }
     it("atomically transfers a requested booking to a matching published technician slot", async () => {
       const v = await fixture();
-      const originalSlot = (await v.publish()).body.data;
-      const replacement = (await v.publish(v.startsAt, f.mechanical2.user.staffProfile!.id)).body.data;
+      const transferAt = new Date(v.startsAt.getTime() + 7 * 86400000);
+      const originalSlot = (await v.publish(transferAt)).body.data;
+      const replacement = (await v.publish(transferAt, f.mechanical2.user.staffProfile!.id)).body.data;
       const claimed = await v.claim(originalSlot.id);
       expect(claimed.status, JSON.stringify(claimed.body)).toBe(201);
       const booking = claimed.body.data.booking;
@@ -112,7 +113,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         status: "REQUESTED",
         bookingSlotId: replacement.id,
         assignedStaffId: f.mechanical2.user.staffProfile!.id,
-        scheduledAt: v.startsAt,
+        scheduledAt: transferAt,
       });
       expect((await move()).status).toBe(409);
     });
