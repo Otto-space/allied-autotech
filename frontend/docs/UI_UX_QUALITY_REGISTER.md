@@ -1,3 +1,13 @@
+### 22 November: Home 320px fixture teardown (release candidate only)
+
+Master `180c28e` recorded 1,509/1,510 browser passes; the sole 320x720 Home
+failure was a Playwright route double-handle during fixture cleanup, not an
+observed layout assertion. The local reconciliation candidate retains the Home
+design/layout assertions and drains in-flight API handlers before the page is
+disposed, avoiding the Playwright #43878 `unrouteAll` race. Neither a local
+compiled browser rerun nor exact-candidate GitHub CI has completed. Public sites
+and production payment/booking capabilities are unchanged by this review work.
+
 ### 19 November: full frontend CI exposed contrast and fragment-entry failures
 
 GitHub Frontend release checks for verified PR #102 commit `ed3ed39` failed the
