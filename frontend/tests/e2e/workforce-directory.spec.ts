@@ -164,14 +164,41 @@ for (const width of [320, 1440])
     await expect(
       page.getByRole("heading", { name: "People", exact: true }),
     ).toBeVisible();
+    const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
+    await expect(breadcrumb).toHaveCount(1);
+    await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText("People");
     await page.getByRole("link", { name: "View person: Ada Okoro", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "Ada Okoro", exact: true }),
     ).toBeVisible();
     await expect(page.locator(".wf-person-header")).toContainText("Staff");
+    await expect(breadcrumb).toHaveCount(1);
+    await expect(
+      breadcrumb.getByRole("link", { name: "Overview", exact: true }),
+    ).toHaveAttribute("href", "/admin");
+    await expect(
+      breadcrumb.getByRole("link", { name: "People", exact: true }),
+    ).toHaveAttribute("href", base);
+    await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText("Person");
     expect(s.state.errors).toEqual([]);
     expect(s.state.writes).toEqual([]);
   });
+test("owner People entry has one scoped breadcrumb on the workforce overview route", async ({
+  page,
+}) => {
+  const s = await setup(page);
+  await page.goto("/admin/workforce");
+  await expect(page.getByRole("heading", { name: "People", exact: true })).toBeVisible();
+  const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
+  await expect(breadcrumb).toHaveCount(1);
+  await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText("People");
+  await expect(breadcrumb.getByRole("link", { name: "Overview" })).toHaveAttribute(
+    "href",
+    "/admin",
+  );
+  expect(s.state.errors).toEqual([]);
+  expect(s.state.writes).toEqual([]);
+});
 test("real Admin baseline remains available when duty delegation ends", async ({
   page,
 }) => {

@@ -188,8 +188,8 @@
 }
 .dashboard .dashboard-content .customer-order .order-amount {
   grid-area: amount;
-  background: #091b38;
-  border-color: #091b38;
+  background: #101419;
+  border-color: #101419;
   color: white;
 }
 .dashboard .dashboard-content .customer-order .order-payment {
@@ -346,7 +346,7 @@
   overflow-wrap: anywhere;
 }
 .dashboard .dashboard-content .customer-order .order-review-amount {
-  background: #091b38;
+  background: #101419;
   color: white;
   padding: 16px;
   border-radius: 5px;
