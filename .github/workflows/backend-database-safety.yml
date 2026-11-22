@@ -12,6 +12,7 @@ on:
     paths:
       [
         "backend/**",
+        "frontend/**",
         "AGENTS.md",
         ".github/workflows/backend-database-safety.yml",
       ]

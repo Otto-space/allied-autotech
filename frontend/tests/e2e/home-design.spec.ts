@@ -46,10 +46,10 @@ test.beforeEach(async ({ page }) => {
         });
       if (path.startsWith("/api/v1/public/")) {
         const url = new URL(route.request().url());
-        const response = await route.fetch({
+        // Forward public reads directly, avoiding a fetch/fulfill teardown race.
+        return route.continue({
           url: `http://127.0.0.1:5024${url.pathname}${url.search}`,
         });
-        return route.fulfill({ response });
       }
       return route.fulfill({
         status: 401,
