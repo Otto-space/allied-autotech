@@ -104,6 +104,8 @@
 }
 .controls {
   position: relative;
+  /* Keep the 44px controls plus their padding/border reserved before hydration. */
+  min-height: 58px;
   justify-self: end;
   margin-right: 72px;
   max-width: 100%;
@@ -118,7 +120,7 @@
   color: var(--text-inverse);
 }
 .controls:empty {
-  display: none;
+  visibility: hidden;
 }
 .controls button {
   display: inline-flex;

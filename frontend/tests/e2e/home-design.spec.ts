@@ -1,5 +1,6 @@
 ﻿import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import type { Page } from "@playwright/test";
 import { publicCapabilitiesFixture } from "../fixtures/public-capabilities";
 
 // Served by the existing production-build loopback API; no application writes.
@@ -15,29 +16,52 @@ const viewports = [
   [320, 720],
 ];
 const destinations = ["/services?search=diagnostics", "/services", "/parts", "/vehicles"];
+type HomeApiRoutes = { inFlight: Set<Promise<void>>; finishing: boolean };
+const homeApiRoutes = new WeakMap<Page, HomeApiRoutes>();
+
+test.afterEach(async ({ page }) => {
+  const state = homeApiRoutes.get(page);
+  if (!state) return;
+  state.finishing = true;
+  // Playwright 1.63 can release other in-flight routes prematurely during
+  // unrouteAll({ behavior: "wait" }). Drain them before page fixture disposal.
+  // https://github.com/microsoft/playwright/issues/43878
+  while (state.inFlight.size) await Promise.all([...state.inFlight]);
+});
 test.beforeEach(async ({ page }) => {
-  await page.route("**/api/v1/**", async (route) => {
-    const path = new URL(route.request().url()).pathname;
-    if (path === "/api/v1/public/capabilities")
+  const state: HomeApiRoutes = { inFlight: new Set(), finishing: false };
+  homeApiRoutes.set(page, state);
+  await page.route("**/api/v1/**", (route) => {
+    if (state.finishing) return route.abort("aborted");
+    const pending = (async () => {
+      const path = new URL(route.request().url()).pathname;
+      if (path === "/api/v1/public/capabilities")
+        return route.fulfill({
+          json: {
+            success: true,
+            message: "Isolated public capabilities",
+            data: publicCapabilitiesFixture("browse_enquiries"),
+            meta: { requestId: "home-design-fixture" },
+          },
+        });
+      if (path.startsWith("/api/v1/public/")) {
+        const url = new URL(route.request().url());
+        // Forward public reads directly, avoiding a fetch/fulfill teardown race.
+        return route.continue({
+          url: `http://127.0.0.1:5024${url.pathname}${url.search}`,
+        });
+      }
       return route.fulfill({
-        json: {
-          success: true,
-          message: "Isolated public capabilities",
-          data: publicCapabilitiesFixture("browse_enquiries"),
-          meta: { requestId: "home-design-fixture" },
-        },
+        status: 401,
+        json: { success: false, error: { code: "UNAUTHORIZED" } },
       });
-    if (path.startsWith("/api/v1/public/")) {
-      const url = new URL(route.request().url());
-      const response = await route.fetch({
-        url: `http://127.0.0.1:5024${url.pathname}${url.search}`,
-      });
-      return route.fulfill({ response });
-    }
-    return route.fulfill({
-      status: 401,
-      json: { success: false, error: { code: "UNAUTHORIZED" } },
-    });
+    })();
+    state.inFlight.add(pending);
+    void pending.then(
+      () => state.inFlight.delete(pending),
+      () => state.inFlight.delete(pending),
+    );
+    return pending;
   });
 });
 for (const [width, height] of viewports) {

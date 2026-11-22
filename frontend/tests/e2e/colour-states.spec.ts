@@ -13,7 +13,7 @@ const css = (page: Page, selector: string, property: string) =>
     .evaluate((el, key) => getComputedStyle(el).getPropertyValue(key), property);
 
 for (const width of [390, 1440]) {
-  test(`dark-blue footer retains readable links and keyboard focus at ${width}px`, async ({
+  test(`charcoal footer retains readable links and keyboard focus at ${width}px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -22,7 +22,7 @@ for (const width of [390, 1440]) {
     );
     await page.goto("/about");
     const footer = page.locator(".site-footer");
-    await expect(footer).toHaveCSS("background-color", "rgb(11, 32, 56)");
+    await expect(footer).toHaveCSS("background-color", "rgb(16, 20, 25)");
     await expect(footer).toHaveCSS("background-image", "none");
     await expect(footer.locator(".brand-logo--inverse")).toBeVisible();
     const link = footer.getByRole("link", { name: "Services", exact: true });

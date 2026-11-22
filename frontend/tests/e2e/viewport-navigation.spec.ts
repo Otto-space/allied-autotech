@@ -281,6 +281,50 @@ for (const width of [390, 1440]) {
 }
 
 for (const width of [390, 1440]) {
+  test(`Fragment entry preserves scrolling before hydration at ${width}`, async ({
+    page,
+  }) => {
+    const errors = await fixture(page);
+    await page.setViewportSize({ width, height: 844 });
+    let releaseScripts: (() => void) | undefined;
+    const pending = new Promise<void>((resolve) => {
+      releaseScripts = resolve;
+    });
+    await page.route("**/_next/static/**/*.js", async (route) => {
+      await pending;
+      return route.continue();
+    });
+    try {
+      await page.goto("/contact#workshop", { waitUntil: "domcontentloaded" });
+      await expect
+        .poll(() => page.evaluate(() => !!window.__aatInitialFragmentEntry))
+        .toBe(true);
+      await page.mouse.wheel(0, -350);
+      const offset = () =>
+        page
+          .locator("#workshop")
+          .evaluate(
+            (el) =>
+              el.getBoundingClientRect().top -
+              document.querySelector(".site-header")!.getBoundingClientRect().bottom,
+          );
+      await expect.poll(offset).toBeGreaterThan(100);
+      // The global marker is intentionally removed when React takes over. The
+      // behavior under test is that manual scrolling survives that handoff and
+      // subsequent font/layout work, not the lifetime of an implementation detail.
+      releaseScripts?.();
+      await expect(
+        page.getByRole("textbox", { name: "Subject", exact: true }),
+      ).toBeVisible();
+      await page.evaluate(() => document.fonts.ready.then(() => undefined));
+      await page.waitForTimeout(1000);
+      expect(await offset()).toBeGreaterThan(100);
+      expect(errors).toEqual([]);
+    } finally {
+      releaseScripts?.();
+    }
+  });
+
   test(`Fragment entry follows deferred form layout until the visitor scrolls at ${width}`, async ({
     page,
   }) => {
@@ -339,20 +383,52 @@ for (const width of [390, 1440]) {
         .toBe(true);
     }
     await page.reload({ waitUntil: "domcontentloaded" });
-    await page.mouse.wheel(0, -350);
-    await page.waitForTimeout(120);
-    await page.waitForTimeout(1000);
-    // Form/font layout may change document pixels during hydration. The manual
-    // upward scroll must still leave the fragment below its automatic entry offset.
-    expect(
-      await page
-        .locator("#workshop")
-        .evaluate(
-          (el) =>
-            el.getBoundingClientRect().top -
-            document.querySelector(".site-header")!.getBoundingClientRect().bottom,
+    // DOMContentLoaded can precede the browser's native hash restoration and
+    // hydration. A wheel sent while scrollY is still zero cannot move upward;
+    // that is not evidence that the app overrode the visitor's scroll.
+    await expect
+      .poll(() =>
+        page.locator("#workshop").evaluate((el) => {
+          const box = el.getBoundingClientRect();
+          const header = document.querySelector(".site-header")!.getBoundingClientRect();
+          return scrollY > 100 && box.top >= header.bottom && box.bottom < innerHeight;
+        }),
+      )
+      .toBe(true);
+    // The fragment may be visible before the client navigation effect has
+    // mounted. Its CSS offset is set only after the manual-scroll cancellation
+    // listeners are active; otherwise the wheel can race a delayed reveal.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            getComputedStyle(document.documentElement)
+              .getPropertyValue("--viewport-header-offset")
+              .trim().length > 0,
         ),
-    ).toBeGreaterThan(100);
+      )
+      .toBe(true);
+    const workshopOffset = () =>
+      page.locator("#workshop").evaluate((el) => {
+        const header = document.querySelector(".site-header")!.getBoundingClientRect();
+        return el.getBoundingClientRect().top - header.bottom;
+      });
+    const restoredOffset = await workshopOffset();
+    // The edge gutter is page scroll surface at both widths. The middle of the
+    // workshop can contain an embedded map, whose frame traps wheel input.
+    expect(
+      await page.evaluate(() => document.elementFromPoint(8, 160)?.tagName),
+    ).not.toBe("IFRAME");
+    await page.mouse.move(8, 160);
+    await page.mouse.wheel(0, -350);
+    // Deferred content can change the absolute document offset while native
+    // scroll anchoring preserves the visual position. Test the visitor-visible
+    // movement relative to the fixed header, not the unstable scrollY value.
+    await expect.poll(workshopOffset).toBeGreaterThan(restoredOffset + 100);
+    await page.waitForTimeout(1000);
+    // Form/font layout may change document pixels after restoration. A real
+    // upward scroll must still leave the fragment below its entry offset.
+    expect(await workshopOffset()).toBeGreaterThan(restoredOffset + 100);
     expect(errors).toEqual([]);
   });
 }

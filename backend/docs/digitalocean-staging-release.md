@@ -24,13 +24,16 @@ Alternatively install doctl from [its official release](https://github.com/digit
 and verify the published checksum. The wrapper also accepts a CLI on PATH or
 `AAT_DOCTL`; `AAT_DO_CONTEXT` overrides the named staging context.
 
-Preflight checks Docker, Git and authenticated account access, then prints only
+Preflight checks Git and authenticated account access, then prints only
 resource names/IDs for projects, registries, apps, databases and VPCs. It does not
 print database credentials or full app specs. Inspect Spaces in the control panel
 with an authorized account. Reuse the appropriate project and resources. A
 possible registry name is `allied-autotech`, subject to account availability;
 never use it as an actual registry until confirmed. Four repositories may require
 a registry plan above the one-repository tier. Check the account's actual limits.
+
+Docker is not required for this inventory check. Keep it stopped during routine
+source review, frontend work and native contract verification.
 
 If resources do not exist, identify their region, plan and cost before creating
 the registry, managed database or private Space. The script does not purchase
@@ -86,16 +89,34 @@ using only Resend's exact DNS records before enabling the future sender
 
 ## Build, push and immutable images
 
+Run the native checks first, from `backend`:
+
+```powershell
+npm run check:deployment
+# Equivalent: .\scripts\deployment\release.ps1 verify
+```
+
+This runs staging/production spec and public-cutover contract tests using Node
+and in-memory fixtures. It does not use Docker, OpenSSL or temporary files,
+connect to a database, read populated private inputs or authenticate to a provider.
+It does not replace isolated database acceptance or final packaged-image checks.
+The migration-input regression suite remains available separately as
+`node --test scripts/deployment/migration-inputs.test.mjs`; it uses small temporary
+Git fixtures and requires no Docker. Build and push still verify migration bytes.
+Use existing native PostgreSQL or isolated CI for ordinary database regression
+tests where supported, always on a newly created `_test` or `_ci` target.
+
 First run checks, review changes and commit the intended backend release. The
 helper builds all four Linux/amd64 targets and records the full Git SHA and local
 image IDs in private `build.json`. Dirty builds are allowed only for local
 verification; **push refuses them**. No database connection is used for building.
 
 ```powershell
-node --test scripts/deployment/spec.test.mjs
-node --test scripts/deployment/postgres.test.mjs
+npm run check:deployment
 npm run lint
 npm run check:secrets
+# Final container-specific privilege acceptance when preparing the backend release:
+node --test scripts/deployment/postgres.test.mjs
 .\scripts\deployment\release.ps1 build
 node --test scripts/deployment/images.test.mjs
 .\scripts\deployment\release.ps1 push
@@ -126,6 +147,13 @@ entrypoint, permissions and secret removal without connecting to a database.
 The root `.gitattributes` forces LF for Linux shell entrypoints on Windows;
 the clean-tree guard includes that file. A successful build alone will not detect
 a broken CRLF shebang, so run the image tests before pushing.
+
+Run container-specific checks once for the completed backend candidate rather
+than after every UI edit. Reuse verified images and cached layers where supported;
+frontend checks and deployment do not themselves require another backend build.
+Before publication, still reconcile source/image provenance, backend compatibility,
+all four required images and the database/recovery gates. This native-first path
+does not authorize relabelling stale images or skipping image acceptance.
 
 The actual registry format is `registry.digitalocean.com/REGISTRY/REPOSITORY:SHA`.
 Registry manifest digests are recorded in private `release.json` and displayed;

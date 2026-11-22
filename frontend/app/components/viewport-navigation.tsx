@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import type {} from "@/lib/initial-fragment-entry";
 
 function headerOffset(target?: HTMLElement) {
   let bottom = 0;
@@ -183,6 +184,7 @@ export function ViewportNavigation() {
   const pathname = usePathname();
   const previousPath = useRef(pathname);
   const restoring = useRef<string | null>(null);
+  const documentEntry = useRef<Window["__aatInitialFragmentEntry"]>(undefined);
 
   useEffect(() => {
     const restore = () => {
@@ -202,9 +204,16 @@ export function ViewportNavigation() {
       performance
         .getEntriesByType("navigation")
         .some((entry) => (entry as PerformanceNavigationTiming).type === "back_forward");
+    const initialEntry = documentEntry.current ?? window.__aatInitialFragmentEntry;
+    documentEntry.current = initialEntry;
+    const earlyInteraction =
+      initial && initialEntry?.href === location.href && initialEntry.cancelled;
+    initialEntry?.stop();
+    delete window.__aatInitialFragmentEntry;
     // Preserve native history and ordinary refresh positions. A refreshed fragment
     // may need one correction after fonts/load if its heading sits behind the header.
-    if (historyRestore || historyEntry || (initial && !location.hash)) return;
+    if (earlyInteraction || historyRestore || historyEntry || (initial && !location.hash))
+      return;
     let frame = 0;
     let cancelled = false;
     let observer: MutationObserver | undefined;
@@ -232,7 +241,14 @@ export function ViewportNavigation() {
       // destination; otherwise correct it unless a new interaction cancelled entry.
       if (initial && scrollY > 0) {
         const box = target.getBoundingClientRect();
-        if (box.top >= headerOffset() && box.bottom <= innerHeight) return true;
+        // A long section can extend below the fold even when its heading is
+        // visible. Do not override an early manual scroll to force its entire
+        // section into view during a fragment refresh.
+        if (
+          box.top >= headerOffset() &&
+          Math.min(box.bottom, box.top + 48) <= innerHeight
+        )
+          return true;
       }
       // The optional walkthrough owns focus when opened by its reserved hash.
       reveal(target, !location.hash.startsWith("#learn="));

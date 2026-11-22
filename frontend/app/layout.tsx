@@ -3,7 +3,9 @@ import { PublicCapabilitiesProvider } from "./components/public-capabilities";
 import { indexingEnabled } from "@/lib/seo";
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import { headers } from "next/headers";
 import localFont from "next/font/local";
+import { initialFragmentEntryScript } from "@/lib/initial-fragment-entry";
 
 import "./globals.css";
 import "./overview.css";
@@ -51,10 +53,15 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   await connection();
   const { snapshot } = await getPublicCapabilities();
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
     <html lang="en" className={`${quicksand.variable} ${nippo.variable}`}>
       <head>
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{ __html: initialFragmentEntryScript }}
+        />
         {/* Keep one versioned icon mounted across route metadata updates. */}
         <link
           rel="icon"

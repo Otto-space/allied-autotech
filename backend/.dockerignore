@@ -26,6 +26,8 @@ scripts/**
 !scripts/backup-database.ts
 !scripts/migrate-safely.ts
 !scripts/check-database-safety.ts
+!scripts/verify-restore-migration-history.mjs
+!scripts/prepare-isolated-restore-migrator.mjs
 !scripts/lib/
 scripts/lib/**
 !scripts/lib/database-safety.ts
