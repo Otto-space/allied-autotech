@@ -82,7 +82,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     }
     it("atomically transfers a requested booking to a matching published technician slot", async () => {
       const v = await fixture();
-      const transferAt = new Date(v.startsAt.getTime() + 7 * 86400000);
+      const transferAt = new Date(v.startsAt.getTime() + 3 * 86400000);
       const originalSlot = (await v.publish(transferAt)).body.data;
       const replacement = (await v.publish(transferAt, f.mechanical2.user.staffProfile!.id)).body.data;
       const claimed = await v.claim(originalSlot.id);
