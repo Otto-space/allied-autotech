@@ -10,12 +10,23 @@ Owner's reserve: keep at least **20 GiB free on C:**. Before substantial local
 writes, run the shared read-only checker:
 
 ```powershell
-powershell -NoProfile -File C:/Users/PC/.codex/scripts/assert-disk-space.ps1
+$ErrorActionPreference = 'Stop'
+$diskPreflight = Join-Path $env:USERPROFILE '.codex\scripts\assert-disk-space.ps1'
+if (-not (Test-Path -LiteralPath $diskPreflight -PathType Leaf)) {
+    throw "Missing disk-preflight script: $diskPreflight"
+}
+& powershell -NoProfile -File $diskPreflight -ExpectedGrowthGiB 5
+if ($LASTEXITCODE -ne 0) { throw 'Disk-space preflight failed.' }
 ```
 
 The default requires 25 GiB free (20 GiB reserve plus 5 GiB anticipated growth).
-Set `-ExpectedGrowthGiB` to a justified estimate when different; check every drive
-that will receive substantial writes with `-Path`. Stop if the check fails or the
+The minimum growth allowance is 5 GiB; use a larger justified
+`-ExpectedGrowthGiB` when needed. The installed checker measures C: only and
+does not support `-Path`; separately verify any other drive receiving substantial
+writes. If external scripts are restricted but inline commands are permitted,
+use the equivalent `Assert-DiskCapacity` check in the root `AGENTS.md`.
+Do not change execution policies or bypass execution or sandbox restrictions.
+Stop subsequent operations if execution is rejected, the check fails or the
 target cannot be inspected. Recheck between large stages and at completion. Do not
 create worktrees or reinstall dependencies by default: reuse an appropriate
 existing environment first. The checker is an agent preflight, not a Windows quota;

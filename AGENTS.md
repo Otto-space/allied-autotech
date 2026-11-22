@@ -15,10 +15,44 @@ request does not authorise unverified migrations or enabling gated capabilities.
 ## Owner's local disk reserve
 
 Keep at least 20 GiB free on C:. Before a build, dependency install, Docker
-pull/build/test, substantial download/worktree/write, run
-`powershell -NoProfile -File C:/Users/PC/.codex/scripts/assert-disk-space.ps1`.
-Its default includes 5 GiB growth; justify any operation-specific
-`-ExpectedGrowthGiB` without reducing the reserve. Stop a failed operation,
+pull/build/test, substantial download/worktree/write, or migration, run one of
+the approved read-only preflights below. Both preserve a fixed 20 GiB reserve
+and a minimum/default 5 GiB growth allowance (25 GiB default threshold).
+Justify larger operation-specific allowances; never lower the minimum.
+
+When external scripts are permitted:
+
+```powershell
+$ErrorActionPreference = 'Stop'
+$diskPreflight = Join-Path $env:USERPROFILE '.codex\scripts\assert-disk-space.ps1'
+if (-not (Test-Path -LiteralPath $diskPreflight -PathType Leaf)) {
+    throw "Missing disk-preflight script: $diskPreflight"
+}
+& powershell -NoProfile -File $diskPreflight -ExpectedGrowthGiB 5
+if ($LASTEXITCODE -ne 0) { throw 'Disk-space preflight failed.' }
+```
+
+When external script execution is restricted but inline commands are permitted,
+use this equivalent inline check. This does not authorize changing execution
+policies, using Bypass, removing security metadata or evading sandbox restrictions.
+
+```powershell
+function Assert-DiskCapacity {
+    param([ValidateRange(5, 1048576)][double]$ExpectedGrowthGiB = 5)
+    $ErrorActionPreference = 'Stop'
+    $drive = [System.IO.DriveInfo]::new('C')
+    if (-not $drive.IsReady) { throw 'Drive C: is not ready.' }
+    $available = $drive.AvailableFreeSpace
+    $required = (20 + $ExpectedGrowthGiB) * 1GB
+    if ($available -lt $required) { throw 'Insufficient free disk space.' }
+    Write-Output ('PASS: {0:N2} GiB available; {1:N2} GiB required.' -f
+        ($available / 1GB), ($required / 1GB))
+}
+Assert-DiskCapacity
+```
+
+An unavailable measurement, missing script, execution rejection or failed check
+must stop subsequent operations. Do not continue a shell chain after failure;
 review safe cleanup, reuse dependencies and preserve other tasks' resources.
 Recheck between large stages and at completion. This is a preflight, not an OS quota.
 
@@ -69,8 +103,8 @@ current deployment before choosing source for a change.
 ## Local Docker disk hygiene — mandatory
 
 - Preserve the owner's minimum 20 GiB free-space reserve on C: across all linked
-  worktrees. Before substantial writes, run the shared read-only preflight at
-  `C:/Users/PC/.codex/scripts/assert-disk-space.ps1`; its default requires 25 GiB
+  worktrees. Before substantial writes, run either approved read-only preflight
+  under "Owner's local disk reserve"; its default requires 25 GiB
   free, allowing 5 GiB growth above the reserve. Budget larger operations explicitly
   and stop on failure. Reuse existing worktrees and dependencies where suitable.
 - Before Docker builds/tests and at task completion, follow

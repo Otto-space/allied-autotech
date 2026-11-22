@@ -5,6 +5,11 @@ reduce schema failures and accidental data loss; they cannot guarantee zero risk
 
 ## Local workflow
 
+The opt-in NOLOGIN owner workflow and its current rehearsal blockers are tracked in
+[local owner migration readiness](local-owner-migration-readiness.md). Its local
+identity and ownership guards supplement the checks below; mocked guard tests are
+not proof of Prisma session identity, backup completeness or a successful restore.
+
 Run from `backend`, with `.env` pointing at the intended development database:
 
 ```powershell

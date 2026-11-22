@@ -20,6 +20,11 @@ import {
 } from "../src/config/prisma-command-safety.js";
 import { parseDatabaseTlsEnvironment } from "../src/config/database-tls.js";
 import { backendDirectory, databaseSettings } from "./lib/database-safety.js";
+import pg from "pg";
+import { createNodePostgresSslConfiguration } from "../src/config/database-tls.js";
+import {
+  localBackupCredentials, verifyLocalIdentity, verifyLocalBackupCompleteness,
+} from "./lib/local-owner-safety.js";
 
 function postgresTool(name: "pg_dump" | "pg_restore"): string {
   const override = process.env[name === "pg_dump" ? "PG_DUMP_PATH" : "PG_RESTORE_PATH"];
@@ -88,6 +93,20 @@ async function capture(
 export async function createVerifiedBackup(): Promise<string> {
   const settings = databaseSettings();
   const tls = parseDatabaseTlsEnvironment(process.env);
+  const backup = localBackupCredentials(process.env);
+  if (backup) {
+    const probe = new pg.Client({
+      host: settings.DB_HOST, port: settings.DB_PORT, database: settings.DB_NAME,
+      user: backup.user, password: backup.password,
+      ssl: createNodePostgresSslConfiguration(tls),
+      connectionTimeoutMillis: 5000, statement_timeout: 10000,
+    });
+    try {
+      await probe.connect();
+      await verifyLocalIdentity(probe, settings, process.env, backup.user);
+      await verifyLocalBackupCompleteness(probe);
+    } finally { await probe.end(); }
+  }
   const configured = process.env["DB_BACKUP_DIRECTORY"];
   if (process.env["NODE_ENV"] === "production" && !configured)
     throw new Error(
@@ -115,8 +134,8 @@ export async function createVerifiedBackup(): Promise<string> {
     PGHOST: settings.DB_HOST,
     PGPORT: String(settings.DB_PORT),
     PGDATABASE: settings.DB_NAME,
-    PGUSER: settings.DB_USER,
-    PGPASSWORD: settings.DB_PASSWORD,
+    PGUSER: backup?.user ?? settings.DB_USER,
+    PGPASSWORD: backup?.password ?? settings.DB_PASSWORD,
     PGCONNECT_TIMEOUT: "10",
     PGSSLMODE: tls.mode,
     ...(tls.caFile ? { PGSSLROOTCERT: tls.caFile } : {}),
