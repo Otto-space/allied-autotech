@@ -18,6 +18,7 @@ import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import { useResource } from "@/lib/api/use-resource";
 import { parseStaffBooking } from "@/lib/api/staff-booking-schemas";
+import { parseWorkSlots } from "@/lib/api/work-slot-schema";
 import { ChevronRight, RefreshCw } from "lucide-react";
 import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { formatBusinessDate } from "@/lib/format/date";
@@ -31,6 +32,88 @@ import { StaffQuoteRecords } from "./staff-quote-records";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 
 type NextStatus = RequestBody<"/staff/bookings/{bookingId}/status", "post">["status"];
+function ReplacementSlotPicker({
+  branchId,
+  serviceId,
+  staffId,
+  scheduledAt,
+  currentSlotId,
+  value,
+  onChange,
+  error,
+}: {
+  branchId: string;
+  serviceId: string;
+  staffId: string;
+  scheduledAt: string;
+  currentSlotId: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+}) {
+  const start = Date.parse(scheduledAt);
+  const path = Number.isFinite(start)
+    ? `/staff/booking-slots?${new URLSearchParams({
+        branchId,
+        serviceId,
+        staffId,
+        status: "OPEN",
+        startsFrom: new Date(start).toISOString(),
+        startsTo: new Date(start + 1000).toISOString(),
+        limit: "25",
+      }).toString()}`
+    : null;
+  const slots = useResource(path, parseWorkSlots);
+  const available = slots.data?.items.filter(
+    (slot) =>
+      slot.id !== currentSlotId &&
+      slot.branchId === branchId &&
+      slot.serviceId === serviceId &&
+      slot.staff.id === staffId &&
+      slot.status === "OPEN" &&
+      Date.parse(slot.startsAt) === start &&
+      !slot.timingReviewRequired,
+  ) ?? [];
+  const unavailable =
+    slots.loading || slots.refreshing || !!slots.error || !!slots.refreshError;
+  return (
+    <div className="field">
+      <label htmlFor="booking-replacement-slot">Published replacement slot</label>
+      <p className="field-hint">
+        This booking is bound to its original technician’s slot. Choose the matching
+        published slot before changing technicians; the appointment time stays the same.
+      </p>
+      <select
+        id="booking-replacement-slot"
+        name="replacementSlotId"
+        required
+        value={value}
+        disabled={unavailable || available.length === 0}
+        aria-invalid={!!error}
+        aria-describedby={error ? "booking-validation" : undefined}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        <option value="">Choose the matching published slot</option>
+        {available.map((slot) => (
+          <option key={slot.id} value={slot.id}>
+            {formatBusinessDate(slot.startsAt)} · {slot.staff.firstName}{" "}
+            {slot.staff.lastName}
+          </option>
+        ))}
+      </select>
+      {slots.loading && <p role="status">Loading published slots…</p>}
+      <Feedback message={slots.error || slots.refreshError} />
+      {(slots.error || slots.refreshError) && (
+        <button type="button" className="text-link" onClick={slots.refresh}>
+          Retry published slots
+        </button>
+      )}
+      {!unavailable && available.length === 0 && (
+        <p className="field-hint">No matching open slot is published for this staff member.</p>
+      )}
+    </div>
+  );
+}
 const transitions: Record<string, readonly NextStatus[]> = {
   REQUESTED: ["CONFIRMED", "CANCELLED"],
   AWAITING_DEPOSIT: ["CANCELLED"],
@@ -76,6 +159,8 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
   const [validation, setValidation] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [invalidField, setInvalidField] = useState<string>();
+  const [assignmentStaffId, setAssignmentStaffId] = useState<string>("");
+  const [replacementSlotId, setReplacementSlotId] = useState("");
   const readError =
     booking.error ||
     (booking.data && booking.data.id !== bookingId
@@ -195,6 +280,15 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
         invalidate("Choose an available staff profile.", "booking-staff");
         return;
       }
+      const slotTransfer =
+        current.status === "REQUESTED" &&
+        !!current.bookingSlotId &&
+        assignedStaffId.data !== current.assignedStaff?.id;
+      const replacement = String(form.get("replacementSlotId") ?? "");
+      if (slotTransfer && !z.string().uuid().safeParse(replacement).success) {
+        invalidate("Choose the published slot for the new staff member.", "booking-replacement-slot");
+        return;
+      }
       if (
         !current.service &&
         (classificationBlocked ||
@@ -210,6 +304,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
       const body: RequestBody<"/staff/bookings/{bookingId}/assignment", "patch"> = {
         assignedStaffId: assignedStaffId.data,
         ...(!current.service ? { serviceId: classification!.id } : {}),
+        ...(slotTransfer ? { replacementSlotId: replacement } : {}),
         expectedVersion: current.version,
       };
       const select = document.getElementById("booking-staff") as HTMLSelectElement | null;
@@ -228,6 +323,9 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
             label: "Staff member",
             value: select?.selectedOptions[0]?.textContent ?? "Selected staff member",
           },
+          ...(slotTransfer
+            ? [{ label: "Replacement published slot", value: replacement }]
+            : []),
         ],
         submit: submit("assignment", "PATCH", body),
       });
@@ -685,9 +783,34 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
                           ? access.data?.staffProfile?.id
                           : current.assignedStaff?.id
                       }
+                      onSelect={(id) => {
+                        setAssignmentStaffId(id);
+                        setReplacementSlotId("");
+                      }}
                       error={invalidField === "booking-staff" ? validation : undefined}
                     />
                   </div>
+                  {current.status === "REQUESTED" &&
+                    current.bookingSlotId &&
+                    current.service &&
+                    current.scheduledAt &&
+                    assignmentStaffId &&
+                    assignmentStaffId !== current.assignedStaff?.id && (
+                      <ReplacementSlotPicker
+                        branchId={current.branch.id}
+                        serviceId={current.service.id}
+                        staffId={assignmentStaffId}
+                        scheduledAt={current.scheduledAt}
+                        currentSlotId={current.bookingSlotId}
+                        value={replacementSlotId}
+                        onChange={setReplacementSlotId}
+                        error={
+                          invalidField === "booking-replacement-slot"
+                            ? validation
+                            : undefined
+                        }
+                      />
+                    )}
                   <button className="button" disabled={disabled}>
                     Review assignment
                   </button>
