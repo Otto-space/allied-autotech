@@ -584,9 +584,7 @@ for (const width of [320, 768, 1440]) {
     await expect(
       page.getByRole("heading", { name: "Contact the workshop" }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: "Describe your concern" }),
-    ).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "See contact options" })).toHaveAttribute(
       "href",
       "/contact?serviceGroup=37ec8bcf-7edc-4ec7-a185-ec849d71c5de#enquiry",
     );

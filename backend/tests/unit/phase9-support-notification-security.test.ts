@@ -90,6 +90,15 @@ describe("Phase 9 support, delivery, and staging safeguards", () => {
       assertPaystackMode({
         ...env,
         DEPLOYMENT_ENV: "staging",
+        PAYSTACK_MODE: "disabled",
+        PAYSTACK_SECRET_KEY: undefined,
+        PAYSTACK_WEBHOOK_SECRET: "whsec_synthetic_only",
+      }),
+    ).toThrow("PAYSTACK_WEBHOOK_SECRET must be unset");
+    expect(() =>
+      assertPaystackMode({
+        ...env,
+        DEPLOYMENT_ENV: "staging",
         PAYSTACK_MODE: "test",
         PAYSTACK_SECRET_KEY: "sk_test_synthetic_not_a_real_key",
         MONNIFY_MODE: "sandbox",

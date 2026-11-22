@@ -241,7 +241,14 @@ export function ViewportNavigation() {
       // destination; otherwise correct it unless a new interaction cancelled entry.
       if (initial && scrollY > 0) {
         const box = target.getBoundingClientRect();
-        if (box.top >= headerOffset() && box.bottom <= innerHeight) return true;
+        // A long section can extend below the fold even when its heading is
+        // visible. Do not override an early manual scroll to force its entire
+        // section into view during a fragment refresh.
+        if (
+          box.top >= headerOffset() &&
+          Math.min(box.bottom, box.top + 48) <= innerHeight
+        )
+          return true;
       }
       // The optional walkthrough owns focus when opened by its reserved hash.
       reveal(target, !location.hash.startsWith("#learn="));

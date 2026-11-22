@@ -125,9 +125,17 @@ export const refundDecisionBodySchema = z
     note: cleanText(1_000).optional(),
   })
   .strict();
-export const webhookHeadersSchema = z.looseObject({
-  "x-paystack-signature": z.string().regex(/^[0-9a-f]{128}$/i),
-});
+export const webhookHeadersSchema = z
+  .looseObject({
+    "x-paystack-signature": z.string().max(4_096).optional(),
+    "paystack-signature": z.string().max(4_096).optional(),
+  })
+  .refine(
+    (headers) =>
+      headers["x-paystack-signature"] !== undefined ||
+      headers["paystack-signature"] !== undefined,
+    { message: "A Paystack webhook signature header is required" },
+  );
 export const monnifyWebhookHeadersSchema = z.looseObject({
   "monnify-signature": z
     .string()

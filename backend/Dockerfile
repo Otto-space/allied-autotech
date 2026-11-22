@@ -105,6 +105,7 @@ COPY --chown=node:node src/config/database-url.ts ./src/config/database-url.ts
 COPY --chown=node:node src/config/prisma-command-safety.ts ./src/config/prisma-command-safety.ts
 COPY --chown=node:node scripts/lib/database-safety.ts ./scripts/lib/database-safety.ts
 COPY --chown=node:node scripts/backup-database.ts scripts/migrate-safely.ts scripts/check-database-safety.ts ./scripts/
+COPY --chown=node:node scripts/verify-restore-migration-history.mjs scripts/prepare-isolated-restore-migrator.mjs ./scripts/
 COPY --chown=node:node prisma ./prisma
 
 USER node
