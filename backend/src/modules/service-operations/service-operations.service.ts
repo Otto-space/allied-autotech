@@ -2475,9 +2475,33 @@ export class ServiceOperationsService {
         transaction,
         false,
       );
-      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${input.assignedStaffId}`}, 0))`;
       if (!activeBookingStatuses.includes(booking.status))
         throw invalidServiceTransition();
+      let replacementSlotId: string | undefined;
+      if (input.replacementSlotId) {
+        // A requested appointment may change technicians only by atomically
+        // moving its published-slot binding to a matching available slot.
+        if (booking.status !== "REQUESTED" || !booking.bookingSlotId)
+          throw invalidServiceTransition();
+        if (input.replacementSlotId === booking.bookingSlotId)
+          throw serviceOperationConflict("Choose a different published slot");
+        for (const slotId of [booking.bookingSlotId, input.replacementSlotId].sort()) {
+          await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot:${slotId}`}, 0))`;
+          await transaction.$queryRaw`SELECT "id" FROM "BookingSlot" WHERE "id" = ${slotId}::uuid FOR UPDATE`;
+        }
+        const replacement = await this.repository.bookingSlot(input.replacementSlotId, transaction);
+        if (
+          !replacement || replacement.status !== "OPEN" ||
+          replacement.branchId !== booking.branchId ||
+          replacement.serviceId !== booking.serviceId ||
+          replacement.staffId !== input.assignedStaffId ||
+          replacement.startsAt.getTime() !== booking.scheduledAt.getTime()
+        )
+          throw serviceOperationConflict("Choose an open slot for this service, branch, time and technician");
+        await this.reviewOfferedSlot(transaction, replacement, booking.id);
+        replacementSlotId = replacement.id;
+      }
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff-schedule:${input.assignedStaffId}`}, 0))`;
       const target = await this.repository.assignableStaff(
         input.assignedStaffId,
         transaction,
@@ -2492,7 +2516,9 @@ export class ServiceOperationsService {
       const actorProfile = await this.repository.staffProfile(actor.userId, transaction);
       if (actor.role === "STAFF" && actorProfile?.id !== target.id)
         throw serviceOperationForbidden();
-      assertPublishedSlotAssignment(booking, target.id);
+      if (!replacementSlotId) assertPublishedSlotAssignment(booking, target.id);
+      else if (booking.assignedStaffId === target.id)
+        throw serviceOperationConflict("The published technician is already assigned");
       let service = booking.service;
       if (input.serviceId && booking.serviceId && input.serviceId !== booking.serviceId)
         throw serviceOperationConflict(
@@ -2529,6 +2555,7 @@ export class ServiceOperationsService {
         input.expectedVersion,
         {
           assignedStaffId: target.id,
+          ...(replacementSlotId ? { bookingSlotId: replacementSlotId } : {}),
           ...(booking.serviceId === null
             ? {
                 serviceId: service.id,
