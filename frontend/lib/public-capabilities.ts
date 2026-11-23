@@ -13,6 +13,9 @@ export const publicCapabilitiesSchema = z.object({
   }),
   checkoutEnabled: z.boolean(),
   vehicleDeposits: z.object({ enabled: z.boolean() }),
+  bookingDeposits: z
+    .object({ enabled: z.boolean(), basisPoints: z.literal(2000) })
+    .optional(),
 });
 export type PublicCapabilities = z.infer<typeof publicCapabilitiesSchema>;
 export type CapabilitySnapshot = PublicCapabilities | null;
@@ -27,7 +30,8 @@ export function parsePublicCapabilities(value: unknown): PublicCapabilities {
       (parsed.release.bookingRequestsEnabled ||
         parsed.release.inspectionRequestsEnabled)) ||
     (mode !== "full" && (parsed.checkoutEnabled || parsed.vehicleDeposits.enabled)) ||
-    (parsed.vehicleDeposits.enabled && !parsed.checkoutEnabled)
+    (parsed.vehicleDeposits.enabled && !parsed.checkoutEnabled) ||
+    (parsed.bookingDeposits?.enabled === true && mode !== "full")
   )
     throw Error("Availability could not be verified");
   return parsed;
@@ -51,6 +55,7 @@ export function capabilityView(
     snapshot,
     mode,
     checkoutEnabled,
+    bookingDepositsEnabled: snapshot?.bookingDeposits?.enabled === true,
     bookingRequestsEnabled: snapshot?.release.bookingRequestsEnabled === true,
     inspectionRequestsEnabled: snapshot?.release.inspectionRequestsEnabled === true,
     enquiriesEnabled: snapshot?.release.enquiriesEnabled === true,
@@ -63,5 +68,10 @@ export function capabilityView(
 
 export function capabilityKey(value: CapabilitySnapshot): string {
   if (!value) return "unavailable";
-  return JSON.stringify([value.release, value.checkoutEnabled, value.vehicleDeposits]);
+  return JSON.stringify([
+    value.release,
+    value.checkoutEnabled,
+    value.vehicleDeposits,
+    value.bookingDeposits,
+  ]);
 }

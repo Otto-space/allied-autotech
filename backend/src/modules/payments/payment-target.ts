@@ -32,8 +32,17 @@ export async function lockTarget(tx: Prisma.TransactionClient, target: Target) {
 export async function lockStoredTarget(tx: Prisma.TransactionClient, id: string) {
   const payment = await tx.payment.findUnique({
     where: { id },
-    select: { orderId: true, invoiceId: true, vehicleTransactionId: true },
+    select: {
+      orderId: true,
+      invoiceId: true,
+      vehicleTransactionId: true,
+      bookingId: true,
+    },
   });
+  if (payment?.bookingId) {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-deposit:${payment.bookingId}`}, 0))`;
+    await tx.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${payment.bookingId}::uuid FOR UPDATE`;
+  }
   const target = payment && paymentTarget(payment);
   if (target) await lockTarget(tx, target);
 }

@@ -74,6 +74,8 @@ import type {
   BookingAlternativeResponseInput,
 } from "./service-operations.schemas.js";
 import { basisPoints } from "../policies/policy-money.js";
+import { assessBookingDepositCancellation } from "./booking-cancellation-policy.js";
+import { requestEarlyBookingDepositRefundReview } from "../payments/refund-workflow.js";
 import { bookingReminderMinutes, reminderSchedule } from "./booking-reminder-schedule.js";
 import { quotationTerms } from "../policies/quotation-terms.js";
 import {
@@ -2369,6 +2371,16 @@ export class ServiceOperationsService {
           "Contact the workshop about work that has started or already ended",
         );
       const now = new Date();
+      const approvedDepositDisposition =
+        booking.depositPaidAt !== null &&
+        booking.depositPolicyVersion === "approved-quote-deposit-20-v1"
+          ? assessBookingDepositCancellation({
+              circumstance: "CUSTOMER_CANCELLED",
+              appointmentAt: booking.scheduledAt,
+              assessedAt: now,
+              workStarted: booking.startedAt !== null,
+            })
+          : null;
       const result = await this.repository.updateBooking(
         id,
         input.expectedVersion,
@@ -2388,6 +2400,8 @@ export class ServiceOperationsService {
           },
           data: { status: "CANCELLED", cancelledAt: now },
         });
+      if (approvedDepositDisposition === "FULL_REFUND_REVIEW")
+        await requestEarlyBookingDepositRefundReview(transaction, booking.id, actor.userId);
       await cancelPendingReminders(transaction, id);
       await transaction.bookingRescheduleRequest.updateMany({
         where: { bookingId: id, status: "PENDING" },
@@ -2408,7 +2422,11 @@ export class ServiceOperationsService {
         message:
           booking.depositPaidAt === null
             ? "Your booking was cancelled and the unpaid slot hold was released."
-            : "Your booking was cancelled without a cancellation fee. Any existing payment requires a reviewed refund; no deposit is forfeited.",
+            : approvedDepositDisposition === "FULL_REFUND_REVIEW"
+              ? "Your booking was cancelled. Your deposit qualifies for a full refund review; the refund has not been sent yet."
+              : approvedDepositDisposition === "STAFF_REVIEW"
+                ? "Your booking was cancelled. The workshop will review the deposit under the late-cancellation policy. No fee or forfeiture has been applied automatically."
+                : "Your booking was cancelled without a cancellation fee. Any existing payment requires a reviewed refund; no deposit is forfeited.",
         resourceType: "BOOKING",
         resourceId: id,
         deduplicationKey: `booking:${id}:cancelled:${updated.version}`,
@@ -2489,15 +2507,21 @@ export class ServiceOperationsService {
           await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot:${slotId}`}, 0))`;
           await transaction.$queryRaw`SELECT "id" FROM "BookingSlot" WHERE "id" = ${slotId}::uuid FOR UPDATE`;
         }
-        const replacement = await this.repository.bookingSlot(input.replacementSlotId, transaction);
+        const replacement = await this.repository.bookingSlot(
+          input.replacementSlotId,
+          transaction,
+        );
         if (
-          !replacement || replacement.status !== "OPEN" ||
+          !replacement ||
+          replacement.status !== "OPEN" ||
           replacement.branchId !== booking.branchId ||
           replacement.serviceId !== booking.serviceId ||
           replacement.staffId !== input.assignedStaffId ||
           replacement.startsAt.getTime() !== booking.scheduledAt.getTime()
         )
-          throw serviceOperationConflict("Choose an open slot for this service, branch, time and technician");
+          throw serviceOperationConflict(
+            "Choose an open slot for this service, branch, time and technician",
+          );
         await this.reviewOfferedSlot(transaction, replacement, booking.id);
         replacementSlotId = replacement.id;
       }

@@ -37,6 +37,17 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe("authoritative availability", () => {
+  it("keeps staging booking deposits independent of parts checkout", () => {
+    const snapshot = {
+      ...publicCapabilitiesFixture("full", false),
+      bookingDeposits: { enabled: true, basisPoints: 2000 as const },
+    };
+    const view = capabilityView(parsePublicCapabilities(snapshot));
+    expect(view.checkoutEnabled).toBe(false);
+    expect(view.bookingDepositsEnabled).toBe(true);
+    snapshot.release.mode = "browse_enquiries";
+    expect(() => parsePublicCapabilities(snapshot)).toThrow();
+  });
   it("restarts an unfinished availability check after server props refresh, preserving drafts", async () => {
     const pending: Array<(value: unknown) => void> = [];
     mocks.request.mockImplementation(() => new Promise((done) => pending.push(done)));
