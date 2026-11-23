@@ -80,6 +80,44 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           .send({ expectedVersion: version, ...values });
       return { service, worker, buyer, startsAt, publish, list, claim, edit };
     }
+    it("atomically transfers a requested booking to a matching published technician slot", async () => {
+      const v = await fixture();
+      // Keep the fixture within policy and away from shared schedule dates.
+      const transferAt = new Date(v.startsAt.getTime() + 3 * 86400000);
+      const originalSlot = (await v.publish(transferAt)).body.data;
+      const replacement = (await v.publish(transferAt, f.mechanical2.user.staffProfile!.id)).body.data;
+      const claimed = await v.claim(originalSlot.id);
+      expect(claimed.status, JSON.stringify(claimed.body)).toBe(201);
+      const booking = claimed.body.data.booking;
+      const rejected = await request(app)
+        .patch(`/api/v1/staff/bookings/${booking.id}/assignment`)
+        .set(admin.headers)
+        .send({
+          expectedVersion: booking.version,
+          assignedStaffId: v.worker.user.staffProfile!.id,
+          replacementSlotId: replacement.id,
+        });
+      expect(rejected.status).toBe(409);
+      expect((await prisma.booking.findUniqueOrThrow({ where: { id: booking.id } })).bookingSlotId)
+        .toBe(originalSlot.id);
+      const move = () => request(app)
+        .patch(`/api/v1/staff/bookings/${booking.id}/assignment`)
+        .set(admin.headers)
+        .send({
+          expectedVersion: booking.version,
+          assignedStaffId: f.mechanical2.user.staffProfile!.id,
+          replacementSlotId: replacement.id,
+        });
+      const changed = await move();
+      expect(changed.status, JSON.stringify(changed.body)).toBe(200);
+      expect(await prisma.booking.findUniqueOrThrow({ where: { id: booking.id } })).toMatchObject({
+        status: "REQUESTED",
+        bookingSlotId: replacement.id,
+        assignedStaffId: f.mechanical2.user.staffProfile!.id,
+        scheduledAt: transferAt,
+      });
+      expect((await move()).status).toBe(409);
+    });
     it("reserves preparation and cleanup between offers, allows touching periods and independent technicians", async () => {
       const v = await fixture(),
         first = await v.publish();
