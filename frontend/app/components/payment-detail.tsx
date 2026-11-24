@@ -59,14 +59,14 @@ const purposeLabels: Record<string, string> = {
   VEHICLE_PARTIAL_PAYMENT: "Vehicle part payment",
   VEHICLE_BALANCE_PAYMENT: "Vehicle balance",
   VEHICLE_FULL_PAYMENT: "Vehicle purchase",
-  BOOKING_DEPOSIT: "Booking payment",
+  BOOKING_DEPOSIT: "Workshop booking deposit (20%)",
 };
 function readable(value: string) {
   return value.replaceAll("_", " ").toLowerCase();
 }
 
 export function PaymentDetail({ paymentId }: { paymentId: string }) {
-  const { checkoutEnabled } = usePublicCapabilities();
+  const { checkoutEnabled, bookingDepositsEnabled } = usePublicCapabilities();
   const parse = useCallback(
     (value: unknown) => {
       const record = parsePayment(value);
@@ -118,13 +118,22 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
   const current = payment.data;
   const readBlocked =
     payment.loading || payment.refreshing || !!payment.error || !!payment.refreshError;
-  const disabled = !checkoutEnabled || busy || manualActive || readBlocked;
+  const disabled =
+    (current?.purpose === "BOOKING_DEPOSIT"
+      ? !bookingDepositsEnabled
+      : !checkoutEnabled) ||
+    busy ||
+    manualActive ||
+    readBlocked;
   const pendingAttempt = !!current && hasPendingPaymentAttempt(current);
   const unavailable = current ? newPaymentAttemptUnavailable(current, now) : undefined;
   const deadlineUnavailable = current
     ? paymentDeadlineUnavailable(current, now)
     : undefined;
-  const providers = current?.checkoutProviders ?? [];
+  const providers =
+    current?.purpose === "BOOKING_DEPOSIT"
+      ? (current.checkoutProviders ?? []).filter((provider) => provider === "PAYSTACK")
+      : (current?.checkoutProviders ?? []);
   function live(controller: AbortController) {
     return active.current && !controller.signal.aborted;
   }

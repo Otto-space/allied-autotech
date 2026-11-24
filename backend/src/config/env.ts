@@ -93,6 +93,8 @@ const environmentSchema = z.object({
   // Preserve existing local/staging full-mode fixtures. Production full-mode
   // publication must explicitly select both controls below.
   BOOKING_REQUESTS_ENABLED: booleanValue(true),
+  // Explicit staging acceptance gate; never enables production deposits.
+  BOOKING_DEPOSIT_TEST_ENABLED: booleanValue(false),
   PRODUCT_PURCHASES_ENABLED: booleanValue(true),
   HELP_LEARN_ENABLED: booleanValue(false),
   HELP_LEARN_GUIDES_ENABLED: booleanValue(false),
@@ -552,6 +554,17 @@ export function assertPublicLaunchEnvironment(
   source: NodeJS.ProcessEnv = process.env,
 ): void {
   if (
+    runtime.BOOKING_DEPOSIT_TEST_ENABLED &&
+    (runtime.DEPLOYMENT_ENV !== "staging" ||
+      runtime.PUBLIC_LAUNCH_MODE !== "full" ||
+      runtime.PAYSTACK_MODE !== "test" ||
+      runtime.PAYSTACK_LIVE_ENABLED ||
+      runtime.PAYMENT_RECONCILIATION_ENABLED)
+  )
+    throw new Error(
+      "Booking deposit test requires staging, full launch mode, test Paystack and disabled live payments/reconciliation",
+    );
+  if (
     runtime.NODE_ENV === "production" &&
     runtime.DEPLOYMENT_ENV === "production" &&
     runtime.PUBLIC_LAUNCH_MODE === "full"
@@ -572,6 +585,17 @@ export function assertPublicLaunchEnvironment(
     throw new Error(
       "Limited public launch requires disabled payment providers and reconciliation.",
     );
+}
+
+export function bookingDepositTestEnabled(runtime: typeof env = env): boolean {
+  return (
+    runtime.BOOKING_DEPOSIT_TEST_ENABLED &&
+    runtime.DEPLOYMENT_ENV === "staging" &&
+    runtime.PUBLIC_LAUNCH_MODE === "full" &&
+    runtime.PAYSTACK_MODE === "test" &&
+    !runtime.PAYSTACK_LIVE_ENABLED &&
+    !runtime.PAYMENT_RECONCILIATION_ENABLED
+  );
 }
 
 export function assertIdentityWorkerEnvironment(

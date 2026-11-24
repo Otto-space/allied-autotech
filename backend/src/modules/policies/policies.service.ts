@@ -3,7 +3,7 @@ import { lockWorkforce } from "../organization/workforce-access.service.js";
 import type { PublishPolicyInput } from "./policies.schemas.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
-import { env } from "../../config/env.js";
+import { bookingDepositTestEnabled, env } from "../../config/env.js";
 import {
   bookingRequestsEnabled,
   productPurchasesEnabled,
@@ -113,6 +113,11 @@ export async function safeCapabilities(
     delivery: { enabled: fulfillment.delivery.enabled },
     vehicleDeposits: {
       enabled: vehicle?.approvalStatus === "APPROVED" && fulfillment.checkoutEnabled,
+    },
+    bookingDeposits: {
+      // Independent of parts checkout: enabling a booking test does not launch the shop.
+      enabled: bookingDepositTestEnabled(env),
+      basisPoints: 2_000 as const,
     },
     finance: {
       approvalStatus: finance?.approvalStatus ?? null,

@@ -13,6 +13,7 @@
     "test": "npm --prefix frontend test",
     "check": "npm --prefix frontend run check",
     "check:production": "npm --prefix frontend run check:production",
+    "hooks:install": "node scripts/git-hooks/install.mjs",
     "bootstrap:super-admin": "npm --prefix backend run bootstrap:super-admin --"
   }
 }

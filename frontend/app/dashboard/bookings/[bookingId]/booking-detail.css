@@ -122,6 +122,21 @@
   background: #fff;
   min-width: 0;
 }
+.booking-deposit-agreement {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 18px 0;
+  line-height: 1.55;
+  cursor: pointer;
+}
+.booking-deposit-agreement input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: #b4232c;
+}
 .booking-section-heading {
   display: flex;
   align-items: center;

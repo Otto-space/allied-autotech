@@ -55,6 +55,16 @@ import {
 } from "../../common/security/payment-checkout-state.js";
 import { prisma } from "../../config/database.js";
 import { env } from "../../config/env.js";
+import { bookingDepositTestEnabled } from "../../config/env.js";
+import {
+  bookingDepositBinding,
+  bookingDepositCaptureWithinWindow,
+  bookingDepositSettlementMatches,
+} from "./booking-deposit-binding.js";
+import {
+  approvedQuoteDeposit,
+  approvedQuoteDepositReady,
+} from "../service-operations/booking-deposit-policy.js";
 import { productPurchasesEnabled } from "../../common/contracts/public-release.js";
 import { PurchaseGuestAccessService } from "../orders/purchase-guest-access.service.js";
 import { trustedPurchaseOrigin } from "../../common/security/purchase-origin.js";
@@ -96,6 +106,7 @@ import {
   customerPaymentView,
 } from "./payments.repository.js";
 import type {
+  BookingDepositIntentInput,
   ManualPaymentInput,
   ManualReviewInput,
   PaymentCreateInput,
@@ -228,7 +239,13 @@ export class PaymentsService {
     return paymentJsonSafe({
       ...customerPaymentView(payment),
       // Availability is informational; initialization still enforces payable rules.
-      checkoutProviders: this.providers.enabledProviders(),
+      checkoutProviders:
+        payment.purpose === "BOOKING_DEPOSIT"
+          ? bookingDepositTestEnabled(env) &&
+            this.providers.enabledProviders().includes("PAYSTACK")
+            ? ["PAYSTACK"]
+            : []
+          : this.providers.enabledProviders(),
     });
   }
   async guestGet(sessionToken: string, id: string) {
@@ -298,6 +315,168 @@ export class PaymentsService {
   ) {
     assertPaymentCustomer(actor);
     return this.createBuyerIntent({ kind: "account", actor }, input, rawKey, context);
+  }
+
+  /** Staging-only deposit intent. Provider checkout remains independently guarded. */
+  async createBookingDepositIntent(
+    actor: AuthenticatedActor,
+    bookingId: string,
+    input: BookingDepositIntentInput,
+    rawKey: string,
+    context: RequestSecurityContext,
+  ) {
+    assertPaymentCustomer(actor);
+    if (!bookingDepositTestEnabled(env))
+      throw paymentConflict("Booking deposit checkout is not available");
+    return withTransactionRetry(
+      this.database,
+      async (tx) => {
+        const identity = await this.lockPaymentBuyer(tx, { kind: "account", actor });
+        if (!identity.customerId) throw paymentNotFound();
+        const keyHash = hashToken(
+          "payment-intent-idempotency",
+          `${actor.userId}:${bookingId}:${rawKey}`,
+        );
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-deposit:${bookingId}`}, 0))`;
+        await tx.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${bookingId}::uuid AND "customerId" = ${identity.customerId}::uuid FOR UPDATE`;
+        const booking = await tx.booking.findFirst({
+          where: { id: bookingId, customerId: identity.customerId },
+          select: {
+            id: true,
+            status: true,
+            confirmedAt: true,
+            branchId: true,
+            assignedStaffId: true,
+            capacityPolicyVersionId: true,
+            depositPaidAt: true,
+            quotedPriceKobo: true,
+            currency: true,
+            scheduledAt: true,
+            version: true,
+            scheduleVersion: true,
+            depositPayment: {
+              select: {
+                id: true,
+                idempotencyKeyHash: true,
+                status: true,
+                expiresAt: true,
+              },
+            },
+          },
+        });
+        if (!booking) throw paymentNotFound();
+        const existing = booking.depositPayment;
+        if (existing) {
+          if (existing.idempotencyKeyHash !== keyHash)
+            throw paymentConflict("A deposit payment already exists for this booking");
+          if (
+            existing.status === "EXPIRED" ||
+            (existing.status === "REQUIRES_PAYMENT" &&
+              existing.expiresAt !== null &&
+              existing.expiresAt <= new Date())
+          )
+            throw paymentConflict(
+              "This deposit request expired. Contact the workshop to review renewal; no new charge was created.",
+            );
+          const replay = await this.repository.get(existing.id, tx);
+          if (!replay) throw paymentNotFound();
+          return paymentJsonSafe({ payment: replay, replayed: true });
+        }
+        const quote = await tx.serviceQuote.findFirst({
+          where: { bookingId },
+          orderBy: { version: "desc" },
+          select: {
+            id: true,
+            bookingId: true,
+            version: true,
+            status: true,
+            acceptedAt: true,
+            totalKobo: true,
+            originalInvoiceId: true,
+          },
+        });
+        if (
+          !approvedQuoteDepositReady({
+            bookingId,
+            bookingStatus: booking.status,
+            confirmedAt: booking.confirmedAt,
+            branchId: booking.branchId,
+            assignedStaffId: booking.assignedStaffId,
+            capacityPolicyVersionId: booking.capacityPolicyVersionId,
+            depositPaidAt: booking.depositPaidAt,
+            latestQuoteVersion: quote?.version ?? null,
+            quote,
+          }) ||
+          quote?.id !== input.acceptedQuoteId ||
+          quote.version !== input.acceptedQuoteVersion ||
+          booking.quotedPriceKobo !== quote.totalKobo ||
+          booking.currency !== "NGN"
+        )
+          throw paymentConflict(
+            "The approved booking or quotation changed. Refresh and review the deposit.",
+          );
+
+        const amount = approvedQuoteDeposit(quote.totalKobo);
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 30 * 60_000);
+        if (booking.scheduledAt <= expiresAt)
+          throw paymentConflict("The appointment is too close for a deposit checkout");
+        const finance = await assertFinanceGate(tx);
+        await tx.booking.update({
+          where: { id: bookingId, version: booking.version },
+          data: {
+            depositBaseKobo: amount.approvedTotalKobo,
+            depositBasisPoints: amount.depositBasisPoints,
+            depositAmountKobo: amount.depositAmountKobo,
+            depositPolicyVersion: amount.policyVersion,
+            depositTermsAcceptedAt: now,
+            paymentHoldExpiresAt: expiresAt,
+            version: { increment: 1 },
+          },
+        });
+        const payment = await this.repository.create(
+          {
+            customerId: identity.customerId,
+            bookingId,
+            paymentNumber: paymentNumber(),
+            purpose: "BOOKING_DEPOSIT",
+            amountKobo: amount.depositAmountKobo,
+            currency: "NGN",
+            idempotencyKeyHash: keyHash,
+            expiresAt,
+            description: "20% of the accepted workshop quotation",
+            policySnapshot: {
+              ...policySnapshot(finance),
+              bookingDeposit: {
+                policyVersion: amount.policyVersion,
+                quoteId: quote.id,
+                quoteVersion: quote.version,
+                quoteTotalKobo: amount.approvedTotalKobo.toString(),
+                depositAmountKobo: amount.depositAmountKobo.toString(),
+                scheduleVersion: booking.scheduleVersion,
+                assignedStaffId: booking.assignedStaffId,
+              },
+            },
+          },
+          tx,
+        );
+        await appendAuditEvent(tx, {
+          actorUserId: actor.userId,
+          action: "CREATE",
+          entityType: "PAYMENT",
+          entityId: payment.id,
+          newValues: {
+            bookingId,
+            quoteId: quote.id,
+            depositAmountKobo: amount.depositAmountKobo.toString(),
+            policyVersion: amount.policyVersion,
+          },
+          context,
+        });
+        return paymentJsonSafe({ payment, replayed: false });
+      },
+      { isolationLevel: "Serializable" },
+    );
   }
 
   async guestCreateIntent(
@@ -534,7 +713,10 @@ export class PaymentsService {
           throw paymentNotFound();
         const payer = await this.paymentPayer(identity, payment, tx);
         this.assertPayable(payment);
-        if (payment.bookingId)
+        if (
+          payment.bookingId &&
+          !(provider === "PAYSTACK" && bookingDepositTestEnabled(env))
+        )
           throw paymentConflict(
             "Booking deposits are disabled under the approved request-and-confirm policy",
           );
@@ -658,7 +840,10 @@ export class PaymentsService {
           throw paymentNotFound();
         this.assertPayable(payment);
         await this.assertCurrentPaymentSource(payment, tx);
-        if (payment.bookingId)
+        if (
+          payment.bookingId &&
+          !(provider === "PAYSTACK" && bookingDepositTestEnabled(env))
+        )
           throw paymentConflict(
             "Booking deposits are disabled under the approved request-and-confirm policy",
           );
@@ -2376,6 +2561,8 @@ export class PaymentsService {
         bookingId: true,
         amountKobo: true,
         currency: true,
+        policySnapshot: true,
+        createdAt: true,
       },
     });
     if (payment.bookingId) {
@@ -2386,23 +2573,54 @@ export class PaymentsService {
           customerId: true,
           status: true,
           paymentHoldExpiresAt: true,
+          depositTermsAcceptedAt: true,
           scheduledAt: true,
           scheduleVersion: true,
           depositAmountKobo: true,
+          depositBaseKobo: true,
+          depositBasisPoints: true,
+          quotedPriceKobo: true,
+          assignedStaffId: true,
+          depositPolicyVersion: true,
           customer: { select: { userId: true } },
         },
       });
+      const approvedQuoteDepositSettlement =
+        booking.depositPolicyVersion === "approved-quote-deposit-20-v1";
+      const acceptedQuote = approvedQuoteDepositSettlement
+        ? await tx.serviceQuote.findFirst({
+            where: { bookingId: booking.id },
+            orderBy: { version: "desc" },
+            select: { id: true, version: true, status: true, totalKobo: true },
+          })
+        : null;
       const eligible =
-        booking.status === "AWAITING_DEPOSIT" &&
-        booking.paymentHoldExpiresAt !== null &&
-        occurredAt <= booking.paymentHoldExpiresAt;
+        (approvedQuoteDepositSettlement
+          ? booking.status === "CONFIRMED" &&
+            bookingDepositSettlementMatches({
+              binding: bookingDepositBinding(payment.policySnapshot),
+              booking,
+              quote: acceptedQuote,
+              paymentAmountKobo: payment.amountKobo,
+            })
+          : booking.status === "AWAITING_DEPOSIT") &&
+        (approvedQuoteDepositSettlement
+          ? bookingDepositCaptureWithinWindow({
+              capturedAt: occurredAt,
+              paymentCreatedAt: payment.createdAt,
+              termsAcceptedAt: booking.depositTermsAcceptedAt,
+              holdExpiresAt: booking.paymentHoldExpiresAt,
+            })
+          : booking.paymentHoldExpiresAt !== null &&
+            occurredAt <= booking.paymentHoldExpiresAt);
       if (!eligible) {
         await tx.paymentAnomaly.create({
           data: {
             paymentId: payment.id,
             paymentAttemptId: attemptId,
             type: "LATE_SUCCESS",
-            summary: "Deposit was captured after the booking slot hold ended",
+            summary:
+              "Deposit was captured after its payment window or the approved booking terms changed",
             details: {
               payableType: "BOOKING",
               payableId: booking.id,
@@ -2416,9 +2634,9 @@ export class PaymentsService {
           userId: booking.customer.userId,
           type: "PAYMENT",
           category: "TRANSACTIONAL",
-          title: "Deposit received after slot release",
+          title: "Deposit payment needs review",
           message:
-            "Your deposit arrived after the booking hold ended, so the slot was not reclaimed. Our team will review the payment for a refund or transfer.",
+            "A deposit payment was received, but the payment window or approved booking details changed. Your appointment was not automatically changed; our team will review the payment and any refund.",
           resourceType: "BOOKING",
           resourceId: booking.id,
           deduplicationKey: `booking:${booking.id}:late-deposit:${attemptId}`,
@@ -2429,7 +2647,7 @@ export class PaymentsService {
       await tx.booking.update({
         where: { id: booking.id },
         data: {
-          status: "REQUESTED",
+          ...(approvedQuoteDepositSettlement ? {} : { status: "REQUESTED" as const }),
           depositPaidAt: occurredAt,
           version: { increment: 1 },
         },
@@ -2439,9 +2657,12 @@ export class PaymentsService {
         userId: booking.customer.userId,
         type: "BOOKING",
         category: "TRANSACTIONAL",
-        title: "Payment received; staff confirmation required",
-        message:
-          "Your existing booking payment was received. Staff must confirm availability after reviewing branch capacity and resources. No deposit is automatically forfeited.",
+        title: approvedQuoteDepositSettlement
+          ? "Your booking deposit was received"
+          : "Payment received; staff confirmation required",
+        message: approvedQuoteDepositSettlement
+          ? "Your 20% deposit was verified. Your staff-approved appointment remains confirmed; the balance is settled at the workshop."
+          : "Your existing booking payment was received. Staff must confirm availability after reviewing branch capacity and resources. No deposit is automatically forfeited.",
         resourceType: "BOOKING",
         resourceId: booking.id,
         deduplicationKey: `booking:${booking.id}:confirmed`,
@@ -2885,6 +3106,88 @@ export class PaymentsService {
     payment: NonNullable<Awaited<ReturnType<PaymentsRepository["get"]>>>,
     tx: Prisma.TransactionClient,
   ) {
+    if (payment.bookingId) {
+      if (!bookingDepositTestEnabled(env) || payment.purpose !== "BOOKING_DEPOSIT")
+        throw paymentConflict("Booking deposit checkout is not available");
+      const saved = await tx.payment.findUniqueOrThrow({
+        where: { id: payment.id },
+        select: { policySnapshot: true },
+      });
+      const binding = bookingDepositBinding(saved.policySnapshot);
+      if (!binding || !payment.customerId) throw paymentConflict("Deposit terms changed");
+      const booking = await tx.booking.findFirst({
+        where: { id: payment.bookingId, customerId: payment.customerId },
+        select: {
+          id: true,
+          status: true,
+          confirmedAt: true,
+          branchId: true,
+          assignedStaffId: true,
+          capacityPolicyVersionId: true,
+          depositPaidAt: true,
+          depositBaseKobo: true,
+          depositBasisPoints: true,
+          depositAmountKobo: true,
+          depositPolicyVersion: true,
+          depositTermsAcceptedAt: true,
+          paymentHoldExpiresAt: true,
+          quotedPriceKobo: true,
+          scheduleVersion: true,
+          currency: true,
+        },
+      });
+      const quote = await tx.serviceQuote.findFirst({
+        where: { bookingId: payment.bookingId },
+        orderBy: { version: "desc" },
+        select: {
+          id: true,
+          bookingId: true,
+          version: true,
+          status: true,
+          acceptedAt: true,
+          totalKobo: true,
+          originalInvoiceId: true,
+        },
+      });
+      if (
+        !booking ||
+        !approvedQuoteDepositReady({
+          bookingId: payment.bookingId,
+          bookingStatus: booking.status,
+          confirmedAt: booking.confirmedAt,
+          branchId: booking.branchId,
+          assignedStaffId: booking.assignedStaffId,
+          capacityPolicyVersionId: booking.capacityPolicyVersionId,
+          depositPaidAt: booking.depositPaidAt,
+          latestQuoteVersion: quote?.version ?? null,
+          quote,
+        }) ||
+        !quote ||
+        binding.quoteId !== quote.id ||
+        binding.quoteVersion !== quote.version ||
+        binding.quoteTotalKobo !== quote.totalKobo.toString() ||
+        binding.depositAmountKobo !== payment.amountKobo.toString() ||
+        approvedQuoteDeposit(quote.totalKobo).depositAmountKobo !== payment.amountKobo ||
+        binding.scheduleVersion !== booking.scheduleVersion ||
+        binding.assignedStaffId !== booking.assignedStaffId ||
+        booking.depositBaseKobo !== quote.totalKobo ||
+        booking.quotedPriceKobo !== quote.totalKobo ||
+        booking.depositBasisPoints !== 2_000 ||
+        booking.depositAmountKobo !== payment.amountKobo ||
+        booking.depositPolicyVersion !== binding.policyVersion ||
+        booking.depositTermsAcceptedAt === null ||
+        !booking.paymentHoldExpiresAt ||
+        !payment.expiresAt ||
+        booking.paymentHoldExpiresAt.getTime() !== payment.expiresAt.getTime() ||
+        booking.paymentHoldExpiresAt <= new Date() ||
+        booking.currency !== "NGN" ||
+        payment.currency !== "NGN"
+      )
+        throw paymentConflict(
+          "The approved booking or quotation changed. Refresh the deposit request.",
+        );
+      return;
+    }
     const target = paymentTarget(payment);
     if (!target) throw paymentNotFound();
     const savedService =

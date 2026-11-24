@@ -1,4 +1,8 @@
-import { assertPublicLaunchEnvironment, env } from "../../src/config/env.js";
+import {
+  assertPublicLaunchEnvironment,
+  bookingDepositTestEnabled,
+  env,
+} from "../../src/config/env.js";
 import express from "express";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
@@ -259,4 +263,33 @@ it("refuses payment provider activation in browse/enquiries mode", () => {
   expect(() =>
     assertPublicLaunchEnvironment({ ...safe, PAYMENT_RECONCILIATION_ENABLED: true }),
   ).toThrow();
+});
+
+it("requires an explicit staging-only test-mode booking deposit gate", () => {
+  const staging = {
+    ...env,
+    DEPLOYMENT_ENV: "staging" as const,
+    PUBLIC_LAUNCH_MODE: "full" as const,
+    PAYSTACK_MODE: "test" as const,
+    PAYSTACK_LIVE_ENABLED: false,
+    PAYMENT_RECONCILIATION_ENABLED: false,
+    BOOKING_DEPOSIT_TEST_ENABLED: true,
+  };
+  expect(bookingDepositTestEnabled(staging)).toBe(true);
+  expect(() => assertPublicLaunchEnvironment(staging)).not.toThrow();
+  for (const unsafe of [
+    { ...staging, DEPLOYMENT_ENV: "production" as const },
+    { ...staging, PUBLIC_LAUNCH_MODE: "browse_enquiries" as const },
+    { ...staging, PAYSTACK_MODE: "live" as const },
+    { ...staging, PAYSTACK_LIVE_ENABLED: true },
+    { ...staging, PAYMENT_RECONCILIATION_ENABLED: true },
+  ]) {
+    expect(bookingDepositTestEnabled(unsafe)).toBe(false);
+    expect(() => assertPublicLaunchEnvironment(unsafe)).toThrow(
+      /Booking deposit test requires staging/,
+    );
+  }
+  expect(
+    bookingDepositTestEnabled({ ...staging, BOOKING_DEPOSIT_TEST_ENABLED: false }),
+  ).toBe(false);
 });

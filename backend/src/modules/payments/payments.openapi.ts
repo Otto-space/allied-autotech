@@ -1,6 +1,7 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 import {
+  bookingDepositIntentBodySchema,
   manualPaymentBodySchema,
   manualReviewBodySchema,
   paymentCreateBodySchema,
@@ -50,6 +51,17 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       summary: "Create a server-priced payment intent",
       intentCreation: true,
       body: paymentCreateBodySchema,
+      headers: idempotent,
+      created: true,
+    },
+    {
+      method: "post",
+      path: "/customers/payments/booking-deposits/{bookingId}",
+      summary:
+        "Prepare a staging-only 20% deposit for an approved booking and accepted quotation",
+      intentCreation: true,
+      params: z.object({ bookingId: uuid }),
+      body: bookingDepositIntentBodySchema,
       headers: idempotent,
       created: true,
     },
