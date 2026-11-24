@@ -170,8 +170,8 @@ export function WorkforceBookingDetail({
             <section className="card" aria-label="Assigned staff quotation workspace">
               <h2>Quotation</h2>
               <p>
-                Prepare and issue the approved service quotation before the customer pays the
-                20% deposit.
+                Prepare and issue the approved service quotation before the customer pays
+                the 20% deposit.
               </p>
               <Link
                 className="button secondary"
