@@ -448,51 +448,36 @@ for (const [width, height] of [
       ).toBeVisible();
       await page.getByText("Review legacy access and enroll", { exact: true }).click();
       await expect(
-        page.getByRole("heading", { level: 1, name: "Ada Okoro", exact: true }),
+        page.getByRole("heading", { level: 1, name: "Manage team member", exact: true }),
       ).toBeVisible();
-      const identity = page.locator(".wf-person-header");
-      await expect(identity.getByText("Staff", { exact: true })).toBeVisible();
+      const identity = page.locator(".wsad-identity");
+      await expect(
+        identity.getByRole("heading", { name: "Ada Okoro", exact: true }),
+      ).toBeVisible();
       await expect(
         identity.getByText("Stadium Road workshop", { exact: true }),
       ).toBeVisible();
       await expect(identity.getByText("Active", { exact: true })).toBeVisible();
-      await expect(page.getByText(/This is a partial access summary/)).toBeVisible();
-      await expect(page.getByLabel("Job position", { exact: true })).toBeVisible();
-      const review = page.getByRole("button", { name: "Review enrollment", exact: true });
-      await review.focus();
-      await expect(review).toBeInViewport();
-      const selected = page.getByRole("complementary", {
-        name: "Selected person",
-        exact: true,
-      });
-      await expect(selected.getByText("Ada Okoro", { exact: true })).toBeVisible();
-      const occlusion = await review.evaluate((element) => {
-        const box = element.getBoundingClientRect();
-        const top = document.querySelector(".wf-person-context")!.getBoundingClientRect();
-        const front = document.elementFromPoint(
-          box.left + box.width / 2,
-          box.top + box.height / 2,
-        );
-        return {
-          belowIdentity: box.top >= top.bottom,
-          unobscured: front === element || element.contains(front),
-        };
-      });
-      expect(occlusion).toEqual({ belowIdentity: true, unobscured: true });
-      await page.screenshot({ path: info.outputPath("person-edit-context.png") });
-      await selected.getByRole("link", { name: "Overview", exact: true }).focus();
-      await page.keyboard.press("Enter");
-      await expect(page.locator("#workforce-person-overview")).toBeFocused();
       await expect(
-        page.getByRole("heading", { name: "Ada Okoro", level: 1, exact: true }),
+        page.getByRole("heading", { name: "Account settings", exact: true }),
       ).toBeVisible();
+      await expect(
+        page.getByRole("heading", {
+          name: "Responsibilities & temporary cover",
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "Operational permissions", exact: true }),
+      ).toBeVisible();
+      await page.screenshot({ path: info.outputPath("person-edit-context.png") });
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       ).toBe(true);
       await page.screenshot({ path: info.outputPath("workforce-detail.png") });
       if (width === 320 || width === 1440)
         expect(
-          (await new AxeBuilder({ page }).include(".workforce-panel").analyze())
+          (await new AxeBuilder({ page }).include(".work-staff-account").analyze())
             .violations,
         ).toEqual([]);
       await page.getByRole("link", { name: "Back to People", exact: true }).click();

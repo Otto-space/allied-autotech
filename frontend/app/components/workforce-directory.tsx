@@ -56,7 +56,14 @@ function Directory() {
     z.uuid().safeParse(target).success &&
     session?.user.role === "SUPER_ADMIN"
   )
-    return <StaffAccountDetail id={target} peopleView />;
+    return (
+      <div>
+        <Link className="text-link" href={back}>
+          {search.has("review") ? "Back to access reviews" : "Back to People"}
+        </Link>
+        <StaffAccountDetail id={target} peopleView />
+      </div>
+    );
   if (target)
     return (
       <section className="workforce-directory">
