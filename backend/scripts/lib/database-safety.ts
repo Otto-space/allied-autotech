@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import pg from "pg";
 import { z } from "zod";
+import { localOwnerMode, verifyLocalIdentity, verifyLocalEmptySchema, verifyLocalMigratedOwnership } from "./local-owner-safety.js";
 import {
   createNodePostgresSslConfiguration,
   parseDatabaseTlsEnvironment,
@@ -134,6 +135,7 @@ export function assertNonDestructiveMigration(sql: string, migrationName?: strin
 }
 
 export async function inspectMigrationHistory(settings: Settings) {
+  const localOwner = localOwnerMode(process.env);
   const local = localMigrations();
   const client = new pg.Client({
     host: settings.DB_HOST,
@@ -148,10 +150,14 @@ export async function inspectMigrationHistory(settings: Settings) {
   });
   await client.connect();
   try {
+    await verifyLocalIdentity(client, settings, process.env);
     const tables = await client.query<{ count: number }>(
-      "SELECT COUNT(*)::int AS count FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE'",
+      localOwner
+        ? "SELECT COUNT(*)::int AS count FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p')"
+        : "SELECT COUNT(*)::int AS count FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE'",
     );
     let empty = tables.rows[0]?.count === 0;
+    if (localOwner && empty) await verifyLocalEmptySchema(client);
     const applied = empty
       ? []
       : (
@@ -179,6 +185,8 @@ export async function inspectMigrationHistory(settings: Settings) {
       `);
       empty = clean.rows[0]?.empty === true;
     }
+    if (localOwner && !empty && pendingMigrations(local, applied).length === 0)
+      await verifyLocalMigratedOwnership(client);
     return { local, pending: pendingMigrations(local, applied), empty };
   } finally {
     await client.end();

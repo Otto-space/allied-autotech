@@ -14,7 +14,12 @@ try {
         $configuration.projectHardLimitConfirmed -ne $true -or $configuration.providerCallsApproved -ne $true) {
         throw 'The local isolated-evaluation approval is incomplete.'
     }
-    & powershell -NoProfile -File C:/Users/PC/.codex/scripts/assert-disk-space.ps1 -ExpectedGrowthGiB 0.05
+    $diskPreflight = Join-Path $env:USERPROFILE '.codex\scripts\assert-disk-space.ps1'
+    if (-not (Test-Path -LiteralPath $diskPreflight -PathType Leaf)) {
+        throw "Missing disk-preflight script: $diskPreflight"
+    }
+    # Owner-approved standard allowance: 20 GiB reserve plus 5 GiB growth.
+    & powershell -NoProfile -File $diskPreflight -ExpectedGrowthGiB 5
     if ($LASTEXITCODE -ne 0) { throw 'Disk reserve check failed.' }
     $secureKey = ConvertTo-SecureString $configuration.encryptedApiKey
     $pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureKey)

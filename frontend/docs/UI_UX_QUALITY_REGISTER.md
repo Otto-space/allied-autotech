@@ -6664,6 +6664,20 @@ rules, permissions or capability flags changed during this reconciliation.
 
 ---
 
+## 11 November 2026 — mobile service catalogue experiment
+
+Scope: signed-out Explore services, service detail and selected-service handoff in
+`apps/mobile`. Uses existing public APIs and mobile components; no booking write,
+authentication, payment, backend or policy change. Current verification and
+remaining acceptance are recorded in
+[`SERVICE_CATALOGUE_EXPERIMENT.md`](../../apps/mobile/evidence/SERVICE_CATALOGUE_EXPERIMENT.md).
+Coverage includes loading, empty, failure/retry, pagination, detail identity and
+read-only selection/navigation. All 77 mobile tests, typecheck, lint and format
+checks pass; Android/iOS bundle exports pass. Automated API fixtures are explicitly
+synthetic; real-backend and Android/iOS runtime/device acceptance remain unverified.
+Local checks used Node 26; required Node 24 acceptance remains outstanding.
+No publication.
+
 ## 4 November 02:40 UTC — public search acceptance package
 
 Target boundary: 03:40 UTC. Full renewed two-brief goal remains active. Current
@@ -13788,3 +13802,38 @@ several purchase and dashboard CSS files is replaced with charcoal. All remainin
 cool-blue literals across page-specific CSS, state variants and media still need
 an explicit contrast and browser pass. No all-pages visual acceptance is claimed.
 Retain status semantics, 44px controls and the existing production no-write gates.
+
+### 23 November: Allie Care action transition contrast repair (local acceptance passed)
+
+Scope: SUPER_ADMIN Care join/transfer at 1440px, existing support-channel scenario.
+Reported Axe failure: Review reply rendered #bbc3cb on #df676d (1.87:1). Source
+inspection identifies shared .button text/background interpolation between disabled
+grey and white-on-red; both endpoint pairs pass while intermediate pairs do not.
+The source repair retains border transition and existing focus/hover/disabled rules,
+but switches text and background together. No tokens, permissions or handlers changed.
+The existing scenario adds 32 frame samples across enable/disable transitions on
+an isolated clone using compiled button styles; the whole-page Axe assertion remains.
+Measured compiled Care action transition minima: enabled 5.186:1, disabled 4.691:1
+across 32 frame samples. The token pairs for hover/pressed calculate to 6.85/8.93:1.
+Focused SUPER_ADMIN case: 1 passed. Full Allie Care campaign with max-failures=0:
+59 passed in 4.9 minutes; zero skipped, unexpected, flaky or non-test errors.
+Two existing brand-palette cases also passed, covering hover, pressed, selected,
+disabled, keyboard focus, native controls and dialog behavior. The synthetic
+SUPER_ADMIN screenshot was inspected. Evidence is local mocked-browser acceptance,
+not hosted CI, real accounts, physical devices or external-provider acceptance.
+
+Approved locked frontend installation and the production build completed. Full
+frontend ESLint, application build TypeScript, a dedicated support-channel test
+TypeScript check, scoped Prettier and Git whitespace checks passed. Tests reused
+installed Chrome through a task-owned adapter importing the existing configurations;
+the adapter and temporary TypeScript project were removed after checks. Local Node
+26 differs from CI's Node 24 requirement (installation emitted EBADENGINE).
+
+The sandboxed focused run's fixture shutdown stalled; stopping only its three
+recorded fixture-server PIDs completed the passing run. The full suite and gallery
+ran outside that sandbox and shut down cleanly. The previously reported additional
+non-test error did not recur in the full run. MODULE_TYPELESS_PACKAGE_JSON,
+next-start/standalone and NO_COLOR/FORCE_COLOR warnings remain separate from the
+contrast repair. No tests are skipped, no Axe checks weakened, and no production
+startup/module-type changes were made. Dependencies and the verified build are
+retained for reuse; no browser downloads, database operations or provider calls ran.

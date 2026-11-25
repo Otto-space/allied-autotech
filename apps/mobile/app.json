@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Allied AutoTech",
+    "slug": "allied-autotech-companion",
+    "version": "0.1.0",
+    "userInterfaceStyle": "light",
+    "plugins": ["expo-router", "expo-font", "expo-secure-store"],
+    "experiments": { "typedRoutes": true },
+    "extra": {
+      "ownerDecisions": {
+        "iosBundleIdentifier": "OWNER_TO_SET",
+        "androidPackage": "OWNER_TO_SET"
+      }
+    }
+  }
+}

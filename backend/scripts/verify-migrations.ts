@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 import pg from "pg";
 import { z } from "zod";
+import { localOwnerMode, verifyLocalIdentity, verifyLocalEmptySchema } from "./lib/local-owner-safety.js";
+import { inspectMigrationHistory } from "./lib/database-safety.js";
 
 import {
   createNodePostgresSslConfiguration,
@@ -28,6 +30,7 @@ const replayEnvironmentSchema = z.object({
 });
 
 const settings = replayEnvironmentSchema.parse(process.env);
+const localOwner = localOwnerMode(process.env);
 const database = new pg.Client({
   host: settings.DB_HOST,
   port: settings.DB_PORT,
@@ -38,7 +41,13 @@ const database = new pg.Client({
 });
 await database.connect();
 try {
-  const result = await database.query<{ count: string }>(`
+  await verifyLocalIdentity(database, settings, process.env);
+  if (localOwner) await verifyLocalEmptySchema(database);
+  const result = await database.query<{ count: string }>(localOwner ? `
+    SELECT COUNT(*)::text AS count FROM pg_class c
+    JOIN pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S','f')
+  ` : `
     SELECT COUNT(*)::text AS count
     FROM information_schema.tables
     WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
@@ -92,3 +101,10 @@ await runPrisma(
   ],
   "Migration schema comparison",
 );
+if (localOwner) {
+  // A new connection plus catalog ownership checks independently verify the DDL
+  // produced by Prisma, rather than equating its identity with the Node probe.
+  const history = await inspectMigrationHistory(settings);
+  if (history.pending.length)
+    throw new Error("Local Prisma replay left pending migrations.");
+}

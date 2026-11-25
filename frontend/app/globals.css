@@ -924,10 +924,9 @@ button {
 
   color: var(--button-ink);
 
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease;
+  /* Text and fill must change together: interpolating disabled grey into
+     white-on-red creates unreadable intermediate enabled states. */
+  transition: border-color 160ms ease;
 }
 
 .button:hover:where(:not(:disabled):not([aria-disabled="true"])) {

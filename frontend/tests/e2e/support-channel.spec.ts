@@ -314,6 +314,72 @@ for (const [role, width] of [
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
+    if (role === "SUPER_ADMIN") {
+      // Exercise the real compiled button styles without changing the form's
+      // permissions, submitting a reply or masking the whole-page Axe audit.
+      const contrast = await page
+        .getByRole("button", { name: "Review reply", exact: true })
+        .evaluate(async (button) => {
+          const probe = button.cloneNode(true) as HTMLButtonElement;
+          probe.removeAttribute("id");
+          probe.removeAttribute("name");
+          probe.type = "button";
+          probe.tabIndex = -1;
+          probe.setAttribute("aria-hidden", "true");
+          probe.style.position = "fixed";
+          probe.style.left = "-10000px";
+          button.parentElement!.append(probe);
+          const luminance = (color: string) => {
+            const rgb = color
+              .match(/[\d.]+/g)!
+              .slice(0, 3)
+              .map(Number);
+            const linear = rgb.map((value) => {
+              const channel = value / 255;
+              return channel <= 0.04045
+                ? channel / 12.92
+                : ((channel + 0.055) / 1.055) ** 2.4;
+            });
+            return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+          };
+          const samples: number[] = [];
+          try {
+            probe.disabled = true;
+            // Establish the disabled style before testing both transition directions.
+            getComputedStyle(probe).getPropertyValue("background-color");
+            for (const disabled of [false, true]) {
+              probe.disabled = disabled;
+              if (probe.matches(":disabled") !== disabled) {
+                throw new Error(
+                  "The style probe must exercise both native button states.",
+                );
+              }
+              for (let frame = 0; frame < 16; frame++) {
+                await new Promise<void>((resolve) =>
+                  requestAnimationFrame(() => resolve()),
+                );
+                const style = getComputedStyle(probe);
+                const ink = luminance(style.color);
+                const fill = luminance(style.backgroundColor);
+                samples.push((Math.max(ink, fill) + 0.05) / (Math.min(ink, fill) + 0.05));
+              }
+            }
+            return samples;
+          } finally {
+            probe.remove();
+          }
+        });
+      expect(contrast).toHaveLength(32);
+      expect(Math.min(...contrast)).toBeGreaterThanOrEqual(4.5);
+      await test.info().attach("care-action-transition-contrast", {
+        body: JSON.stringify({
+          enabledMinimum: Math.min(...contrast.slice(0, 16)),
+          disabledMinimum: Math.min(...contrast.slice(16)),
+          samples: contrast,
+        }),
+        contentType: "application/json",
+      });
+    }
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.screenshot({
       path: path.join(screenshotRoot, `care-${role.toLowerCase()}-${width}.png`),
