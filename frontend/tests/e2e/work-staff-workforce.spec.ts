@@ -645,7 +645,8 @@ test("owner responsibility directory reuses verified account and hides protected
     section(page).getByText(/Responsibility changes are unavailable/),
   ).toBeVisible();
   await expect(section(page).locator("form")).toHaveCount(0);
-  expect(s.f.reads).toBe(0);
+  // The unified owner account workspace makes one authorized detail read.
+  expect(s.f.reads).toBe(1);
   expect(s.writes).toHaveLength(0);
 });
 test("delegated responsibility workspace assigns through scoped APIs without legacy account access", async ({

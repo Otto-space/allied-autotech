@@ -78,6 +78,7 @@ import { assessBookingDepositCancellation } from "./booking-cancellation-policy.
 import { requestEarlyBookingDepositRefundReview } from "../payments/refund-workflow.js";
 import { bookingReminderMinutes, reminderSchedule } from "./booking-reminder-schedule.js";
 import { quotationTerms } from "../policies/quotation-terms.js";
+import { isIndependentQuotationReviewer } from "./quotation-reviewer.js";
 import {
   approvedPolicy,
   policySnapshot,
@@ -2478,6 +2479,20 @@ export class ServiceOperationsService {
     return jsonSafe(booking);
   }
 
+  async workforceQuotationBooking(actor: AuthenticatedActor, id: string) {
+    const booking = await this.authorizedStaffBooking(actor, id);
+    if (actor.role === "STAFF") {
+      const profile = await this.repository.staffProfile(actor.userId);
+      if (!profile) throw serviceOperationForbidden();
+      const capability =
+        booking.assignedStaff?.id === profile.id
+          ? "QUOTATION_PREPARE"
+          : "QUOTATION_APPROVE";
+      await this.database.$transaction((tx) => assertCapability(tx, actor, capability));
+    }
+    return jsonSafe(booking);
+  }
+
   async assignBooking(
     actor: AuthenticatedActor,
     id: string,
@@ -3345,6 +3360,7 @@ export class ServiceOperationsService {
   ) {
     assertPrivilegedActor(actor);
     return this.database.$transaction(async (transaction) => {
+      await this.assertManagedQuotationDuty(transaction, actor, "QUOTATION_PREPARE");
       const booking = await this.lockAuthorizedStaffBooking(
         actor,
         bookingId,
@@ -3403,6 +3419,7 @@ export class ServiceOperationsService {
   ) {
     assertPrivilegedActor(actor);
     return this.database.$transaction(async (transaction) => {
+      await this.assertManagedQuotationDuty(transaction, actor, "QUOTATION_PREPARE");
       await this.lockAuthorizedStaffBooking(actor, bookingId, transaction);
       const quote = await this.repository.quote(quoteId, bookingId, transaction);
       if (quote === null) throw serviceOperationNotFound();
@@ -3465,9 +3482,19 @@ export class ServiceOperationsService {
   ) {
     assertPrivilegedActor(actor);
     return this.database.$transaction(async (transaction) => {
-      await this.lockAuthorizedStaffBooking(actor, bookingId, transaction);
+      await this.assertManagedQuotationDuty(transaction, actor, "QUOTATION_APPROVE");
+      // The independently authorised reviewer can be another staff member
+      // at the same branch, without becoming the booking's assigned technician.
+      await this.lockAuthorizedStaffBooking(actor, bookingId, transaction, false);
       const quote = await this.repository.quote(quoteId, bookingId, transaction);
       if (quote === null) throw serviceOperationNotFound();
+      // A preparer cannot approve their own quotation, even if both capabilities
+      // were granted. Owner/admin reviewers without staff profiles remain eligible.
+      if (actor.role === "STAFF") {
+        const reviewer = await this.repository.staffProfile(actor.userId, transaction);
+        if (!isIndependentQuotationReviewer(reviewer?.id ?? null, quote.createdByStaff.id))
+          throw serviceOperationForbidden();
+      }
       if (
         quote.status !== "DRAFT" ||
         quote.items.length === 0 ||
@@ -3953,6 +3980,21 @@ export class ServiceOperationsService {
     )
       throw serviceOperationForbidden();
     return booking;
+  }
+
+  // Legacy staff accounts retain their existing quotation workflow. Managed
+  // workforce accounts require an explicit owner grant and verified MFA.
+  private async assertManagedQuotationDuty(
+    transaction: Prisma.TransactionClient,
+    actor: AuthenticatedActor,
+    capability: "QUOTATION_PREPARE" | "QUOTATION_APPROVE",
+  ) {
+    if (actor.role !== "STAFF") return;
+    const managed = await transaction.workforceAccess.findUnique({
+      where: { userId: actor.userId },
+      select: { userId: true },
+    });
+    if (managed) await assertCapability(transaction, actor, capability);
   }
 
   private async priceLines(

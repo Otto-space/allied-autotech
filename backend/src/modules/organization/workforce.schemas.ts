@@ -797,6 +797,15 @@ export function workforceResponseSchema(action: string): z.ZodType {
         alternativeVersion: version,
         performedByUserId: z.uuid(),
       });
+    case "bookingQuotation":
+      return z
+        .object({
+          id: z.uuid(),
+          quotes: z.array(
+            z.object({ id: z.uuid(), status: z.string() }).passthrough(),
+          ),
+        })
+        .passthrough();
     case "booking":
       return bookingRow.extend({
         rescheduleRequests: z.array(bookingRescheduleProjectionSchema).max(10),

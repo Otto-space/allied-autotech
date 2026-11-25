@@ -5880,6 +5880,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/customers/payments/booking-deposits/{bookingId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Prepare a staging-only 20% deposit for an approved booking and accepted quotation
+         * @description Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Staged service invoices require acceptedServiceStage with the exact stage, invoiceVersion and amountKobo. Materials payment does not settle workmanship. Workmanship requires recorded completion and prior materials settlement; unresolved financial adjustments block another charge. The server derives each stage from the immutable accepted-quote allocation, with one saved tax total. Historical invoices without a plan retain their original payment behavior. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Prepare a staging-only 20% deposit for an approved booking and accepted quotation. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+         */
+        post: operations["postCustomersPaymentsBookingDepositsByBookingId"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/customers/payments/{paymentId}": {
         parameters: {
             query?: never;
@@ -9252,6 +9272,26 @@ export interface paths {
          * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingAlternativeOptions. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getStaffWorkforceBookingsByIdAlternativeOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/workforce/bookings/{id}/quotation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Responsibility-based workspace: bookingQuotation
+         * @description Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingQuotation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffWorkforceBookingsByIdQuotation"];
         put?: never;
         post?: never;
         delete?: never;
@@ -57226,7 +57266,8 @@ export interface operations {
                  * @example {
                  *       "assignedStaffId": "00000000-0000-4000-8000-000000000001",
                  *       "expectedVersion": 0,
-                 *       "serviceId": "00000000-0000-4000-8000-000000000001"
+                 *       "serviceId": "00000000-0000-4000-8000-000000000001",
+                 *       "replacementSlotId": "00000000-0000-4000-8000-000000000001"
                  *     }
                  */
                 "application/json": {
@@ -57242,6 +57283,11 @@ export interface operations {
                      * @description Identifier of the service resource; ownership is resolved server-side.
                      */
                     serviceId?: string;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the replacement slot resource; ownership is resolved server-side.
+                     */
+                    replacementSlotId?: string;
                 };
             };
         };
@@ -101534,6 +101580,291 @@ export interface operations {
             };
         };
     };
+    postCustomersPaymentsBookingDepositsByBookingId: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+                /**
+                 * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+                 * @example synthetic-idempotency-key
+                 */
+                "idempotency-key": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the booking resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "acceptedQuoteId": "00000000-0000-4000-8000-000000000001",
+                 *       "acceptedQuoteVersion": 1,
+                 *       "acceptDepositTerms": true
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the accepted quote resource; ownership is resolved server-side.
+                     */
+                    acceptedQuoteId: string;
+                    /** @description Accepted Quote Version validated by this operation's strict request contract. */
+                    acceptedQuoteVersion: number;
+                    /**
+                     * @description Accept Deposit Terms validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    acceptDepositTerms: true;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Prepare a staging-only 20% deposit for an approved booking and accepted quotation. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Prepare a staging-only 20% deposit for an approved booking and accepted quotation",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Authorized response projection for: Prepare a staging-only 20% deposit for an approved booking and accepted quotation. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The requested resource is not available. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The requested resource is not available.",
+                     *       "error": {
+                     *         "code": "NOT_FOUND"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required provider or database is temporarily unavailable. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required provider or database is temporarily unavailable.",
+                     *       "error": {
+                     *         "code": "PROVIDER_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getCustomersPaymentsByPaymentId: {
         parameters: {
             query?: never;
@@ -134559,6 +134890,10 @@ export interface operations {
                      *         "vehicleDeposits": {
                      *           "enabled": true
                      *         },
+                     *         "bookingDeposits": {
+                     *           "enabled": true,
+                     *           "basisPoints": 2000
+                     *         },
                      *         "finance": {
                      *           "approvalStatus": "synthetic-approvalstatus",
                      *           "draftVatBasisPoints": 750,
@@ -134639,6 +134974,16 @@ export interface operations {
                             vehicleDeposits: {
                                 /** @description Enabled validated by this operation's strict request contract. */
                                 enabled: boolean;
+                            };
+                            /** @description Booking Deposits validated by this operation's strict request contract. */
+                            bookingDeposits: {
+                                /** @description Enabled validated by this operation's strict request contract. */
+                                enabled: boolean;
+                                /**
+                                 * @description Basis Points validated by this operation's strict request contract.
+                                 * @enum {number}
+                                 */
+                                basisPoints: 2000;
                             };
                             /** @description Finance validated by this operation's strict request contract. */
                             finance: {
@@ -140431,7 +140776,7 @@ export interface operations {
                      * @description Capability validated by this operation's strict request contract.
                      * @enum {string}
                      */
-                    capability: "REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE";
+                    capability: "REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE";
                 };
             };
         };
@@ -151894,7 +152239,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -152460,7 +152805,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -154152,7 +154497,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -154569,7 +154914,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -155002,7 +155347,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -155451,7 +155796,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -155878,7 +156223,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -156313,7 +156658,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -156958,7 +157303,7 @@ export interface operations {
                             /** @description Permissions validated by this operation's strict request contract. */
                             permissions: string[];
                             /** @description Independent Capabilities validated by this operation's strict request contract. */
-                            independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                            independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                             /** @description Can Manage Assignments validated by this operation's strict request contract. */
                             canManageAssignments: boolean;
                             /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -157323,7 +157668,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -157869,7 +158214,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -158339,7 +158684,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -158861,7 +159206,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -159138,6 +159483,220 @@ export interface operations {
                                  */
                                 startsAt: string;
                             }[];
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Current access does not permit this request */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record unavailable in permitted scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version or invalid state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStaffWorkforceBookingsByIdQuotation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the id resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Responsibility-based workspace: bookingQuotation. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Responsibility-based workspace: bookingQuotation",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "quotes": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "status": "synthetic-status"
+                     *           }
+                     *         ]
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Quotes validated by this operation's strict request contract. */
+                            quotes: ({
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Requested or filtered lifecycle state from the documented enum. */
+                                status: string;
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                        } & {
+                            [key: string]: unknown;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -161021,7 +161580,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -162794,7 +163353,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -163299,7 +163858,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -163954,7 +164513,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -164514,7 +165073,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -165086,7 +165645,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -165593,7 +166152,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -166019,7 +166578,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -166536,7 +167095,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -167062,7 +167621,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -167639,7 +168198,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -168110,7 +168669,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -168613,7 +169172,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -169095,7 +169654,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -169549,7 +170108,7 @@ export interface operations {
                                 /** @description Permissions validated by this operation's strict request contract. */
                                 permissions: string[];
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                                 /** @description Can Manage Assignments validated by this operation's strict request contract. */
                                 canManageAssignments: boolean;
                                 /** @description Can Invite Admins validated by this operation's strict request contract. */
@@ -170101,7 +170660,7 @@ export interface operations {
                                  */
                                 responsibilityGrantsOnly: true;
                                 /** @description Independent Capabilities validated by this operation's strict request contract. */
-                                independentCapabilities?: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
+                                independentCapabilities?: ("REFUND_APPROVE" | "REFUND_TRANSFER" | "REFUND_CHECK" | "FINANCE_POLICY_APPROVE" | "BOOKING_CONFIRM" | "QUOTATION_PREPARE" | "QUOTATION_APPROVE" | "PRIVACY_REVIEW" | "DISPUTE_MANAGE")[];
                             };
                             /** @description Templates Version validated by this operation's strict request contract. */
                             templatesVersion: number;

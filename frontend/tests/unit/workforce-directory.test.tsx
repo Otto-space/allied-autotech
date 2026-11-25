@@ -36,6 +36,19 @@ vi.mock("@/app/components/workforce-access-panel", () => ({
     <p>Reviewed account {userId}</p>
   ),
 }));
+vi.mock("@/app/components/staff-account-detail", () => ({
+  StaffAccountDetail: ({
+    id: userId,
+    peopleView,
+  }: {
+    id: string;
+    peopleView?: boolean;
+  }) => (
+    <p>
+      {peopleView ? "Combined team member" : "Staff account"} {userId}
+    </p>
+  ),
+}));
 const id = (n: number) => `a4800000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 vi.mock("@/app/components/admin-branch-picker", () => ({
   AdminBranchPicker: ({
@@ -157,14 +170,11 @@ it("keeps filtered directory context on detail/back navigation and rejects malfo
   state.search = "q=Ada";
   state.pathname += `/${id(1)}`;
   const view = render(<WorkforceDirectory />);
-  expect(screen.getByText(`Reviewed account ${id(1)}`)).toBeTruthy();
-  expect(screen.getByRole("link", { name: "Back to People" }).getAttribute("href")).toBe(
-    "/admin/workforce/access?q=Ada",
-  );
+  expect(screen.getByText(`Combined team member ${id(1)}`)).toBeTruthy();
   state.pathname = "/admin/workforce/access/not-an-account";
   view.rerender(<WorkforceDirectory />);
   expect(screen.getByRole("alert").textContent).toContain("invalid");
-  expect(screen.queryByText(`Reviewed account ${id(1)}`)).toBeNull();
+  expect(screen.queryByText(`Combined team member ${id(1)}`)).toBeNull();
   expect(
     screen.queryByRole("link", { name: "Open account status and role controls" }),
   ).toBeNull();

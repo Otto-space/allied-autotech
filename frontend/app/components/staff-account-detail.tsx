@@ -16,8 +16,15 @@ import { StaffAccessForm } from "./staff-access-form";
 import { StaffCapabilities } from "./staff-capabilities";
 import { WorkforceAccessPanel } from "./workforce-access-panel";
 import { StaffChangeCoordinator } from "./staff-change-coordinator";
+import "@/app/admin/staff/[staffUserId]/staff-account.css";
 
-function StaffBreadcrumb({ name = "Staff account" }: { name?: string }) {
+function StaffBreadcrumb({
+  name = "Staff account",
+  peopleView = false,
+}: {
+  name?: string;
+  peopleView?: boolean;
+}) {
   return (
     <nav className="wsad-breadcrumb" aria-label="Breadcrumb">
       <ol>
@@ -26,8 +33,11 @@ function StaffBreadcrumb({ name = "Staff account" }: { name?: string }) {
         </li>
         <li>
           <ChevronRight size={14} aria-hidden="true" />
-          <Link href="/admin/staff" prefetch={false}>
-            Staff directory
+          <Link
+            href={peopleView ? "/admin/workforce/access" : "/admin/staff"}
+            prefetch={false}
+          >
+            {peopleView ? "People" : "Staff directory"}
           </Link>
         </li>
         <li>
@@ -40,13 +50,19 @@ function StaffBreadcrumb({ name = "Staff account" }: { name?: string }) {
     </nav>
   );
 }
-export function StaffAccountDetail({ id }: { id: string }) {
+export function StaffAccountDetail({
+  id,
+  peopleView = false,
+}: {
+  id: string;
+  peopleView?: boolean;
+}) {
   const session = useAccountSession();
   if (!session) return null;
   if (!["ADMIN", "SUPER_ADMIN"].includes(session.user.role))
     return (
       <div className="work-staff-account">
-        <StaffBreadcrumb />
+        <StaffBreadcrumb peopleView={peopleView} />
         <h1>Staff account</h1>
         <Feedback message="Administrator access is required to view these records." />
       </div>
@@ -57,6 +73,7 @@ export function StaffAccountDetail({ id }: { id: string }) {
       id={id}
       owner={session.user.id}
       role={session.user.role}
+      peopleView={peopleView}
     />
   );
 }
@@ -64,10 +81,12 @@ function StaffAccountAccess({
   id,
   owner,
   role,
+  peopleView,
 }: {
   id: string;
   owner: string;
   role: string;
+  peopleView: boolean;
 }) {
   const access = useOwnStaffPermissions(),
     p = access.data;
@@ -80,7 +99,7 @@ function StaffAccountAccess({
   if (!p || error)
     return (
       <div className="work-staff-account">
-        <StaffBreadcrumb />
+        <StaffBreadcrumb peopleView={peopleView} />
         <h1>Staff account</h1>
         {error ? (
           <Feedback message={error} />
@@ -101,6 +120,7 @@ function StaffAccountAccess({
       id={id}
       owner={owner}
       role={role}
+      peopleView={peopleView}
       accessRefreshing={access.loading || access.refreshing}
       refreshAccess={access.refresh}
     />
@@ -110,12 +130,14 @@ function StaffAccountWorkspace({
   id,
   owner,
   role,
+  peopleView,
   accessRefreshing,
   refreshAccess,
 }: {
   id: string;
   owner: string;
   role: string;
+  peopleView: boolean;
   accessRefreshing: boolean;
   refreshAccess: () => void;
 }) {
@@ -144,9 +166,12 @@ function StaffAccountWorkspace({
     >
       {(change, recovery) => (
         <div className="work-staff-account">
-          <StaffBreadcrumb name={name} />
+          <StaffBreadcrumb name={name} peopleView={peopleView} />
           <header className="wsad-header">
-            <h1>Staff account</h1>
+            <div>
+              <h1>Manage team member</h1>
+              <p>Account, responsibilities and permissions in one place.</p>
+            </div>
             <button
               className="button secondary"
               disabled={busy || change.reviewing}
@@ -177,6 +202,12 @@ function StaffAccountWorkspace({
           )}
           {member && (
             <>
+              <nav className="wsad-sections" aria-label="Team member sections">
+                <a href="#staff-identity-title">Overview</a>
+                <a href="#staff-manage-title">Account settings</a>
+                <a href="#workforce-access-title">Responsibilities</a>
+                <a href="#capabilities-title">Permissions</a>
+              </nav>
               <section className="wsad-identity" aria-labelledby="staff-identity-title">
                 <div>
                   <h2 id="staff-identity-title">{name}</h2>
@@ -214,7 +245,7 @@ function StaffAccountWorkspace({
               </section>
               <div className="wsad-main">
                 <section className="wsad-facts" aria-labelledby="staff-facts-title">
-                  <h2 id="staff-facts-title">Account details</h2>
+                  <h2 id="staff-facts-title">Account information</h2>
                   <dl>
                     <div>
                       <dt>Phone</dt>
@@ -246,7 +277,7 @@ function StaffAccountWorkspace({
                   </details>
                 </section>
                 <section className="wsad-manage" aria-labelledby="staff-manage-title">
-                  <h2 id="staff-manage-title">Manage access</h2>
+                  <h2 id="staff-manage-title">Account settings</h2>
                   {canManageStaff({ id: owner, role }, member) ? (
                     <>
                       <p className="wsad-access-note">

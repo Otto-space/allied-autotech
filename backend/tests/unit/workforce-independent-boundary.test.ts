@@ -52,6 +52,9 @@ describe("independent-grant compatibility boundary", () => {
     ["GET", "/staff/retention-holds"],
     ["POST", "/staff/retention-holds"],
     ["POST", `/staff/retention-holds/${id}/release`],
+    ["POST", `/staff/bookings/${id}/quotes`],
+    ["PUT", `/staff/bookings/${id}/quotes/${id}`],
+    ["POST", `/staff/bookings/${id}/quotes/${id}/issue`],
   ])("requires an actual current grant for %s %s", async (method, path) => {
     expect(
       independentEndpointCapabilities(`/api/v1${path}`, method).length,
@@ -80,6 +83,9 @@ describe("independent-grant compatibility boundary", () => {
     "/staff/finance-policy/current/export",
     "/staff/payments",
     "/staff/bookings",
+    `/staff/bookings/${id}/quotes/${id}/void`,
+    `/staff/bookings/${id}/quotes/${id}/expire`,
+    `/staff/bookings/${id}/quotes/${id}/accept`,
     "/admin/operations/payment-refunds",
     "/admin/capabilities",
     "/staff/privacy-requests/export",

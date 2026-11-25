@@ -22,6 +22,7 @@ import { WorkforceBookingReschedule } from "./workforce-booking-reschedule";
 import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { WorkforceBookingAlternative } from "./workforce-booking-alternative";
 import { WorkforceBookingConfirmation } from "./workforce-booking-confirmation";
+import { WorkforceBookingQuotations } from "./workforce-booking-quotations";
 import "./workforce-bookings.css";
 
 export function WorkforceBookingDetail({
@@ -166,21 +167,11 @@ export function WorkforceBookingDetail({
             <BookingAttendanceHistory events={row.attendanceEvents} />
           )}
 
-          {access.staffId && row.assignedStaff?.id === access.staffId && (
-            <section className="card" aria-label="Assigned staff quotation workspace">
-              <h2>Quotation</h2>
-              <p>
-                Prepare and issue the approved service quotation before the customer pays
-                the 20% deposit.
-              </p>
-              <Link
-                className="button secondary"
-                href={`/admin/bookings/${row.id}#quotations`}
-              >
-                Open quotation workspace
-              </Link>
-            </section>
-          )}
+          <WorkforceBookingQuotations
+            bookingId={row.id}
+            assignedStaffId={row.assignedStaff?.id ?? null}
+            access={access}
+          />
           <BookingWorkEstimate estimate={row.workEstimate} status={row.status} />
           <BookingWorkReview
             key={

@@ -3,6 +3,8 @@ import { staffProfileSchema } from "./staff-booking-schemas";
 
 export const capabilityLabels = {
   BOOKING_CONFIRM: "Confirm workshop bookings",
+  QUOTATION_PREPARE: "Prepare service quotations",
+  QUOTATION_APPROVE: "Approve and send quotations",
   REFUND_APPROVE: "Approve refunds",
   REFUND_TRANSFER: "Record refund transfers",
   REFUND_CHECK: "Independently check refunds",
@@ -12,6 +14,8 @@ export const capabilityLabels = {
 } as const;
 export const capabilitySchema = z.enum([
   "BOOKING_CONFIRM",
+  "QUOTATION_PREPARE",
+  "QUOTATION_APPROVE",
   "REFUND_APPROVE",
   "REFUND_TRANSFER",
   "REFUND_CHECK",

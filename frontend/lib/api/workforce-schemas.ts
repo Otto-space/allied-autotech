@@ -61,7 +61,7 @@ export const workforceAccessSchema = z
     version: z.number().int(),
     assignments: z.array(assignmentSchema),
     permissions: z.array(z.string()),
-    independentCapabilities: z.array(capabilitySchema).max(7).optional(),
+    independentCapabilities: z.array(capabilitySchema).max(9).optional(),
     canManageAssignments: z.boolean(),
     canInviteAdmins: z.boolean().default(false),
     accessRevision: z
