@@ -20,7 +20,9 @@ export function newPaymentAttemptUnavailable(payment: PaymentRecord, now = Date.
     return "A reversal was reported. Contact customer care before paying again.";
   if (payment.status !== "REQUIRES_PAYMENT")
     return "Check the current payment status before making another payment.";
-  if (payment.bookingId)
+  // Historical booking-linked requests remain blocked. Supported deposits
+  // also undergo independent server-side eligibility and provider checks.
+  if (payment.bookingId && payment.purpose !== "BOOKING_DEPOSIT")
     return "Booking deposits are not available. Review your booking or contact customer care.";
   if (BigInt(payment.amountKobo) <= BigInt(0))
     return "This request does not have an amount available to pay.";

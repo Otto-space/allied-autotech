@@ -41,7 +41,7 @@ describe("payment checkout boundaries", () => {
       expect(paymentDeadlineUnavailable({ ...payment, expiresAt }, now)).toBeTruthy();
     },
   );
-  it("prevents booking deposits, zero amounts and completed requests", () => {
+  it("blocks unrelated booking payments, zero amounts and completed requests", () => {
     expect(
       newPaymentAttemptUnavailable({ ...payment, bookingId: id(5) }, now),
     ).toBeTruthy();
@@ -51,6 +51,25 @@ describe("payment checkout boundaries", () => {
     expect(
       newPaymentAttemptUnavailable({ ...payment, status: "SUCCEEDED" }, now),
     ).toBeTruthy();
+  });
+  it("allows only the designated booking deposit purpose to reach provider checks", () => {
+    const deposit = {
+      ...payment,
+      purpose: "BOOKING_DEPOSIT",
+      orderId: null,
+      bookingId: id(5),
+      amountKobo: "215000",
+    };
+    expect(newPaymentAttemptUnavailable(deposit, now)).toBeUndefined();
+    expect(
+      newPaymentAttemptUnavailable(
+        { ...deposit, expiresAt: "2026-10-08T09:00:00Z" },
+        now,
+      ),
+    ).toContain("deadline");
+    expect(
+      newPaymentAttemptUnavailable({ ...deposit, status: "SUCCEEDED" }, now),
+    ).toContain("status");
   });
   it("blocks unresolved attempts but permits a new attempt after a recorded failure", () => {
     const attempt: PaymentRecord["attempts"][number] = {
