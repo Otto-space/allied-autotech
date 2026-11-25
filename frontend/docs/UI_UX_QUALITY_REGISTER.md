@@ -13788,3 +13788,30 @@ several purchase and dashboard CSS files is replaced with charcoal. All remainin
 cool-blue literals across page-specific CSS, state variants and media still need
 an explicit contrast and browser pass. No all-pages visual acceptance is claimed.
 Retain status semantics, 44px controls and the existing production no-write gates.
+
+### 23 November: staging-only approved-booking deposit checkout (local, unverified UI)
+
+- Route: `/dashboard/bookings/[bookingId]` (customer, confirmed booking with an
+  accepted latest quotation) and `/dashboard/payments/[paymentId]`.
+- User-visible preparation: server-advertised staging-only capability, explicit
+  20% deposit and 80% workshop balance, cancellation/reschedule summary, opt-in
+  checkbox, request creation with stable idempotency, uncertainty guidance and
+  Paystack-only provider choice for booking deposits. Shop checkout remains
+  independently gated. No auto-payment or claims of payment success.
+- Evidence: code review and backend focused gates only. **Not rendered or browser
+  accepted:** frontend dependencies are unavailable locally (offline install
+  stopped on uncached `zod-validation-error`); desktop/mobile layout, focus,
+  screen reader and real authenticated customer journeys remain pending.
+- Priority: P0 checkout correctness. Status: local implementation, hold release.
+  Next: real PostgreSQL 17 isolated replay; frontend full checks and browser QA
+  at 320/390/1440px; Paystack verified test-mode webhook and refund review.
+
+Follow-up: frontend dependencies were installed successfully. `next typegen &&
+tsc --noEmit`, lint, a focused 14-test checkout/capabilities suite and the
+Next.js optimized production build passed. Rendered authenticated acceptance is
+still pending; no test-mode charge has been created.
+
+Complete local frontend regression: 1,617 passed and 12 skipped, 233 test files
+passed and two skipped. Optimized Next.js production build, typecheck and lint
+also passed. No authenticated booking UI or mobile browser screenshot was
+collected on this uncommitted source; hosted evidence remains mandatory.

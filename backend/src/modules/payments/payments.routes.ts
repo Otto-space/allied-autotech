@@ -10,6 +10,8 @@ import { validate } from "../../common/middleware/validate.js";
 import { PaymentsController } from "./payments.controller.js";
 import { receiptDocument, receiptDownload } from "../billing/documents.controller.js";
 import {
+  bookingDepositIntentBodySchema,
+  bookingDepositParamsSchema,
   attemptParamsSchema,
   manualPaymentBodySchema,
   manualReviewBodySchema,
@@ -44,6 +46,18 @@ export function createCustomerPaymentsRouter(): Router {
     receiptDownload,
   );
   router.get("/", validate({ query: paymentListQuerySchema }), controller.customerList);
+  router.post(
+    "/booking-deposits/:bookingId",
+    requireCsrf,
+    createSensitiveRateLimit(10),
+    validate({
+      params: bookingDepositParamsSchema,
+      headers: paymentIdempotencyHeadersSchema,
+      body: bookingDepositIntentBodySchema,
+      query: paymentsEmptySchema,
+    }),
+    controller.createBookingDeposit,
+  );
   router.post(
     "/",
     requireCsrf,

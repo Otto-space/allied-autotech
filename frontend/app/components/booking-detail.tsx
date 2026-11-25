@@ -1,6 +1,7 @@
 "use client";
 import { BookingAttendanceHistory } from "./booking-attendance";
 import { BookingWorkEstimate } from "./booking-work-estimate";
+import { BookingDepositCheckout } from "./booking-deposit-checkout";
 import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { usePublicCapabilities } from "./public-capabilities";
 import { NotificationRecordContext } from "./notification-record-context";
@@ -328,6 +329,11 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                 status={current.status}
               />
               <BookingDeposit booking={current} />
+              <BookingDepositCheckout
+                booking={current}
+                fresh={fresh}
+                onRefresh={refresh}
+              />
             </div>
             <BookingProgress booking={current} />
             {current.vehicleRelease ? (

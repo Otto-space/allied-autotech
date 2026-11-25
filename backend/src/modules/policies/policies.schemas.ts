@@ -136,6 +136,7 @@ export const publicCapabilitiesSchema = z.object({
   collection: publicFulfillmentOptionsSchema.shape.collection,
   delivery: z.object({ enabled: z.boolean() }),
   vehicleDeposits: z.object({ enabled: z.boolean() }),
+  bookingDeposits: z.object({ enabled: z.boolean(), basisPoints: z.literal(2000) }),
   finance: z.object({
     approvalStatus: z.string().nullable(),
     draftVatBasisPoints: z.literal(750),

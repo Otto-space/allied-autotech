@@ -24,6 +24,15 @@ export const attemptParamsSchema = paymentParamsSchema
   .extend({ attemptId: uuid })
   .strict();
 export const refundParamsSchema = z.object({ refundId: uuid }).strict();
+export const bookingDepositParamsSchema = z.object({ bookingId: uuid }).strict();
+export const bookingDepositIntentBodySchema = z
+  .object({
+    acceptedQuoteId: uuid,
+    acceptedQuoteVersion: z.number().int().min(1),
+    acceptDepositTerms: z.literal(true),
+  })
+  .strict();
+export type BookingDepositIntentInput = z.infer<typeof bookingDepositIntentBodySchema>;
 export const paymentIdempotencyHeadersSchema = z.looseObject({
   "idempotency-key": z
     .string()
