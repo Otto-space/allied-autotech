@@ -42,6 +42,42 @@
   gap: 16px;
   margin-bottom: 22px;
 }
+.wsad-header p {
+  margin: 6px 0 0;
+  color: #536779;
+  line-height: 1.5;
+}
+.wsad-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #d5deea;
+  border-radius: 8px;
+  background: #fff;
+}
+.wsad-sections a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 6px;
+  color: #9c1313;
+  font-weight: 600;
+  text-decoration: none;
+}
+.wsad-sections a:hover,
+.wsad-sections a:focus-visible {
+  background: #fff0ef;
+  text-decoration: underline;
+}
+.work-staff-account [id="staff-identity-title"],
+.work-staff-account [id="staff-manage-title"],
+.work-staff-account [id="workforce-access-title"],
+.work-staff-account [id="capabilities-title"] {
+  scroll-margin-top: 110px;
+}
 .work-staff-account h1 {
   margin: 0;
   font-size: 30px;

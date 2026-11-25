@@ -15,6 +15,7 @@ import { formatBusinessDate } from "@/lib/format/date";
 import { useAccountSession } from "./dashboard-shell";
 import { Feedback } from "./feedback";
 import { WorkforceAccessPanel } from "./workforce-access-panel";
+import { StaffAccountDetail } from "./staff-account-detail";
 import { AdminBranchPicker } from "./admin-branch-picker";
 import "./workforce-directory.css";
 
@@ -50,6 +51,12 @@ function Directory() {
       )}
     </nav>
   );
+  if (
+    target &&
+    z.uuid().safeParse(target).success &&
+    session?.user.role === "SUPER_ADMIN"
+  )
+    return <StaffAccountDetail id={target} peopleView />;
   if (target)
     return (
       <section className="workforce-directory">
@@ -64,13 +71,6 @@ function Directory() {
             <h1>Person</h1>
             <Feedback message="This account reference is invalid. Return to People and select a person." />
           </>
-        )}
-        {session?.user.role === "SUPER_ADMIN" && z.uuid().safeParse(target).success && (
-          <p>
-            <Link href={`/admin/staff/${target}`}>
-              Open account status and role controls
-            </Link>
-          </p>
         )}
       </section>
     );
