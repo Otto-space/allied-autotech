@@ -657,7 +657,14 @@ export function DashboardShell({
                 }
               >
                 {session.workforceManaged ? (
-                  <>
+                  <div
+                    aria-busy={!verifiedWorkforce}
+                    style={
+                      retainedWorkforce && !verifiedWorkforce
+                        ? { minHeight: "min(65vh, 40rem)" }
+                        : undefined
+                    }
+                  >
                     {retainedWorkforce && (
                       <div hidden={!verifiedWorkforce} inert={!verifiedWorkforce}>
                         {workforcePage?.id === "profile" ||
@@ -710,7 +717,7 @@ export function DashboardShell({
                         </button>
                       </>
                     )}
-                  </>
+                  </div>
                 ) : (
                   children
                 )}

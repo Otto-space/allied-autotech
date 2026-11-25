@@ -56,3 +56,13 @@ pages were checked using existing PyMuPDF. It must not be used to request paymen
 Full D03 publication still needs the materials-use, amendment and vehicle-release
 controls, their complete acceptance, and the repository's exact-source release
 and database safeguards. The wider D01-D17 goal remains active.
+
+## 25 November staging QA addendum (not published)
+
+`service-request` v36 distinguishes a free-to-submit booking request from the
+separately gated staging-only 20% accepted-quotation deposit. Customer acceptance
+does not itself charge a card or prove a payable exists. The remaining 80% is
+settled at the workshop; the original materials/workmanship model is retained
+outside this gated QA path. The launch-mode and provider guards remain in force.
+Exact-commit CI, independently reviewed invoice reconciliation, hosted customer
+copy and real Paystack test-mode acceptance are still outstanding.

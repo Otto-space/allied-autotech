@@ -186,6 +186,10 @@ export class BillingService {
           dueAt,
         };
       } else if (input.sourceType === "BOOKING") {
+        // Deposit settlement takes this advisory lock before locking Booking.
+        // Serialize invoice creation with settlement so a paid deposit cannot
+        // be omitted by a concurrent invoice snapshot.
+        await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-deposit:${input.sourceId}`}, 0))`;
         await transaction.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${input.sourceId}::uuid FOR UPDATE`;
         const source = await this.repository.bookingSource(input.sourceId, transaction);
         const quote = source?.quotes[0];

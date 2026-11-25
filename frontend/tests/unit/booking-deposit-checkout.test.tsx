@@ -85,12 +85,15 @@ describe("approved booking deposit checkout", () => {
     );
   });
 
-  it("hides checkout when disabled, quote unaccepted, or booking not confirmed", () => {
+  it("explains accepted quotation when checkout is disabled without offering payment", () => {
     mocks.enabled = false;
     const view = render(
       <BookingDepositCheckout booking={booking} fresh onRefresh={vi.fn()} />,
     );
+    expect(screen.getByRole("heading", { name: "Quotation accepted" })).toBeTruthy();
+    expect(screen.getByText(/No deposit has been requested or charged/)).toBeTruthy();
     expect(view.queryByRole("checkbox")).toBeNull();
+    expect(view.queryByRole("button", { name: /deposit checkout/i })).toBeNull();
     mocks.enabled = true;
     view.rerender(
       <BookingDepositCheckout

@@ -13811,6 +13811,32 @@ tsc --noEmit`, lint, a focused 14-test checkout/capabilities suite and the
 Next.js optimized production build passed. Rendered authenticated acceptance is
 still pending; no test-mode charge has been created.
 
+### 25 November: accepted quotation with disabled deposit checkout
+
+- Route: `/dashboard/bookings/[bookingId]`, customer, confirmed booking with
+  accepted latest quotation and no linked deposit payment.
+- Observed on hosted staging: the accepted quote was visible while online
+  payments were unavailable, but the deposit checkout component returned no
+  next-step explanation. P1 customer clarity.
+- Local candidate: show an explicit accepted-quotation and payment-unavailable
+  state, without enabling the payment button or claiming a charge. Existing
+  permission/provider gates and the enabled 20% checkout remain unchanged.
+- Focused unit coverage added; hosted desktop/mobile visual verification and
+  real Paystack test-mode acceptance remain pending. No live transaction.
+
+### 25 November: workforce permission-refresh layout stability
+
+- Route: `/admin/workforce/bookings/[id]`, managed staff, periodic access
+  verification. P1 layout disruption reported while the page repeatedly checks
+  access; source inspection confirms a 30-second workforce refresh hides the
+  permitted workspace until its access check settles.
+- Local candidate: retain the workspace's approximate vertical space while its
+  contents are hidden and inert, and announce the in-progress verification.
+  Existing 30-second access checks, failure handling and authorization remain.
+- This reduces the page collapse rather than removing access rechecks. Real-role
+  hosted visual checks at desktop/mobile widths and observation through several
+  refresh cycles remain required; no security or UI acceptance is claimed yet.
+
 Complete local frontend regression: 1,617 passed and 12 skipped, 233 test files
 passed and two skipped. Optimized Next.js production build, typecheck and lint
 also passed. No authenticated booking UI or mobile browser screenshot was

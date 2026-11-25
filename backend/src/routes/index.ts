@@ -76,7 +76,7 @@ import {
   createCustomerVehicleSalesRouter,
   createStaffVehicleSalesRouter,
 } from "../modules/vehicle-sales/vehicle-sales.index.js";
-import { env } from "../config/env.js";
+import { bookingDepositTestEnabled, env } from "../config/env.js";
 import {
   createCustomerPaymentsRouter,
   createMonnifyWebhookRouter,
@@ -113,6 +113,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
     publicLaunch(env.PUBLIC_LAUNCH_MODE, {
       bookingRequestsEnabled: env.BOOKING_REQUESTS_ENABLED,
       productPurchasesEnabled: env.PRODUCT_PURCHASES_ENABLED,
+      bookingDepositTestEnabled: bookingDepositTestEnabled(env),
     }),
   );
   apiRouter.use("/purchase", createPurchaseRouter());

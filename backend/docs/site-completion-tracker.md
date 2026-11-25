@@ -15918,3 +15918,34 @@ native PostgreSQL replay was unavailable. The database is isolated test data;
 neither live staging nor production was touched. Live staging acceptance,
 verified GitHub commit, real Paystack test transaction and independent
 refund/concurrency integration remain pending.
+
+### 25 November: staging-vs-production source and deployment reconciliation (read-only)
+
+Connected GitHub and Vercel records confirm `staging.alliedautotech.com` is Ready
+at verified staging source `448a78cb` (PR #135), while the production alias is
+still Ready at CLI deployment source `69825067` (PR #126). The staging branch
+already contains newer booking-deposit, workforce and independent quotation
+review code; it is not a simple source-code downgrade from production. The
+current `master` head `82a8f7d8` has one master-only booking-transfer merge
+commit; merging it directly into staging yields one conflict in
+`service-operations.service.ts`, where equivalent booking-transfer work is
+already integrated. No merge was performed.
+
+Vercel environment-variable metadata shows production-targeted
+`NEXT_PUBLIC_HELP_LEARN_ENABLED` and
+`NEXT_PUBLIC_OWNER_SUPPORT_COVERAGE_ENABLED` entries without corresponding
+branch-scoped staging entries. This is a candidate explanation for some missing
+staging features, not evidence that those features are approved for staging or
+that matching backend services are active. Compare values and backend policy
+through authorised redacted checks before any scoped staging-only change.
+
+Local uncommitted checkout corrections address the deposit-write release gate,
+payment-purpose guard, invoice/deposit coordination, versioned customer copy,
+and booking-page status/refresh presentation. Focused source tests passed, but
+no signed commit, exact-head CI, hosted UI acceptance, isolated database race
+test, backend deployment or Paystack test-mode transaction has occurred.
+Preserve production and live payment flags. Next: independently verify staging
+backend readiness/configuration and database prerequisites; reconcile the
+master-only booking-transfer merge without duplicating it; complete the
+invoice concurrency test, signed staging CI/deployment, and the accepted
+quotation's 20% test charge/80% workshop balance acceptance.

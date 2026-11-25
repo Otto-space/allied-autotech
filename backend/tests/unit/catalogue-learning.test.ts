@@ -173,7 +173,7 @@ it("versions guest refund handoff guidance while preserving separate financial a
 
 it("keeps concern guidance conditional on the real intake form and preserves pending confirmation", () => {
   const article = learningArticles.find((item) => item.id === "service-request")!;
-  expect(article.version).toBe(35);
+  expect(article.version).toBe(36);
   expect(article.steps.join(" ")).toContain("only for a confirmed future appointment");
   expect(article.steps.join(" ")).toContain("wait for the current availability check");
   expect(article.steps.join(" ")).toContain(
@@ -246,7 +246,8 @@ it("keeps every reviewed article within the established client step bound withou
     "does not submit or confirm your draft",
     "staff",
     "Declining keeps your existing appointment",
-    "No booking deposit is required",
+    "No booking deposit is required to submit a request",
+    "separately enabled approved-quotation deposit flow",
     "not reserve capacity",
     "only for a confirmed future appointment",
   ])
@@ -296,7 +297,7 @@ it("versions saved financial breakdown guidance without expanding its independen
 
 it("explains recorded-start cancellation and missed reminder boundaries without inventing a cutoff", () => {
   const article = learningArticles.find((value) => value.id === "service-request")!;
-  expect(article.version).toBe(35);
+  expect(article.version).toBe(36);
   const text = article.steps.join(" ");
   expect(text).toContain("only before work starts");
   expect(text).toContain("older status still says Confirmed");
@@ -305,7 +306,7 @@ it("explains recorded-start cancellation and missed reminder boundaries without 
 
 it("explains resource-aware offers without promising a reservation or hiding preferred-time requests", () => {
   const article = learningArticles.find((value) => value.id === "service-request")!;
-  expect(article.version).toBe(35);
+  expect(article.version).toBe(36);
   expect(article.gate).toBe("public");
   const text = article.steps.join(" ");
   for (const phrase of [

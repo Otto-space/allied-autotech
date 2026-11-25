@@ -711,6 +711,11 @@ export class PaymentsService {
         const payment = await this.repository.lockPayment(id, tx);
         if (!payment || !(await this.paymentBelongsTo(identity, payment, tx)))
           throw paymentNotFound();
+        if (
+          !env.PRODUCT_PURCHASES_ENABLED &&
+          !(payment.purpose === "BOOKING_DEPOSIT" && bookingDepositTestEnabled(env))
+        )
+          throw paymentConflict("Online purchasing is not available");
         const payer = await this.paymentPayer(identity, payment, tx);
         this.assertPayable(payment);
         if (

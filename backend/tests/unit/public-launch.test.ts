@@ -93,6 +93,36 @@ describe("public browsing/enquiries launch boundary", () => {
 });
 
 describe("independent appointment and purchasing release controls", () => {
+  it("permits only staging deposit payment endpoints through the purchasing boundary", async () => {
+    const app = fixture("full", {
+      bookingRequestsEnabled: false,
+      productPurchasesEnabled: false,
+      bookingDepositTestEnabled: true,
+    });
+    const id = "cb9267d3-a9cd-48d5-a609-e504591b3937";
+    for (const path of [
+      `/customers/payments/booking-deposits/${id}`,
+      `/customers/payments/${id}/paystack`,
+      `/customers/payments/${id}/attempts/${id}/verify`,
+    ]) {
+      expect((await request(app).post(`/api/v1${path}`)).status).toBe(204);
+      expect((await request(app).patch(`/api/v1${path}`)).status).toBe(403);
+    }
+    for (const path of [
+      "/customers/payments",
+      `/customers/payments/${id}/monnify`,
+      "/customers/orders/checkout",
+      `/customers/payments/${id}/paystack/extra`,
+    ])
+      expect((await request(app).post(`/api/v1${path}`)).status).toBe(403);
+    const disabled = fixture("full", {
+      bookingRequestsEnabled: false,
+      productPurchasesEnabled: false,
+    });
+    expect(
+      (await request(disabled).post(`/api/v1/customers/payments/${id}/paystack`)).status,
+    ).toBe(403);
+  });
   it("fails closed if a full-mode router omits explicit module controls", async () => {
     const app = express();
     app.use("/api/v1", publicLaunch("full"));

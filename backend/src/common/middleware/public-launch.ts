@@ -6,6 +6,7 @@ export type PublicLaunchMode = "full" | "browse_enquiries" | "catalogue";
 export interface PublicTransactionControls {
   bookingRequestsEnabled: boolean;
   productPurchasesEnabled: boolean;
+  bookingDepositTestEnabled?: boolean;
 }
 const transactionPath =
   /^\/customers\/(?:parts-quotes|cart|orders|bookings|payments|vehicle-transactions|vehicle-inspections)(?:\/|$)/i;
@@ -56,6 +57,18 @@ export function publicLaunch(
       return;
     }
     if (mode === "full" && isWrite) {
+      // The reviewed staging QA deposit flow is independent of parts checkout.
+      // Only these exact customer payment operations receive this exception;
+      // payment-service authorization and provider guards still apply.
+      const stagingDepositWrite =
+        controls.bookingDepositTestEnabled === true &&
+        request.method === "POST" &&
+        (/^\/customers\/payments\/booking-deposits\/[0-9a-f-]{36}\/?$/i.test(
+          request.path,
+        ) ||
+          /^\/customers\/payments\/[0-9a-f-]{36}\/(?:paystack|attempts\/[0-9a-f-]{36}\/verify)\/?$/i.test(
+            request.path,
+          ));
       const bookingWrite =
         /^\/customers\/(?:bookings|vehicle-inspections)(?:\/|$)/i.test(request.path) ||
         /^\/public\/booking-response(?:\/|$)/i.test(request.path);
@@ -65,7 +78,7 @@ export function publicLaunch(
         ) || /^\/purchase\/(?:orders|payments|parts-quotes)(?:\/|$)/i.test(request.path);
       if (
         (bookingWrite && !controls.bookingRequestsEnabled) ||
-        (purchasingWrite && !controls.productPurchasesEnabled)
+        (purchasingWrite && !controls.productPurchasesEnabled && !stagingDepositWrite)
       ) {
         next(
           new AppError({

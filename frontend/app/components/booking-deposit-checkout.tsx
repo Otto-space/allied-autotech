@@ -49,7 +49,6 @@ export function BookingDepositCheckout({
     null,
   );
   if (
-    !bookingDepositsEnabled ||
     booking.status !== "CONFIRMED" ||
     !booking.confirmedAt ||
     booking.depositPaidAt ||
@@ -64,6 +63,25 @@ export function BookingDepositCheckout({
   const total = BigInt(quote.totalKobo);
   const deposit = (total * BigInt(2_000) + BigInt(5_000)) / BigInt(10_000);
   if (deposit <= BigInt(0)) return null;
+
+  if (!bookingDepositsEnabled)
+    return (
+      <section
+        className="booking-detail-surface"
+        aria-labelledby="booking-deposit-unavailable-title"
+      >
+        <h2 id="booking-deposit-unavailable-title">Quotation accepted</h2>
+        <p>
+          Your quotation of {formatKobo(quote.totalKobo)} is accepted. Online
+          booking-deposit payments are not available at the moment. No deposit has been
+          requested or charged through this booking.
+        </p>
+        <p>
+          Your appointment remains confirmed. Contact the workshop if you need help with
+          payment arrangements; you can return here to check for updates.
+        </p>
+      </section>
+    );
 
   async function requestDeposit() {
     if (!agreed || !fresh || busy || uncertain || paymentId || !quote) return;
