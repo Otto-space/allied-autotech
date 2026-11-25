@@ -15759,3 +15759,162 @@ This integration is not on master or deployed. No payment capability, booking
 availability, database migration, staff permission or Paystack credential was
 enabled. Exact-head CI, browser and real signed-in role acceptance, real provider
 test-mode webhook delivery, fresh backup and isolated restore gates remain open.
+### 23 November: staging-only approved-quotation 20% booking deposit (local development)
+
+Owner-approved policy: staff first approves a real appointment slot and issues the
+quotation; the customer accepts the current quotation; only then is a fixed 20%
+deposit payable online. The balance remains for in-person settlement and Zoho
+Books reconciliation. Existing booking records, legacy 30% snapshots and production
+settings must remain unchanged. Preserve the current QA booking rather than
+repurposing or cancelling it for a payment test.
+
+On the uncommitted local branch `feat/staging-approved-quote-deposit-20`, a pure
+integer-kobo calculator and fail-closed readiness predicate now require current
+accepted quote identity/version, staff/branch/capacity confirmation and absence of
+an earlier deposit. A forward-only migration adds the new versioned 20% constraint
+alternative while retaining both legacy 30% and no-deposit alternatives. Four
+focused pure tests, backend TypeScript and lint pass; the database catalog test
+has not run because an isolated PostgreSQL instance is unavailable here.
+
+An explicit `BOOKING_DEPOSIT_TEST_ENABLED` control defaults off and may only be
+enabled in staging with full mode, Paystack test credentials and disabled live
+payments/reconciliation; 76 focused policy/public-launch tests currently pass.
+
+The owner subsequently accepted a rescheduling-first conditional-refund policy:
+one free reschedule with at least 24 hours' notice, full deposit refund for
+customer cancellations with at least 48 hours' notice and business-caused
+cancellations before service starts, and manual review for late cancellations,
+no-shows, emergencies and payment disputes. No automatic deposit forfeiture or
+refund execution is authorized. Pure eligibility tests and a version-gated
+customer cancellation notification are prepared locally; 81 focused tests,
+TypeScript and lint pass. Financial refund workflow/approval and customer UI
+remain outstanding. Legal review is required before live publication.
+
+Staging backend implementation now includes a gated customer-owned booking
+deposit intent endpoint, exact latest accepted quote/version and approved slot
+checks, a 20% server-calculated amount, explicit deposit-terms acknowledgement,
+booking/target row locks, idempotent intent recovery, and immutable quotation
+and schedule binding. Paystack checkout revalidates this binding immediately
+before requesting authorization; Monnify/manual booking deposits remain blocked.
+Verified on-time settlement preserves the already-confirmed booking status and
+records depositPaidAt; late captures remain review anomalies rather than
+automatically reclaiming a slot. The 30-minute payment-intent window is currently
+a staging-only reuse of the existing booking-policy value, not a newly approved
+production cancellation/hold rule. Existing expired-intent recovery, external
+refund execution, frontend CTA, Zoho handoff and isolated DB/concurrency/provider
+acceptance remain open. 83 focused booking/policy tests and 70 existing focused
+payment/Paystack tests passed, together with lint, TypeScript, route coverage,
+OpenAPI validation and secret guard. **This is uncommitted, not signed, not
+deployed and not ready for test-mode charge acceptance.**
+
+Additional settlement hardening: the booked deposit payment snapshot is now
+rechecked against the latest accepted quotation, original total, 20% amount,
+assigned staff and schedule version when a verified provider capture is allocated.
+Changed terms or a late capture remain review anomalies; no slot is rebooked or
+deposit forfeited by that path. An expired initial payment intent cannot replay
+as if checkout were still usable; it explicitly requires workshop-assisted
+renewal, which remains an unimplemented review workflow. Seven focused suites
+now pass 154 tests along with TypeScript/lint. No real provider or database
+acceptance was run, and the staging activation flag remains disabled.
+Before acceptance, audit invoice and Zoho credit projections for late/mismatched
+captures: a provider payment may remain historically SUCCEEDED while the booking
+deposit is deliberately not allocated. Only a verified and eligible booking
+deposit, not the raw provider capture status alone, may reduce the in-person
+balance. Preserve anomaly/refund audit evidence.
+
+Invoice-credit reconciliation is now prepared locally: booking invoice calculation
+requires allocated `depositPaidAt`, a succeeded payment and no forfeiture; for the
+new policy it additionally checks the accepted quotation total, 2,000 basis
+points and exact rounded 20% amount. A separate forward-only migration updates
+the invoice-source database trigger without editing applied migration history.
+The new policy credits the deposit even when a legacy published booking-slot ID
+is absent, whereas an unallocated capture yields no credit. Four new invoice
+credit tests passed alongside twelve focused policy tests, backend typecheck and
+lint. A second fail-closed SQL guard now rejects a paid new-policy deposit when
+its accepted quote total, policy basis points, amount, forfeiture state or
+succeeded payment no longer agree, preventing direct invoice inserts from
+silently treating an inconsistent paid deposit as zero credit. The focused
+payment/policy suite still passes 158 tests, TypeScript and lint pass.
+The verified new-policy capture allocation now additionally checks that its
+provider timestamp is no earlier than both payment creation and explicit
+customer deposit-term acceptance, and no later than the recorded checkout
+hold expiry. Missing or invalid timestamps remain review anomalies; legacy
+deposit allocation stays unchanged. Focused tests cover valid, early, late,
+invalid and missing-acceptance timestamps; 87 payment/deposit tests plus
+TypeScript and lint passed in the latest batch.
+**The new invoice trigger still needs isolated PostgreSQL migration replay
+and behavioral testing before staging rollout.** Customer checkout/UI, Zoho
+handoff, expiry/refund review, provider webhook/concurrency acceptance and
+Verified signed exact-head CI remain outstanding. Staging flag stays disabled;
+production must not change before staging acceptance.
+
+Staging checkout preparation continued on 23 November: public capability metadata
+now advertises the isolated 20% test-deposit gate independently of parts-shop
+checkout. The customer booking detail offers a guarded, explicit agreement and
+20%/80% breakdown only for a confirmed booking and accepted latest quote. It
+creates a server-owned idempotent booking deposit intent; the existing payment
+detail handles Paystack initialization and explicitly omits Monnify for this
+purpose. The screen retains uncertainty and asks for a booking refresh instead
+of initiating duplicate payment. No credentials or live transactions were used.
+
+An isolated in-memory PGlite **forward-only** behavioral test successfully
+applies both new migrations to a synthetic minimal schema and verifies that an
+invalid no-slot 20% record is rejected, a valid paid deposit credits the invoice,
+a pending refund blocks invoice creation, and stale quote totals fail closed.
+It passed once. This is **not** a complete historical PostgreSQL migration
+replay: PGlite lacks the historical `citext` and `pg_trgm` extensions, and its
+compatibility replay stops before the full 132-migration history. A real isolated
+PostgreSQL 17 replay remains mandatory before staging activation or deployment.
+Backend 102 focused unit tests, TypeScript, lint, OpenAPI validation (473 paths)
+and the secret guard passed. Frontend rendering/typecheck remain unverified:
+this workspace has no frontend node_modules and offline npm installation failed
+on an uncached package. No signed commit, hosted QA or real Paystack test was
+performed; production remains unchanged.
+
+Follow-up validation in this same workspace: a bounded online `npm ci
+--ignore-scripts` successfully installed frontend dependencies without changing
+the lockfile. Frontend TypeScript, lint, 14 targeted capability/checkout tests
+and the optimized Next.js production build all passed. A first typecheck found
+and corrected BigInt target compatibility and optional response-handling errors.
+Full frontend unit/regression suite and real browser QA are separate gates.
+
+Final local frontend verification: the complete Vitest suite passed **1,617
+tests**, with **12 skipped** across 233 passed/2 skipped files. The optimized
+Next.js build, typecheck and lint also passed; focused checkout/capability tests
+passed. Frontend file formatting was corrected. This is **source verification**,
+not a verified GitHub web commit, exact-head hosted CI, signed staging rollout,
+isolated real PostgreSQL 17 full migration replay or an actual Paystack payment.
+
+Subsequent full backend unit/integration fixture run passed **1,196 tests**
+with **1,820 skipped** (130 files passed; 217 skipped), mainly because actual
+database/provider fixture gates are not enabled in this environment. The
+54-case deployment safety verifier and isolated forward-only PGlite test were
+rerun and passed. The skipped database cases must not be counted as migration
+replay or provider acceptance. No PostgreSQL 17 server, Docker daemon or local
+Verified Git signing identity is available here; those remain release blockers.
+
+The accepted cancellation policy gained an explicit **review-only** financial
+handoff: customer cancellation at least 48 hours before a not-yet-started
+appointment now queues the remaining verified 20% deposit amount in the existing
+refund approval queue, recording zero proposed fee and an immutable policy
+snapshot. This does not approve, dispatch or claim a refund; late/no-show/
+disputed cases retain manual review without automatic deductions. The request
+locks verified attempts, is idempotent and subtracts already committed refunds.
+Two new isolated unit cases cover the request and replay/no-charge paths; all
+15 focused booking/refund tests, TypeScript and lint passed. A real database
+concurrency/integration check and actual Paystack refund remain unverified.
+
+2026-11-23 isolated PostgreSQL 17 verification update: PostgreSQL 17.12 was
+unpacked into a disposable temporary directory, initialized with synthetic
+credentials, and bound only to loopback. The empty `allied_replay_second_ci`
+database successfully replayed the complete historical migration chain plus
+both new 20% deposit migrations using `scripts/verify-migrations.ts`;
+`prisma migrate diff --exit-code` reported **No difference detected**. The
+real-PostgreSQL `booking-deposit-migration.test.ts` suite then passed all
+**3/3** database assertions. One newly written test assertion was adjusted
+to match the valid SQL predicate; no applied migration or database schema was
+altered to accommodate the test. This supersedes the earlier claim that
+native PostgreSQL replay was unavailable. The database is isolated test data;
+neither live staging nor production was touched. Live staging acceptance,
+verified GitHub commit, real Paystack test transaction and independent
+refund/concurrency integration remain pending.

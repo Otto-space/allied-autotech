@@ -16,6 +16,7 @@ import {
 } from "../../providers/payments/monnify-webhook.js";
 import { webhookUnauthorized } from "./payments.errors.js";
 import type {
+  BookingDepositIntentInput,
   ManualPaymentInput,
   ManualReviewInput,
   PaymentCreateInput,
@@ -40,6 +41,22 @@ const key = (res: Response) =>
 
 export class PaymentsController {
   constructor(private readonly service: PaymentsService = paymentsService) {}
+  createBookingDeposit = async (req: Request, res: Response) =>
+    res
+      .status(201)
+      .json(
+        successResponse(
+          "Booking deposit payment prepared",
+          req.id,
+          await this.service.createBookingDepositIntent(
+            actor(req),
+            validated<{ bookingId: string }>(res, "params").bookingId,
+            validated<BookingDepositIntentInput>(res, "body"),
+            key(res),
+            context(req),
+          ),
+        ),
+      );
   create = async (req: Request, res: Response) =>
     res
       .status(201)

@@ -66655,6 +66655,11 @@
                     "type": "string",
                     "format": "uuid",
                     "description": "Identifier of the service resource; ownership is resolved server-side."
+                  },
+                  "replacementSlotId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Identifier of the replacement slot resource; ownership is resolved server-side."
                   }
                 },
                 "required": [
@@ -66667,7 +66672,8 @@
               "example": {
                 "assignedStaffId": "00000000-0000-4000-8000-000000000001",
                 "expectedVersion": 0,
-                "serviceId": "00000000-0000-4000-8000-000000000001"
+                "serviceId": "00000000-0000-4000-8000-000000000001",
+                "replacementSlotId": "00000000-0000-4000-8000-000000000001"
               }
             }
           },
@@ -126093,6 +126099,355 @@
         "x-idempotency-required": true
       }
     },
+    "/customers/payments/booking-deposits/{bookingId}": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Prepare a staging-only 20% deposit for an approved booking and accepted quotation",
+        "description": "Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Staged service invoices require acceptedServiceStage with the exact stage, invoiceVersion and amountKobo. Materials payment does not settle workmanship. Workmanship requires recorded completion and prior materials settlement; unresolved financial adjustments block another charge. The server derives each stage from the immutable accepted-quote allocation, with one saved tax total. Historical invoices without a plan retain their original payment behavior. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Prepare a staging-only 20% deposit for an approved booking and accepted quotation. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the booking resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "bookingId",
+            "in": "path",
+            "description": "Identifier selecting the booking resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 120,
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "acceptedQuoteId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Identifier of the accepted quote resource; ownership is resolved server-side."
+                  },
+                  "acceptedQuoteVersion": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Accepted Quote Version validated by this operation's strict request contract."
+                  },
+                  "acceptDepositTerms": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ],
+                    "description": "Accept Deposit Terms validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "acceptedQuoteId",
+                  "acceptedQuoteVersion",
+                  "acceptDepositTerms"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "acceptedQuoteId": "00000000-0000-4000-8000-000000000001",
+                "acceptedQuoteVersion": 1,
+                "acceptDepositTerms": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success: Prepare a staging-only 20% deposit for an approved booking and accepted quotation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Prepare a staging-only 20% deposit for an approved booking and accepted quotation.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Prepare a staging-only 20% deposit for an approved booking and accepted quotation",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request conflicts with current state or idempotency.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request conflicts with current state or idempotency.",
+                  "error": {
+                    "code": "CONFLICT"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required provider or database is temporarily unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required provider or database is temporarily unavailable.",
+                  "error": {
+                    "code": "PROVIDER_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postCustomersPaymentsBookingDepositsByBookingId",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": true
+      }
+    },
     "/customers/payments/{paymentId}": {
       "get": {
         "tags": [
@@ -172273,6 +172628,27 @@
                           ],
                           "description": "Vehicle Deposits validated by this operation's strict request contract."
                         },
+                        "bookingDeposits": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean",
+                              "description": "Enabled validated by this operation's strict request contract."
+                            },
+                            "basisPoints": {
+                              "type": "number",
+                              "enum": [
+                                2000
+                              ],
+                              "description": "Basis Points validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "enabled",
+                            "basisPoints"
+                          ],
+                          "description": "Booking Deposits validated by this operation's strict request contract."
+                        },
                         "finance": {
                           "type": "object",
                           "properties": {
@@ -172383,6 +172759,7 @@
                         "collection",
                         "delivery",
                         "vehicleDeposits",
+                        "bookingDeposits",
                         "finance",
                         "booking",
                         "marketing",
@@ -172441,6 +172818,10 @@
                     },
                     "vehicleDeposits": {
                       "enabled": true
+                    },
+                    "bookingDeposits": {
+                      "enabled": true,
+                      "basisPoints": 2000
                     },
                     "finance": {
                       "approvalStatus": "synthetic-approvalstatus",

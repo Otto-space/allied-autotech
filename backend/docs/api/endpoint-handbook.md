@@ -2577,6 +2577,10 @@ Success: HTTP 200.
     "vehicleDeposits": {
       "enabled": true
     },
+    "bookingDeposits": {
+      "enabled": true,
+      "basisPoints": 2000
+    },
     "finance": {
       "approvalStatus": "synthetic-approvalstatus",
       "draftVatBasisPoints": 750,
@@ -6826,6 +6830,59 @@ Success: HTTP 201.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
 
+### POST `/customers/payments/booking-deposits/{bookingId}`
+
+- Operation ID: `postCustomersPaymentsBookingDepositsByBookingId`
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Staged service invoices require acceptedServiceStage with the exact stage, invoiceVersion and amountKobo. Materials payment does not settle workmanship. Workmanship requires recorded completion and prior materials settlement; unresolved financial adjustments block another charge. The server derives each stage from the immutable accepted-quote allocation, with one saved tax total. Historical invoices without a plan retain their original payment behavior. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Prepare a staging-only 20% deposit for an approved booking and accepted quotation. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Required in `Idempotency-Key`
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `bookingId` | path | string (uuid) | Yes | Identifier selecting the booking resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `acceptedQuoteId` | string (uuid) | Yes | Identifier of the accepted quote resource; ownership is resolved server-side. |
+| `acceptedQuoteVersion` | integer | Yes | Accepted Quote Version validated by this operation's strict request contract. |
+| `acceptDepositTerms` | true | Yes | Accept Deposit Terms validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "acceptedQuoteId": "00000000-0000-4000-8000-000000000001",
+  "acceptedQuoteVersion": 1,
+  "acceptDepositTerms": true
+}
+```
+
+Success: HTTP 201.
+
+```json
+{
+  "success": true,
+  "message": "Prepare a staging-only 20% deposit for an approved booking and accepted quotation",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
+
 ### GET `/customers/payments/{paymentId}`
 
 - Operation ID: `getCustomersPaymentsByPaymentId`
@@ -10611,6 +10668,7 @@ JSON request fields:
 | `assignedStaffId` | string (uuid) | Yes | Identifier of the assigned staff resource; ownership is resolved server-side. |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `serviceId` | string (uuid) | No | Identifier of the service resource; ownership is resolved server-side. |
+| `replacementSlotId` | string (uuid) | No | Identifier of the replacement slot resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -10618,7 +10676,8 @@ Synthetic request example:
 {
   "assignedStaffId": "00000000-0000-4000-8000-000000000001",
   "expectedVersion": 0,
-  "serviceId": "00000000-0000-4000-8000-000000000001"
+  "serviceId": "00000000-0000-4000-8000-000000000001",
+  "replacementSlotId": "00000000-0000-4000-8000-000000000001"
 }
 ```
 

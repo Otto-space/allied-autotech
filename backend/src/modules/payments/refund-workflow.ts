@@ -120,3 +120,70 @@ export async function requestFreeCancellationRefund(
     });
   }
 }
+
+/** Bookings cancelled at least 48 hours ahead request full remaining deposit review.
+ * Never approves, dispatches, forfeits or moves funds. The existing independent
+ * refund approval path remains authoritative. */
+export async function requestEarlyBookingDepositRefundReview(
+  tx: Prisma.TransactionClient,
+  bookingId: string,
+  requesterId: string,
+) {
+  const attempts = await tx.paymentAttempt.findMany({
+    where: {
+      payment: { bookingId, purpose: "BOOKING_DEPOSIT" },
+      status: "SUCCESSFUL",
+      verificationStatus: "VERIFIED",
+    },
+    orderBy: { id: "asc" },
+  });
+  if (!attempts.length) return;
+  const policy = await currentPolicy(tx, "cancellation");
+  for (const attempt of attempts) {
+    await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${attempt.id}::uuid FOR UPDATE`;
+    const key = hashToken("refund-idempotency", `booking-early-cancellation:${attempt.id}`);
+    if (await tx.refund.findUnique({ where: { idempotencyKeyHash: key } })) continue;
+    const committed =
+      (
+        await tx.refund.aggregate({
+          where: {
+            paymentAttemptId: attempt.id,
+            status: { notIn: ["FAILED", "CANCELLED"] },
+          },
+          _sum: { amountKobo: true },
+        })
+      )._sum.amountKobo ?? 0n;
+    const remainder = attempt.amountKobo - committed;
+    if (remainder <= 0n) continue;
+    const refund = await tx.refund.create({
+      data: {
+        paymentAttemptId: attempt.id,
+        requestedByUserId: requesterId,
+        refundNumber: `REF-BOOK-${randomUUID().replaceAll("-", "")}`,
+        idempotencyKeyHash: key,
+        amountKobo: remainder,
+        currency: attempt.currency,
+        reason:
+          "Customer booking cancelled with at least 48 hours' notice; full remaining deposit requested for independent refund review",
+        policyVersionId: policy.id,
+        policySnapshot: {
+          ...policySnapshot(policy),
+          bookingDepositCancellation: "approved-quote-deposit-cancellation-v1",
+          feeKobo: "0",
+        },
+      },
+    });
+    await appendAuditEvent(tx, {
+      actorUserId: requesterId,
+      action: "REFUND_REQUESTED",
+      entityType: "REFUND",
+      entityId: refund.id,
+      newValues: { bookingId, feeKobo: "0", amountKobo: remainder.toString() },
+      context: {
+        requestId: `booking-refund:${refund.id}`,
+        ipAddress: null,
+        userAgent: null,
+      },
+    });
+  }
+}

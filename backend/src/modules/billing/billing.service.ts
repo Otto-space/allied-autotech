@@ -28,6 +28,7 @@ import type {
 } from "./billing.schemas.js";
 import { invoiceJsonSafe, invoicePage } from "./billing.types.js";
 import { buildInvoiceSnapshot } from "./document-snapshot.js";
+import { bookingDepositCredit } from "./booking-deposit-credit.js";
 
 const number = () =>
   `INV-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
@@ -210,15 +211,23 @@ export class BillingService {
         const refundedKobo = refunds
           .filter((refund) => refund.status === "SUCCEEDED")
           .reduce((sum, refund) => sum + refund.amountKobo, 0n);
-        const depositCreditKobo =
-          source.bookingSlotId !== null &&
-          source.depositPayment?.status === "SUCCEEDED" &&
-          source.depositPaidAt !== null &&
-          source.depositForfeitedAt === null
-            ? (source.depositAmountKobo ?? 0n) - refundedKobo
-            : 0n;
-        if (depositCreditKobo < 0n || depositCreditKobo > quote.totalKobo)
+        let depositCreditKobo: bigint;
+        try {
+          depositCreditKobo = bookingDepositCredit({
+            bookingSlotId: source.bookingSlotId,
+            depositPolicyVersion: source.depositPolicyVersion,
+            depositBaseKobo: source.depositBaseKobo,
+            depositBasisPoints: source.depositBasisPoints,
+            depositAmountKobo: source.depositAmountKobo,
+            depositPaidAt: source.depositPaidAt,
+            depositForfeitedAt: source.depositForfeitedAt,
+            depositPaymentStatus: source.depositPayment?.status ?? null,
+            refundedKobo,
+            acceptedQuoteTotalKobo: quote.totalKobo,
+          });
+        } catch {
           throw invoiceConflict("The booking deposit credit is inconsistent");
+        }
         branchId = source.branchId;
         data = {
           invoiceNumber: number(),
