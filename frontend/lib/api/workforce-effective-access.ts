@@ -45,7 +45,7 @@ export const workforceEffectiveAccessSchema = z.object({
   evaluatedAt: z.iso.datetime(),
   grants,
   responsibilityGrantsOnly: z.literal(true),
-  independentCapabilities: z.array(capabilitySchema).max(7).optional(),
+  independentCapabilities: z.array(capabilitySchema).max(9).optional(),
 });
 export const workforceAccessPreviewSchema = z.object({
   userId: z.uuid(),

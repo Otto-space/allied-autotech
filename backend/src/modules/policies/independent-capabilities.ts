@@ -8,6 +8,8 @@ export const independentCapabilitySchema = z.enum([
   "REFUND_CHECK",
   "FINANCE_POLICY_APPROVE",
   "BOOKING_CONFIRM",
+  "QUOTATION_PREPARE",
+  "QUOTATION_APPROVE",
   "PRIVACY_REVIEW",
   "DISPUTE_MANAGE",
 ]);
@@ -46,6 +48,10 @@ export function independentEndpointCapabilities(
       return ["PRIVACY_REVIEW"];
   }
   if (method === "POST") {
+    if (new RegExp(`^/api/v1/staff/bookings/${uuid}/quotes$`).test(path))
+      return ["QUOTATION_PREPARE"];
+    if (new RegExp(`^/api/v1/staff/bookings/${uuid}/quotes/${uuid}/issue$`).test(path))
+      return ["QUOTATION_APPROVE"];
     if (new RegExp(`^/api/v1/staff/refunds/${uuid}/decision$`).test(path))
       return ["REFUND_APPROVE"];
     if (
@@ -72,5 +78,10 @@ export function independentEndpointCapabilities(
     )
       return ["PRIVACY_REVIEW"];
   }
+  if (
+    method === "PUT" &&
+    new RegExp(`^/api/v1/staff/bookings/${uuid}/quotes/${uuid}$`).test(path)
+  )
+    return ["QUOTATION_PREPARE"];
   return [];
 }

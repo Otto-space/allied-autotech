@@ -15,6 +15,8 @@ export function StaffQuoteRecords({
   disabled,
   canChange,
   canAuthor,
+  canIssue,
+  canClose,
   checkingAccess,
   onReview,
 }: {
@@ -22,6 +24,8 @@ export function StaffQuoteRecords({
   disabled: boolean;
   canChange: boolean;
   canAuthor: boolean;
+  canIssue?: boolean;
+  canClose?: boolean;
   checkingAccess: boolean;
   onReview: (proposal: MutationProposal) => void;
 }) {
@@ -44,7 +48,13 @@ export function StaffQuoteRecords({
     quote: StaffBooking["quotes"][number],
     action: "issue" | "void" | "expire",
   ) {
-    if (disabled || !canChange) return;
+    if (
+      disabled ||
+      !canChange ||
+      (action === "issue" && canIssue === false) ||
+      (action !== "issue" && canClose === false)
+    )
+      return;
     const body: RequestBody<
       "/staff/bookings/{bookingId}/quotes/{quoteId}/issue",
       "post"
@@ -196,7 +206,7 @@ export function StaffQuoteRecords({
                       Edit draft
                     </button>
                   )}
-                  {quote.status === "DRAFT" && (
+                  {canIssue !== false && quote.status === "DRAFT" && (
                     <button
                       className="button"
                       disabled={disabled || quote.items.length === 0 || !quote.expiresAt}
@@ -205,7 +215,7 @@ export function StaffQuoteRecords({
                       Review issue
                     </button>
                   )}
-                  {["DRAFT", "ISSUED"].includes(quote.status) && (
+                  {canClose !== false && ["DRAFT", "ISSUED"].includes(quote.status) && (
                     <button
                       className="button secondary"
                       disabled={disabled}
@@ -214,7 +224,7 @@ export function StaffQuoteRecords({
                       Review void
                     </button>
                   )}
-                  {quote.status === "ISSUED" && quote.expiresAt && (
+                  {canClose !== false && quote.status === "ISSUED" && quote.expiresAt && (
                     <button
                       className="button secondary"
                       disabled={disabled}

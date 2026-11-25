@@ -20496,6 +20496,44 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/workforce/bookings/{id}/quotation`
+
+- Operation ID: `getStaffWorkforceBookingsByIdQuotation`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: bookingQuotation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: bookingQuotation",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "quotes": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "synthetic-status"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/staff/workforce/bookings/{id}/alternative`
 
 - Operation ID: `postStaffWorkforceBookingsByIdAlternative`
@@ -28874,7 +28912,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `userId` | string (uuid) | Yes | Identifier of the user resource; ownership is resolved server-side. |
-| `capability` | REFUND_APPROVE / REFUND_TRANSFER / REFUND_CHECK / FINANCE_POLICY_APPROVE / BOOKING_CONFIRM / PRIVACY_REVIEW / DISPUTE_MANAGE | Yes | Capability validated by this operation's strict request contract. |
+| `capability` | REFUND_APPROVE / REFUND_TRANSFER / REFUND_CHECK / FINANCE_POLICY_APPROVE / BOOKING_CONFIRM / QUOTATION_PREPARE / QUOTATION_APPROVE / PRIVACY_REVIEW / DISPUTE_MANAGE | Yes | Capability validated by this operation's strict request contract. |
 
 Synthetic request example:
 
