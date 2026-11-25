@@ -2,6 +2,9 @@ name: Frontend release checks
 
 on:
   push:
+    branches:
+      - master
+      - codex/staging-integrated-signed-20261121
     paths:
       - "frontend/**"
       - "package.json"
