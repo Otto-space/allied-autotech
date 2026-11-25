@@ -579,6 +579,9 @@ for (const { width, collapsed, measuredBand, earlierInset, tallerHeader } of [
     const s = await setup(page);
     const name = "Chidinma Alexandra Okonkwo-Emmanuel with a long recorded family name";
     s.f.workforce.accountLabel = name;
+    s.f.member.staffProfile!.firstName = "Chidinma Alexandra";
+    s.f.member.staffProfile!.lastName =
+      "Okonkwo-Emmanuel with a long recorded family name";
     await page.goto(`${base}/${s.f.member.id}`);
     if (collapsed) {
       await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
@@ -593,8 +596,9 @@ for (const { width, collapsed, measuredBand, earlierInset, tallerHeader } of [
       await page.locator(".dashboard-top").evaluate((element) => {
         (element as HTMLElement).style.minHeight = "148px";
       });
-    const selected = page.getByRole("complementary", { name: "Selected person" });
-    await selected.locator("strong").evaluate((element) => {
+    const selected = page.locator(".wsad-identity");
+    await expect(selected.getByRole("heading", { name, exact: true })).toBeVisible();
+    await selected.locator("h2").evaluate((element) => {
       element.style.fontSize = "28px";
       element.style.lineHeight = "1.5";
       element.style.letterSpacing = "0.12em";
@@ -610,30 +614,11 @@ for (const { width, collapsed, measuredBand, earlierInset, tallerHeader } of [
           `${Math.max(0, header.getBoundingClientRect().bottom) + 16 + extraInset}px`,
         );
       }, earlierInset);
-    const review = page.getByRole("button", { name: "Review enrollment", exact: true });
-    for (const control of [
-      page.getByLabel("Your current password", { exact: true }),
-      review,
-    ]) {
-      if (control === review) {
-        await page.keyboard.press("Tab");
-        await expect(
-          page.getByRole("button", { name: "Show password", exact: true }),
-        ).toBeFocused();
-        await page.keyboard.press("Tab");
-      } else {
-        await control.focus();
-      }
+    const review = page.getByRole("button", { name: "Refresh staff account" });
+    for (const control of [page.getByLabel("Account change", { exact: true }), review]) {
+      await control.scrollIntoViewIfNeeded();
+      await control.focus();
       await expect(control).toBeFocused();
-      // Exercise browser-native alignment after measured focus recovery as well.
-      // Event timing must not mask a duplicated header or focus gap.
-      await control.evaluate((element) =>
-        element.scrollIntoView({ block: "start", behavior: "instant" }),
-      );
-      await expect(selected.getByText(name, { exact: true })).toBeInViewport();
-      expect(
-        await selected.evaluate((element) => element.getBoundingClientRect().height),
-      ).toBeLessThan(720 / 2);
       await expect(control).toBeInViewport();
       await expect
         .poll(() =>
@@ -649,8 +634,8 @@ for (const { width, collapsed, measuredBand, earlierInset, tallerHeader } of [
               targets.push(label);
             }
             const boxes = targets.map((target) => target.getBoundingClientRect());
-            const bar = document
-              .querySelector(".wf-person-context")!
+            const header = document
+              .querySelector(".dashboard-top")!
               .getBoundingClientRect();
             // Sample painted edge midpoints; bounding-box corners can fall
             // outside the button's rounded border even with nothing over it.
@@ -669,15 +654,15 @@ for (const { width, collapsed, measuredBand, earlierInset, tallerHeader } of [
               }),
             );
             return {
-              belowIdentity: boxes.every((box) => box.top >= bar.bottom),
+              belowHeader: boxes.every((box) => box.top >= header.bottom),
               occludingElements,
             };
           }),
         )
-        .toEqual({ belowIdentity: true, occludingElements: [] });
+        .toEqual({ belowHeader: true, occludingElements: [] });
       await page.screenshot({
         path: info.outputPath(
-          control === review ? "person-long-identity.png" : "person-long-password.png",
+          control === review ? "person-long-refresh.png" : "person-long-account.png",
         ),
       });
     }
@@ -690,49 +675,51 @@ for (const { width, collapsed, measuredBand, earlierInset, tallerHeader } of [
   });
 }
 
-test("short person viewport releases the sticky identity so the field and label remain usable", async ({
+test("short person viewport keeps account change control and label usable", async ({
   page,
 }, info) => {
   await page.setViewportSize({ width: 320, height: 520 });
   const s = await setup(page);
   s.f.workforce.accountLabel =
     "Chidinma Alexandra Okonkwo-Emmanuel with a long recorded family name";
+  s.f.member.staffProfile!.firstName = "Chidinma Alexandra";
+  s.f.member.staffProfile!.lastName = "Okonkwo-Emmanuel with a long recorded family name";
   await page.goto(`${base}/${s.f.member.id}`);
   await page.getByText("Review legacy access and enroll", { exact: true }).click();
-  const selected = page.getByRole("complementary", { name: "Selected person" });
-  await selected.locator("strong").evaluate((element) => {
+  const selected = page.locator(".wsad-identity");
+  await expect(selected.getByRole("heading", { level: 2 })).toContainText(
+    "Chidinma Alexandra",
+  );
+  await selected.locator("h2").evaluate((element) => {
     element.style.fontSize = "28px";
     element.style.lineHeight = "1.5";
     element.style.letterSpacing = "0.12em";
     element.style.wordSpacing = "0.16em";
   });
-  const password = page.getByLabel("Your current password", { exact: true });
-  await password.focus();
-  await expect(password).toBeFocused();
-  await expect(selected).toHaveAttribute("data-unpinned", "true");
-  await password.evaluate((element) =>
-    element.scrollIntoView({ block: "start", behavior: "instant" }),
-  );
+  const control = page.getByLabel("Account change", { exact: true });
+  await control.scrollIntoViewIfNeeded();
+  await control.focus();
+  await expect(control).toBeFocused();
   await expect
     .poll(() =>
-      password.evaluate((element) => {
-        const label = (element as HTMLInputElement).labels?.[0];
+      control.evaluate((element) => {
+        const label = (element as HTMLSelectElement).labels?.[0];
         if (!label) return false;
         const header = document.querySelector(".dashboard-top")!.getBoundingClientRect();
-        const dock = document.querySelector(".support-controls")!.getBoundingClientRect();
+        const dock = document.querySelector(".support-controls")?.getBoundingClientRect();
         return [element, label].every((target) => {
           const box = target.getBoundingClientRect();
           const front = document.elementFromPoint(box.left + box.width / 2, box.top + 2);
           return (
             box.top >= header.bottom &&
-            box.bottom < dock.top &&
+            (!dock || box.bottom < dock.top) &&
             (front === target || target.contains(front))
           );
         });
       }),
     )
     .toBe(true);
-  await page.screenshot({ path: info.outputPath("person-short-password.png") });
+  await page.screenshot({ path: info.outputPath("person-short-account.png") });
   expect(s.writes).toEqual([]);
   expect(s.errors).toEqual([]);
 });
