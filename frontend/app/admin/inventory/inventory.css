@@ -236,6 +236,9 @@
     flex-direction: column;
     gap: 8px;
   }
+}
+/* Stock counts and branch names remain legible as labelled records on laptops. */
+@media (max-width: 1199px) {
   .dashboard .work-inventory .wi-table,
   .wi-table tbody {
     display: block;
@@ -271,6 +274,8 @@
     font-size: 12px;
     margin-bottom: 5px;
   }
+}
+@media (max-width: 767px) {
   .wi-create-toggle {
     padding: 16px;
   }

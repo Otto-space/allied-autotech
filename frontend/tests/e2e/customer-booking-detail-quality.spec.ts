@@ -9,6 +9,26 @@ import {
 } from "../fixtures/customer-booking-detail";
 import { bookingId } from "../fixtures/customer-bookings";
 const route = `/dashboard/bookings/${detailId}`;
+test("quotation rows switch to readable records before laptop content becomes cramped", async ({
+  page,
+}) => {
+  const state = await bookingDetailFixture(page);
+  for (const width of [900, 1024]) {
+    await page.setViewportSize({ width, height: 850 });
+    await page.goto(route);
+    await expect(page.locator(".booking-quote-items tbody tr")).toHaveCount(2);
+    expect(
+      await page
+        .locator(".booking-quote-items tbody tr")
+        .first()
+        .evaluate((element) => getComputedStyle(element).display),
+    ).toBe(width <= 900 ? "grid" : "table-row");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+  expect(state.writes).toEqual([]);
+});
 for (const width of [320, 1440])
   test(`customer reviews additional quotation and reloads its decision at ${width}px`, async ({
     page,

@@ -1,6 +1,30 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { workInvoiceFixture, invoiceRow, sourceRow, id } from "../fixtures/work-invoices";
+
+for (const [width, cardLayout] of [
+  [1024, true],
+  [1440, false],
+] as const) {
+  test(`invoice record density respects the expanded sidebar at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const fixture = await workInvoiceFixture(page);
+    await page.goto("/admin/invoices");
+    await expect(page.locator(".iv-record")).toHaveCount(3);
+    if (cardLayout) await expect(page.locator(".iv-columns")).toBeHidden();
+    else await expect(page.locator(".iv-columns")).toBeVisible();
+    await expect(page.locator(".iv-record-primary").first()).toHaveCSS(
+      "grid-template-areas",
+      cardLayout ? /invoice status/ : "none",
+    );
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(fixture.writes).toEqual([]);
+  });
+}
 const button = (p: Page, name: string) => p.getByRole("button", { name, exact: true });
 async function review(p: Page, sourceId = id(195000)) {
   await p.getByLabel("Source record", { exact: true }).selectOption(sourceId);

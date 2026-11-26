@@ -167,6 +167,31 @@ for (const width of [320, 360, 390, 768, 850, 900, 901, 1024, 1440, 1655]) {
   });
 }
 
+test("expanded sidebar leaves room for desktop records and mobile support stays compact", async ({
+  page,
+}) => {
+  await session(page, "CUSTOMER");
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto("/dashboard");
+  const dashboard = page.locator(".dashboard");
+  await expect(dashboard).toHaveCSS("grid-template-columns", /224px/);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const support = page.getByRole("navigation", { name: "Customer support" });
+  await expect(support).toBeVisible();
+  await expect(support.locator(".support-control-label").first()).toBeHidden();
+  const box = await support.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.width).toBeLessThanOrEqual(120);
+  expect(box!.x).toBeGreaterThan(200);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+});
+
 for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
   test(`${role} can collapse and restore the laptop sidebar without losing navigation`, async ({
     page,

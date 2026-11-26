@@ -9,6 +9,22 @@ async function open(page: Page) {
   await page.goto("/admin/inventory");
   await expect(table(page)).toBeVisible();
 }
+test("inventory stock records adapt at constrained laptop widths", async ({ page }) => {
+  const { state } = await workInventoryFixture(page);
+  for (const width of [1024, 1199, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page);
+    expect(
+      await page
+        .locator(".wi-table")
+        .evaluate((element) => getComputedStyle(element).display),
+    ).toBe(width <= 1199 ? "block" : "table");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+  expect(state.writes).toEqual([]);
+});
 async function creation(page: Page) {
   await button(page, "Add inventory record").click();
   await expect(page.getByLabel("Inventory branch", { exact: true })).toBeFocused();

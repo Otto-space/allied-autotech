@@ -468,7 +468,9 @@
     font-size: 13px;
   }
 }
-@media (max-width: 900px) {
+/* At laptop widths the open dashboard sidebar leaves too little room for the
+   six-column ledger. Reuse the existing record-card anatomy sooner. */
+@media (max-width: 1150px) {
   .iv-header-actions {
     justify-content: flex-start;
     max-width: none;

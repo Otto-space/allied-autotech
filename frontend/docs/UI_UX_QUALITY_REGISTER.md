@@ -13841,3 +13841,122 @@ Complete local frontend regression: 1,617 passed and 12 skipped, 233 test files
 passed and two skipped. Optimized Next.js production build, typecheck and lint
 also passed. No authenticated booking UI or mobile browser screenshot was
 collected on this uncommitted source; hosted evidence remains mandatory.
+
+### 26 November: staging dashboard layout and collection-copy repair (candidate)
+
+- Scope: customer/admin dashboard shell, record table containers, customer
+  support dock and customer Orders introduction. Based on observed staging
+  mobile overlap and cramped expanded-sidebar/table layouts.
+- The expanded desktop sidebar is narrowed from 256px to 224px, preserving
+  the 80px collapsed navigation and the existing mobile menu breakpoint.
+  Dashboard content gutters and semantic table scrolling are made more
+  responsive; table cell density is slightly reduced without hiding columns.
+- The dashboard mobile support controls are compact and icon-only rather than
+  a full-width bar. The public site support treatment remains unchanged.
+- Customer Orders now describes branch collection, consistent with the
+  collection-only cart flow; no shipping or checkout policy is altered.
+- Added an isolated browser regression for desktop sidebar geometry and mobile
+  support dock reachability. **Pending:** run that browser regression and
+  visually inspect 320/390/768/1024/1440px layouts before publication.
+  No staging deployment, transaction or database changes have been made.
+
+### 26 November: narrow-phone order, invoice and vehicle-purchase cards (candidate)
+
+- Routes: `/dashboard/orders`, `/dashboard/invoices`, and
+  `/dashboard/vehicle-transactions`. The existing responsive card presentation
+  stays in place below the laptop breakpoints; no table columns or actions are
+  removed.
+- At 420px and below, status/page-size filters can use full-width rows and
+  record-card values/actions are stacked instead of competing for half-width
+  columns. Vehicle-purchase related filters and action cells receive the same
+  treatment.
+- Source formatting and whitespace checks pass. **Pending:** rendered checks
+  with representative rows at 320/390px and desktop table views. The isolated
+  local Next.js dev server could not start because the execution environment
+  returned `uv_interface_addresses` before serving any page; this is not an
+  application layout assertion or a completed browser test.
+
+### 26 November: admin invoice laptop-density correction (candidate)
+
+- Route: `/admin/invoices`, at expanded-sidebar laptop widths. The invoice
+  ledger's fixed minimum amount column competes with five other columns at
+  roughly 1024px, even after narrowing the dashboard sidebar.
+- Move the existing semantic invoice record-card layout to 1150px and below.
+  Preserve the desktop ledger at wider widths, the invoice detail links, source
+  disclosures, totals, status badges and keyboard focus behaviour.
+- Add fixture-based checks at 1024px (card) and 1440px (table), including
+  horizontal document overflow and a no-write assertion. Rendered execution
+  remains pending; no financial records or API contracts were changed.
+
+### 26 November: payment deadline clarity and laptop-width detail layout (local candidate)
+
+An existing unpaid request can retain the server's `REQUIRES_PAYMENT` state
+after its deadline, while new attempts are correctly blocked. The customer
+payment summary now explicitly explains the elapsed deadline without relabeling
+the authoritative record as expired or implying payment occurred. The payment
+detail switches to a single-column layout by 1200px viewport width, accounting
+for the narrower but still-open dashboard sidebar. Synthetic browser assertions
+cover the unchanged status, blocked checkout, no payment writes, horizontal
+overflow and payment layout at 1024/1200/1440px. Source changes do not activate
+staging checkout or touch existing payments. Compiled browser acceptance remains
+pending; this is not a live deployment or production verification.
+
+### 26 November: customer quotations and workshop booking list density (local candidate)
+
+- Customer booking quotations: use the existing labelled record layout through
+  900px viewport width so long item descriptions, amounts and quantities do not
+  compete for four narrow columns beside the dashboard sidebar. Preserve the
+  semantic table above that breakpoint and all quotation review controls.
+- Workshop booking list: use the existing two-column record cards through
+  1200px, leaving the six-column ledger for wider desktops. Keep filter fields,
+  appointment links, status values and accessibility labels intact.
+- Synthetic browser assertions now distinguish record/table layout at 900/1024px
+  and 1024/1150/1280px respectively, check document overflow and assert no
+  unexpected writes. Rendered browser acceptance is still pending.
+
+### 26 November: admin booking detail and quotation editor spacing (local candidate)
+
+- Widen the existing single-column breakpoint for booking detail operation panels,
+  summary facts and the staff quotation editor to 1200px, giving each form enough
+  usable space beside the open sidebar.
+- Extend the booking detail's established narrow-screen form and labelled line-item
+  presentation to 800px so tablet-width layouts avoid compressed field pairs.
+- Add synthetic work-order geometry checks at 768/1024/1280px, with unchanged
+  record values, no horizontal document scrolling and no writes. Interactive
+  browser execution and screenshot acceptance are still pending.
+
+### 26 November: admin order and parts-inventory table density (local candidate)
+
+- Admin orders: extend the existing labelled order cards and two-column filter
+  treatment through 1200px so fulfilment status, amount and customer details
+  remain legible with the expanded sidebar open.
+- Admin inventory: keep the established labelled stock records through 1199px
+  without also collapsing desktop filter and inventory-creation controls.
+- Synthetic viewport assertions cover 1024/1200/1440px for orders and
+  1024/1199/1440px for inventory, checking row visibility, document overflow
+  and no writes. Rendered browser execution is still pending.
+
+### 26 November: customer directory and admin payment review density (local candidate)
+
+- Customer directory: use the existing single-column customer record treatment
+  through 850px, preventing identity details, contact information and status
+  from squeezing into narrow paired columns. The wide-screen four/two-column
+  record arrangements remain intact.
+- Admin payments: stack expanded attempt evidence and reviewer inputs through
+  1250px so the open sidebar does not compress sensitive finance form fields.
+- Add synthetic viewport geometry and no-write checks for 768/850/1024px
+  customers and 1024/1200/1440px payments. Source validation is separate from
+  still-pending rendered browser and authorized-role acceptance.
+
+### 26 November: combined responsive candidate production-build checkpoint
+
+- The combined sidebar, dashboard record/table, booking-detail, quotation and
+  payment-detail changes from responsive batches 1–8 compiled successfully with
+  `npm run build` on Next.js 16.4.6 (webpack). TypeScript, static route generation,
+  build tracing and standalone preparation all completed successfully.
+- The compiled standalone server started locally; focused Playwright execution
+  could not launch because the bundled headless Chromium executable was absent.
+  The available `/usr/bin/chromium` wrapper also failed because its underlying
+  `/usr/lib/chromium/chromium` binary is missing. These are browser-environment
+  failures, not layout assertion results. No page-level visual or authenticated
+  device acceptance is claimed; no live payment or booking action was taken.

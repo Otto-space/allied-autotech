@@ -340,7 +340,8 @@
     grid-column: 1/-1;
   }
 }
-@media (max-width: 1100px) {
+/* The expanded sidebar reduces usable ledger space well before 1100px. */
+@media (max-width: 1200px) {
   .work-booking-table,
   .work-booking-table tbody {
     display: block;
@@ -503,7 +504,7 @@
 .work-booking-table :is(th, td) {
   padding-block: 12px;
 }
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .work-booking-table td {
     padding-block: 0;
   }

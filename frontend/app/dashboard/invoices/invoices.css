@@ -430,6 +430,24 @@
   }
 }
 
+@media (max-width: 420px) {
+  .customer-invoices .invlist-filters .invlist-filter-field,
+  .customer-invoices .invlist-filters .invlist-filter-field:nth-child(2) {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  .customer-invoices .invlist-filters .invlist-reset {
+    margin-left: 0;
+  }
+  .customer-invoices tr {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+  .customer-invoices tr > td {
+    grid-column: 1 / -1;
+  }
+}
+
 .invlist-list-skeleton > div {
   display: grid;
   grid-template-columns: 27fr 23fr 15fr 20fr 15fr;

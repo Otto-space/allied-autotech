@@ -7,6 +7,26 @@ async function open(p: Page) {
   await p.goto("/admin/customers");
   await expect(rows(p)).toHaveCount(25);
 }
+test("customer identity cards remain readable at tablet and laptop widths", async ({
+  page,
+}) => {
+  const f = await workCustomersFixture(page);
+  for (const width of [768, 850, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    await open(page);
+    expect(
+      await rows(page)
+        .first()
+        .evaluate(
+          (element) => getComputedStyle(element).gridTemplateColumns.split(" ").length,
+        ),
+    ).toBe(width <= 850 ? 1 : 2);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+  expect(f.customers.writes).toEqual([]);
+});
 for (const role of ["ADMIN", "SUPER_ADMIN"])
   test(`${role} reads complete customer identities and verification independently`, async ({
     page,

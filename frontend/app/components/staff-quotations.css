@@ -449,7 +449,8 @@
     grid-column: 1 / -1;
   }
 }
-@media (max-width: 1100px) {
+/* Leave enough width for descriptions and terms with the dashboard sidebar open. */
+@media (max-width: 1200px) {
   .dashboard .dashboard-content .staff-quotations .quotation-editor-grid {
     grid-template-columns: minmax(0, 1fr);
   }

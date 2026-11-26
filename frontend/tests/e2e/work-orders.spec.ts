@@ -2,6 +2,23 @@ import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { bookingId, workOrdersFixture } from "../fixtures/work-orders";
 const path = "/admin/orders";
+test("order records and filters adapt beside the expanded sidebar", async ({ page }) => {
+  const { base } = await workOrdersFixture(page);
+  for (const width of [1024, 1200, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(path);
+    await expect(page.locator(".work-orders-table tbody tr")).toHaveCount(3);
+    expect(
+      await page
+        .locator(".work-orders-table")
+        .evaluate((element) => getComputedStyle(element).display),
+    ).toBe(width <= 1200 ? "block" : "table");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+  expect(base.writes).toEqual([]);
+});
 test("exact lookup, status, branch, pagination, reload and history preserve scope", async ({
   page,
 }) => {

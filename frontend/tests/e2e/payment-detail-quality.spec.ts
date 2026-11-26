@@ -170,6 +170,38 @@ async function fixture(page: Page) {
 const visit = (page: Page) => page.goto(`/dashboard/payments/${id(1)}`);
 const checkout = (page: Page) =>
   page.getByRole("button", { name: "Continue with Paystack" });
+for (const width of [1024, 1200, 1440]) {
+  test(`payment panels stay readable beside the dashboard sidebar at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await fixture(page);
+    await visit(page);
+    await expect(page.locator(".payment-summary")).toBeVisible();
+    const columns = await page
+      .locator(".payment-layout")
+      .evaluate(
+        (element) => getComputedStyle(element).gridTemplateColumns.split(" ").length,
+      );
+    expect(columns).toBe(width <= 1200 ? 1 : 2);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  });
+}
+test("elapsed deadline explains blocked checkout without changing recorded status", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.payment.expiresAt = "2020-01-01T00:00:00Z";
+  await visit(page);
+  await expect(page.locator(".payment-state .status")).toHaveText("Awaiting payment");
+  await expect(page.locator(".payment-deadline-notice")).toContainText(
+    "The payment deadline has passed",
+  );
+  await expect(checkout(page)).toHaveCount(0);
+  expect(state.writes).toEqual([]);
+});
 async function fillManual(page: Page) {
   await page.getByLabel("Payer name", { exact: true }).fill("Synthetic payer");
   await page.getByLabel("Payment date and time (Lagos)").fill("2026-10-07T09:00");

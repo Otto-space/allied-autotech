@@ -28,6 +28,27 @@ async function refund(p: Page) {
   await button(p, "Review refund request").click();
   await expect(p.getByRole("dialog")).toBeVisible();
 }
+test("expanded payment evidence uses one column on sidebar-constrained laptops", async ({
+  page,
+}) => {
+  const f = await workPaymentFixture(page);
+  for (const width of [1024, 1200, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(url());
+    await expect(cards(page)).toHaveCount(2);
+    const expanded = page.locator(".wp-attempt-body.expanded").first();
+    await expect(expanded).toBeVisible();
+    expect(
+      await expanded.evaluate(
+        (element) => getComputedStyle(element).gridTemplateColumns.split(" ").length,
+      ),
+    ).toBe(width <= 1250 ? 1 : 2);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+  expect(f.payments.writes).toEqual([]);
+});
 for (const role of ["ADMIN", "SUPER_ADMIN"])
   test(`${role} sees complete payment/source/attempt records with its own active identity`, async ({
     page,

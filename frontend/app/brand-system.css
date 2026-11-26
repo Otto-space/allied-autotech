@@ -795,7 +795,8 @@
 
 /* Operational pages retain their existing data and permission boundaries. */
 .dashboard {
-  grid-template-columns: 256px minmax(0, 1fr);
+  /* Give record tables and long form labels room while keeping full navigation. */
+  grid-template-columns: 224px minmax(0, 1fr);
   font-size: 14px;
 }
 .dashboard-main {
@@ -803,7 +804,7 @@
 }
 .dashboard .sidebar {
   background: var(--gradient-nav);
-  padding: 22px 14px 16px;
+  padding: 22px 10px 16px;
 }
 .dashboard .dashboard-top {
   min-height: 70px;
@@ -942,9 +943,9 @@
   overflow-x: auto;
 }
 .dashboard .table-region :is(th, td) {
-  padding: 13px 16px;
+  padding: 12px 13px;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.5;
   vertical-align: middle;
 }
 .dashboard .table-region th {

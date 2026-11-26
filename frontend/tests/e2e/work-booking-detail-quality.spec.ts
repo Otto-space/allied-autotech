@@ -3,6 +3,53 @@ import AxeBuilder from "@axe-core/playwright";
 import { workBookingDetailFixture, bookingId } from "../fixtures/work-booking-detail";
 const route = `/admin/bookings/${bookingId(1)}`;
 
+test("work-order lines and operation panels adapt to tablet and laptop widths", async ({
+  page,
+}) => {
+  const { state } = await workBookingDetailFixture(page);
+  state.record.workOrder = {
+    id: bookingId(800),
+    workOrderNumber: "WO-RESPONSIVE-QA",
+    status: "DRAFT",
+    version: 1,
+    diagnosis: "Check electrical systems",
+    internalNotes: null,
+    items: [
+      {
+        id: bookingId(801),
+        type: "LABOUR",
+        productId: null,
+        description: "Full electrical and mechanical inspection ".repeat(6),
+        quantity: 1,
+        unitPriceKobo: "1500000",
+        subtotalKobo: "1500000",
+      },
+    ],
+  };
+  for (const width of [768, 1024, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(route);
+    await expect(page.getByRole("heading", { name: "WO-RESPONSIVE-QA" })).toBeVisible();
+    expect(
+      await page
+        .locator(".service-line-table table")
+        .evaluate((element) => getComputedStyle(element).display),
+    ).toBe(width <= 800 ? "block" : "table");
+    if (width <= 1200)
+      expect(
+        await page
+          .locator(".booking-detail-operations")
+          .evaluate(
+            (element) => getComputedStyle(element).gridTemplateColumns.split(" ").length,
+          ),
+      ).toBe(1);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+  expect(state.writes).toEqual([]);
+});
+
 test("temporary background access failure preserves drafts while blocking review", async ({
   page,
 }) => {

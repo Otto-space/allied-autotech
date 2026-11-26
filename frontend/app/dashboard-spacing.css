@@ -5,6 +5,24 @@
   --dashboard-section-gap: 1.5rem;
 }
 
+/* The sidebar must not force the content or its tables beyond the viewport. */
+.dashboard .dashboard-main,
+.dashboard .dashboard-content,
+.dashboard .dashboard-content > * {
+  min-width: 0;
+}
+.dashboard .dashboard-content {
+  padding-inline: clamp(16px, 2vw, 32px);
+}
+.dashboard .dashboard-content :is(.table-region, [class$="-table-wrap"]) {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+.dashboard .dashboard-content :is(.table-region, [class$="-table-wrap"]) :is(th, td) {
+  overflow-wrap: break-word;
+}
+
 .dashboard
   .dashboard-content
   :is(

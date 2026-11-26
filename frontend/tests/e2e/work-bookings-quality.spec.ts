@@ -3,7 +3,9 @@ import AxeBuilder from "@axe-core/playwright";
 import { workBookingsFixture, bookingId, workBooking } from "../fixtures/work-bookings";
 const rows = ".work-booking-table tbody tr";
 const apply = { name: "Apply filters", exact: true };
-for (const width of [320, 360, 375, 390, 430, 768, 844, 1024, 1280, 1440, 1505, 1920]) {
+for (const width of [
+  320, 360, 375, 390, 430, 768, 844, 1024, 1150, 1280, 1440, 1505, 1920,
+]) {
   test(`workshop records and expanded filters fit ${width}px`, async ({ page }) => {
     const state = await workBookingsFixture(page);
     state.records[0].service.name =
@@ -15,6 +17,13 @@ for (const width of [320, 360, 375, 390, 430, 768, 844, 1024, 1280, 1440, 1505, 
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto("/admin/bookings");
     await expect(page.locator(rows)).toHaveCount(5);
+    if ([1024, 1150, 1280].includes(width)) {
+      expect(
+        await page
+          .locator(".work-booking-table")
+          .evaluate((element) => getComputedStyle(element).display),
+      ).toBe(width <= 1200 ? "block" : "table");
+    }
     await expect(
       page.getByRole("navigation", { name: "Breadcrumb", exact: true }),
     ).toHaveCount(1);

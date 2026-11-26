@@ -130,7 +130,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-@media (max-width: 600px) {
+/* Two record columns become cramped beside the expanded dashboard sidebar. */
+@media (max-width: 850px) {
   .wc-record {
     grid-template-columns: 1fr;
     padding: 16px;

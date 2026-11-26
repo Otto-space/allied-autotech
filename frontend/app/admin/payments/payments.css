@@ -306,7 +306,8 @@
     align-self: end;
   }
 }
-@media (max-width: 1100px) {
+/* Keep evidence and finance review fields readable on narrower laptops. */
+@media (max-width: 1250px) {
   .wp-attempt-body.expanded {
     grid-template-columns: 1fr;
   }

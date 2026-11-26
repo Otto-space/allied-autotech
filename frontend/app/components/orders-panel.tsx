@@ -70,7 +70,7 @@ export function OrdersPanel() {
       <header className="order-list-heading">
         <div>
           <h1>Your orders</h1>
-          <p>Review items, collection or delivery, totals and payment records.</p>
+          <p>Review items, branch collection, totals and payment records.</p>
         </div>
         <div className="order-list-actions">
           <Link className="button" href="/parts">

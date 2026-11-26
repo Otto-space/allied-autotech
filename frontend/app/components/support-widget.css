@@ -30,6 +30,26 @@ body:has(.mobile-menu--open) .support-controls {
 }
 @media (max-width: 850px),
   (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) {
+  /* Keep support reachable without a full-width dock covering form fields. */
+  body:has(.dashboard) .support-controls {
+    inset-inline-start: auto;
+    inset-inline-end: max(12px, env(safe-area-inset-right));
+    width: auto;
+    gap: 4px;
+    padding: 5px;
+    border-radius: 12px;
+  }
+  body:has(.dashboard) .support-controls :is(.support-trigger, .whatsapp-control) {
+    flex: 0 0 44px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    padding: 4px;
+    justify-content: center;
+  }
+  body:has(.dashboard) .support-control-label {
+    display: none;
+  }
   .support-controls :is(.support-trigger, .whatsapp-control) {
     min-width: 0;
     gap: 6px;

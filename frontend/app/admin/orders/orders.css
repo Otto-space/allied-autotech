@@ -122,7 +122,8 @@
     padding: 16px 10px;
   }
 }
-@media (max-width: 1023px) {
+/* Preserve readable order facts while the expanded sidebar takes desktop space. */
+@media (max-width: 1200px) {
   .work-orders-filters,
   .work-orders-filters.has-branch {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -430,6 +430,25 @@
   }
 }
 
+/* Give values and actions their own readable rows on narrow phones. */
+@media (max-width: 420px) {
+  .customer-orders .order-filters .order-filter-field,
+  .customer-orders .order-filters .order-filter-field:nth-child(2) {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  .customer-orders .order-filters .order-reset {
+    margin-left: 0;
+  }
+  .customer-orders tr {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+  .customer-orders tr > td {
+    grid-column: 1 / -1;
+  }
+}
+
 .order-quantity {
   white-space: nowrap;
 }

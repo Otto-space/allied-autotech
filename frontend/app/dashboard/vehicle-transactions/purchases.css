@@ -477,6 +477,29 @@
     flex-basis: 80px;
   }
 }
+
+@media (max-width: 420px) {
+  .purchase-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .purchase-filters > p {
+    margin-left: 0 !important;
+    text-align: left;
+  }
+  .customer-purchases .purchase-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .customer-purchases .purchase-row > :is(th, td),
+  .customer-purchases .purchase-row .purchase-price,
+  .customer-purchases .purchase-row .purchase-status-cell,
+  .customer-purchases .purchase-row .purchase-row-action {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .customer-purchases .purchase-row .purchase-row-action {
+    text-align: left;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .purchase-skeleton span {
     animation: none;

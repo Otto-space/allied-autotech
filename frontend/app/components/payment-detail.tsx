@@ -373,6 +373,13 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
                 </span>
               </div>
               <p className="payment-status-message">{paymentMessage(current)}</p>
+              {current.status === "REQUIRES_PAYMENT" && deadlineUnavailable && (
+                <p className="payment-deadline-notice" role="status">
+                  {deadlineUnavailable} This record may still say “Awaiting payment” until
+                  its status is refreshed; the elapsed deadline does not confirm a
+                  payment.
+                </p>
+              )}
               {current.expiresAt !== null && (
                 <div className="payment-deadline">
                   <span>
