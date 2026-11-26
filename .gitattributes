@@ -35,3 +35,60 @@ backend/prisma/migrations/20261102224000_purchase_guest_order_ownership/migratio
 
 # New attendance history is first reviewed/replayed with stable LF bytes.
 backend/prisma/migrations/20261104002000_booking_attendance_history/migration.sql text eol=lf
+
+# Preserve the October 17 applied migration byte-for-byte.
+backend/prisma/migrations/20260930020000_managed_media_lifecycle/migration.sql -text
+
+# Preserve the staging-applied LF migration checksums.
+backend/prisma/migrations/20260831203155_init/migration.sql text eol=lf
+backend/prisma/migrations/20260903171717_phase_2_1_enum_extensions/migration.sql text eol=lf
+backend/prisma/migrations/20260903171718_phase_2_1_secure_payments_vehicle/migration.sql text eol=lf
+backend/prisma/migrations/20260903194000_phase_2_identity_security/migration.sql text eol=lf
+backend/prisma/migrations/20260903210000_phase_3_enum_extensions/migration.sql text eol=lf
+backend/prisma/migrations/20260903210100_phase_3_organization_security/migration.sql text eol=lf
+backend/prisma/migrations/20260904010000_phase_4_catalog_inventory/migration.sql text eol=lf
+backend/prisma/migrations/20260904010100_phase_4_schema_reconciliation/migration.sql text eol=lf
+backend/prisma/migrations/20260904110901_phase_4_drift_check/migration.sql text eol=lf
+backend/prisma/migrations/20260904111322_phase_4_verified/migration.sql text eol=lf
+backend/prisma/migrations/20260904111419_phase_4_final_drift_check/migration.sql text eol=lf
+backend/prisma/migrations/20260904111500_phase_4_query_indexes/migration.sql text eol=lf
+backend/prisma/migrations/20260904130000_phase_5_service_operations/migration.sql text eol=lf
+backend/prisma/migrations/20260904130100_phase_5_append_only_lines/migration.sql text eol=lf
+backend/prisma/migrations/20260905100000_phase_6_orders_promotions_billing/migration.sql text eol=lf
+backend/prisma/migrations/20260905100100_phase_6_schema_reconciliation/migration.sql text eol=lf
+backend/prisma/migrations/20260905100200_phase_6_index_reconciliation/migration.sql text eol=lf
+backend/prisma/migrations/20260905100300_phase_6_invoice_source_constraint_fix/migration.sql text eol=lf
+backend/prisma/migrations/20260905100400_phase_6_invoice_source_snapshot_guard/migration.sql text eol=lf
+backend/prisma/migrations/20260905130000_phase_7_vehicle_sales_security/migration.sql text eol=lf
+backend/prisma/migrations/20260905130100_phase_7_asset_integrity/migration.sql text eol=lf
+backend/prisma/migrations/20260905130200_phase_7_reconcile_existing_controls/migration.sql text eol=lf
+backend/prisma/migrations/20260906100000_phase_8_payment_security/migration.sql text eol=lf
+backend/prisma/migrations/20260907120000_phase_9_support_notifications_operations/migration.sql text eol=lf
+backend/prisma/migrations/20260910100000_add_product_review_target/migration.sql text eol=lf
+backend/prisma/migrations/20260910101000_product_reviews/migration.sql text eol=lf
+backend/prisma/migrations/20260911100000_booking_deposit_enum_extensions/migration.sql text eol=lf
+backend/prisma/migrations/20260911100100_deposit_backed_booking_slots/migration.sql text eol=lf
+backend/prisma/migrations/20260911130000_secure_monnify_payments/migration.sql text eol=lf
+backend/prisma/migrations/20260911130100_monnify_schema_reconciliation/migration.sql text eol=lf
+backend/prisma/migrations/20260917190000_protect_sole_owner/migration.sql text eol=lf
+backend/prisma/migrations/20260917220000_bind_admin_invitations/migration.sql text eol=lf
+backend/prisma/migrations/20260918092000_overview_date_indexes/migration.sql text eol=lf
+backend/prisma/migrations/20260924150000_owner_refund_completion/migration.sql text eol=lf
+backend/prisma/migrations/20260925001500_unique_provider_receipts/migration.sql text eol=lf
+backend/prisma/migrations/20260925002000_reconciliation_receipt_identity/migration.sql text eol=lf
+backend/prisma/migrations/20260930010000_customer_directory_indexes/migration.sql text eol=lf
+backend/prisma/migrations/20260930030000_product_media_version/migration.sql text eol=lf
+backend/prisma/migrations/20261008140000_invoice_document_snapshot/migration.sql text eol=lf
+backend/prisma/migrations/20261008160000_saved_vehicle_pagination/migration.sql text eol=lf
+backend/prisma/migrations/20261008170000_vehicle_discovery_indexes/migration.sql text eol=lf
+backend/prisma/migrations/20261009100000_product_discovery_indexes/migration.sql text eol=lf
+backend/prisma/migrations/20261009140000_service_discovery/migration.sql text eol=lf
+backend/prisma/migrations/20261009160000_utc_refund_policy_clock/migration.sql text eol=lf
+backend/prisma/migrations/20261011180000_vehicle_reservation_terms/migration.sql text eol=lf
+backend/prisma/migrations/20261012180000_refund_poll_ownership/migration.sql text eol=lf
+backend/prisma/migrations/20261012200000_dispute_resolution_integrity/migration.sql text eol=lf
+backend/prisma/migrations/20261013080000_paystack_dispute_contract/migration.sql text eol=lf
+backend/prisma/migrations/20261013100000_customer_profile_revision/migration.sql text eol=lf
+backend/prisma/migrations/20261013110000_notification_preference_revision/migration.sql text eol=lf
+backend/prisma/migrations/20261013120000_operational_scan_checkpoints/migration.sql text eol=lf
+backend/prisma/migrations/20261017153000_promotion_zero_value_configuration/migration.sql text eol=lf
