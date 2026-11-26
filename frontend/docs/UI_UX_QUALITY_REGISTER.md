@@ -13960,6 +13960,7 @@ pending; this is not a live deployment or production verification.
   `/usr/lib/chromium/chromium` binary is missing. These are browser-environment
   failures, not layout assertion results. No page-level visual or authenticated
   device acceptance is claimed; no live payment or booking action was taken.
+
 ### 26 November: staging homepage editorial and image-uniqueness candidate
 
 - Observed staging homepage: a near-opaque black hero image overlay obscured workshop photography; the wheel-alignment photo appeared both in featured services and the workshop gallery; the dark workshop gallery made the page visually heavy. Some product image areas appeared blank in a full-page capture, which may reflect lazy loading and needs scrolled browser verification before treating it as a missing-asset defect.
