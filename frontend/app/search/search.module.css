@@ -1,9 +1,10 @@
 .page {
-  padding: 40px 20px 80px;
+  padding: clamp(32px, 5vw, 72px) 20px 80px;
   min-height: 65vh;
+  background: linear-gradient(180deg, #fafafa 0%, #fff 320px);
 }
 .content {
-  width: min(100%, 760px);
+  width: min(100%, 920px);
   margin-inline: auto;
 }
 .content nav {
@@ -14,7 +15,7 @@
   margin-bottom: 40px;
 }
 .content h1 {
-  font: 500 clamp(30px, 4vw, 44px)/1.2 var(--font-heading);
+  font: 650 clamp(32px, 4.2vw, 48px)/1.15 var(--font-heading);
   margin-bottom: 16px;
 }
 .content > p {
@@ -26,9 +27,11 @@
   gap: 20px;
   padding: 28px;
   margin-block: 28px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
-  background: var(--surface);
+  border: 1px solid #d8d8d8;
+  border-top: 3px solid var(--brand-red);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 14px 36px #1117190b;
 }
 .form > div {
   min-width: 0;

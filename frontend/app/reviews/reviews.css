@@ -1,7 +1,7 @@
 .reviews-page {
-  --reviews-border: #82939f;
-  --reviews-rule: #c6d0d7;
-  --reviews-muted: #445662;
+  --reviews-border: #899095;
+  --reviews-rule: #d3d1d1;
+  --reviews-muted: #41494e;
   color: var(--ink);
   background: #fff;
 }
@@ -58,7 +58,7 @@
   color: var(--ink);
 }
 .reviews-page .button.secondary:hover:not(:disabled) {
-  background: #edf2f5;
+  background: #faf4f4;
   border-color: var(--ink);
 }
 .reviews-page .button:disabled {
@@ -142,7 +142,7 @@
 }
 .reviews-statement,
 .reviews-guidance {
-  background: var(--ink);
+  background: linear-gradient(140deg, #15191b, #262123 75%, #39191b);
   color: #fff;
   border-radius: 6px;
   padding: 28px;
@@ -167,8 +167,8 @@
 }
 .reviews-feedback-band {
   padding-block: 36px;
-  background: #f2f5f7;
-  border-block: 1px solid #e3e9ed;
+  background: #f7f7f7;
+  border-block: 1px solid #e6e2e2;
 }
 .reviews-feedback-layout {
   display: grid;
@@ -180,7 +180,7 @@
   min-width: 0;
   padding: 28px;
   border: 1px solid #d5dee4;
-  border-top: 3px solid #01121a;
+  border-top: 3px solid var(--brand-red);
   border-radius: 6px;
   background: #fff;
   box-shadow: 0 6px 22px #01121a06;
