@@ -41,7 +41,7 @@ type Decision = {
   quote?: BookingQuote;
 };
 export function BookingDetail({ bookingId }: { bookingId: string }) {
-  const { bookingRequestsEnabled } = usePublicCapabilities();
+  const { bookingRequestsEnabled, bookingDepositsEnabled } = usePublicCapabilities();
   const path = `/customers/bookings/${encodeURIComponent(bookingId)}`;
   const parse = useCallback(
     (value: unknown) => parseCustomerBookingDetail(value, bookingId),
@@ -144,6 +144,14 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
       : null;
   const replacementAt = selectedSlot?.startsAt ?? preferredAt;
   const disabled = !bookingRequestsEnabled || !fresh || mutation.busy || !!proposal;
+  // Exact-target staging-only QA acceptance. Appointment changes stay closed.
+  const qaQuoteDecisionEnabled =
+    bookingDepositsEnabled && bookingId === "cc831cc8-6c9b-4066-bfda-213c19533d5e";
+  const quoteDecisionDisabled =
+    (!bookingRequestsEnabled && !qaQuoteDecisionEnabled) ||
+    !fresh ||
+    mutation.busy ||
+    !!proposal;
   function refresh() {
     setProposal(null);
     setSlot("");
@@ -158,7 +166,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
     setSlotTrail([]);
   }
   function ask(value: Decision) {
-    if (!current || disabled) return;
+    if (!current || (value.quote ? quoteDecisionDisabled : disabled)) return;
     const reviewed: CustomerBookingDetail = current;
     const key = value.idempotent ? newIdempotencyKey() : undefined;
     let sent = false;
@@ -808,7 +816,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
             }
             quotes={current.quotes}
             now={now}
-            disabled={disabled}
+            disabled={quoteDecisionDisabled}
             onReview={reviewQuote}
           />
         </>

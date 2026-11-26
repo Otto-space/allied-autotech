@@ -123,6 +123,46 @@ describe("independent appointment and purchasing release controls", () => {
       (await request(disabled).post(`/api/v1/customers/payments/${id}/paystack`)).status,
     ).toBe(403);
   });
+  it("permits quote decisions only for the one approved staging QA booking", async () => {
+    const qa = "cc831cc8-6c9b-4066-bfda-213c19533d5e";
+    const other = "cb9267d3-a9cd-48d5-a609-e504591b3937";
+    const quote = "4cc85691-7ca9-4100-a825-755c313f6b4b";
+    const enabled = fixture("full", {
+      bookingRequestsEnabled: false,
+      productPurchasesEnabled: false,
+      bookingDepositTestEnabled: true,
+    });
+    for (const decision of ["accept", "reject"]) {
+      expect(
+        (await request(enabled).post(`/api/v1/customers/bookings/${qa}/quotes/${quote}/${decision}`)).status,
+      ).toBe(204);
+      expect(
+        (await request(enabled).post(`/api/v1/customers/bookings/${other}/quotes/${quote}/${decision}`)).status,
+      ).toBe(403);
+      expect(
+        (await request(enabled).patch(`/api/v1/customers/bookings/${qa}/quotes/${quote}/${decision}`)).status,
+      ).toBe(403);
+    }
+    for (const path of [
+      `/customers/bookings/${qa}`,
+      `/customers/bookings/${qa}/reschedule`,
+      `/customers/bookings/${qa}/quotes/${quote}/accept/extra`,
+      "/customers/bookings",
+      "/customers/orders/checkout",
+    ]) expect((await request(enabled).post(`/api/v1${path}`)).status).toBe(403);
+    const off = fixture("full", { bookingRequestsEnabled: false, productPurchasesEnabled: false });
+    expect(
+      (await request(off).post(`/api/v1/customers/bookings/${qa}/quotes/${quote}/accept`)).status,
+    ).toBe(403);
+    const restricted = fixture("browse_enquiries", {
+      bookingRequestsEnabled: false,
+      productPurchasesEnabled: false,
+      bookingDepositTestEnabled: true,
+    });
+    expect(
+      (await request(restricted).post(`/api/v1/customers/bookings/${qa}/quotes/${quote}/accept`)).status,
+    ).toBe(403);
+  });
   it("fails closed if a full-mode router omits explicit module controls", async () => {
     const app = express();
     app.use("/api/v1", publicLaunch("full"));

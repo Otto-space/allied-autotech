@@ -11,6 +11,10 @@ export interface PublicTransactionControls {
 const transactionPath =
   /^\/customers\/(?:parts-quotes|cart|orders|bookings|payments|vehicle-transactions|vehicle-inspections)(?:\/|$)/i;
 
+// Temporary, exact-target staging acceptance for the owner-approved QA booking.
+// No other booking or customer write inherits this exception.
+const stagingQaBookingId = "cc831cc8-6c9b-4066-bfda-213c19533d5e";
+
 /** Mounted at /api/v1 before domain routers. Staff/admin authentication is unchanged. */
 export function publicLaunch(
   mode: PublicLaunchMode,
@@ -69,6 +73,13 @@ export function publicLaunch(
           /^\/customers\/payments\/[0-9a-f-]{36}\/(?:paystack|attempts\/[0-9a-f-]{36}\/verify)\/?$/i.test(
             request.path,
           ));
+      const stagingQaQuoteDecision =
+        controls.bookingDepositTestEnabled === true &&
+        request.method === "POST" &&
+        new RegExp(
+          `^/customers/bookings/${stagingQaBookingId}/quotes/[0-9a-f-]{36}/(?:accept|reject)/?$`,
+          "i",
+        ).test(request.path);
       const bookingWrite =
         /^\/customers\/(?:bookings|vehicle-inspections)(?:\/|$)/i.test(request.path) ||
         /^\/public\/booking-response(?:\/|$)/i.test(request.path);
@@ -77,7 +88,7 @@ export function publicLaunch(
           request.path,
         ) || /^\/purchase\/(?:orders|payments|parts-quotes)(?:\/|$)/i.test(request.path);
       if (
-        (bookingWrite && !controls.bookingRequestsEnabled) ||
+        (bookingWrite && !controls.bookingRequestsEnabled && !stagingQaQuoteDecision) ||
         (purchasingWrite && !controls.productPurchasesEnabled && !stagingDepositWrite)
       ) {
         next(
