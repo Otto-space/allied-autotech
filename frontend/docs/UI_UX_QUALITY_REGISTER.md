@@ -13960,3 +13960,9 @@ pending; this is not a live deployment or production verification.
   `/usr/lib/chromium/chromium` binary is missing. These are browser-environment
   failures, not layout assertion results. No page-level visual or authenticated
   device acceptance is claimed; no live payment or booking action was taken.
+### 26 November: staging homepage editorial and image-uniqueness candidate
+
+- Observed staging homepage: a near-opaque black hero image overlay obscured workshop photography; the wheel-alignment photo appeared both in featured services and the workshop gallery; the dark workshop gallery made the page visually heavy. Some product image areas appeared blank in a full-page capture, which may reflect lazy loading and needs scrolled browser verification before treating it as a missing-asset defect.
+- Source candidate: replace the full-bleed overlaid hero with readable dark editorial text on an off-white left panel and unoverlaid photographs on the right; stack image beneath copy on phones. Retain carousel controls, accessible labels, slide destinations and reduced-motion handling. Use a 49vw desktop responsive image hint instead of treating the photo as full viewport width.
+- Source candidate: switch the workshop-gallery background to light grey, cards to white, text to charcoal and links/focus to accessible red; replace the repeated alignment photograph with the distinct existing workshop-equipment photograph. Do not claim a new or invented piece of equipment from imagery.
+- Add homepage browser assertions for unique curated local image sources and absence of the hero pseudo-overlay at all reference breakpoints. Focused unit tests (8/8), targeted lint/format checks, and the optimized Next.js production build passed. Browser rendering acceptance remains blocked by the absent Chromium binary in this execution environment; a signed staging deployment remains a separate release gate.

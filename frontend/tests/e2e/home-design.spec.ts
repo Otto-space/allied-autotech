@@ -78,6 +78,26 @@ for (const [width, height] of viewports) {
     });
     await page.goto("/");
     await expect(page).toHaveTitle(/Allied AutoTech/);
+    const homePhotos = await page.locator("main img").evaluateAll((images) =>
+      images
+        .map((image) => {
+          const source = (image as HTMLImageElement).getAttribute("src") ?? "";
+          return new URL(source, location.origin).searchParams.get("url") ?? source;
+        })
+        .filter(
+          (source) =>
+            source.includes("/images/allied-autotech/") ||
+            source.includes("/images/workshop/owner/"),
+        ),
+    );
+    expect(new Set(homePhotos).size, "Homepage photos must not repeat").toBe(
+      homePhotos.length,
+    );
+    expect(
+      await page
+        .locator("[data-home-hero-media]")
+        .evaluate((element) => getComputedStyle(element, "::after").content),
+    ).toBe("none");
     await expect(
       page.getByRole("complementary", { name: "Online availability" }),
     ).toHaveCount(0);

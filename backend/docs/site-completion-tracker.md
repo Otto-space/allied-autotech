@@ -15949,3 +15949,6 @@ backend readiness/configuration and database prerequisites; reconcile the
 master-only booking-transfer merge without duplicating it; complete the
 invoice concurrency test, signed staging CI/deployment, and the accepted
 quotation's 20% test charge/80% workshop balance acceptance.
+### 2026-11-26 staging homepage visual candidate (frontend-only)
+
+Staging visual audit identified overly dark hero image treatment, one repeated alignment photograph, and a heavy workshop-gallery palette. A frontend-only candidate provides a split light editorial hero without the dark overlay, lightens workshop cards and swaps the repeated photo for an existing distinct workshop-equipment image. It preserves existing service, parts, vehicle and enquiry destinations and does not change bookings, billing or Paystack flows. Browser e2e now checks curated local homepage image uniqueness and no hero pseudo-overlay. Focused unit tests (8/8), targeted formatting/lint and optimized Next.js production build passed. Actual browser rendering is still unverified because the local Chromium launcher lacks its browser binary. The candidate requires browser verification, a signed commit, exact-head CI and staging deployment before hosted acceptance; production is unchanged.

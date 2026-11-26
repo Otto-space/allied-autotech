@@ -188,7 +188,7 @@ export function HomeHero() {
           })}
         </div>
         <div className={styles.visual}>
-          <div className={styles.media}>
+          <div className={styles.media} data-home-hero-media>
             {slides.map(
               (slide, index) =>
                 (index === 0 || enhanced) && (
@@ -197,7 +197,7 @@ export function HomeHero() {
                     src={`/images/allied-autotech/${slide.image}.webp`}
                     alt=""
                     fill
-                    sizes="100vw"
+                    sizes="(max-width: 767px) 100vw, 49vw"
                     preload={index === 0}
                     loading={index === 0 ? undefined : "eager"}
                     className={styles.photo}

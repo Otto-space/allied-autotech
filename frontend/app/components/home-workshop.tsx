@@ -79,15 +79,15 @@ export function HomeWorkshop() {
           <figure className="home-workshop__bay home-bay">
             <div className="home-workshop__media">
               <Image
-                src="/images/workshop/owner/alignment-at-work.webp"
-                alt="Allied technician beside the workshop’s 3D wheel alignment equipment"
+                src="/images/workshop/owner/workshop-equipment.webp"
+                alt="Equipment in the Allied AutoTech workshop"
                 fill
                 sizes="(max-width: 767px) calc(100vw - 32px), 460px"
               />
             </div>
             <figcaption>
-              <h3>3D wheel alignment</h3>
-              <p>Equipment for checking and correcting wheel geometry.</p>
+              <h3>Workshop equipment</h3>
+              <p>A closer look at the tools that support our checks and maintenance.</p>
             </figcaption>
           </figure>
         </div>
