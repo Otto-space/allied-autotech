@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ArrowUpRight, Pause, Play } from "lucide-react";
 import { useEffect, useReducer, useRef, useState, useSyncExternalStore } from "react";
 import {
   HERO_IMAGE_TIMEOUT_MS,
@@ -223,14 +223,6 @@ export function HomeHero() {
           <div className={styles.controls} data-carousel-controls>
             {enhanced && (
               <>
-                <button
-                  type="button"
-                  disabled={allFailed}
-                  aria-label="Previous slide"
-                  onClick={() => move(-1)}
-                >
-                  <ChevronLeft size={20} aria-hidden="true" />
-                </button>
                 <div className={styles.pickers} role="group" aria-label="Choose a slide">
                   {slides.map((slide, index) => (
                     <button
@@ -245,14 +237,6 @@ export function HomeHero() {
                     </button>
                   ))}
                 </div>
-                <button
-                  type="button"
-                  disabled={allFailed}
-                  aria-label="Next slide"
-                  onClick={() => move(1)}
-                >
-                  <ChevronRight size={20} aria-hidden="true" />
-                </button>
                 <button
                   type="button"
                   className={styles.playback}

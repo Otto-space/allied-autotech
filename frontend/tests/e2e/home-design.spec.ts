@@ -106,6 +106,8 @@ for (const [width, height] of viewports) {
       await page.evaluate(() => ({ width: innerWidth, height: innerHeight })),
     ).toEqual({ width, height });
     const hero = page.getByRole("region", { name: "Workshop highlights" });
+    await expect(hero.getByRole("button", { name: "Previous slide" })).toHaveCount(0);
+    await expect(hero.getByRole("button", { name: "Next slide" })).toHaveCount(0);
     await expect(hero.getByRole("heading", { level: 1 })).toHaveText(
       "Understand your vehicle’s condition.",
     );
@@ -147,7 +149,7 @@ for (const [width, height] of viewports) {
         }),
       ).toBe(true);
     }
-    await hero.getByRole("button", { name: "Next slide", exact: true }).focus();
+    await hero.getByRole("button", { name: /Show slide 1:/ }).focus();
     await page.keyboard.press("ArrowLeft");
     await expect(hero).toHaveAttribute("data-slide", "4");
     await expect(hero.getByRole("status")).toContainText("Slide 4 of 4");
@@ -226,7 +228,7 @@ test.describe("compact phone carousel controls", () => {
       await page.evaluate(() => document.fonts.ready);
       const carousel = page.getByRole("region", { name: "Workshop highlights" });
       const controls = carousel.locator("[data-carousel-controls]");
-      await expect(controls.getByRole("button")).toHaveCount(7);
+      await expect(controls.getByRole("button")).toHaveCount(5);
       const row = await controls.boundingBox();
       expect(row!.x).toBeGreaterThanOrEqual(0);
       expect(row!.x + row!.width).toBeLessThanOrEqual(width);

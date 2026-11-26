@@ -111,11 +111,11 @@
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px;
-  border: 1px solid #ffffff59;
+  gap: 2px;
+  padding: 5px 8px;
+  border: 1px solid #ffffff4d;
   border-radius: 999px;
-  background: #080c0fe6;
+  background: #080c0fd6;
   color: var(--text-inverse);
 }
 .controls:empty {
@@ -166,7 +166,7 @@
   background: #fff;
 }
 .pickers [aria-current] span {
-  width: 24px;
+  width: 22px;
   background: var(--action-primary);
   border: 1px solid #ff7378;
 }

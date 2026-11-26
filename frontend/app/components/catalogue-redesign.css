@@ -714,7 +714,13 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: #080d10d9;
+  background: linear-gradient(
+    90deg,
+    rgb(8 13 16 / 84%) 0%,
+    rgb(8 13 16 / 70%) 28%,
+    rgb(8 13 16 / 25%) 65%,
+    rgb(8 13 16 / 6%) 100%
+  );
 }
 .vehicles-page .catalogue-banner--vehicles .catalogue-banner__inner {
   position: static;
@@ -1005,7 +1011,13 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: #080d10d9;
+  background: linear-gradient(
+    90deg,
+    rgb(8 13 16 / 88%) 0%,
+    rgb(8 13 16 / 66%) 34%,
+    rgb(8 13 16 / 16%) 72%,
+    rgb(8 13 16 / 5%) 100%
+  );
 }
 .services-page .catalogue-banner__inner {
   display: block;
@@ -1176,7 +1188,7 @@
 }
 @media (max-width: 1000px) {
   .services-page .catalogue-banner--services::before {
-    background: #080d10d9;
+    background: linear-gradient(90deg, rgb(8 13 16 / 88%), rgb(8 13 16 / 20%));
   }
   .services-page .services-results {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1184,7 +1196,12 @@
 }
 @media (max-width: 700px) {
   .services-page .catalogue-banner--services::before {
-    background: #080d10d9;
+    background: linear-gradient(
+      90deg,
+      rgb(8 13 16 / 88%) 0%,
+      rgb(8 13 16 / 67%) 58%,
+      rgb(8 13 16 / 28%) 100%
+    );
   }
   .services-page .catalogue-banner__inner,
   .services-page .catalogue-banner__copy {
@@ -1269,7 +1286,13 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: #080d10d9;
+  background: linear-gradient(
+    90deg,
+    rgb(8 13 16 / 86%) 0%,
+    rgb(8 13 16 / 66%) 38%,
+    rgb(8 13 16 / 16%) 76%,
+    rgb(8 13 16 / 5%) 100%
+  );
 }
 .shop-page .catalogue-banner__inner {
   display: block;
@@ -1464,7 +1487,12 @@
 }
 @media (max-width: 1023px) {
   .shop-page .catalogue-banner--shop::before {
-    background: #080d10d9;
+    background: linear-gradient(
+      90deg,
+      rgb(8 13 16 / 88%) 0%,
+      rgb(8 13 16 / 64%) 58%,
+      rgb(8 13 16 / 18%) 100%
+    );
   }
 }
 @media (min-width: 375px) and (max-width: 1023px) {

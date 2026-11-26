@@ -293,7 +293,7 @@ test("stable hero, keyboard, FAQ and navigation perform their advertised actions
     "href",
     "/services?search=diagnostics",
   );
-  await carousel.getByRole("button", { name: "Next slide" }).focus();
+  await carousel.getByRole("button", { name: /Show slide 2:/ }).focus();
   await page.keyboard.press("Enter");
   await expect(carousel).toHaveAttribute("data-slide", "2");
   await page

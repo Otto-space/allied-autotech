@@ -111,7 +111,8 @@ it("starts reduced motion paused while retaining controls and one heading", () =
     "false",
   );
   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-  expect(screen.getByRole("button", { name: "Next slide" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: /Show slide 2:/ })).toBeTruthy();
+  expect(screen.queryByRole("button", { name: "Next slide" })).toBeNull();
 });
 it("stops unavailable motion controls when every photo fails while preserving the discovery link", () => {
   const view = render(<HomeHero />);
