@@ -109,10 +109,13 @@ export function renderSpec(template, input, manifest, keys) {
     }
   }
   for (const name of requiredValues) {
-    if (name === "PAYSTACK_SECRET_KEY" && paystackMode === "disabled") {
+    if (
+      ["PAYSTACK_SECRET_KEY", "PAYSTACK_WEBHOOK_SECRET"].includes(name) &&
+      paystackMode === "disabled"
+    ) {
       requireValue(
         values[name] === "",
-        "Disabled payments require an empty Paystack key.",
+        "Disabled payments require empty Paystack credentials.",
       );
       continue;
     }
@@ -156,6 +159,15 @@ export function renderSpec(template, input, manifest, keys) {
     paystackMode === "disabled" || values.PAYSTACK_SECRET_KEY.startsWith("sk_test_"),
     "Only a Paystack test key is allowed.",
   );
+  if (template.name === "allied-autotech-staging") {
+    requireValue(
+      paystackMode === "disabled" ||
+        (typeof values.PAYSTACK_WEBHOOK_SECRET === "string" &&
+          /^whsec_[^\s]{16,}$/.test(values.PAYSTACK_WEBHOOK_SECRET) &&
+          values.PAYSTACK_WEBHOOK_SECRET !== values.PAYSTACK_SECRET_KEY),
+      "Staging Paystack test mode requires an independent whsec_ webhook secret.",
+    );
+  }
   requireValue(
     /^[a-f0-9]{64}$/.test(values.PRIVATE_TESTING_PASSWORD),
     "Use a generated 32-byte hexadecimal private-testing password.",
@@ -238,6 +250,18 @@ export function renderSpec(template, input, manifest, keys) {
     requireValue(
       component.name === "api" || flags.BOOKING_DEPOSIT_TEST_ENABLED === undefined,
       "Deposit test control belongs only on the API.",
+    );
+    const webhookEntries = component.envs.filter(
+      (entry) => entry.key === "PAYSTACK_WEBHOOK_SECRET",
+    );
+    requireValue(
+      component.name === "api"
+        ? webhookEntries.length === 1 &&
+            webhookEntries[0].value === "REPLACE_PAYSTACK_TEST_WEBHOOK_SECRET" &&
+            webhookEntries[0].type === "SECRET" &&
+            webhookEntries[0].scope === "RUN_TIME"
+        : webhookEntries.length === 0,
+      "Independent Paystack webhook secret must be API-only and runtime-secret scoped.",
     );
     for (const name of ["PAYSTACK_LIVE_ENABLED", "PAYMENT_RECONCILIATION_ENABLED"]) {
       if (component.name === "identity-worker") {

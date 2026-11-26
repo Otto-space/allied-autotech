@@ -60,6 +60,7 @@ function fixtures() {
       MIGRATION_DB_PASSWORD: randomBytes(24).toString("hex"),
       DB_SSL_CA_BASE64: Buffer.from(ca).toString("base64"),
       PAYSTACK_SECRET_KEY: "sk_test_synthetic_provider_credential",
+      PAYSTACK_WEBHOOK_SECRET: "whsec_synthetic_independent_webhook_secret",
       OBJECT_STORAGE_ENDPOINT: "https://lon1.digitaloceanspaces.com",
       OBJECT_STORAGE_BUCKET: "synthetic-private-bucket",
       OBJECT_STORAGE_ACCESS_KEY_ID: "synthetic-access-key",
@@ -78,6 +79,7 @@ test("disabled payments need no provider key and cannot enable reconciliation or
   input.paystackMode = "disabled";
   input.bookingDepositTestEnabled = false;
   input.values.PAYSTACK_SECRET_KEY = "";
+  input.values.PAYSTACK_WEBHOOK_SECRET = "";
   const spec = renderSpec(template, input, manifest, keys);
   for (const component of [...spec.services, ...spec.workers]) {
     const env = Object.fromEntries(
@@ -86,6 +88,7 @@ test("disabled payments need no provider key and cannot enable reconciliation or
     if (env.PAYSTACK_MODE !== undefined) {
       assert.equal(env.PAYSTACK_MODE, "disabled");
       assert.equal(env.PAYSTACK_SECRET_KEY, "");
+      if (component.name === "api") assert.equal(env.PAYSTACK_WEBHOOK_SECRET, "");
       assert.equal(env.PAYSTACK_LIVE_ENABLED, "false");
     }
     if (env.PAYMENT_RECONCILIATION_ENABLED !== undefined) {
@@ -93,7 +96,7 @@ test("disabled payments need no provider key and cannot enable reconciliation or
     }
   }
   input.values.PAYSTACK_SECRET_KEY = "sk_live_synthetic";
-  assert.throws(() => renderSpec(template, input, manifest, keys), /empty Paystack key/);
+  assert.throws(() => renderSpec(template, input, manifest, keys), /empty Paystack credentials/);
   input.paystackMode = "live";
   assert.throws(() => renderSpec(template, input, manifest, keys), /disabled or test/);
 });
@@ -146,6 +149,7 @@ test("rendered spec preserves all four process boundaries and initial staging sa
           "DB_PASSWORD",
           "DB_SSL_CA_BASE64",
           "PAYSTACK_SECRET_KEY",
+          "PAYSTACK_WEBHOOK_SECRET",
           "OBJECT_STORAGE_ACCESS_KEY_ID",
           "OBJECT_STORAGE_SECRET_ACCESS_KEY",
           "PRIVATE_TESTING_PASSWORD",
@@ -184,6 +188,12 @@ test("rendered spec preserves all four process boundaries and initial staging sa
   assert.equal(api.FRONTEND_URL, "https://staging.alliedautotech.com");
   assert.equal(api.PRIVATE_TESTING_ENABLED, "true");
   assert.equal(api.PRIVATE_TESTING_PASSWORD, input.values.PRIVATE_TESTING_PASSWORD);
+  assert.equal(api.PAYSTACK_WEBHOOK_SECRET, input.values.PAYSTACK_WEBHOOK_SECRET);
+  assert.ok(
+    spec.workers.every((component) =>
+      component.envs.every((entry) => entry.key !== "PAYSTACK_WEBHOOK_SECRET"),
+    ),
+  );
   assert.equal(
     spec.jobs[0].run_command,
     "aat-with-database-ca node --import tsx scripts/check-database-safety.ts",
@@ -222,6 +232,7 @@ test("deposit-only test mode cannot enable bookings, purchases, live mode or rec
   input.bookingDepositTestEnabled = true;
   input.paystackMode = "disabled";
   input.values.PAYSTACK_SECRET_KEY = "";
+  input.values.PAYSTACK_WEBHOOK_SECRET = "";
   assert.throws(() => renderSpec(template, input, manifest, keys), /enabled together/);
 });
 
@@ -230,6 +241,7 @@ test("disabled staging mode stays explicitly closed with no API deposit exceptio
   input.paystackMode = "disabled";
   input.bookingDepositTestEnabled = false;
   input.values.PAYSTACK_SECRET_KEY = "";
+  input.values.PAYSTACK_WEBHOOK_SECRET = "";
   const spec = renderSpec(template, input, manifest, keys);
   const api = Object.fromEntries(spec.services[0].envs.map((e) => [e.key, e.value]));
   assert.equal(api.PUBLIC_LAUNCH_MODE, "full");
@@ -237,7 +249,32 @@ test("disabled staging mode stays explicitly closed with no API deposit exceptio
   assert.equal(api.PRODUCT_PURCHASES_ENABLED, "false");
   assert.equal(api.BOOKING_DEPOSIT_TEST_ENABLED, "false");
   assert.equal(api.PAYSTACK_MODE, "disabled");
+  assert.equal(api.PAYSTACK_WEBHOOK_SECRET, "");
   assert.equal(api.PAYMENT_RECONCILIATION_ENABLED, "false");
+});
+
+test("staging test checkout requires a separate private webhook signing secret", () => {
+  const { input, manifest, keys } = fixtures();
+  for (const invalid of [
+    "",
+    "sk_test_synthetic_provider_credential",
+    "whsec_short",
+    "whsec_with newline\n",
+    "REPLACE_PAYSTACK_TEST_WEBHOOK_SECRET",
+  ]) {
+    input.values.PAYSTACK_WEBHOOK_SECRET = invalid;
+    assert.throws(() => renderSpec(template, input, manifest, keys));
+  }
+  input.values.PAYSTACK_WEBHOOK_SECRET = "whsec_synthetic_independent_webhook_secret";
+  const missing = structuredClone(template);
+  missing.services[0].envs = missing.services[0].envs.filter(
+    (entry) => entry.key !== "PAYSTACK_WEBHOOK_SECRET",
+  );
+  assert.throws(() => renderSpec(missing, input, manifest, keys));
+  const exposed = structuredClone(template);
+  exposed.services[0].envs.find((entry) => entry.key === "PAYSTACK_WEBHOOK_SECRET").type =
+    "GENERAL";
+  assert.throws(() => renderSpec(exposed, input, manifest, keys));
 });
 
 for (const [description, mutate] of [
@@ -342,6 +379,7 @@ for (const [description, mutate] of [
           "DB_PASSWORD",
           "MIGRATION_DB_PASSWORD",
           "PAYSTACK_SECRET_KEY",
+          "PAYSTACK_WEBHOOK_SECRET",
           "OBJECT_STORAGE_SECRET_ACCESS_KEY",
         ]) {
           assert.ok(!error.message.includes(data.input.values[name]));

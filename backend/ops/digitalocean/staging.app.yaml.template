@@ -311,6 +311,12 @@
           "type": "SECRET"
         },
         {
+          "key": "PAYSTACK_WEBHOOK_SECRET",
+          "value": "REPLACE_PAYSTACK_TEST_WEBHOOK_SECRET",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
           "key": "PAYSTACK_MODE",
           "value": "test",
           "scope": "RUN_TIME",
