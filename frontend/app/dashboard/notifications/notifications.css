@@ -484,3 +484,41 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Give notification controls and messages a clear shared rhythm without
+   introducing extra card borders or decorative surfaces. */
+.cn-inbox-heading {
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+.cn-inbox-heading > :first-child {
+  min-width: 0;
+}
+.cn-toolbar > span {
+  line-height: 1.5;
+}
+.cn-row-meta,
+.cn-row-footer time {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.cn-message {
+  max-width: 76ch;
+  overflow-wrap: break-word;
+}
+@media (max-width: 600px) {
+  .cn-views {
+    gap: 10px;
+  }
+  .cn-toolbar {
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .cn-toolbar .actions {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+  .cn-item {
+    padding-right: 2px;
+  }
+}
