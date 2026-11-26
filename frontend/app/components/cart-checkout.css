@@ -824,3 +824,78 @@
 .dashboard .dashboard-content .cart-page .cart-primary:hover:not(:disabled) {
   background: #b50201;
 }
+
+/* Checkout readability: clear hierarchy without extra borders or decoration. */
+.dashboard .dashboard-content .cart-page .cart-progress {
+  gap: clamp(8px, 1.5vw, 20px);
+  margin-block: 28px 30px;
+}
+.dashboard .dashboard-content .cart-page .cart-progress li {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.dashboard .dashboard-content .cart-page .cart-checkout {
+  padding: clamp(20px, 2.5vw, 30px);
+}
+.dashboard .dashboard-content .cart-page .cart-muted,
+.dashboard .dashboard-content .cart-page .cart-fulfillment-note {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.dashboard .dashboard-content .cart-page .field label,
+.dashboard .dashboard-content .cart-page .cart-confirmation label {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.dashboard .dashboard-content .cart-page .cart-fulfillment-option {
+  min-width: 0;
+  gap: 10px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.dashboard .dashboard-content .cart-page .cart-fulfillment-option span {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.dashboard .dashboard-content .cart-page .cart-review-facts dt {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.dashboard .dashboard-content .cart-page .cart-review-facts dd {
+  font-size: 14px;
+}
+.dashboard .dashboard-content .cart-page .cart-amounts dt {
+  font-size: 13px;
+}
+.dashboard .dashboard-content .cart-page .cart-review-actions {
+  gap: 12px;
+}
+.dashboard .dashboard-content .cart-page .cart-review-actions .button,
+.dashboard .dashboard-content .cart-page .cart-primary {
+  font-size: 14px;
+}
+@media (max-width: 600px) {
+  .dashboard .dashboard-content .cart-page .cart-progress {
+    gap: 8px;
+    margin-block: 20px 24px;
+  }
+  .dashboard .dashboard-content .cart-page .cart-progress li {
+    font-size: 11px;
+    overflow-wrap: break-word;
+  }
+  .dashboard .dashboard-content .cart-page .cart-checkout {
+    padding: 18px 16px;
+  }
+  .dashboard .dashboard-content .cart-page .cart-fulfillment-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard .dashboard-content .cart-page .cart-fulfillment-option {
+    min-height: 60px;
+  }
+  .dashboard .dashboard-content .cart-page .cart-amounts > div {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+}

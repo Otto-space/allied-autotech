@@ -1,10 +1,10 @@
 ﻿.shop-page {
   --product-navy: var(--ink);
-  --product-border: #8290a1;
-  --product-muted: #4f6073;
-  --product-surface: #f3f5f8;
+  --product-border: #858585;
+  --product-muted: #555555;
+  --product-surface: #f7f7f7;
   color: var(--product-navy);
-  background: var(--product-surface);
+  background: #fff;
 }
 .product-breadcrumb ol {
   display: flex;
@@ -35,7 +35,7 @@
 }
 .product-search-panel {
   padding: 24px;
-  border: 1px solid #d4dbe4;
+  border: 1px solid #dddddd;
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 5px 20px #01121a08;
@@ -89,7 +89,7 @@
   cursor: pointer;
 }
 .product-search-submit:hover {
-  background: #e1e7ef;
+  background: #e5e5e5;
 }
 .shop-page label {
   display: block;
@@ -664,7 +664,7 @@
     overflow: hidden;
   }
   .product-filter-panel::backdrop {
-    background: #01121aa8;
+    background: #101010a8;
   }
   .product-filter-panel form {
     display: flex;
@@ -674,7 +674,7 @@
   }
   .product-filter-header {
     padding: 20px 20px 16px;
-    border-bottom: 1px solid #d4dbe4;
+    border-bottom: 1px solid #dddddd;
   }
   .product-filter-header h3 {
     font-size: 24px;
@@ -1069,11 +1069,11 @@
 .parts-car-finder select {
   width: 100%;
   min-height: 44px;
-  border: 1px solid #91a3b5;
+  border: 1px solid #858585;
   border-radius: 5px;
   padding: 10px 12px;
   background: #fff;
-  color: #152f40;
+  color: var(--ink);
   font: inherit;
   font-size: 14px;
 }
@@ -1158,8 +1158,8 @@
 .fitment-picker-popup [role="option"]:hover,
 .fitment-picker-popup [data-active="true"],
 .fitment-picker-popup [aria-selected="true"] {
-  background: #f0f4f6;
-  color: #062a3c;
+  background: #f1f1f1;
+  color: var(--ink);
 }
 .fitment-picker-popup p,
 .fitment-picker-popup > button {

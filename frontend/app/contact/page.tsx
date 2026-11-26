@@ -105,7 +105,7 @@ export default async function ContactPage() {
               <MessageCircle size={20} aria-hidden="true" />
               <span>
                 <strong>
-                  Whatsapp <ArrowUpRight size={14} aria-hidden="true" />
+                  WhatsApp <ArrowUpRight size={14} aria-hidden="true" />
                 </strong>
               </span>
             </a>

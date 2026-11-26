@@ -699,7 +699,7 @@
     padding: 24px 20px;
   }
   .contact-hero-media {
-    height: 180px;
+    height: clamp(200px, 45vw, 260px);
     min-height: 0;
   }
   .contact-hero p {

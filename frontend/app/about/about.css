@@ -139,13 +139,13 @@
 }
 .about-hero-photo {
   position: relative;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 2;
   border-radius: 5px;
   overflow: hidden;
   background: #172830;
 }
 .about-hero-photo img {
-  object-fit: contain;
+  object-fit: cover;
 }
 .about-hero-figure figcaption {
   font-size: 12px;
@@ -155,7 +155,7 @@
 }
 .about-sections {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   padding-block: 12px;
 }
 .about-sections a {
@@ -514,6 +514,14 @@
   }
   .about-sections a:nth-child(-n + 2) {
     border-bottom: 1px solid var(--about-rule);
+  }
+  .about-sections a:nth-child(3),
+  .about-sections a:nth-child(4) {
+    border-bottom: 1px solid var(--about-rule);
+  }
+  .about-sections a:last-child {
+    grid-column: 1 / -1;
+    padding-left: 0;
   }
   .about-purpose,
   .about-principles,
