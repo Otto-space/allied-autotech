@@ -71,6 +71,30 @@
           "type": "GENERAL"
         },
         {
+          "key": "PUBLIC_LAUNCH_MODE",
+          "value": "full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "BOOKING_REQUESTS_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PRODUCT_PURCHASES_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "BOOKING_DEPOSIT_TEST_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
           "key": "PORT",
           "value": "5000",
           "scope": "RUN_TIME",
@@ -414,7 +438,7 @@
         },
         {
           "key": "PAYMENT_RECONCILIATION_ENABLED",
-          "value": "true",
+          "value": "false",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -547,6 +571,24 @@
         {
           "key": "DEPLOYMENT_ENV",
           "value": "staging",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PUBLIC_LAUNCH_MODE",
+          "value": "full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "BOOKING_REQUESTS_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PRODUCT_PURCHASES_ENABLED",
+          "value": "false",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -713,6 +755,24 @@
         {
           "key": "DEPLOYMENT_ENV",
           "value": "staging",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PUBLIC_LAUNCH_MODE",
+          "value": "full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "BOOKING_REQUESTS_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PRODUCT_PURCHASES_ENABLED",
+          "value": "false",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -1012,7 +1072,7 @@
         },
         {
           "key": "PAYMENT_RECONCILIATION_ENABLED",
-          "value": "true",
+          "value": "false",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },

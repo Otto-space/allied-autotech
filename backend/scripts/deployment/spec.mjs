@@ -77,10 +77,24 @@ export function renderSpec(template, input, manifest, keys) {
   );
   const values = input.values;
   requireValue(values && typeof values === "object", "Deployment values are missing.");
-  const paystackMode = input.paystackMode ?? "test";
+  const paystackMode = input.paystackMode ?? "disabled";
   requireValue(
     ["disabled", "test"].includes(paystackMode),
     "Staging payments must be disabled or test mode.",
+  );
+  const depositTest = input.bookingDepositTestEnabled === true;
+  requireValue(
+    input.bookingDepositTestEnabled === undefined ||
+      typeof input.bookingDepositTestEnabled === "boolean",
+    "Booking deposit test control must be boolean.",
+  );
+  requireValue(
+    paystackMode === "test" ? depositTest : !depositTest,
+    "Staging Paystack test mode and booking deposit test must be enabled together.",
+  );
+  requireValue(
+    !depositTest || template.name === "allied-autotech-staging",
+    "Booking deposit test is restricted to the staging application.",
   );
   const requiredValues = new Set();
   for (const component of [...template.services, ...template.workers, ...template.jobs]) {
@@ -200,6 +214,42 @@ export function renderSpec(template, input, manifest, keys) {
     throw new Error("Provide a valid, current DigitalOcean CA certificate bundle.");
   }
   const spec = structuredClone(template);
+  // The public staging API may use full routing only when unrelated customer
+  // writes remain explicitly blocked. Never inherit permissive runtime defaults.
+  for (const component of spec.name === "allied-autotech-staging"
+    ? [...spec.services, ...spec.workers]
+    : []) {
+    const flags = Object.fromEntries(component.envs.map((entry) => [entry.key, entry]));
+    const expected = {
+      PUBLIC_LAUNCH_MODE: "full",
+      BOOKING_REQUESTS_ENABLED: "false",
+      PRODUCT_PURCHASES_ENABLED: "false",
+    };
+    if (component.name === "api") expected.BOOKING_DEPOSIT_TEST_ENABLED = "false";
+    for (const [name, value] of Object.entries(expected)) {
+      requireValue(
+        flags[name]?.value === value &&
+          flags[name]?.type === "GENERAL" &&
+          flags[name]?.scope === "RUN_TIME" &&
+          component.envs.filter((entry) => entry.key === name).length === 1,
+        `Invalid reviewed staging safeguard: ${component.name}/${name}.`,
+      );
+    }
+    requireValue(
+      component.name === "api" || flags.BOOKING_DEPOSIT_TEST_ENABLED === undefined,
+      "Deposit test control belongs only on the API.",
+    );
+    for (const name of ["PAYSTACK_LIVE_ENABLED", "PAYMENT_RECONCILIATION_ENABLED"]) {
+      if (component.name === "identity-worker") {
+        requireValue(flags[name] === undefined, "Identity worker cannot enable payments.");
+      } else {
+        requireValue(
+          flags[name]?.value === "false",
+          `Staging must disable ${component.name}/${name}.`,
+        );
+      }
+    }
+  }
   spec.region = input.region;
   spec.databases[0].cluster_name = input.databaseCluster;
   spec.databases[0].db_user = values.DB_USER;
@@ -211,9 +261,9 @@ export function renderSpec(template, input, manifest, keys) {
     component.image.digest = released.digest;
     for (const entry of component.envs) {
       if (entry.key === "PAYSTACK_MODE") entry.value = paystackMode;
-      if (paystackMode === "disabled" && entry.key === "PAYMENT_RECONCILIATION_ENABLED") {
-        entry.value = "false";
-      }
+      if (entry.key === "BOOKING_DEPOSIT_TEST_ENABLED")
+        entry.value = depositTest ? "true" : "false";
+      if (entry.key === "PAYMENT_RECONCILIATION_ENABLED") entry.value = "false";
       if (!entry.value.includes("REPLACE_")) continue;
       const name =
         component.name === "migrate" && ["DB_USER", "DB_PASSWORD"].includes(entry.key)

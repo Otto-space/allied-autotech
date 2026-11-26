@@ -49,6 +49,8 @@ function fixtures() {
     registry: manifest.registry,
     region: "lon",
     databaseCluster: "synthetic-postgres",
+    paystackMode: "test",
+    bookingDepositTestEnabled: true,
     values: {
       DB_HOST: "synthetic.db.ondigitalocean.com",
       DB_PORT: "25060",
@@ -74,6 +76,7 @@ function fixtures() {
 test("disabled payments need no provider key and cannot enable reconciliation or live payments", () => {
   const { input, manifest, keys } = fixtures();
   input.paystackMode = "disabled";
+  input.bookingDepositTestEnabled = false;
   input.values.PAYSTACK_SECRET_KEY = "";
   const spec = renderSpec(template, input, manifest, keys);
   for (const component of [...spec.services, ...spec.workers]) {
@@ -118,6 +121,15 @@ test("rendered spec preserves all four process boundaries and initial staging sa
     );
     assert.equal(env.NODE_ENV, "production");
     assert.equal(env.DEPLOYMENT_ENV, "staging");
+    if (component.name !== "migrate") {
+      assert.equal(env.PUBLIC_LAUNCH_MODE, "full");
+      assert.equal(env.BOOKING_REQUESTS_ENABLED, "false");
+      assert.equal(env.PRODUCT_PURCHASES_ENABLED, "false");
+      assert.equal(
+        env.BOOKING_DEPOSIT_TEST_ENABLED,
+        component.name === "api" ? "true" : undefined,
+      );
+    }
     assert.equal(env.DB_SSL_MODE, "verify-full");
     assert.equal(env.DB_SSL_CA_FILE, "/tmp/allied-autotech-secrets/database-ca.pem");
     assert.equal(
@@ -157,6 +169,7 @@ test("rendered spec preserves all four process boundaries and initial staging sa
         assert.equal(env.SMS_DELIVERY_ENABLED, "false");
         assert.equal(env.PAYSTACK_MODE, "test");
         assert.equal(env.PAYSTACK_LIVE_ENABLED, "false");
+        assert.equal(env.PAYMENT_RECONCILIATION_ENABLED, "false");
         assert.equal(env.MONNIFY_MODE, "disabled");
       }
     }
@@ -187,6 +200,44 @@ test("rendered spec preserves all four process boundaries and initial staging sa
       (c) => !c.envs.some((e) => e.key === "PRIVATE_TESTING_PASSWORD"),
     ),
   );
+});
+
+test("deposit-only test mode cannot enable bookings, purchases, live mode or reconciliation", () => {
+  const { input, manifest, keys } = fixtures();
+  for (const [name, value] of [
+    ["BOOKING_REQUESTS_ENABLED", "true"],
+    ["PRODUCT_PURCHASES_ENABLED", "true"],
+    ["PUBLIC_LAUNCH_MODE", "browse_enquiries"],
+    ["PAYSTACK_LIVE_ENABLED", "true"],
+    ["PAYMENT_RECONCILIATION_ENABLED", "true"],
+  ]) {
+    const altered = structuredClone(template);
+    const api = altered.services[0];
+    const target = api.envs.find((entry) => entry.key === name);
+    target.value = value;
+    assert.throws(() => renderSpec(altered, input, manifest, keys));
+  }
+  input.bookingDepositTestEnabled = false;
+  assert.throws(() => renderSpec(template, input, manifest, keys), /enabled together/);
+  input.bookingDepositTestEnabled = true;
+  input.paystackMode = "disabled";
+  input.values.PAYSTACK_SECRET_KEY = "";
+  assert.throws(() => renderSpec(template, input, manifest, keys), /enabled together/);
+});
+
+test("disabled staging mode stays explicitly closed with no API deposit exception", () => {
+  const { input, manifest, keys } = fixtures();
+  input.paystackMode = "disabled";
+  input.bookingDepositTestEnabled = false;
+  input.values.PAYSTACK_SECRET_KEY = "";
+  const spec = renderSpec(template, input, manifest, keys);
+  const api = Object.fromEntries(spec.services[0].envs.map((e) => [e.key, e.value]));
+  assert.equal(api.PUBLIC_LAUNCH_MODE, "full");
+  assert.equal(api.BOOKING_REQUESTS_ENABLED, "false");
+  assert.equal(api.PRODUCT_PURCHASES_ENABLED, "false");
+  assert.equal(api.BOOKING_DEPOSIT_TEST_ENABLED, "false");
+  assert.equal(api.PAYSTACK_MODE, "disabled");
+  assert.equal(api.PAYMENT_RECONCILIATION_ENABLED, "false");
 });
 
 for (const [description, mutate] of [
