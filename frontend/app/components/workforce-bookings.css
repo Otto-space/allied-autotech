@@ -391,3 +391,279 @@
     text-align: left;
   }
 }
+
+
+/* Workforce booking detail — operational hierarchy and responsive workspace. */
+.workforce-booking-detail .wfb-detail-header {
+  margin-bottom: 20px;
+}
+.workforce-booking-detail .wfb-breadcrumb {
+  gap: 9px;
+  margin: 0 0 14px;
+  font-size: 12px;
+}
+.workforce-booking-detail .wfb-breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--brand-red-dark, #a70f27);
+  font-weight: 700;
+  text-decoration: none;
+}
+.workforce-booking-detail .wfb-breadcrumb a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.workforce-booking-detail .wfb-detail-title-row {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--wfb-line);
+}
+.workforce-booking-detail .wfb-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--wfb-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+.workforce-booking-detail .wfb-detail-title h1 {
+  font-size: clamp(23px, 2vw, 30px);
+  letter-spacing: -.035em;
+}
+.workforce-booking-detail .wfb-detail-title p {
+  max-width: 620px;
+  margin-top: 5px;
+}
+.workforce-booking-detail .wfb-detail-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 9px;
+}
+.workforce-booking-detail .wfb-detail-toolbar .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.workforce-booking-detail .wfb-refresh-status {
+  margin: 0 0 14px;
+  padding: 10px 13px;
+  border: 1px solid #e6c8cc;
+  border-left: 3px solid var(--brand-red, #bd172b);
+  border-radius: 9px;
+  background: #fff8f8;
+  color: #67202a;
+  font-size: 12px;
+}
+.workforce-booking-detail .wfb-appointment-summary {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 20px;
+  padding: clamp(18px, 2.4vw, 28px);
+  border: 1px solid #d9cdd0;
+  border-radius: 15px;
+  background:
+    radial-gradient(ellipse at 100% 0%, rgb(181 18 40 / 8%), transparent 44%),
+    linear-gradient(135deg, #fff 0%, #fff 62%, #fcf5f6 100%);
+  box-shadow: 0 10px 28px rgb(20 25 30 / 5%);
+}
+.workforce-booking-detail .wfb-appointment-summary-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.workforce-booking-detail .wfb-appointment-service h2 {
+  font-size: clamp(19px, 2vw, 25px);
+  letter-spacing: -.025em;
+}
+.workforce-booking-detail .wfb-customer-concern {
+  max-width: 850px;
+}
+.workforce-booking-detail .wfb-booking-status {
+  flex: 0 0 auto;
+  padding: 6px 11px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--info-ink, #24577c);
+  font-size: 11px;
+  font-weight: 800;
+}
+.workforce-booking-detail .wfb-booking-status[data-status="COMPLETED"] {
+  color: var(--success-ink, #21633d);
+}
+.workforce-booking-detail .wfb-booking-status[data-status="CANCELLED"],
+.workforce-booking-detail .wfb-booking-status[data-status="NO_SHOW"] {
+  color: var(--error-ink, #9a2630);
+}
+.workforce-booking-detail .wfb-appointment-timing {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 18px 0;
+  padding: 13px 15px;
+  border: 1px solid #ead7da;
+  border-radius: 11px;
+  background: rgb(255 255 255 / 82%);
+}
+.workforce-booking-detail .wfb-appointment-timing > svg {
+  flex: 0 0 auto;
+  margin-top: 3px;
+  color: var(--brand-red-dark, #a70f27);
+}
+.workforce-booking-detail .wfb-appointment-timing > * {
+  min-width: 0;
+}
+.workforce-booking-detail .wfb-booking-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+  margin: 0;
+}
+.workforce-booking-detail .wfb-booking-facts > div {
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid #e3e7ea;
+  border-radius: 10px;
+  background: #fff;
+}
+.workforce-booking-detail .wfb-booking-facts dt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+  color: var(--wfb-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.workforce-booking-detail .wfb-booking-facts dt svg {
+  color: var(--brand-red-dark, #a70f27);
+}
+.workforce-booking-detail .wfb-booking-facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+.workforce-booking-detail .wfb-booking-facts dd + dd {
+  margin-top: 3px;
+}
+.workforce-booking-detail .wfb-booking-facts .wfb-fact-secondary {
+  color: var(--wfb-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.workforce-booking-detail .wfb-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(310px, .88fr);
+  align-items: start;
+  gap: 18px;
+}
+.workforce-booking-detail .wfb-detail-column {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  min-width: 0;
+}
+.workforce-booking-detail .wfb-detail-panel,
+.workforce-booking-detail .wfb-detail-column > .card {
+  min-width: 0;
+  margin: 0;
+  padding: clamp(16px, 2vw, 23px);
+  border: 1px solid var(--wfb-line);
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgb(20 25 30 / 4%);
+}
+.workforce-booking-detail .wfb-detail-column > .card h2 {
+  margin-bottom: 9px;
+}
+.workforce-booking-detail .wfb-detail-column > .card .field {
+  min-width: 0;
+}
+.workforce-booking-detail .wfb-detail-column > .card :is(input:not([type="checkbox"]), select, textarea) {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.workforce-booking-detail .wfb-detail-column > .card .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 13px 15px;
+}
+.workforce-booking-detail .wfb-detail-column > .card .form-grid > :is(button, p, .field:has(textarea)) {
+  grid-column: 1 / -1;
+}
+.workforce-booking-detail .wfb-detail-column > .card .form-grid > .field:has(input),
+.workforce-booking-detail .wfb-detail-column > .card .form-grid > .field:has(select) {
+  grid-column: auto;
+}
+.workforce-booking-detail .workforce-booking-detail-content [hidden] {
+  display: none !important;
+}
+@media (max-width: 1100px) {
+  .workforce-booking-detail .wfb-detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-booking-detail .wfb-detail-secondary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .workforce-booking-detail .wfb-detail-secondary > .card {
+    align-self: start;
+  }
+}
+@media (max-width: 760px) {
+  .workforce-booking-detail .wfb-detail-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 13px;
+  }
+  .workforce-booking-detail .wfb-detail-toolbar {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .workforce-booking-detail .wfb-detail-toolbar .button {
+    flex: 1 1 auto;
+  }
+  .workforce-booking-detail .wfb-booking-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .workforce-booking-detail .wfb-detail-secondary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 420px) {
+  .workforce-booking-detail .wfb-detail-toolbar .button {
+    flex-basis: 100%;
+  }
+  .workforce-booking-detail .wfb-appointment-summary-top {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .workforce-booking-detail .wfb-booking-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+  .workforce-booking-detail .wfb-detail-column > .card .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-booking-detail .wfb-detail-column > .card .form-grid > .field {
+    grid-column: 1 / -1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workforce-booking-detail * {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
