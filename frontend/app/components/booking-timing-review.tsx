@@ -330,6 +330,7 @@ export function BookingTimingReview({
       </p>
       <Feedback message={error} />
       <form
+        className="form-grid"
         onSubmit={(event) => {
           event.preventDefault();
           review(event.currentTarget);
