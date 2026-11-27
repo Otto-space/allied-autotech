@@ -1,4 +1,5 @@
 // Backend-owned corpus. Never import this module into frontend code.
+// Booking guidance must distinguish account-detail saves from explicit booking submission.
 export type LearningGate =
   | "public"
   | "customer"
