@@ -111,6 +111,7 @@ export function WorkforceBookingDetail({
         <div
           className="workforce-booking-detail-content"
           aria-busy={record.refreshing}
+          inert={temporarilyUnavailable || !!error || undefined}
         >
           <NotificationRecordContext resourceType="BOOKING" resourceId={row.id} />
 
