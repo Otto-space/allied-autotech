@@ -102,8 +102,9 @@
 }
 .controls {
   position: absolute;
-  bottom: 16px;
-  right: 24px;
+  /* Clear the viewport-anchored customer support dock on shorter laptops. */
+  bottom: 94px;
+  right: 152px;
   /* Keep the 44px controls plus their padding/border reserved before hydration. */
   min-height: 58px;
   margin-right: 0;
@@ -117,6 +118,12 @@
   border-radius: 999px;
   background: #080c0fd6;
   color: var(--text-inverse);
+}
+/* Taller desktop layouts can keep pagination near the lower edge of the hero. */
+@media (min-width: 768px) and (min-height: 801px) {
+  .controls {
+    bottom: 16px;
+  }
 }
 .controls:empty {
   visibility: hidden;
@@ -180,12 +187,12 @@
 }
 @media (max-width: 767px) {
   .hero {
-    padding-bottom: 250px;
+    padding-bottom: 210px;
   }
   .layout {
     width: calc(100% - 32px);
     min-height: 0;
-    padding-block: 40px 20px;
+    padding-block: 28px 20px;
     gap: 16px;
   }
   .content {
@@ -197,16 +204,17 @@
   }
   .hero .copy {
     font-size: 16px;
-    margin-block: 16px 24px;
+    margin-block: 12px 16px;
   }
   .media {
     inset: auto 0 0;
-    height: 250px;
+    height: 210px;
   }
   .controls {
     right: auto;
     left: 16px;
-    bottom: 16px;
+    /* Keep pagination reachable above the fold on 360x600 phones. */
+    bottom: 144px;
     gap: 0;
   }
   .controls button {

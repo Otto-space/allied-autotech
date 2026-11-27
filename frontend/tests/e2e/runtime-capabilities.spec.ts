@@ -362,6 +362,9 @@ for (const width of [320, 1440]) {
     await expect(page.getByLabel("Model", { exact: true }).first()).toHaveValue(
       "Synthetic test model",
     );
+    // Axe must inspect the breadcrumbs in their unobscured reading position;
+    // the preceding workflow scrolls a panel beneath the sticky mobile header.
+    await page.evaluate(() => window.scrollTo(0, 0));
     const editableAccessibility = await new AxeBuilder({ page })
       .include("main")
       .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
@@ -381,6 +384,7 @@ for (const width of [320, 1440]) {
     ).toBe(true);
     await panel.scrollIntoViewIfNeeded();
     await page.screenshot({ path: info.outputPath(`suitability-after-${width}.png`) });
+    await page.evaluate(() => window.scrollTo(0, 0));
     const accessibility = await new AxeBuilder({ page })
       .include("main")
       .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
