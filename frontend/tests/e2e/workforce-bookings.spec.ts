@@ -263,7 +263,7 @@ test("all booking status options apply their corresponding server filter", async
 
     COMPLETED: "Completed",
     CANCELLED: "Cancelled",
-    NO_SHOW: "No show",
+    NO_SHOW: "Missed appointment",
     EXPIRED: "Expired",
   })) {
     await page.getByLabel("Booking status", { exact: true }).selectOption(status);

@@ -373,7 +373,7 @@ for (const width of [390, 1440])
     await expect(
       page
         .getByRole("region", { name: "Booking appointment", exact: true })
-        .locator("time"),
+        .locator('time:not([aria-hidden="true"])'),
     ).toHaveAttribute("datetime", original);
     await proposal.scrollIntoViewIfNeeded();
     expect(

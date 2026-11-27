@@ -79,7 +79,9 @@ test("held background refresh keeps the booking and unsaved notes visible", asyn
   const notes = page.getByLabel("Internal staff notes");
   await notes.fill("Keep this technician note while checking for updates.");
   state.mode = "hold";
-  await page.getByRole("button", { name: "Refresh booking" }).click();
+  await page.evaluate(() => {
+    window.dispatchEvent(new Event("online"));
+  });
   await expect(
     page.getByText(/Updating booking details\. Your record stays visible/),
   ).toBeVisible();

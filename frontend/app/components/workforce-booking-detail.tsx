@@ -24,7 +24,16 @@ import { BookingRescheduleHistory } from "./booking-reschedule-history";
 import { WorkforceBookingAlternative } from "./workforce-booking-alternative";
 import { WorkforceBookingConfirmation } from "./workforce-booking-confirmation";
 import { WorkforceBookingQuotations } from "./workforce-booking-quotations";
-import { ArrowLeft, CalendarClock, CarFront, Clock3, MapPin, RefreshCw, UserRound, Wrench } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarClock,
+  CarFront,
+  Clock3,
+  MapPin,
+  RefreshCw,
+  UserRound,
+  Wrench,
+} from "lucide-react";
 import "./workforce-bookings.css";
 
 export function WorkforceBookingDetail({
@@ -73,13 +82,12 @@ export function WorkforceBookingDetail({
           <div className="wfb-detail-title">
             <span className="wfb-eyebrow">WORKSHOP OPERATIONS</span>
             <h1>Booking details</h1>
-            <p>Review the appointment, coordinate workshop activity and manage its quotation.</p>
+            <p>
+              Review the appointment, coordinate workshop activity and manage its
+              quotation.
+            </p>
           </div>
           <div className="wfb-detail-toolbar">
-            <Link className="button secondary" href="/admin/workforce/bookings">
-              <ArrowLeft size={16} aria-hidden="true" />
-              All permitted bookings
-            </Link>
             <button
               className="button secondary wfb-refresh-button"
               disabled={record.loading || record.refreshing}
@@ -107,6 +115,41 @@ export function WorkforceBookingDetail({
         </p>
       )}
 
+      {!row && !record.loading && !!(error || record.refreshError) && (
+        <section
+          className="card wfb-unavailable-state"
+          role="alert"
+          aria-labelledby="wfb-unavailable-title"
+        >
+          <div>
+            <span className="wfb-eyebrow">BOOKING VERIFICATION</span>
+            <h2 id="wfb-unavailable-title">Booking unavailable</h2>
+            <p>
+              {record.refreshError ||
+                error ||
+                "This booking could not be verified. Please try again."}
+            </p>
+            <p>
+              Booking details and operational actions remain unavailable until
+              verification succeeds.
+            </p>
+          </div>
+
+          <button
+            className="button secondary"
+            type="button"
+            disabled={record.loading || record.refreshing}
+            onClick={() => {
+              refreshAccess();
+              record.refresh();
+            }}
+          >
+            <RefreshCw size={16} aria-hidden="true" />
+            Try again
+          </button>
+        </section>
+      )}
+
       {row && (
         <div
           className="workforce-booking-detail-content"
@@ -123,7 +166,9 @@ export function WorkforceBookingDetail({
                 {row.requestedServiceCategoryName && (
                   <p>Requested service group: {row.requestedServiceCategoryName}</p>
                 )}
-                {row.customerConcern && <p className="wfb-customer-concern">{row.customerConcern}</p>}
+                {row.customerConcern && (
+                  <p className="wfb-customer-concern">{row.customerConcern}</p>
+                )}
               </div>
               <span className="wfb-booking-status" data-status={row.status}>
                 {bookingStatusLabels[row.status]}
@@ -135,34 +180,54 @@ export function WorkforceBookingDetail({
             </div>
             <dl className="wfb-booking-facts">
               <div>
-                <dt><UserRound size={15} aria-hidden="true" /> Customer</dt>
-                <dd>{row.customer.firstName} {row.customer.lastName}</dd>
+                <dt>
+                  <UserRound size={15} aria-hidden="true" /> Customer
+                </dt>
+                <dd>
+                  {row.customer.firstName} {row.customer.lastName}
+                </dd>
                 <dd className="wfb-fact-secondary">{row.customer.phone}</dd>
               </div>
               <div>
-                <dt><CarFront size={15} aria-hidden="true" /> Vehicle</dt>
-                <dd>{row.vehicle
-                  ? [row.vehicle.make, row.vehicle.model, row.vehicle.year].filter(Boolean).join(" ")
-                  : "Not recorded"}</dd>
+                <dt>
+                  <CarFront size={15} aria-hidden="true" /> Vehicle
+                </dt>
+                <dd>
+                  {row.vehicle
+                    ? [row.vehicle.make, row.vehicle.model, row.vehicle.year]
+                        .filter(Boolean)
+                        .join(" ")
+                    : "Not recorded"}
+                </dd>
               </div>
               <div>
-                <dt><MapPin size={15} aria-hidden="true" /> Branch</dt>
+                <dt>
+                  <MapPin size={15} aria-hidden="true" /> Branch
+                </dt>
                 <dd>{row.branch?.name ?? "Unassigned"}</dd>
               </div>
               {row.assignedStaff !== undefined && (
                 <div>
-                  <dt><Wrench size={15} aria-hidden="true" /> Assigned staff</dt>
-                  <dd>{row.assignedStaff
-                    ? `${row.assignedStaff.firstName} ${row.assignedStaff.lastName}`
-                    : "Not assigned"}</dd>
+                  <dt>
+                    <Wrench size={15} aria-hidden="true" /> Assigned staff
+                  </dt>
+                  <dd>
+                    {row.assignedStaff
+                      ? `${row.assignedStaff.firstName} ${row.assignedStaff.lastName}`
+                      : "Not assigned"}
+                  </dd>
                 </div>
               )}
               {row.service?.durationMinutes !== undefined && (
                 <div>
-                  <dt><Clock3 size={15} aria-hidden="true" /> Service duration</dt>
-                  <dd>{row.service.durationMinutes === null
-                    ? "Not recorded"
-                    : `${row.service.durationMinutes} minutes`}</dd>
+                  <dt>
+                    <Clock3 size={15} aria-hidden="true" /> Service duration
+                  </dt>
+                  <dd>
+                    {row.service.durationMinutes === null
+                      ? "Not recorded"
+                      : `${row.service.durationMinutes} minutes`}
+                  </dd>
                 </div>
               )}
             </dl>
@@ -171,9 +236,16 @@ export function WorkforceBookingDetail({
           <div className="wfb-detail-grid">
             <div className="wfb-detail-column wfb-detail-primary">
               {row.alternativeStartsAt && row.alternativeReason && (
-                <section className="card wfb-detail-panel" aria-label="Proposed appointment">
+                <section
+                  className="card wfb-detail-panel"
+                  aria-label="Proposed appointment"
+                >
                   <h2>Proposed appointment</h2>
-                  <p><time dateTime={row.alternativeStartsAt}>{formatBusinessDate(row.alternativeStartsAt)}</time></p>
+                  <p>
+                    <time dateTime={row.alternativeStartsAt}>
+                      {formatBusinessDate(row.alternativeStartsAt)}
+                    </time>
+                  </p>
                   <p>{row.alternativeReason}</p>
                   <p>
                     {row.alternativeVersion === row.version &&
@@ -215,14 +287,25 @@ export function WorkforceBookingDetail({
             <div className="wfb-detail-column wfb-detail-secondary">
               <BookingWorkEstimate estimate={row.workEstimate} status={row.status} />
               <BookingWorkReview
-                key={"work:" + access.userId + ":" + row.id + ":" + row.version + ":" + workforceAccessKey(access)}
+                key={
+                  "work:" +
+                  access.userId +
+                  ":" +
+                  row.id +
+                  ":" +
+                  row.version +
+                  ":" +
+                  workforceAccessKey(access)
+                }
                 booking={row}
                 owner={access.userId}
                 access={access}
                 onSaved={(version) => {
                   if (version !== undefined) {
                     setMinimumVersion(version);
-                    setMessage("Remaining work estimate reviewed. The original visit and recorded start are unchanged.");
+                    setMessage(
+                      "Remaining work estimate reviewed. The original visit and recorded start are unchanged.",
+                    );
                   }
                   record.refresh();
                   refreshAccess();
@@ -236,7 +319,9 @@ export function WorkforceBookingDetail({
                 onSaved={(version) => {
                   if (version !== undefined) {
                     setMinimumVersion(version);
-                    setMessage("Appointment estimate updated. The start time and status are unchanged.");
+                    setMessage(
+                      "Appointment estimate updated. The start time and status are unchanged.",
+                    );
                   }
                   record.refresh();
                   refreshAccess();
@@ -252,7 +337,9 @@ export function WorkforceBookingDetail({
                 }}
                 onSaved={(version) => {
                   setMinimumVersion(version);
-                  setMessage("Reschedule decision recorded. Review the confirmed appointment and history.");
+                  setMessage(
+                    "Reschedule decision recorded. Review the confirmed appointment and history.",
+                  );
                   record.refresh();
                 }}
               />
@@ -266,7 +353,9 @@ export function WorkforceBookingDetail({
                 }}
                 onSaved={(version) => {
                   setMinimumVersion(version);
-                  setMessage("Proposed time saved for customer review. The current appointment has not changed.");
+                  setMessage(
+                    "Proposed time saved for customer review. The current appointment has not changed.",
+                  );
                   record.refresh();
                 }}
               />
@@ -284,7 +373,9 @@ export function WorkforceBookingDetail({
                     onSaved={(receipt) => {
                       setResourceNote("");
                       setMinimumVersion(receipt.version);
-                      setMessage("Appointment confirmed. The booking status and one-hour reminder schedule were recorded.");
+                      setMessage(
+                        "Appointment confirmed. The booking status and one-hour reminder schedule were recorded.",
+                      );
                       record.refresh();
                     }}
                   />

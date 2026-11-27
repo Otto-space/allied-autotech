@@ -14028,19 +14028,19 @@ pending; this is not a live deployment or production verification.
 
 ### Verification status
 
-| Check | Status |
-|---|---|
-| Source changes written to isolated branch | Complete |
+| Check                                                  | Status                 |
+| ------------------------------------------------------ | ---------------------- |
+| Source changes written to isolated branch              | Complete               |
 | Permission/business logic preserved by component reuse | Source inspection only |
-| Formatting | Not run |
-| ESLint | Not run |
-| TypeScript | Not run |
-| Unit tests | Not run |
-| Playwright role/workflow tests | Not run |
-| Responsive browser verification | Not run |
-| Accessibility audit | Not run |
-| Production build | Not run |
-| Staging screenshots | Not captured |
+| Formatting                                             | Not run                |
+| ESLint                                                 | Not run                |
+| TypeScript                                             | Not run                |
+| Unit tests                                             | Not run                |
+| Playwright role/workflow tests                         | Not run                |
+| Responsive browser verification                        | Not run                |
+| Accessibility audit                                    | Not run                |
+| Production build                                       | Not run                |
+| Staging screenshots                                    | Not captured           |
 
 ### Outstanding review
 

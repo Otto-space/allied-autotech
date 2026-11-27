@@ -481,7 +481,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
           className="button secondary"
           disabled={booking.loading || booking.refreshing || !!proposal}
           onClick={() => {
-            booking.revalidate();
+            booking.refresh();
             access.refresh();
           }}
         >
