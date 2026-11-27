@@ -1,3 +1,4 @@
+// Keep the service-request version assertion aligned with published guidance updates.
 import { expect, it } from "vitest";
 import { learningArticles } from "../../src/modules/learning/learning.content.js";
 
