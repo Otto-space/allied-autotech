@@ -1,6 +1,7 @@
 "use client";
 import { containDialogFocus } from "@/lib/dialog-focus";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Bell, X } from "lucide-react";
 import { apiRequest } from "@/lib/api/client";
@@ -25,6 +26,7 @@ export function NotificationPreview({
   pending?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const focusRelatedUpdates = useRef(false);
   const [retry, setRetry] = useState(0);
   const [unreadAtOpen, setUnreadAtOpen] = useState(false);
   const [state, setState] = useState<{ items?: InboxNotification[]; error?: boolean }>(
@@ -34,6 +36,7 @@ export function NotificationPreview({
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const inbox = customer ? "/dashboard/notifications" : "/admin/notifications";
+  const pathname = usePathname();
   useEffect(() => {
     if (customer) return;
     const changed = () => {
@@ -50,8 +53,25 @@ export function NotificationPreview({
     element.showModal();
     return () => {
       element.close();
-      opener?.focus();
+      if (!focusRelatedUpdates.current) opener?.focus();
     };
+  }, [open]);
+  useEffect(() => {
+    if (open || !focusRelatedUpdates.current) return;
+    focusRelatedUpdates.current = false;
+    const region = document.querySelector<HTMLElement>(
+      '.notification-record-context[aria-label="Related record updates"]',
+    );
+    if (region) {
+      region.tabIndex = -1;
+      // Let the native dialog finish restoring focus before moving it to the
+      // related record. Otherwise the dialog's focus restoration can win.
+      const frame = requestAnimationFrame(() => {
+        region.focus({ preventScroll: true });
+        region.scrollIntoView({ block: "center", behavior: "smooth" });
+      });
+      return () => cancelAnimationFrame(frame);
+    }
   }, [open]);
   useEffect(() => {
     if (!open) return;
@@ -173,7 +193,17 @@ export function NotificationPreview({
                   <Link
                     href={`${inbox}?notification=${item.id}`}
                     prefetch={false}
-                    onClick={close}
+                    onClick={(event) => {
+                      const destinationPath = item.destination?.href.split(/[?#]/, 1)[0];
+                      const relatedUpdates = document.querySelector(
+                        '.notification-record-context[aria-label="Related record updates"]',
+                      );
+                      if (destinationPath === pathname && relatedUpdates) {
+                        event.preventDefault();
+                        focusRelatedUpdates.current = true;
+                      }
+                      close();
+                    }}
                   >
                     <span className="np-status">{item.readAt ? "Read" : "Unread"}</span>
                     <strong>{item.title}</strong>

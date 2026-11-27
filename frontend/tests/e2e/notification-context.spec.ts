@@ -129,6 +129,35 @@ async function notifications(
   });
 }
 
+test("notification bell focuses updates on an already open related booking", async ({
+  page,
+}) => {
+  await bookingDetailFixture(page);
+  const data = state();
+  await notifications(page, data);
+  await page.goto(recordPath);
+  await expect(page.locator(".booking-appointment")).toBeVisible();
+  const relatedUpdates = page.getByRole("region", { name: "Related record updates" });
+  await expect(relatedUpdates).toBeVisible();
+
+  await page.getByRole("button", { name: "Open notifications, 1 unread" }).click();
+  const preview = page.getByRole("dialog", { name: "Notifications", exact: true });
+  const notification = preview.getByRole("link", { name: /Booking update 1/ });
+  await expect(notification).toHaveAttribute(
+    "href",
+    `/dashboard/notifications?notification=${data.items[0].id}`,
+  );
+  await notification.click();
+
+  // The related record is already open: reveal its update in place instead of
+  // routing through the inbox and back to the same booking.
+  await expect(page).toHaveURL(recordPath);
+  await expect(preview).toBeHidden();
+  await expect(relatedUpdates).toBeFocused();
+  await expect(page.locator(".booking-appointment")).toBeVisible();
+  expect(data.writes).toEqual([]);
+});
+
 for (const width of [1440, 390])
   test(`single sidebar update waits for displayed content at ${width}px`, async ({
     page,
