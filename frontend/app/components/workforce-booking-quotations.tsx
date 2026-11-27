@@ -35,8 +35,10 @@ export function WorkforceBookingQuotations({
     <section className="card" aria-label="Quotation workspace">
       <h2>Quotation</h2>
       <p>
-        The assigned staff member prepares the price. A different authorised reviewer
-        approves it before the customer can pay the 20% deposit.
+        The assigned staff member prepares the quotation. A different authorised
+        reviewer approves and issues it. Customers can accept an issued quotation
+        within its seven-day validity. Workshop bookings are request-and-confirm;
+        deposits are disabled. Payment follows acceptance of a valid quotation.
       </p>
       {!allowed ? (
         <p>
