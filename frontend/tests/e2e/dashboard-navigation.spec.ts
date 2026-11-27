@@ -297,6 +297,10 @@ for (const evictHiddenFocus of [false, true])
     await expect(
       page.getByRole("button", { name: "Collapse sidebar", exact: true }),
     ).toBeFocused();
+    await expect(page.locator(".dashboard")).toHaveAttribute(
+      "data-sidebar-collapsed",
+      "false",
+    );
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
@@ -310,7 +314,7 @@ for (const evictHiddenFocus of [false, true])
       await expect(
         page.getByRole("dialog", { name: "Dashboard navigation" }),
       ).toBeHidden();
-      await expect(page.locator(".sidebar")).toHaveCSS("width", "256px");
+      await expect(page.locator(".sidebar")).toHaveCSS("width", "224px");
     }
   });
 
