@@ -30,3 +30,19 @@ Build one accessible, responsive, premium and plain-language dashboard experienc
 ## Source brief
 
 Owner-supplied **Allied AutoTech Dashboard Modernization Goal**, 27 November 2026.
+
+## Workforce booking details redesign — implementation checkpoint
+
+- [x] Created isolated branch `codex/workforce-booking-details-redesign-20261127` from the previously verified dashboard modernization checkpoint; no production branch or deployment changed.
+- [x] Reworked the workforce booking detail page header into a compact breadcrumb, clear title and grouped navigation/refresh actions.
+- [x] Reorganized appointment, customer, vehicle, branch, assigned staff and duration information into a responsive summary.
+- [x] Established a two-column desktop operational workspace that collapses to tablet/mobile layouts.
+- [x] Kept the existing attendance, quotation, work-estimate, timing, rescheduling, alternative-time and confirmation components and their existing permission/business logic.
+- [x] Changed background-refresh presentation so the last verified booking remains visible; the record becomes inert during refresh errors or permission verification, preventing edits against stale data while preserving mounted form state.
+- [ ] Verify the visual result against authenticated staging at all required viewport widths.
+- [ ] Add/complete focused workforce detail browser coverage for refresh draft preservation, role permissions, attendance, quotation and timing workflows.
+- [ ] Run repository formatting, lint, typecheck, focused unit/e2e tests and production build; record exact outcomes before review.
+- [ ] Review the quotation/payment composition and Allie/WhatsApp floating controls in the actual page layout; preserve their shared implementations and payment controls.
+- [ ] Capture desktop, tablet and mobile screenshots and update the quality register with evidence.
+
+This is an implementation checkpoint only. It is not a completed acceptance or release. No commit, push to a release branch, merge, deployment, production-data mutation or live payment was performed.
