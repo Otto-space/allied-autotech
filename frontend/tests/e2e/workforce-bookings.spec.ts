@@ -149,7 +149,7 @@ test("foreground and background failures hide retained records and retry recover
   );
   await expect(rows(page)).toHaveCount(0);
   state.fail = false;
-  await refresh(page).click();
+  await page.getByRole("button", { name: "Check bookings again" }).click();
   await expect(rows(page)).toHaveCount(25);
   state.fail = true;
   await page.evaluate(() => window.dispatchEvent(new Event("online")));

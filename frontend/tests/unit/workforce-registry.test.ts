@@ -56,6 +56,30 @@ function access(template: keyof typeof workforceTemplates): WorkforceAccess {
   });
 }
 describe("maintained workforce route and scope policy", () => {
+  it("groups policies without changing role visibility or duplicating destinations", () => {
+    const expected = [
+      "/admin/finance-policy",
+      "/admin/delivery-policy",
+      "/admin/reservation-terms",
+      "/admin/refund-timing",
+      "/admin/complaint-policy",
+      "/admin/dispute-policy",
+      "/admin/retention-policy",
+    ];
+    for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"] as const) {
+      const groups = dashboardNavigation(role);
+      const policies = groups.find((group) => group.id === "policies");
+      expect(policies?.label).toBe("Policies & Guidelines");
+      expect(policies?.links.map((link) => link.href)).toEqual(
+        role === "SUPER_ADMIN" ? expected : ["/admin/finance-policy"],
+      );
+      const allLinks = groups.flatMap((group) => group.links.map((link) => link.href));
+      expect(new Set(allLinks).size).toBe(allLinks.length);
+    }
+    expect(dashboardNavigation("CUSTOMER").some((group) => group.id === "policies")).toBe(
+      false,
+    );
+  });
   it("offers one People entry while retaining the older administrator boundary and denying title-only workers", () => {
     const owner = dashboardNavigation("SUPER_ADMIN")
       .flatMap((group) => group.links)

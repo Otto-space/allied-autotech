@@ -11,7 +11,7 @@ test("customer identity cards remain readable at tablet and laptop widths", asyn
   page,
 }) => {
   const f = await workCustomersFixture(page);
-  for (const width of [768, 850, 1024]) {
+  for (const width of [375, 768, 850, 1024, 1100, 1280]) {
     await page.setViewportSize({ width, height: 900 });
     await open(page);
     expect(
@@ -20,7 +20,14 @@ test("customer identity cards remain readable at tablet and laptop widths", asyn
         .evaluate(
           (element) => getComputedStyle(element).gridTemplateColumns.split(" ").length,
         ),
-    ).toBe(width <= 850 ? 1 : 2);
+    ).toBe(width <= 1100 ? 1 : 2);
+    expect(
+      await page
+        .locator(".wc-filter-grid")
+        .evaluate(
+          (element) => getComputedStyle(element).gridTemplateColumns.split(" ").length,
+        ),
+    ).toBe(width <= 1100 ? (width <= 360 ? 1 : 2) : 4);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);

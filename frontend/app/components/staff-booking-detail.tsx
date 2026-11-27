@@ -481,7 +481,7 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
           className="button secondary"
           disabled={booking.loading || booking.refreshing || !!proposal}
           onClick={() => {
-            booking.refresh();
+            booking.revalidate();
             access.refresh();
           }}
         >
@@ -512,6 +512,12 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
         </section>
       )}
       {booking.loading && current && <p role="status">Checking booking...</p>}
+      {current && !booking.loading && (booking.refreshing || access.refreshing) && (
+        <p className="booking-detail-notice" role="status">
+          Updating booking details. Your record stays visible while we check for changes;
+          editing resumes when the check finishes.
+        </p>
+      )}
       {current &&
         !booking.loading &&
         !booking.refreshing &&

@@ -796,7 +796,7 @@
 /* Operational pages retain their existing data and permission boundaries. */
 .dashboard {
   /* Give record tables and long form labels room while keeping full navigation. */
-  grid-template-columns: 224px minmax(0, 1fr);
+  grid-template-columns: 208px minmax(0, 1fr);
   font-size: 14px;
 }
 .dashboard-main {
@@ -1127,9 +1127,9 @@
   gap: 8px 14px;
 }
 .copy-control .button {
-  min-height: 36px;
+  min-height: 44px;
   font-size: 13px;
-  padding: 7px 12px;
+  padding: 10px 12px;
 }
 .copy-control [role="status"] {
   font-size: 12px;
@@ -1571,6 +1571,6 @@
 }
 
 .dashboard-content summary {
-  min-height: 40px;
+  min-height: 44px;
   padding-block: 10px;
 }

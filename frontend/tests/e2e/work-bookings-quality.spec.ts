@@ -24,6 +24,16 @@ for (const width of [
           .evaluate((element) => getComputedStyle(element).display),
       ).toBe(width <= 1200 ? "block" : "table");
     }
+    if ([768, 844].includes(width)) {
+      expect(
+        await page
+          .locator(rows)
+          .first()
+          .evaluate(
+            (element) => getComputedStyle(element).gridTemplateColumns.split(" ").length,
+          ),
+      ).toBe(1);
+    }
     await expect(
       page.getByRole("navigation", { name: "Breadcrumb", exact: true }),
     ).toHaveCount(1);

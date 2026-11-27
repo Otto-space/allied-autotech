@@ -87,7 +87,9 @@ export function DashboardShell({
     session?.workforceManaged ? "/staff/workforce/access" : null,
     parseWorkforceAccess,
   );
-  useWorkforceRefresh(workforce.refresh, workforce.data);
+  // Routine checks preserve mounted forms. Explicit access changes still use
+  // the strict foreground refresh below.
+  useWorkforceRefresh(workforce.revalidate, workforce.data);
   // Retain a mounted workspace while a fresh check is pending. It stays hidden
   // and inert until verified; failures and scope changes still discard it.
   const retainedWorkforce =
@@ -528,7 +530,9 @@ export function DashboardShell({
             ) && (
               <p className="notice" role="status">
                 Your existing records remain available.{" "}
-                {!checkoutEnabled ? "New online payments are unavailable. " : ""}
+                {!checkoutEnabled
+                  ? "Regular online payments are unavailable. Any previously confirmed payment remains recorded. "
+                  : ""}
                 {!bookingRequestsEnabled
                   ? "New booking requests and appointment changes are unavailable. "
                   : ""}

@@ -157,10 +157,10 @@
 }
 
 .dashboard .dashboard-content .workflow-progress {
-  padding: clamp(0.75rem, 1.5vw, 1rem);
+  padding: clamp(0.875rem, 2vw, 1.4rem);
   margin-block: 1rem;
-  border-color: transparent;
-  background: transparent;
+  border-color: #e6dfe0;
+  background: linear-gradient(145deg, #fff 0%, #fcf8f8 100%);
 }
 .dashboard .dashboard-content .support-delivery {
   padding: clamp(1rem, 2vw, 1.5rem);

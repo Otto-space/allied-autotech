@@ -12,6 +12,13 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
     await expect(
       page.getByRole("heading", { name: "AA-ORD-2041", exact: true }),
     ).toBeVisible();
+    if (width <= 600)
+      expect(
+        await page
+          .locator(".order-table tbody tr")
+          .first()
+          .evaluate((row) => getComputedStyle(row).gridTemplateColumns.split(" ").length),
+      ).toBe(1);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);

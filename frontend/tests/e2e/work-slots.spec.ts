@@ -2,6 +2,31 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { workSlotsFixture, bookingId } from "../fixtures/work-slots";
 
+test("appointment slots keep readable record labels beside the open sidebar", async ({
+  page,
+}) => {
+  await workSlotsFixture(page);
+  for (const width of [375, 768, 900, 1024, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/admin/booking-slots");
+    await expect(page.locator(".work-slot-table tbody tr").first()).toBeVisible();
+    const advancedFilters = page
+      .locator("summary")
+      .filter({ hasText: "Branch, service & staff filters" });
+    expect((await advancedFilters.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+    const cards = width <= 1100;
+    expect(
+      await page
+        .locator(".work-slot-table tbody tr")
+        .first()
+        .evaluate((row) => getComputedStyle(row).display),
+    ).toBe(cards ? "block" : "table-row");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+});
+
 test("filters preserve Lagos boundaries, scope and browser traversal", async ({
   page,
 }) => {

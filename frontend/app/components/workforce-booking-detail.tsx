@@ -15,6 +15,7 @@ import {
   bookingStatusLabels,
 } from "@/lib/admin/workforce-bookings";
 import { sameWorkforceScope } from "@/lib/admin/workforce-overview";
+import { showWorkforceBookingRecord } from "@/lib/admin/workforce-booking-visibility";
 import { formatBusinessDate } from "@/lib/format/date";
 import { NotificationRecordContext } from "./notification-record-context";
 import { Feedback } from "./feedback";
@@ -42,19 +43,19 @@ export function WorkforceBookingDetail({
   const [minimumVersion, setMinimumVersion] = useState(0);
   const [message, setMessage] = useState<string>();
   const [resourceNote, setResourceNote] = useState("");
-  const error =
-    record.error ||
-    record.refreshError ||
-    (record.data && !sameWorkforceScope(access, record.data.access)
-      ? "Your responsibilities changed. Refresh to check current access."
-      : undefined);
-  const row =
-    !record.loading &&
-    !record.refreshing &&
-    !error &&
-    (record.data?.row.version ?? -1) >= minimumVersion
-      ? record.data?.row
-      : undefined;
+  const scopeChanged = !!record.data && !sameWorkforceScope(access, record.data.access);
+  const error = scopeChanged
+    ? "Your responsibilities changed. Refresh to check current access."
+    : record.error;
+  const temporarilyUnavailable = record.refreshing || !!record.refreshError;
+  const row = showWorkforceBookingRecord({
+    loading: record.loading || !!record.error,
+    scopeChanged,
+    version: record.data?.row.version,
+    minimumVersion,
+  })
+    ? record.data?.row
+    : undefined;
   return (
     <div className="workforce-bookings workforce-booking-detail">
       <Link className="button secondary" href="/admin/workforce/bookings">
@@ -71,13 +72,23 @@ export function WorkforceBookingDetail({
       >
         Refresh booking
       </button>
-      <Feedback message={error} />
+      <Feedback message={error || record.refreshError} />
       <Feedback message={message} tone="success" />
-      {(record.loading || record.refreshing) && (
-        <p role="status">Checking permitted booking…</p>
+      {(record.loading || temporarilyUnavailable) && (
+        <p role="status">
+          {record.refreshError
+            ? "Booking verification failed. Retry before continuing work."
+            : record.loading
+              ? "Checking permitted booking…"
+              : "Updating booking details…"}
+        </p>
       )}
       {row && (
-        <>
+        <div
+          className="workforce-booking-detail-content"
+          hidden={temporarilyUnavailable}
+          inert={temporarilyUnavailable}
+        >
           <NotificationRecordContext resourceType="BOOKING" resourceId={row.id} />
           <section className="card" aria-label="Booking appointment">
             <h2>{row.service?.name ?? "Vehicle concern"}</h2>
@@ -267,7 +278,7 @@ export function WorkforceBookingDetail({
                 }}
               />
             )}
-        </>
+        </div>
       )}
     </div>
   );

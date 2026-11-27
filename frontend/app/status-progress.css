@@ -23,10 +23,10 @@
 
 .workflow-progress {
   margin: 1rem 0;
-  padding: 1rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 0.75rem;
-  background: #fff;
+  padding: clamp(0.875rem, 2vw, 1.4rem);
+  border: 1px solid #e6dfe0;
+  border-radius: 1rem;
+  background: linear-gradient(145deg, #fff 0%, #fcf8f8 100%);
   color: #1e293b;
   min-width: 0;
 }
@@ -38,35 +38,54 @@
   margin: 0 0 1rem;
   font-weight: 700;
 }
+.workflow-progress-position {
+  margin-inline-start: auto;
+  color: #475569;
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
 .workflow-stages {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: 0.5rem;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 .workflow-stages li {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.3rem;
-  padding: 0.65rem;
-  border-top: 3px solid #cbd5e1;
+  gap: 0.45rem;
+  padding: 0.875rem 0.75rem;
+  border: 1px solid #e6dfe0;
+  border-top: 4px solid #cbd5e1;
+  border-radius: 0.65rem;
+  background: #fff;
   color: #475569;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.workflow-stages li[data-position="earlier"] {
+  border-top-color: #64748b;
+  background: #f1f5f9;
+  color: #334155;
 }
 .workflow-stages li[aria-current="step"] {
-  border-color: var(--status-ink, #b51218);
+  border: 1px solid var(--status-ink, #b51218);
+  border-top: 4px solid var(--status-ink, #b51218);
   background: var(--status-fill, #fff0f1);
-  color: var(--status-ink, #1e3a8a);
-  border-radius: 0.3rem;
+  color: var(--status-ink, #84202a);
+  box-shadow: 0 4px 14px rgb(73 10 17 / 8%);
+  font-weight: 700;
 }
 .workflow-stage-dot {
-  width: 0.65rem;
-  height: 0.65rem;
+  width: 0.75rem;
+  height: 0.75rem;
   border: 2px solid currentColor;
   border-radius: 50%;
+  flex: none;
 }
 [aria-current="step"] .workflow-stage-dot {
   background: currentColor;
@@ -90,15 +109,26 @@
   font-size: 0.8125rem;
 }
 @media (max-width: 480px) {
+  .workflow-progress-position {
+    margin-inline-start: 0;
+    flex-basis: 100%;
+  }
   .workflow-stages {
     grid-template-columns: 1fr;
   }
   .workflow-stages li {
-    border-top: 0;
-    border-left: 3px solid #cbd5e1;
+    border-top: 1px solid #d9dfe5;
+    border-left: 4px solid #cbd5e1;
     flex-direction: row;
     align-items: center;
     gap: 0.5rem;
+  }
+  .workflow-stages li[data-position="earlier"] {
+    border-left-color: #64748b;
+  }
+  .workflow-stages li[aria-current="step"] {
+    border-top: 1px solid var(--status-ink, #b51218);
+    border-left: 4px solid var(--status-ink, #b51218);
   }
   .workflow-stage-dot {
     flex-shrink: 0;

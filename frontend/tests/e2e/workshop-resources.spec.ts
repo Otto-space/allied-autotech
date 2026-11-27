@@ -8,6 +8,25 @@ test.beforeEach(async ({ request, page }) => {
   await bookingRuntimeCapabilities(request, page);
 });
 const root = `/admin/booking-resources?branch=${id(1)}`;
+test("resource form fields stack before narrow laptop widths cause cramped controls", async ({
+  page,
+}) => {
+  const state = await resourceEditorFixture(page);
+  for (const width of [375, 768, 900, 1024, 1280]) {
+    await page.setViewportSize({ width, height: 920 });
+    await page.goto(root);
+    const period = page.locator(".resource-period").first();
+    await expect(period).toBeVisible();
+    const columns = await period.evaluate(
+      (element) => getComputedStyle(element).gridTemplateColumns.split(" ").length,
+    );
+    expect(columns).toBe(width <= 1050 ? 1 : 3);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+  expect(state.writes).toEqual([]);
+});
 async function approval(page: Page) {
   await page
     .getByLabel("Approval source", { exact: true })

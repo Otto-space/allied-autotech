@@ -6,6 +6,25 @@ import {
   capacityId,
 } from "../fixtures/work-booking-capacity";
 const root = `/admin/booking-capacity?branch=${capacityId(1)}`;
+test("capacity edit fields have enough room at phone and narrow laptop widths", async ({
+  page,
+}) => {
+  const state = await workCapacityFixture(page);
+  for (const width of [375, 768, 900, 1024, 1280]) {
+    await page.setViewportSize({ width, height: 920 });
+    await page.goto(root);
+    const fields = page.locator(".capacity-fields").first();
+    await expect(fields).toBeVisible();
+    const columns = await fields.evaluate(
+      (element) => getComputedStyle(element).gridTemplateColumns.split(" ").length,
+    );
+    expect(columns).toBe(width <= 800 ? 1 : 2);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+  expect(state.writes).toEqual([]);
+});
 const reviewButton = (page: Page) =>
   page.getByRole("button", { name: "Review capacity approval", exact: true });
 

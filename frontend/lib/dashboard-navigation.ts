@@ -133,7 +133,6 @@ const operationalGroups: DashboardGroup[] = [
       adminOnly("/admin/fitment", "Fitment evidence & review"),
       adminOnly("/admin/categories", "Product categories"),
       adminOnly("/admin/promotions", "Promotions"),
-      { href: "/admin/delivery-policy", label: "Delivery setup", roles: ["SUPER_ADMIN"] },
     ],
   },
   {
@@ -144,11 +143,6 @@ const operationalGroups: DashboardGroup[] = [
       { href: "/admin/vehicles", label: "Vehicle stock" },
       { href: "/admin/inspections", label: "Vehicle inspections" },
       { href: "/admin/vehicle-sales", label: "Vehicle sales" },
-      {
-        href: "/admin/reservation-terms",
-        label: "Reservation agreements",
-        roles: ["SUPER_ADMIN"],
-      },
     ],
   },
   {
@@ -181,12 +175,6 @@ const operationalGroups: DashboardGroup[] = [
         roles: [],
         capabilitiesAny: ["DISPUTE_MANAGE"],
       },
-      { href: "/admin/finance-policy", label: "Financial policy" },
-      {
-        href: "/admin/refund-timing",
-        label: "Bank refund timing",
-        roles: ["SUPER_ADMIN"],
-      },
     ],
   },
   {
@@ -218,6 +206,27 @@ const operationalGroups: DashboardGroup[] = [
       { href: "/admin/profile", label: "My profile" },
       { href: "/admin/security", label: "My account security" },
       { href: "/admin/notifications", label: "Notifications" },
+      adminOnly("/admin/branches", "Branches"),
+      adminOnly("/admin/processing-jobs", "Processing jobs"),
+    ],
+  },
+  {
+    id: "policies",
+    label: "Policies & Guidelines",
+    icon: Settings,
+    links: [
+      { href: "/admin/finance-policy", label: "Financial policy" },
+      { href: "/admin/delivery-policy", label: "Delivery setup", roles: ["SUPER_ADMIN"] },
+      {
+        href: "/admin/reservation-terms",
+        label: "Reservation agreements",
+        roles: ["SUPER_ADMIN"],
+      },
+      {
+        href: "/admin/refund-timing",
+        label: "Bank refund timing",
+        roles: ["SUPER_ADMIN"],
+      },
       {
         href: "/admin/complaint-policy",
         label: "Complaint policy",
@@ -229,8 +238,6 @@ const operationalGroups: DashboardGroup[] = [
         label: "Retention policy",
         roles: ["SUPER_ADMIN"],
       },
-      adminOnly("/admin/branches", "Branches"),
-      adminOnly("/admin/processing-jobs", "Processing jobs"),
     ],
   },
 ];

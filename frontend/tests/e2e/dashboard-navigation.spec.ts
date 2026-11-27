@@ -56,7 +56,7 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
     });
     await expect(nav).toBeVisible();
     expect(await nav.locator(":scope > a, :scope > details").count()).toBe(
-      role === "CUSTOMER" || role === "STAFF" ? 7 : 8,
+      role === "CUSTOMER" ? 7 : role === "STAFF" ? 8 : 9,
     );
     await expect(nav.locator("details[open]")).toHaveCount(0);
     const search = page.getByRole("searchbox", { name: "Search dashboard pages" });
@@ -174,7 +174,7 @@ test("expanded sidebar leaves room for desktop records and mobile support stays 
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.goto("/dashboard");
   const dashboard = page.locator(".dashboard");
-  await expect(dashboard).toHaveCSS("grid-template-columns", /224px/);
+  await expect(dashboard).toHaveCSS("grid-template-columns", /208px/);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
@@ -314,7 +314,7 @@ for (const evictHiddenFocus of [false, true])
       await expect(
         page.getByRole("dialog", { name: "Dashboard navigation" }),
       ).toBeHidden();
-      await expect(page.locator(".sidebar")).toHaveCSS("width", "224px");
+      await expect(page.locator(".sidebar")).toHaveCSS("width", "208px");
     }
   });
 

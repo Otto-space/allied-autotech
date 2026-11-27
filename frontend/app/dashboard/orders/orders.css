@@ -407,7 +407,7 @@
     padding-inline: 0;
   }
   .customer-orders tr {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px 16px;
     padding: 18px;
   }

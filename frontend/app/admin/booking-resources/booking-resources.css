@@ -28,8 +28,8 @@
 .resource-panel {
   background: #fff;
   border: 1px solid #d8e1eb;
-  border-radius: 8px;
-  padding: 24px;
+  border-radius: 14px;
+  padding: clamp(16px, 2vw, 24px);
   margin: 20px 0;
   box-shadow: 0 4px 14px #01121a08;
   min-width: 0;
@@ -98,7 +98,7 @@
 .workshop-resources .resource-row {
   border: 1px solid #d8e1eb;
   padding: 18px;
-  border-radius: 6px;
+  border-radius: 12px;
   margin: 20px 0;
 }
 .resource-period {
@@ -148,12 +148,16 @@
 .resource-recovery {
   border-left: 4px solid #b85a00;
 }
-@media (max-width: 640px) {
+@media (max-width: 1050px) {
+  .resource-period {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 800px) {
   .resource-panel {
     padding: 16px;
   }
-  .resource-grid,
-  .resource-period {
+  .resource-grid {
     grid-template-columns: minmax(0, 1fr);
   }
   .workshop-resources .resource-row {

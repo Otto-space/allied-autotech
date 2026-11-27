@@ -403,6 +403,47 @@
     grid-template-columns: 1fr;
   }
 }
+/* Work-order evidence and totals need labelled rows before the sidebar compresses the table. */
+@media (max-width: 1100px) {
+  .dashboard .dashboard-content .work-booking-detail #booking-progress form,
+  .dashboard .dashboard-content .work-booking-detail .booking-detail-work > form,
+  .work-booking-detail .booking-detail-disruption form {
+    grid-template-columns: 1fr;
+  }
+  .work-booking-detail .service-line-table {
+    overflow: visible;
+    border: 0;
+  }
+  .work-booking-detail .service-line-table table,
+  .work-booking-detail .service-line-table tbody {
+    display: block;
+  }
+  .work-booking-detail .service-line-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .work-booking-detail .service-line-table tr {
+    display: block;
+    border-block: 1px solid #cfdae2;
+    margin-bottom: 12px;
+  }
+  .work-booking-detail .service-line-table td {
+    display: grid;
+    grid-template-columns: minmax(90px, 30%) minmax(0, 1fr);
+    gap: 10px;
+    max-width: none !important;
+    padding: 8px 0;
+    text-align: left;
+  }
+  .work-booking-detail .service-line-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #465965;
+  }
+}
 @media (max-width: 800px) {
   .dashboard .dashboard-content .work-booking-detail h1 {
     font-size: 24px;
@@ -455,43 +496,8 @@
   .dashboard .dashboard-content .work-booking-detail .detail-section {
     padding: 16px;
   }
-  .dashboard .dashboard-content .work-booking-detail #booking-progress form,
-  .dashboard .dashboard-content .work-booking-detail .booking-detail-work > form,
-  .work-booking-detail .booking-detail-disruption form {
-    grid-template-columns: 1fr;
-  }
-  .work-booking-detail .service-line-table {
-    overflow: visible;
-    border: 0;
-  }
-  .work-booking-detail .service-line-table table,
-  .work-booking-detail .service-line-table tbody {
-    display: block;
-  }
-  .work-booking-detail .service-line-table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .work-booking-detail .service-line-table tr {
-    display: block;
-    border-block: 1px solid #cfdae2;
-    margin-bottom: 12px;
-  }
   .work-booking-detail .service-line-table td {
-    display: grid;
     grid-template-columns: 90px minmax(0, 1fr);
-    gap: 10px;
-    max-width: none !important;
-    padding: 8px 0;
-    text-align: left;
-  }
-  .work-booking-detail .service-line-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #465965;
   }
   .work-booking-detail .mutation-review .actions {
     flex-wrap: wrap;

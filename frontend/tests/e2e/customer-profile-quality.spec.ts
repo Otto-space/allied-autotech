@@ -37,6 +37,10 @@ for (const [width, height] of [
       await expect(
         page.getByRole("heading", { name: "Your profile", exact: true }),
       ).toBeVisible();
+      expect(
+        (await page.getByRole("button", { name: "Refresh profile" }).boundingBox())
+          ?.height,
+      ).toBeGreaterThanOrEqual(44);
       await expect(page.getByLabel("First name", { exact: true })).toHaveValue("Amara");
       // Verify the normal fixture's foreground availability read instead of
       // accidentally accepting a malformed fallback as an outage layout.

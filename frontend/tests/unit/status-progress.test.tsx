@@ -21,6 +21,9 @@ describe("workflow progress and delivery clarity", () => {
       expect(container.querySelector('[role="progressbar"]')).toBeNull();
       expect(screen.queryByText(/not a percentage complete/)).toBeNull();
       expect(container.querySelectorAll("[data-completed]")).toHaveLength(0);
+      expect(screen.getByText(`Stage 2 of ${stages.length}`)).toBeTruthy();
+      expect(container.querySelectorAll('[data-position="earlier"]')).toHaveLength(1);
+      expect(container.querySelectorAll('[data-position="current"]')).toHaveLength(1);
     },
   );
   it.each(["CANCELLED", "EXPIRED", "REJECTED", "NO_SHOW", "NEW_SERVER_STATE"])(
@@ -32,6 +35,8 @@ describe("workflow progress and delivery clarity", () => {
       const step = container.querySelector('[aria-current="step"]');
       expect(step?.textContent).not.toContain("Completed");
       expect(progressStages("booking", status).at(-1)).toBe(status);
+      expect(screen.getByText("Needs attention outside the usual stages")).toBeTruthy();
+      expect(container.querySelectorAll('[data-position="earlier"]')).toHaveLength(0);
     },
   );
   it("keeps status readable without colour", () => {

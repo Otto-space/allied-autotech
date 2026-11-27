@@ -58,6 +58,21 @@ test("technician updates only technical fields using the existing review modal",
   await page
     .getByLabel("Diagnosis", { exact: true })
     .fill("Synthetic vibration diagnosis");
+  // Routine access polling must not replace an editor with unsaved work.
+  const diagnosisBeforePoll = await page
+    .getByLabel("Diagnosis", { exact: true })
+    .elementHandle();
+  await page.clock.fastForward(30_100);
+  await expect(page.getByLabel("Diagnosis", { exact: true })).toHaveValue(
+    "Synthetic vibration diagnosis",
+  );
+  const sameDiagnosisElement = await page
+    .getByLabel("Diagnosis", { exact: true })
+    .evaluate(
+      (element, previousElement) => element === previousElement,
+      diagnosisBeforePoll,
+    );
+  expect(sameDiagnosisElement).toBe(true);
   await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
   await expect(page.getByLabel("Diagnosis", { exact: true })).toHaveValue(
     "Synthetic vibration diagnosis",

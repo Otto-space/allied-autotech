@@ -162,6 +162,17 @@ export function WorkforceBookings({
                 ? "Refresh bookings to check your current access and records together."
                 : "Refresh bookings to check current records. Previous results are hidden until verification succeeds."}
           </p>
+          {!query.invalid && (
+            <button
+              type="button"
+              className="button secondary"
+              disabled={busy}
+              onClick={refresh}
+            >
+              <RefreshCw size={16} aria-hidden="true" />
+              Check bookings again
+            </button>
+          )}
         </section>
       )}
       <section

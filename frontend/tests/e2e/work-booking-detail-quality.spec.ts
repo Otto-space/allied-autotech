@@ -34,7 +34,7 @@ test("work-order lines and operation panels adapt to tablet and laptop widths", 
       await page
         .locator(".service-line-table table")
         .evaluate((element) => getComputedStyle(element).display),
-    ).toBe(width <= 800 ? "block" : "table");
+    ).toBe(width <= 1100 ? "block" : "table");
     if (width <= 1200)
       expect(
         await page
@@ -69,6 +69,33 @@ test("temporary background access failure preserves drafts while blocking review
     page.getByRole("button", { name: "Review draft work order" }),
   ).toBeDisabled();
   expect(state.writes).toEqual([]);
+});
+
+test("held background refresh keeps the booking and unsaved notes visible", async ({
+  page,
+}) => {
+  const { state } = await workBookingDetailFixture(page);
+  await page.goto(route);
+  const notes = page.getByLabel("Internal staff notes");
+  await notes.fill("Keep this technician note while checking for updates.");
+  state.mode = "hold";
+  await page.getByRole("button", { name: "Refresh booking" }).click();
+  await expect(
+    page.getByText(/Updating booking details\. Your record stays visible/),
+  ).toBeVisible();
+  await expect(page.locator(".booking-detail-summary")).toBeVisible();
+  await expect(notes).toHaveValue(
+    "Keep this technician note while checking for updates.",
+  );
+  expect(state.writes).toEqual([]);
+  state.mode = "normal";
+  state.held?.();
+  await expect(
+    page.getByText(/Updating booking details\. Your record stays visible/),
+  ).toHaveCount(0);
+  await expect(notes).toHaveValue(
+    "Keep this technician note while checking for updates.",
+  );
 });
 
 test("long service and line descriptions remain readable on mobile", async ({ page }) => {
