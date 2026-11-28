@@ -73,8 +73,8 @@ it("explains resource allocation, rollback, cleanup and unknown legacy work with
   expect(customer.steps.join(" ")).toContain("Switch between Month");
   expect(customer.steps.join(" ")).toContain("does not offer or reserve new times");
 
-  expect(customer.steps.join(" ")).toContain("a booked vehicle takes priority");
-  expect(customer.steps.join(" ")).toContain("does not change a booking");
+  expect(customer.steps.join(" ")).toContain("Overview prioritises booked vehicles");
+  expect(customer.steps.join(" ")).toContain("changing a default does not change bookings");
   expect(customer.steps.join(" ")).toContain("does not create a payment");
 });
 
