@@ -69,12 +69,12 @@ it("explains resource allocation, rollback, cleanup and unknown legacy work with
   ])
     expect(work).toContain(phrase);
   const customer = learningArticles.find((row) => row.id === "service-request")!;
-  expect(customer.version).toBe(36);
+  expect(customer.version).toBe(37);
   expect(customer.steps.join(" ")).toContain("Switch between Month");
   expect(customer.steps.join(" ")).toContain("does not offer or reserve new times");
 
-  expect(customer.steps.join(" ")).toContain("a booked vehicle takes priority");
-  expect(customer.steps.join(" ")).toContain("does not change a booking");
+  expect(customer.steps.join(" ")).toContain("Overview prioritises booked vehicles");
+  expect(customer.steps.join(" ")).toContain("changing a default does not change bookings");
   expect(customer.steps.join(" ")).toContain("does not create a payment");
 });
 
@@ -90,4 +90,12 @@ it("explains available late alternatives and preserves actual arrival facts", ()
     "without inventing another arrival",
   ])
     expect(text).toContain(phrase);
+});
+
+
+it("distinguishes saved account details from booking submission", () => {
+  const article = learningArticles.find((row) => row.id === "service-request")!;
+  expect(article.steps.join(" ")).toContain(
+    "Vehicle/contact saves update your account and do not submit the booking",
+  );
 });

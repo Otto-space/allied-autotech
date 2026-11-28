@@ -1,4 +1,5 @@
 // Backend-owned corpus. Never import this module into frontend code.
+// Booking guidance must distinguish account-detail saves from explicit booking submission.
 export type LearningGate =
   | "public"
   | "customer"
@@ -518,7 +519,7 @@ export const learningArticles: LearningArticle[] = [
       "Check the current service options and discuss availability with the team.",
       [
         "Open Services and choose a service. A service group describes a broad area, not an individual priced service; it may have no individual services listed yet. Read the group and choose Ask a question. The selected main service is stored as a structured reference, separately from your editable message. This does not price work or confirm a visit. Allie can explain and link the published group; it cannot confirm a price or appointment from the group alone.",
-        "Prepare your vehicle details and concern. Load saved vehicle/contact details when offered. Add a vehicle or edit contacts explicitly; those saves update your account and do not submit the booking. Review the request separately. In your overview, a booked vehicle takes priority, then your garage default or a recently added vehicle. Its saved cover photo remains private. Changing the default does not change a booking or imply work started. Overview can show your recorded first name, open enquiry, issued invoice and order ready for collection, independently of activity-history dates. Open enquiries for replies; Open does not identify who must reply. An invoice total is not a remaining balance: check credits and confirmed payments. Collection readiness uses saved order status. Missing cards create no obligation; summaries do not enable payments.",
+        "Prepare your vehicle details and concern. Load saved vehicle/contact details when offered. Vehicle/contact saves update your account and do not submit the booking. Review the request separately before submitting. Overview prioritises booked vehicles, then garage defaults or recent vehicles; photos remain private, and changing a default does not change bookings or start work. Overview cards summarise enquiries, invoices and order readiness; open each record for its current status. An invoice total is not the remaining balance: check credits and confirmed payments. Collection depends on saved readiness; summaries do not enable payment or collection.",
         "If your booking form offers a concern request, describe it instead of choosing a service. Vehicle concern means unclassified; no service price or confirmed time is implied. A service group follows your draft through sign-in and review. The saved request keeps the original group name despite later catalogue changes; check Requested service group in booking details.",
         "Use enquiry/contact when booking is unavailable. When booking requests are available, unpaid requests do not depend on checkout being available. An availability check does not submit or confirm your draft. After switching tabs or reconnecting, wait for the current availability check before submitting; the server rechecks writes. Choose a branch and offered time, or preferred Lagos time within the booking window. Offers check qualified people, working periods and equipment/shared space, including preparation and cleanup. A listed time is not reserved. With no offer, send a preferred-time request for staff assessment. Availability is checked again when you submit a request for an offered time; the workshop must still confirm it.",
         "When signing in from the booking review, this tab can keep your anonymous draft for 15 minutes. Review it again after sign-in; it is never sent automatically. Logout or an account change clears it.",
@@ -534,8 +535,8 @@ export const learningArticles: LearningArticle[] = [
       "Public launch mode, ServiceDetail, BookingDetail and ServiceOperationsService booking lifecycle",
       "booking appointment request garage quotation quote",
     ),
-    version: 36,
-    reviewedAt: "2026-11-25",
+    version: 37,
+    reviewedAt: "2026-11-27",
   },
   article(
     "security-basics",

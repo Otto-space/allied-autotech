@@ -14003,3 +14003,52 @@ pending; this is not a live deployment or production verification.
 - Customer profile/mobile navigation source pass: the dashboard drawer already uses a viewport-constrained modal surface with a 44px close button, scrollable navigation and a separate mobile breakpoint; preserve its behavior. Shared copy actions were only 36px high and the profile refresh control dropped to 40px on phones. Increase both to 44px minimum and extend existing profile viewport assertions. Customer profile, vehicle garage and support forms already have responsive grid rules; avoid needless overrides. Browser touch-target acceptance remains pending.
 - Shared feedback and disclosure review: the existing feedback component already provides an error alert/status announcement and avoids unsolicited scroll jumps on passive load failures; no behavioral rewrite is needed. Increase shared dashboard disclosure summaries from a 40px to a 44px minimum touch area and add a multi-viewport slot-filter assertion. Browser execution remains pending.
 - Staff customer-directory laptop pass: the four-filter and two-record-column layout still became cramped at 900–1100px with the expanded sidebar. Extend two-column filters and single-column identity records through 1100px, retaining the desktop grid at 1280px and existing role-based visibility. Expand viewport assertions to 375, 768, 850, 1024, 1100 and 1280px. The browser runner remains unavailable locally; responsive assertions have not been executed.
+
+## 2026-11-27 — Workforce booking detail redesign (implementation checkpoint)
+
+**Scope:** `/admin/workforce/bookings/[bookingId]` — workforce/admin booking detail route.
+
+**Branch:** `codex/workforce-booking-details-redesign-20261127`
+
+### Implemented in source
+
+- Replaced the vertically stacked list link, title and refresh action with a compact breadcrumb, page heading and responsive action toolbar.
+- Added a distinct appointment summary with booking status, scheduled time, service, customer, phone, vehicle, branch, assigned staff and duration.
+- Added responsive desktop two-column operational layout; collapses into a single column on tablet and mobile.
+- Retained existing attendance, attendance history, quotation, work estimate, work review, timing review, reschedule, alternative-time and confirmation components.
+- Preserved the existing permission predicates, workforce scope checks, mutation review flows, optimistic-version gates and API calls.
+- During background refresh or refresh failure, the last verified booking remains mounted and visible but becomes inert. This preserves local form drafts while preventing actions against a record that may be stale. Initial loading, initial read errors, scope changes and minimum-version verification continue to withhold the record.
+
+### Files changed
+
+- `frontend/app/components/workforce-booking-detail.tsx`
+- `frontend/app/components/workforce-bookings.css`
+- `.goals/dashboard-modernization/goal.md`
+- `frontend/docs/UI_UX_QUALITY_REGISTER.md`
+
+### Verification status
+
+| Check                                                  | Status                 |
+| ------------------------------------------------------ | ---------------------- |
+| Source changes written to isolated branch              | Complete               |
+| Permission/business logic preserved by component reuse | Source inspection only |
+| Formatting                                             | Not run                |
+| ESLint                                                 | Not run                |
+| TypeScript                                             | Not run                |
+| Unit tests                                             | Not run                |
+| Playwright role/workflow tests                         | Not run                |
+| Responsive browser verification                        | Not run                |
+| Accessibility audit                                    | Not run                |
+| Production build                                       | Not run                |
+| Staging screenshots                                    | Not captured           |
+
+### Outstanding review
+
+1. Verify at 320, 360, 390, 768, 1024, 1366 and 1440 CSS pixels.
+2. Exercise STAFF, ADMIN and SUPER_ADMIN with existing authenticated fixtures.
+3. Verify refresh and reconnect preserve drafts and that controls remain inert until a fresh, permitted record is verified.
+4. Exercise attendance, quotation author/reviewer separation, payment/deposit presentation, estimate review, rescheduling and confirmation.
+5. Inspect Allie and WhatsApp floating controls in the rendered detail page; no global widget implementation was changed in this checkpoint.
+6. Capture desktop/tablet/mobile screenshots and record results here.
+
+**Release state:** Not committed, not merged, not deployed. No production data or live payment was touched. This checkpoint does not complete the wider dashboard modernization goal.

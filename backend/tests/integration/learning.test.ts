@@ -1,3 +1,4 @@
+// Public guide versions are checked against the published backend corpus.
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../src/app.js";
@@ -226,7 +227,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(appointment.status).toBe(200);
       expect(appointment.body.data).toMatchObject({
         id: "service-request",
-        version: 36,
+        version: 37,
         href: "/services",
       });
       expect(appointment.body.data.steps.join(" ")).toContain(

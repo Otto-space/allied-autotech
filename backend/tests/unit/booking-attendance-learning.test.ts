@@ -1,3 +1,4 @@
+// Keep the service-request version assertion aligned with published guidance updates.
 import { expect, it } from "vitest";
 import { learningArticles } from "../../src/modules/learning/learning.content.js";
 
@@ -5,7 +6,7 @@ it("keeps physical attendance guidance in existing permission gates without impo
   for (const [id, gate, version] of [
     ["booking-confirmation", "booking-confirmation", 15],
     ["assigned-findings", "jobs", 6],
-    ["service-request", "public", 36],
+    ["service-request", "public", 37],
   ] as const) {
     const article = learningArticles.find((row) => row.id === id)!;
     expect(article.gate).toBe(gate);
