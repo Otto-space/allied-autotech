@@ -1,3 +1,4 @@
+// Service-request version checks must follow published guidance revisions.
 import { describe, expect, it } from "vitest";
 import {
   assertAgreedWorkScope,
