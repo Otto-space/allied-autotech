@@ -1,3 +1,4 @@
+// Public guide versions are checked against the published backend corpus.
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../src/app.js";
