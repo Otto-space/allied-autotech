@@ -91,3 +91,11 @@ it("explains available late alternatives and preserves actual arrival facts", ()
   ])
     expect(text).toContain(phrase);
 });
+
+
+it("distinguishes saved account details from booking submission", () => {
+  const article = learningArticles.find((row) => row.id === "service-request")!;
+  expect(article.steps.join(" ")).toContain(
+    "Vehicle/contact saves update your account and do not submit the booking",
+  );
+});
